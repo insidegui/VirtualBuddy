@@ -5,22 +5,22 @@
 	<key>CFBundleDocumentTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vbvm</string>
+			</array>
 			<key>CFBundleTypeName</key>
 			<string>VirtualBuddy VM</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>LSHandlerRank</key>
 			<string>Owner</string>
-			<key>LSTypeIsPackage</key>
-			<true/>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>vbvm</string>
-			</array>
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>codes.rambo.VirtualBuddy.VM</string>
 			</array>
+			<key>LSTypeIsPackage</key>
+			<true/>
 		</dict>
 	</array>
 	<key>UTExportedTypeDeclarations</key>
