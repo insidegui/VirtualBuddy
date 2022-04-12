@@ -99,6 +99,10 @@ struct MacOSVirtualMachineConfigurationHelper {
         return _VZMacTrackpadConfiguration()
     }
     
+    func createPointingDeviceConfiguration2() -> VZPointingDeviceConfiguration {
+        return VZUSBScreenCoordinatePointingDeviceConfiguration()
+    }
+    
     func createMultiTouchDeviceConfiguration() -> _VZMultiTouchDeviceConfiguration {
         return _VZAppleTouchScreenConfiguration()
     }

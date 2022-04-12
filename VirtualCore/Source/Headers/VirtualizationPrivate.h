@@ -9,6 +9,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface _VZFramebuffer: NSObject
+
+- (void)takeScreenshotWithCompletionHandler:(void(^)(NSImage *__nullable screenshot, NSError *__nullable error))completion;
+
+@end
+
+@interface _VZGraphicsDevice: NSObject
+
+- (NSInteger)type;
+- (NSArray <_VZFramebuffer *> *)framebuffers;
+
+@end
+
 @interface _VZMultiTouchDeviceConfiguration: NSObject <NSCopying>
 @end
 
@@ -60,6 +73,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)_attachUSBDevice:(id)arg1 error:(void *)arg2;
 - (BOOL)_detachUSBDevice:(id)arg1 error:(void *)arg2;
 - (void)_getUSBControllerLocationIDWithCompletionHandler:(void(^)(id val))arg1;
+
+@property (nonatomic, readonly) NSArray <_VZGraphicsDevice *> *_graphicsDevices;
 
 @end
 

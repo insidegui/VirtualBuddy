@@ -42,193 +42,87 @@ public final class VMController: ObservableObject {
     private var isLoadingNVRAM = false
     
     @Published
-    public var virtualMachineModel: VBVirtualMachine {
-        didSet {
-            precondition(oldValue.id == virtualMachineModel.id, "Can't change the virtual machine identity after initializing the controller")
-            
-            if !isLoadingNVRAM, oldValue.NVRAM != virtualMachineModel.NVRAM {
-                updateNVRAM()
-            }
-        }
-    }
+    public var virtualMachineModel: VBVirtualMachine
     
     public init(with vm: VBVirtualMachine) {
         self.virtualMachineModel = vm
-        
-        isLoadingNVRAM = true
-        loadNVRAM()
-        DispatchQueue.main.async { self.isLoadingNVRAM = false }
     }
 
-    // MARK: Create the Mac Platform Configuration
-
-    private func createMacPlaform() -> VZMacPlatformConfiguration {
-        let macPlatform = VZMacPlatformConfiguration()
-
-        let auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: virtualMachineModel.auxiliaryStorageURL)
-        macPlatform.auxiliaryStorage = auxiliaryStorage
-
-        if !FileManager.default.fileExists(atPath: virtualMachineModel.bundleURL.path) {
-            fatalError("Missing Virtual Machine Bundle at \(virtualMachineModel.bundleURL.path). Run InstallationTool first to create it.")
-        }
-
-        // Retrieve the hardware model; you should save this value to disk during installation.
-        guard let hardwareModelData = try? Data(contentsOf: virtualMachineModel.hardwareModelURL) else {
-            fatalError("Failed to retrieve hardware model data.")
-        }
-
-        guard let hardwareModel = VZMacHardwareModel(dataRepresentation: hardwareModelData) else {
-            fatalError("Failed to create hardware model.")
-        }
-
-        if !hardwareModel.isSupported {
-            fatalError("The hardware model is not supported on the current host")
-        }
-        macPlatform.hardwareModel = hardwareModel
-
-        // Retrieve the machine identifier; you should save this value to disk during installation.
-        guard let machineIdentifierData = try? Data(contentsOf: virtualMachineModel.machineIdentifierURL) else {
-            fatalError("Failed to retrieve machine identifier data.")
-        }
-
-        guard let machineIdentifier = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
-            fatalError("Failed to create machine identifier.")
-        }
-        macPlatform.machineIdentifier = machineIdentifier
-
-        return macPlatform
-    }
-
-    // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
-
-    private var configuration: VZVirtualMachineConfiguration {
-        let helper = MacOSVirtualMachineConfigurationHelper(vm: virtualMachineModel)
-        let c = VZVirtualMachineConfiguration()
-
-        c.platform = createMacPlaform()
-        c.bootLoader = helper.createBootLoader()
-        c.cpuCount = helper.computeCPUCount()
-        c.memorySize = helper.computeMemorySize()
-        c.graphicsDevices = [helper.createGraphicsDeviceConfiguration()]
-        c.storageDevices = [
-            helper.createBlockDeviceConfiguration()
-        ]
-        if let additionalBlockDevice = helper.createAdditionalBlockDevice() {
-            c.storageDevices.append(additionalBlockDevice)
-        }
-        c.networkDevices = [helper.createNetworkDeviceConfiguration()]
-        c.pointingDevices = [helper.createPointingDeviceConfiguration()]
-        c.keyboards = [helper.createKeyboardConfiguration()]
-        c.audioDevices = [helper.createAudioDeviceConfiguration()]
-        c._multiTouchDevices = [helper.createMultiTouchDeviceConfiguration()]
-        
-        return c
-    }
+    private var instance: VMInstance?
     
-    private func createVirtualMachine() {
-        let config = configuration
-
-        try! config.validate()
-
-        virtualMachine = VZVirtualMachine(configuration: config)
-    }
-    
-    private var vmDelegate: MacOSVirtualMachineDelegate?
-    
-    private var startOptions: _VZVirtualMachineStartOptions {
-        let opts = _VZVirtualMachineStartOptions()
-        opts.bootMacOSRecovery = options.bootInRecoveryMode
-        return opts
-    }
-    
-    private var hookingPoint: VBObjCHookingPoint?
-    
-    public func startVM() async throws {
-        state = .starting
-        
-        let vm = try ensureVM()
-        
-        hookingPoint = VBObjCHookingPoint(vm: vm)
-        
-        vmDelegate = MacOSVirtualMachineDelegate(onVMStop: { [weak self] error in
+    private func createInstance() throws -> VMInstance {
+        let newInstance = VMInstance(with: virtualMachineModel, onVMStop: { [weak self] error in
             self?.state = .stopped(error)
         })
         
-        vm.delegate = vmDelegate
+        return newInstance
+    }
+
+    public func startVM() async {
+        state = .starting
         
-        hookingPoint?.hook()
-        
-        try await vm._start(with: startOptions)
-        
-        state = .running(vm)
+        do {
+            let newInstance = try createInstance()
+            self.instance = newInstance
+
+            try await newInstance.startVM()
+            let vm = try newInstance.virtualMachine
+            
+            state = .running(vm)
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
+                Task {
+                    let shot = try await newInstance.takeScreenshot()
+                    print(shot)
+                }
+            }
+        } catch {
+            state = .stopped(error)
+        }
     }
     
     public func pause() async throws {
-        let vm = try ensureVM()
+        let instance = try ensureInstance()
         
-        try await vm.pause()
+        try await instance.pause()
+        let vm = try instance.virtualMachine
         
         state = .paused(vm)
     }
     
     public func resume() async throws {
-        let vm = try ensureVM()
+        let instance = try ensureInstance()
         
-        try await vm.resume()
+        try await instance.resume()
+        let vm = try instance.virtualMachine
         
         state = .running(vm)
     }
     
     public func stop() async throws {
-        let vm = try ensureVM()
+        let instance = try ensureInstance()
         
-        try vm.requestStop()
+        try await instance.stop()
         
         state = .stopped(nil)
     }
     
     public func forceStop() async throws {
-        let vm = try ensureVM()
+        let instance = try ensureInstance()
         
-        try await vm.stop()
+        try await instance.forceStop()
         
         state = .stopped(nil)
     }
     
-    private func ensureVM() throws -> VZVirtualMachine {
-        guard let vm = virtualMachine else {
-            let e = CocoaError(.executableLoad)
-            
-            state = .stopped(e)
-            
-            throw e
+    private func ensureInstance() throws -> VMInstance {
+        guard let instance = instance else {
+            throw CocoaError(.validationMissingMandatoryProperty)
         }
         
-        return vm
+        return instance
     }
-    
-    /// Called when the `VBVirtualMachine` has updated NVRAM variables.
-    private func updateNVRAM() {
-        logger.debug(#function)
-        
-        do {
-            try virtualMachineModel.NVRAM.forEach { variable in
-                try configuration.updateNVRAM(variable)
-            }
-        } catch {
-            logger.fault("Failed to write NVRAM: \(String(describing: error), privacy: .public)")
-        }
-    }
-    
-    private func loadNVRAM() {
-        do {
-            let vars = try configuration.fetchNVRAMVariables()
-            self.virtualMachineModel.NVRAM = vars
-        } catch {
-            logger.fault("Failed to read NVRAM: \(String(describing: error), privacy: .public)")
-        }
-    }
-    
+
 }
 
 public extension VMController {

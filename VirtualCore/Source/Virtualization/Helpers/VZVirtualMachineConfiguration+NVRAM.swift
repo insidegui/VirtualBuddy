@@ -14,21 +14,11 @@ public struct Failure: LocalizedError {
     init(_ msg: String) { self.errorDescription = msg }
 }
 
-public extension VZVirtualMachineConfiguration {
-    
-    internal var macStorage: VZMacAuxiliaryStorage {
-        get throws {
-            guard let storage = (platform as? VZMacPlatformConfiguration)?.auxiliaryStorage else {
-                throw Failure("This VM doesn't have storage for NVRAM variables")
-            }
-            
-            return storage
-        }
-    }
-    
+public extension VZMacAuxiliaryStorage {
+
     func fetchNVRAMVariables() throws -> [VBNVRAMVariable] {
         var error: NSError?
-        let variables = try macStorage._allNVRAMVariablesWithError(&error)
+        let variables = _allNVRAMVariablesWithError(&error)
         
         if let error = error { throw error }
         
@@ -37,12 +27,10 @@ public extension VZVirtualMachineConfiguration {
     }
     
     func updateNVRAM(_ variable: VBNVRAMVariable) throws {
-        let storage = try macStorage
-        
         if let value = variable.value {
-            try storage._setValue(value, forNVRAMVariableNamed: variable.name)
+            try _setValue(value, forNVRAMVariableNamed: variable.name)
         } else {
-            try storage._removeNVRAMVariableNamed(variable.name)
+            try _removeNVRAMVariableNamed(variable.name)
         }
     }
     

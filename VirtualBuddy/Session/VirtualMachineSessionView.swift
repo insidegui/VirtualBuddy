@@ -72,9 +72,7 @@ struct VirtualMachineSessionView: View {
     private var circularStartButton: some View {
         Button {
             if controller.canStart {
-                Task {
-                    try await controller.startVM()
-                }
+                Task { await controller.startVM() }
             } else if controller.canResume {
                 Task {
                     try await controller.resume()
