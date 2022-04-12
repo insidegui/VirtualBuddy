@@ -44,7 +44,13 @@ public final class VMLibraryController: ObservableObject {
         while let url = enumerator.nextObject() as? URL {
             guard url.pathExtension == VBVirtualMachine.bundleExtension else { continue }
             
-            vms.append(VBVirtualMachine(bundleURL: url))
+            do {
+                let machine = try VBVirtualMachine(bundleURL: url)
+                
+                vms.append(machine)
+            } catch {
+                assertionFailure("Failed to construct VM model: \(error)")
+            }
         }
         
         self.state = .loaded(vms)

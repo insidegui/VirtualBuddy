@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct VBNVRAMVariable: Identifiable, Hashable {
+public struct VBNVRAMVariable: Identifiable, Hashable, Codable {
     public var id: String { name }
     public let name: String
     public var value: String?
