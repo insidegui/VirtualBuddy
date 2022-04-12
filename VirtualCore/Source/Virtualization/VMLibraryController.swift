@@ -7,6 +7,7 @@
 
 import Foundation
 
+@MainActor
 public final class VMLibraryController: ObservableObject {
     
     public enum State {
@@ -19,7 +20,9 @@ public final class VMLibraryController: ObservableObject {
     
     private var virtualMachines: [VBVirtualMachine] = []
     
-    public init() {
+    public static let shared = VMLibraryController()
+    
+    init() {
         loadMachines()
     }
     
@@ -45,6 +48,22 @@ public final class VMLibraryController: ObservableObject {
         }
         
         self.state = .loaded(vms)
+    }
+    
+    private func metadataDirectoryCreatingIfNeeded(for machine: VBVirtualMachine) throws -> URL {
+        let baseURL = machine.metadataDirectoryURL
+        if !FileManager.default.fileExists(atPath: baseURL.path) {
+            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
+        }
+        return baseURL
+    }
+    
+    func write(_ data: Data, forMetadataFileNamed name: String, in machine: VBVirtualMachine) async throws {
+        let baseURL = try metadataDirectoryCreatingIfNeeded(for: machine)
+        
+        let fileURL = baseURL.appendingPathComponent(name)
+        
+        try data.write(to: fileURL, options: .atomic)
     }
     
 }

@@ -37,6 +37,10 @@ extension VBVirtualMachine {
     var hardwareModelURL: URL {
         bundleURL.appendingPathComponent("HardwareModel")
     }
+    
+    var metadataDirectoryURL: URL {
+        bundleURL.appendingPathComponent(".vbdata")
+    }
 
 }
 

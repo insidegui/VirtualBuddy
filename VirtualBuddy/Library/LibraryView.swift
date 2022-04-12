@@ -9,7 +9,11 @@ import SwiftUI
 import VirtualCore
 
 struct LibraryView: View {
-    @StateObject private var library = VMLibraryController()
+    @StateObject private var library: VMLibraryController
+    
+    init() {
+        self._library = .init(wrappedValue: .shared)
+    }
     
     var body: some View {
         Group {

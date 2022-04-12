@@ -35,7 +35,9 @@ public final class VMController: ObservableObject {
     }
     
     @Published
-    public private(set) var state = State.idle
+    public private(set) var state = State.idle {
+        didSet { updateScreenshotter() }
+    }
     
     private(set) var virtualMachine: VZVirtualMachine?
     
@@ -57,6 +59,8 @@ public final class VMController: ObservableObject {
         
         return newInstance
     }
+    
+    private lazy var screenshotter = VMScreenshotter(interval: 15)
 
     public func startVM() async {
         state = .starting
@@ -69,19 +73,14 @@ public final class VMController: ObservableObject {
             let vm = try newInstance.virtualMachine
             
             state = .running(vm)
-            
-            DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                Task {
-                    let shot = try await newInstance.takeScreenshot()
-                    print(shot)
-                }
-            }
         } catch {
             state = .stopped(error)
         }
     }
     
     public func pause() async throws {
+        screenshotter.capture()
+        
         let instance = try ensureInstance()
         
         try await instance.pause()
@@ -100,6 +99,8 @@ public final class VMController: ObservableObject {
     }
     
     public func stop() async throws {
+        screenshotter.capture()
+        
         let instance = try ensureInstance()
         
         try await instance.stop()
@@ -108,6 +109,8 @@ public final class VMController: ObservableObject {
     }
     
     public func forceStop() async throws {
+        screenshotter.capture()
+        
         let instance = try ensureInstance()
         
         try await instance.forceStop()
@@ -151,6 +154,21 @@ public extension VMController {
             return true
         default:
             return false
+        }
+    }
+    
+}
+
+private extension VMController {
+    
+    func updateScreenshotter() {
+        switch state {
+        case .idle, .paused, .stopped, .starting:
+            screenshotter.invalidate()
+        case .running:
+            guard let instance = try? ensureInstance() else { return }
+            
+            screenshotter.activate(with: instance)
         }
     }
     
