@@ -78,4 +78,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface VZMacPlatformConfiguration (Private)
+
+@property (nonatomic, assign, setter=_setProductionModeEnabled:) BOOL _isProductionModeEnabled;
+
+- (id __nullable)_platform;
+
+@end
+
 NS_ASSUME_NONNULL_END

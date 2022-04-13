@@ -94,7 +94,7 @@ struct MacOSVirtualMachineConfigurationHelper {
         networkDevice.attachment = networkAttachment
         return networkDevice
     }
-
+    
     func createPointingDeviceConfiguration() -> VZPointingDeviceConfiguration {
         return _VZMacTrackpadConfiguration()
     }

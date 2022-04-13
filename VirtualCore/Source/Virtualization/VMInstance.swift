@@ -80,6 +80,12 @@ final class VMInstance: NSObject, ObservableObject {
         }
         macPlatform.machineIdentifier = machineIdentifier
 
+        
+        #warning("TODO: Store dev/prod fuse info in metadata and do entitlement check if not prod fused, throwing an error if no entitlement")
+        if NSApp.hasEntitlement("com.apple.private.virtualization") {
+            macPlatform._isProductionModeEnabled = false
+        }
+        
         return macPlatform
     }
 
@@ -100,7 +106,9 @@ final class VMInstance: NSObject, ObservableObject {
         if let additionalBlockDevice = helper.createAdditionalBlockDevice() {
             c.storageDevices.append(additionalBlockDevice)
         }
-        c.networkDevices = [helper.createNetworkDeviceConfiguration()]
+        c.networkDevices = [
+            helper.createNetworkDeviceConfiguration(),
+        ]
         c.pointingDevices = [
             helper.createPointingDeviceConfiguration2()
         ]
@@ -211,6 +219,23 @@ extension VMInstance: VZVirtualMachineDelegate {
     
     func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
         
+    }
+    
+}
+
+extension NSApplication {
+    
+    func entitlementValue<V>(for entitlement: String) -> V? {
+        guard let task = SecTaskCreateFromSelf(nil) else {
+            assertionFailure("SecTaskCreateFromSelf returned nil")
+            return nil
+        }
+        
+        return SecTaskCopyValueForEntitlement(task, entitlement as CFString, nil) as? V
+    }
+    
+    func hasEntitlement(_ entitlement: String) -> Bool {
+        entitlementValue(for: entitlement) == true
     }
     
 }

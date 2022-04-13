@@ -1,0 +1,3 @@
+#include "Paths.xcconfig"
+#include "Versions.xcconfig"
+#include "Signing-Private-Entitlements.xcconfig"

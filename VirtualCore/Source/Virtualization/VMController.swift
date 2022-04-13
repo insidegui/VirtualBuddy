@@ -24,7 +24,11 @@ public final class VMController: ObservableObject {
     private let logger = Logger(subsystem: "codes.rambo.VirtualBuddy", category: String(describing: VMController.self))
     
     @Published
-    public var options = VMSessionOptions.default
+    public var options = VMSessionOptions.default {
+        didSet {
+            instance?.options = options
+        }
+    }
     
     public enum State {
         case idle
@@ -56,6 +60,8 @@ public final class VMController: ObservableObject {
         let newInstance = VMInstance(with: virtualMachineModel, onVMStop: { [weak self] error in
             self?.state = .stopped(error)
         })
+        
+        newInstance.options = options
         
         return newInstance
     }
@@ -122,6 +128,8 @@ public final class VMController: ObservableObject {
         guard let instance = instance else {
             throw CocoaError(.validationMissingMandatoryProperty)
         }
+        
+        instance.options = options
         
         return instance
     }
