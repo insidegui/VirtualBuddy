@@ -1,3 +1,5 @@
 #include "Paths.xcconfig"
 #include "Versions.xcconfig"
 #include "Signing.xcconfig"
+
+VB_BUNDLE_ID_PREFIX=
