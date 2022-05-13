@@ -9,13 +9,17 @@ import SwiftUI
 import VirtualCore
 
 struct VirtualMachineSessionView: View {
-    @EnvironmentObject var controller: VMController
+    @StateObject var controller: VMController
 
     var body: some View {
         controllerStateView
+            .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .background(Color.black)
-            .toolbar(content: { toolbarContents })
+            .cocoaToolbar { toolbarContents }
+            .environmentObject(controller)
+            .windowTitle(controller.virtualMachineModel.name)
+            .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
     }
     
     @ViewBuilder
@@ -86,8 +90,8 @@ struct VirtualMachineSessionView: View {
     
     // MARK: - Toolbar Buttons
     
-    private var toolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .primaryAction) {
+    private var toolbarContents: some View {
+        HStack {
             pauseResumeToolbarButton
             
             if case .running = controller.state {
@@ -105,7 +109,7 @@ struct VirtualMachineSessionView: View {
                 }
                 .help("Force stop")
             }
-            
+
             Button {
                 NSApp.sendAction(#selector(VirtualBuddyAppDelegate.restoreDefaultWindowPosition(_:)), to: nil, from: nil)
             } label: {

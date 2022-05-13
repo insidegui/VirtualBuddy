@@ -16,20 +16,12 @@ struct LibraryView: View {
     }
     
     var body: some View {
-        Group {
-            if let currentVMController = currentVMController {
-                vmContents(with: currentVMController)
-                    .toolbar(content: { toolbarContentsVM })
-            } else {
-                libraryContents
-                    .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
-                    .toolbar(content: { toolbarContents })
-            }
-        }
+        libraryContents
+            .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+            .toolbar(content: { toolbarContents })
     }
     
     @State private var selection: VBVirtualMachine?
-    @State private var currentVMController: VMController?
     
     @ViewBuilder
     private var libraryContents: some View {
@@ -42,14 +34,7 @@ struct LibraryView: View {
             Text(error.errorDescription!)
         }
     }
-    
-    @ViewBuilder
-    private func vmContents(with controller: VMController) -> some View {
-        VirtualMachineSessionView()
-            .navigationTitle(controller.virtualMachineModel.name)
-            .environmentObject(controller)
-    }
-    
+
     @ViewBuilder
     private func collectionView(with vms: [VBVirtualMachine]) -> some View {
         List(selection: $selection) {
@@ -67,7 +52,7 @@ struct LibraryView: View {
                     return
                 }
 
-                currentVMController = VMController(with: selection)
+                launch(selection)
             } label: {
                 Image(systemName: "play.fill")
             }
@@ -75,53 +60,11 @@ struct LibraryView: View {
         }
     }
     
-    @State private var isShowingGoBackConfirmation = false
+    @Environment(\.openCocoaWindow) private var openWindow
     
-    private var toolbarContentsVM: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigation) {
-            Button {
-                if isVMRunning {
-                    isShowingGoBackConfirmation = true
-                } else {
-                    goBackToLibrary()
-                }
-            } label: {
-                Image(systemName: "chevron.backward")
-            }
-            .confirmationDialog("This will stop \(currentVMController!.virtualMachineModel.name). Would you like to continue?", isPresented: $isShowingGoBackConfirmation) {
-                Button {
-                    goBackToLibrary()
-                } label: {
-                    Text("Stop")
-                }
-            }
-        }
-    }
-    
-    private func goBackToLibrary() {
-        guard let controller = currentVMController else {
-            return
-        }
-        guard isVMRunning else {
-            self.currentVMController = nil
-            return
-        }
-        
-        Task {
-            try await controller.stop()
-            
-            self.currentVMController = nil
-        }
-    }
-    
-    private var isVMRunning: Bool {
-        guard let controller = currentVMController else {
-            return false
-        }
-        if case .running = controller.state {
-            return true
-        } else {
-            return false
+    private func launch(_ vm: VBVirtualMachine) {
+        openWindow {
+            VirtualMachineSessionView(controller: VMController(with: vm))
         }
     }
     

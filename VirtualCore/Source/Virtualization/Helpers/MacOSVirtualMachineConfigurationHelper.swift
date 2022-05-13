@@ -128,21 +128,22 @@ struct MacOSVirtualMachineConfigurationHelper {
 
 extension VZMacGraphicsDisplayConfiguration {
     
-    static let fallback = VZMacGraphicsDisplayConfiguration(widthInPixels: 1920, heightInPixels: 1200, pixelsPerInch: 80)
+    static let fallback = VZMacGraphicsDisplayConfiguration(widthInPixels: 1920, heightInPixels: 1080, pixelsPerInch: 144)
     
     /// A configuration matching the host's main screen.
     static var mainScreen: VZMacGraphicsDisplayConfiguration {
-        return VZMacGraphicsDisplayConfiguration(widthInPixels: 1920, heightInPixels: 1080, pixelsPerInch: 144)
-//        guard let screen = NSScreen.main else { return .fallback }
-//
-//        guard let resolution = screen.deviceDescription[.resolution] as? NSSize else { return .fallback }
-//        guard let size = screen.deviceDescription[.size] as? NSSize else { return .fallback }
-//
-//        return VZMacGraphicsDisplayConfiguration(
-//            widthInPixels: Int(size.width * screen.backingScaleFactor),
-//            heightInPixels: Int(size.height * screen.backingScaleFactor) - 178,
-//            pixelsPerInch: Int(resolution.width)
-//        )
+        guard let screen = NSScreen.main else { return .fallback }
+
+        guard let resolution = screen.deviceDescription[.resolution] as? NSSize else { return .fallback }
+        guard let size = screen.deviceDescription[.size] as? NSSize else { return .fallback }
+        
+        let pointHeight = size.height - screen.safeAreaInsets.top
+
+        return VZMacGraphicsDisplayConfiguration(
+            widthInPixels: Int(size.width * screen.backingScaleFactor),
+            heightInPixels: Int(pointHeight * screen.backingScaleFactor),
+            pixelsPerInch: Int(resolution.width)
+        )
     }
     
 }
