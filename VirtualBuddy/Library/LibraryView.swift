@@ -41,6 +41,12 @@ struct LibraryView: View {
             ForEach(vms) { vm in
                 Text(vm.name)
                     .tag(vm)
+                    .gesture(TapGesture().onEnded {
+                        selection = vm
+                    })
+                    .simultaneousGesture(TapGesture(count: 2).onEnded {
+                        launch(vm)
+                    })
             }
         }
     }
