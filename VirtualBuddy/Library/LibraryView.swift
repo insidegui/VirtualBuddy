@@ -65,6 +65,7 @@ struct LibraryView: View {
     private func launch(_ vm: VBVirtualMachine) {
         openWindow {
             VirtualMachineSessionView(controller: VMController(with: vm))
+                .environmentObject(library)
         }
     }
     

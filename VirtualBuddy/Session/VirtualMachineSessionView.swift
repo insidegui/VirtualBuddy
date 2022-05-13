@@ -10,12 +10,13 @@ import VirtualCore
 
 struct VirtualMachineSessionView: View {
     @StateObject var controller: VMController
+    @EnvironmentObject var library: VMLibraryController
 
     var body: some View {
         controllerStateView
             .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
-            .background(Color.black)
+            .background(backgroundView)
             .cocoaToolbar { toolbarContents }
             .environmentObject(controller)
             .windowTitle(controller.virtualMachineModel.name)
@@ -88,6 +89,28 @@ struct VirtualMachineSessionView: View {
         .buttonStyle(VMCircularButtonStyle())
     }
     
+    private var screenshot: NSImage? {
+        guard let imageData = library.metadataContents(VBVirtualMachine.screenshotFileName, in: controller.virtualMachineModel) else { return nil }
+        return NSImage(data: imageData)
+    }
+    
+    @ViewBuilder
+    private var backgroundView: some View {
+        ZStack {
+            Color.black
+            
+            if let screenshot = screenshot {
+                Image(nsImage: screenshot)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .drawingGroup()
+                    .saturation(1.3)
+                    .brightness(-0.1)
+                    .blur(radius: 22, opaque: true)
+            }
+        }
+    }
+    
     // MARK: - Toolbar Buttons
     
     private var toolbarContents: some View {
@@ -144,26 +167,18 @@ struct VirtualMachineSessionView: View {
 struct VMCircularButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
-        ZStack {
-            mainContent(with: configuration)
-                .blendMode(.overlay)
-                .opacity(1)
-            mainContent(with: configuration)
-                .opacity(0.9)
-                .background(Circle().foregroundStyle(Material.thick))
-        }
+        mainContent(with: configuration)
+            .contentShape(Circle())
     }
     
     private func mainContent(with configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 50, weight: .bold, design: .rounded))
-            .foregroundColor(.white)
-            .shadow(color: .black.opacity(0.2), radius: 4, x: 2, y: 4)
+            .foregroundStyle(.primary)
             .padding(30)
-            .background(Circle().fill(Color.accentColor))
+            .background(Circle().fill(Material.thin))
             .brightness(configuration.isPressed ? 0.3 : 0)
             .symbolVariant(.fill)
-            .contentShape(Circle())
     }
     
 }

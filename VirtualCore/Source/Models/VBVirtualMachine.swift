@@ -20,6 +20,7 @@ public struct VBVirtualMachine: Identifiable, Hashable {
 
 public extension VBVirtualMachine {
     static let bundleExtension = "vbvm"
+    static let screenshotFileName = "Screenshot.tiff"
 }
 
 public extension VBVirtualMachine {

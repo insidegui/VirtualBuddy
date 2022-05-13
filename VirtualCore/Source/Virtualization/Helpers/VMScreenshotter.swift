@@ -83,7 +83,7 @@ final class VMScreenshotter {
 
         try await VMLibraryController.shared.write(
             data,
-            forMetadataFileNamed: "Screenshot.tiff",
+            forMetadataFileNamed: VBVirtualMachine.screenshotFileName,
             in: vmModel
         )
     }

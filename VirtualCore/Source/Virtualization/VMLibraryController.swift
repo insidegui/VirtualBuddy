@@ -64,12 +64,22 @@ public final class VMLibraryController: ObservableObject {
         return baseURL
     }
     
-    func write(_ data: Data, forMetadataFileNamed name: String, in machine: VBVirtualMachine) async throws {
+    func write(_ data: Data, forMetadataFileNamed name: String, in machine: VBVirtualMachine) throws {
         let baseURL = try metadataDirectoryCreatingIfNeeded(for: machine)
         
         let fileURL = baseURL.appendingPathComponent(name)
         
         try data.write(to: fileURL, options: .atomic)
+    }
+    
+    public func metadataContents(_ fileName: String, in machine: VBVirtualMachine) -> Data? {
+        guard let baseURL = try? metadataDirectoryCreatingIfNeeded(for: machine) else { return nil }
+        
+        let fileURL = baseURL.appendingPathComponent(fileName)
+        
+        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
+        
+        return try? Data(contentsOf: fileURL)
     }
     
 }
