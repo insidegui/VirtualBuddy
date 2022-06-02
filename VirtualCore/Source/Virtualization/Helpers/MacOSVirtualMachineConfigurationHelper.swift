@@ -123,23 +123,6 @@ struct MacOSVirtualMachineConfigurationHelper {
         return audioConfiguration
     }
     
-    func serialConfiguration() -> VZSerialPortConfiguration {
-        let serial = VZVirtioConsoleDeviceSerialPortConfiguration()
-        
-        let pipe = Pipe()
-
-        serial.attachment = VZFileHandleSerialPortAttachment(
-            fileHandleForReading: pipe.fileHandleForReading,
-            fileHandleForWriting: pipe.fileHandleForWriting
-        )
-
-        return serial
-    }
-    
-    func socketConfiguration() -> VZSocketDeviceConfiguration {
-        VZVirtioSocketDeviceConfiguration()
-    }
-    
 }
 
 extension VZMacGraphicsDisplayConfiguration {

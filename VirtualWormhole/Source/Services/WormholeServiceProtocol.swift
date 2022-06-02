@@ -8,11 +8,16 @@
 import Foundation
 import Virtualization
 
+protocol WormholeMultiplexer: AnyObject {
+    
+    func receive<T>(_ type: T.Type, using callback: @escaping (T) -> Void) where T: Codable
+    func send<T>(_ payload: T) where T: Codable
+    
+}
+
 protocol WormholeService: AnyObject {
     
-    static var contextID: Int { get }
-    
-    init?(readHandle: FileHandle, writeHandle: FileHandle)
+    init(with connection: WormholeMultiplexer)
     
     func activate()
     

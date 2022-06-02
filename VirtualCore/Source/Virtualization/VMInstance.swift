@@ -127,8 +127,6 @@ final class VMInstance: NSObject, ObservableObject {
         ]
         c.keyboards = [helper.createKeyboardConfiguration()]
         c.audioDevices = [helper.createAudioDeviceConfiguration()]
-        c.serialPorts = [helper.serialConfiguration()]
-        c.socketDevices = [helper.socketConfiguration()]
         
         return c
     }
@@ -146,14 +144,7 @@ final class VMInstance: NSObject, ObservableObject {
 
         _virtualMachine = VZVirtualMachine(configuration: config)
         
-        let vm = try virtualMachine
-        
-        if let attachment = config.serialPorts.first?.attachment as? VZFileHandleSerialPortAttachment,
-           let readHandle = attachment.fileHandleForReading,
-           let writeHandle = attachment.fileHandleForWriting
-        {
-            _wormhole = WormholeManager(with: vm, fileHandleForReading: readHandle, fileHandleForWriting: writeHandle)
-        }
+        _wormhole = WormholeManager(for: .host)
     }
     
     private var startOptions: _VZVirtualMachineStartOptions {
@@ -233,11 +224,19 @@ final class VMInstance: NSObject, ObservableObject {
 extension VMInstance: VZVirtualMachineDelegate {
     
     func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
-        DispatchQueue.main.async { self.onVMStop(error) }
+        DispatchQueue.main.async {
+            self._wormhole = nil
+            
+            self.onVMStop(error)
+        }
     }
 
     func guestDidStop(_ virtualMachine: VZVirtualMachine) {
-        DispatchQueue.main.async { self.onVMStop(nil) }
+        DispatchQueue.main.async {
+            self._wormhole = nil
+            
+            self.onVMStop(nil)
+        }
     }
     
     func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {

@@ -43,11 +43,17 @@
 		F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189ED2848F5B500335EC7 /* WormholeManager.swift */; };
 		F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
-		F4C189F42848F61E00335EC7 /* Virtualization.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189F32848F61E00335EC7 /* Virtualization.framework */; };
 		F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */; };
 		F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */; };
 		F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */; };
 		F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */; };
+		F4C18A3D284914C600335EC7 /* MultipeerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4C18A3C284914C600335EC7 /* MultipeerKit */; };
+		F4C18A4528491B8500335EC7 /* VirtualBuddyGuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4428491B8500335EC7 /* VirtualBuddyGuestApp.swift */; };
+		F4C18A4728491B8500335EC7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4628491B8500335EC7 /* ContentView.swift */; };
+		F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4828491B8500335EC7 /* Assets.xcassets */; };
+		F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */; };
+		F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
+		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +78,20 @@
 			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
 			remoteInfo = VirtualWormhole;
 		};
+		F4C18A5428491B9D00335EC7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
+			remoteInfo = VirtualWormhole;
+		};
+		F4C18A5728491C0D00335EC7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4C18A4128491B8500335EC7;
+			remoteInfo = VirtualBuddyGuest;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -83,6 +103,17 @@
 			files = (
 				F4BE9C6C27FF053A00B648F8 /* VirtualCore.framework in Embed Frameworks */,
 				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C18A5628491B9D00335EC7 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -140,6 +171,12 @@
 		F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualWormholeConstants.swift; sourceTree = "<group>"; };
 		F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHSharedClipboardService.swift; sourceTree = "<group>"; };
 		F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceProtocol.swift; sourceTree = "<group>"; };
+		F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddyGuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4C18A4428491B8500335EC7 /* VirtualBuddyGuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyGuestApp.swift; sourceTree = "<group>"; };
+		F4C18A4628491B8500335EC7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F4C18A4828491B8500335EC7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuest.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,7 +201,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4C189F42848F61E00335EC7 /* Virtualization.framework in Frameworks */,
+				F4C18A3D284914C600335EC7 /* MultipeerKit in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C18A3F28491B8500335EC7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -277,6 +322,7 @@
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
+				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -288,6 +334,7 @@
 				F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */,
 				F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */,
 				F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */,
+				F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -419,6 +466,26 @@
 			path = Services;
 			sourceTree = "<group>";
 		};
+		F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */ = {
+			isa = PBXGroup;
+			children = (
+				F4C18A4428491B8500335EC7 /* VirtualBuddyGuestApp.swift */,
+				F4C18A4628491B8500335EC7 /* ContentView.swift */,
+				F4C18A4828491B8500335EC7 /* Assets.xcassets */,
+				F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */,
+				F4C18A4A28491B8500335EC7 /* Preview Content */,
+			);
+			path = VirtualBuddyGuest;
+			sourceTree = "<group>";
+		};
+		F4C18A4A28491B8500335EC7 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -457,6 +524,7 @@
 			dependencies = (
 				F4BE9C6A27FF053A00B648F8 /* PBXTargetDependency */,
 				F4C189E52848F59F00335EC7 /* PBXTargetDependency */,
+				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
@@ -498,9 +566,31 @@
 			dependencies = (
 			);
 			name = VirtualWormhole;
+			packageProductDependencies = (
+				F4C18A3C284914C600335EC7 /* MultipeerKit */,
+			);
 			productName = VirtualWormhole;
 			productReference = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */;
 			productType = "com.apple.product-type.framework";
+		};
+		F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4C18A4E28491B8500335EC7 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuest" */;
+			buildPhases = (
+				F4C18A3E28491B8500335EC7 /* Sources */,
+				F4C18A3F28491B8500335EC7 /* Frameworks */,
+				F4C18A4028491B8500335EC7 /* Resources */,
+				F4C18A5628491B9D00335EC7 /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
+			);
+			name = VirtualBuddyGuest;
+			productName = VirtualBuddyGuest;
+			productReference = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */;
+			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
@@ -509,7 +599,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1330;
+				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1330;
 				TargetAttributes = {
 					F4BE9C4D27FF052100B648F8 = {
@@ -524,6 +614,9 @@
 						CreatedOnToolsVersion = 13.4;
 						LastSwiftMigration = 1340;
 					};
+					F4C18A4128491B8500335EC7 = {
+						CreatedOnToolsVersion = 13.4;
+					};
 				};
 			};
 			buildConfigurationList = F4BE9C4927FF052100B648F8 /* Build configuration list for PBXProject "VirtualBuddy" */;
@@ -536,12 +629,14 @@
 			);
 			mainGroup = F4BE9C4527FF052100B648F8;
 			packageReferences = (
+				F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				F4BE9C4D27FF052100B648F8 /* VirtualBuddy */,
+				F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */,
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 			);
@@ -569,6 +664,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C18A4028491B8500335EC7 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */,
+				F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -625,6 +729,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F4C18A3E28491B8500335EC7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4C18A4728491B8500335EC7 /* ContentView.swift in Sources */,
+				F4C18A4528491B8500335EC7 /* VirtualBuddyGuestApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -642,6 +755,16 @@
 			isa = PBXTargetDependency;
 			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
 			targetProxy = F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */;
+		};
+		F4C18A5528491B9D00335EC7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
+			targetProxy = F4C18A5428491B9D00335EC7 /* PBXContainerItemProxy */;
+		};
+		F4C18A5828491C0D00335EC7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */;
+			targetProxy = F4C18A5728491C0D00335EC7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1071,6 +1194,81 @@
 			};
 			name = Release;
 		};
+		F4C18A4F28491B8500335EC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddyGuest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F4C18A5028491B8500335EC7 /* Debug-PrivateEntitlement */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddyGuest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = "Debug-PrivateEntitlement";
+		};
+		F4C18A5128491B8500335EC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddyGuest;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1114,7 +1312,36 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F4C18A4E28491B8500335EC7 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuest" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4C18A4F28491B8500335EC7 /* Debug */,
+				F4C18A5028491B8500335EC7 /* Debug-PrivateEntitlement */,
+				F4C18A5128491B8500335EC7 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/MultipeerKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.4.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		F4C18A3C284914C600335EC7 /* MultipeerKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */;
+			productName = MultipeerKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = F4BE9C4627FF052100B648F8 /* Project object */;
 }

@@ -86,4 +86,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface VZVirtualMachineView (Private)
+
+- (void)_setDelegate:(id)delegate;
+
+@end
+
 NS_ASSUME_NONNULL_END

@@ -15,13 +15,17 @@ final class SwiftUIVMView: NSViewControllerRepresentable {
     typealias NSViewControllerType = VMViewController
     
     @Binding var controllerState: VMController.State
+    let captureSystemKeys: Bool
     
-    init(controllerState: Binding<VMController.State>) {
+    init(controllerState: Binding<VMController.State>, captureSystemKeys: Bool) {
         self._controllerState = controllerState
+        self.captureSystemKeys = captureSystemKeys
     }
     
     func makeNSViewController(context: Context) -> VMViewController {
-        VMViewController()
+        let controller = VMViewController()
+        controller.captureSystemKeys = captureSystemKeys
+        return controller
     }
     
     func updateNSViewController(_ nsViewController: VMViewController, context: Context) {
@@ -35,6 +39,13 @@ final class SwiftUIVMView: NSViewControllerRepresentable {
 }
 
 final class VMViewController: NSViewController {
+    
+    var captureSystemKeys: Bool = false {
+        didSet {
+            guard captureSystemKeys != oldValue, isViewLoaded else { return }
+            vmView.capturesSystemKeys = captureSystemKeys
+        }
+    }
 
     convenience init() {
         self.init(nibName: nil, bundle: nil)
@@ -55,7 +66,7 @@ final class VMViewController: NSViewController {
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.black.cgColor
         
-        vmView.capturesSystemKeys = false
+        vmView.capturesSystemKeys = captureSystemKeys
         vmView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(vmView)
 
@@ -83,10 +94,10 @@ final class VMViewController: NSViewController {
 
 fileprivate final class VMContainerView: NSView {
     
-    override var acceptsFirstResponder: Bool { true }
-    
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-    
-    override var canBecomeKeyView: Bool { true }
+//    override var acceptsFirstResponder: Bool { true }
+//    
+//    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
+//    
+//    override var canBecomeKeyView: Bool { true }
     
 }
