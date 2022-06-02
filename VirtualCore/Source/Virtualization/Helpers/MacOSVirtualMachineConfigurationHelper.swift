@@ -22,7 +22,6 @@ struct MacOSVirtualMachineConfigurationHelper {
     }
 
     func computeMemorySize() -> UInt64 {
-        // We arbitrarily choose 4GB.
         var memorySize = (16 * 1024 * 1024 * 1024) as UInt64
         memorySize = max(memorySize, VZVirtualMachineConfiguration.minimumAllowedMemorySize)
         memorySize = min(memorySize, VZVirtualMachineConfiguration.maximumAllowedMemorySize)
@@ -122,6 +121,23 @@ struct MacOSVirtualMachineConfigurationHelper {
 
         audioConfiguration.streams = [inputStream, outputStream]
         return audioConfiguration
+    }
+    
+    func serialConfiguration() -> VZSerialPortConfiguration {
+        let serial = VZVirtioConsoleDeviceSerialPortConfiguration()
+        
+        let pipe = Pipe()
+
+        serial.attachment = VZFileHandleSerialPortAttachment(
+            fileHandleForReading: pipe.fileHandleForReading,
+            fileHandleForWriting: pipe.fileHandleForWriting
+        )
+
+        return serial
+    }
+    
+    func socketConfiguration() -> VZSocketDeviceConfiguration {
+        VZVirtioSocketDeviceConfiguration()
     }
     
 }

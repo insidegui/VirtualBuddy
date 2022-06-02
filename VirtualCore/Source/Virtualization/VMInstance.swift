@@ -10,15 +10,18 @@ import Foundation
 import Virtualization
 import Combine
 import OSLog
+import VirtualWormhole
 
 @MainActor
 final class VMInstance: NSObject, ObservableObject {
     
-    private let logger = Logger(subsystem: "codes.rambo.VirtualBuddy", category: String(describing: VMInstance.self))
+    private lazy var logger = Logger(for: Self.self)
     
     var options = VMSessionOptions.default
 
     private var _virtualMachine: VZVirtualMachine?
+    
+    private var _wormhole: WormholeManager?
     
     var virtualMachine: VZVirtualMachine {
         get throws {
@@ -27,6 +30,16 @@ final class VMInstance: NSObject, ObservableObject {
             }
             
             return vm
+        }
+    }
+    
+    var wormhole: WormholeManager {
+        get throws {
+            guard let wh = _wormhole else {
+                throw CocoaError(.validationMissingMandatoryProperty)
+            }
+            
+            return wh
         }
     }
     
@@ -114,7 +127,8 @@ final class VMInstance: NSObject, ObservableObject {
         ]
         c.keyboards = [helper.createKeyboardConfiguration()]
         c.audioDevices = [helper.createAudioDeviceConfiguration()]
-        c._multiTouchDevices = [helper.createMultiTouchDeviceConfiguration()]
+        c.serialPorts = [helper.serialConfiguration()]
+        c.socketDevices = [helper.socketConfiguration()]
         
         return c
     }
@@ -131,6 +145,15 @@ final class VMInstance: NSObject, ObservableObject {
         }
 
         _virtualMachine = VZVirtualMachine(configuration: config)
+        
+        let vm = try virtualMachine
+        
+        if let attachment = config.serialPorts.first?.attachment as? VZFileHandleSerialPortAttachment,
+           let readHandle = attachment.fileHandleForReading,
+           let writeHandle = attachment.fileHandleForWriting
+        {
+            _wormhole = WormholeManager(with: vm, fileHandleForReading: readHandle, fileHandleForWriting: writeHandle)
+        }
     }
     
     private var startOptions: _VZVirtualMachineStartOptions {

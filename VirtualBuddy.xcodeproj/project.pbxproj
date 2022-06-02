@@ -38,6 +38,16 @@
 		F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */; };
 		F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4BEABAA28024FD10057885F /* VirtualBuddyOverrides.m in Sources */ = {isa = PBXBuildFile; fileRef = F4BEABA928024FD10057885F /* VirtualBuddyOverrides.m */; };
+		F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */ = {isa = PBXBuildFile; fileRef = F4C189E22848F59F00335EC7 /* VirtualWormhole.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
+		F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189ED2848F5B500335EC7 /* WormholeManager.swift */; };
+		F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
+		F4C189F42848F61E00335EC7 /* Virtualization.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189F32848F61E00335EC7 /* Virtualization.framework */; };
+		F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */; };
+		F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */; };
+		F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */; };
+		F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -47,6 +57,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
 			remoteInfo = VirtualCore;
+		};
+		F4C189E42848F59F00335EC7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
+			remoteInfo = VirtualWormhole;
+		};
+		F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
+			remoteInfo = VirtualWormhole;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -58,6 +82,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				F4BE9C6C27FF053A00B648F8 /* VirtualCore.framework in Embed Frameworks */,
+				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -107,6 +132,14 @@
 		F4C1224E280715F200D359E2 /* Main.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Main.xcconfig; sourceTree = "<group>"; };
 		F4C1224F280716B000D359E2 /* VirtualBuddy-Private.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "VirtualBuddy-Private.entitlements"; sourceTree = "<group>"; };
 		F4C122532807181B00D359E2 /* Main-Private-Entitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Main-Private-Entitlements.xcconfig"; sourceTree = "<group>"; };
+		F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualWormhole.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4C189E22848F59F00335EC7 /* VirtualWormhole.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualWormhole.h; sourceTree = "<group>"; };
+		F4C189ED2848F5B500335EC7 /* WormholeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeManager.swift; sourceTree = "<group>"; };
+		F4C189F32848F61E00335EC7 /* Virtualization.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Virtualization.framework; path = System/Library/Frameworks/Virtualization.framework; sourceTree = SDKROOT; };
+		F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCoreConstants.swift; sourceTree = "<group>"; };
+		F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualWormholeConstants.swift; sourceTree = "<group>"; };
+		F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHSharedClipboardService.swift; sourceTree = "<group>"; };
+		F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceProtocol.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -115,6 +148,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
+				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -122,6 +156,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C189DD2848F59F00335EC7 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4C189F42848F61E00335EC7 /* Virtualization.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,7 +276,9 @@
 			children = (
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
+				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
+				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -242,6 +287,7 @@
 			children = (
 				F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */,
 				F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */,
+				F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -280,6 +326,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F4C189F52848F69B00335EC7 /* Definitions */,
 				F4A21BEF28032FB0001072B8 /* Virtualization */,
 				F4A21BEE28032F97001072B8 /* Models */,
 				F4BE9C8427FF13F600B648F8 /* Headers */,
@@ -320,6 +367,58 @@
 			path = Entitlements;
 			sourceTree = "<group>";
 		};
+		F4C189E12848F59F00335EC7 /* VirtualWormhole */ = {
+			isa = PBXGroup;
+			children = (
+				F4C189EC2848F5A300335EC7 /* Source */,
+				F4C189E22848F59F00335EC7 /* VirtualWormhole.h */,
+			);
+			path = VirtualWormhole;
+			sourceTree = "<group>";
+		};
+		F4C189EC2848F5A300335EC7 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F4C189F82848F6F700335EC7 /* Definitions */,
+				F4C189FB2848F8E800335EC7 /* Services */,
+				F4C189ED2848F5B500335EC7 /* WormholeManager.swift */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		F4C189F12848F5F500335EC7 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				F4C189F32848F61E00335EC7 /* Virtualization.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		F4C189F52848F69B00335EC7 /* Definitions */ = {
+			isa = PBXGroup;
+			children = (
+				F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */,
+			);
+			path = Definitions;
+			sourceTree = "<group>";
+		};
+		F4C189F82848F6F700335EC7 /* Definitions */ = {
+			isa = PBXGroup;
+			children = (
+				F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */,
+			);
+			path = Definitions;
+			sourceTree = "<group>";
+		};
+		F4C189FB2848F8E800335EC7 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */,
+				F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -330,6 +429,14 @@
 				F4BE9C6827FF053A00B648F8 /* VirtualCore.h in Headers */,
 				F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */,
 				F46FFBA52804E81E00D61023 /* VBObjCHookingPoint.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C189DB2848F59F00335EC7 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -349,6 +456,7 @@
 			);
 			dependencies = (
 				F4BE9C6A27FF053A00B648F8 /* PBXTargetDependency */,
+				F4C189E52848F59F00335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
@@ -369,10 +477,29 @@
 			buildRules = (
 			);
 			dependencies = (
+				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
 			productName = VirtualCore;
 			productReference = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F4C189DF2848F59F00335EC7 /* VirtualWormhole */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4C189EB2848F59F00335EC7 /* Build configuration list for PBXNativeTarget "VirtualWormhole" */;
+			buildPhases = (
+				F4C189DB2848F59F00335EC7 /* Headers */,
+				F4C189DC2848F59F00335EC7 /* Sources */,
+				F4C189DD2848F59F00335EC7 /* Frameworks */,
+				F4C189DE2848F59F00335EC7 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VirtualWormhole;
+			productName = VirtualWormhole;
+			productReference = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 /* End PBXNativeTarget section */
@@ -393,6 +520,10 @@
 						CreatedOnToolsVersion = 13.3;
 						LastSwiftMigration = 1330;
 					};
+					F4C189DF2848F59F00335EC7 = {
+						CreatedOnToolsVersion = 13.4;
+						LastSwiftMigration = 1340;
+					};
 				};
 			};
 			buildConfigurationList = F4BE9C4927FF052100B648F8 /* Build configuration list for PBXProject "VirtualBuddy" */;
@@ -412,6 +543,7 @@
 			targets = (
 				F4BE9C4D27FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
+				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 			);
 		};
 /* End PBXProject section */
@@ -427,6 +559,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F4BE9C6327FF053A00B648F8 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C189DE2848F59F00335EC7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -465,12 +604,24 @@
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
+				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4C189DC2848F59F00335EC7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
+				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
+				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
+				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -481,6 +632,16 @@
 			isa = PBXTargetDependency;
 			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
 			targetProxy = F4BE9C6927FF053A00B648F8 /* PBXContainerItemProxy */;
+		};
+		F4C189E52848F59F00335EC7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
+			targetProxy = F4C189E42848F59F00335EC7 /* PBXContainerItemProxy */;
+		};
+		F4C189F02848F5F100335EC7 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
+			targetProxy = F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -827,6 +988,89 @@
 			};
 			name = "Debug-PrivateEntitlement";
 		};
+		F4C189E82848F59F00335EC7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormhole;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F4C189E92848F59F00335EC7 /* Debug-PrivateEntitlement */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormhole;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = "Debug-PrivateEntitlement";
+		};
+		F4C189EA2848F59F00335EC7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormhole;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -856,6 +1100,16 @@
 				F4BE9C6E27FF053A00B648F8 /* Debug */,
 				F4C122522807180900D359E2 /* Debug-PrivateEntitlement */,
 				F4BE9C6F27FF053A00B648F8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F4C189EB2848F59F00335EC7 /* Build configuration list for PBXNativeTarget "VirtualWormhole" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4C189E82848F59F00335EC7 /* Debug */,
+				F4C189E92848F59F00335EC7 /* Debug-PrivateEntitlement */,
+				F4C189EA2848F59F00335EC7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

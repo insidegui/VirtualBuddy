@@ -21,7 +21,7 @@ public struct VMSessionOptions: Hashable, Codable {
 @MainActor
 public final class VMController: ObservableObject {
     
-    private let logger = Logger(subsystem: "codes.rambo.VirtualBuddy", category: String(describing: VMController.self))
+    private lazy var logger = Logger(for: Self.self)
     
     @Published
     public var options = VMSessionOptions.default {
