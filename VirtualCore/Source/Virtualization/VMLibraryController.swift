@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import Combine
 
 @MainActor
 public final class VMLibraryController: ObservableObject {
@@ -21,18 +22,42 @@ public final class VMLibraryController: ObservableObject {
     private var virtualMachines: [VBVirtualMachine] = []
     
     public static let shared = VMLibraryController()
-    
-    init() {
+
+    let settingsContainer: VBSettingsContainer
+
+    init(settingsContainer: VBSettingsContainer = .current) {
+        self.settingsContainer = settingsContainer
+        self.settings = settingsContainer.settings
+        self.libraryURL = settingsContainer.settings.libraryURL
+
         loadMachines()
+        bind()
     }
+
+    private var settings: VBSettings {
+        didSet {
+            self.libraryURL = settings.libraryURL
+        }
+    }
+
+    private var libraryURL: URL {
+        didSet {
+            guard oldValue != libraryURL else { return }
+            loadMachines()
+        }
+    }
+
+    private lazy var cancellables = Set<AnyCancellable>()
     
     private lazy var fileManager = FileManager()
-    
-    private lazy var libraryURL: URL = {
-        (try! fileManager.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false))
-            .appendingPathComponent("VirtualBuddy")
-    }()
-    
+
+    private func bind() {
+        settingsContainer.$settings.sink { [weak self] newSettings in
+            self?.settings = newSettings
+        }
+        .store(in: &cancellables)
+    }
+
     private func loadMachines() {
         guard let enumerator = fileManager.enumerator(at: libraryURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants], errorHandler: nil) else {
             state = .failed(.init("Failed to open directory at \(libraryURL.path)"))

@@ -50,7 +50,8 @@ struct LibraryView: View {
             }
         }
     }
-    
+
+    @ToolbarContentBuilder
     private var toolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             Button {

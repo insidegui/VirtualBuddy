@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+import VirtualCore
 
 @main
 struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
     var appDelegate: VirtualBuddyAppDelegate
+
+    @StateObject var settingsContainer = VBSettingsContainer.current
     
     var body: some Scene {
         WindowGroup {
@@ -21,6 +24,11 @@ struct VirtualBuddyApp: App {
                     guard values.contentType == .virtualBuddyVM else { return }
                     print(url.path)
                 }
+        }
+        
+        Settings {
+            PreferencesView()
+                .environmentObject(settingsContainer)
         }
     }
 }

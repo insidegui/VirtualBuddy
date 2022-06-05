@@ -37,7 +37,6 @@
 		F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */; };
 		F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */; };
 		F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4BEABAA28024FD10057885F /* VirtualBuddyOverrides.m in Sources */ = {isa = PBXBuildFile; fileRef = F4BEABA928024FD10057885F /* VirtualBuddyOverrides.m */; };
 		F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */ = {isa = PBXBuildFile; fileRef = F4C189E22848F59F00335EC7 /* VirtualWormhole.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
 		F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -54,6 +53,11 @@
 		F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */; };
 		F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
 		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B412284CDB7B00F21737 /* PreferencesView.swift */; };
+		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
+		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
+		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
+		F4F9B41D284CE6A500F21737 /* DecentFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B41C284CE6A500F21737 /* DecentFormView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -153,9 +157,6 @@
 		F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyAppDelegate.swift; sourceTree = "<group>"; };
 		F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMSessionConfigurationView.swift; sourceTree = "<group>"; };
 		F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualizationPrivate.h; sourceTree = "<group>"; };
-		F4BEABA728024FD00057885F /* VirtualBuddy-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VirtualBuddy-Bridging-Header.h"; sourceTree = "<group>"; };
-		F4BEABA828024FD10057885F /* VirtualBuddyOverrides.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualBuddyOverrides.h; sourceTree = "<group>"; };
-		F4BEABA928024FD10057885F /* VirtualBuddyOverrides.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VirtualBuddyOverrides.m; sourceTree = "<group>"; };
 		F4C122482807146200D359E2 /* Versions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Versions.xcconfig; sourceTree = "<group>"; };
 		F4C1224A2807156200D359E2 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		F4C1224B2807157800D359E2 /* Signing-Private-Entitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Signing-Private-Entitlements.xcconfig"; sourceTree = "<group>"; };
@@ -177,6 +178,11 @@
 		F4C18A4828491B8500335EC7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuest.entitlements; sourceTree = "<group>"; };
+		F4F9B412284CDB7B00F21737 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
+		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
+		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		F4F9B41C284CE6A500F21737 /* DecentFormView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecentFormView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,22 +293,11 @@
 		F4A21BFB28033968001072B8 /* Bootstrap */ = {
 			isa = PBXGroup;
 			children = (
-				F4A21BFC28033985001072B8 /* ObjC */,
 				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
 				F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */,
 				F4BE9C5327FF052100B648F8 /* RootView.swift */,
 			);
 			path = Bootstrap;
-			sourceTree = "<group>";
-		};
-		F4A21BFC28033985001072B8 /* ObjC */ = {
-			isa = PBXGroup;
-			children = (
-				F4BEABA828024FD10057885F /* VirtualBuddyOverrides.h */,
-				F4BEABA928024FD10057885F /* VirtualBuddyOverrides.m */,
-				F4BEABA728024FD00057885F /* VirtualBuddy-Bridging-Header.h */,
-			);
-			path = ObjC;
 			sourceTree = "<group>";
 		};
 		F4B8A422282EC8EB00D2F78D /* HostingWindowController */ = {
@@ -342,7 +337,9 @@
 		F4BE9C5027FF052100B648F8 /* VirtualBuddy */ = {
 			isa = PBXGroup;
 			children = (
+				F4F9B41B284CE69000F21737 /* Components */,
 				F4C122472807145600D359E2 /* Config */,
+				F4F9B411284CDB5300F21737 /* Settings */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
 				F4A21BF82803394B001072B8 /* Session */,
 				F4A21BF728033941001072B8 /* Library */,
@@ -373,6 +370,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F4F9B414284CE0DC00F21737 /* Settings */,
 				F4C189F52848F69B00335EC7 /* Definitions */,
 				F4A21BEF28032FB0001072B8 /* Virtualization */,
 				F4A21BEE28032F97001072B8 /* Models */,
@@ -445,6 +443,7 @@
 			isa = PBXGroup;
 			children = (
 				F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */,
+				F4F9B419284CE37C00F21737 /* Logging.swift */,
 			);
 			path = Definitions;
 			sourceTree = "<group>";
@@ -484,6 +483,31 @@
 				F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */,
 			);
 			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		F4F9B411284CDB5300F21737 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F4F9B412284CDB7B00F21737 /* PreferencesView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		F4F9B414284CE0DC00F21737 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F4F9B415284CE0F900F21737 /* VBSettings.swift */,
+				F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		F4F9B41B284CE69000F21737 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F4F9B41C284CE6A500F21737 /* DecentFormView.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -688,14 +712,15 @@
 				F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */,
 				F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */,
 				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
+				F4F9B41D284CE6A500F21737 /* DecentFormView.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
 				F4B8A419282EB65C00D2F78D /* FullScreenModifier.swift in Sources */,
 				F4A21BF628033309001072B8 /* LibraryView.swift in Sources */,
 				F4B8A41A282EB65C00D2F78D /* FullScreenWindowController.swift in Sources */,
 				F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */,
+				F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
 				F4B8A42A282ECC0F00D2F78D /* CocoaToolbar.swift in Sources */,
-				F4BEABAA28024FD10057885F /* VirtualBuddyOverrides.m in Sources */,
 				F4BE9C7E27FF0AEB00B648F8 /* SwiftUIVMView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -704,7 +729,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
 				F47FFA57280633F000BD1F87 /* VMScreenshotter.swift in Sources */,
+				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
@@ -712,6 +739,7 @@
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
+				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
@@ -909,7 +937,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddy/Bootstrap/ObjC/VirtualBuddy-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -938,7 +965,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddy/Bootstrap/ObjC/VirtualBuddy-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -1079,7 +1105,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddy/Bootstrap/ObjC/VirtualBuddy-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};

@@ -12,12 +12,6 @@ struct VirtualCoreConstants {
     static let subsystemName = "codes.rambo.VirtualCore"
 }
 
-extension Logger {
-    init<T>(for type: T.Type) {
-        self.init(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: type))
-    }
-}
-
 private final class _VirtualCoreStub { }
 
 public extension Bundle {
