@@ -64,6 +64,13 @@ struct LibraryView: View {
                 Image(systemName: "play.fill")
             }
             .disabled(selection == nil)
+
+            Button {
+                launchInstallWizard()
+            } label: {
+                Image(systemName: "plus")
+            }
+            .help("Install new VM")
         }
     }
     
@@ -72,6 +79,13 @@ struct LibraryView: View {
     private func launch(_ vm: VBVirtualMachine) {
         openWindow {
             VirtualMachineSessionView(controller: VMController(with: vm))
+                .environmentObject(library)
+        }
+    }
+
+    private func launchInstallWizard() {
+        openWindow {
+            VMInstallationWizard()
                 .environmentObject(library)
         }
     }
