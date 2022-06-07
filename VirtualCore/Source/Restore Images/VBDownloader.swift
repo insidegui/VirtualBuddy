@@ -10,12 +10,14 @@ import Foundation
 public final class VBDownloader: NSObject {
 
     let library: VMLibraryController
+    public var cookie: String?
 
-    public init(with library: VMLibraryController) {
+    public init(with library: VMLibraryController, cookie: String?) {
         self.library = library
+        self.cookie = cookie
     }
 
-    private var downloadTask: Task<Void, Error>?
+    private var downloadTask: URLSessionDownloadTask?
 
     public enum State: Hashable {
         case idle
@@ -42,6 +44,13 @@ public final class VBDownloader: NSObject {
         return baseURL
     }
 
+    private lazy var session: URLSession = {
+        let config = URLSessionConfiguration.default
+        return URLSession(configuration: config, delegate: self, delegateQueue: .main)
+    }()
+
+    private var destinationURL: URL?
+
     @MainActor
     public func startDownload(with url: URL) {
         resetProgress()
@@ -49,30 +58,37 @@ public final class VBDownloader: NSObject {
         state = .downloading(nil, nil)
 
         let filename = url.lastPathComponent
-        guard let destinationURL = (try? getDownloadsBaseURL())?.appendingPathComponent(filename) else {
+        guard let destURL = (try? getDownloadsBaseURL())?.appendingPathComponent(filename) else {
             state = .failed("Failed to create directory for downloads at \(library.libraryURL.path)")
             return
         }
+        self.destinationURL = destURL
 
-        downloadTask = Task {
-            do {
-                let (localURL, response) = try await URLSession.shared.download(from: url, delegate: self)
+        var request = URLRequest(url: url)
 
-                guard !isInFailedState else { return }
+        request.setValue(cookie, forHTTPHeaderField: "Cookie")
 
-                let code = (response as! HTTPURLResponse).statusCode
+        downloadTask = session.downloadTask(with: request)
+        downloadTask?.delegate = self
+        downloadTask?.resume()
+    }
 
-                guard code == 200 else {
-                    state = .failed("HTTP \(code)")
-                    return
-                }
+    @MainActor
+    private func handleDownloadCompletion(localURL: URL) {
+        guard !isInFailedState else { return }
 
-                try FileManager.default.moveItem(at: localURL, to: destinationURL)
+        guard let destinationURL = destinationURL else {
+            state = .failed("Missing destination URL.")
+            assertionFailure("WAT")
+            return
+        }
 
-                state = .done(destinationURL)
-            } catch {
-                state = .failed(error.localizedDescription)
-            }
+        do {
+            try FileManager.default.moveItem(at: localURL, to: destinationURL)
+
+            state = .done(destinationURL)
+        } catch {
+            state = .failed("Failed to move downloaded file: \(error.localizedDescription)")
         }
     }
 
@@ -82,7 +98,7 @@ public final class VBDownloader: NSObject {
         downloadTask = nil
     }
 
-    private let minElapsedProgressForETA: Double = 0.03
+    private let minElapsedProgressForETA: Double = 0.01
     private var elapsedTime: Double = 0
     private var ppsObservations: [Double] = []
     private let ppsObservationsLimit = 500
@@ -108,21 +124,34 @@ public final class VBDownloader: NSObject {
 
 }
 
-extension VBDownloader: URLSessionTaskDelegate, URLSessionDownloadDelegate {
+extension VBDownloader: URLSessionDownloadDelegate, URLSessionDelegate {
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
         if request.url?.absoluteString.lowercased().contains("unauthorized") == true {
             DispatchQueue.main.async {
-                self.state = .failed("The download failed due to missing authentication credentials. To fix this, visit the developer portal downloads page, then come back here and try again.")
+                self.state = .failed("The download failed due to missing authentication credentials.")
             }
             return nil
         } else {
-            return request
+            if let newCookie = response.value(forHTTPHeaderField: "Set-Cookie"), let firstItem = newCookie.components(separatedBy: ";").first {
+                var newRequest = request
+                let newCookieValue = (newRequest.value(forHTTPHeaderField: "Cookie") ?? "") + "; " + firstItem
+                newRequest.setValue(newCookieValue, forHTTPHeaderField: "Cookie")
+                return newRequest
+            } else {
+                return request
+            }
         }
     }
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+        Task {
+            await handleDownloadCompletion(localURL: location)
+        }
+    }
 
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        state = .failed(error?.localizedDescription ?? "Unknown networking error.")
     }
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
@@ -159,6 +188,8 @@ extension VBDownloader: URLSessionTaskDelegate, URLSessionDownloadDelegate {
         } else {
             self.state = .downloading(progress, nil)
         }
+
+        self.progress = progress
     }
 
 }

@@ -44,6 +44,7 @@
 		F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4C0C96D284FD1DB00D02237 /* VMInstallationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0C96C284FD1DB00D02237 /* VMInstallationViewModel.swift */; };
 		F4C0C98B284FD8AD00D02237 /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0C98A284FD8AD00D02237 /* InstallMethodPicker.swift */; };
+		F4C0C9A8284FE01700D02237 /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0C9A7284FE01700D02237 /* AuthenticatingWebView.swift */; };
 		F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */ = {isa = PBXBuildFile; fileRef = F4C189E22848F59F00335EC7 /* VirtualWormhole.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
 		F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -171,6 +172,7 @@
 		F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualizationPrivate.h; sourceTree = "<group>"; };
 		F4C0C96C284FD1DB00D02237 /* VMInstallationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallationViewModel.swift; sourceTree = "<group>"; };
 		F4C0C98A284FD8AD00D02237 /* InstallMethodPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
+		F4C0C9A7284FE01700D02237 /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
 		F4C122482807146200D359E2 /* Versions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Versions.xcconfig; sourceTree = "<group>"; };
 		F4C1224A2807156200D359E2 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		F4C1224B2807157800D359E2 /* Signing-Private-Entitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Signing-Private-Entitlements.xcconfig"; sourceTree = "<group>"; };
@@ -438,6 +440,7 @@
 			isa = PBXGroup;
 			children = (
 				F4C0C98A284FD8AD00D02237 /* InstallMethodPicker.swift */,
+				F4C0C9A7284FE01700D02237 /* AuthenticatingWebView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -771,6 +774,7 @@
 				F4A21BF628033309001072B8 /* LibraryView.swift in Sources */,
 				F4B8A41A282EB65C00D2F78D /* FullScreenWindowController.swift in Sources */,
 				F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */,
+				F4C0C9A8284FE01700D02237 /* AuthenticatingWebView.swift in Sources */,
 				F465C3B6284F969C006E9ED4 /* VMInstallationWizard.swift in Sources */,
 				F4C0C98B284FD8AD00D02237 /* InstallMethodPicker.swift in Sources */,
 				F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */,

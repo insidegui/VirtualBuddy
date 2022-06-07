@@ -13,6 +13,14 @@ import VirtualCore
 
 struct VMInstallData: Hashable {
     var name = "New Mac VM"
+    var cookie: String?
+    var restoreImageInfo: VBRestoreImageInfo? {
+        didSet {
+            if let url = restoreImageInfo?.url {
+                restoreImageURL = url
+            }
+        }
+    }
     var restoreImageURL: URL?
 }
 
@@ -24,7 +32,7 @@ final class VMInstallationViewModel: ObservableObject {
                 return
             }
 
-            downloader = VBDownloader(with: library)
+            downloader = VBDownloader(with: library, cookie: data.cookie)
         }
     }
 
@@ -51,7 +59,7 @@ final class VMInstallationViewModel: ObservableObject {
     @Published var data = VMInstallData() {
         didSet {
             if step == .restoreImageSelection {
-                disableNextButton = data.restoreImageURL == nil
+                validateSelectedRestoreImage()
             }
             if step == .name {
                 disableNextButton = data.name.isEmpty
@@ -161,6 +169,18 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    private func validateSelectedRestoreImage() {
+        if let info = data.restoreImageInfo {
+            if info.needsCookie, data.cookie == nil {
+                disableNextButton = true
+            } else {
+                disableNextButton = false
+            }
+        } else {
+            disableNextButton = data.restoreImageURL == nil
+        }
+    }
+
     private func commitOSSelection() {
         if !provisionalRestoreImageURL.isEmpty {
             guard let url = URL(string: provisionalRestoreImageURL) else {
@@ -173,18 +193,24 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     private func createInitialName() {
-        let inferredName = data.restoreImageURL?
-            .deletingPathExtension()
-            .lastPathComponent
-            .replacingOccurrences(of: "_Restore", with: "")
-        guard let name = inferredName else { return }
-        data.name = name
+        if let info = data.restoreImageInfo {
+            data.name = info.name
+        } else {
+            let inferredName = data.restoreImageURL?
+                .deletingPathExtension()
+                .lastPathComponent
+                .replacingOccurrences(of: "_Restore", with: "")
+            guard let name = inferredName else { return }
+            data.name = name
+        }
     }
 
     private lazy var cancellables = Set<AnyCancellable>()
 
     @MainActor
     private func startDownload() {
+        downloader!.cookie = data.cookie
+
         downloader!.$state.sink { [weak self] downloadState in
             guard let self = self else { return }
             self.handleDownloadState(downloadState)

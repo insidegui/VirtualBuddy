@@ -95,16 +95,64 @@ struct VMInstallationWizard: View {
         VStack {
             title("Pick a macOS Version to Download and Install")
 
-            Picker("OS Version", selection: $viewModel.data.restoreImageURL) {
+            Picker("OS Version", selection: $viewModel.data.restoreImageInfo) {
                 Text("Choose")
-                    .tag(Optional<URL>.none)
+                    .tag(Optional<VBRestoreImageInfo>.none)
 
                 ForEach(viewModel.restoreImageOptions) { option in
                     Text(option.name)
-                        .tag(Optional<URL>.some(option.url))
+                        .tag(Optional<VBRestoreImageInfo>.some(option))
+                }
+            }
+
+            if let authRequirement = viewModel.data.restoreImageInfo?.authenticationRequirement {
+                authenticationEntryPoint(with: authRequirement)
+                    .padding(.top, 36)
+            }
+        }
+    }
+
+    @State private var authRequirementFlow: VBRestoreImageInfo.AuthRequirement?
+
+    @ViewBuilder
+    private func authenticationEntryPoint(with requirement: VBRestoreImageInfo.AuthRequirement) -> some View {
+        VStack(spacing: 16) {
+            Text(requirement.explainer)
+                .font(.system(size: 12))
+                .lineSpacing(1.2)
+                .foregroundColor(.secondary)
+
+            VStack(spacing: 16) {
+                if viewModel.data.cookie == nil {
+                    Button("Sign In…") {
+                        authRequirementFlow = requirement
+                    }
+                    .keyboardShortcut(.defaultAction)
+                } else {
+                    HStack(spacing: 4) {
+                        Image(systemName: "checkmark.seal.fill")
+                            .foregroundColor(.green)
+
+                        Text("Authenticated")
+                            .font(.system(size: 15, weight: .medium))
+                    }
+
+                    Button("Change Account…") {
+                        authRequirementFlow = requirement
+                    }
                 }
             }
         }
+        .controlSize(.large)
+        .multilineTextAlignment(.center)
+        .sheet(item: $authRequirementFlow, content: { requirement in
+            AuthenticatingWebView(url: requirement.signInURL) { cookies in
+                guard let headerValue = requirement.satisfiedCookieHeaderValue(with: cookies) else { return }
+                self.viewModel.data.cookie = headerValue
+                self.authRequirementFlow = nil
+            }
+            .frame(minWidth: 500, maxWidth: .infinity, minHeight: 550, maxHeight: .infinity)
+        })
     }
 
     @ViewBuilder
@@ -160,7 +208,7 @@ struct VMInstallationWizard: View {
 
                     if let info = info {
                         Text(info)
-                            .font(.caption)
+                            .font(.system(size: 12, weight: .medium).monospacedDigit())
                             .foregroundColor(.secondary)
                     }
                 }
