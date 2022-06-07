@@ -9,6 +9,7 @@ import SwiftUI
 import VirtualCore
 
 struct VMInstallData: Hashable {
+    var name = "New Mac VM"
     var restoreImageURL: URL?
 }
 
@@ -18,6 +19,7 @@ final class VMInstallationViewModel: ObservableObject {
         case installKind
         case restoreImageInput
         case restoreImageSelection
+        case name
         case download
         case install
         case done
@@ -33,6 +35,9 @@ final class VMInstallationViewModel: ObservableObject {
         didSet {
             if step == .restoreImageSelection {
                 disableNextButton = data.restoreImageURL == nil
+            }
+            if step == .name {
+                disableNextButton = data.name.isEmpty
             }
         }
     }
@@ -59,9 +64,9 @@ final class VMInstallationViewModel: ObservableObject {
         switch step {
             case .installKind:
                 break
-            case .restoreImageInput:
-                step = .download
-            case .restoreImageSelection:
+            case .restoreImageInput, .restoreImageSelection:
+                step = .name
+            case .name:
                 step = .download
             case .download:
                 step = .install
@@ -83,9 +88,11 @@ final class VMInstallationViewModel: ObservableObject {
 
                 showNextButton = true
                 disableNextButton = true
-            case .download:
+            case .name:
                 commitOSSelection()
 
+                createInitialName()
+            case .download:
                 startInstallation()
 
                 showNextButton = false
@@ -123,6 +130,15 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    private func createInitialName() {
+        let inferredName = data.restoreImageURL?
+            .deletingPathExtension()
+            .lastPathComponent
+            .replacingOccurrences(of: "_Restore", with: "")
+        guard let name = inferredName else { return }
+        data.name = name
+    }
+
     private func startInstallation() {
 
     }
@@ -152,6 +168,8 @@ struct VMInstallationWizard: View {
                         restoreImageURLInput
                     case .restoreImageSelection:
                         restoreImageSelection
+                    case .name:
+                        renameVM
                     case .download:
                         Text("download")
                     case .install:
@@ -206,7 +224,7 @@ struct VMInstallationWizard: View {
         VStack {
             title("Enter the URL for the macOS IPSW:")
 
-            TextField("URL", text: $viewModel.provisionalRestoreImageURL)
+            TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
         }
     }
 
@@ -224,6 +242,15 @@ struct VMInstallationWizard: View {
                         .tag(Optional<URL>.some(option.url))
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private var renameVM: some View {
+        VStack {
+            title("Name Your Virtual Mac")
+
+            TextField("VM Name", text: $viewModel.data.name, onCommit: viewModel.goNext)
         }
     }
 

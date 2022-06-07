@@ -58,7 +58,7 @@ public final class VMLibraryController: ObservableObject {
         .store(in: &cancellables)
     }
 
-    private func loadMachines() {
+    public func loadMachines() {
         guard let enumerator = fileManager.enumerator(at: libraryURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants], errorHandler: nil) else {
             state = .failed(.init("Failed to open directory at \(libraryURL.path)"))
             return

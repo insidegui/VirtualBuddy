@@ -60,17 +60,17 @@ final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Mac Platform Configuration
 
-    private func createMacPlaform() -> VZMacPlatformConfiguration {
+    static func createMacPlaform(for model: VBVirtualMachine) -> VZMacPlatformConfiguration {
         let macPlatform = VZMacPlatformConfiguration()
 
-        macPlatform.auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: virtualMachineModel.auxiliaryStorageURL)
+        macPlatform.auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: model.auxiliaryStorageURL)
 
-        if !FileManager.default.fileExists(atPath: virtualMachineModel.bundleURL.path) {
-            fatalError("Missing Virtual Machine Bundle at \(virtualMachineModel.bundleURL.path). Run InstallationTool first to create it.")
+        if !FileManager.default.fileExists(atPath: model.bundleURL.path) {
+            fatalError("Missing Virtual Machine Bundle at \(model.bundleURL.path). Run InstallationTool first to create it.")
         }
 
         // Retrieve the hardware model; you should save this value to disk during installation.
-        guard let hardwareModelData = try? Data(contentsOf: virtualMachineModel.hardwareModelURL) else {
+        guard let hardwareModelData = try? Data(contentsOf: model.hardwareModelURL) else {
             fatalError("Failed to retrieve hardware model data.")
         }
 
@@ -84,7 +84,7 @@ final class VMInstance: NSObject, ObservableObject {
         macPlatform.hardwareModel = hardwareModel
 
         // Retrieve the machine identifier; you should save this value to disk during installation.
-        guard let machineIdentifierData = try? Data(contentsOf: virtualMachineModel.machineIdentifierURL) else {
+        guard let machineIdentifierData = try? Data(contentsOf: model.machineIdentifierURL) else {
             fatalError("Failed to retrieve machine identifier data.")
         }
 
@@ -104,11 +104,11 @@ final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
 
-    private func makeConfiguration() -> VZVirtualMachineConfiguration {
-        let helper = MacOSVirtualMachineConfigurationHelper(vm: virtualMachineModel)
+    static func makeConfiguration(for model: VBVirtualMachine) -> VZVirtualMachineConfiguration {
+        let helper = MacOSVirtualMachineConfigurationHelper(vm: model)
         let c = VZVirtualMachineConfiguration()
 
-        c.platform = createMacPlaform()
+        c.platform = Self.createMacPlaform(for: model)
         c.bootLoader = helper.createBootLoader()
         c.cpuCount = helper.computeCPUCount()
         c.memorySize = helper.computeMemorySize()
@@ -132,7 +132,7 @@ final class VMInstance: NSObject, ObservableObject {
     }
     
     private func createVirtualMachine() throws {
-        let config = makeConfiguration()
+        let config = Self.makeConfiguration(for: virtualMachineModel)
 
         do {
             try config.validate()
