@@ -10,7 +10,7 @@ import VirtualCore
 
 struct LibraryView: View {
     @StateObject private var library: VMLibraryController
-    
+
     init() {
         self._library = .init(wrappedValue: .shared)
     }
@@ -19,6 +19,20 @@ struct LibraryView: View {
         libraryContents
             .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .toolbar(content: { toolbarContents })
+            .onOpenURL { url in
+                guard let values = try? url.resourceValues(forKeys: [.contentTypeKey]) else { return }
+                guard values.contentType == .virtualBuddyVM else { return }
+
+                if let loadedVM = library.virtualMachines.first(where: { $0.bundleURL.path == url.path }) {
+                    launch(loadedVM)
+                } else {
+                    guard let vm = try? VBVirtualMachine(bundleURL: url) else {
+                        return
+                    }
+
+                    launch(vm)
+                }
+            }
     }
     
     @State private var selection: VBVirtualMachine?

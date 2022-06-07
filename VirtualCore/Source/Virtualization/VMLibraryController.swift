@@ -17,9 +17,15 @@ public final class VMLibraryController: ObservableObject {
         case failed(VBError)
     }
     
-    @Published public private(set) var state = State.loading
+    @Published public private(set) var state = State.loading {
+        didSet {
+            if case .loaded(let vms) = state {
+                self.virtualMachines = vms
+            }
+        }
+    }
     
-    private var virtualMachines: [VBVirtualMachine] = []
+    @Published public private(set) var virtualMachines: [VBVirtualMachine] = []
     
     public static let shared = VMLibraryController()
 

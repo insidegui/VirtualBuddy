@@ -17,13 +17,8 @@ struct VirtualBuddyApp: App {
     
     var body: some Scene {
         WindowGroup {
-            RootView()
+            LibraryView()
                 .presentedWindowToolbarStyle(.unifiedCompact)
-                .onOpenURL { url in
-                    guard let values = try? url.resourceValues(forKeys: [.contentTypeKey]) else { return }
-                    guard values.contentType == .virtualBuddyVM else { return }
-                    print(url.path)
-                }
         }
         
         Settings {

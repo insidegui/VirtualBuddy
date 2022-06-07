@@ -28,7 +28,6 @@
 		F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */; };
 		F4B8A42A282ECC0F00D2F78D /* CocoaToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A429282ECC0F00D2F78D /* CocoaToolbar.swift */; };
 		F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */; };
-		F4BE9C5427FF052100B648F8 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C5327FF052100B648F8 /* RootView.swift */; };
 		F4BE9C5627FF052100B648F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5527FF052100B648F8 /* Assets.xcassets */; };
 		F4BE9C5927FF052100B648F8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5827FF052100B648F8 /* Preview Assets.xcassets */; };
 		F4BE9C6827FF053A00B648F8 /* VirtualCore.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C6727FF053A00B648F8 /* VirtualCore.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -155,7 +154,6 @@
 		F4B8A429282ECC0F00D2F78D /* CocoaToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CocoaToolbar.swift; sourceTree = "<group>"; };
 		F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyApp.swift; sourceTree = "<group>"; };
-		F4BE9C5327FF052100B648F8 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
 		F4BE9C5527FF052100B648F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4BE9C5827FF052100B648F8 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F4BE9C5A27FF052100B648F8 /* VirtualBuddy.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy.entitlements; sourceTree = "<group>"; };
@@ -340,7 +338,6 @@
 			children = (
 				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
 				F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */,
-				F4BE9C5327FF052100B648F8 /* RootView.swift */,
 			);
 			path = Bootstrap;
 			sourceTree = "<group>";
@@ -763,7 +760,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4BE9C5427FF052100B648F8 /* RootView.swift in Sources */,
 				F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */,
 				F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */,
 				F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */,
