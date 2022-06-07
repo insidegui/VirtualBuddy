@@ -11,6 +11,7 @@
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
 		F465C3B6284F969C006E9ED4 /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */; };
+		F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B7284FA252006E9ED4 /* VBDownloader.swift */; };
 		F46FFBA52804E81E00D61023 /* VBObjCHookingPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = F46FFBA32804E81E00D61023 /* VBObjCHookingPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */; };
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
@@ -133,6 +134,7 @@
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
 		F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
+		F465C3B7284FA252006E9ED4 /* VBDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDownloader.swift; sourceTree = "<group>"; };
 		F46FFBA32804E81E00D61023 /* VBObjCHookingPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VBObjCHookingPoint.h; sourceTree = "<group>"; };
 		F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VBObjCHookingPoint.m; sourceTree = "<group>"; };
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
@@ -230,13 +232,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		F465C3AC284F939C006E9ED4 /* Restore Images API */ = {
+		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
 				F465C3B3284F967C006E9ED4 /* Models */,
 				F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */,
+				F465C3B7284FA252006E9ED4 /* VBDownloader.swift */,
 			);
-			path = "Restore Images API";
+			path = "Restore Images";
 			sourceTree = "<group>";
 		};
 		F465C3B3284F967C006E9ED4 /* Models */ = {
@@ -405,7 +408,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				F465C3AC284F939C006E9ED4 /* Restore Images API */,
+				F465C3AC284F939C006E9ED4 /* Restore Images */,
 				F4F9B414284CE0DC00F21737 /* Settings */,
 				F4C189F52848F69B00335EC7 /* Definitions */,
 				F4A21BEF28032FB0001072B8 /* Virtualization */,
@@ -776,6 +779,7 @@
 				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
+				F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,

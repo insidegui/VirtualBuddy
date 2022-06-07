@@ -40,7 +40,8 @@ public final class VMLibraryController: ObservableObject {
         }
     }
 
-    private var libraryURL: URL {
+    @Published
+    public private(set) var libraryURL: URL {
         didSet {
             guard oldValue != libraryURL else { return }
             loadMachines()
