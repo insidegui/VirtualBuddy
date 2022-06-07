@@ -13,7 +13,7 @@ import OSLog
 import VirtualWormhole
 
 @MainActor
-final class VMInstance: NSObject, ObservableObject {
+public final class VMInstance: NSObject, ObservableObject {
     
     private lazy var logger = Logger(for: Self.self)
     
@@ -60,39 +60,85 @@ final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Mac Platform Configuration
 
-    static func createMacPlaform(for model: VBVirtualMachine) -> VZMacPlatformConfiguration {
+    private static func loadRestoreImage(from url: URL) async throws -> VZMacOSRestoreImage {
+        try await withCheckedThrowingContinuation { continuation in
+            VZMacOSRestoreImage.load(from: url) { result in
+                continuation.resume(with: result)
+            }
+        }
+    }
+
+    public static func createMacPlaform(for model: VBVirtualMachine, installImageURL: URL?) async throws -> VZMacPlatformConfiguration {
+        let image: VZMacOSRestoreImage?
+
+        if let installImageURL = installImageURL {
+            image = try await loadRestoreImage(from: installImageURL)
+        } else {
+            image = nil
+        }
+
         let macPlatform = VZMacPlatformConfiguration()
 
-        macPlatform.auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: model.auxiliaryStorageURL)
+        let hardwareModel: VZMacHardwareModel
 
-        if !FileManager.default.fileExists(atPath: model.bundleURL.path) {
-            fatalError("Missing Virtual Machine Bundle at \(model.bundleURL.path). Run InstallationTool first to create it.")
+        if FileManager.default.fileExists(atPath: model.hardwareModelURL.path) {
+            guard let hardwareModelData = try? Data(contentsOf: model.hardwareModelURL) else {
+                throw Failure("Failed to retrieve hardware model data.")
+            }
+
+            guard let hw = VZMacHardwareModel(dataRepresentation: hardwareModelData) else {
+                throw Failure("Failed to create hardware model.")
+            }
+
+            hardwareModel = hw
+        } else {
+            guard let image = image else {
+                throw Failure("Hardware model data doesn't exist, but a restore image was not provided to create the initial data.")
+            }
+
+            guard let hw = image.mostFeaturefulSupportedConfiguration?.hardwareModel else {
+                throw Failure("Failed to obtain hardware model from restore image")
+            }
+
+            hardwareModel = hw
+
+            try hw.dataRepresentation.write(to: model.hardwareModelURL)
         }
 
-        // Retrieve the hardware model; you should save this value to disk during installation.
-        guard let hardwareModelData = try? Data(contentsOf: model.hardwareModelURL) else {
-            fatalError("Failed to retrieve hardware model data.")
+        guard hardwareModel.isSupported else {
+            throw Failure("The hardware model is not supported on the current host")
         }
 
-        guard let hardwareModel = VZMacHardwareModel(dataRepresentation: hardwareModelData) else {
-            fatalError("Failed to create hardware model.")
-        }
-
-        if !hardwareModel.isSupported {
-            fatalError("The hardware model is not supported on the current host")
-        }
         macPlatform.hardwareModel = hardwareModel
 
-        // Retrieve the machine identifier; you should save this value to disk during installation.
-        guard let machineIdentifierData = try? Data(contentsOf: model.machineIdentifierURL) else {
-            fatalError("Failed to retrieve machine identifier data.")
+        if FileManager.default.fileExists(atPath: model.auxiliaryStorageURL.path) {
+            macPlatform.auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: model.auxiliaryStorageURL)
+        } else {
+            macPlatform.auxiliaryStorage = try VZMacAuxiliaryStorage(
+                creatingStorageAt: model.auxiliaryStorageURL,
+                hardwareModel: hardwareModel
+            )
         }
 
-        guard let machineIdentifier = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
-            fatalError("Failed to create machine identifier.")
+        let machineIdentifier: VZMacMachineIdentifier
+
+        if FileManager.default.fileExists(atPath: model.machineIdentifierURL.path) {
+            guard let machineIdentifierData = try? Data(contentsOf: model.machineIdentifierURL) else {
+                throw Failure("Failed to retrieve machine identifier data.")
+            }
+
+            guard let mid = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
+                throw Failure("Failed to create machine identifier.")
+            }
+
+            machineIdentifier = mid
+        } else {
+            machineIdentifier = VZMacMachineIdentifier()
+
+            try machineIdentifier.dataRepresentation.write(to: model.machineIdentifierURL)
         }
+
         macPlatform.machineIdentifier = machineIdentifier
-
         
         #warning("TODO: Store dev/prod fuse info in metadata and do entitlement check if not prod fused, throwing an error if no entitlement")
         if NSApp.hasEntitlement("com.apple.private.virtualization") {
@@ -104,19 +150,19 @@ final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
 
-    static func makeConfiguration(for model: VBVirtualMachine) -> VZVirtualMachineConfiguration {
+    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil) async throws -> VZVirtualMachineConfiguration {
         let helper = MacOSVirtualMachineConfigurationHelper(vm: model)
         let c = VZVirtualMachineConfiguration()
 
-        c.platform = Self.createMacPlaform(for: model)
+        c.platform = try await Self.createMacPlaform(for: model, installImageURL: installImageURL)
         c.bootLoader = helper.createBootLoader()
         c.cpuCount = helper.computeCPUCount()
         c.memorySize = helper.computeMemorySize()
         c.graphicsDevices = [helper.createGraphicsDeviceConfiguration()]
         c.storageDevices = [
-            helper.createBlockDeviceConfiguration()
+            try helper.createBlockDeviceConfiguration()
         ]
-        if let additionalBlockDevice = helper.createAdditionalBlockDevice() {
+        if let additionalBlockDevice = try helper.createAdditionalBlockDevice() {
             c.storageDevices.append(additionalBlockDevice)
         }
         c.networkDevices = [
@@ -131,8 +177,8 @@ final class VMInstance: NSObject, ObservableObject {
         return c
     }
     
-    private func createVirtualMachine() throws {
-        let config = Self.makeConfiguration(for: virtualMachineModel)
+    private func createVirtualMachine() async throws {
+        let config = try await Self.makeConfiguration(for: virtualMachineModel)
 
         do {
             try config.validate()
@@ -156,7 +202,7 @@ final class VMInstance: NSObject, ObservableObject {
     private var hookingPoint: VBObjCHookingPoint?
     
     func startVM() async throws {
-        try createVirtualMachine()
+        try await createVirtualMachine()
         
         let vm = try ensureVM()
         
@@ -223,7 +269,7 @@ final class VMInstance: NSObject, ObservableObject {
 
 extension VMInstance: VZVirtualMachineDelegate {
     
-    func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
+    public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
         DispatchQueue.main.async {
             self._wormhole = nil
             
@@ -231,7 +277,7 @@ extension VMInstance: VZVirtualMachineDelegate {
         }
     }
 
-    func guestDidStop(_ virtualMachine: VZVirtualMachine) {
+    public func guestDidStop(_ virtualMachine: VZVirtualMachine) {
         DispatchQueue.main.async {
             self._wormhole = nil
             
@@ -239,7 +285,7 @@ extension VMInstance: VZVirtualMachineDelegate {
         }
     }
     
-    func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
+    public func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
         
     }
     

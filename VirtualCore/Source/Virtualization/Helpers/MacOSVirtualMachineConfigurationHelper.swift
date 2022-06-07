@@ -42,15 +42,25 @@ struct MacOSVirtualMachineConfigurationHelper {
         return graphicsConfiguration
     }
 
-    func createBlockDeviceConfiguration() -> VZVirtioBlockDeviceConfiguration {
-        guard let diskImageAttachment = try? VZDiskImageStorageDeviceAttachment(url: URL(fileURLWithPath: vm.diskImagePath), readOnly: false) else {
-            fatalError("Failed to create Disk image.")
+    func createBlockDeviceConfiguration() throws -> VZVirtioBlockDeviceConfiguration {
+        do {
+            let diskURL = URL(fileURLWithPath: vm.diskImagePath)
+
+            if !FileManager.default.fileExists(atPath: diskURL.path) {
+                try createDiskImage(at: diskURL)
+            }
+
+            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: false)
+
+            let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
+
+            return disk
+        } catch {
+            throw Failure("Failed to instantiate a disk image for the VM: \(error.localizedDescription).")
         }
-        let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
-        return disk
     }
     
-    func createAdditionalBlockDevice() -> VZVirtioBlockDeviceConfiguration? {
+    func createAdditionalBlockDevice() throws -> VZVirtioBlockDeviceConfiguration? {
         let url = URL(fileURLWithPath: vm.extraDiskImagePath)
         
         if !FileManager.default.fileExists(atPath: vm.extraDiskImagePath) {
@@ -64,25 +74,25 @@ struct MacOSVirtualMachineConfigurationHelper {
             
             return disk
         } catch {
-            fatalError("Failed to create Disk image: \(error)")
+            throw Failure("Failed to create Disk image: \(error)")
         }
     }
     
-    private func createDiskImage(at url: URL) {
+    private func createDiskImage(at url: URL) throws {
         let diskFd = open(url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
         if diskFd == -1 {
-            fatalError("Cannot create disk image.")
+            throw Failure("Cannot create disk image.")
         }
 
-        // 64GB disk space.
-        var result = ftruncate(diskFd, 64 * 1024 * 1024 * 1024)
+        // 128GB disk space.
+        var result = ftruncate(diskFd, 128 * 1024 * 1024 * 1024)
         if result != 0 {
-            fatalError("ftruncate() failed.")
+            throw Failure("ftruncate() failed.")
         }
 
         result = close(diskFd)
         if result != 0 {
-            fatalError("Failed to close the disk image.")
+            throw Failure("Failed to close the disk image.")
         }
     }
 

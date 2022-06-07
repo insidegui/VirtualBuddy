@@ -80,6 +80,10 @@ public extension UTType {
 public extension VBVirtualMachine {
     
     init(bundleURL: URL) throws {
+        if !FileManager.default.fileExists(atPath: bundleURL.path) {
+            try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: false)
+        }
+        
         self.bundleURL = bundleURL
         self.metadata = try Metadata(bundleURL: bundleURL)
     }
