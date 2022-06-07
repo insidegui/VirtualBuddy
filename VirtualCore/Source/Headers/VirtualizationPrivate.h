@@ -31,10 +31,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface _VZUSBTouchScreenConfiguration: _VZMultiTouchDeviceConfiguration
 @end
 
-@interface _VZMacTrackpadConfiguration: VZPointingDeviceConfiguration
-- (instancetype)init;
-@end
-
 @interface _VZVirtualMachineStartOptions: NSObject <NSSecureCoding>
 
 @property (assign) BOOL forceDFU;
