@@ -77,14 +77,7 @@ struct VMInstallationWizard: View {
         VStack {
             title("Select an installation method:")
 
-            Group {
-                Button("Download macOS", action: { viewModel.step = .restoreImageSelection })
-
-                Button("Custom IPSW Download URL", action: { viewModel.step = .restoreImageInput })
-
-                Button("Custom IPSW File", action: { viewModel.selectIPSWFile() })
-            }
-            .controlSize(.large)
+            InstallMethodPicker(selection: $viewModel.installMethod)
         }
     }
 

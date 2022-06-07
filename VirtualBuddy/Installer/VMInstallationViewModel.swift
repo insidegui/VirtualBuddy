@@ -46,6 +46,8 @@ final class VMInstallationViewModel: ObservableObject {
         case error(_ message: String)
     }
 
+    @Published var installMethod = InstallMethod.localFile
+
     @Published var data = VMInstallData() {
         didSet {
             if step == .restoreImageSelection {
@@ -73,7 +75,7 @@ final class VMInstallationViewModel: ObservableObject {
     private(set) var restoreImageOptions = [VBRestoreImageInfo]()
 
     @Published private(set) var buttonTitle = "Next"
-    @Published private(set) var showNextButton = false
+    @Published private(set) var showNextButton = true
     @Published private(set) var disableNextButton = false
 
     private var needsDownload: Bool {
@@ -84,7 +86,7 @@ final class VMInstallationViewModel: ObservableObject {
     func goNext() {
         switch step {
             case .installKind:
-                break
+                commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:
                 step = .name
             case .name:
@@ -101,7 +103,7 @@ final class VMInstallationViewModel: ObservableObject {
     private func performActions(for step: Step) {
         switch step {
             case .installKind:
-                showNextButton = false
+                showNextButton = true
             case .restoreImageInput:
                 showNextButton = true
             case .restoreImageSelection:
@@ -129,6 +131,17 @@ final class VMInstallationViewModel: ObservableObject {
                 buttonTitle = "Back to Library"
 
                 cleanupInstallerArtifacts()
+        }
+    }
+
+    private func commitInstallMethod() {
+        switch installMethod {
+        case .localFile:
+            selectIPSWFile()
+        case .remoteOptions:
+            step = .restoreImageSelection
+        case .remoteManual:
+            step = .restoreImageInput
         }
     }
 
