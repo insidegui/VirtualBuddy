@@ -57,7 +57,7 @@ public final class VMInstance: NSObject, ObservableObject {
         self.virtualMachineModel = vm
         self.onVMStop = onVMStop
     }
-
+    
     // MARK: Create the Mac Platform Configuration
 
     private static func loadRestoreImage(from url: URL) async throws -> VZMacOSRestoreImage {
@@ -193,12 +193,6 @@ public final class VMInstance: NSObject, ObservableObject {
         _wormhole = WormholeManager(for: .host)
     }
     
-    private var startOptions: _VZVirtualMachineStartOptions {
-        let opts = _VZVirtualMachineStartOptions()
-        opts.bootMacOSRecovery = options.bootInRecoveryMode
-        return opts
-    }
-    
     private var hookingPoint: VBObjCHookingPoint?
     
     func startVM() async throws {
@@ -211,8 +205,16 @@ public final class VMInstance: NSObject, ObservableObject {
         vm.delegate = self
         
         hookingPoint?.hook()
-        
-        try await vm._start(with: startOptions)
+
+        if #available(macOS 13, *) {
+            let opts = VZMacOSVirtualMachineStartOptions()
+            opts.startUpFromMacOSRecovery = options.bootInRecoveryMode
+            try await vm.start(options: opts)
+        } else {
+            let opts = _VZVirtualMachineStartOptions()
+            opts.bootMacOSRecovery = options.bootInRecoveryMode
+            try await vm._start(with: opts)
+        }
     }
     
     func pause() async throws {

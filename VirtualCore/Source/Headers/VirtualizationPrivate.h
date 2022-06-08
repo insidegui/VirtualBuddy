@@ -31,6 +31,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface _VZUSBTouchScreenConfiguration: _VZMultiTouchDeviceConfiguration
 @end
 
+__attribute__((weak_import))
 @interface _VZVirtualMachineStartOptions: NSObject <NSSecureCoding>
 
 @property (assign) BOOL forceDFU;
@@ -58,8 +59,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface VZVirtualMachine (Private)
 
+#if !defined(MAC_OS_VERSION_13_0) || MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_VERSION_13_0
 - (void)_startWithOptions:(_VZVirtualMachineStartOptions *__nullable)options
         completionHandler:(void (^__nonnull)(NSError * _Nullable errorOrNil))completionHandler;
+#endif
 
 - (id)_USBDevices;
 - (BOOL)_canAttachUSBDevices;
