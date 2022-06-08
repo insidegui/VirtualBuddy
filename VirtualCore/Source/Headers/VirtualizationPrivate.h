@@ -41,6 +41,14 @@ __attribute__((weak_import))
 
 @end
 
+@interface VZVirtualMachineStartOptions (Private)
+
+@property (assign) BOOL _forceDFU;
+@property (assign) BOOL _stopInIBootStage1;
+@property (assign) BOOL _stopInIBootStage2;
+
+@end
+
 @interface VZMacAuxiliaryStorage (Private)
 
 - (NSDictionary <NSString *, id> *)_allNVRAMVariablesWithError:(NSError **)outError;
