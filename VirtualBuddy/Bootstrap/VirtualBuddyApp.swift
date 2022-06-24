@@ -18,8 +18,8 @@ struct VirtualBuddyApp: App {
     var body: some Scene {
         WindowGroup {
             LibraryView()
-                .presentedWindowToolbarStyle(.unifiedCompact)
         }
+        .windowToolbarStyle(.unified)
         
         Settings {
             PreferencesView()

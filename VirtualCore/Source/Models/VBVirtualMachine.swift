@@ -7,7 +7,6 @@ public struct VBVirtualMachine: Identifiable, Hashable {
         public internal(set) var operatingSystemVersion: String
         public internal(set) var operatingSystemBuild: String
         public internal(set) var xCodeVersion: String?
-        public internal(set) var guestAdditionsInstalled: Bool
         public internal(set) var NVRAM = [VBNVRAMVariable]()
     }
     
@@ -21,6 +20,7 @@ public struct VBVirtualMachine: Identifiable, Hashable {
 public extension VBVirtualMachine {
     static let bundleExtension = "vbvm"
     static let screenshotFileName = "Screenshot.tiff"
+    static let thumbnailFileName = "Thumbnail.jpg"
 }
 
 public extension VBVirtualMachine {
@@ -30,7 +30,6 @@ public extension VBVirtualMachine {
             operatingSystemVersion: "12.4",
             operatingSystemBuild: "XYZ123",
             xCodeVersion: "13.3.1 (13E500a)",
-            guestAdditionsInstalled: false,
             NVRAM: [.init(name: "boot-args", value: "amfi_get_out_of_my_way=1 cs_debug=1")]
         )
     )
@@ -99,7 +98,7 @@ extension VBVirtualMachine.Metadata {
             let data = try Data(contentsOf: bundleURL)
             self = try PropertyListDecoder().decode(VBVirtualMachine.Metadata.self, from: data)
         } else {
-            self.init(operatingSystemVersion: "??", operatingSystemBuild: "??", xCodeVersion: nil, guestAdditionsInstalled: false, NVRAM: [])
+            self.init(operatingSystemVersion: "??", operatingSystemBuild: "??", xCodeVersion: nil, NVRAM: [])
         }
     }
     

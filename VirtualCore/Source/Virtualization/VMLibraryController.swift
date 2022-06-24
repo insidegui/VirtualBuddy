@@ -106,32 +106,6 @@ public final class VMLibraryController: ObservableObject {
         self.state = .loaded(vms)
     }
     
-    private func metadataDirectoryCreatingIfNeeded(for machine: VBVirtualMachine) throws -> URL {
-        let baseURL = machine.metadataDirectoryURL
-        if !FileManager.default.fileExists(atPath: baseURL.path) {
-            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
-        }
-        return baseURL
-    }
-    
-    func write(_ data: Data, forMetadataFileNamed name: String, in machine: VBVirtualMachine) throws {
-        let baseURL = try metadataDirectoryCreatingIfNeeded(for: machine)
-        
-        let fileURL = baseURL.appendingPathComponent(name)
-        
-        try data.write(to: fileURL, options: .atomic)
-    }
-    
-    public func metadataContents(_ fileName: String, in machine: VBVirtualMachine) -> Data? {
-        guard let baseURL = try? metadataDirectoryCreatingIfNeeded(for: machine) else { return nil }
-        
-        let fileURL = baseURL.appendingPathComponent(fileName)
-        
-        guard fileManager.fileExists(atPath: fileURL.path) else { return nil }
-        
-        return try? Data(contentsOf: fileURL)
-    }
-    
 }
 
 private final class VMLibraryFilePresenter: NSObject, NSFilePresenter {

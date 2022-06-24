@@ -160,11 +160,15 @@ final class VMInstallationViewModel: ObservableObject {
             do {
                 let images = try await api.fetchRestoreImages()
 
-                restoreImageOptions = images
+                DispatchQueue.main.async {
+                    self.restoreImageOptions = images
 
-                state = .idle
+                    self.state = .idle
+                }
             } catch {
-                state = .error(error.localizedDescription)
+                DispatchQueue.main.async {
+                    self.state = .error(error.localizedDescription)
+                }
             }
         }
     }

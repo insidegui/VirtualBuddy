@@ -91,18 +91,13 @@ struct VirtualMachineSessionView: View {
         }
         .buttonStyle(VMCircularButtonStyle())
     }
-    
-    private var screenshot: NSImage? {
-        guard let imageData = library.metadataContents(VBVirtualMachine.screenshotFileName, in: controller.virtualMachineModel) else { return nil }
-        return NSImage(data: imageData)
-    }
-    
+
     @ViewBuilder
     private var backgroundView: some View {
         ZStack {
             Color.black
             
-            if let screenshot = screenshot {
+            if let screenshot = controller.virtualMachineModel.screenshot {
                 Image(nsImage: screenshot)
                     .resizable()
                     .aspectRatio(contentMode: .fit)

@@ -81,11 +81,7 @@ final class VMScreenshotter {
             throw CocoaError(.validationMissingMandatoryProperty)
         }
 
-        try await VMLibraryController.shared.write(
-            data,
-            forMetadataFileNamed: VBVirtualMachine.screenshotFileName,
-            in: vmModel
-        )
+        try vmModel.write(data, forMetadataFileNamed: VBVirtualMachine.screenshotFileName)
     }
     
 }
