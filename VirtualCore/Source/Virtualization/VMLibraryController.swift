@@ -7,10 +7,11 @@
 
 import Foundation
 import Combine
+import OSLog
 
 @MainActor
 public final class VMLibraryController: ObservableObject {
-    
+
     public enum State {
         case loading
         case loaded([VBVirtualMachine])
@@ -31,10 +32,17 @@ public final class VMLibraryController: ObservableObject {
 
     let settingsContainer: VBSettingsContainer
 
+    private let filePresenter: VMLibraryFilePresenter
+    private let updateSignal = PassthroughSubject<URL, Never>()
+
     init(settingsContainer: VBSettingsContainer = .current) {
         self.settingsContainer = settingsContainer
         self.settings = settingsContainer.settings
         self.libraryURL = settingsContainer.settings.libraryURL
+        self.filePresenter = VMLibraryFilePresenter(
+            presentedItemURL: settingsContainer.settings.libraryURL,
+            signal: updateSignal
+        )
 
         loadMachines()
         bind()
@@ -63,9 +71,19 @@ public final class VMLibraryController: ObservableObject {
             self?.settings = newSettings
         }
         .store(in: &cancellables)
+
+        updateSignal
+            .removeDuplicates()
+            .throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true)
+            .sink { [weak self] _ in
+                self?.loadMachines()
+            }
+            .store(in: &cancellables)
     }
 
     public func loadMachines() {
+        filePresenter.presentedItemURL = libraryURL
+
         guard let enumerator = fileManager.enumerator(at: libraryURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants], errorHandler: nil) else {
             state = .failed(.init("Failed to open directory at \(libraryURL.path)"))
             return
@@ -114,4 +132,55 @@ public final class VMLibraryController: ObservableObject {
         return try? Data(contentsOf: fileURL)
     }
     
+}
+
+private final class VMLibraryFilePresenter: NSObject, NSFilePresenter {
+
+    private lazy var logger = Logger(for: Self.self)
+
+    var presentedItemURL: URL?
+
+    var presentedItemOperationQueue: OperationQueue = .main
+
+    let signal: PassthroughSubject<URL, Never>
+
+    init(presentedItemURL: URL?, signal: PassthroughSubject<URL, Never>) {
+        self.presentedItemURL = presentedItemURL
+        self.signal = signal
+
+        super.init()
+
+        NSFileCoordinator.addFilePresenter(self)
+    }
+
+    private func sendSignalIfNeeded(for url: URL) {
+        guard url.pathExtension == VBVirtualMachine.bundleExtension else { return }
+
+        signal.send(url)
+    }
+
+    func presentedSubitemDidAppear(at url: URL) {
+        logger.debug("Added: \(url.path)")
+
+        sendSignalIfNeeded(for: url)
+    }
+
+    func presentedSubitemDidChange(at url: URL) {
+        logger.debug("Changed: \(url.path)")
+
+        sendSignalIfNeeded(for: url)
+    }
+
+    func presentedSubitem(at oldURL: URL, didMoveTo newURL: URL) {
+        logger.debug("Moved: \(oldURL.path) -> \(newURL.path)")
+
+        sendSignalIfNeeded(for: newURL)
+    }
+
+    func accommodatePresentedSubitemDeletion(at url: URL) async throws {
+        logger.debug("Deleted: \(url.path)")
+
+        sendSignalIfNeeded(for: url)
+    }
+
 }

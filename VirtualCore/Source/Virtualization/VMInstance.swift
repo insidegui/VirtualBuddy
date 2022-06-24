@@ -139,12 +139,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
 
         macPlatform.machineIdentifier = machineIdentifier
-        
-        #warning("TODO: Store dev/prod fuse info in metadata and do entitlement check if not prod fused, throwing an error if no entitlement")
-        if NSApp.hasEntitlement("com.apple.private.virtualization") {
-            macPlatform._isProductionModeEnabled = false
-        }
-        
+
         return macPlatform
     }
 
