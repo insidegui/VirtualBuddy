@@ -11,11 +11,6 @@ import Cocoa
     
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp?.appearance = NSAppearance(named: .darkAqua)
-        
-//        NotificationCenter.default.addObserver(forName: NSWindow.willEnterFullScreenNotification, object: nil, queue: nil) { note in
-//            guard let window = note.object as? NSWindow else { return }
-//            print(window)
-//        }
     }
     
     @objc func restoreDefaultWindowPosition(_ sender: Any?) {

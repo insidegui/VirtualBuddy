@@ -21,8 +21,6 @@
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
 		F4A21BF628033309001072B8 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF528033309001072B8 /* LibraryView.swift */; };
-		F4B8A419282EB65C00D2F78D /* FullScreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A417282EB65C00D2F78D /* FullScreenModifier.swift */; };
-		F4B8A41A282EB65C00D2F78D /* FullScreenWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A418282EB65C00D2F78D /* FullScreenWindowController.swift */; };
 		F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */; };
 		F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */; };
 		F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */; };
@@ -146,8 +144,6 @@
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
 		F4A21BF528033309001072B8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
-		F4B8A417282EB65C00D2F78D /* FullScreenModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenModifier.swift; sourceTree = "<group>"; };
-		F4B8A418282EB65C00D2F78D /* FullScreenWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FullScreenWindowController.swift; sourceTree = "<group>"; };
 		F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenCocoaWindowAction.swift; sourceTree = "<group>"; };
 		F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostingWindowController.swift; sourceTree = "<group>"; };
 		F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowEnvironment.swift; sourceTree = "<group>"; };
@@ -326,8 +322,6 @@
 			isa = PBXGroup;
 			children = (
 				F4B8A422282EC8EB00D2F78D /* HostingWindowController */,
-				F4B8A417282EB65C00D2F78D /* FullScreenModifier.swift */,
-				F4B8A418282EB65C00D2F78D /* FullScreenWindowController.swift */,
 				F4BE9C7D27FF0AEB00B648F8 /* SwiftUIVMView.swift */,
 			);
 			path = Components;
@@ -766,9 +760,7 @@
 				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
 				F4F9B41D284CE6A500F21737 /* DecentFormView.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
-				F4B8A419282EB65C00D2F78D /* FullScreenModifier.swift in Sources */,
 				F4A21BF628033309001072B8 /* LibraryView.swift in Sources */,
-				F4B8A41A282EB65C00D2F78D /* FullScreenWindowController.swift in Sources */,
 				F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */,
 				F4C0C9A8284FE01700D02237 /* AuthenticatingWebView.swift in Sources */,
 				F465C3B6284F969C006E9ED4 /* VMInstallationWizard.swift in Sources */,
