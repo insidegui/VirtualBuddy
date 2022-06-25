@@ -1,1 +1,0 @@
-MAIN_APP_ENTITLEMENTS = $(ENTITLEMENTS_DIR)/VirtualBuddy-Private.entitlements

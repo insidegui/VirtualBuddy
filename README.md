@@ -4,6 +4,8 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 
 **Requires macOS 12.3 and an Apple Silicon Mac**
 
+⚠️ WARNING: This project is experimental. Things might break or not work as expected.
+
 ![](./Screenshot.png)
 
 ### Feature Checklist
@@ -42,9 +44,3 @@ VirtualBuddy is in early development, therefore pre-built binaries are not offic
 - Edit `Main.xcconfig` and set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`, then select a team under Signing & Capabilities.
 	- You may optionally run with the "Sign to run locally" option to skip this step
 - Build the `VirtualBuddy` scheme
-
-## Using the `PrivateEntitlements` scheme
-
-There's a scheme called `VirtualBuddy-PrivateEntitlements` that builds the app with the `com.apple.private.virtualization`, which can be used to explore hidden features of the Virtualization framework that are not normally available.
-
-In order to use this scheme, the Mac must have SIP disabled and `amfi_get_out_of_my_way=1` in boot-args. Do this at your own risk.

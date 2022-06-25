@@ -3,4 +3,4 @@
 #include "Signing.xcconfig"
 #include "Features.xcconfig"
 
-VB_BUNDLE_ID_PREFIX=
+ARCHS=arm64
