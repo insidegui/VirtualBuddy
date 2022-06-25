@@ -22,6 +22,15 @@ struct VirtualBuddyApp: App {
                 .onAppearOnce(perform: updateController.activate)
         }
         .windowToolbarStyle(.unified)
+        .commands {
+            #if ENABLE_SPARKLE
+            CommandGroup(after: .appInfo) {
+                Button("Check for Updates…") {
+                    updateController.checkForUpdates(nil)
+                }
+            }
+            #endif
+        }
         
         Settings {
             PreferencesView()
