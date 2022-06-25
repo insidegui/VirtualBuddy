@@ -22,6 +22,7 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 - [x] Networking and file sharing support
 - [x] Clipboard sharing (without the need to be running macOS Ventura) (experimental ¹)
 - [ ] Edit NVRAM variables
+- [ ] Customize virtual machine hardware configuration
 
 _¹ To enable clipboard sharing, build the `VirtualBuddyGuest` scheme, then copy the `VirtualBuddyGuest` app to the virtual machine (through file sharing, for example) and run it. This will keep the clipboard in sync between the guest and host machines. The feature is experimental, so it might be buggy and it's definitely not secure._
 
