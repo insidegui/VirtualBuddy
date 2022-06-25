@@ -6,6 +6,8 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 
 ⚠️ WARNING: This project is experimental. Things might break or not work as expected.
 
+[Download from GitHub Releases](https://github.com/insidegui/VirtualBuddy/releases)
+
 ![](./Screenshot.png)
 
 ### Feature Checklist
@@ -37,9 +39,9 @@ VirtualBuddy sets up its virtual machines to have the same screen resolution as 
 
 The default mode the VM OS selects for the display uses the native resolution that's available to it though, which can make things look really small. In order to address this, go into System Preferences > Displays within the guest operating system and choose a scaled resolution.
 
-## Building and using locally
+## Building
 
-VirtualBuddy is in early development, therefore pre-built binaries are not officially available yet.
+Xcode 14 is recommended.
 
 - Edit `Main.xcconfig` and set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`, then select a team under Signing & Capabilities.
 	- You may optionally run with the "Sign to run locally" option to skip this step
