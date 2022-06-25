@@ -45,12 +45,36 @@ struct LibraryView: View {
     private var libraryContents: some View {
         switch library.state {
         case .loaded(let vms):
-            collectionView(with: vms)
+            if vms.isEmpty {
+                emptyLibraryView
+            } else {
+                collectionView(with: vms)
+            }
         case .loading:
             ProgressView()
         case .failed(let error):
             Text(error.errorDescription!)
         }
+    }
+
+    @ViewBuilder
+    private var emptyLibraryView: some View {
+        VStack(spacing: 16) {
+            Text("Your Library is Empty")
+                .font(.system(size: 22, weight: .semibold, design: .rounded))
+
+            Text("VirtualBuddy is looking for virtual machines in **\(library.libraryURL.collapsedHomePath)**. You can change this in the app's settings.")
+                .multilineTextAlignment(.center)
+                .foregroundColor(.secondary)
+
+            Button("Create Your First VM") {
+                launchInstallWizard()
+            }
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
+            .padding(.top)
+        }
+        .frame(maxWidth: 400)
     }
 
     @ViewBuilder
@@ -178,5 +202,11 @@ struct LibraryItemView<Label>: View where Label: View {
 struct LibraryView_Previews: PreviewProvider {
     static var previews: some View {
         LibraryView()
+    }
+}
+
+fileprivate extension URL {
+    var collapsedHomePath: String {
+        path.replacingOccurrences(of: NSHomeDirectory(), with: "~")
     }
 }
