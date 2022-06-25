@@ -23,6 +23,10 @@
 			<true/>
 		</dict>
 	</array>
+	<key>SUPublicEDKey</key>
+	<string>$(VB_SPARKLE_PUBLIC_ED_KEY)</string>
+	<key>SUScheduledCheckInterval</key>
+	<string>$(VB_SPARKLE_CHECK_INTERVAL)</string>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
 		<dict>

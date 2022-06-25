@@ -59,6 +59,10 @@
 		F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
 		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */; };
+		F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F4D0F71728674E4B004D5782 /* Sparkle */; };
+		F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */; };
+		F4D0F71D28675026004D5782 /* OnAppearOnce.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71C28675026004D5782 /* OnAppearOnce.swift */; };
+		F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
 		F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B412284CDB7B00F21737 /* PreferencesView.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
@@ -191,6 +195,10 @@
 		F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuest.entitlements; sourceTree = "<group>"; };
 		F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Screenshot.swift"; sourceTree = "<group>"; };
+		F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareUpdateController.swift; sourceTree = "<group>"; };
+		F4D0F71B28674F24004D5782 /* Features.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Features.xcconfig; sourceTree = "<group>"; };
+		F4D0F71C28675026004D5782 /* OnAppearOnce.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnAppearOnce.swift; sourceTree = "<group>"; };
+		F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChannel.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
 		F4F9B412284CDB7B00F21737 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
@@ -204,6 +212,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
@@ -338,6 +347,7 @@
 			children = (
 				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
 				F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */,
+				F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */,
 			);
 			path = Bootstrap;
 			sourceTree = "<group>";
@@ -452,6 +462,7 @@
 				F4C1224A2807156200D359E2 /* Signing.xcconfig */,
 				F4C122532807181B00D359E2 /* Main-Private-Entitlements.xcconfig */,
 				F4C1224E280715F200D359E2 /* Main.xcconfig */,
+				F4D0F71B28674F24004D5782 /* Features.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -497,6 +508,7 @@
 			children = (
 				F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */,
 				F4F9B419284CE37C00F21737 /* Logging.swift */,
+				F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */,
 			);
 			path = Definitions;
 			sourceTree = "<group>";
@@ -559,6 +571,7 @@
 			isa = PBXGroup;
 			children = (
 				F4F9B41C284CE6A500F21737 /* DecentFormView.swift */,
+				F4D0F71C28675026004D5782 /* OnAppearOnce.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -605,6 +618,7 @@
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
+				F4D0F71728674E4B004D5782 /* Sparkle */,
 			);
 			productName = VirtualBuddy;
 			productReference = F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */;
@@ -707,6 +721,7 @@
 			mainGroup = F4BE9C4527FF052100B648F8;
 			packageReferences = (
 				F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */,
+				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -763,6 +778,8 @@
 				F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */,
 				F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */,
 				F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */,
+				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
+				F4D0F71D28675026004D5782 /* OnAppearOnce.swift in Sources */,
 				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
 				F4F9B41D284CE6A500F21737 /* DecentFormView.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
@@ -789,6 +806,7 @@
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
+				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
 				F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
 				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
@@ -991,6 +1009,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1021,6 +1040,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1167,6 +1187,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1439,6 +1460,14 @@
 				minimumVersion = 0.4.0;
 			};
 		};
+		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1446,6 +1475,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */;
 			productName = MultipeerKit;
+		};
+		F4D0F71728674E4B004D5782 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

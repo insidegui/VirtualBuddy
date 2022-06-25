@@ -14,10 +14,12 @@ struct VirtualBuddyApp: App {
     var appDelegate: VirtualBuddyAppDelegate
 
     @StateObject var settingsContainer = VBSettingsContainer.current
+    @StateObject var updateController = SoftwareUpdateController.shared
     
     var body: some Scene {
         WindowGroup {
             LibraryView()
+                .onAppearOnce(perform: updateController.activate)
         }
         .windowToolbarStyle(.unified)
         

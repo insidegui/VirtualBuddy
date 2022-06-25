@@ -9,10 +9,11 @@ import Foundation
 
 public struct VBSettings: Hashable {
 
-    public static let currentVersion = 1
+    public static let currentVersion = 2
 
     public var version: Int = Self.currentVersion
     public var libraryURL: URL
+    public var updateChannel: AppUpdateChannel
 
 }
 
@@ -20,11 +21,13 @@ extension VBSettings {
 
     init() {
         self.libraryURL = .defaultVirtualBuddyLibraryURL
+        self.updateChannel = .release
     }
 
     private struct Keys {
         static let version = "version"
         static let libraryPath = "libraryPath"
+        static let updateChannel = "updateChannel"
     }
 
     init(with defaults: UserDefaults) throws {
@@ -35,11 +38,18 @@ extension VBSettings {
         } else {
             self.libraryURL = .defaultVirtualBuddyLibraryURL
         }
+
+        if let appUpdateChannelID = defaults.string(forKey: Keys.updateChannel) {
+            self.updateChannel = AppUpdateChannel.byID[appUpdateChannelID] ?? .release
+        } else {
+            self.updateChannel = .release
+        }
     }
 
     func write(to defaults: UserDefaults) throws {
         defaults.set(version, forKey: Keys.version)
         defaults.set(libraryURL.path, forKey: Keys.libraryPath)
+        defaults.set(updateChannel.id, forKey: Keys.updateChannel)
     }
 
 }
