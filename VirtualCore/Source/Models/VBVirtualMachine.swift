@@ -80,7 +80,7 @@ public extension VBVirtualMachine {
     
     init(bundleURL: URL) throws {
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
-            try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: false)
+            try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
         
         self.bundleURL = bundleURL
