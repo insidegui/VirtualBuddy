@@ -9,7 +9,7 @@ import Foundation
 
 public final class VBAPIClient {
 
-    public struct Environment {
+    public struct Environment: Hashable {
         public var baseURL = URL(string: "https://virtualbuddy-api-dev.bestbuddyapps3496.workers.dev")!
         public var apiKey = "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
 
@@ -23,7 +23,15 @@ public final class VBAPIClient {
             apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
         )
 
-        public static let current = Environment.production
+        public static var current: Environment {
+            if let override = UserDefaults.standard.string(forKey: "VBAPIEnvironment"),
+               override == "development"
+            {
+                return .development
+            } else {
+                return .production
+            }
+        }
     }
 
     public let environment: Environment

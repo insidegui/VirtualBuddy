@@ -109,6 +109,12 @@ struct VMInstallationWizard: View {
                 authenticationEntryPoint(with: authRequirement)
                     .padding(.top, 36)
             }
+
+            if VBAPIClient.Environment.current != .production {
+                Text("Notice: API environment override from defaults/arguments. Using API URL: \(VBAPIClient.Environment.current.baseURL)")
+                    .font(.caption)
+                    .foregroundColor(.yellow)
+            }
         }
     }
 
