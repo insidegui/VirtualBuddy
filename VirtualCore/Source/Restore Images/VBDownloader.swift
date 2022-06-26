@@ -151,7 +151,9 @@ extension VBDownloader: URLSessionDownloadDelegate, URLSessionDelegate {
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
-        state = .failed(error?.localizedDescription ?? "Unknown networking error.")
+        // Successful completion is handled in `urlSession:downloadTask:didFinishDownloadingTo`.
+        guard let error = error else { return }
+        state = .failed(error.localizedDescription)
     }
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
