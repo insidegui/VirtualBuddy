@@ -14,7 +14,7 @@ struct MacOSVirtualMachineConfigurationHelper {
     func computeCPUCount() -> Int {
         let totalAvailableCPUs = ProcessInfo.processInfo.processorCount
 
-        var virtualCPUCount = totalAvailableCPUs <= 1 ? 1 : totalAvailableCPUs - 1
+        var virtualCPUCount = totalAvailableCPUs <= 1 ? 1 : totalAvailableCPUs / 2
         virtualCPUCount = max(virtualCPUCount, VZVirtualMachineConfiguration.minimumAllowedCPUCount)
         virtualCPUCount = min(virtualCPUCount, VZVirtualMachineConfiguration.maximumAllowedCPUCount)
 
@@ -22,7 +22,8 @@ struct MacOSVirtualMachineConfigurationHelper {
     }
 
     func computeMemorySize() -> UInt64 {
-        var memorySize = (16 * 1024 * 1024 * 1024) as UInt64
+        let hostMemory = ProcessInfo.processInfo.physicalMemory
+        var memorySize = hostMemory / 2
         memorySize = max(memorySize, VZVirtualMachineConfiguration.minimumAllowedMemorySize)
         memorySize = min(memorySize, VZVirtualMachineConfiguration.maximumAllowedMemorySize)
 
@@ -84,8 +85,8 @@ struct MacOSVirtualMachineConfigurationHelper {
             throw Failure("Cannot create disk image.")
         }
 
-        // 128GB disk space.
-        var result = ftruncate(diskFd, 128 * 1024 * 1024 * 1024)
+        // 64GB disk space.
+        var result = ftruncate(diskFd, 64 * 1024 * 1024 * 1024)
         if result != 0 {
             throw Failure("ftruncate() failed.")
         }
