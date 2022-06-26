@@ -74,25 +74,6 @@ public final class VBDownloader: NSObject {
     }
 
     @MainActor
-    private func handleDownloadCompletion(localURL: URL) {
-        guard !isInFailedState else { return }
-
-        guard let destinationURL = destinationURL else {
-            state = .failed("Missing destination URL.")
-            assertionFailure("WAT")
-            return
-        }
-
-        do {
-            try FileManager.default.moveItem(at: localURL, to: destinationURL)
-
-            state = .done(destinationURL)
-        } catch {
-            state = .failed("Failed to move downloaded file: \(error.localizedDescription)")
-        }
-    }
-
-    @MainActor
     public func cancelDownload() {
         downloadTask?.cancel()
         downloadTask = nil
@@ -145,8 +126,20 @@ extension VBDownloader: URLSessionDownloadDelegate, URLSessionDelegate {
     }
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
-        Task {
-            await handleDownloadCompletion(localURL: location)
+        guard !isInFailedState else { return }
+
+        guard let destinationURL = destinationURL else {
+            state = .failed("Missing destination URL.")
+            assertionFailure("WAT")
+            return
+        }
+
+        do {
+            try FileManager.default.moveItem(at: location, to: destinationURL)
+
+            DispatchQueue.main.async { self.state = .done(destinationURL) }
+        } catch {
+            DispatchQueue.main.async { self.state = .failed("Failed to move downloaded file: \(error.localizedDescription)") }
         }
     }
 
