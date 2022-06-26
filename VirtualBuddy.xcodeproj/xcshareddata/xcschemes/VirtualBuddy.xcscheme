@@ -53,7 +53,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-VBAPIEnvironment development"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
