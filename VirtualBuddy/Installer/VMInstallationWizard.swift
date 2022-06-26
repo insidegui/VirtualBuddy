@@ -105,6 +105,13 @@ struct VMInstallationWizard: View {
                 }
             }
 
+            if let selectedImage = viewModel.data.restoreImageInfo {
+                Text(selectedImage.downloadNotice)
+                .foregroundColor(.secondary)
+                .textSelection(.enabled)
+                .padding(.top)
+            }
+
             if let authRequirement = viewModel.data.restoreImageInfo?.authenticationRequirement {
                 authenticationEntryPoint(with: authRequirement)
                     .padding(.top, 36)
@@ -232,4 +239,16 @@ struct VMInstallationWizard_Previews: PreviewProvider {
     static var previews: some View {
         VMInstallationWizard()
     }
+}
+
+extension VBRestoreImageInfo {
+
+    var downloadNotice: String {
+        """
+        If you prefer to use a download manager, you may download \(name) from the following URL:
+
+        \(url)
+        """
+    }
+
 }
