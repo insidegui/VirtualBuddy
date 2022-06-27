@@ -313,6 +313,10 @@ final class VMInstallationViewModel: ObservableObject {
         openPanel.allowedContentTypes = [.ipsw]
         guard openPanel.runModal() == .OK, let url = openPanel.url else { return }
 
+        continueWithLocalFile(at: url)
+    }
+
+    func continueWithLocalFile(at url: URL) {
         data.restoreImageURL = url
 
         step = .name
@@ -344,4 +348,29 @@ final class VMInstallationViewModel: ObservableObject {
 
 extension UTType {
     static let ipsw = UTType(filenameExtension: "ipsw")!
+}
+
+extension VMInstallationViewModel {
+
+    enum RestoreImageAdvisory: Hashable {
+        case manualDownloadTip(_ title: String, _ url: URL)
+        case alreadyDownloaded(_ title: String, _ localURL: URL)
+        case failure(_ message: String)
+    }
+
+    @MainActor
+    func restoreAdvisory(for info: VBRestoreImageInfo) -> RestoreImageAdvisory? {
+        guard let library = library else { return nil }
+
+        do {
+            if let existingDownloadURL = try library.existingLocalURL(for: info.url) {
+                return .alreadyDownloaded(info.name, existingDownloadURL)
+            } else {
+                return .manualDownloadTip(info.name, info.url)
+            }
+        } catch {
+            return .failure(error.localizedDescription)
+        }
+    }
+
 }
