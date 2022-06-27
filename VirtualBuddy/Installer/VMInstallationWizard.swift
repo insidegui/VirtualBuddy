@@ -105,11 +105,10 @@ struct VMInstallationWizard: View {
                 }
             }
 
-            if let selectedImage = viewModel.data.restoreImageInfo {
-                Text(selectedImage.downloadNotice)
-                .foregroundColor(.secondary)
-                .textSelection(.enabled)
-                .padding(.top)
+            if let selectedImage = viewModel.data.restoreImageInfo,
+               let advisory = viewModel.restoreAdvisory(for: selectedImage)
+            {
+                avisoryView(with: advisory)
             }
 
             if let authRequirement = viewModel.data.restoreImageInfo?.authenticationRequirement {
@@ -123,6 +122,35 @@ struct VMInstallationWizard: View {
                     .foregroundColor(.yellow)
             }
         }
+    }
+
+    @ViewBuilder
+    private func avisoryView(with advisory: VMInstallationViewModel.RestoreImageAdvisory) -> some View {
+        VStack {
+            switch advisory {
+            case .manualDownloadTip(let title, let url):
+                Text("""
+                     If you prefer to use a download manager, you may download \(title) from the following URL:
+
+                     \(url)
+                     """)
+                .foregroundColor(.secondary)
+            case .alreadyDownloaded(let title, let localURL):
+                VStack {
+                    Text("\(title) is already downloaded. Click \"Next\" below to re-download it or proceed with the installation right now by using the previously downloaded image.")
+                        .foregroundColor(.green)
+
+                    Button("Install Now") { viewModel.continueWithLocalFile(at: localURL) }
+                        .controlSize(.large)
+                }
+            case .failure(let error):
+                Text("VirtualBuddy couldn't create its downloads directory within \(library.libraryURL.path): \(error)")
+                    .foregroundColor(.red)
+            }
+        }
+        .multilineTextAlignment(.center)
+        .textSelection(.enabled)
+        .padding(.top)
     }
 
     @State private var authRequirementFlow: VBRestoreImageInfo.AuthRequirement?
@@ -239,16 +267,4 @@ struct VMInstallationWizard_Previews: PreviewProvider {
     static var previews: some View {
         VMInstallationWizard()
     }
-}
-
-extension VBRestoreImageInfo {
-
-    var downloadNotice: String {
-        """
-        If you prefer to use a download manager, you may download \(name) from the following URL:
-
-        \(url)
-        """
-    }
-
 }
