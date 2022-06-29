@@ -17,7 +17,6 @@ struct VirtualMachineSessionView: View {
             .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .background(backgroundView)
-            .cocoaToolbar { toolbarContents }
             .environmentObject(controller)
             .windowTitle(controller.virtualMachineModel.name)
             .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
