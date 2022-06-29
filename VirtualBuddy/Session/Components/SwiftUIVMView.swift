@@ -10,7 +10,7 @@ import Cocoa
 import Virtualization
 import VirtualCore
 
-final class SwiftUIVMView: NSViewControllerRepresentable {
+struct SwiftUIVMView: NSViewControllerRepresentable {
     
     typealias NSViewControllerType = VMViewController
     
@@ -62,7 +62,7 @@ final class VMViewController: NSViewController {
     }()
     
     override func loadView() {
-        view = VMContainerView()
+        view = NSView()
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.black.cgColor
         
@@ -89,15 +89,5 @@ final class VMViewController: NSViewController {
         
         print("makeFirstResponder = \(result)")
     }
-    
-}
-
-fileprivate final class VMContainerView: NSView {
-    
-//    override var acceptsFirstResponder: Bool { true }
-//    
-//    override func acceptsFirstMouse(for event: NSEvent?) -> Bool { true }
-//    
-//    override var canBecomeKeyView: Bool { true }
     
 }

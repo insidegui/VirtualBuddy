@@ -8,7 +8,7 @@
 import SwiftUI
 import WebKit
 
-final class AuthenticatingWebView: NSViewControllerRepresentable {
+struct AuthenticatingWebView: NSViewControllerRepresentable {
 
     typealias NSViewControllerType = AuthenticatingWebViewController
 
@@ -21,9 +21,9 @@ final class AuthenticatingWebView: NSViewControllerRepresentable {
     }
 
     func makeNSViewController(context: Context) -> AuthenticatingWebViewController {
-        AuthenticatingWebViewController(url: url) { [weak self] 🍪 in
+        AuthenticatingWebViewController(url: url) { 🍪 in
             DispatchQueue.main.async {
-                self?.onCookiesChanged(🍪)
+                self.onCookiesChanged(🍪)
             }
         }
     }
