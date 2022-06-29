@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F4471004286D0C1200F030EB /* NSAlert+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -24,7 +25,6 @@
 		F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */; };
 		F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */; };
 		F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */; };
-		F4B8A42A282ECC0F00D2F78D /* CocoaToolbar.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A429282ECC0F00D2F78D /* CocoaToolbar.swift */; };
 		F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */; };
 		F4BE9C5627FF052100B648F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5527FF052100B648F8 /* Assets.xcassets */; };
 		F4BE9C5927FF052100B648F8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5827FF052100B648F8 /* Preview Assets.xcassets */; };
@@ -136,6 +136,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAlert+Confirmation.swift"; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -153,7 +154,6 @@
 		F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenCocoaWindowAction.swift; sourceTree = "<group>"; };
 		F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostingWindowController.swift; sourceTree = "<group>"; };
 		F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowEnvironment.swift; sourceTree = "<group>"; };
-		F4B8A429282ECC0F00D2F78D /* CocoaToolbar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CocoaToolbar.swift; sourceTree = "<group>"; };
 		F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyApp.swift; sourceTree = "<group>"; };
 		F4BE9C5527FF052100B648F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -355,7 +355,6 @@
 				F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */,
 				F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */,
 				F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */,
-				F4B8A429282ECC0F00D2F78D /* CocoaToolbar.swift */,
 			);
 			path = HostingWindowController;
 			sourceTree = "<group>";
@@ -566,6 +565,7 @@
 			children = (
 				F4F9B41C284CE6A500F21737 /* DecentFormView.swift */,
 				F4D0F71C28675026004D5782 /* OnAppearOnce.swift */,
+				F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -781,10 +781,10 @@
 				F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */,
 				F4C0C9A8284FE01700D02237 /* AuthenticatingWebView.swift in Sources */,
 				F465C3B6284F969C006E9ED4 /* VMInstallationWizard.swift in Sources */,
+				F4471004286D0C1200F030EB /* NSAlert+Confirmation.swift in Sources */,
 				F4C0C98B284FD8AD00D02237 /* InstallMethodPicker.swift in Sources */,
 				F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
-				F4B8A42A282ECC0F00D2F78D /* CocoaToolbar.swift in Sources */,
 				F4BE9C7E27FF0AEB00B648F8 /* SwiftUIVMView.swift in Sources */,
 				F4C0C96D284FD1DB00D02237 /* VMInstallationViewModel.swift in Sources */,
 			);

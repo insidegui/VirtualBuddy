@@ -17,10 +17,30 @@ struct VirtualMachineSessionView: View {
             .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .background(backgroundView)
-            .cocoaToolbar { toolbarContents }
             .environmentObject(controller)
             .windowTitle(controller.virtualMachineModel.name)
             .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
+            .confirmBeforeClosingWindow {
+                guard controller.isStarting || controller.isRunning else { return true }
+
+                let confirmed = await NSAlert.runConfirmationAlert(
+                    title: "Stop Virtual Machine?",
+                    message: "If you close the window now, the virtual machine will be stopped.",
+                    continueButtonTitle: "Stop VM",
+                    cancelButtonTitle: "Cancel"
+                )
+
+                guard confirmed else { return false }
+
+                try? await controller.forceStop()
+
+                /// Workaround for cursor disappearing due to it being captured
+                /// between the alert confirmation and the VM stopping.
+                try? await Task.sleep(nanoseconds: 100_000_000)
+                NSCursor.unhide()
+
+                return true
+            }
     }
     
     @ViewBuilder
@@ -117,7 +137,7 @@ struct VirtualMachineSessionView: View {
             
             if case .running = controller.state {
                 Button {
-                    Task { try await controller.forceStop() }
+                    Task { try await controller.stop() }
                 } label: {
                     Image(systemName: "stop.fill")
                 }
@@ -179,4 +199,15 @@ struct VMCircularButtonStyle: ButtonStyle {
             .symbolVariant(.fill)
     }
     
+}
+
+extension VMController {
+    var isRunning: Bool {
+        guard case .running = state else { return false }
+        return true
+    }
+    var isStarting: Bool {
+        guard case .starting = state else { return false }
+        return true
+    }
 }
