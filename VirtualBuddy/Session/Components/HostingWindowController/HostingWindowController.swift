@@ -96,6 +96,19 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
             .fullScreen
         ]
     }
+
+    var confirmBeforeClosingCallback: () async -> Bool {
+        get {
+            guard let hostingWindow = window as? HostingWindow else {
+                preconditionFailure("confirmBeforeClosing can't be used with custom window types in HostingWindowController")
+            }
+            return hostingWindow.confirmBeforeClosingCallback
+        }
+        set {
+            precondition(window is HostingWindow, "confirmBeforeClosing can't be used with custom window types in HostingWindowController")
+            (window as? HostingWindow)?.confirmBeforeClosingCallback = newValue
+        }
+    }
     
 }
 
@@ -104,6 +117,7 @@ extension HostingWindowController: WindowChromeConsumer { }
 protocol WindowChromeConsumer: AnyObject {
     var viewRendersWindowChrome: Bool { get set }
     var onWindowOcclusionStateChanged: ((NSWindow.OcclusionState) -> Void)? { get set }
+    var confirmBeforeClosingCallback: () async -> Bool { get set }
 }
 
 fileprivate final class HostingWindow: NSWindow {
@@ -111,5 +125,18 @@ fileprivate final class HostingWindow: NSWindow {
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
     override var acceptsFirstResponder: Bool { true }
+
+    var confirmBeforeClosingCallback: () async -> Bool = { false }
+
+    override func close() {
+        Task {
+            guard await confirmBeforeClosingCallback() else { return }
+            await MainActor.run { closeWithoutConfirmation() }
+        }
+    }
+
+    private func closeWithoutConfirmation() {
+        super.close()
+    }
     
 }

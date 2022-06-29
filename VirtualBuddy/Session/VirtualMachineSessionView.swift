@@ -21,6 +21,22 @@ struct VirtualMachineSessionView: View {
             .environmentObject(controller)
             .windowTitle(controller.virtualMachineModel.name)
             .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
+            .confirmBeforeClosingWindow {
+                guard controller.isStarting || controller.isRunning else { return true }
+
+                let confirmed = await NSAlert.runConfirmationAlert(
+                    title: "Stop Virtual Machine?",
+                    message: "If you close the window now, the virtual machine will be stopped.",
+                    continueButtonTitle: "Stop VM",
+                    cancelButtonTitle: "Cancel"
+                )
+
+                guard confirmed else { return false }
+
+                try? await controller.stop()
+
+                return true
+            }
     }
     
     @ViewBuilder
@@ -117,7 +133,7 @@ struct VirtualMachineSessionView: View {
             
             if case .running = controller.state {
                 Button {
-                    Task { try await controller.forceStop() }
+                    Task { try await controller.stop() }
                 } label: {
                     Image(systemName: "stop.fill")
                 }
@@ -179,4 +195,43 @@ struct VMCircularButtonStyle: ButtonStyle {
             .symbolVariant(.fill)
     }
     
+}
+
+extension VMController {
+    var isRunning: Bool {
+        guard case .running = state else { return false }
+        return true
+    }
+    var isStarting: Bool {
+        guard case .starting = state else { return false }
+        return true
+    }
+}
+
+extension NSAlert {
+
+    static func runConfirmationAlert(title: String,
+                                     message: String,
+                                     continueButtonTitle: String = "Continue",
+                                     cancelButtonTitle: String = "Cancel") async -> Bool
+    {
+        let alert = NSAlert()
+
+        alert.messageText = title
+        alert.informativeText = message
+
+        alert.addButton(withTitle: cancelButtonTitle)
+        alert.addButton(withTitle: continueButtonTitle)
+
+        let response: NSApplication.ModalResponse
+
+        if let window = NSApp?.keyWindow {
+            response = await alert.beginSheetModal(for: window)
+        } else {
+            response = alert.runModal()
+        }
+
+        return response == .alertSecondButtonReturn
+    }
+
 }

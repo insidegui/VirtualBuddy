@@ -60,6 +60,10 @@ public extension View {
     func onWindowOcclusionStateChanged(perform block: @escaping (NSWindow.OcclusionState) -> Void) -> some View {
         environment(\.onWindowOcclusionStateChanged, block)
     }
+
+    func confirmBeforeClosingWindow(callback: @escaping () async -> Bool) -> some View {
+        environment(\.confirmBeforeClosingWindow, callback)
+    }
     
 }
 
@@ -67,6 +71,10 @@ public extension View {
 
 private struct CloseWindowEnvironmentKey: EnvironmentKey {
     static let defaultValue: () -> Void = { }
+}
+
+private struct ConfirmBeforeClosingWindowEnvironmentKey: EnvironmentKey {
+    static let defaultValue: () async -> Bool = { false }
 }
 
 private struct WindowTitleEnvironmentKey: EnvironmentKey {
@@ -166,6 +174,14 @@ extension EnvironmentValues {
         set {
             self[WindowOnOcclusionStateChangedEnvironmentKey.self] = newValue
             windowChromeConsumer?.onWindowOcclusionStateChanged = newValue
+        }
+    }
+
+    var confirmBeforeClosingWindow: () async -> Bool {
+        get { self[ConfirmBeforeClosingWindowEnvironmentKey.self] }
+        set {
+            self[ConfirmBeforeClosingWindowEnvironmentKey.self] = newValue
+            windowChromeConsumer?.confirmBeforeClosingCallback = newValue
         }
     }
     
