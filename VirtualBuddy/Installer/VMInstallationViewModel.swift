@@ -13,6 +13,7 @@ import VirtualCore
 
 struct VMInstallData: Hashable {
     var name = "New Mac VM"
+    var diskImageSize: Double = Double(Int.defaultDiskImageSize)
     var cookie: String?
     var restoreImageInfo: VBRestoreImageInfo? {
         didSet {
@@ -42,6 +43,7 @@ final class VMInstallationViewModel: ObservableObject {
         case installKind
         case restoreImageInput
         case restoreImageSelection
+        case configure
         case name
         case download
         case install
@@ -96,6 +98,8 @@ final class VMInstallationViewModel: ObservableObject {
             case .installKind:
                 commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:
+                step = .configure
+            case .configure:
                 step = .name
             case .name:
                 step = needsDownload ? .download : .install
@@ -119,10 +123,12 @@ final class VMInstallationViewModel: ObservableObject {
 
                 showNextButton = true
                 disableNextButton = true
-            case .name:
+            case .configure:
                 showNextButton = true
 
                 commitOSSelection()
+            case .name:
+                showNextButton = true
 
                 createInitialName()
             case .download:
@@ -263,7 +269,8 @@ final class VMInstallationViewModel: ObservableObject {
                 .appendingPathComponent(data.name)
                 .appendingPathExtension(VBVirtualMachine.bundleExtension)
 
-            let model = try VBVirtualMachine(bundleURL: vmURL)
+            let model = try VBVirtualMachine(bundleURL: vmURL,
+                                             installOptions: .init(diskImageSize: Int(data.diskImageSize)))
 
             let config = try await VMInstance.makeConfiguration(for: model, installImageURL: restoreURL)
 
@@ -319,7 +326,7 @@ final class VMInstallationViewModel: ObservableObject {
     func continueWithLocalFile(at url: URL) {
         data.restoreImageURL = url
 
-        step = .name
+        step = .configure
     }
 
     private func formattedETA(from eta: Double) -> String {

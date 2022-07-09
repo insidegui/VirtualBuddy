@@ -10,9 +10,18 @@ public struct VBVirtualMachine: Identifiable, Hashable {
         public internal(set) var NVRAM = [VBNVRAMVariable]()
     }
     
+    public struct InstallOptions: Hashable {
+        public let diskImageSize: Int
+        
+        public init(diskImageSize: Int) {
+            self.diskImageSize = diskImageSize
+        }
+    }
+    
     public var id: String { bundleURL.absoluteString }
     public let bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
+    public var installOptions: InstallOptions?
     
     public internal(set) var metadata: Metadata
 }
@@ -26,6 +35,7 @@ public extension VBVirtualMachine {
 public extension VBVirtualMachine {
     static let preview = VBVirtualMachine(
         bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm"),
+        installOptions: InstallOptions(diskImageSize: .defaultDiskImageSize),
         metadata: Metadata(
             operatingSystemVersion: "12.4",
             operatingSystemBuild: "XYZ123",
@@ -78,12 +88,13 @@ public extension UTType {
 
 public extension VBVirtualMachine {
     
-    init(bundleURL: URL) throws {
+    init(bundleURL: URL, installOptions: InstallOptions? = nil) throws {
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
             try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
         
         self.bundleURL = bundleURL
+        self.installOptions = installOptions
         self.metadata = try Metadata(bundleURL: bundleURL)
     }
     

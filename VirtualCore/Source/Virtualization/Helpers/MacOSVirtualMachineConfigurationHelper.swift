@@ -48,7 +48,8 @@ struct MacOSVirtualMachineConfigurationHelper {
             let diskURL = URL(fileURLWithPath: vm.diskImagePath)
 
             if !FileManager.default.fileExists(atPath: diskURL.path) {
-                try createDiskImage(at: diskURL)
+                let size = vm.installOptions?.diskImageSize ?? .defaultDiskImageSize
+                try createDiskImage(ofSize: size, at: diskURL)
             }
 
             let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: false)
@@ -79,14 +80,13 @@ struct MacOSVirtualMachineConfigurationHelper {
         }
     }
     
-    private func createDiskImage(at url: URL) throws {
+    private func createDiskImage(ofSize size: Int, at url: URL) throws {
         let diskFd = open(url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
         if diskFd == -1 {
             throw Failure("Cannot create disk image.")
         }
 
-        // 64GB disk space.
-        var result = ftruncate(diskFd, 64 * 1024 * 1024 * 1024)
+        var result = ftruncate(diskFd, off_t(size))
         if result != 0 {
             throw Failure("ftruncate() failed.")
         }
@@ -152,4 +152,10 @@ extension VZMacGraphicsDisplayConfiguration {
         )
     }
     
+}
+
+public extension Int {
+    static let defaultDiskImageSize = 64 * 1_000_000_000
+    static let minimumDiskImageSize = 64 * 1_000_000_000
+    static let maximumDiskImageSize = 512 * 1_000_000_000
 }
