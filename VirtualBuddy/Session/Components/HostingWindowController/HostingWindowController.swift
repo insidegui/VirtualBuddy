@@ -126,7 +126,7 @@ fileprivate final class HostingWindow: NSWindow {
     override var canBecomeMain: Bool { true }
     override var acceptsFirstResponder: Bool { true }
 
-    var confirmBeforeClosingCallback: () async -> Bool = { false }
+    var confirmBeforeClosingCallback: () async -> Bool = { true }
 
     override func close() {
         Task {
