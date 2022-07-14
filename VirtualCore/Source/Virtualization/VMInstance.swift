@@ -175,6 +175,17 @@ public final class VMInstance: NSObject, ObservableObject {
     private func createVirtualMachine() async throws {
         let config = try await Self.makeConfiguration(for: virtualMachineModel)
 
+        if options.sharedFolderMountable {
+            if FileManager.default.fileExists(atPath: options.sharedFolder.relativePath) {
+                config.directorySharingDevices = [MacOSVirtualMachineConfigurationHelper.createFileSystemDeviceConfiguration(sharedFolder: options.sharedFolder,
+                                                                                                                             readOnly: options.sharedFolderReadOnly)]
+            } else {
+                print("Missing share folder in host system \(options.sharedFolder)")
+            }
+        } else {
+            print("Share folder disabled")
+        }
+
         do {
             try config.validate()
         } catch {

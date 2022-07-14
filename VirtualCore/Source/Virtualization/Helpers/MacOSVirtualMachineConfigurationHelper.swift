@@ -129,7 +129,27 @@ struct MacOSVirtualMachineConfigurationHelper {
         audioConfiguration.streams = [inputStream, outputStream]
         return audioConfiguration
     }
-    
+
+    static func createFileSystemDeviceConfiguration(sharedFolder: URL,
+                                                    readOnly: Bool) -> VZDirectorySharingDeviceConfiguration {
+        do {
+            try VZVirtioFileSystemDeviceConfiguration.validateTag(sharedFolder.lastPathComponent)
+        } catch {
+            print("shared folder, invalid tag \(sharedFolder.lastPathComponent) due to \(error)")
+        }
+        let device = VZVirtioFileSystemDeviceConfiguration(tag: sharedFolder.lastPathComponent)
+        device.share = Self.createDirectoryShare(sharedFolder: sharedFolder,
+                                                 readOnly: readOnly)
+        return device
+    }
+
+    static func createDirectoryShare(sharedFolder: URL,
+                                     readOnly: Bool) ->  VZDirectoryShare {
+        let sharedFolder = VZSharedDirectory(url: sharedFolder,
+                                             readOnly: readOnly)
+        let folder = VZSingleDirectoryShare(directory: sharedFolder)
+        return folder
+    }
 }
 
 extension VZMacGraphicsDisplayConfiguration {

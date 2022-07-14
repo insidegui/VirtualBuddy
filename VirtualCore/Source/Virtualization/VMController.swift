@@ -14,7 +14,10 @@ import OSLog
 public struct VMSessionOptions: Hashable, Codable {
     public var bootInRecoveryMode = false
     public var captureSystemKeys = false
-    
+    public var sharedFolderMountable = false
+    public var sharedFolderReadOnly = false
+    public var sharedFolder = URL.defaultSharedFolderURL
+
     public static let `default` = VMSessionOptions()
 }
 
@@ -180,4 +183,23 @@ private extension VMController {
         }
     }
     
+}
+
+public extension URL {
+    static let defaultSharedFolderURL: URL = {
+        do {
+            let baseURL = try FileManager.default.url(
+                for: .documentDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: false
+            )
+
+            return baseURL
+                .appendingPathComponent("sharedFolder")
+        } catch {
+            fatalError("VirtualBuddy is unable to read from your user's documents directory, this is bad!")
+        }
+    }()
+
 }
