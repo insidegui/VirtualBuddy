@@ -146,9 +146,11 @@ struct LibraryItemView<Label>: View where Label: View {
     var isPressed = false
     var label: () -> Label
 
+    @State private var thumbnail: Image?
+
     var body: some View {
         VStack(spacing: 12) {
-            thumbnail
+            thumbnailView
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .shadow(color: Color.black.opacity(0.4), radius: 4)
 
@@ -159,7 +161,7 @@ struct LibraryItemView<Label>: View where Label: View {
         .background(Material.thin, in: backgroundShape)
         .clipShape(backgroundShape)
         .background {
-            if let image = vm.generateThumbnail() {
+            if let image = vm.thumbnailImage() {
                 Image(nsImage: image)
                     .resizable()
                     .blur(radius: 22)
@@ -169,6 +171,14 @@ struct LibraryItemView<Label>: View where Label: View {
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
         .scaleEffect(isPressed ? 0.96 : 1)
+        .onAppear { refreshThumbnail() }
+        .onReceive(vm.didInvalidateThumbnail) { refreshThumbnail() }
+    }
+
+    private func refreshThumbnail() {
+        if let nsImage = vm.thumbnailImage() {
+            thumbnail = Image(nsImage: nsImage)
+        }
     }
 
     private var backgroundShape: some InsettableShape {
@@ -176,9 +186,9 @@ struct LibraryItemView<Label>: View where Label: View {
     }
 
     @ViewBuilder
-    private var thumbnail: some View {
-        if let image = vm.generateThumbnail() {
-            Image(nsImage: image)
+    private var thumbnailView: some View {
+        if let image = thumbnail {
+            image
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom)

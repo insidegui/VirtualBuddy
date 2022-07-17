@@ -25,6 +25,16 @@ public extension VBVirtualMachine {
         try data.write(to: fileURL, options: .atomic)
     }
 
+    func deleteMetadataFile(named name: String) throws {
+        let baseURL = try metadataDirectoryCreatingIfNeeded()
+
+        let fileURL = baseURL.appendingPathComponent(name)
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+        try FileManager.default.removeItem(at: fileURL)
+    }
+
     func metadataContents(_ fileName: String) -> Data? {
         guard let baseURL = try? metadataDirectoryCreatingIfNeeded() else { return nil }
 

@@ -1,7 +1,10 @@
 import Foundation
 import UniformTypeIdentifiers
+import Combine
 
-public struct VBVirtualMachine: Identifiable, Hashable {
+public typealias VoidSubject = PassthroughSubject<(), Never>
+
+public struct VBVirtualMachine: Identifiable {
 
     public struct InstallOptions: Hashable {
         public let diskImageSize: Int
@@ -23,6 +26,9 @@ public struct VBVirtualMachine: Identifiable, Hashable {
         get { _configuration ?? .default }
         set { _configuration = newValue }
     }
+
+    public private(set) var didInvalidateThumbnail = VoidSubject()
+    
 }
 
 public extension VBVirtualMachine {
@@ -41,6 +47,8 @@ public extension VBVirtualMachine {
 }
 
 extension VBVirtualMachine {
+
+    static let configurationFilename = "Config.plist"
     
     var diskImagePath: String {
         bundleURL.appendingPathComponent("Disk.img").path
@@ -63,21 +71,9 @@ extension VBVirtualMachine {
     }
     
     var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
-    
-    var configFileURL: URL { Self.configurationFileURL(for: bundleURL) }
-    
+
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
         bundleURL.appendingPathComponent(".vbdata")
-    }
-    
-    static func metadataFileURL(for bundleURL: URL) -> URL {
-        metadataDirectoryURL(for: bundleURL)
-            .appendingPathComponent("metadata.plist")
-    }
-
-    static func configurationFileURL(for bundleURL: URL) -> URL {
-        metadataDirectoryURL(for: bundleURL)
-            .appendingPathComponent("config.plist")
     }
 
 }
@@ -95,12 +91,21 @@ public extension VBVirtualMachine {
         
         self.bundleURL = bundleURL
         self.installOptions = installOptions
+        self.configuration = try loadConfiguration()
 
-        if FileManager.default.fileExists(atPath: configFileURL.path) {
-            let data = try Data(contentsOf: configFileURL)
-            self.configuration = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
+        try saveConfiguration()
+    }
+
+    func saveConfiguration() throws {
+        let configData = try PropertyListEncoder().encode(configuration)
+        try write(configData, forMetadataFileNamed: Self.configurationFilename)
+    }
+
+    func loadConfiguration() throws -> VBMacConfiguration {
+        if let data = metadataContents(Self.configurationFilename) {
+            return try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
         } else {
-            self.configuration = .default
+            return .default
         }
     }
     

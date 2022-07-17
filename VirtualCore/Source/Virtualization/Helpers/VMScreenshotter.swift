@@ -82,6 +82,12 @@ final class VMScreenshotter {
         }
 
         try vmModel.write(data, forMetadataFileNamed: VBVirtualMachine.screenshotFileName)
+
+        do {
+            try vmModel.invalidateThumbnail()
+        } catch {
+            throw Failure("Error invalidating thumbnail: \(error)")
+        }
     }
     
 }

@@ -140,8 +140,6 @@ private final class VMLibraryFilePresenter: NSObject, NSFilePresenter {
     }
 
     func presentedSubitemDidChange(at url: URL) {
-        logger.debug("Changed: \(url.path)")
-
         sendSignalIfNeeded(for: url)
     }
 
