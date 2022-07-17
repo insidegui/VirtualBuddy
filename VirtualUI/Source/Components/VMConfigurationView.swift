@@ -22,26 +22,76 @@ public struct VMConfigurationView: View {
     }
 
     public var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            NumericPropertyControl(
-                value: $hardware.cpuCount,
-                range: VBMacDevice.virtualCPUCountRange,
-                step: 1,
-                label: "Virtual CPUs",
-                formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
-            )
+        VStack(alignment: .leading, spacing: 16) {
+            ConfigurationSection {
+                NumericPropertyControl(
+                    value: $hardware.cpuCount,
+                    range: VBMacDevice.virtualCPUCountRange,
+                    step: 1,
+                    label: "Virtual CPUs",
+                    formatter: NumberFormatter.numericPropertyControlDefault,
+                    unfocus: unfocusActiveField
+                )
 
-            NumericPropertyControl(
-                value: $hardware.memorySize.gbValue,
-                range: VBMacDevice.memorySizeRangeInGigabytes,
-                step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
-                label: "Memory (GB)",
-                formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
-            )
+                NumericPropertyControl(
+                    value: $hardware.memorySize.gbValue,
+                    range: VBMacDevice.memorySizeRangeInGigabytes,
+                    step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
+                    label: "Memory (GB)",
+                    formatter: NumberFormatter.numericPropertyControlDefault,
+                    unfocus: unfocusActiveField
+                )
+            } header: {
+                HStack {
+                    Text("General")
+                    Spacer()
+                    Image(systemName: "memorychip.fill")
+                }
+            }
         }
     }
+}
+
+struct ConfigurationSection<Header: View, Content: View>: View {
+
+    @State private var isCollapsed = false
+
+    var content: () -> Content
+    var header: () -> Header
+
+    init(@ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
+        self.header = header
+        self.content = content
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            styledHeader
+
+            if !isCollapsed {
+                content()
+                    .padding()
+                    .transition(.opacity)
+            }
+        }
+        .controlGroup()
+    }
+
+    @ViewBuilder
+    private var styledHeader: some View {
+        header()
+            .font(.system(size: 14, weight: .medium, design: .rounded))
+            .padding(.horizontal)
+            .padding(.vertical, 8)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(Material.ultraThick, in: Rectangle())
+            .onTapGesture {
+                withAnimation(.default) {
+                    isCollapsed.toggle()
+                }
+            }
+    }
+
 }
 
 #if DEBUG
@@ -56,7 +106,9 @@ struct VMConfigurationView_Previews: PreviewProvider {
         var body: some View {
             VMConfigurationView(configuration: $controller.virtualMachineModel.configuration, hardware: $controller.virtualMachineModel.configuration.hardware)
                 .environmentObject(controller)
+                .frame(width: 320, height: 400, alignment: .top)
                 .padding()
+                .padding(100)
         }
     }
 }

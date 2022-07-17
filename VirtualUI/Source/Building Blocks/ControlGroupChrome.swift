@@ -14,7 +14,7 @@ private struct ControlGroupChrome: ViewModifier {
 
     func body(content: Content) -> some View {
         content
-            .background(dark ? Material.thick : Material.regular, in: shape)
+            .background(Material.ultraThin, in: shape)
             .overlay {
                 shape
                     .stroke(Color.white.opacity(dark ? 0.1 : 0), style: .init(lineWidth: 1))
