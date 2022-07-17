@@ -138,18 +138,10 @@ extension VZMacGraphicsDisplayConfiguration {
     
     /// A configuration matching the host's main screen.
     static var mainScreen: VZMacGraphicsDisplayConfiguration {
-        guard let screen = NSScreen.main else { return .fallback }
+        guard let screen = NSScreen.main,
+              let size = screen.deviceDescription[.size] as? NSSize else { return .fallback }
 
-        guard let resolution = screen.deviceDescription[.resolution] as? NSSize else { return .fallback }
-        guard let size = screen.deviceDescription[.size] as? NSSize else { return .fallback }
-        
-        let pointHeight = size.height - screen.safeAreaInsets.top
-
-        return VZMacGraphicsDisplayConfiguration(
-            widthInPixels: Int(size.width * screen.backingScaleFactor),
-            heightInPixels: Int(pointHeight * screen.backingScaleFactor),
-            pixelsPerInch: Int(resolution.width)
-        )
+        return VZMacGraphicsDisplayConfiguration(for: screen, sizeInPoints: size)
     }
     
 }
