@@ -42,11 +42,7 @@ public struct VMConfigurationView: View {
                     unfocus: unfocusActiveField
                 )
             } header: {
-                HStack {
-                    Text("General")
-                    Spacer()
-                    Image(systemName: "memorychip.fill")
-                }
+                Label("General", systemImage: "memorychip")
             }
         }
     }
@@ -69,7 +65,9 @@ struct ConfigurationSection<Header: View, Content: View>: View {
             styledHeader
 
             if !isCollapsed {
-                content()
+                VStack(alignment: .leading, spacing: 6) {
+                    content()
+                }
                     .padding()
                     .transition(.opacity)
             }
@@ -79,12 +77,24 @@ struct ConfigurationSection<Header: View, Content: View>: View {
 
     @ViewBuilder
     private var styledHeader: some View {
-        header()
+        HStack {
+            header()
+
+            Spacer()
+
+            Image(systemName: "chevron.down")
+                .rotationEffect(.degrees(isCollapsed ? -90 : 0))
+        }
             .font(.system(size: 14, weight: .medium, design: .rounded))
             .padding(.horizontal)
             .padding(.vertical, 8)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Material.ultraThick, in: Rectangle())
+            .overlay(alignment: .bottom) {
+                Rectangle()
+                    .frame(maxWidth: .infinity, maxHeight: 0.5)
+                    .foregroundColor(.black.opacity(isCollapsed ? 0 : 0.5))
+            }
             .onTapGesture {
                 withAnimation(.default) {
                     isCollapsed.toggle()
@@ -108,7 +118,7 @@ struct VMConfigurationView_Previews: PreviewProvider {
                 .environmentObject(controller)
                 .frame(width: 320, height: 400, alignment: .top)
                 .padding()
-                .padding(100)
+                .padding(50)
         }
     }
 }
