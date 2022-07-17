@@ -156,6 +156,29 @@ public extension VBDisplayDevice {
 
 // MARK: - Helpers
 
+public extension VBMacDevice {
+    static let minimumCPUCount: Int = VZVirtualMachineConfiguration.minimumAllowedCPUCount
+
+    static let maximumCPUCount: Int = {
+        min(ProcessInfo.processInfo.processorCount, VZVirtualMachineConfiguration.maximumAllowedCPUCount)
+    }()
+
+    static let virtualCPUCountRange: ClosedRange<Int> = {
+        minimumCPUCount...maximumCPUCount
+    }()
+
+    static let minimumMemorySizeInGigabytes = 2
+
+    static let maximumMemorySizeInGigabytes: Int = {
+        let value = Swift.min(ProcessInfo.processInfo.physicalMemory, VZVirtualMachineConfiguration.maximumAllowedMemorySize)
+        return Int(value / 1024 / 1024 / 1024)
+    }()
+
+    static let memorySizeRangeInGigabytes: ClosedRange<Int> = {
+        minimumMemorySizeInGigabytes...maximumMemorySizeInGigabytes
+    }()
+}
+
 extension Int {
 
     static let vb_suggestedVirtualCPUCount: Int = {
