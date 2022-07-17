@@ -68,6 +68,7 @@ public struct VBMacDevice: Hashable, Codable {
     public var displayDevices: [VBDisplayDevice]
     public var networkDevices: [VBNetworkDevice]
     public var soundDevices: [VBSoundDevice]
+    public var NVRAM = [VBNVRAMVariable]()
 }
 
 public struct VBSharedFolder: Identifiable, Hashable, Codable {

@@ -2,14 +2,7 @@ import Foundation
 import UniformTypeIdentifiers
 
 public struct VBVirtualMachine: Identifiable, Hashable {
-    
-    public struct Metadata: Hashable, Codable {
-        public internal(set) var operatingSystemVersion: String
-        public internal(set) var operatingSystemBuild: String
-        public internal(set) var xCodeVersion: String?
-        public internal(set) var NVRAM = [VBNVRAMVariable]()
-    }
-    
+
     public struct InstallOptions: Hashable {
         public let diskImageSize: Int
         
@@ -24,8 +17,6 @@ public struct VBVirtualMachine: Identifiable, Hashable {
     public var installOptions: InstallOptions?
     private var _configuration: VBMacConfiguration?
     
-    public internal(set) var metadata: Metadata
-
     public var configuration: VBMacConfiguration {
         /// Masking private `_configuration` to avoid making the public API optional
         /// without having to do any special `Codable` shenanigans.
@@ -41,16 +32,12 @@ public extension VBVirtualMachine {
 }
 
 public extension VBVirtualMachine {
-    static let preview = VBVirtualMachine(
-        bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm"),
-        installOptions: InstallOptions(diskImageSize: .defaultDiskImageSize),
-        metadata: Metadata(
-            operatingSystemVersion: "12.4",
-            operatingSystemBuild: "XYZ123",
-            xCodeVersion: "13.3.1 (13E500a)",
-            NVRAM: [.init(name: "boot-args", value: "amfi_get_out_of_my_way=1 cs_debug=1")]
+    static let preview: VBVirtualMachine =  {
+        try! VBVirtualMachine(
+            bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm"),
+            installOptions: InstallOptions(diskImageSize: .defaultDiskImageSize)
         )
-    )
+    }()
 }
 
 extension VBVirtualMachine {
@@ -77,7 +64,7 @@ extension VBVirtualMachine {
     
     var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
     
-    var metadataFileURL: URL { Self.metadataFileURL(for: bundleURL) }
+    var configFileURL: URL { Self.configurationFileURL(for: bundleURL) }
     
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
         bundleURL.appendingPathComponent(".vbdata")
@@ -86,6 +73,11 @@ extension VBVirtualMachine {
     static func metadataFileURL(for bundleURL: URL) -> URL {
         metadataDirectoryURL(for: bundleURL)
             .appendingPathComponent("metadata.plist")
+    }
+
+    static func configurationFileURL(for bundleURL: URL) -> URL {
+        metadataDirectoryURL(for: bundleURL)
+            .appendingPathComponent("config.plist")
     }
 
 }
@@ -103,21 +95,12 @@ public extension VBVirtualMachine {
         
         self.bundleURL = bundleURL
         self.installOptions = installOptions
-        self.metadata = try Metadata(bundleURL: bundleURL)
-    }
-    
-}
 
-extension VBVirtualMachine.Metadata {
-    
-    init(bundleURL: URL) throws {
-        let fileURL = VBVirtualMachine.metadataFileURL(for: bundleURL)
-        
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            let data = try Data(contentsOf: bundleURL)
-            self = try PropertyListDecoder().decode(VBVirtualMachine.Metadata.self, from: data)
+        if FileManager.default.fileExists(atPath: configFileURL.path) {
+            let data = try Data(contentsOf: configFileURL)
+            self.configuration = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
         } else {
-            self.init(operatingSystemVersion: "??", operatingSystemBuild: "??", xCodeVersion: nil, NVRAM: [])
+            self.configuration = .default
         }
     }
     
