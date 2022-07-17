@@ -17,11 +17,16 @@ struct PreferencesView: View {
         nonmutating set { container.settings = newValue }
     }
 
+    @State private var libraryPathText = ""
+
     var body: some View {
         DecentFormView {
             DecentFormControl {
                 VStack(alignment: .leading, spacing: 8) {
-                    TextField("Library Path:", text: libraryPathBinding)
+                    TextField("Library Path:", text: $libraryPathText)
+                        .onSubmit {
+                            setLibraryPath(to: libraryPathText)
+                        }
                         .frame(minWidth: 200, maxWidth: 300)
 
                     Button("Choose…", action: showOpenPanel)
@@ -31,14 +36,35 @@ struct PreferencesView: View {
             }
         }
         .padding()
+        .alert("Error", isPresented: $isShowingErrorAlert, actions: {
+            Button("OK") { isShowingErrorAlert = false }
+        }, message: {
+            Text(errorMessage ?? "")
+        })
+        .onChange(of: settings.libraryURL) { newValue in
+            libraryPathText = newValue.path
+        }
+        .onAppearOnce {
+            libraryPathText = settings.libraryURL.path
+        }
     }
 
-    private var libraryPathBinding: Binding<String> {
-        .init {
-            settings.libraryURL.path
-        } set: { newValue in
-            #warning("TODO: Validate URL and show an error if it's invalid")
-            settings.libraryURL = URL(fileURLWithPath: newValue)
+    @State private var isShowingErrorAlert = false
+    @State private var errorMessage: String?
+
+    private func setLibraryPath(to newValue: String) {
+        let url = URL(fileURLWithPath: newValue)
+
+        if let errorMessage = url.performWriteTest() {
+            libraryPathText = settings.libraryURL.path
+
+            isShowingErrorAlert = true
+            self.errorMessage = errorMessage
+        } else {
+            settings.libraryURL = url
+            libraryPathText = url.path
+
+            self.errorMessage = nil
         }
     }
 
@@ -52,7 +78,32 @@ struct PreferencesView: View {
                 let url = panel.url,
                 url != settings.libraryURL else { return }
 
-        settings.libraryURL = url
+        setLibraryPath(to: url.path)
     }
 
+}
+
+extension URL {
+    func performWriteTest() -> String? {
+        if !FileManager.default.fileExists(atPath: path) {
+            return "The directory \(lastPathComponent) doesn't exist."
+        }
+
+        do {
+            let testFileURL = appendingPathComponent(".vbtest-\(UUID().uuidString)")
+            guard FileManager.default.createFile(atPath: testFileURL.path, contents: nil) else {
+                throw CocoaError(.fileWriteNoPermission)
+            }
+            try FileManager.default.removeItem(at: testFileURL)
+            return nil
+        } catch {
+            return "VirtualBuddy is unable to write files to the directory \(lastPathComponent). Please check the permissions for that directory or choose a different one."
+        }
+    }
+}
+
+struct LibraryPathError: LocalizedError {
+    var errorDescription: String?
+
+    init(_ msg: String) { self.errorDescription = msg }
 }
