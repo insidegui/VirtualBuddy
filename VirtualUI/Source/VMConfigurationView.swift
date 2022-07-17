@@ -8,9 +8,13 @@
 import SwiftUI
 import VirtualCore
 
-struct VMConfigurationView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+public struct VMConfigurationView: View {
+    @EnvironmentObject var controller: VMController
+
+    public init() { }
+
+    public var body: some View {
+        Text("Hello, World!")
     }
 }
 
@@ -18,6 +22,9 @@ struct VMConfigurationView: View {
 struct VMConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         VMConfigurationView()
+            .environmentObject(VMController(with: .preview))
+            .padding()
     }
 }
+
 #endif

@@ -19,7 +19,11 @@
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
 		F47FFA57280633F000BD1F87 /* VMScreenshotter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */; };
-		F49A68DD288490D400A17582 /* VMConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49A68DC288490D400A17582 /* VMConfigurationView.swift */; };
+		F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */ = {isa = PBXBuildFile; fileRef = F498AD002884BF13006F1C00 /* VirtualUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
+		F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
+		F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */; };
 		F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49A68E02884917E00A17582 /* ConfigurationModels.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
@@ -74,19 +78,19 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		F4BE9C6927FF053A00B648F8 /* PBXContainerItemProxy */ = {
+		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
+			remoteInfo = VirtualUI;
+		};
+		F498AD0A2884BF60006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
 			remoteInfo = VirtualCore;
-		};
-		F4C189E42848F59F00335EC7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
-			remoteInfo = VirtualWormhole;
 		};
 		F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -119,6 +123,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				F4BE9C6C27FF053A00B648F8 /* VirtualCore.framework in Embed Frameworks */,
+				F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */,
 				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -150,7 +155,9 @@
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
 		F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMScreenshotter.swift; sourceTree = "<group>"; };
-		F49A68DC288490D400A17582 /* VMConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
+		F498ACFE2884BF13006F1C00 /* VirtualUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F498AD002884BF13006F1C00 /* VirtualUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualUI.h; sourceTree = "<group>"; };
+		F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
 		F49A68E02884917E00A17582 /* ConfigurationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationModels.swift; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
@@ -209,10 +216,19 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F498ACFB2884BF13006F1C00 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4BE9C4B27FF052100B648F8 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */,
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
@@ -273,6 +289,23 @@
 				F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */,
 			);
 			path = Installer;
+			sourceTree = "<group>";
+		};
+		F498ACFF2884BF13006F1C00 /* VirtualUI */ = {
+			isa = PBXGroup;
+			children = (
+				F498AD092884BF20006F1C00 /* Source */,
+				F498AD002884BF13006F1C00 /* VirtualUI.h */,
+			);
+			path = VirtualUI;
+			sourceTree = "<group>";
+		};
+		F498AD092884BF20006F1C00 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */,
+			);
+			path = Source;
 			sourceTree = "<group>";
 		};
 		F49A68DF2884917400A17582 /* Configuration */ = {
@@ -339,7 +372,6 @@
 			isa = PBXGroup;
 			children = (
 				F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */,
-				F49A68DC288490D400A17582 /* VMConfigurationView.swift */,
 			);
 			path = Configuration;
 			sourceTree = "<group>";
@@ -378,6 +410,7 @@
 			children = (
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
+				F498ACFF2884BF13006F1C00 /* VirtualUI */,
 				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
 				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
@@ -392,6 +425,7 @@
 				F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */,
 				F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */,
 				F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */,
+				F498ACFE2884BF13006F1C00 /* VirtualUI.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -587,6 +621,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		F498ACF92884BF13006F1C00 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4BE9C6027FF053A00B648F8 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -608,6 +650,25 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		F498ACFD2884BF13006F1C00 /* VirtualUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */;
+			buildPhases = (
+				F498ACF92884BF13006F1C00 /* Headers */,
+				F498ACFA2884BF13006F1C00 /* Sources */,
+				F498ACFB2884BF13006F1C00 /* Frameworks */,
+				F498ACFC2884BF13006F1C00 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F498AD0B2884BF60006F1C00 /* PBXTargetDependency */,
+			);
+			name = VirtualUI;
+			productName = VirtualUI;
+			productReference = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		F4BE9C4D27FF052100B648F8 /* VirtualBuddy */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F4BE9C5D27FF052100B648F8 /* Build configuration list for PBXNativeTarget "VirtualBuddy" */;
@@ -620,8 +681,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				F4BE9C6A27FF053A00B648F8 /* PBXTargetDependency */,
-				F4C189E52848F59F00335EC7 /* PBXTargetDependency */,
+				F498AD032884BF13006F1C00 /* PBXTargetDependency */,
 				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
@@ -701,6 +761,10 @@
 				LastSwiftUpdateCheck = 1340;
 				LastUpgradeCheck = 1400;
 				TargetAttributes = {
+					F498ACFD2884BF13006F1C00 = {
+						CreatedOnToolsVersion = 14.0;
+						LastSwiftMigration = 1400;
+					};
 					F4BE9C4D27FF052100B648F8 = {
 						CreatedOnToolsVersion = 13.3;
 						LastSwiftMigration = 1330;
@@ -738,12 +802,20 @@
 				F4BE9C4D27FF052100B648F8 /* VirtualBuddy */,
 				F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */,
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
+				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F498ACFC2884BF13006F1C00 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4BE9C4C27FF052100B648F8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -779,6 +851,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F498ACFA2884BF13006F1C00 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4BE9C4A27FF052100B648F8 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -786,7 +866,6 @@
 				F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */,
 				F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */,
 				F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */,
-				F49A68DD288490D400A17582 /* VMConfigurationView.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
 				F4D0F71D28675026004D5782 /* OnAppearOnce.swift in Sources */,
 				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
@@ -857,15 +936,15 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		F4BE9C6A27FF053A00B648F8 /* PBXTargetDependency */ = {
+		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
+			targetProxy = F498AD022884BF13006F1C00 /* PBXContainerItemProxy */;
+		};
+		F498AD0B2884BF60006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
-			targetProxy = F4BE9C6927FF053A00B648F8 /* PBXContainerItemProxy */;
-		};
-		F4C189E52848F59F00335EC7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
-			targetProxy = F4C189E42848F59F00335EC7 /* PBXContainerItemProxy */;
+			targetProxy = F498AD0A2884BF60006F1C00 /* PBXContainerItemProxy */;
 		};
 		F4C189F02848F5F100335EC7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -885,6 +964,59 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		F498AD062884BF13006F1C00 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F498AD072884BF13006F1C00 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 12.4;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
 		F4BE9C5B27FF052100B648F8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4C1224E280715F200D359E2 /* Main.xcconfig */;
@@ -1015,6 +1147,7 @@
 				CODE_SIGN_ENTITLEMENTS = "$(MAIN_APP_ENTITLEMENTS)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddy/Preview Content\"";
 				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1026,6 +1159,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.3;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1045,6 +1179,7 @@
 				CODE_SIGN_ENTITLEMENTS = "$(MAIN_APP_ENTITLEMENTS)";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddy/Preview Content\"";
 				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
@@ -1056,6 +1191,7 @@
 					"$(inherited)",
 					"@executable_path/../Frameworks",
 				);
+				MARKETING_VERSION = 1.0.3;
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1223,6 +1359,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F498AD062884BF13006F1C00 /* Debug */,
+				F498AD072884BF13006F1C00 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F4BE9C4927FF052100B648F8 /* Build configuration list for PBXProject "VirtualBuddy" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
