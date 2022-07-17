@@ -20,7 +20,7 @@ struct VMSessionConfigurationView: View {
         Form {
             Toggle("Boot in recovery mode", isOn: $controller.options.bootInRecoveryMode)
             Toggle("Capture system keyboard shortcuts", isOn: $controller.options.captureSystemKeys)
-            Toggle("Shared folder allowed", isOn: $controller.options.sharedFolderMountable)
+            Toggle("Shared folder enable", isOn: $controller.options.sharedFolderMountable)
             Toggle("Shared folder read only", isOn: $controller.options.sharedFolderReadOnly)
             DecentFormControl {
                 VStack(alignment: .leading, spacing: 8) {
