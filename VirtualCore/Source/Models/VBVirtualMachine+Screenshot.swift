@@ -56,7 +56,9 @@ public extension VBVirtualMachine {
     func invalidateThumbnail() throws {
         try deleteMetadataFile(named: Self.thumbnailFileName)
 
-        didInvalidateThumbnail.send()
+        DispatchQueue.main.async {
+            self.didInvalidateThumbnail.send()
+        }
     }
 
 }
