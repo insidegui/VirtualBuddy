@@ -44,6 +44,10 @@ The default mode the VM OS selects for the display uses the native resolution th
 
 Xcode 14 is recommended.
 
-- Edit `Signing.xcconfig` and set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`, then select a team under Signing & Capabilities.
-	- You may optionally run with the "Sign to run locally" option to skip this step
+- Open the `VirtualBuddy/Config/Signing.xcconfig` file
+- Set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`
+- Select the VirtualBuddy project in the Xcode sidebar
+- Under "Targets", select "VirtualBuddy"
+- Go to the Signing & Capabilities tab and select your development team under Signing > Team
+- Repeat the same process for the "VirtualBuddyGuest" target
 - Build the `VirtualBuddy` scheme
