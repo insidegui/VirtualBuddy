@@ -151,23 +151,16 @@ public final class VMInstance: NSObject, ObservableObject {
 
         c.platform = try await Self.createMacPlaform(for: model, installImageURL: installImageURL)
         c.bootLoader = helper.createBootLoader()
-        c.cpuCount = helper.computeCPUCount()
-        c.memorySize = helper.computeMemorySize()
-        c.graphicsDevices = [helper.createGraphicsDeviceConfiguration()]
+        c.cpuCount = model.configuration.hardware.cpuCount
+        c.memorySize = model.configuration.hardware.memorySize
+        c.graphicsDevices = model.configuration.vzGraphicsDevices
         c.storageDevices = [
             try helper.createBlockDeviceConfiguration()
         ]
-        if let additionalBlockDevice = try helper.createAdditionalBlockDevice() {
-            c.storageDevices.append(additionalBlockDevice)
-        }
-        c.networkDevices = [
-            helper.createNetworkDeviceConfiguration(),
-        ]
-        c.pointingDevices = [
-            helper.createPointingDeviceConfiguration2()
-        ]
+        c.networkDevices = try model.configuration.vzNetworkDevices
+        c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
-        c.audioDevices = [helper.createAudioDeviceConfiguration()]
+        c.audioDevices = model.configuration.vzAudioDevices
         
         return c
     }

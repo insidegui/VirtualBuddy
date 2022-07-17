@@ -19,6 +19,8 @@
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
 		F47FFA57280633F000BD1F87 /* VMScreenshotter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */; };
+		F49A68DD288490D400A17582 /* VMConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49A68DC288490D400A17582 /* VMConfigurationView.swift */; };
+		F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49A68E02884917E00A17582 /* ConfigurationModels.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
 		F4A21BF628033309001072B8 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF528033309001072B8 /* LibraryView.swift */; };
@@ -148,6 +150,8 @@
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
 		F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMScreenshotter.swift; sourceTree = "<group>"; };
+		F49A68DC288490D400A17582 /* VMConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
+		F49A68E02884917E00A17582 /* ConfigurationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationModels.swift; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
 		F4A21BF528033309001072B8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
@@ -271,9 +275,18 @@
 			path = Installer;
 			sourceTree = "<group>";
 		};
+		F49A68DF2884917400A17582 /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				F49A68E02884917E00A17582 /* ConfigurationModels.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
 		F4A21BEE28032F97001072B8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				F49A68DF2884917400A17582 /* Configuration */,
 				F4A21BF328033102001072B8 /* VBError.swift */,
 				F4BE9C7327FF055100B648F8 /* VBVirtualMachine.swift */,
 				F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */,
@@ -326,6 +339,7 @@
 			isa = PBXGroup;
 			children = (
 				F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */,
+				F49A68DC288490D400A17582 /* VMConfigurationView.swift */,
 			);
 			path = Configuration;
 			sourceTree = "<group>";
@@ -772,6 +786,7 @@
 				F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */,
 				F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */,
 				F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */,
+				F49A68DD288490D400A17582 /* VMConfigurationView.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
 				F4D0F71D28675026004D5782 /* OnAppearOnce.swift in Sources */,
 				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
@@ -808,6 +823,7 @@
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
 				F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
+				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
@@ -1000,6 +1016,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddy/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1029,6 +1046,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddy/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1159,6 +1177,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1184,6 +1203,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

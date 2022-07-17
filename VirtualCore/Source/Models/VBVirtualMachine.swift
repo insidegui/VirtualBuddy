@@ -22,8 +22,16 @@ public struct VBVirtualMachine: Identifiable, Hashable {
     public let bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
     public var installOptions: InstallOptions?
+    private var _configuration: VBMacConfiguration?
     
     public internal(set) var metadata: Metadata
+
+    public var configuration: VBMacConfiguration {
+        /// Masking private `_configuration` to avoid making the public API optional
+        /// without having to do any special `Codable` shenanigans.
+        get { _configuration ?? .default }
+        set { _configuration = newValue }
+    }
 }
 
 public extension VBVirtualMachine {

@@ -11,36 +11,8 @@ import Virtualization
 struct MacOSVirtualMachineConfigurationHelper {
     let vm: VBVirtualMachine
     
-    func computeCPUCount() -> Int {
-        let totalAvailableCPUs = ProcessInfo.processInfo.processorCount
-
-        var virtualCPUCount = totalAvailableCPUs <= 1 ? 1 : totalAvailableCPUs / 2
-        virtualCPUCount = max(virtualCPUCount, VZVirtualMachineConfiguration.minimumAllowedCPUCount)
-        virtualCPUCount = min(virtualCPUCount, VZVirtualMachineConfiguration.maximumAllowedCPUCount)
-
-        return virtualCPUCount
-    }
-
-    func computeMemorySize() -> UInt64 {
-        let hostMemory = ProcessInfo.processInfo.physicalMemory
-        var memorySize = hostMemory / 2
-        memorySize = max(memorySize, VZVirtualMachineConfiguration.minimumAllowedMemorySize)
-        memorySize = min(memorySize, VZVirtualMachineConfiguration.maximumAllowedMemorySize)
-
-        return memorySize
-    }
-
     func createBootLoader() -> VZMacOSBootLoader {
         return VZMacOSBootLoader()
-    }
-
-    func createGraphicsDeviceConfiguration() -> VZMacGraphicsDeviceConfiguration {
-        let graphicsConfiguration = VZMacGraphicsDeviceConfiguration()
-        graphicsConfiguration.displays = [
-            VZMacGraphicsDisplayConfiguration.mainScreen
-        ]
-
-        return graphicsConfiguration
     }
 
     func createBlockDeviceConfiguration() throws -> VZVirtioBlockDeviceConfiguration {
@@ -61,25 +33,7 @@ struct MacOSVirtualMachineConfigurationHelper {
             throw Failure("Failed to instantiate a disk image for the VM: \(error.localizedDescription).")
         }
     }
-    
-    func createAdditionalBlockDevice() throws -> VZVirtioBlockDeviceConfiguration? {
-        let url = URL(fileURLWithPath: vm.extraDiskImagePath)
-        
-        if !FileManager.default.fileExists(atPath: vm.extraDiskImagePath) {
-            return nil
-        }
-        
-        do {
-            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: url, readOnly: false)
-            
-            let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
-            
-            return disk
-        } catch {
-            throw Failure("Failed to create Disk image: \(error)")
-        }
-    }
-    
+
     private func createDiskImage(ofSize size: Int, at url: URL) throws {
         let diskFd = open(url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
         if diskFd == -1 {
@@ -97,65 +51,132 @@ struct MacOSVirtualMachineConfigurationHelper {
         }
     }
 
-    func createNetworkDeviceConfiguration() -> VZVirtioNetworkDeviceConfiguration {
-        let networkDevice = VZVirtioNetworkDeviceConfiguration()
-
-        let networkAttachment = VZNATNetworkDeviceAttachment()
-        networkDevice.attachment = networkAttachment
-        return networkDevice
-    }
-
-    func createPointingDeviceConfiguration2() -> VZPointingDeviceConfiguration {
-        return VZUSBScreenCoordinatePointingDeviceConfiguration()
-    }
-    
-    func createMultiTouchDeviceConfiguration() -> _VZMultiTouchDeviceConfiguration {
-        return _VZAppleTouchScreenConfiguration()
-    }
-
     func createKeyboardConfiguration() -> VZUSBKeyboardConfiguration {
         return VZUSBKeyboardConfiguration()
     }
 
-    func createAudioDeviceConfiguration() -> VZVirtioSoundDeviceConfiguration {
-        let audioConfiguration = VZVirtioSoundDeviceConfiguration()
-
-        let inputStream = VZVirtioSoundDeviceInputStreamConfiguration()
-        inputStream.source = VZHostAudioInputStreamSource()
-
-        let outputStream = VZVirtioSoundDeviceOutputStreamConfiguration()
-        outputStream.sink = VZHostAudioOutputStreamSink()
-
-        audioConfiguration.streams = [inputStream, outputStream]
-        return audioConfiguration
-    }
-    
-}
-
-extension VZMacGraphicsDisplayConfiguration {
-    
-    static let fallback = VZMacGraphicsDisplayConfiguration(widthInPixels: 1920, heightInPixels: 1080, pixelsPerInch: 144)
-    
-    /// A configuration matching the host's main screen.
-    static var mainScreen: VZMacGraphicsDisplayConfiguration {
-        guard let screen = NSScreen.main else { return .fallback }
-
-        guard let resolution = screen.deviceDescription[.resolution] as? NSSize else { return .fallback }
-        guard let size = screen.deviceDescription[.size] as? NSSize else { return .fallback }
-        
-        let pointHeight = size.height - screen.safeAreaInsets.top
-
-        return VZMacGraphicsDisplayConfiguration(
-            widthInPixels: Int(size.width * screen.backingScaleFactor),
-            heightInPixels: Int(pointHeight * screen.backingScaleFactor),
-            pixelsPerInch: Int(resolution.width)
-        )
-    }
-    
 }
 
 public extension Int {
     static let defaultDiskImageSize = 64 * 1_000_000_000
     static let minimumDiskImageSize = 64 * 1_000_000_000
     static let maximumDiskImageSize = 512 * 1_000_000_000
+}
+
+// MARK: - Configuration Models -> Virtualization
+
+extension VBMacConfiguration {
+
+    var vzDisplays: [VZMacGraphicsDisplayConfiguration] {
+        hardware.displayDevices.map(\.vzDisplay)
+    }
+
+    var vzNetworkDevices: [VZNetworkDeviceConfiguration] {
+        get throws {
+            try hardware.networkDevices.map { try $0.vzConfiguration }
+        }
+    }
+
+    var vzAudioDevices: [VZAudioDeviceConfiguration] {
+        hardware.soundDevices.map(\.vzConfiguration)
+    }
+
+    var vzPointingDevices: [VZPointingDeviceConfiguration] {
+        get throws { [try hardware.pointingDevice.vzConfiguration] }
+    }
+
+    var vzGraphicsDevices: [VZGraphicsDeviceConfiguration] {
+        let graphicsConfiguration = VZMacGraphicsDeviceConfiguration()
+
+        graphicsConfiguration.displays = vzDisplays
+
+        return [graphicsConfiguration]
+    }
+
+}
+
+extension VBDisplayDevice {
+
+    var vzDisplay: VZMacGraphicsDisplayConfiguration {
+        VZMacGraphicsDisplayConfiguration(widthInPixels: width, heightInPixels: height, pixelsPerInch: pixelsPerInch)
+    }
+
+}
+
+extension VBNetworkDevice {
+
+    var vzConfiguration: VZNetworkDeviceConfiguration {
+        get throws {
+            let config = VZVirtioNetworkDeviceConfiguration()
+
+            guard let addr = VZMACAddress(string: macAddress) else {
+                throw Failure("Invalid MAC address")
+            }
+
+            config.macAddress = addr
+            config.attachment = try vzAttachment
+
+            return config
+        }
+    }
+
+    private var vzAttachment: VZNetworkDeviceAttachment {
+        get throws {
+            switch kind {
+            case .NAT:
+                return VZNATNetworkDeviceAttachment()
+            case .bridge:
+                let interface = try resolveBridge(with: id)
+                return VZBridgedNetworkDeviceAttachment(interface: interface)
+            }
+        }
+    }
+
+    private func resolveBridge(with identifier: String) throws -> VZBridgedNetworkInterface {
+        guard let iface = VZBridgedNetworkInterface.networkInterfaces.first(where: { $0.identifier == identifier }) else {
+            throw Failure("Couldn't find the specified network interface for bridging")
+        }
+        return iface
+    }
+
+}
+
+extension VBPointingDevice {
+
+    var vzConfiguration: VZPointingDeviceConfiguration {
+        get throws {
+            switch kind {
+            case .mouse:
+                return VZUSBScreenCoordinatePointingDeviceConfiguration()
+            case .trackpad:
+                guard #available(macOS 13.0, *) else {
+                    throw Failure("The trackpad pointing device is only available on macOS 13 and later")
+                }
+                return VZMacTrackpadConfiguration()
+            }
+        }
+    }
+
+}
+
+extension VBSoundDevice {
+
+    var vzConfiguration: VZAudioDeviceConfiguration {
+        let audioConfiguration = VZVirtioSoundDeviceConfiguration()
+
+        if enableInput {
+            let inputStream = VZVirtioSoundDeviceInputStreamConfiguration()
+            inputStream.source = VZHostAudioInputStreamSource()
+            audioConfiguration.streams.append(inputStream)
+        }
+
+        if enableOutput {
+            let outputStream = VZVirtioSoundDeviceOutputStreamConfiguration()
+            outputStream.sink = VZHostAudioOutputStreamSink()
+            audioConfiguration.streams.append(outputStream)
+        }
+
+        return audioConfiguration
+    }
+
 }
