@@ -26,12 +26,40 @@ struct VMConfigurationView: View {
         .font(.system(size: 12))
     }
 
+    private func summaryHeader<Accessory: View>(_ title: String, systemImage: String, summary: String? = nil, @ViewBuilder accessory: @escaping () -> Accessory) -> some View {
+        HStack {
+            HStack {
+                Image(systemName: systemImage)
+                    .frame(width: 22)
+                Text(title)
+            }
+            accessory()
+
+            Spacer()
+
+            if let summary {
+                Text(summary)
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+
+    private func summaryHeader(_ title: String, systemImage: String, summary: String? = nil) -> some View {
+        summaryHeader(title, systemImage: systemImage, summary: summary, accessory: { EmptyView() })
+    }
+
     @ViewBuilder
     private var general: some View {
         ConfigurationSection {
             HardwareConfigurationView(device: $viewModel.config.hardware)
         } header: {
-            Label("General", systemImage: "memorychip")
+            summaryHeader(
+                "General",
+                systemImage: "memorychip",
+                summary: viewModel.config.generalSummary
+            )
         }
         .contextMenu {
             Button("Reset General Settings") {
@@ -49,9 +77,7 @@ struct VMConfigurationView: View {
                 selectedPreset: $viewModel.selectedDisplayPreset
             )
         } header: {
-            HStack {
-                Label("Display", systemImage: "display")
-                
+            summaryHeader("Display", systemImage: "display", summary: viewModel.config.displaySummary) {
                 DisplayConfigurationView(
                     device: $viewModel.config.hardware.displayDevices[0],
                     selectedPreset: $viewModel.selectedDisplayPreset
@@ -65,9 +91,13 @@ struct VMConfigurationView: View {
     @ViewBuilder
     private var network: some View {
         ConfigurationSection {
-            NetworkConfigurationView(device: $viewModel.config.hardware.networkDevices[0])
+            NetworkConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
-            Label("Network", systemImage: "network")
+            summaryHeader(
+                "Network",
+                systemImage: "network",
+                summary: viewModel.config.networkSummary
+            )
         }
     }
 
@@ -76,7 +106,11 @@ struct VMConfigurationView: View {
         ConfigurationSection {
             SoundConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
-            Label("Sound", systemImage: "speaker.3")
+            summaryHeader(
+                "Sound",
+                systemImage: viewModel.config.hardware.soundDevices.isEmpty ? "speaker.slash" : "speaker.3",
+                summary: viewModel.config.soundSummary
+            )
         }
 
     }
@@ -100,7 +134,7 @@ struct VMConfigurationView_Previews: PreviewProvider {
         var body: some View {
             PreviewSheet {
                 VMConfigurationSheet(machine: controller.virtualMachineModel, configuration: $controller.virtualMachineModel.configuration, errorMessage: error, buttonsDisabled: error != nil)
-                    .frame(width: 320, height: 600, alignment: .top)
+                    .frame(width: 360, height: 600, alignment: .top)
             }
         }
     }

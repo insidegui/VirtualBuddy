@@ -52,7 +52,7 @@ public struct VMConfigurationSheet: View {
         .safeAreaInset(edge: .bottom) {
             buttons
         }
-        .frame(minWidth: 320, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity, alignment: .top)
+        .frame(minWidth: 360, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity, alignment: .top)
     }
     
     @ViewBuilder

@@ -10,7 +10,7 @@ import VirtualCore
 
 struct ConfigurationSection<Header: View, Content: View>: View {
 
-    @State private var isCollapsed = false
+    @State private var isCollapsed = true
 
     var content: () -> Content
     var header: () -> Header

@@ -300,6 +300,29 @@ public extension VBDisplayDevice {
 
 }
 
+public extension VBMacConfiguration {
+
+    var generalSummary: String {
+        "\(hardware.cpuCount) CPUs / \(hardware.memorySize / 1024 / 1024 / 1024) GB"
+    }
+
+    var displaySummary: String {
+        guard let display = hardware.displayDevices.first else { return "No Displays" }
+        return "\(display.width)x\(display.height)x\(display.pixelsPerInch)"
+    }
+
+    var soundSummary: String {
+        guard let sound = hardware.soundDevices.first else { return "No Sound" }
+        return sound.enableInput ? "Input / Output" : "Output Only"
+    }
+
+    var networkSummary: String {
+        guard let network = hardware.networkDevices.first else { return "No Network" }
+        return network.kind.name
+    }
+
+}
+
 extension Int {
 
     static let vb_suggestedVirtualCPUCount: Int = {
