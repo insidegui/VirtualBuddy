@@ -108,5 +108,14 @@ public extension VBVirtualMachine {
             return .default
         }
     }
+
+    mutating func reloadConfiguration() {
+        guard let config = try? loadConfiguration() else {
+            assertionFailure("Failed to reload configuration")
+            return
+        }
+
+        self.configuration = config
+    }
     
 }

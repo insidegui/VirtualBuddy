@@ -63,7 +63,7 @@ struct VirtualMachineSessionView: View {
     private func vmView(with vm: VZVirtualMachine) -> some View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
-            captureSystemKeys: controller.options.captureSystemKeys
+            captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys
         )
     }
     

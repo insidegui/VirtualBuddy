@@ -23,7 +23,7 @@ struct VMSessionConfigurationView: View {
                 }
                 HStack {
                     Text("Capture system keyboard shortcuts")
-                    Toggle("Capture system keyboard shortcuts", isOn: $controller.options.captureSystemKeys)
+                    Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
                 }
             }
             .labelsHidden()

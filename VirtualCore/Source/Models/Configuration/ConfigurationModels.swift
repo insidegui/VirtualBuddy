@@ -14,17 +14,20 @@ import SystemConfiguration
  Care must be taken when changing any of the structs in this file that conform to `Codable`,
  since users may have VMs configured using older versions of the structs. Failure to decode the configuration
  after updates to how it's stored can result in data loss.
+
+ In order to keep backwards-compatibility for new properties without having to make everything optional,
+ the `@DecodableDefault` property wrapper can be used.
  */
 
 public struct VBMacConfiguration: Hashable, Codable {
 
     public static let currentVersion = 0
-    @DecodableDefault.Zero
-    public var version = VBMacConfiguration.currentVersion
+    @DecodableDefault.Zero public var version = VBMacConfiguration.currentVersion
+
     public var hardware = VBMacDevice.default
     public var sharedFolders = [VBSharedFolder]()
-    @DecodableDefault.True
-    public var captureSystemKeys = true
+
+    @DecodableDefault.True public var captureSystemKeys = true
 
 }
 
