@@ -39,7 +39,10 @@ struct VMSessionConfigurationView: View {
         .padding()
         .controlGroup()
         .sheet(isPresented: $isShowingVMSettings) {
-            VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
+            VMConfigurationSheet(
+                machine: controller.virtualMachineModel,
+                configuration: $controller.virtualMachineModel.configuration
+            )
         }
     }
 }

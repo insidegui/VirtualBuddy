@@ -224,6 +224,25 @@ public extension VBNetworkDevice {
     }
 }
 
+public extension VBMacConfiguration {
+    
+    func validate(for model: VBVirtualMachine) async -> String? {
+        var tempModel = model
+        tempModel.configuration = self
+        
+        do {
+            let config = try await VMInstance.makeConfiguration(for: tempModel)
+            
+            try config.validate()
+            
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
+    
+}
+
 // MARK: - Helpers
 
 public extension VBNetworkDevice {

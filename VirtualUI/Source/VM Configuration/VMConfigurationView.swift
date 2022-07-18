@@ -75,15 +75,20 @@ struct VMConfigurationView: View {
 struct VMConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         _Template()
+            .previewDisplayName("Sheet")
+        
+        _Template(error: "The virtual machine is not valid because something, or whatever.")
+            .previewDisplayName("Error")
     }
 
     struct _Template: View {
         @StateObject var controller = VMController(with: .preview)
+        
+        var error: String? = nil
 
         var body: some View {
             PreviewSheet {
-                VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
-                    .environmentObject(controller)
+                VMConfigurationSheet(machine: controller.virtualMachineModel, configuration: $controller.virtualMachineModel.configuration, errorMessage: error, buttonsDisabled: error != nil)
                     .frame(width: 320, height: 600, alignment: .top)
             }
         }
