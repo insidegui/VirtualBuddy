@@ -9,7 +9,7 @@ import Foundation
 
 public struct VBSettings: Hashable {
 
-    public static let currentVersion = 2
+    public static let currentVersion = 3
 
     public var version: Int = Self.currentVersion
     public var libraryURL: URL
@@ -36,7 +36,17 @@ extension VBSettings {
         if let path = defaults.string(forKey: Keys.libraryPath) {
             self.libraryURL = URL(fileURLWithPath: path)
         } else {
-            self.libraryURL = .defaultVirtualBuddyLibraryURL
+            if version == 2 || version == 1 {
+                /// Default library folder changed in VBSettings version 3,
+                /// so if we're decoding settings from a previous release without a
+                /// library defined, use the old default, which may have user VMs in it.
+                /// 
+                /// There's a high chance this never gets hit because the legacy default folder is likely
+                /// to be in user defaults, even if the user never changed it.
+                self.libraryURL = ._legacyDefaultVirtualBuddyLibraryURLForMigrationOnly
+            } else {
+                self.libraryURL = .defaultVirtualBuddyLibraryURL
+            }
         }
 
         if let appUpdateChannelID = defaults.string(forKey: Keys.updateChannel) {
@@ -55,7 +65,7 @@ extension VBSettings {
 }
 
 public extension URL {
-    static let defaultVirtualBuddyLibraryURL: URL = {
+    static let _legacyDefaultVirtualBuddyLibraryURLForMigrationOnly: URL = {
         do {
             let baseURL = try FileManager.default.url(
                 for: .documentDirectory,
@@ -68,6 +78,21 @@ public extension URL {
                 .appendingPathComponent("VirtualBuddy")
         } catch {
             fatalError("VirtualBuddy is unable to write to your user's documents directory, this is bad!")
+        }
+    }()
+
+    static let defaultVirtualBuddyLibraryURL: URL = {
+        do {
+            let baseURL = try FileManager.default.url(
+                for: .applicationSupportDirectory,
+                in: .userDomainMask,
+                appropriateFor: nil,
+                create: true
+            )
+
+            return baseURL.appendingPathComponent("VirtualBuddy")
+        } catch {
+            fatalError("VirtualBuddy is unable to write to your user's Library/Application Support directory, this is bad!")
         }
     }()
 }
