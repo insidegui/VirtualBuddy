@@ -2,20 +2,6 @@ import SwiftUI
 import Combine
 import VirtualCore
 
-struct PropertyControlLabel: View {
-    init(_ title: String) {
-        self.title = title
-    }
-    
-    var title: String
-    
-    var body: some View {
-        Text(title)
-            .foregroundColor(.white.opacity(0.7))
-            .blendMode(.plusLighter)
-    }
-}
-
 struct NumericPropertyControl<Value: BinaryInteger, F: Formatter>: View {
     @Binding var value: Value
     var range: ClosedRange<Value>

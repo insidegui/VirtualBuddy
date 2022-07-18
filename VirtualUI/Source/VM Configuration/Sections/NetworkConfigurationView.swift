@@ -13,10 +13,16 @@ struct NetworkConfigurationView: View {
     @Binding var device: VBNetworkDevice
     
     var body: some View {
-        typePicker
-            .padding(.bottom, 8)
-        
-        macAddressField
+        VStack(alignment: .leading, spacing: 16) {
+            typePicker
+            
+            switch device.kind {
+            case .NAT:
+                natSettings
+            case .bridge:
+                bridgeSettings
+            }
+        }
     }
     
     @ViewBuilder
@@ -34,8 +40,7 @@ struct NetworkConfigurationView: View {
     
     @ViewBuilder
     private var macAddressField: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            PropertyControlLabel("MAC Address")
+        PropertyControl("MAC Address") {
             EphemeralTextField($device.macAddress, alignment: .leading) { addr in
                 Text(addr)
                     .textCase(.uppercase)
@@ -48,4 +53,80 @@ struct NetworkConfigurationView: View {
             }
         }
     }
+    
+    @State private var bridgeInterfaces: [VBNetworkDeviceBridgeInterface] = []
+    
+    @ViewBuilder
+    private var natSettings: some View {
+        macAddressField
+    }
+    
+    @ViewBuilder
+    private var bridgeSettings: some View {
+        if VBNetworkDevice.appSupportsBridgedNetworking {
+            PropertyControl("Interface") {
+                HStack {
+                    Picker("Interface", selection: $device.id) {
+                        if bridgeInterfaces.isEmpty {
+                            Text("No Interfaces Available")
+                                .tag(device.id)
+                        } else {
+                            ForEach(bridgeInterfaces) { iface in
+                                Text(iface.name)
+                                    .tag(iface.id)
+                            }
+                        }
+                    }
+                    .disabled(bridgeInterfaces.isEmpty)
+                    
+                    Spacer()
+                    
+                    Button {
+                        bridgeInterfaces = VBNetworkDevice.bridgeInterfaces
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                    }
+                    .buttonStyle(.plain)
+                    .help("Reload interfaces")
+                }
+                .onAppear {
+                    bridgeInterfaces = VBNetworkDevice.bridgeInterfaces
+                }
+            }
+            
+            macAddressField
+        } else {
+            Text("Bridged network devices are not available in this build of the app.")
+                .foregroundColor(.red)
+        }
+    }
 }
+
+#if DEBUG
+struct NetworkConfigurationView_Previews: PreviewProvider {
+    static var previews: some View {
+        _Template(device: VBNetworkDevice(id: "Default", name: "Default", kind: .NAT, macAddress: "0A:82:7F:CE:C0:58"))
+            .previewDisplayName("NAT")
+        
+        _Template(device: VBNetworkDevice(id: VBNetworkDevice.defaultBridgeInterfaceID ?? "ERROR", name: "Bridge", kind: .bridge, macAddress: "0A:82:7F:CE:C0:58"))
+            .previewDisplayName("Bridge")
+    }
+    
+    struct _Template: View {
+        @State var device: VBNetworkDevice
+        init(device: VBNetworkDevice) {
+            self._device = .init(wrappedValue: device)
+        }
+        var body: some View {
+            VStack(alignment: .leading) {
+                NetworkConfigurationView(device: $device)
+            }
+            .frame(maxWidth: 320, maxHeight: .infinity, alignment: .top)
+                .padding()
+                .controlGroup()
+                .padding(30)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        }
+    }
+}
+#endif

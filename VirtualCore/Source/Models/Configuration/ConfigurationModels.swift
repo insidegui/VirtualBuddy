@@ -25,6 +25,13 @@ public struct VBDisplayDevice: Identifiable, Hashable, Codable {
 }
 
 public struct VBNetworkDevice: Identifiable, Hashable, Codable {
+    public init(id: String = "Default", name: String = "Default", kind: VBNetworkDevice.Kind = Kind.NAT, macAddress: String = VZMACAddress.randomLocallyAdministered().string.uppercased()) {
+        self.id = id
+        self.name = name
+        self.kind = kind
+        self.macAddress = macAddress
+    }
+    
     public enum Kind: Int, Identifiable, CaseIterable, Codable {
         public var id: RawValue { rawValue }
 
@@ -191,6 +198,30 @@ public extension VBDisplayPreset {
     }
     
     static var availablePresets: [VBDisplayPreset] { presets.filter(\.isAvailable) }
+}
+
+public struct VBNetworkDeviceBridgeInterface: Identifiable {
+    public var id: String
+    public var name: String
+    
+    init(_ interface: VZBridgedNetworkInterface) {
+        self.id = interface.identifier
+        self.name = interface.localizedDisplayName ?? interface.identifier
+    }
+}
+
+public extension VBNetworkDevice {
+    static var defaultBridgeInterfaceID: String? {
+        VZBridgedNetworkInterface.networkInterfaces.first?.identifier
+    }
+    
+    static var bridgeInterfaces: [VBNetworkDeviceBridgeInterface] {
+        VZBridgedNetworkInterface.networkInterfaces.map(VBNetworkDeviceBridgeInterface.init)
+    }
+    
+    static var appSupportsBridgedNetworking: Bool {
+        NSApplication.shared.hasEntitlement("com.apple.vm.networking")
+    }
 }
 
 // MARK: - Helpers
