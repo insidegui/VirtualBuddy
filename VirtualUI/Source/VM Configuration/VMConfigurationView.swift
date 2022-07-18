@@ -19,8 +19,9 @@ struct VMConfigurationView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             general
-            network
             display
+            network
+            sound
         }
         .font(.system(size: 12))
     }
@@ -68,6 +69,16 @@ struct VMConfigurationView: View {
         } header: {
             Label("Network", systemImage: "network")
         }
+    }
+
+    @ViewBuilder
+    private var sound: some View {
+        ConfigurationSection {
+            SoundConfigurationView(hardware: $viewModel.config.hardware)
+        } header: {
+            Label("Sound", systemImage: "speaker.3")
+        }
+
     }
 }
 
