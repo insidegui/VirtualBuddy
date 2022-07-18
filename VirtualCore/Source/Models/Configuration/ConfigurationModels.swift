@@ -8,6 +8,30 @@
 import Foundation
 import SystemConfiguration
 
+/**
+ ## Note to contributors:
+
+ Care must be taken when changing any of the structs in this file that conform to `Codable`,
+ since users may have VMs configured using older versions of the structs. Failure to decode the configuration
+ after updates to how it's stored can result in data loss.
+ */
+
+public struct VBMacConfiguration: Hashable, Codable {
+
+    public static let currentVersion = 0
+    @DecodableDefault.Zero
+    public var version = VBMacConfiguration.currentVersion
+    public var hardware = VBMacDevice.default
+    public var sharedFolders = [VBSharedFolder]()
+    @DecodableDefault.True
+    public var captureSystemKeys = true
+
+}
+
+// MARK: - Hardware Configuration
+
+/// Configures a display device.
+/// **Read the note at the top of this file before modifying this**
 public struct VBDisplayDevice: Identifiable, Hashable, Codable {
     public init(id: UUID = UUID(), name: String = "Default", width: Int = 1920, height: Int = 1080, pixelsPerInch: Int = 144) {
         self.id = id
@@ -24,6 +48,8 @@ public struct VBDisplayDevice: Identifiable, Hashable, Codable {
     public var pixelsPerInch = 144
 }
 
+/// Configures a network device.
+/// **Read the note at the top of this file before modifying this**
 public struct VBNetworkDevice: Identifiable, Hashable, Codable {
     public init(id: String = "Default", name: String = "Default", kind: VBNetworkDevice.Kind = Kind.NAT, macAddress: String = VZMACAddress.randomLocallyAdministered().string.uppercased()) {
         self.id = id
@@ -52,6 +78,8 @@ public struct VBNetworkDevice: Identifiable, Hashable, Codable {
     public var macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
 }
 
+/// Configures a pointing device, such as a mouse or trackpad.
+/// **Read the note at the top of this file before modifying this**
 public struct VBPointingDevice: Hashable, Codable {
     public enum Kind: Int, Identifiable, CaseIterable, Codable {
         public var id: RawValue { rawValue }
@@ -76,6 +104,8 @@ public struct VBPointingDevice: Hashable, Codable {
     public var kind = Kind.mouse
 }
 
+/// Configures sound input/output.
+/// **Read the note at the top of this file before modifying this**
 public struct VBSoundDevice: Identifiable, Hashable, Codable {
     public var id = UUID()
     public var name = "Default"
@@ -83,6 +113,8 @@ public struct VBSoundDevice: Identifiable, Hashable, Codable {
     public var enableInput = true
 }
 
+/// Describes a Mac VM with its associated hardware configuration.
+/// **Read the note at the top of this file before modifying this**
 public struct VBMacDevice: Hashable, Codable {
     public var cpuCount: Int
     public var memorySize: UInt64
@@ -93,18 +125,15 @@ public struct VBMacDevice: Hashable, Codable {
     public var NVRAM = [VBNVRAMVariable]()
 }
 
+// MARK: - Sharing And Other Features
+
+/// Configures a folder that's shared between the host and the guest.
+/// **Read the note at the top of this file before modifying this**
 public struct VBSharedFolder: Identifiable, Hashable, Codable {
     public var id = UUID()
     public var name: String { url.lastPathComponent }
     public var url: URL
     public var isReadOnly = true
-}
-
-public struct VBMacConfiguration: Hashable, Codable {
-
-    public var hardware = VBMacDevice.default
-    public var sharedFolders = [VBSharedFolder]()
-
 }
 
 // MARK: - Default Devices
