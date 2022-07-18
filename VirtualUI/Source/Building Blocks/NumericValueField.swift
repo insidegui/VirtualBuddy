@@ -46,6 +46,9 @@ struct NumericValueField<Value: BinaryInteger, F: Formatter>: View {
         .onChange(of: isInEditMode) { newValue in
             if newValue { isFocused = true }
         }
+        .onChange(of: value) { newValue in
+            internalValue = newValue
+        }
     }
 
     private var editableBody: some View {
@@ -57,11 +60,6 @@ struct NumericValueField<Value: BinaryInteger, F: Formatter>: View {
                 isFocused = false
                 internalValue = newValue
             }
-            .onChange(of: isFocused, perform: { newValue in
-                if newValue {
-                    internalValue = value
-                }
-            })
             .onSubmit {
                 /// Update the external value with the edited value on submit,
                 /// limiting to the allowed range.

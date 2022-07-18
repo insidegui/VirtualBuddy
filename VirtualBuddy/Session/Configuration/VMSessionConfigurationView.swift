@@ -39,23 +39,7 @@ struct VMSessionConfigurationView: View {
         .padding()
         .controlGroup()
         .sheet(isPresented: $isShowingVMSettings) {
-            VStack(spacing: 22) {
-                ScrollView(.vertical) {
-                    VMConfigurationView(
-                        configuration: $controller.virtualMachineModel.configuration,
-                        hardware: $controller.virtualMachineModel.configuration.hardware
-                    )
-                    .padding()
-                }
-
-                Spacer()
-
-                Button("Done") { isShowingVMSettings = false }
-                    .keyboardShortcut(.defaultAction)
-                    .frame(maxWidth: .infinity, alignment: .bottomTrailing)
-                    .padding([.bottom, .trailing])
-            }
-            .frame(minWidth: 320, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity, alignment: .top)
+            VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
         }
     }
 }

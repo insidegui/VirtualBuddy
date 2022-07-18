@@ -8,20 +8,85 @@
 import SwiftUI
 import VirtualCore
 
-public struct VMConfigurationView: View {
-    @EnvironmentObject var controller: VMController
-
-    @Binding var configuration: VBMacConfiguration
-    @Binding var hardware: VBMacDevice
-
-    private var unfocusActiveField = VoidSubject()
-
-    public init(configuration: Binding<VBMacConfiguration>, hardware: Binding<VBMacDevice>) {
-        self._configuration = configuration
-        self._hardware = hardware
+final class VMConfigurationViewModel: ObservableObject {
+    
+    @Published var config: VBMacConfiguration
+    
+    init(config: VBMacConfiguration) {
+        self.config = config
     }
+    
+}
 
+public struct VMConfigurationSheet: View {
+    
+    @StateObject private var viewModel: VMConfigurationViewModel
+    
+    /// The VM configuration as it existed when the user opened the configuration UI.
+    /// Can be used to reset aspects of the configuration to their previous values.
+    private var initialConfiguration: VBMacConfiguration
+    
+    /// The configuration that gets saved with the VM.
+    /// Setting this saves the configuration.
+    @Binding private var savedConfiguration: VBMacConfiguration
+    
+    /// Initializes the VM configuration sheet, bound to a VM configuration model.
+    /// - Parameter configuration: The binding that will be updated when the user saves the configuration by clicking the "Done" button.
+    public init(configuration: Binding<VBMacConfiguration>) {
+        self.initialConfiguration = configuration.wrappedValue
+        self._savedConfiguration = configuration
+        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(config: configuration.wrappedValue))
+    }
+    
+    @Environment(\.dismiss) private var dismiss
+    
     public var body: some View {
+        ScrollView(.vertical) {
+            VMConfigurationView(initialConfiguration: initialConfiguration)
+                .environmentObject(viewModel)
+                .padding()
+        }
+        .safeAreaInset(edge: .bottom) {
+            buttons
+        }
+        .frame(minWidth: 320, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity, alignment: .top)
+    }
+    
+    @ViewBuilder
+    private var buttons: some View {
+        HStack {
+            Button("Cancel") {
+                dismiss()
+            }
+            .keyboardShortcut(.cancelAction)
+            
+            Spacer()
+            
+            Button("Done") {
+                savedConfiguration = viewModel.config
+                
+                dismiss()
+            }
+            .keyboardShortcut(.defaultAction)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal)
+        .padding(.vertical, 12)
+        .background(Material.regular, in: Rectangle())
+        .overlay(alignment: .top) { Divider() }
+    }
+    
+}
+
+struct VMConfigurationView: View {
+    @EnvironmentObject var controller: VMController
+    @EnvironmentObject private var viewModel: VMConfigurationViewModel
+    
+    var initialConfiguration: VBMacConfiguration
+    
+    var unfocusActiveField = VoidSubject()
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             general
             display
@@ -33,7 +98,7 @@ public struct VMConfigurationView: View {
     private var general: some View {
         ConfigurationSection {
             NumericPropertyControl(
-                value: $hardware.cpuCount,
+                value: $viewModel.config.hardware.cpuCount,
                 range: VBMacDevice.virtualCPUCountRange,
                 step: 1,
                 label: "Virtual CPUs",
@@ -42,7 +107,7 @@ public struct VMConfigurationView: View {
             )
 
             NumericPropertyControl(
-                value: $hardware.memorySize.gbValue,
+                value: $viewModel.config.hardware.memorySize.gbValue,
                 range: VBMacDevice.memorySizeRangeInGigabytes,
                 step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
                 label: "Memory (GB)",
@@ -52,13 +117,19 @@ public struct VMConfigurationView: View {
         } header: {
             Label("General", systemImage: "memorychip")
         }
+        .contextMenu {
+            Button("Reset General Settings") {
+                viewModel.config.hardware.cpuCount = initialConfiguration.hardware.cpuCount
+                viewModel.config.hardware.memorySize = initialConfiguration.hardware.memorySize
+            }
+        }
     }
 
     @ViewBuilder
     private var display: some View {
         ConfigurationSection {
             NumericPropertyControl(
-                value: $hardware.displayDevices[0].width,
+                value: $viewModel.config.hardware.displayDevices[0].width,
                 range: VBDisplayDevice.displayWidthRange,
                 label: "Width (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
@@ -66,7 +137,7 @@ public struct VMConfigurationView: View {
             )
 
             NumericPropertyControl(
-                value: $hardware.displayDevices[0].height,
+                value: $viewModel.config.hardware.displayDevices[0].height,
                 range: VBDisplayDevice.displayHeightRange,
                 label: "Height (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
@@ -74,7 +145,7 @@ public struct VMConfigurationView: View {
             )
 
             NumericPropertyControl(
-                value: $hardware.displayDevices[0].pixelsPerInch,
+                value: $viewModel.config.hardware.displayDevices[0].pixelsPerInch,
                 range: VBDisplayDevice.displayPPIRange,
                 label: "Pixels Per Inch",
                 formatter: NumberFormatter.numericPropertyControlDefault,
@@ -84,7 +155,7 @@ public struct VMConfigurationView: View {
             HStack {
                 Label("Display", systemImage: "display")
                 
-                DisplayPresetPicker(display: $hardware.displayDevices[0])
+                DisplayPresetPicker(display: $viewModel.config.hardware.displayDevices[0])
                     .frame(width: 24)
             }
         }
@@ -187,13 +258,31 @@ struct VMConfigurationView_Previews: PreviewProvider {
         @StateObject var controller = VMController(with: .preview)
 
         var body: some View {
-            VMConfigurationView(configuration: $controller.virtualMachineModel.configuration, hardware: $controller.virtualMachineModel.configuration.hardware)
-                .environmentObject(controller)
-                .frame(width: 320, height: 400, alignment: .top)
-                .padding()
-                .padding(50)
+            PreviewSheet {
+                VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
+                    .environmentObject(controller)
+                    .frame(width: 320, height: 400, alignment: .top)
+            }
         }
     }
 }
 
+/// Simulates a macOS sheet for SwiftUI previews.
+struct PreviewSheet<Content: View>: View {
+    var content: () -> Content
+    
+    init(@ViewBuilder _ content: @escaping () -> Content) {
+        self.content = content
+    }
+    
+    var body: some View {
+        ZStack {}
+        .frame(width: 500, height: 500)
+        .background(Color.black.opacity(0.5))
+        .overlay {
+            content()
+                .controlGroup()
+        }
+    }
+}
 #endif
