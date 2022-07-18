@@ -30,7 +30,7 @@ struct NumericPropertyControl<Value: BinaryInteger, F: Formatter>: View {
         VStack(alignment: .leading, spacing: spacing) {
             HStack {
                 PropertyControlLabel(label)
-
+                
                 Spacer()
 
                 NumericValueField(
@@ -42,7 +42,6 @@ struct NumericPropertyControl<Value: BinaryInteger, F: Formatter>: View {
                     .textFieldStyle(.plain)
                     .multilineTextAlignment(.trailing)
                     .monospacedDigit()
-                    .frame(minWidth: 30)
             }
 
             if !hideSlider {
