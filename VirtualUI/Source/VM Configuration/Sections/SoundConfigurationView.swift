@@ -49,17 +49,9 @@ struct SoundConfigurationView_Previews: PreviewProvider {
             self._hardware = .init(wrappedValue: hardware)
         }
         var body: some View {
-            ConfigurationSection({
+            _ConfigurationSectionPreview {
                 SoundConfigurationView(hardware: $hardware)
-            }, header: {
-                Label("Sound", systemImage: "speaker.3")
-            })
-
-            .frame(maxWidth: 320, maxHeight: .infinity, alignment: .top)
-                .padding()
-                .controlGroup()
-                .padding(30)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
     }
 }

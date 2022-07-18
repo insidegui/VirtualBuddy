@@ -15,7 +15,8 @@ struct ConfigurationSection<Header: View, Content: View>: View {
     var content: () -> Content
     var header: () -> Header
 
-    init(@ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
+    init(collapsed: Bool = true, @ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
+        self._isCollapsed = .init(wrappedValue: collapsed)
         self.header = header
         self.content = content
     }

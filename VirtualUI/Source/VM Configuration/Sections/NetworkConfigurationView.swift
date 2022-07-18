@@ -157,6 +157,13 @@ struct NetworkConfigurationView_Previews: PreviewProvider {
             return h
         }())
             .previewDisplayName("Bridge")
+
+        _Template(hardware: {
+            var h = VBMacDevice.default
+            h.networkDevices = []
+            return h
+        }())
+            .previewDisplayName("None")
     }
     
     struct _Template: View {
@@ -165,14 +172,9 @@ struct NetworkConfigurationView_Previews: PreviewProvider {
             self._hardware = .init(wrappedValue: hardware)
         }
         var body: some View {
-            VStack(alignment: .leading) {
+            _ConfigurationSectionPreview {
                 NetworkConfigurationView(hardware: $hardware)
             }
-            .frame(maxWidth: 320, maxHeight: .infinity, alignment: .top)
-                .padding()
-                .controlGroup()
-                .padding(30)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }
