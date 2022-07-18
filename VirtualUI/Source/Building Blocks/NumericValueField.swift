@@ -11,15 +11,15 @@ struct NumericValueField<Value: BinaryInteger, F: Formatter>: View {
 
     @State private var internalValue: Value
 
-    private let unfocus: VoidSubject
+    @Environment(\.unfocusActiveField)
+    private var unfocus
 
-    init(label: String, value: Binding<Value>, range: ClosedRange<Value>, formatter: F, unfocus: VoidSubject? = nil) {
+    init(label: String, value: Binding<Value>, range: ClosedRange<Value>, formatter: F) {
         self.label = label
         self._value = value
         self.range = range
         self.formatter = formatter
         self._internalValue = .init(initialValue: value.wrappedValue)
-        self.unfocus = unfocus ?? VoidSubject()
     }
 
     @FocusState
@@ -96,8 +96,9 @@ struct NumericValueField_Previews: PreviewProvider {
 
     struct _Template: View {
         @State var value = 1
-
-        var unfocus = VoidSubject()
+        
+        @Environment(\.unfocusActiveField)
+        private var unfocusActiveField
 
         private let formatter: NumberFormatter = {
             let f = NumberFormatter()
@@ -114,12 +115,11 @@ struct NumericValueField_Previews: PreviewProvider {
                     label: "Test",
                     value: $value,
                     range: 1...10,
-                    formatter: formatter,
-                    unfocus: unfocus
+                    formatter: formatter
                 )
 
                 Button("Unfocus") {
-                    unfocus.send()
+                    unfocusActiveField.send()
                 }
                 .controlSize(.small)
             }

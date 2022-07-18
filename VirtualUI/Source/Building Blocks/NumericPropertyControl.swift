@@ -37,8 +37,7 @@ struct NumericPropertyControl<Value: BinaryInteger, F: Formatter>: View {
                     label: label,
                     value: $value,
                     range: range,
-                    formatter: formatter,
-                    unfocus: unfocus
+                    formatter: formatter
                 )
                     .textFieldStyle(.plain)
                     .multilineTextAlignment(.trailing)

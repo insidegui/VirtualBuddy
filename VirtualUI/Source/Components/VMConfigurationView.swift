@@ -95,9 +95,7 @@ struct VMConfigurationView: View {
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
     var initialConfiguration: VBMacConfiguration
-    
-    var unfocusActiveField = VoidSubject()
-    
+
     static var labelSpacing: CGFloat { 2 }
 
     var body: some View {
@@ -118,7 +116,6 @@ struct VMConfigurationView: View {
                 step: 1,
                 label: "Virtual CPUs",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField,
                 spacing: Self.labelSpacing
             )
 
@@ -128,7 +125,6 @@ struct VMConfigurationView: View {
                 step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
                 label: "Memory (GB)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField,
                 spacing: Self.labelSpacing
             )
         } header: {
@@ -156,7 +152,6 @@ struct VMConfigurationView: View {
                 range: VBDisplayDevice.displayWidthRange,
                 label: "Width (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField,
                 spacing: Self.labelSpacing
             )
 
@@ -165,7 +160,6 @@ struct VMConfigurationView: View {
                 range: VBDisplayDevice.displayHeightRange,
                 label: "Height (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField,
                 spacing: Self.labelSpacing
             )
 
@@ -174,7 +168,6 @@ struct VMConfigurationView: View {
                 range: VBDisplayDevice.displayPPIRange,
                 label: "Pixels Per Inch",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField,
                 spacing: Self.labelSpacing
             )
         } header: {
