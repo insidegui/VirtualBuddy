@@ -10,6 +10,12 @@
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */; };
 		F42258702885D537009420AE /* EphemeralTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586F2885D537009420AE /* EphemeralTextField.swift */; };
+		F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258712885E100009420AE /* VMConfigurationSheet.swift */; };
+		F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258732885E10B009420AE /* VMConfigurationViewModel.swift */; };
+		F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258772885E14A009420AE /* DisplayConfigurationView.swift */; };
+		F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258792885E17D009420AE /* ConfigurationSection.swift */; };
+		F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */; };
+		F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */; };
 		F4471004286D0C1200F030EB /* NSAlert+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -153,6 +159,12 @@
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFocusEnvironment.swift; sourceTree = "<group>"; };
 		F422586F2885D537009420AE /* EphemeralTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralTextField.swift; sourceTree = "<group>"; };
+		F42258712885E100009420AE /* VMConfigurationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationSheet.swift; sourceTree = "<group>"; };
+		F42258732885E10B009420AE /* VMConfigurationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationViewModel.swift; sourceTree = "<group>"; };
+		F42258772885E14A009420AE /* DisplayConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayConfigurationView.swift; sourceTree = "<group>"; };
+		F42258792885E17D009420AE /* ConfigurationSection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationSection.swift; sourceTree = "<group>"; };
+		F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurationView.swift; sourceTree = "<group>"; };
+		F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareConfigurationView.swift; sourceTree = "<group>"; };
 		F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAlert+Confirmation.swift"; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -287,6 +299,24 @@
 			path = "Configuration Controls";
 			sourceTree = "<group>";
 		};
+		F42258752885E132009420AE /* Sections */ = {
+			isa = PBXGroup;
+			children = (
+				F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */,
+				F42258772885E14A009420AE /* DisplayConfigurationView.swift */,
+				F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */,
+			);
+			path = Sections;
+			sourceTree = "<group>";
+		};
+		F42258762885E139009420AE /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F42258792885E17D009420AE /* ConfigurationSection.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -328,7 +358,7 @@
 		F498AD092884BF20006F1C00 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				F498AD102884C35F006F1C00 /* Components */,
+				F498AD102884C35F006F1C00 /* VM Configuration */,
 				F498AD0F2884C35A006F1C00 /* Building Blocks */,
 			);
 			path = Source;
@@ -345,12 +375,16 @@
 			path = "Building Blocks";
 			sourceTree = "<group>";
 		};
-		F498AD102884C35F006F1C00 /* Components */ = {
+		F498AD102884C35F006F1C00 /* VM Configuration */ = {
 			isa = PBXGroup;
 			children = (
+				F42258762885E139009420AE /* Components */,
+				F42258752885E132009420AE /* Sections */,
+				F42258732885E10B009420AE /* VMConfigurationViewModel.swift */,
+				F42258712885E100009420AE /* VMConfigurationSheet.swift */,
 				F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */,
 			);
-			path = Components;
+			path = "VM Configuration";
 			sourceTree = "<group>";
 		};
 		F49A68DF2884917400A17582 /* Configuration */ = {
@@ -901,13 +935,19 @@
 			buildActionMask = 2147483647;
 			files = (
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
+				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
+				F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */,
+				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
 				F498AD1A2884C5FF006F1C00 /* SliderConversion.swift in Sources */,
 				F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */,
+				F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */,
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
+				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
+				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
