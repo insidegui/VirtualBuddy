@@ -23,27 +23,67 @@ public struct VMConfigurationView: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            ConfigurationSection {
-                NumericPropertyControl(
-                    value: $hardware.cpuCount,
-                    range: VBMacDevice.virtualCPUCountRange,
-                    step: 1,
-                    label: "Virtual CPUs",
-                    formatter: NumberFormatter.numericPropertyControlDefault,
-                    unfocus: unfocusActiveField
-                )
+            general
+            display
+        }
+    }
 
-                NumericPropertyControl(
-                    value: $hardware.memorySize.gbValue,
-                    range: VBMacDevice.memorySizeRangeInGigabytes,
-                    step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
-                    label: "Memory (GB)",
-                    formatter: NumberFormatter.numericPropertyControlDefault,
-                    unfocus: unfocusActiveField
-                )
-            } header: {
-                Label("General", systemImage: "memorychip")
-            }
+    @ViewBuilder
+    private var general: some View {
+        ConfigurationSection {
+            NumericPropertyControl(
+                value: $hardware.cpuCount,
+                range: VBMacDevice.virtualCPUCountRange,
+                step: 1,
+                label: "Virtual CPUs",
+                formatter: NumberFormatter.numericPropertyControlDefault,
+                unfocus: unfocusActiveField
+            )
+
+            NumericPropertyControl(
+                value: $hardware.memorySize.gbValue,
+                range: VBMacDevice.memorySizeRangeInGigabytes,
+                step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
+                label: "Memory (GB)",
+                formatter: NumberFormatter.numericPropertyControlDefault,
+                unfocus: unfocusActiveField
+            )
+        } header: {
+            Label("General", systemImage: "memorychip")
+        }
+    }
+
+    @ViewBuilder
+    private var display: some View {
+        ConfigurationSection {
+            NumericPropertyControl(
+                value: $hardware.displayDevices[0].width,
+                range: VBDisplayDevice.displayWidthRange,
+                step: VBDisplayDevice.displayWidthRange.upperBound / 16,
+                label: "Width (Pixels)",
+                formatter: NumberFormatter.numericPropertyControlDefault,
+                unfocus: unfocusActiveField
+            )
+
+            NumericPropertyControl(
+                value: $hardware.displayDevices[0].height,
+                range: VBDisplayDevice.displayHeightRange,
+                step: VBDisplayDevice.displayHeightRange.upperBound / 16,
+                label: "Height (Pixels)",
+                formatter: NumberFormatter.numericPropertyControlDefault,
+                unfocus: unfocusActiveField
+            )
+
+            NumericPropertyControl(
+                value: $hardware.displayDevices[0].height,
+                range: VBDisplayDevice.displayHeightRange,
+                step: VBDisplayDevice.displayHeightRange.upperBound / 16,
+                label: "Pixels Per Inch",
+                formatter: NumberFormatter.numericPropertyControlDefault,
+                unfocus: unfocusActiveField
+            )
+        } header: {
+            Label("Display", systemImage: "display")
         }
     }
 }

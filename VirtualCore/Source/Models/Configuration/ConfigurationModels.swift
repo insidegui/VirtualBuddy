@@ -179,6 +179,35 @@ public extension VBMacDevice {
     }()
 }
 
+public extension VBDisplayDevice {
+
+    static let minimumDisplayDimension = 800
+
+    static var maximumDisplayWidth: Int { Self.matchHost.width }
+
+    static var maximumDisplayHeight: Int { Self.matchHost.height }
+
+    static let displayWidthRange: ClosedRange<Int> = {
+        minimumDisplayDimension...maximumDisplayWidth
+    }()
+
+    static let displayHeightRange: ClosedRange<Int> = {
+        minimumDisplayDimension...maximumDisplayHeight
+    }()
+
+    static let minimumDisplayPPI = 144
+
+    static let maximumDisplayPPI: Int = {
+        Self.default.pixelsPerInch
+    }()
+
+    static let displayPPIRange: ClosedRange<Int> = {
+        minimumDisplayPPI...maximumDisplayPPI
+    }()
+
+
+}
+
 extension Int {
 
     static let vb_suggestedVirtualCPUCount: Int = {
