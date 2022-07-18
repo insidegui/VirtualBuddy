@@ -10,7 +10,19 @@ import VirtualCore
 
 final class VMConfigurationViewModel: ObservableObject {
     
-    @Published var config: VBMacConfiguration
+    @Published var config: VBMacConfiguration {
+        didSet {
+            /// Reset display preset when changing display settings.
+            /// This is so the warning goes away, if any warning is being shown.
+            if config.hardware.displayDevices != oldValue.hardware.displayDevices,
+               config.hardware.displayDevices.first != selectedDisplayPreset?.device
+            {
+                selectedDisplayPreset = nil
+            }
+        }
+    }
+    
+    @Published var selectedDisplayPreset: VBDisplayPreset?
     
     init(config: VBMacConfiguration) {
         self.config = config
@@ -85,10 +97,13 @@ struct VMConfigurationView: View {
     var initialConfiguration: VBMacConfiguration
     
     var unfocusActiveField = VoidSubject()
+    
+    static var labelSpacing: CGFloat { 2 }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             general
+            network
             display
         }
         .font(.system(size: 12))
@@ -103,7 +118,8 @@ struct VMConfigurationView: View {
                 step: 1,
                 label: "Virtual CPUs",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
+                unfocus: unfocusActiveField,
+                spacing: Self.labelSpacing
             )
 
             NumericPropertyControl(
@@ -112,7 +128,8 @@ struct VMConfigurationView: View {
                 step: VBMacDevice.memorySizeRangeInGigabytes.upperBound / 16,
                 label: "Memory (GB)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
+                unfocus: unfocusActiveField,
+                spacing: Self.labelSpacing
             )
         } header: {
             Label("General", systemImage: "memorychip")
@@ -128,12 +145,19 @@ struct VMConfigurationView: View {
     @ViewBuilder
     private var display: some View {
         ConfigurationSection {
+            if let warning = viewModel.selectedDisplayPreset?.warning {
+                Text(warning)
+                    .foregroundColor(.yellow)
+                    .padding(.bottom, 8)
+            }
+            
             NumericPropertyControl(
                 value: $viewModel.config.hardware.displayDevices[0].width,
                 range: VBDisplayDevice.displayWidthRange,
                 label: "Width (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
+                unfocus: unfocusActiveField,
+                spacing: Self.labelSpacing
             )
 
             NumericPropertyControl(
@@ -141,7 +165,8 @@ struct VMConfigurationView: View {
                 range: VBDisplayDevice.displayHeightRange,
                 label: "Height (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
+                unfocus: unfocusActiveField,
+                spacing: Self.labelSpacing
             )
 
             NumericPropertyControl(
@@ -149,34 +174,78 @@ struct VMConfigurationView: View {
                 range: VBDisplayDevice.displayPPIRange,
                 label: "Pixels Per Inch",
                 formatter: NumberFormatter.numericPropertyControlDefault,
-                unfocus: unfocusActiveField
+                unfocus: unfocusActiveField,
+                spacing: Self.labelSpacing
             )
         } header: {
             HStack {
                 Label("Display", systemImage: "display")
                 
-                DisplayPresetPicker(display: $viewModel.config.hardware.displayDevices[0])
+                DisplayPresetPicker(
+                    display: $viewModel.config.hardware.displayDevices[0],
+                    selection: $viewModel.selectedDisplayPreset
+                )
                     .frame(width: 24)
             }
         }
     }
+    
+    @ViewBuilder
+    private var network: some View {
+        ConfigurationSection {
+            NetworkDeviceEditor(device: $viewModel.config.hardware.networkDevices[0])
+        } header: {
+            Label("Network", systemImage: "network")
+        }
+    }
+}
+
+struct NetworkDeviceEditor: View {
+    
+    @Binding var device: VBNetworkDevice
+    
+    var body: some View {
+        typePicker
+            .padding(.bottom, 8)
+        
+        VStack(alignment: .leading, spacing: VMConfigurationView.labelSpacing) {
+            PropertyControlLabel("MAC Address")
+            TextField("MAC Address", text: $device.macAddress)
+        }
+    }
+    
+    @ViewBuilder
+    private var typePicker: some View {
+        Picker("Type", selection: $device.kind) {
+            ForEach(VBNetworkDevice.Kind.allCases) { kind in
+                Text(kind.name)
+                    .tag(kind)
+            }
+        }
+        .pickerStyle(.segmented)
+        .labelsHidden()
+        .help("The type of network device")
+    }
+    
 }
 
 struct DisplayPresetPicker: View {
     
     @Binding var display: VBDisplayDevice
-    @State private var presets = [DisplayPreset]()
+    @Binding var selection: VBDisplayPreset?
+    @State private var presets = [VBDisplayPreset]()
     
     var body: some View {
         Menu {
             menuItems
         } label: {
-            Image(systemName: "lightbulb.fill")
+            Image(systemName: "wand.and.stars")
+                .foregroundColor(.accentColor)
         }
         .menuStyle(.borderlessButton)
         .help("Display Suggestions")
         .onAppear {
-            presets = DisplayPreset.availablePresets
+            presets = VBDisplayPreset.availablePresets
         }
     }
     
@@ -184,6 +253,7 @@ struct DisplayPresetPicker: View {
     var menuItems: some View {
         ForEach(presets) { preset in
             Button(preset.name) {
+                selection = preset
                 display = preset.device
             }
         }
@@ -261,7 +331,7 @@ struct VMConfigurationView_Previews: PreviewProvider {
             PreviewSheet {
                 VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
                     .environmentObject(controller)
-                    .frame(width: 320, height: 400, alignment: .top)
+                    .frame(width: 320, height: 600, alignment: .top)
             }
         }
     }
@@ -277,7 +347,7 @@ struct PreviewSheet<Content: View>: View {
     
     var body: some View {
         ZStack {}
-        .frame(width: 500, height: 500)
+        .frame(width: 500, height: 700)
         .background(Color.black.opacity(0.5))
         .overlay {
             content()

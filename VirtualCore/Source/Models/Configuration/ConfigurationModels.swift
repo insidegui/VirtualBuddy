@@ -30,6 +30,13 @@ public struct VBNetworkDevice: Identifiable, Hashable, Codable {
 
         case NAT
         case bridge
+        
+        public var name: String {
+            switch self {
+            case .NAT: return "NAT"
+            case .bridge: return "Bridge"
+            }
+        }
     }
 
     public var id = "Default"
@@ -164,7 +171,7 @@ public extension VBDisplayDevice {
 
 // MARK: - Presets
 
-public struct DisplayPreset: Identifiable, Hashable {
+public struct VBDisplayPreset: Identifiable, Hashable {
     public var id: String { name }
     public var name: String
     public var device: VBDisplayDevice
@@ -172,18 +179,18 @@ public struct DisplayPreset: Identifiable, Hashable {
     public var isAvailable = true
 }
 
-public extension DisplayPreset {
-    static var presets: [DisplayPreset] {
+public extension VBDisplayPreset {
+    static var presets: [VBDisplayPreset] {
         [
-            DisplayPreset(name: "Full HD", device: .init(name: "1920x1080@144", width: 1920, height: 1080, pixelsPerInch: 144)),
-            DisplayPreset(name: "4.5K Retina", device: .init(name: "4480x2520", width: 4480, height: 2520, pixelsPerInch: 218)),
+            VBDisplayPreset(name: "Full HD", device: .init(name: "1920x1080@144", width: 1920, height: 1080, pixelsPerInch: 144)),
+            VBDisplayPreset(name: "4.5K Retina", device: .init(name: "4480x2520", width: 4480, height: 2520, pixelsPerInch: 218)),
             // This preset is only relevant for displays with a notch.
-            DisplayPreset(name: "Match \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .matchHost, warning: "If things look small in the VM after booting, go to System Preferences and select a HiDPI scaled reslution for the display.", isAvailable: ProcessInfo.processInfo.vb_mainDisplayHasNotch),
-            DisplayPreset(name: "Size to fit in \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .sizeToFit)
+            VBDisplayPreset(name: "Match \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .matchHost, warning: "If things look small in the VM after boot, go to System Preferences and select a HiDPI scaled reslution for the display.", isAvailable: ProcessInfo.processInfo.vb_mainDisplayHasNotch),
+            VBDisplayPreset(name: "Size to fit in \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .sizeToFit)
         ]
     }
     
-    static var availablePresets: [DisplayPreset] { presets.filter(\.isAvailable) }
+    static var availablePresets: [VBDisplayPreset] { presets.filter(\.isAvailable) }
 }
 
 // MARK: - Helpers
