@@ -24,6 +24,9 @@ XCODE_RUNNING_FOR_PREVIEWS environment variable so that it won't affect regular 
     NSDictionary *env = [NSProcessInfo processInfo].environment;
     BOOL isSwiftUIPreview = [env[@"XCODE_RUNNING_FOR_PREVIEWS"] boolValue];
     if (!isSwiftUIPreview) return;
+
+    // VirtualBuddy is always in dark mode, make previews dark mode as well
+    NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];
     
     NSLog(@"😇 Installing fix for translucency in SwiftUI previews");
     
