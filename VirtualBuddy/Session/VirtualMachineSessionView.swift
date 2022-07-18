@@ -114,19 +114,7 @@ struct VirtualMachineSessionView: View {
 
     @ViewBuilder
     private var backgroundView: some View {
-        ZStack {
-            Color.black
-            
-            if let screenshot = controller.virtualMachineModel.screenshot {
-                Image(nsImage: screenshot)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .drawingGroup()
-                    .saturation(1.3)
-                    .brightness(-0.1)
-                    .blur(radius: 22, opaque: true)
-            }
-        }
+        VMScreenshotBackgroundView(vm: $controller.virtualMachineModel)
     }
     
     // MARK: - Toolbar Buttons
@@ -180,6 +168,37 @@ struct VirtualMachineSessionView: View {
             EmptyView()
         }
     }
+}
+
+struct VMScreenshotBackgroundView: View {
+    
+    @Binding var vm: VBVirtualMachine
+    
+    @State private var image: Image?
+    
+    var body: some View {
+        ZStack {
+            Color.black
+            
+            if let image {
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .drawingGroup()
+                    .saturation(1.3)
+                    .brightness(-0.1)
+                    .blur(radius: 22, opaque: true)
+            }
+        }
+        .onAppearOnce { updateImage() }
+        .onReceive(vm.didInvalidateThumbnail) { updateImage() }
+    }
+    
+    private func updateImage() {
+        guard let screenshot = vm.screenshot else { return }
+        image = Image(nsImage: screenshot)
+    }
+    
 }
 
 struct VMCircularButtonStyle: ButtonStyle {
