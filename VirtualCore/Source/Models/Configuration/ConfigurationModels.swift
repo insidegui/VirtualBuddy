@@ -42,7 +42,7 @@ public struct VBNetworkDevice: Identifiable, Hashable, Codable {
     public var id = "Default"
     public var name = "Default"
     public var kind = Kind.NAT
-    public var macAddress = VZMACAddress.randomLocallyAdministered().string
+    public var macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
 }
 
 public struct VBPointingDevice: Hashable, Codable {
@@ -194,6 +194,12 @@ public extension VBDisplayPreset {
 }
 
 // MARK: - Helpers
+
+public extension VBNetworkDevice {
+    static func validateMAC(_ address: String) -> Bool {
+        VZMACAddress(string: address) != nil
+    }
+}
 
 public extension VBMacDevice {
     static let minimumCPUCount: Int = VZVirtualMachineConfiguration.minimumAllowedCPUCount

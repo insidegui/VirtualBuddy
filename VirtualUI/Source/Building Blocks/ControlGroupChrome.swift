@@ -23,6 +23,7 @@ private struct ControlGroupChrome: ViewModifier {
             .clipShape(shape)
             .shadow(color: Color.black.opacity(dark ? 0.5 : 0.8), radius: 1, x: 0, y: 0)
             .shadow(color: Color.black.opacity(dark ? 0.2 : 0.1), radius: dark ? 8 : 10, x: 0, y: 0)
+            .unfocusOnTap()
     }
 
     private var shape: some InsettableShape {

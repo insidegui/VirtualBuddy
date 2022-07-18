@@ -30,7 +30,6 @@ struct NumericValueField<Value: BinaryInteger, F: Formatter>: View {
         } editableContent: { binding in
             TextField(label, value: binding, formatter: formatter)
         } clamp: { $0.limited(to: range) }
-            .multilineTextAlignment(.trailing)
     }
 }
 
@@ -72,7 +71,7 @@ struct NumericValueField_Previews: PreviewProvider {
                 )
 
                 Button("Unfocus") {
-                    unfocusActiveField.send()
+                    unfocusActiveField.send(.cancel)
                 }
                 .controlSize(.small)
             }

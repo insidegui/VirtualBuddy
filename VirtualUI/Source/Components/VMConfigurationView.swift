@@ -201,9 +201,18 @@ struct NetworkDeviceEditor: View {
         typePicker
             .padding(.bottom, 8)
         
-        VStack(alignment: .leading, spacing: VMConfigurationView.labelSpacing) {
+        VStack(alignment: .leading, spacing: 4) {
             PropertyControlLabel("MAC Address")
-            TextField("MAC Address", text: $device.macAddress)
+            EphemeralTextField($device.macAddress, alignment: .leading) { addr in
+                Text(addr)
+                    .textCase(.uppercase)
+            } editableContent: { value in
+                TextField("", text: .init(get: {
+                    value.wrappedValue.uppercased()
+                }, set: { value.wrappedValue = $0.uppercased() }))
+            } validate: { value in
+                return VBNetworkDevice.validateMAC(value)
+            }
         }
     }
     

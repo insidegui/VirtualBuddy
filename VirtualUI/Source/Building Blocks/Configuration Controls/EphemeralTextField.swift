@@ -22,8 +22,10 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     var editableContent: (Binding<Value>) -> EditableContent
     var clamp: (Value) -> Value
     var validate: (Value) -> Bool
+    var alignment: Alignment
     
     init(_ value: Binding<Value>,
+         alignment: Alignment = .trailing,
          @ViewBuilder staticContent: @escaping (Value) -> StaticContent,
          @ViewBuilder editableContent: @escaping (Binding<Value>) -> EditableContent,
          clamp: @escaping (Value) -> Value = { $0 },
@@ -31,6 +33,7 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     {
         self._value = value
         self._internalValue = .init(wrappedValue: value.wrappedValue)
+        self.alignment = alignment
         self.staticContent = staticContent
         self.editableContent = editableContent
         self.clamp = clamp
@@ -48,10 +51,13 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     @State private var isInEditMode = false
     
     @State private var contentWidth: CGFloat = 40
+    
+    @State private var shakeOffset: CGFloat = 0
 
     var body: some View {
         ZStack {
             staticContent(internalValue)
+                .lineLimit(1)
                 .contentShape(Rectangle())
                 .onTapGesture { isInEditMode = true }
                 .onHover { isHovered = $0 }
@@ -70,34 +76,21 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
                 editableContent($internalValue)
                     .focused($isFocused)
                     .textFieldStyle(.plain)
-                    .frame(width: contentWidth, alignment: .trailing)
+                    .frame(width: contentWidth, alignment: alignment)
                     .onChange(of: value) { newValue in
                         // Unfocus when changing the value externally.
                         isFocused = false
                         internalValue = newValue
                     }
-                    .onSubmit {
-                        guard validate(internalValue) else { return }
-                        
-                        /// Update the external value with the edited value on submit,
-                        /// limiting to the allowed range.
-                        value = clamp(internalValue)
-                        internalValue = clamp(internalValue)
-
-                        isFocused = false
-                    }
-                    .onExitCommand {
-                        /// Unfocus the field when pressing the escape key.
-                        isFocused = false
-                        
-                        /// Ugly hack alert!
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                            /// Restore initial value when cancelling out of the field.
-                            internalValue = value
+                    .onSubmit { commit() }
+                    .onExitCommand { cancel() }
+                    .onReceive(unfocus) { action in
+                        switch action {
+                        case .commit:
+                            commit()
+                        case .cancel:
+                            cancel()
                         }
-                    }
-                    .onReceive(unfocus) {
-                        isFocused = false
                     }
                     .onChange(of: isFocused) { newValue in
                         if !newValue { isInEditMode = false }
@@ -105,11 +98,13 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
             }
         }
         .monospacedDigit()
+        .multilineTextAlignment(TextAlignment(alignment))
         .padding(.vertical, 4)
         .padding(.horizontal, 8)
         .background(hoverBackground)
         .padding(.vertical, -4)
         .padding(.horizontal, -8)
+        .offset(x: shakeOffset)
         .onChange(of: isInEditMode) { newValue in
             if newValue {
                 internalValue = value
@@ -121,6 +116,41 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
         }
     }
     
+    private func commit() {
+        guard validate(internalValue) else {
+            shake()
+            return
+        }
+        
+        /// Update the external value with the edited value on submit,
+        /// limiting to the allowed range.
+        value = clamp(internalValue)
+        internalValue = clamp(internalValue)
+
+        isFocused = false
+    }
+    
+    private func cancel() {
+        /// Unfocus the field when pressing the escape key.
+        isFocused = false
+        
+        /// Ugly hack alert!
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            /// Restore initial value when cancelling out of the field.
+            internalValue = value
+        }
+    }
+    
+    private func shake() {
+        withAnimation(.easeInOut(duration: 0.04).repeatCount(7, autoreverses: true)) {
+            shakeOffset = -7
+        }
+        /// Ugly hack alert (2)!
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            shakeOffset = 0
+        }
+    }
+    
     @State private var isHovered = false
     
     @ViewBuilder
@@ -129,6 +159,19 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
             .foregroundColor(.white.opacity(0.07))
             .opacity(isHovered || isInEditMode ? 1 : 0)
             .animation(.easeOut(duration: 0.24), value: isHovered)
+    }
+}
+
+extension TextAlignment {
+    init(_ alignment: Alignment) {
+        switch alignment.horizontal {
+        case .leading:
+            self = .leading
+        case .trailing:
+            self = .trailing
+        default:
+            self = .center
+        }
     }
 }
 
