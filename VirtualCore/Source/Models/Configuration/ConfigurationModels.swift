@@ -9,6 +9,14 @@ import Foundation
 import SystemConfiguration
 
 public struct VBDisplayDevice: Identifiable, Hashable, Codable {
+    public init(id: UUID = UUID(), name: String = "Default", width: Int = 1920, height: Int = 1080, pixelsPerInch: Int = 144) {
+        self.id = id
+        self.name = name
+        self.width = width
+        self.height = height
+        self.pixelsPerInch = pixelsPerInch
+    }
+    
     public var id = UUID()
     public var name = "Default"
     public var width = 1920
@@ -154,6 +162,30 @@ public extension VBDisplayDevice {
     }
 }
 
+// MARK: - Presets
+
+public struct DisplayPreset: Identifiable, Hashable {
+    public var id: String { name }
+    public var name: String
+    public var device: VBDisplayDevice
+    public var warning: String? = nil
+    public var isAvailable = true
+}
+
+public extension DisplayPreset {
+    static var presets: [DisplayPreset] {
+        [
+            DisplayPreset(name: "Full HD", device: .init(name: "1920x1080@144", width: 1920, height: 1080, pixelsPerInch: 144)),
+            DisplayPreset(name: "4.5K Retina", device: .init(name: "4480x2520", width: 4480, height: 2520, pixelsPerInch: 218)),
+            // This preset is only relevant for displays with a notch.
+            DisplayPreset(name: "Match \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .matchHost, warning: "If things look small in the VM after booting, go to System Preferences and select a HiDPI scaled reslution for the display.", isAvailable: ProcessInfo.processInfo.vb_mainDisplayHasNotch),
+            DisplayPreset(name: "Size to fit in \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .sizeToFit)
+        ]
+    }
+    
+    static var availablePresets: [DisplayPreset] { presets.filter(\.isAvailable) }
+}
+
 // MARK: - Helpers
 
 public extension VBMacDevice {
@@ -183,9 +215,9 @@ public extension VBDisplayDevice {
 
     static let minimumDisplayDimension = 800
 
-    static var maximumDisplayWidth: Int { Self.matchHost.width }
+    static var maximumDisplayWidth = 6016
 
-    static var maximumDisplayHeight: Int { Self.matchHost.height }
+    static var maximumDisplayHeight = 3384
 
     static let displayWidthRange: ClosedRange<Int> = {
         minimumDisplayDimension...maximumDisplayWidth
@@ -195,16 +227,13 @@ public extension VBDisplayDevice {
         minimumDisplayDimension...maximumDisplayHeight
     }()
 
-    static let minimumDisplayPPI = 144
+    static let minimumDisplayPPI = 80
 
-    static let maximumDisplayPPI: Int = {
-        Self.default.pixelsPerInch
-    }()
+    static let maximumDisplayPPI = 218
 
     static let displayPPIRange: ClosedRange<Int> = {
         minimumDisplayPPI...maximumDisplayPPI
     }()
-
 
 }
 
@@ -235,8 +264,15 @@ extension UInt64 {
 
 }
 
-extension ProcessInfo {
+public extension ProcessInfo {
     var vb_hostName: String {
         SCDynamicStoreCopyComputerName(nil, nil) as? String ?? "This Mac"
     }
+    
+    var vb_mainDisplayName: String {
+        guard let screen = NSScreen.main else { return "\(vb_hostName)" }
+        return screen.localizedName
+    }
+    
+    var vb_mainDisplayHasNotch: Bool { NSScreen.main?.auxiliaryTopLeftArea != nil }
 }

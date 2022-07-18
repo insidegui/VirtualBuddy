@@ -5,16 +5,19 @@ import VirtualCore
 struct NumericPropertyControl<Value: BinaryInteger, F: Formatter>: View {
     @Binding var value: Value
     var range: ClosedRange<Value>
-    var step: Value
+    var step: Value? = nil
     var hideSlider = false
     var label: String
     var formatter: F
     var unfocus = VoidSubject()
+    var spacing: CGFloat = 2
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        VStack(alignment: .leading, spacing: spacing) {
             HStack {
                 Text(label)
+                    .foregroundColor(.white.opacity(0.7))
+                    .blendMode(.plusLighter)
 
                 Spacer()
 
@@ -32,15 +35,22 @@ struct NumericPropertyControl<Value: BinaryInteger, F: Formatter>: View {
             }
 
             if !hideSlider {
-                Slider(value: $value.sliderValue, in: range.sliderRange, step: Double(step), onEditingChanged: { isEditing in
-                    if isEditing {
-                        unfocus.send()
+                Group {
+                    if let step {
+                        Slider(value: $value.sliderValue, in: range.sliderRange, step: Double(step), onEditingChanged: sliderEditingChanged)
+                    } else {
+                        Slider(value: $value.sliderValue, in: range.sliderRange, onEditingChanged: sliderEditingChanged)
                     }
-                })
+                }
                 .controlSize(.mini)
             }
         }
         .transition(.asymmetric(insertion: .offset(x: 0, y: -40), removal: .offset(x: 0, y: 40)).combined(with: .opacity))
+    }
+    
+    private func sliderEditingChanged(_ isEditing: Bool) {
+        guard isEditing else { return }
+        unfocus.send()
     }
 }
 

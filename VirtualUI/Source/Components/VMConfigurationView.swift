@@ -26,6 +26,7 @@ public struct VMConfigurationView: View {
             general
             display
         }
+        .font(.system(size: 12))
     }
 
     @ViewBuilder
@@ -59,7 +60,6 @@ public struct VMConfigurationView: View {
             NumericPropertyControl(
                 value: $hardware.displayDevices[0].width,
                 range: VBDisplayDevice.displayWidthRange,
-                step: VBDisplayDevice.displayWidthRange.upperBound / 16,
                 label: "Width (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
                 unfocus: unfocusActiveField
@@ -68,24 +68,56 @@ public struct VMConfigurationView: View {
             NumericPropertyControl(
                 value: $hardware.displayDevices[0].height,
                 range: VBDisplayDevice.displayHeightRange,
-                step: VBDisplayDevice.displayHeightRange.upperBound / 16,
                 label: "Height (Pixels)",
                 formatter: NumberFormatter.numericPropertyControlDefault,
                 unfocus: unfocusActiveField
             )
 
             NumericPropertyControl(
-                value: $hardware.displayDevices[0].height,
-                range: VBDisplayDevice.displayHeightRange,
-                step: VBDisplayDevice.displayHeightRange.upperBound / 16,
+                value: $hardware.displayDevices[0].pixelsPerInch,
+                range: VBDisplayDevice.displayPPIRange,
                 label: "Pixels Per Inch",
                 formatter: NumberFormatter.numericPropertyControlDefault,
                 unfocus: unfocusActiveField
             )
         } header: {
-            Label("Display", systemImage: "display")
+            HStack {
+                Label("Display", systemImage: "display")
+                
+                DisplayPresetPicker(display: $hardware.displayDevices[0])
+                    .frame(width: 24)
+            }
         }
     }
+}
+
+struct DisplayPresetPicker: View {
+    
+    @Binding var display: VBDisplayDevice
+    @State private var presets = [DisplayPreset]()
+    
+    var body: some View {
+        Menu {
+            menuItems
+        } label: {
+            Image(systemName: "lightbulb.fill")
+        }
+        .menuStyle(.borderlessButton)
+        .help("Display Suggestions")
+        .onAppear {
+            presets = DisplayPreset.availablePresets
+        }
+    }
+    
+    @ViewBuilder
+    var menuItems: some View {
+        ForEach(presets) { preset in
+            Button(preset.name) {
+                display = preset.device
+            }
+        }
+    }
+    
 }
 
 struct ConfigurationSection<Header: View, Content: View>: View {
@@ -119,6 +151,7 @@ struct ConfigurationSection<Header: View, Content: View>: View {
     private var styledHeader: some View {
         HStack {
             header()
+                .frame(maxWidth: .infinity, alignment: .leading)
 
             Spacer()
 
