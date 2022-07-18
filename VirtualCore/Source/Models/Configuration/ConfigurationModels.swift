@@ -26,6 +26,8 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     public var hardware = VBMacDevice.default
     public var sharedFolders = [VBSharedFolder]()
+    @DecodableDefault.False
+    public var sharedClipboardEnabled = false
 
     @DecodableDefault.True public var captureSystemKeys = true
 
@@ -133,6 +135,12 @@ public struct VBMacDevice: Hashable, Codable {
 /// Configures a folder that's shared between the host and the guest.
 /// **Read the note at the top of this file before modifying this**
 public struct VBSharedFolder: Identifiable, Hashable, Codable {
+    public init(id: UUID = UUID(), url: URL, isReadOnly: Bool = true) {
+        self.id = id
+        self.url = url
+        self.isReadOnly = isReadOnly
+    }
+
     public var id = UUID()
     public var name: String { url.lastPathComponent }
     public var url: URL
@@ -272,6 +280,24 @@ public extension VBMacConfiguration {
             return error.localizedDescription
         }
     }
+
+    static let isNativeClipboardSharingSupported: Bool = {
+        if #available(macOS 13.0, *) {
+            return true
+        } else {
+            return false
+        }
+    }()
+
+    static let clipboardSharingNotice: String = {
+        let guestAppInfo = "To use clipboard sync with previous versions of macOS, you can use the VirtualBuddyGuest app."
+
+        if isNativeClipboardSharingSupported {
+            return "Clipboard sync requires the virtual machine to be running macOS 13 or later. \(guestAppInfo)"
+        } else {
+            return "Clipboard sync requires macOS 13 or later. \(guestAppInfo)"
+        }
+    }()
     
 }
 
@@ -346,6 +372,27 @@ public extension VBMacConfiguration {
     var soundSummary: String {
         guard let sound = hardware.soundDevices.first else { return "No Sound" }
         return sound.enableInput ? "Input / Output" : "Output Only"
+    }
+
+    var sharingSummary: String {
+        let foldersSum: String
+        if sharedFolders.count > 1 {
+            foldersSum = "\(sharedFolders.count) Folders"
+        } else if sharedFolders.isEmpty {
+            foldersSum = ""
+        } else {
+            foldersSum = "One Folder"
+        }
+
+        if sharedClipboardEnabled {
+            if foldersSum.isEmpty {
+                return "Clipboard"
+            } else {
+                return "Clipboard / \(foldersSum)"
+            }
+        } else {
+            return foldersSum.isEmpty ? "None" : foldersSum
+        }
     }
 
     var networkSummary: String {

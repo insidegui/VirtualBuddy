@@ -22,6 +22,7 @@ struct VMConfigurationView: View {
             display
             network
             sound
+            sharing
         }
         .font(.system(size: 12))
     }
@@ -112,7 +113,19 @@ struct VMConfigurationView: View {
                 summary: viewModel.config.soundSummary
             )
         }
+    }
 
+    @ViewBuilder
+    private var sharing: some View {
+        ConfigurationSection {
+            SoundConfigurationView(hardware: $viewModel.config.hardware)
+        } header: {
+            summaryHeader(
+                "Sharing",
+                systemImage: "folder",
+                summary: viewModel.config.sharingSummary
+            )
+        }
     }
 }
 

@@ -12,7 +12,55 @@ struct SharingConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
 
     var body: some View {
-        Text("Sharing options go here")
+        clipboardSyncToggle
+
+        sharedFoldersManager
+    }
+
+    @ViewBuilder
+    private var clipboardSyncToggle: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Toggle("Clipboard Sync", isOn: $configuration.sharedClipboardEnabled)
+                .disabled(!VBMacConfiguration.isNativeClipboardSharingSupported)
+
+            Text(VBMacConfiguration.clipboardSharingNotice)
+                .font(.caption)
+                .foregroundColor(.secondary)
+        }
+    }
+
+    @ViewBuilder
+    private var sharedFoldersManager: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text("Shared Folders")
+
+                Spacer()
+
+                Button {
+                    addFolder()
+                } label: {
+                    Image(systemName: "plus")
+                }
+                .buttonStyle(.link)
+                .font(.system(size: 14, weight: .bold, design: .rounded))
+            }
+
+            List {
+                ForEach(configuration.sharedFolders) { folder in
+                    Text(folder.url.path)
+                        .lineLimit(1)
+                        .truncationMode(.middle)
+                        .tag(folder.id)
+                }
+            }
+//            .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+        }
+        .padding(.top)
+    }
+
+    private func addFolder() {
+
     }
 }
 
@@ -42,8 +90,17 @@ struct _ConfigurationSectionPreview<C: View>: View {
 }
 
 struct SharingConfigurationView_Previews: PreviewProvider {
+    static var config: VBMacConfiguration {
+        var c = VBMacConfiguration.default
+        c.sharedFolders = [
+            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99074")!, url: URL(fileURLWithPath: "/Users/insidegui/Desktop"), isReadOnly: true),
+            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99075")!, url: URL(fileURLWithPath: "/Users/insidegui/Downloads"), isReadOnly: false)
+        ]
+        return c
+    }
+
     static var previews: some View {
-        _Template(config: VBMacConfiguration.default)
+        _Template(config: config)
     }
 
     struct _Template: View {
