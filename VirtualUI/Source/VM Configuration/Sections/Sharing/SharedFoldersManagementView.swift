@@ -28,9 +28,7 @@ struct SharedFoldersManagementView: View {
     @State private var isShowingHelpPopover = false
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            header
-
+        GroupedList {
             List(selection: $selection) {
                 ForEach($configuration.sharedFolders) { $folder in
                     SharedFolderListItem(folder: $folder)
@@ -38,14 +36,27 @@ struct SharedFoldersManagementView: View {
                         .tag(folder.id)
                 }
             }
-            .listStyle(.plain)
-            .frame(minHeight: 140)
-            .overlay { emptyOverlay }
-            .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0, content: {
-                listButtons
-            })
-            .materialBackground(.contentBackground, blendMode: .withinWindow, state: .active, in: listShape)
-            .controlGroup(cornerRadius: listRadius, level: .secondary)
+        } headerAccessory: {
+            headerAccessory
+        } footerAccessory: {
+            EmptyView()
+        } emptyOverlay: {
+            emptyOverlay
+        } addButton: { label in
+            Button {
+                addFolder()
+            } label: {
+                label
+            }
+            .help("Add shared folder")
+        } removeButton: { label in
+            Button {
+                confirmRemoval()
+            } label: {
+                label
+            }
+            .help("Remove selection from shared folders")
+            .disabled(selection.isEmpty)
         }
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didMountNotification)) { note in
             availabilityProvider.refreshAvailabilityIfNeeded(with: note)
@@ -54,60 +65,62 @@ struct SharedFoldersManagementView: View {
             availabilityProvider.refreshAvailabilityIfNeeded(with: note)
         }
         .onChange(of: configuration) { availabilityProvider.configuration = $0 }
-    }
-    
-    @ViewBuilder
-    private var emptyOverlay: some View {
-        if configuration.sharedFolders.isEmpty {
-            VStack {
-                Text("This VM has no shared folders yet.")
-                Button("Add Shared Folder") {
-                    addFolder()
-                }
-                .buttonStyle(.link)
-            }
-            .frame(maxWidth: .infinity)
-            .controlSize(.small)
-        }
-    }
-
-    private var listRadius: CGFloat { 8 }
-
-    private var listShape: some InsettableShape {
-        RoundedRectangle(cornerRadius: listRadius, style: .continuous)
-    }
-    
-    @State private var showTip = false
-    
-    @ViewBuilder
-    private var header: some View {
-        HStack {
-            Text("Shared Folders")
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            if showTip {
-                Button {
-                    isShowingHelpPopover.toggle()
-                } label: {
-                    Image(systemName: "questionmark.circle.fill")
-                }
-                .buttonStyle(.borderless)
-                .transition(.opacity)
-                .popover(isPresented: $isShowingHelpPopover) {
-                    mountTip
-                }
-                .help("Shared folders help")
-            }
-            
-        }
-        .padding(.horizontal, 2)
-        
         .onChange(of: configuration.sharedFolders.count) { newValue in
             if newValue > 0 {
                 withAnimation(.spring()) {
                     showTip = true
                 }
             }
+        }
+        .confirmationDialog("Remove Folders", isPresented: $isShowingRemovalConfirmation, titleVisibility: .visible, presenting: selectionBeingRemoved) { folders in
+            Button(role: .cancel) {
+                isShowingRemovalConfirmation = false
+            } label: {
+                Text("Cancel")
+            }
+
+            Button(role: .destructive) {
+                guard let selectionBeingRemoved else {
+                    assertionFailure("How did we get here without a selection?")
+                    return
+                }
+
+                remove(selectionBeingRemoved)
+            } label: {
+                Text(removalConfirmationTitle(with: folders))
+            }
+        } message: { folders in
+            Text(removalConfirmationMessage(with: folders))
+        }
+    }
+    
+    @ViewBuilder
+    private var emptyOverlay: some View {
+        if configuration.sharedFolders.isEmpty {
+            Text("This VM has no shared folders.")
+            Button("Add Shared Folder") {
+                addFolder()
+            }
+            .buttonStyle(.link)
+        }
+    }
+
+    @State private var showTip = false
+    
+    @ViewBuilder
+    private var headerAccessory: some View {
+        if showTip {
+            Button {
+                isShowingHelpPopover.toggle()
+            } label: {
+                Image(systemName: "questionmark.circle.fill")
+            }
+            .buttonStyle(.borderless)
+            .transition(.opacity)
+            .popover(isPresented: $isShowingHelpPopover) {
+                mountTip
+            }
+            .help("Shared folders help")
         }
     }
     
@@ -127,33 +140,6 @@ struct SharedFoldersManagementView: View {
         .foregroundColor(.white)
         .padding()
         .multilineTextAlignment(.leading)
-    }
-
-    @ViewBuilder
-    private var listButtons: some View {
-        HStack {
-            Group {
-                Button {
-                    addFolder()
-                } label: {
-                    Image(systemName: "plus")
-                        .frame(width: 16, height: 16)
-                        .contentShape(Rectangle())
-                }
-                .help("Add new shared folder")
-
-                removeFoldersButton
-            }
-            .buttonStyle(.borderless)
-        }
-        .padding(8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Material.thick, in: Rectangle())
-        .overlay(alignment: .top) {
-            Rectangle()
-                .frame(height: 0.5)
-                .foregroundColor(.black.opacity(0.5))
-        }
     }
 
     @ViewBuilder
@@ -215,38 +201,6 @@ struct SharedFoldersManagementView: View {
         }
 
         return "Are you sure you'd like to remove \"\(folder.shortNameForDialogs)\" from the shared folders?"
-    }
-
-    @ViewBuilder
-    private var removeFoldersButton: some View {
-        Button {
-            confirmRemoval()
-        } label: {
-            Image(systemName: "minus")
-                .frame(width: 16, height: 16)
-                .contentShape(Rectangle())
-        }
-        .disabled(selection.isEmpty)
-        .confirmationDialog("Remove Folders", isPresented: $isShowingRemovalConfirmation, titleVisibility: .visible, presenting: selectionBeingRemoved) { folders in
-            Button(role: .cancel) {
-                isShowingRemovalConfirmation = false
-            } label: {
-                Text("Cancel")
-            }
-
-            Button(role: .destructive) {
-                guard let selectionBeingRemoved else {
-                    assertionFailure("How did we get here without a selection?")
-                    return
-                }
-
-                remove(selectionBeingRemoved)
-            } label: {
-                Text(removalConfirmationTitle(with: folders))
-            }
-        } message: { folders in
-            Text(removalConfirmationMessage(with: folders))
-        }
     }
 }
 
