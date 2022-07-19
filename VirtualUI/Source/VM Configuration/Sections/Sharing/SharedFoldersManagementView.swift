@@ -1,60 +1,39 @@
 //
-//  SharingConfigurationView.swift
+//  SharedFoldersManagementView.swift
 //  VirtualUI
 //
-//  Created by Guilherme Rambo on 18/07/22.
+//  Created by Guilherme Rambo on 19/07/22.
 //
 
 import SwiftUI
 import VirtualCore
 
-struct SharingConfigurationView: View {
+struct SharedFoldersManagementView: View {
+    
     @Binding var configuration: VBMacConfiguration
-
+    
+    @StateObject private var availabilityProvider: SharedFoldersAvailabilityProvider
+    
+    init(configuration: Binding<VBMacConfiguration>) {
+        self._configuration = configuration
+        self._availabilityProvider = .init(wrappedValue: SharedFoldersAvailabilityProvider(configuration.wrappedValue))
+    }
+    
     @State private var isShowingError = false
     @State private var errorMessage = "Error"
     @State private var selection = Set<VBSharedFolder.ID>()
     @State private var selectionBeingRemoved: Set<VBSharedFolder.ID>?
     @State private var isShowingRemovalConfirmation = false
-
-    init(configuration: Binding<VBMacConfiguration>, selection: Set<VBSharedFolder.ID> = []) {
-        self._configuration = configuration
-        self._selection = .init(wrappedValue: selection)
-    }
-
+    
     var body: some View {
-        clipboardSyncToggle
-
-        sharedFoldersManager
-            .alert("Error", isPresented: $isShowingError) {
-                Button("OK") { isShowingError = false }
-            } message: {
-                Text(errorMessage)
-            }
-    }
-
-    @ViewBuilder
-    private var clipboardSyncToggle: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Toggle("Clipboard Sync", isOn: $configuration.sharedClipboardEnabled)
-                .disabled(!VBMacConfiguration.isNativeClipboardSharingSupported)
-
-            Text(VBMacConfiguration.clipboardSharingNotice)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
-    }
-
-    @ViewBuilder
-    private var sharedFoldersManager: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("Shared Folders")
 
             List(selection: $selection) {
                 ForEach($configuration.sharedFolders) { $folder in
                     SharedFolderListItem(folder: $folder)
-                        .tag(folder.id)
                         .contextMenu { folderMenu(for: $folder) }
+                        .tag(folder.id)
                 }
             }
             .listStyle(.plain)
@@ -66,6 +45,13 @@ struct SharingConfigurationView: View {
             .controlGroup(cornerRadius: listRadius, level: .secondary)
         }
         .padding(.top)
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didMountNotification)) { note in
+            availabilityProvider.refreshAvailabilityIfNeeded(with: note)
+        }
+        .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didUnmountNotification)) { note in
+            availabilityProvider.refreshAvailabilityIfNeeded(with: note)
+        }
+        .onChange(of: configuration) { availabilityProvider.configuration = $0 }
     }
 
     private var listRadius: CGFloat { 8 }
@@ -104,17 +90,17 @@ struct SharingConfigurationView: View {
     @ViewBuilder
     private func folderMenu(for folder: Binding<VBSharedFolder>) -> some View {
         Group {
-            Button("Reveal In Finder") {
-                NSWorkspace.shared.selectFile(folder.wrappedValue.url.path, inFileViewerRootedAtPath: folder.wrappedValue.url.deletingLastPathComponent().path)
-            }
+            Toggle("Enabled", isOn: folder.isEnabled)
+            
+            Toggle("Read Only", isOn: folder.isReadOnly)
 
             Divider()
 
-            Button(folder.wrappedValue.isEnabled ? "Disable" : "Enable") {
-                folder.wrappedValue.isEnabled.toggle()
+            Button("Reveal In Finder") {
+                NSWorkspace.shared.selectFile(folder.wrappedValue.url.path, inFileViewerRootedAtPath: folder.wrappedValue.url.deletingLastPathComponent().path)
             }
         }
-        .disabled(!folder.wrappedValue.isAvailable)
+        .disabled(!availabilityProvider.isFolderAvailable(folder.wrappedValue))
 
         Button("Remove") {
             confirmRemoval(for: [folder.wrappedValue.id])
@@ -195,61 +181,40 @@ struct SharingConfigurationView: View {
     }
 }
 
-#if DEBUG
-struct _ConfigurationSectionPreview<C: View>: View {
-
-    var content: () -> C
-
-    init(@ViewBuilder _ content: @escaping () -> C) {
-        self.content = content
+private final class SharedFoldersAvailabilityProvider: ObservableObject {
+    
+    var configuration: VBMacConfiguration
+    
+    init(_ configuration: VBMacConfiguration) {
+        self.configuration = configuration
+        refreshAvailability()
     }
-
-    var body: some View {
-        ConfigurationSection(collapsed: false, {
-            content()
-        }, header: {
-            Label("SwiftUI Preview", systemImage: "eye")
-        })
-
-        .frame(maxWidth: 320, maxHeight: .infinity, alignment: .top)
-            .padding()
-            .controlGroup()
-            .padding(30)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+    
+    @Published private(set) var folderAvailability: [VBSharedFolder.ID: Bool] = [:]
+    
+    func isFolderAvailable(_ folder: VBSharedFolder) -> Bool {
+        folderAvailability[folder.id] ?? false
     }
-
+    
+    func refreshAvailability() {
+        for folder in configuration.sharedFolders {
+            folderAvailability[folder.id] = folder.isAvailable
+        }
+    }
+    
+    func refreshAvailabilityIfNeeded(with notification: Notification) {
+        guard let volumeURL = notification.userInfo?["NSWorkspaceVolumeURLKey"] as? URL else { return }
+        guard configuration.hasSharedFolders(inVolume: volumeURL) else { return }
+        
+        refreshAvailability()
+    }
+    
 }
 
-struct SharingConfigurationView_Previews: PreviewProvider {
-    static var config: VBMacConfiguration {
-        var c = VBMacConfiguration.default
-        c.sharedFolders = [
-            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99074")!, url: URL(fileURLWithPath: "/Users/insidegui/Desktop"), isReadOnly: true),
-            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99075")!, url: URL(fileURLWithPath: "/Users/insidegui/Downloads"), isReadOnly: false),
-            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99076")!, url: URL(fileURLWithPath: "/Volumes/Rambo/Movies"), isEnabled: false, isReadOnly: false),
-            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99077")!, url: URL(fileURLWithPath: "/Some/Invalid/Path"), isEnabled: true, isReadOnly: false),
-            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99078")!, url: URL(fileURLWithPath: "/Users/insidegui/Music"), isEnabled: true, isReadOnly: true),
-            .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99079")!, url: URL(fileURLWithPath: "/Users/insidegui/Developer"), isEnabled: true, isReadOnly: true),
-        ]
-        return c
-    }
-
+#if DEBUG
+struct SharedFoldersManagementView_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(config: config, selection: [UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99074")!])
-    }
-
-    struct _Template: View {
-        @State var config: VBMacConfiguration
-        var selection = Set<VBSharedFolder.ID>()
-        init(config: VBMacConfiguration, selection: Set<VBSharedFolder.ID>) {
-            self._config = .init(wrappedValue: config)
-            self.selection = selection
-        }
-        var body: some View {
-            _ConfigurationSectionPreview {
-                SharingConfigurationView(configuration: $config, selection: selection)
-            }
-        }
+        SharingConfigurationView_Previews.previews
     }
 }
 #endif

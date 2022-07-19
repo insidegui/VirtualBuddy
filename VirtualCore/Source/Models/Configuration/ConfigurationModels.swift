@@ -175,7 +175,51 @@ public extension VBMacConfiguration {
     mutating func removeSharedFolders(with identifiers: Set<VBSharedFolder.ID>) {
         sharedFolders.removeAll(where: { identifiers.contains($0.id) })
     }
+    
+    func hasSharedFolders(inVolume volumeURL: URL) -> Bool {
+        sharedFolders.contains(where: { $0.externalVolumeURL == volumeURL })
+    }
 }
+
+public extension VBSharedFolder {
+    var shortName: String {
+        if url.path.hasPrefix(NSHomeDirectory()) {
+            return url.lastPathComponent
+        } else {
+            return url.path
+        }
+    }
+
+    var shortNameForDialogs: String { url.lastPathComponent }
+
+    var externalVolumeURL: URL? {
+        guard (try? url.resourceValues(forKeys: [.volumeIsInternalKey]))?.volumeIsInternal != true else { return nil }
+        return try? url.resourceValues(forKeys: [.volumeURLKey]).volume
+    }
+
+    var errorMessage: String? {
+        guard !url.isReadableDirectory else { return nil }
+        if let externalVolumeURL, !externalVolumeURL.isReadableDirectory {
+            return "This directory is in a removable volume that's not currently available."
+        } else {
+            return "This directory doesn't exist, or VirtualBuddy can't read it right now."
+        }
+    }
+
+    var isAvailable: Bool { url.isReadableDirectory }
+}
+
+public extension URL {
+    var isReadableDirectory: Bool {
+        var isDir = ObjCBool(false)
+        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir), isDir.boolValue else {
+            return false
+        }
+        return true
+    }
+}
+
+
 
 // MARK: - Default Devices
 
@@ -471,44 +515,3 @@ public extension ProcessInfo {
     
     var vb_mainDisplayHasNotch: Bool { NSScreen.main?.auxiliaryTopLeftArea != nil }
 }
-
-// MARK: - Shared Folder Utilities
-
-public extension VBSharedFolder {
-    var shortName: String {
-        if url.path.hasPrefix(NSHomeDirectory()) {
-            return url.lastPathComponent
-        } else {
-            return url.path
-        }
-    }
-
-    var shortNameForDialogs: String { url.lastPathComponent }
-
-    var externalVolumeURL: URL? {
-        guard (try? url.resourceValues(forKeys: [.volumeIsInternalKey]))?.volumeIsInternal != true else { return nil }
-        return try? url.resourceValues(forKeys: [.volumeURLKey]).volume
-    }
-
-    var errorMessage: String? {
-        guard !url.isReadableDirectory else { return nil }
-        if let externalVolumeURL, !externalVolumeURL.isReadableDirectory {
-            return "This directory is in a removable volume that's not currently available."
-        } else {
-            return "This directory doesn't exist, or VirtualBuddy can't read it right now."
-        }
-    }
-
-    var isAvailable: Bool { url.isReadableDirectory }
-}
-
-public extension URL {
-    var isReadableDirectory: Bool {
-        var isDir = ObjCBool(false)
-        guard FileManager.default.fileExists(atPath: path, isDirectory: &isDir), isDir.boolValue else {
-            return false
-        }
-        return true
-    }
-}
-
