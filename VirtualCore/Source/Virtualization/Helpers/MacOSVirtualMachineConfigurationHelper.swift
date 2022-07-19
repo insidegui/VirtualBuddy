@@ -15,14 +15,13 @@ struct MacOSVirtualMachineConfigurationHelper {
         return VZMacOSBootLoader()
     }
 
-    func createBootBlockDevice() throws -> VZVirtioBlockDeviceConfiguration {
+    func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration {
         do {
             let bootDevice = try vm.bootDevice
             let bootDiskImageURL = try vm.bootDiskImageURL
 
             if !FileManager.default.fileExists(atPath: bootDiskImageURL.path) {
-                let size = bootDevice.size
-                try createDiskImage(ofSize: size, at: bootDiskImageURL)
+                try await DiskImageGenerator.generateImage(at: bootDiskImageURL, with: bootDevice.size, name: bootDevice.name, format: .raw)
             }
 
             let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: bootDiskImageURL, readOnly: false)
@@ -35,34 +34,23 @@ struct MacOSVirtualMachineConfigurationHelper {
         }
     }
     
-    func createAdditionalBlockDevices() throws -> [VZVirtioBlockDeviceConfiguration] {
-        try vm.configuration.hardware.storageDevices.map { device in
+    func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
+        var output = [VZVirtioBlockDeviceConfiguration]()
+
+        for device in vm.configuration.hardware.storageDevices {
+            guard device.isEnabled, !device.isBootVolume else { continue }
+
             let diskURL = vm.diskImageURL(for: device)
-            guard FileManager.default.fileExists(atPath: diskURL.path) else {
-                throw Failure("Disk image for storage device \"\(device.name)\" doesn't exist at \(diskURL.path)")
+            if !FileManager.default.fileExists(atPath: diskURL.path) {
+                try await DiskImageGenerator.generateImage(at: diskURL, with: device.size, name: device.name, format: .raw)
             }
-            
+
             let attachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: device.isReadOnly)
-            return VZVirtioBlockDeviceConfiguration(attachment: attachment)
-        }
-    }
-
-    private func createDiskImage(ofSize size: UInt64, at url: URL) throws {
-        let diskFd = open(url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
-        if diskFd == -1 {
-            throw Failure("Cannot create disk image.")
+            output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
         }
 
-        var result = ftruncate(diskFd, off_t(size))
-        if result != 0 {
-            throw Failure("ftruncate() failed.")
-        }
-
-        result = close(diskFd)
-        if result != 0 {
-            throw Failure("Failed to close the disk image.")
-        }
-    }
+        return output
+    }    
 
     func createKeyboardConfiguration() -> VZUSBKeyboardConfiguration {
         return VZUSBKeyboardConfiguration()
@@ -144,6 +132,16 @@ extension VBNetworkDevice {
             throw Failure("Couldn't find the specified network interface for bridging")
         }
         return iface
+    }
+
+}
+
+public extension VBStorageDevice {
+
+    func createDiskImageIfNeeded(for vm: VBVirtualMachine) async throws {
+        let url = vm.diskImageURL(for: self)
+        guard !FileManager.default.fileExists(atPath: url.path) else { return }
+        try await DiskImageGenerator.generateImage(at: url, with: size, name: name)
     }
 
 }

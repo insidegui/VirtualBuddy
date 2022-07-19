@@ -27,4 +27,16 @@ extension Binding where Value == UInt64 {
             Int(wrappedValue / 1024 / 1024 / 1024)
         } set: { wrappedValue = Value($0 * 1024 * 1024 * 1024) }
     }
+
+    var gbStorageValue: Binding<Int> {
+        .init {
+            Int(wrappedValue / .storageGigabyte)
+        } set: { wrappedValue = Value(UInt64($0) * .storageGigabyte) }
+    }
+}
+
+extension UInt64 {
+    var gbStorageValue: Int {
+        Int(self / .storageGigabyte)
+    }
 }

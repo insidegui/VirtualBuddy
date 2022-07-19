@@ -109,18 +109,23 @@ struct SharedFoldersManagementView: View {
     
     @ViewBuilder
     private var headerAccessory: some View {
-        if showTip {
-            Button {
-                isShowingHelpPopover.toggle()
-            } label: {
-                Image(systemName: "questionmark.circle.fill")
+        HStack {
+            Text("Shared Folders")
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+            if showTip {
+                Button {
+                    isShowingHelpPopover.toggle()
+                } label: {
+                    Image(systemName: "questionmark.circle.fill")
+                }
+                .buttonStyle(.borderless)
+                .transition(.opacity)
+                .popover(isPresented: $isShowingHelpPopover) {
+                    mountTip
+                }
+                .help("Shared folders help")
             }
-            .buttonStyle(.borderless)
-            .transition(.opacity)
-            .popover(isPresented: $isShowingHelpPopover) {
-                mountTip
-            }
-            .help("Shared folders help")
         }
     }
     

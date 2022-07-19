@@ -67,13 +67,8 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
     
     @ViewBuilder
     private var header: some View {
-        HStack {
-            Text("Shared Folders")
-                .frame(maxWidth: .infinity, alignment: .leading)
-            
-            headerAccessory()
-        }
-        .padding(.horizontal, 2)
+        headerAccessory()
+            .padding(.horizontal, 2)
     }
     
     private let addLabel = Image(systemName: "plus")

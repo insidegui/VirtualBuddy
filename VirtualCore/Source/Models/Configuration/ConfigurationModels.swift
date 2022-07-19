@@ -44,8 +44,10 @@ public struct VBMacConfiguration: Hashable, Codable {
 /// Configures a storage device.
 /// **Read the note at the top of this file before modifying this**
 public struct VBStorageDevice: Identifiable, Hashable, Codable {
-    public init(name: String, isBootVolume: Bool, isReadOnly: Bool, isUSBMassStorageDevice: Bool, diskImageName: String, customDiskImageURL: URL? = nil, size: UInt64 = Self.defaultBootDiskImageSize) {
+    public init(id: String = UUID().uuidString, name: String, isBootVolume: Bool = false, isEnabled: Bool = true, isReadOnly: Bool = false, isUSBMassStorageDevice: Bool = false, diskImageName: String, customDiskImageURL: URL? = nil, size: UInt64 = Self.defaultBootDiskImageSize) {
+        self.id = UUID().uuidString
         self.name = name
+        self.isEnabled = isEnabled
         self.isBootVolume = isBootVolume
         self.isReadOnly = isReadOnly
         self.isUSBMassStorageDevice = isUSBMassStorageDevice
@@ -54,12 +56,15 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
         self.size = size
     }
     
-    public var id: String { name }
+    public var id: String = UUID().uuidString
     /// A descriptive name for the device.
     /// ASCII characters only, no longer than 20 bytes.
     public var name: String
     /// `true` for the initial boot volume (Disk.img) that's created by VirtualBuddy.
     public internal(set) var isBootVolume: Bool
+    /// Setting to `false` disables the storage device without removing it from the VM.
+    @DecodableDefault.True
+    public var isEnabled: Bool
     /// `true` when the device can't be written to by the VM.
     public var isReadOnly: Bool
     /// `true` when the device represents an external USB mass storage device in the guest OS.
@@ -82,6 +87,11 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
             diskImageName: Self.defaultBootDiskImageName,
             size: Self.defaultBootDiskImageSize
         )
+    }
+
+    public static var template: VBStorageDevice {
+        let name = RandomNameGenerator.shared.newName()
+        return VBStorageDevice(name: name, diskImageName: "\(name).img")
     }
 }
 
@@ -432,10 +442,55 @@ public extension VBNetworkDevice {
 
 // MARK: - Helpers
 
+public extension UInt64 {
+    static let storageGigabyte = UInt64(1024 * 1024 * 1024)
+    static let storageMegabyte = UInt64(1024 * 1024)
+}
+
 public extension VBStorageDevice {
-    static let defaultBootDiskImageSize: UInt64 = 64 * 1_000_000_000
-    static let minimumBootDiskImageSize: UInt64 = 64 * 1_000_000_000
-    static let maximumBootDiskImageSize: UInt64 = 512 * 1_000_000_000
+    static let defaultBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    static let minimumBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    static let maximumBootDiskImageSize: UInt64 = 512 * .storageGigabyte
+
+    static let minimumExtraDiskImageSize: UInt64 = 1 * .storageGigabyte
+    static let maximumExtraDiskImageSize: UInt64 = 512 * .storageGigabyte
+
+    static func validationError(for name: String) -> String? {
+        guard !name.isEmpty else {
+            return "Name can't be empty."
+        }
+        do {
+            try VZVirtioBlockDeviceConfiguration.validateBlockDeviceIdentifier(name)
+            return nil
+        } catch {
+            return error.localizedDescription
+        }
+    }
+
+    static var hostSupportsUSBMassStorage: Bool {
+        if #available(macOS 13.0, *) {
+            return true
+        } else {
+            return false
+        }
+    }
+
+    func diskImageExists(for vm: VBVirtualMachine) -> Bool {
+        let url = vm.diskImageURL(for: self)
+        return FileManager.default.fileExists(atPath: url.path)
+    }
+}
+
+public extension VBMacDevice {
+
+    mutating func addOrUpdate(_ storage: VBStorageDevice) {
+        if let idx = storageDevices.firstIndex(where: { $0.id == storage.id }) {
+            storageDevices[idx] = storage
+        } else {
+            storageDevices.append(storage)
+        }
+    }
+
 }
 
 public extension VBNetworkDevice {

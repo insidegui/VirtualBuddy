@@ -13,6 +13,14 @@ public extension VBMacConfiguration {
         "\(hardware.cpuCount) CPUs / \(hardware.memorySize / 1024 / 1024 / 1024) GB"
     }
 
+    var storageSummary: String {
+        if hardware.storageDevices.count > 1 {
+            return "\(hardware.storageDevices.count) Devices"
+        } else {
+            return "Boot Only"
+        }
+    }
+
     var displaySummary: String {
         guard let display = hardware.displayDevices.first else { return "No Displays" }
         return "\(display.width)x\(display.height)x\(display.pixelsPerInch)"

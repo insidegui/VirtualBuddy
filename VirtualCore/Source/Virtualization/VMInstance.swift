@@ -164,8 +164,8 @@ public final class VMInstance: NSObject, ObservableObject {
             c.consoleDevices = [clipboardSync]
         }
         
-        let bootDevice = try helper.createBootBlockDevice()
-        let additionalBlockDevices = try helper.createAdditionalBlockDevices()
+        let bootDevice = try await helper.createBootBlockDevice()
+        let additionalBlockDevices = try await helper.createAdditionalBlockDevices()
 
         c.storageDevices = [bootDevice] + additionalBlockDevices
         

@@ -38,19 +38,26 @@ struct _ConfigurationSectionPreview<C: View>: View {
 
     @State private var config: VBMacConfiguration
     var content: (Binding<VBMacConfiguration>) -> C
+    var ungrouped: Bool
 
-    init(_ config: VBMacConfiguration = .default, @ViewBuilder _ content: @escaping (Binding<VBMacConfiguration>) -> C) {
+    init(_ config: VBMacConfiguration = .default, ungrouped: Bool = false, @ViewBuilder _ content: @escaping (Binding<VBMacConfiguration>) -> C) {
         self._config = .init(wrappedValue: config)
+        self.ungrouped = ungrouped
         self.content = content
     }
 
     var body: some View {
-        ConfigurationSection(.constant(false), {
-            content($config)
-        }, header: {
-            Label("SwiftUI Preview", systemImage: "eye")
-        })
-
+        Group {
+            if ungrouped {
+                content($config)
+            } else {
+                ConfigurationSection(.constant(false), {
+                    content($config)
+                }, header: {
+                    Label("SwiftUI Preview", systemImage: "eye")
+                })
+            }
+        }
         .frame(maxWidth: 320, maxHeight: .infinity, alignment: .top)
             .padding()
             .controlGroup()

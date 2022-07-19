@@ -15,6 +15,11 @@
 		F41725662886DF58004FF8A7 /* OpenPanelHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725652886DF58004FF8A7 /* OpenPanelHelper.swift */; };
 		F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725672886E5AD004FF8A7 /* MaterialView.swift */; };
 		F417256A2886E5C1004FF8A7 /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725692886E5C1004FF8A7 /* PreviewSupport.swift */; };
+		F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */; };
+		F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */; };
+		F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417257028877121004FF8A7 /* DiskImageGenerator.swift */; };
+		F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F417257328877478004FF8A7 /* VirtualCore.xcassets */; };
+		F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725752887758A004FF8A7 /* RandomNameGenerator.swift */; };
 		F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */; };
 		F42258702885D537009420AE /* EphemeralTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586F2885D537009420AE /* EphemeralTextField.swift */; };
 		F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258712885E100009420AE /* VMConfigurationSheet.swift */; };
@@ -177,6 +182,11 @@
 		F41725652886DF58004FF8A7 /* OpenPanelHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenPanelHelper.swift; sourceTree = "<group>"; };
 		F41725672886E5AD004FF8A7 /* MaterialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
 		F41725692886E5C1004FF8A7 /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
+		F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageConfigurationView.swift; sourceTree = "<group>"; };
+		F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageDeviceDetailView.swift; sourceTree = "<group>"; };
+		F417257028877121004FF8A7 /* DiskImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskImageGenerator.swift; sourceTree = "<group>"; };
+		F417257328877478004FF8A7 /* VirtualCore.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualCore.xcassets; sourceTree = "<group>"; };
+		F41725752887758A004FF8A7 /* RandomNameGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomNameGenerator.swift; sourceTree = "<group>"; };
 		F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFocusEnvironment.swift; sourceTree = "<group>"; };
 		F422586F2885D537009420AE /* EphemeralTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralTextField.swift; sourceTree = "<group>"; };
 		F42258712885E100009420AE /* VMConfigurationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationSheet.swift; sourceTree = "<group>"; };
@@ -324,6 +334,23 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		F417256D2887543B004FF8A7 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */,
+				F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		F417257228877453004FF8A7 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F417257328877478004FF8A7 /* VirtualCore.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		F422586E2885D518009420AE /* Configuration Controls */ = {
 			isa = PBXGroup;
 			children = (
@@ -339,6 +366,7 @@
 		F42258752885E132009420AE /* Sections */ = {
 			isa = PBXGroup;
 			children = (
+				F417256D2887543B004FF8A7 /* Storage */,
 				F4B5C5D12886FA77005AA632 /* Sharing */,
 				F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */,
 				F42258772885E14A009420AE /* DisplayConfigurationView.swift */,
@@ -470,6 +498,8 @@
 				F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */,
 				F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */,
 				F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */,
+				F417257028877121004FF8A7 /* DiskImageGenerator.swift */,
+				F41725752887758A004FF8A7 /* RandomNameGenerator.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -601,6 +631,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F417257228877453004FF8A7 /* Resources */,
 				F465C3AC284F939C006E9ED4 /* Restore Images */,
 				F4F9B414284CE0DC00F21737 /* Settings */,
 				F4C189F52848F69B00335EC7 /* Definitions */,
@@ -963,6 +994,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -992,10 +1024,12 @@
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
+				F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */,
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */,
 				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
+				F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
@@ -1045,7 +1079,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
+				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
 				F47FFA57280633F000BD1F87 /* VMScreenshotter.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,

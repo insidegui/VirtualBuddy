@@ -19,6 +19,9 @@ struct VMConfigurationView: View {
     @AppStorage("config.general.collapsed")
     private var generalCollapsed = true
 
+    @AppStorage("config.storage.collapsed")
+    private var storageCollapsed = true
+
     @AppStorage("config.display.collapsed")
     private var displayCollasped = true
     
@@ -37,6 +40,7 @@ struct VMConfigurationView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             general
+            storage
             display
             pointingDevice
             network
@@ -80,6 +84,20 @@ struct VMConfigurationView: View {
                 "General",
                 systemImage: "memorychip",
                 summary: viewModel.config.generalSummary
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var storage: some View {
+        ConfigurationSection($storageCollapsed) {
+            StorageConfigurationView(hardware: $viewModel.config.hardware)
+                .environmentObject(viewModel)
+        } header: {
+            summaryHeader(
+                "Storage",
+                systemImage: "externaldrive",
+                summary: viewModel.config.storageSummary
             )
         }
         .contextMenu {
