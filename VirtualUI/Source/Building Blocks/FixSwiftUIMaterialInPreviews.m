@@ -13,6 +13,8 @@ XCODE_RUNNING_FOR_PREVIEWS environment variable so that it won't affect regular 
 @import Cocoa;
 @import ObjectiveC.runtime;
 
+#import <VirtualUI/VirtualUI-Swift.h>
+
 @interface FixSwiftUIMaterialInPreviews : NSObject
 
 @end
@@ -21,9 +23,7 @@ XCODE_RUNNING_FOR_PREVIEWS environment variable so that it won't affect regular 
 
 + (void)load
 {
-    NSDictionary *env = [NSProcessInfo processInfo].environment;
-    BOOL isSwiftUIPreview = [env[@"XCODE_RUNNING_FOR_PREVIEWS"] boolValue];
-    if (!isSwiftUIPreview) return;
+    if (![NSProcessInfo isSwiftUIPreview]) return;
 
     // VirtualBuddy is always in dark mode, make previews dark mode as well
     NSApp.appearance = [NSAppearance appearanceNamed:NSAppearanceNameDarkAqua];

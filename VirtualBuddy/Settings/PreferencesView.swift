@@ -69,16 +69,13 @@ struct PreferencesView: View {
     }
 
     private func showOpenPanel() {
-        let panel = NSOpenPanel()
-        panel.canChooseFiles = false
-        panel.canChooseDirectories = true
-        panel.directoryURL = settings.libraryURL
+        guard let newURL = NSOpenPanel.run(accepting: [.folder], directoryURL: settings.libraryURL) else {
+            return
+        }
 
-        guard panel.runModal() == .OK,
-                let url = panel.url,
-                url != settings.libraryURL else { return }
+        guard newURL != settings.libraryURL else { return }
 
-        setLibraryPath(to: url.path)
+        setLibraryPath(to: newURL.path)
     }
 
 }

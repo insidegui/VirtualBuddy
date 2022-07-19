@@ -316,9 +316,9 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     func selectIPSWFile() {
-        let openPanel = NSOpenPanel()
-        openPanel.allowedContentTypes = [.ipsw]
-        guard openPanel.runModal() == .OK, let url = openPanel.url else { return }
+        guard let url = NSOpenPanel.run(accepting: [.ipsw]) else {
+            return
+        }
 
         continueWithLocalFile(at: url)
     }
