@@ -161,6 +161,11 @@ public final class VMInstance: NSObject, ObservableObject {
         c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
         c.audioDevices = model.configuration.vzAudioDevices
+        c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
+        
+        if #available(macOS 13.0, *), let clipboardSync = model.configuration.vzClipboardSyncDevice {
+            c.consoleDevices = [clipboardSync]
+        }
         
         return c
     }

@@ -17,6 +17,7 @@ struct SharedFoldersManagementView: View {
     init(configuration: Binding<VBMacConfiguration>) {
         self._configuration = configuration
         self._availabilityProvider = .init(wrappedValue: SharedFoldersAvailabilityProvider(configuration.wrappedValue))
+        self._showTip = .init(wrappedValue: !configuration.sharedFolders.isEmpty)
     }
     
     @State private var isShowingError = false
@@ -24,10 +25,11 @@ struct SharedFoldersManagementView: View {
     @State private var selection = Set<VBSharedFolder.ID>()
     @State private var selectionBeingRemoved: Set<VBSharedFolder.ID>?
     @State private var isShowingRemovalConfirmation = false
+    @State private var isShowingHelpPopover = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            Text("Shared Folders")
+            header
 
             List(selection: $selection) {
                 ForEach($configuration.sharedFolders) { $folder in
@@ -38,13 +40,13 @@ struct SharedFoldersManagementView: View {
             }
             .listStyle(.plain)
             .frame(minHeight: 140)
+            .overlay { emptyOverlay }
             .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0, content: {
                 listButtons
             })
             .materialBackground(.contentBackground, blendMode: .withinWindow, state: .active, in: listShape)
             .controlGroup(cornerRadius: listRadius, level: .secondary)
         }
-        .padding(.top)
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didMountNotification)) { note in
             availabilityProvider.refreshAvailabilityIfNeeded(with: note)
         }
@@ -53,11 +55,78 @@ struct SharedFoldersManagementView: View {
         }
         .onChange(of: configuration) { availabilityProvider.configuration = $0 }
     }
+    
+    @ViewBuilder
+    private var emptyOverlay: some View {
+        if configuration.sharedFolders.isEmpty {
+            VStack {
+                Text("This VM has no shared folders yet.")
+                Button("Add Shared Folder") {
+                    addFolder()
+                }
+                .buttonStyle(.link)
+            }
+            .frame(maxWidth: .infinity)
+            .controlSize(.small)
+        }
+    }
 
     private var listRadius: CGFloat { 8 }
 
     private var listShape: some InsettableShape {
         RoundedRectangle(cornerRadius: listRadius, style: .continuous)
+    }
+    
+    @State private var showTip = false
+    
+    @ViewBuilder
+    private var header: some View {
+        HStack {
+            Text("Shared Folders")
+                .frame(maxWidth: .infinity, alignment: .leading)
+            
+            if showTip {
+                Button {
+                    isShowingHelpPopover.toggle()
+                } label: {
+                    Image(systemName: "questionmark.circle.fill")
+                }
+                .buttonStyle(.borderless)
+                .transition(.opacity)
+                .popover(isPresented: $isShowingHelpPopover) {
+                    mountTip
+                }
+                .help("Shared folders help")
+            }
+            
+        }
+        .padding(.horizontal, 2)
+        
+        .onChange(of: configuration.sharedFolders.count) { newValue in
+            if newValue > 0 {
+                withAnimation(.spring()) {
+                    showTip = true
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var mountTip: some View {
+        Text("""
+        To make your shared folders available in the virtual machine,
+        run the following command in Terminal (Applications > Utilities > Terminal):
+        
+        ```
+        mkdir -p ~/Desktop/VirtualBuddyShared && mount -t virtiofs VirtualBuddyShared ~/Desktop/VirtualBuddyShared
+        ```
+        
+        A folder named "VirtualBuddyShared" will show up on the Desktop.
+        """)
+        .textSelection(.enabled)
+        .foregroundColor(.white)
+        .padding()
+        .multilineTextAlignment(.leading)
     }
 
     @ViewBuilder

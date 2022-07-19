@@ -12,7 +12,10 @@ struct SharingConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
 
     var body: some View {
+        #if ENABLE_SPICE_CLIPBOARD_SYNC
         clipboardSyncToggle
+            .padding(.bottom)
+        #endif
 
         SharedFoldersManagementView(configuration: $configuration)
     }
@@ -73,6 +76,9 @@ struct SharingConfigurationView_Previews: PreviewProvider {
 
     static var previews: some View {
         _ConfigurationSectionPreview(config) { SharingConfigurationView(configuration: $0) }
+        
+        _ConfigurationSectionPreview(.default) { SharingConfigurationView(configuration: $0) }
+            .previewDisplayName("Empty")
     }
 }
 #endif

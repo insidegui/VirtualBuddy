@@ -135,11 +135,20 @@ public struct VBMacDevice: Hashable, Codable {
 /// Configures a folder that's shared between the host and the guest.
 /// **Read the note at the top of this file before modifying this**
 public struct VBSharedFolder: Identifiable, Hashable, Codable {
-    public init(id: UUID = UUID(), url: URL, isEnabled: Bool = true, isReadOnly: Bool = true) {
+    /// The name the VirtualBuddy share will have in the guest OS.
+    ///
+    /// This is the name that must be used with the `mount` command, like so:
+    /// ```
+    /// mkdir -p ~/Desktop/VirtualBuddyShared && mount -t virtiofs VirtualBuddyShared ~/Desktop/VirtualBuddyShared
+    /// ```
+    public static let virtualBuddyShareName = "VirtualBuddyShared"
+    
+    public init(id: UUID = UUID(), url: URL, isEnabled: Bool = true, isReadOnly: Bool = true, customMountPointName: String? = nil) {
         self.id = id
         self.url = url
         self.isEnabled = isEnabled
         self.isReadOnly = isReadOnly
+        self.customMountPointName = customMountPointName
     }
 
     public var id = UUID()
@@ -148,6 +157,13 @@ public struct VBSharedFolder: Identifiable, Hashable, Codable {
     @DecodableDefault.True
     public var isEnabled = true
     public var isReadOnly = true
+    
+    /// A custom name for the folder when mounted in the guest OS.
+    public var customMountPointName: String? = nil
+    /// The default name for the folder when mounted in the guest OS
+    var mountPointName: String { url.lastPathComponent }
+    /// The effective name this folder will have when mounted in the guest OS.
+    public var effectiveMountPointName: String { customMountPointName ?? mountPointName }
 }
 
 public extension VBMacConfiguration {
@@ -165,7 +181,17 @@ public extension VBMacConfiguration {
             throw Failure("That directory is already in the shared folders.")
         }
 
-        let folder = VBSharedFolder(url: url)
+        /// Figure out how many "Folder", "Folder 1", "Folder 2", and so on we have in the shared folders collection.
+        let conflictingMountPointCount = sharedFolders.filter { $0.mountPointName.trimmingCharacters(in: .decimalDigits.union(.whitespacesAndNewlines)).hasPrefix(url.lastPathComponent) }.count
+        
+        let customMountPointName: String?
+        if conflictingMountPointCount > 0 {
+            customMountPointName = "\(url.lastPathComponent) \(conflictingMountPointCount + 1)"
+        } else {
+            customMountPointName = nil
+        }
+        
+        let folder = VBSharedFolder(url: url, customMountPointName: customMountPointName)
 
         sharedFolders.append(folder)
 

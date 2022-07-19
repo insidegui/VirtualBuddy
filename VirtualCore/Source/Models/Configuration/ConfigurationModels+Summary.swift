@@ -33,6 +33,7 @@ public extension VBMacConfiguration {
             foldersSum = "One Folder"
         }
 
+        #if ENABLE_SPICE_CLIPBOARD_SYNC
         if sharedClipboardEnabled {
             if foldersSum.isEmpty {
                 return "Clipboard"
@@ -42,6 +43,9 @@ public extension VBMacConfiguration {
         } else {
             return foldersSum.isEmpty ? "None" : foldersSum
         }
+        #else
+        return foldersSum.isEmpty ? "None" : foldersSum
+        #endif
     }
 
     var networkSummary: String {
