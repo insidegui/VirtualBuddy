@@ -144,6 +144,8 @@ public struct VBSharedFolder: Identifiable, Hashable, Codable {
     public var id = UUID()
     public var name: String { url.lastPathComponent }
     public var url: URL
+    @DecodableDefault.True
+    public var isEnabled = true
     public var isReadOnly = true
 }
 
