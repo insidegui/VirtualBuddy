@@ -10,13 +10,15 @@ import VirtualCore
 
 struct ConfigurationSection<Header: View, Content: View>: View {
 
-    @State private var isCollapsed = true
+    @Binding private var collapsedStateBinding: Bool
+    @State private var isCollapsed: Bool
 
     var content: () -> Content
     var header: () -> Header
 
-    init(collapsed: Bool = true, @ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
-        self._isCollapsed = .init(wrappedValue: collapsed)
+    init(_ collapsed: Binding<Bool>? = nil, @ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
+        self._collapsedStateBinding = collapsed ?? .constant(true)
+        self._isCollapsed = .init(wrappedValue: collapsed?.wrappedValue ?? true)
         self.header = header
         self.content = content
     }
@@ -34,6 +36,14 @@ struct ConfigurationSection<Header: View, Content: View>: View {
             }
         }
         .controlGroup()
+        .onChange(of: collapsedStateBinding) { newValue in
+            guard newValue != isCollapsed else { return }
+            isCollapsed = newValue
+        }
+        .onChange(of: isCollapsed) { newValue in
+            guard collapsedStateBinding != newValue else { return }
+            collapsedStateBinding = newValue
+        }
     }
 
     @ViewBuilder

@@ -8,7 +8,7 @@
 import SwiftUI
 import VirtualCore
 
-final class VMConfigurationViewModel: ObservableObject {
+public final class VMConfigurationViewModel: ObservableObject {
     
     @Published var config: VBMacConfiguration {
         didSet {
@@ -22,21 +22,21 @@ final class VMConfigurationViewModel: ObservableObject {
         }
     }
     
-    @Published var supportState: VBMacConfiguration.SupportState = .supported
+    @Published public internal(set) var supportState: VBMacConfiguration.SupportState = .supported
     
     @Published var selectedDisplayPreset: VBDisplayPreset?
     
     @Published private(set) var vm: VBVirtualMachine
     
-    init(config: VBMacConfiguration, vm: VBVirtualMachine) {
-        self.config = config
+    public init(_ vm: VBVirtualMachine) {
+        self.config = vm.configuration
         self.vm = vm
         
         Task { await updateSupportState() }
     }
 
     @discardableResult
-    func updateSupportState() async -> VBMacConfiguration.SupportState {
+    public func updateSupportState() async -> VBMacConfiguration.SupportState {
         let updatedState = await config.validate(for: vm)
         await MainActor.run {
             supportState = updatedState

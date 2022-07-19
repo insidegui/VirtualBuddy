@@ -15,7 +15,25 @@ struct VMConfigurationView: View {
     var initialConfiguration: VBMacConfiguration
 
     static var labelSpacing: CGFloat { 2 }
+    
+    @AppStorage("config.general.collapsed")
+    private var generalCollapsed = true
 
+    @AppStorage("config.display.collapsed")
+    private var displayCollasped = true
+    
+    @AppStorage("config.pointing.collapsed")
+    private var pointingCollasped = true
+    
+    @AppStorage("config.network.collapsed")
+    private var networkCollasped = true
+    
+    @AppStorage("config.sound.collapsed")
+    private var soundCollasped = true
+    
+    @AppStorage("config.sharing.collapsed")
+    private var sharingCollasped = true
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             general
@@ -24,6 +42,7 @@ struct VMConfigurationView: View {
             network
             sound
             sharing
+                .frame(minWidth: 0, idealWidth: VMConfigurationSheet.defaultWidth)
         }
         .font(.system(size: 12))
     }
@@ -54,7 +73,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var general: some View {
-        ConfigurationSection {
+        ConfigurationSection($generalCollapsed) {
             HardwareConfigurationView(device: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -73,7 +92,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var display: some View {
-        ConfigurationSection {
+        ConfigurationSection($displayCollasped) {
             DisplayConfigurationView(
                 device: $viewModel.config.hardware.displayDevices[0],
                 selectedPreset: $viewModel.selectedDisplayPreset
@@ -92,7 +111,7 @@ struct VMConfigurationView: View {
     
     @ViewBuilder
     private var pointingDevice: some View {
-        ConfigurationSection {
+        ConfigurationSection($pointingCollasped) {
             PointingDeviceConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -105,7 +124,7 @@ struct VMConfigurationView: View {
     
     @ViewBuilder
     private var network: some View {
-        ConfigurationSection {
+        ConfigurationSection($networkCollasped) {
             NetworkConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -118,7 +137,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var sound: some View {
-        ConfigurationSection {
+        ConfigurationSection($soundCollasped) {
             SoundConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -131,7 +150,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var sharing: some View {
-        ConfigurationSection {
+        ConfigurationSection($sharingCollasped) {
             SharingConfigurationView(configuration: $viewModel.config)
         } header: {
             summaryHeader(
@@ -154,7 +173,8 @@ struct VMConfigurationView_Previews: PreviewProvider {
 
         var body: some View {
             PreviewSheet {
-                VMConfigurationSheet(machine: controller.virtualMachineModel, configuration: $controller.virtualMachineModel.configuration)
+                VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
+                    .environmentObject(VMConfigurationViewModel(controller.virtualMachineModel))
                     .frame(width: 360, height: 600, alignment: .top)
             }
         }

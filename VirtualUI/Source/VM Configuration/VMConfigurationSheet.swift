@@ -10,7 +10,7 @@ import VirtualCore
 
 public struct VMConfigurationSheet: View {
     
-    @StateObject private var viewModel: VMConfigurationViewModel
+    @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
     /// The VM configuration as it existed when the user opened the configuration UI.
     /// Can be used to reset aspects of the configuration to their previous values.
@@ -19,23 +19,19 @@ public struct VMConfigurationSheet: View {
     /// The configuration that gets saved with the VM.
     /// Setting this saves the configuration.
     @Binding private var savedConfiguration: VBMacConfiguration
-    
-    private var machine: VBVirtualMachine
-    
+
     @State private var showingValidationErrors = false
     
     /// Initializes the VM configuration sheet, bound to a VM configuration model.
     /// - Parameter machine:The VM being configured.
     /// - Parameter configuration: The binding that will be updated when the user saves the configuration by clicking the "Done" button.
-    public init(machine: VBVirtualMachine, configuration: Binding<VBMacConfiguration>) {
-        self.init(machine: machine, configuration: configuration, showingValidationErrors: false)
+    public init(configuration: Binding<VBMacConfiguration>) {
+        self.init(configuration: configuration, showingValidationErrors: false)
     }
     
-    init(machine: VBVirtualMachine, configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool) {
-        self.machine = machine
+    init(configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool) {
         self.initialConfiguration = configuration.wrappedValue
         self._savedConfiguration = configuration
-        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(config: configuration.wrappedValue, vm: machine))
         self._showingValidationErrors = .init(wrappedValue: showingValidationErrors)
     }
     
@@ -50,8 +46,10 @@ public struct VMConfigurationSheet: View {
         .safeAreaInset(edge: .bottom) {
             buttons
         }
-        .frame(minWidth: 360, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity, alignment: .top)
+        .frame(minWidth: Self.defaultWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity, alignment: .top)
     }
+    
+    public static let defaultWidth: CGFloat = 370
     
     @ViewBuilder
     private var buttons: some View {
@@ -71,9 +69,9 @@ public struct VMConfigurationSheet: View {
                     validateAndSave()
                 }
                 .keyboardShortcut(.defaultAction)
+                .disabled(showingValidationErrors)
             }
         }
-        .disabled(showingValidationErrors)
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -83,7 +81,7 @@ public struct VMConfigurationSheet: View {
             guard showingValidationErrors else { return }
             
             Task {
-                if await newValue.validate(for: machine) == .supported {
+                if await viewModel.updateSupportState() == .supported {
                     showingValidationErrors = false
                 }
             }
@@ -93,7 +91,7 @@ public struct VMConfigurationSheet: View {
     @ViewBuilder
     private var validationErrors: some View {
         VStack(alignment: .leading, spacing: 4) {
-            switch viewModel.config.hostSupportState {
+            switch viewModel.supportState {
             case .supported:
                 EmptyView()
             case .unsupported(let errors):

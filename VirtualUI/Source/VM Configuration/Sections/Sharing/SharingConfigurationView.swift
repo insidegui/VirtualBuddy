@@ -42,7 +42,7 @@ struct _ConfigurationSectionPreview<C: View>: View {
     }
 
     var body: some View {
-        ConfigurationSection(collapsed: false, {
+        ConfigurationSection(.constant(false), {
             content($config)
         }, header: {
             Label("SwiftUI Preview", systemImage: "eye")
