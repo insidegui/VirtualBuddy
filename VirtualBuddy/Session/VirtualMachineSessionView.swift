@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import VirtualUI
 
 struct VirtualMachineSessionView: View {
     @StateObject var controller: VMController
@@ -114,7 +115,11 @@ struct VirtualMachineSessionView: View {
 
     @ViewBuilder
     private var backgroundView: some View {
-        VMScreenshotBackgroundView(vm: $controller.virtualMachineModel)
+        if controller.isRunning {
+            Color.black
+        } else {
+            VMScreenshotBackgroundView(vm: $controller.virtualMachineModel)
+        }
     }
     
     // MARK: - Toolbar Buttons
@@ -178,17 +183,16 @@ struct VMScreenshotBackgroundView: View {
     
     var body: some View {
         ZStack {
-            Color.black
-            
             if let image {
                 image
                     .resizable()
                     .aspectRatio(contentMode: .fit)
-                    .drawingGroup()
-                    .saturation(1.3)
-                    .brightness(-0.1)
-                    .blur(radius: 22, opaque: true)
             }
+            
+            MaterialView()
+                .materialType(.popover)
+                .materialBlendingMode(.withinWindow)
+                .materialState(.followsWindowActiveState)
         }
         .onAppearOnce { updateImage() }
         .onReceive(vm.didInvalidateThumbnail) { updateImage() }

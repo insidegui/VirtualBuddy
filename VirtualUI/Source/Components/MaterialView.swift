@@ -7,11 +7,11 @@
 
 import SwiftUI
 
-typealias MaterialType = NSVisualEffectView.Material
-typealias MaterialBlendingMode = NSVisualEffectView.BlendingMode
-typealias MaterialState = NSVisualEffectView.State
+public typealias MaterialType = NSVisualEffectView.Material
+public typealias MaterialBlendingMode = NSVisualEffectView.BlendingMode
+public typealias MaterialState = NSVisualEffectView.State
 
-extension MaterialBlendingMode {
+public extension MaterialBlendingMode {
     
     /// Uses within window blending mode when running in SwiftUI previews,
     /// but the behind window blending mode when running normally.
@@ -30,11 +30,13 @@ extension MaterialBlendingMode {
     
 }
 
-struct MaterialView: NSViewRepresentable {
+public struct MaterialView: NSViewRepresentable {
     
-    typealias NSViewType = NSVisualEffectView
+    public typealias NSViewType = NSVisualEffectView
+    
+    public init() { }
 
-    func makeNSView(context: Context) -> NSVisualEffectView {
+    public func makeNSView(context: Context) -> NSVisualEffectView {
         let v = NSVisualEffectView(frame: .zero)
         
         v.material = context.environment.materialType
@@ -44,7 +46,7 @@ struct MaterialView: NSViewRepresentable {
         return v
     }
     
-    func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
+    public func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
         if (nsView.material != context.environment.materialType) {
             nsView.material = context.environment.materialType
         }
@@ -62,7 +64,7 @@ struct MaterialView: NSViewRepresentable {
     
 }
 
-extension View {
+public extension View {
     
     /// Applies a background material to the view, clipped to the specified shape.
     /// - Parameters:
