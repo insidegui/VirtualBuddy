@@ -118,7 +118,7 @@ struct VMConfigurationView: View {
     @ViewBuilder
     private var sharing: some View {
         ConfigurationSection {
-            SoundConfigurationView(hardware: $viewModel.config.hardware)
+            SharingConfigurationView(configuration: $viewModel.config)
         } header: {
             summaryHeader(
                 "Sharing",

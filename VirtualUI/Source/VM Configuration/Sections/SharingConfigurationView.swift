@@ -58,6 +58,7 @@ struct SharingConfigurationView: View {
                 }
             }
             .listStyle(.plain)
+            .frame(minHeight: 140)
             .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0, content: {
                 listButtons
             })
