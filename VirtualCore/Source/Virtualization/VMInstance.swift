@@ -154,9 +154,6 @@ public final class VMInstance: NSObject, ObservableObject {
         c.cpuCount = model.configuration.hardware.cpuCount
         c.memorySize = model.configuration.hardware.memorySize
         c.graphicsDevices = model.configuration.vzGraphicsDevices
-        c.storageDevices = [
-            try helper.createBlockDeviceConfiguration()
-        ]
         c.networkDevices = try model.configuration.vzNetworkDevices
         c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
@@ -166,6 +163,11 @@ public final class VMInstance: NSObject, ObservableObject {
         if #available(macOS 13.0, *), let clipboardSync = model.configuration.vzClipboardSyncDevice {
             c.consoleDevices = [clipboardSync]
         }
+        
+        let bootDevice = try helper.createBootBlockDevice()
+        let additionalBlockDevices = try helper.createAdditionalBlockDevices()
+
+        c.storageDevices = [bootDevice] + additionalBlockDevices
         
         return c
     }

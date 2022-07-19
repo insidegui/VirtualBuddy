@@ -41,6 +41,50 @@ public struct VBMacConfiguration: Hashable, Codable {
 
 // MARK: - Hardware Configuration
 
+/// Configures a storage device.
+/// **Read the note at the top of this file before modifying this**
+public struct VBStorageDevice: Identifiable, Hashable, Codable {
+    public init(name: String, isBootVolume: Bool, isReadOnly: Bool, isUSBMassStorageDevice: Bool, diskImageName: String, customDiskImageURL: URL? = nil, size: UInt64 = Self.defaultBootDiskImageSize) {
+        self.name = name
+        self.isBootVolume = isBootVolume
+        self.isReadOnly = isReadOnly
+        self.isUSBMassStorageDevice = isUSBMassStorageDevice
+        self.diskImageName = diskImageName
+        self.customDiskImageURL = customDiskImageURL
+        self.size = size
+    }
+    
+    public var id: String { name }
+    /// A descriptive name for the device.
+    /// ASCII characters only, no longer than 20 bytes.
+    public var name: String
+    /// `true` for the initial boot volume (Disk.img) that's created by VirtualBuddy.
+    public internal(set) var isBootVolume: Bool
+    /// `true` when the device can't be written to by the VM.
+    public var isReadOnly: Bool
+    /// `true` when the device represents an external USB mass storage device in the guest OS.
+    public var isUSBMassStorageDevice: Bool
+    /// The name of the disk image backing this storage device, relative to the VM bundle.
+    public var diskImageName: String
+    /// URL for a custom disk image that's not managed by VirtualBuddy.
+    public var customDiskImageURL: URL? = nil
+    /// The size of the disk image.
+    public var size: UInt64 = Self.defaultBootDiskImageSize
+    
+    public static let defaultBootDiskImageName = "Disk.img"
+    
+    public static var defaultBootDevice: VBStorageDevice {
+        VBStorageDevice(
+            name: "Macintosh HD",
+            isBootVolume: true,
+            isReadOnly: false,
+            isUSBMassStorageDevice: false,
+            diskImageName: Self.defaultBootDiskImageName,
+            size: Self.defaultBootDiskImageSize
+        )
+    }
+}
+
 /// Configures a display device.
 /// **Read the note at the top of this file before modifying this**
 public struct VBDisplayDevice: Identifiable, Hashable, Codable {
@@ -121,6 +165,17 @@ public struct VBSoundDevice: Identifiable, Hashable, Codable {
 /// Describes a Mac VM with its associated hardware configuration.
 /// **Read the note at the top of this file before modifying this**
 public struct VBMacDevice: Hashable, Codable {
+    public init(cpuCount: Int, memorySize: UInt64, pointingDevice: VBPointingDevice, displayDevices: [VBDisplayDevice], networkDevices: [VBNetworkDevice], soundDevices: [VBSoundDevice], storageDevices: [VBStorageDevice], NVRAM: [VBNVRAMVariable] = [VBNVRAMVariable]()) {
+        self.cpuCount = cpuCount
+        self.memorySize = memorySize
+        self.pointingDevice = pointingDevice
+        self.displayDevices = displayDevices
+        self.networkDevices = networkDevices
+        self.soundDevices = soundDevices
+        self.storageDevices = storageDevices
+        self.NVRAM = NVRAM
+    }
+    
     public var cpuCount: Int
     public var memorySize: UInt64
     public var pointingDevice: VBPointingDevice
@@ -128,6 +183,20 @@ public struct VBMacDevice: Hashable, Codable {
     public var networkDevices: [VBNetworkDevice]
     public var soundDevices: [VBSoundDevice]
     public var NVRAM = [VBNVRAMVariable]()
+    
+    public var storageDevices: [VBStorageDevice] {
+        /// Special handling for migration from previous versions.
+        /// Ensures all VMs have the boot storage device set if no storage devices are
+        /// present in the loaded configuration.
+        get { _storageDevices ?? [.defaultBootDevice] }
+        set { _storageDevices = newValue }
+    }
+    private var _storageDevices: [VBStorageDevice]? = nil
+    
+    mutating func addMissingBootDeviceIfNeeded() {
+        guard _storageDevices == nil else { return }
+        _storageDevices = [.defaultBootDevice]
+    }
 }
 
 // MARK: - Sharing And Other Features
@@ -261,7 +330,8 @@ public extension VBMacDevice {
             pointingDevice: .default,
             displayDevices: [.default],
             networkDevices: [.default],
-            soundDevices: [.default]
+            soundDevices: [.default],
+            storageDevices: [.defaultBootDevice]
         )
     }
 }
@@ -361,6 +431,12 @@ public extension VBNetworkDevice {
 }
 
 // MARK: - Helpers
+
+public extension VBStorageDevice {
+    static let defaultBootDiskImageSize: UInt64 = 64 * 1_000_000_000
+    static let minimumBootDiskImageSize: UInt64 = 64 * 1_000_000_000
+    static let maximumBootDiskImageSize: UInt64 = 512 * 1_000_000_000
+}
 
 public extension VBNetworkDevice {
     static func validateMAC(_ address: String) -> Bool {

@@ -15,16 +15,17 @@ struct MacOSVirtualMachineConfigurationHelper {
         return VZMacOSBootLoader()
     }
 
-    func createBlockDeviceConfiguration() throws -> VZVirtioBlockDeviceConfiguration {
+    func createBootBlockDevice() throws -> VZVirtioBlockDeviceConfiguration {
         do {
-            let diskURL = URL(fileURLWithPath: vm.diskImagePath)
+            let bootDevice = try vm.bootDevice
+            let bootDiskImageURL = try vm.bootDiskImageURL
 
-            if !FileManager.default.fileExists(atPath: diskURL.path) {
-                let size = vm.installOptions?.diskImageSize ?? .defaultDiskImageSize
-                try createDiskImage(ofSize: size, at: diskURL)
+            if !FileManager.default.fileExists(atPath: bootDiskImageURL.path) {
+                let size = bootDevice.size
+                try createDiskImage(ofSize: size, at: bootDiskImageURL)
             }
 
-            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: false)
+            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: bootDiskImageURL, readOnly: false)
 
             let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
 
@@ -33,8 +34,20 @@ struct MacOSVirtualMachineConfigurationHelper {
             throw Failure("Failed to instantiate a disk image for the VM: \(error.localizedDescription).")
         }
     }
+    
+    func createAdditionalBlockDevices() throws -> [VZVirtioBlockDeviceConfiguration] {
+        try vm.configuration.hardware.storageDevices.map { device in
+            let diskURL = vm.diskImageURL(for: device)
+            guard FileManager.default.fileExists(atPath: diskURL.path) else {
+                throw Failure("Disk image for storage device \"\(device.name)\" doesn't exist at \(diskURL.path)")
+            }
+            
+            let attachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: device.isReadOnly)
+            return VZVirtioBlockDeviceConfiguration(attachment: attachment)
+        }
+    }
 
-    private func createDiskImage(ofSize size: Int, at url: URL) throws {
+    private func createDiskImage(ofSize size: UInt64, at url: URL) throws {
         let diskFd = open(url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
         if diskFd == -1 {
             throw Failure("Cannot create disk image.")
@@ -55,12 +68,6 @@ struct MacOSVirtualMachineConfigurationHelper {
         return VZUSBKeyboardConfiguration()
     }
 
-}
-
-public extension Int {
-    static let defaultDiskImageSize = 64 * 1_000_000_000
-    static let minimumDiskImageSize = 64 * 1_000_000_000
-    static let maximumDiskImageSize = 512 * 1_000_000_000
 }
 
 // MARK: - Configuration Models -> Virtualization

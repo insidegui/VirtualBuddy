@@ -13,7 +13,6 @@ import VirtualCore
 
 struct VMInstallData: Hashable {
     var name = "New Mac VM"
-    var diskImageSize: Double = Double(Int.defaultDiskImageSize)
     var cookie: String?
     var restoreImageInfo: VBRestoreImageInfo? {
         didSet {
@@ -57,6 +56,8 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     @Published var installMethod = InstallMethod.localFile
+    
+    @Published var machine: VBVirtualMachine?
 
     @Published var data = VMInstallData() {
         didSet {
@@ -98,10 +99,10 @@ final class VMInstallationViewModel: ObservableObject {
             case .installKind:
                 commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:
-                step = .configure
-            case .configure:
                 step = .name
             case .name:
+                step = .configure
+            case .configure:
                 step = needsDownload ? .download : .install
             case .download:
                 step = .install
@@ -123,14 +124,22 @@ final class VMInstallationViewModel: ObservableObject {
 
                 showNextButton = true
                 disableNextButton = true
-            case .configure:
-                showNextButton = true
-
-                commitOSSelection()
             case .name:
+                commitOSSelection()
+            
                 showNextButton = true
 
                 createInitialName()
+            case .configure:
+                showNextButton = true
+            
+                Task {
+                    do {
+                        try await prepareModel()
+                    } catch {
+                        state = .error("Failed to prepare VM model: \(error.localizedDescription)")
+                    }
+                }
             case .download:
                 Task { await startDownload() }
 
@@ -254,23 +263,37 @@ final class VMInstallationViewModel: ObservableObject {
 
     private var vmInstaller: VZMacOSInstaller?
     private var progressObservation: NSKeyValueObservation?
+    
+    @MainActor
+    private func prepareModel() throws {
+        guard let library = library else {
+            state = .error("Missing library instance")
+            return
+        }
+        
+        let vmURL = library.libraryURL
+            .appendingPathComponent(data.name)
+            .appendingPathExtension(VBVirtualMachine.bundleExtension)
+
+        let model = try VBVirtualMachine(bundleURL: vmURL)
+        
+        self.machine = model
+    }
 
     @MainActor
     private func startInstallation() async {
-        guard let library = library, let restoreURL = data.restoreImageURL else {
-            state = .error("Missing library instance or restore image URL")
+        guard let restoreURL = data.restoreImageURL else {
+            state = .error("Missing restore image URL")
+            return
+        }
+        
+        guard let model = machine else {
+            state = .error("Missing VM model")
             return
         }
 
         do {
             state = .loading(nil, "Preparing Installation…\nThis may take a moment…")
-
-            let vmURL = library.libraryURL
-                .appendingPathComponent(data.name)
-                .appendingPathExtension(VBVirtualMachine.bundleExtension)
-
-            let model = try VBVirtualMachine(bundleURL: vmURL,
-                                             installOptions: .init(diskImageSize: Int(data.diskImageSize)))
 
             let config = try await VMInstance.makeConfiguration(for: model, installImageURL: restoreURL)
 

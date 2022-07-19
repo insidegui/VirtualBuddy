@@ -203,20 +203,7 @@ struct VMInstallationWizard: View {
         VStack {
             title("Configure Your Virtual Mac")
 
-            VStack(alignment: .leading, spacing: 0) {
-                Text("Disk Size: \(Int(viewModel.data.diskImageSize).formatted(.byteCount(style: .file)))")
-
-                Slider(value: $viewModel.data.diskImageSize,
-                       in: .minimumDiskImageSize ... .maximumDiskImageSize,
-                       step: .minimumDiskImageSize) {
-                    Text("Disk Size")
-                } minimumValueLabel: {
-                    Text(Int.minimumDiskImageSize.formatted(.byteCount(style: .file)))
-                } maximumValueLabel: {
-                    Text(Int.maximumDiskImageSize.formatted(.byteCount(style: .file)))
-                }
-                .labelsHidden()
-            }
+            
         }
     }
 
@@ -285,12 +272,6 @@ struct VMInstallationWizard: View {
         }
     }
 
-}
-
-private extension Double {
-    static let defaultDiskImageSize = Double(Int.defaultDiskImageSize)
-    static let minimumDiskImageSize = Double(Int.minimumDiskImageSize)
-    static let maximumDiskImageSize = Double(Int.maximumDiskImageSize)
 }
 
 struct VMInstallationWizard_Previews: PreviewProvider {

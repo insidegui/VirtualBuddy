@@ -6,18 +6,9 @@ public typealias VoidSubject = PassthroughSubject<(), Never>
 
 public struct VBVirtualMachine: Identifiable {
 
-    public struct InstallOptions: Hashable {
-        public let diskImageSize: Int
-        
-        public init(diskImageSize: Int) {
-            self.diskImageSize = diskImageSize
-        }
-    }
-    
     public var id: String { bundleURL.absoluteString }
     public let bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
-    public var installOptions: InstallOptions?
     private var _configuration: VBMacConfiguration?
     
     public var configuration: VBMacConfiguration {
@@ -40,8 +31,7 @@ public extension VBVirtualMachine {
 public extension VBVirtualMachine {
     static let preview: VBVirtualMachine =  {
         try! VBVirtualMachine(
-            bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm"),
-            installOptions: InstallOptions(diskImageSize: .defaultDiskImageSize)
+            bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm")
         )
     }()
 }
@@ -50,12 +40,25 @@ extension VBVirtualMachine {
 
     static let configurationFilename = "Config.plist"
     
-    var diskImagePath: String {
-        bundleURL.appendingPathComponent("Disk.img").path
+    func diskImageURL(for device: VBStorageDevice) -> URL {
+        device.customDiskImageURL ?? bundleURL.appendingPathComponent(device.diskImageName)
     }
     
-    var extraDiskImagePath: String {
-        bundleURL.appendingPathComponent("Disk2.img").path
+    var bootDevice: VBStorageDevice {
+        get throws {
+            guard let device = configuration.hardware.storageDevices.first(where: { $0.isBootVolume }) else {
+                throw Failure("The virtual machine doesn't have a storage device to boot from.")
+            }
+            
+            return device
+        }
+    }
+    
+    var bootDiskImageURL: URL {
+        get throws {
+            let device = try bootDevice
+            return diskImageURL(for: device)
+        }
     }
 
     var auxiliaryStorageURL: URL {
@@ -84,14 +87,17 @@ public extension UTType {
 
 public extension VBVirtualMachine {
     
-    init(bundleURL: URL, installOptions: InstallOptions? = nil) throws {
+    init(bundleURL: URL) throws {
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
             try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
         
         self.bundleURL = bundleURL
-        self.installOptions = installOptions
-        self.configuration = try loadConfiguration()
+        var config = try loadConfiguration()
+        
+        config.hardware.addMissingBootDeviceIfNeeded()
+        
+        self.configuration = config
 
         try saveConfiguration()
     }
