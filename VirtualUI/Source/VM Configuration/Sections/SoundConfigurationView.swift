@@ -40,19 +40,8 @@ struct SoundConfigurationView: View {
 #if DEBUG
 struct SoundConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(hardware: VBMacDevice.default)
+        _ConfigurationSectionPreview { SoundConfigurationView(hardware: $0.hardware) }
     }
 
-    struct _Template: View {
-        @State var hardware: VBMacDevice
-        init(hardware: VBMacDevice) {
-            self._hardware = .init(wrappedValue: hardware)
-        }
-        var body: some View {
-            _ConfigurationSectionPreview {
-                SoundConfigurationView(hardware: $hardware)
-            }
-        }
-    }
 }
 #endif

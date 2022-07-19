@@ -50,6 +50,9 @@
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
 		F4A21BF628033309001072B8 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF528033309001072B8 /* LibraryView.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
+		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
+		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
+		F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */; };
 		F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */; };
 		F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */; };
 		F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */; };
@@ -206,6 +209,9 @@
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
 		F4A21BF528033309001072B8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFoldersManagementView.swift; sourceTree = "<group>"; };
+		F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PointingDeviceConfigurationView.swift; sourceTree = "<group>"; };
+		F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Validation.swift"; sourceTree = "<group>"; };
+		F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Summary.swift"; sourceTree = "<group>"; };
 		F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenCocoaWindowAction.swift; sourceTree = "<group>"; };
 		F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostingWindowController.swift; sourceTree = "<group>"; };
 		F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowEnvironment.swift; sourceTree = "<group>"; };
@@ -336,6 +342,7 @@
 				F42258772885E14A009420AE /* DisplayConfigurationView.swift */,
 				F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */,
 				F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */,
+				F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -424,6 +431,8 @@
 			children = (
 				F417255E28861604004FF8A7 /* DecodableDefault.swift */,
 				F49A68E02884917E00A17582 /* ConfigurationModels.swift */,
+				F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */,
+				F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */,
 			);
 			path = Configuration;
 			sourceTree = "<group>";
@@ -998,6 +1007,7 @@
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,
+				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1048,6 +1058,8 @@
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
+				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
+				F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,

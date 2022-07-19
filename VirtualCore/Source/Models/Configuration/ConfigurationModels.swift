@@ -20,6 +20,12 @@ import SystemConfiguration
  */
 
 public struct VBMacConfiguration: Hashable, Codable {
+    
+    public enum SupportState: Hashable {
+        case supported
+        case warnings([String])
+        case unsupported([String])
+    }
 
     public static let currentVersion = 0
     @DecodableDefault.Zero public var version = VBMacConfiguration.currentVersion
@@ -89,21 +95,15 @@ public struct VBPointingDevice: Hashable, Codable {
     public enum Kind: Int, Identifiable, CaseIterable, Codable {
         public var id: RawValue { rawValue }
 
-        public var warning: String? {
-            guard self == .trackpad else { return nil }
-            return "Trackpad is only recognized by VMs running macOS 13 and later."
-        }
-
-        public var isSupportedByGuest: Bool {
-            if #available(macOS 13.0, *) {
-                return true
-            } else {
-                return self == .mouse
-            }
-        }
-
         case mouse
         case trackpad
+        
+        public var name: String {
+            switch self {
+            case .mouse: return "Mouse"
+            case .trackpad: return "Trackpad"
+            }
+        }
     }
 
     public var kind = Kind.mouse
@@ -332,47 +332,6 @@ public extension VBNetworkDevice {
     static var bridgeInterfaces: [VBNetworkDeviceBridgeInterface] {
         VZBridgedNetworkInterface.networkInterfaces.map(VBNetworkDeviceBridgeInterface.init)
     }
-    
-    static var appSupportsBridgedNetworking: Bool {
-        NSApplication.shared.hasEntitlement("com.apple.vm.networking")
-    }
-}
-
-public extension VBMacConfiguration {
-    
-    func validate(for model: VBVirtualMachine) async -> String? {
-        var tempModel = model
-        tempModel.configuration = self
-        
-        do {
-            let config = try await VMInstance.makeConfiguration(for: tempModel)
-            
-            try config.validate()
-            
-            return nil
-        } catch {
-            return error.localizedDescription
-        }
-    }
-
-    static let isNativeClipboardSharingSupported: Bool = {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return false
-        }
-    }()
-
-    static let clipboardSharingNotice: String = {
-        let guestAppInfo = "To use clipboard sync with previous versions of macOS, you can use the VirtualBuddyGuest app."
-
-        if isNativeClipboardSharingSupported {
-            return "Clipboard sync requires the virtual machine to be running macOS 13 or later. \(guestAppInfo)"
-        } else {
-            return "Clipboard sync requires macOS 13 or later. \(guestAppInfo)"
-        }
-    }()
-    
 }
 
 // MARK: - Helpers
@@ -429,50 +388,6 @@ public extension VBDisplayDevice {
     static let displayPPIRange: ClosedRange<Int> = {
         minimumDisplayPPI...maximumDisplayPPI
     }()
-
-}
-
-public extension VBMacConfiguration {
-
-    var generalSummary: String {
-        "\(hardware.cpuCount) CPUs / \(hardware.memorySize / 1024 / 1024 / 1024) GB"
-    }
-
-    var displaySummary: String {
-        guard let display = hardware.displayDevices.first else { return "No Displays" }
-        return "\(display.width)x\(display.height)x\(display.pixelsPerInch)"
-    }
-
-    var soundSummary: String {
-        guard let sound = hardware.soundDevices.first else { return "No Sound" }
-        return sound.enableInput ? "Input / Output" : "Output Only"
-    }
-
-    var sharingSummary: String {
-        let foldersSum: String
-        if sharedFolders.count > 1 {
-            foldersSum = "\(sharedFolders.count) Folders"
-        } else if sharedFolders.isEmpty {
-            foldersSum = ""
-        } else {
-            foldersSum = "One Folder"
-        }
-
-        if sharedClipboardEnabled {
-            if foldersSum.isEmpty {
-                return "Clipboard"
-            } else {
-                return "Clipboard / \(foldersSum)"
-            }
-        } else {
-            return foldersSum.isEmpty ? "None" : foldersSum
-        }
-    }
-
-    var networkSummary: String {
-        guard let network = hardware.networkDevices.first else { return "No Network" }
-        return network.kind.name
-    }
 
 }
 

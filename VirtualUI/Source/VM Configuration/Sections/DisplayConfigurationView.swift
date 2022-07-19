@@ -87,18 +87,8 @@ private struct DisplayPresetPicker: View {
 #if DEBUG
 struct DisplayConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(hardware: VBMacDevice.default)
-    }
-
-    struct _Template: View {
-        @State var hardware: VBMacDevice
-        init(hardware: VBMacDevice) {
-            self._hardware = .init(wrappedValue: hardware)
-        }
-        var body: some View {
-            _ConfigurationSectionPreview {
-                DisplayConfigurationView(device: $hardware.displayDevices[0], selectedPreset: .constant(nil))
-            }
+        _ConfigurationSectionPreview {
+            DisplayConfigurationView(device: $0.hardware.displayDevices[0], selectedPreset: .constant(nil))
         }
     }
 }

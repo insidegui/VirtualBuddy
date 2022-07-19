@@ -35,19 +35,7 @@ struct HardwareConfigurationView: View {
 #if DEBUG
 struct HardwareConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(hardware: VBMacDevice.default)
-    }
-
-    struct _Template: View {
-        @State var hardware: VBMacDevice
-        init(hardware: VBMacDevice) {
-            self._hardware = .init(wrappedValue: hardware)
-        }
-        var body: some View {
-            _ConfigurationSectionPreview {
-                HardwareConfigurationView(device: $hardware)
-            }
-        }
+        _ConfigurationSectionPreview { HardwareConfigurationView(device: $0.hardware) }
     }
 }
 #endif

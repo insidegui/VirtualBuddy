@@ -135,47 +135,50 @@ struct NetworkConfigurationView: View {
             
             macAddressField
         } else {
-            Text("Bridged network devices are not available in this build of the app.")
+            Text(VBNetworkDevice.bridgeUnsupportedMessage)
                 .foregroundColor(.red)
         }
     }
 }
 
 #if DEBUG
-struct NetworkConfigurationView_Previews: PreviewProvider {
-    static var previews: some View {
-        _Template(hardware: {
-            var h = VBMacDevice.default
-            h.networkDevices = [VBNetworkDevice(id: "Default", name: "Default", kind: .NAT, macAddress: "0A:82:7F:CE:C0:58")]
-            return h
-        }())
-            .previewDisplayName("NAT")
 
-        _Template(hardware: {
-            var h = VBMacDevice.default
-            h.networkDevices = [VBNetworkDevice(id: VBNetworkDevice.defaultBridgeInterfaceID ?? "ERROR", name: "Bridge", kind: .bridge, macAddress: "0A:82:7F:CE:C0:58")]
-            return h
-        }())
-            .previewDisplayName("Bridge")
-
-        _Template(hardware: {
-            var h = VBMacDevice.default
-            h.networkDevices = []
-            return h
-        }())
-            .previewDisplayName("None")
+private extension VBMacConfiguration {
+    static var networkPreviewNAT: VBMacConfiguration {
+        var config = VBMacConfiguration.default
+        config.hardware.networkDevices = [VBNetworkDevice(id: "Default", name: "Default", kind: .NAT, macAddress: "0A:82:7F:CE:C0:58")]
+        return config
     }
     
-    struct _Template: View {
-        @State var hardware: VBMacDevice
-        init(hardware: VBMacDevice) {
-            self._hardware = .init(wrappedValue: hardware)
+    static var networkPreviewBridge: VBMacConfiguration {
+        var config = VBMacConfiguration.default
+        config.hardware.networkDevices = [VBNetworkDevice(id: VBNetworkDevice.defaultBridgeInterfaceID ?? "ERROR", name: "Bridge", kind: .bridge, macAddress: "0A:82:7F:CE:C0:58")]
+        return config
+    }
+    
+    static var networkPreviewNone: VBMacConfiguration {
+        var config = VBMacConfiguration.default
+        config.hardware.networkDevices = []
+        return config
+    }
+}
+
+struct NetworkConfigurationView_Previews: PreviewProvider {
+    static var previews: some View {
+        _ConfigurationSectionPreview(.networkPreviewNAT) {
+            NetworkConfigurationView(hardware: $0.hardware)
         }
-        var body: some View {
-            _ConfigurationSectionPreview {
-                NetworkConfigurationView(hardware: $hardware)
-            }
+        .previewDisplayName("NAT")
+
+        _ConfigurationSectionPreview(.networkPreviewBridge) {
+            NetworkConfigurationView(hardware: $0.hardware)
         }
+        .previewDisplayName("Bridge")
+        
+        _ConfigurationSectionPreview(.networkPreviewNone) {
+            NetworkConfigurationView(hardware: $0.hardware)
+        }
+        .previewDisplayName("None")
     }
 }
 #endif

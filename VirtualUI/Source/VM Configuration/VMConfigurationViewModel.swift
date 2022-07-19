@@ -22,10 +22,26 @@ final class VMConfigurationViewModel: ObservableObject {
         }
     }
     
+    @Published var supportState: VBMacConfiguration.SupportState = .supported
+    
     @Published var selectedDisplayPreset: VBDisplayPreset?
     
-    init(config: VBMacConfiguration) {
+    @Published private(set) var vm: VBVirtualMachine
+    
+    init(config: VBMacConfiguration, vm: VBVirtualMachine) {
         self.config = config
+        self.vm = vm
+        
+        Task { await updateSupportState() }
+    }
+
+    @discardableResult
+    func updateSupportState() async -> VBMacConfiguration.SupportState {
+        let updatedState = await config.validate(for: vm)
+        await MainActor.run {
+            supportState = updatedState
+        }
+        return updatedState
     }
     
 }

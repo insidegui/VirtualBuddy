@@ -33,15 +33,17 @@ struct SharingConfigurationView: View {
 #if DEBUG
 struct _ConfigurationSectionPreview<C: View>: View {
 
-    var content: () -> C
+    @State private var config: VBMacConfiguration
+    var content: (Binding<VBMacConfiguration>) -> C
 
-    init(@ViewBuilder _ content: @escaping () -> C) {
+    init(_ config: VBMacConfiguration = .default, @ViewBuilder _ content: @escaping (Binding<VBMacConfiguration>) -> C) {
+        self._config = .init(wrappedValue: config)
         self.content = content
     }
 
     var body: some View {
         ConfigurationSection(collapsed: false, {
-            content()
+            content($config)
         }, header: {
             Label("SwiftUI Preview", systemImage: "eye")
         })
@@ -70,20 +72,7 @@ struct SharingConfigurationView_Previews: PreviewProvider {
     }
 
     static var previews: some View {
-        _Template(config: config)
-    }
-
-    struct _Template: View {
-        @State var config: VBMacConfiguration
-
-        init(config: VBMacConfiguration) {
-            self._config = .init(wrappedValue: config)
-        }
-        var body: some View {
-            _ConfigurationSectionPreview {
-                SharingConfigurationView(configuration: $config)
-            }
-        }
+        _ConfigurationSectionPreview(config) { SharingConfigurationView(configuration: $0) }
     }
 }
 #endif

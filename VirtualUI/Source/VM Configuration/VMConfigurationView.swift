@@ -20,6 +20,7 @@ struct VMConfigurationView: View {
         VStack(alignment: .leading, spacing: 16) {
             general
             display
+            pointingDevice
             network
             sound
             sharing
@@ -90,6 +91,19 @@ struct VMConfigurationView: View {
     }
     
     @ViewBuilder
+    private var pointingDevice: some View {
+        ConfigurationSection {
+            PointingDeviceConfigurationView(hardware: $viewModel.config.hardware)
+        } header: {
+            summaryHeader(
+                "Pointing Device",
+                systemImage: "cursorarrow",
+                summary: viewModel.config.pointingDeviceSummary
+            )
+        }
+    }
+    
+    @ViewBuilder
     private var network: some View {
         ConfigurationSection {
             NetworkConfigurationView(hardware: $viewModel.config.hardware)
@@ -133,20 +147,14 @@ struct VMConfigurationView: View {
 struct VMConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         _Template()
-            .previewDisplayName("Sheet")
-        
-        _Template(error: "The virtual machine is not valid because something, or whatever.")
-            .previewDisplayName("Error")
     }
 
     struct _Template: View {
         @StateObject var controller = VMController(with: .preview)
-        
-        var error: String? = nil
 
         var body: some View {
             PreviewSheet {
-                VMConfigurationSheet(machine: controller.virtualMachineModel, configuration: $controller.virtualMachineModel.configuration, errorMessage: error, buttonsDisabled: error != nil)
+                VMConfigurationSheet(machine: controller.virtualMachineModel, configuration: $controller.virtualMachineModel.configuration)
                     .frame(width: 360, height: 600, alignment: .top)
             }
         }

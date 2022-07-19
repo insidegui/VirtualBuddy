@@ -22,23 +22,21 @@ public struct VMConfigurationSheet: View {
     
     private var machine: VBVirtualMachine
     
-    @State private var errorMessage: String?
-    @State private var buttonsDisabled = false
+    @State private var showingValidationErrors = false
     
     /// Initializes the VM configuration sheet, bound to a VM configuration model.
     /// - Parameter machine:The VM being configured.
     /// - Parameter configuration: The binding that will be updated when the user saves the configuration by clicking the "Done" button.
     public init(machine: VBVirtualMachine, configuration: Binding<VBMacConfiguration>) {
-        self.init(machine: machine, configuration: configuration, errorMessage: nil, buttonsDisabled: false)
+        self.init(machine: machine, configuration: configuration, showingValidationErrors: false)
     }
     
-    init(machine: VBVirtualMachine, configuration: Binding<VBMacConfiguration>, errorMessage: String?, buttonsDisabled: Bool) {
+    init(machine: VBVirtualMachine, configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool) {
         self.machine = machine
         self.initialConfiguration = configuration.wrappedValue
         self._savedConfiguration = configuration
-        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(config: configuration.wrappedValue))
-        self._errorMessage = .init(wrappedValue: errorMessage)
-        self._buttonsDisabled = .init(wrappedValue: buttonsDisabled)
+        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(config: configuration.wrappedValue, vm: machine))
+        self._showingValidationErrors = .init(wrappedValue: showingValidationErrors)
     }
     
     @Environment(\.dismiss) private var dismiss
@@ -58,9 +56,8 @@ public struct VMConfigurationSheet: View {
     @ViewBuilder
     private var buttons: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if let errorMessage {
-                Text("􀇿 \(errorMessage)")
-                    .foregroundColor(.red)
+            if showingValidationErrors {
+                validationErrors
             }
             HStack {
                 Button("Cancel") {
@@ -76,29 +73,50 @@ public struct VMConfigurationSheet: View {
                 .keyboardShortcut(.defaultAction)
             }
         }
-        .disabled(buttonsDisabled)
+        .disabled(showingValidationErrors)
         .frame(maxWidth: .infinity)
         .padding(.horizontal)
         .padding(.vertical, 12)
         .background(Material.regular, in: Rectangle())
         .overlay(alignment: .top) { Divider() }
         .onChange(of: viewModel.config) { newValue in
-            if errorMessage != nil { errorMessage = nil }
+            guard showingValidationErrors else { return }
+            
+            Task {
+                if await newValue.validate(for: machine) == .supported {
+                    showingValidationErrors = false
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private var validationErrors: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            switch viewModel.config.hostSupportState {
+            case .supported:
+                EmptyView()
+            case .unsupported(let errors):
+                ForEach(errors, id: \.self) { Text($0) }
+                    .foregroundColor(.red)
+            case .warnings(let warnings):
+                ForEach(warnings, id: \.self) { Text($0) }
+                    .foregroundColor(.yellow)
+            }
         }
     }
     
     private func validateAndSave() {
-        buttonsDisabled = true
+        showingValidationErrors = true
         
         Task {
-            if let validationError = await viewModel.config.validate(for: machine) {
-                errorMessage = validationError
-                buttonsDisabled = false
-            } else {
-                savedConfiguration = viewModel.config
-                
-                dismiss()
-            }
+            let state = await viewModel.updateSupportState()
+            
+            guard state.allowsSaving else { return }
+            
+            savedConfiguration = viewModel.config
+            
+            dismiss()
         }
     }
     
