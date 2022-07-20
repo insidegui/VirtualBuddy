@@ -7,29 +7,47 @@
 
 import Foundation
 
-enum DiskImageFormat: Int {
-    case raw
-    case dmg
+fileprivate extension VBManagedDiskImage.Format {
+    var hdiutilType: String {
+        switch self {
+        case .raw:
+            assertionFailure(".raw not supported with hdiutil")
+            return "UDIF"
+        case .dmg:
+            return "UDIF"
+        case .sparse:
+            return "SPARSE"
+        }
+    }
 }
 
 final class DiskImageGenerator {
-
-    static func generateImage(at url: URL, with sizeInBytes: UInt64, name: String, format: DiskImageFormat = .raw) async throws {
-        switch format {
-        case .raw:
-            try generateRaw(at: url, with: sizeInBytes, name: name)
-        case .dmg:
-            try await generateDMG(at: url, with: sizeInBytes, name: name)
+    struct ImageSettings {
+        var url: URL
+        var template: VBManagedDiskImage
+        
+        init(for image: VBManagedDiskImage, in vm: VBVirtualMachine) {
+            self.url = vm.diskImageURL(for: image)
+            self.template = image
         }
     }
 
-    private static func generateRaw(at url: URL, with sizeInBytes: UInt64, name: String) throws {
-        let diskFd = open(url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
+    static func generateImage(with settings: ImageSettings) async throws {
+        switch settings.template.format {
+        case .raw:
+            try generateRaw(with: settings)
+        case .dmg, .sparse:
+            try await hdiutil(with: settings)
+        }
+    }
+
+    private static func generateRaw(with settings: ImageSettings) throws {
+        let diskFd = open(settings.url.path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)
         if diskFd == -1 {
             throw Failure("Cannot create disk image.")
         }
 
-        var result = ftruncate(diskFd, off_t(sizeInBytes))
+        var result = ftruncate(diskFd, off_t(settings.template.size))
         if result != 0 {
             throw Failure("ftruncate() failed.")
         }
@@ -40,19 +58,30 @@ final class DiskImageGenerator {
         }
     }
 
-    private static func generateDMG(at url: URL, with sizeInBytes: UInt64, name: String) async throws {
+    private static func hdiutil(with settings: ImageSettings) async throws {
+        // hdiutil create -layout GPTSPUD -type SPARSE -megabytes 100 -fs APFS -volname Test -nospotlight
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
         process.arguments = [
             "create",
+            "-layout",
+            "GPTSPUD",
+            "-type",
+            settings.template.format.hdiutilType,
             "-megabytes",
-            "\(sizeInBytes / .storageMegabyte)",
+            "\(settings.template.size / .storageMegabyte)",
             "-fs",
             "APFS",
             "-volname",
-            name,
-            url.path
+            settings.template.filename,
+            "-nospotlight",
+            settings.url.path
         ]
+        
+        #if DEBUG
+        print("💻 hdiutil arguments: \(process.arguments!.joined(separator: " "))")
+        #endif
+        
         let err = Pipe()
         let out = Pipe()
         process.standardError = err

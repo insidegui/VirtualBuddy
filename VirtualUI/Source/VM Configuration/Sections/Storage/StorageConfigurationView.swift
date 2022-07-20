@@ -52,7 +52,7 @@ struct StorageConfigurationView: View {
         }
         .sheet(isPresented: $isShowingDeviceConfigurationSheet) {
             let device = deviceBeingConfigured ?? .template
-            StorageDeviceDetailView(device: device, isExistingDiskImage: device.diskImageExists(for: viewModel.vm), onSave: { updatedDevice in
+            StorageDeviceDetailView(device: device, onSave: { updatedDevice in
                 hardware.addOrUpdate(updatedDevice)
             })
             .padding()
@@ -90,7 +90,6 @@ struct StorageDeviceListItem: View {
             device.iconView
 
             Text(device.name)
-                .help(device.customDiskImageURL?.path ?? device.diskImageName)
 
             Spacer()
 
@@ -101,6 +100,7 @@ struct StorageDeviceListItem: View {
             }
             .help("Device settings")
             .buttonStyle(.plain)
+            .disabled(device.isBootVolume)
         }
         .padding(.leading, 6)
         .opacity(device.isEnabled ? 1 : 0.8)
@@ -133,7 +133,7 @@ extension VBStorageDevice {
 struct StorageConfigurationView_Previews: PreviewProvider {
     static var config: VBMacConfiguration {
         var c = VBMacConfiguration.default
-        c.hardware.storageDevices.append(.init(name: "Custom", isBootVolume: false, isReadOnly: false, isUSBMassStorageDevice: false, diskImageName: "Custom.img", customDiskImageURL: URL(fileURLWithPath: "/Users/insidegui/Documents/Custom.img"), size: VBStorageDevice.defaultBootDiskImageSize))
+        c.hardware.storageDevices.append(.init(name: "Custom", isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Custom", size: VBManagedDiskImage.minimumExtraDiskImageSize))))
         return c
     }
     static var previews: some View {

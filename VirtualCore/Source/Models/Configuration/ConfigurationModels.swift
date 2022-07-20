@@ -41,19 +41,73 @@ public struct VBMacConfiguration: Hashable, Codable {
 
 // MARK: - Hardware Configuration
 
+/// Configures a disk image that's managed by VirtualBuddy, as opposed to a disk image that the user provides.
+/// **Read the note at the top of this file before modifying this**
+public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
+    public init(id: String = UUID().uuidString, filename: String, size: UInt64, format: VBManagedDiskImage.Format = .sparse) {
+        self.id = id
+        self.filename = filename
+        self.size = size
+        self.format = format
+    }
+    
+    public static let defaultBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    public static let minimumBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    public static let maximumBootDiskImageSize: UInt64 = 512 * .storageGigabyte
+
+    public static let minimumExtraDiskImageSize: UInt64 = 1 * .storageGigabyte
+    public static let maximumExtraDiskImageSize: UInt64 = 512 * .storageGigabyte
+    
+    public enum Format: Int, Codable {
+        case raw
+        case dmg
+        case sparse
+
+        var fileExtension: String {
+            switch self {
+            case .raw:
+                return "img"
+            case .dmg:
+                return "dmg"
+            case .sparse:
+                return "sparseimage"
+            }
+        }
+    }
+    
+    public var id: String = UUID().uuidString
+    public var filename: String
+    public var size: UInt64
+    public var format: Format = .sparse
+    
+    public static var managedBootImage: VBManagedDiskImage {
+        VBManagedDiskImage(
+            id: "__BOOT__",
+            filename: "Disk",
+            size: Self.defaultBootDiskImageSize,
+            format: .raw
+        )
+    }
+}
+
 /// Configures a storage device.
 /// **Read the note at the top of this file before modifying this**
 public struct VBStorageDevice: Identifiable, Hashable, Codable {
-    public init(id: String = UUID().uuidString, name: String, isBootVolume: Bool = false, isEnabled: Bool = true, isReadOnly: Bool = false, isUSBMassStorageDevice: Bool = false, diskImageName: String, customDiskImageURL: URL? = nil, size: UInt64 = Self.defaultBootDiskImageSize) {
-        self.id = UUID().uuidString
+    public init(id: String = UUID().uuidString, name: String, isBootVolume: Bool, isEnabled: Bool = true, isReadOnly: Bool, isUSBMassStorageDevice: Bool, backing: VBStorageDevice.BackingStore) {
+        self.id = id
         self.name = name
-        self.isEnabled = isEnabled
         self.isBootVolume = isBootVolume
+        self.isEnabled = isEnabled
         self.isReadOnly = isReadOnly
         self.isUSBMassStorageDevice = isUSBMassStorageDevice
-        self.diskImageName = diskImageName
-        self.customDiskImageURL = customDiskImageURL
-        self.size = size
+        self.backing = backing
+    }
+    
+    /// The underlying storage for the device, which currently can be either a custom disk image,
+    /// or a disk image managed by VirtualBuddy.
+    public enum BackingStore: Hashable, Codable {
+        case managedImage(VBManagedDiskImage)
+        case customImage(URL)
     }
     
     public var id: String = UUID().uuidString
@@ -69,14 +123,9 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
     public var isReadOnly: Bool
     /// `true` when the device represents an external USB mass storage device in the guest OS.
     public var isUSBMassStorageDevice: Bool
-    /// The name of the disk image backing this storage device, relative to the VM bundle.
-    public var diskImageName: String
-    /// URL for a custom disk image that's not managed by VirtualBuddy.
-    public var customDiskImageURL: URL? = nil
-    /// The size of the disk image.
-    public var size: UInt64 = Self.defaultBootDiskImageSize
-    
-    public static let defaultBootDiskImageName = "Disk.img"
+    /// The underlying storage for the storage device, which can currently be a disk image managed
+    /// by VirtualBuddy, or a custom image provided by the user.
+    public var backing: BackingStore
     
     public static var defaultBootDevice: VBStorageDevice {
         VBStorageDevice(
@@ -84,14 +133,26 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
             isBootVolume: true,
             isReadOnly: false,
             isUSBMassStorageDevice: false,
-            diskImageName: Self.defaultBootDiskImageName,
-            size: Self.defaultBootDiskImageSize
+            backing: .managedImage(.managedBootImage)
         )
     }
 
     public static var template: VBStorageDevice {
         let name = RandomNameGenerator.shared.newName()
-        return VBStorageDevice(name: name, diskImageName: "\(name).img")
+        
+        let image = VBManagedDiskImage(
+            filename: name,
+            size: VBManagedDiskImage.minimumExtraDiskImageSize,
+            format: .sparse
+        )
+        
+        return VBStorageDevice(
+            name: name,
+            isBootVolume: false,
+            isReadOnly: false,
+            isUSBMassStorageDevice: false,
+            backing: .managedImage(image)
+        )
     }
 }
 
@@ -448,13 +509,6 @@ public extension UInt64 {
 }
 
 public extension VBStorageDevice {
-    static let defaultBootDiskImageSize: UInt64 = 64 * .storageGigabyte
-    static let minimumBootDiskImageSize: UInt64 = 64 * .storageGigabyte
-    static let maximumBootDiskImageSize: UInt64 = 512 * .storageGigabyte
-
-    static let minimumExtraDiskImageSize: UInt64 = 1 * .storageGigabyte
-    static let maximumExtraDiskImageSize: UInt64 = 512 * .storageGigabyte
-
     static func validationError(for name: String) -> String? {
         guard !name.isEmpty else {
             return "Name can't be empty."

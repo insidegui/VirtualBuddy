@@ -81,7 +81,7 @@ public struct VMConfigurationSheet: View {
             guard showingValidationErrors else { return }
             
             Task {
-                if await viewModel.commitConfiguration() == .supported {
+                if await viewModel.validate() == .supported {
                     showingValidationErrors = false
                 }
             }
@@ -108,7 +108,7 @@ public struct VMConfigurationSheet: View {
         showingValidationErrors = true
 
         Task {
-            let state = await viewModel.commitConfiguration(createDiskImages: true)
+            let state = await viewModel.validate()
             
             guard state.allowsSaving else { return }
             

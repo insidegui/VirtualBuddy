@@ -41,7 +41,18 @@ extension VBVirtualMachine {
     static let configurationFilename = "Config.plist"
     
     func diskImageURL(for device: VBStorageDevice) -> URL {
-        device.customDiskImageURL ?? bundleURL.appendingPathComponent(device.diskImageName)
+        switch device.backing {
+        case .managedImage(let image):
+            return diskImageURL(for: image)
+        case .customImage(let customURL):
+            return customURL
+        }
+    }
+    
+    func diskImageURL(for image: VBManagedDiskImage) -> URL {
+        bundleURL
+            .appendingPathComponent(image.filename)
+            .appendingPathExtension(image.format.fileExtension)
     }
     
     var bootDevice: VBStorageDevice {
@@ -53,11 +64,16 @@ extension VBVirtualMachine {
             return device
         }
     }
-    
-    var bootDiskImageURL: URL {
+
+    var bootDiskImage: VBManagedDiskImage {
         get throws {
             let device = try bootDevice
-            return diskImageURL(for: device)
+
+            guard case .managedImage(let image) = device.backing else {
+                throw Failure("The boot device must use a disk image managed by VirtualBuddy")
+            }
+            
+            return image
         }
     }
 

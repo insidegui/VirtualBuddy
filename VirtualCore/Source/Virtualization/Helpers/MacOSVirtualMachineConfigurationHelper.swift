@@ -18,13 +18,15 @@ struct MacOSVirtualMachineConfigurationHelper {
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration {
         do {
             let bootDevice = try vm.bootDevice
-            let bootDiskImageURL = try vm.bootDiskImageURL
-
-            if !FileManager.default.fileExists(atPath: bootDiskImageURL.path) {
-                try await DiskImageGenerator.generateImage(at: bootDiskImageURL, with: bootDevice.size, name: bootDevice.name, format: .raw)
+            let bootDiskImage = try vm.bootDiskImage
+            
+            if !bootDevice.diskImageExists(for: vm) {
+                let settings = DiskImageGenerator.ImageSettings(for: bootDiskImage, in: vm)
+                try await DiskImageGenerator.generateImage(with: settings)
             }
 
-            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: bootDiskImageURL, readOnly: false)
+            let bootURL = vm.diskImageURL(for: bootDiskImage)
+            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: bootURL, readOnly: false)
 
             let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
 
@@ -39,13 +41,10 @@ struct MacOSVirtualMachineConfigurationHelper {
 
         for device in vm.configuration.hardware.storageDevices {
             guard device.isEnabled, !device.isBootVolume else { continue }
+            
+            let url = vm.diskImageURL(for: device)
+            let attachment = try VZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly)
 
-            let diskURL = vm.diskImageURL(for: device)
-            if !FileManager.default.fileExists(atPath: diskURL.path) {
-                try await DiskImageGenerator.generateImage(at: diskURL, with: device.size, name: device.name, format: .raw)
-            }
-
-            let attachment = try VZDiskImageStorageDeviceAttachment(url: diskURL, readOnly: device.isReadOnly)
             output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
         }
 
@@ -132,16 +131,6 @@ extension VBNetworkDevice {
             throw Failure("Couldn't find the specified network interface for bridging")
         }
         return iface
-    }
-
-}
-
-public extension VBStorageDevice {
-
-    func createDiskImageIfNeeded(for vm: VBVirtualMachine) async throws {
-        let url = vm.diskImageURL(for: self)
-        guard !FileManager.default.fileExists(atPath: url.path) else { return }
-        try await DiskImageGenerator.generateImage(at: url, with: size, name: name)
     }
 
 }
