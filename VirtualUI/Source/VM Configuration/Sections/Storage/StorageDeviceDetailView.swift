@@ -9,6 +9,8 @@ import SwiftUI
 import VirtualCore
 
 struct StorageDeviceDetailView: View {
+    @EnvironmentObject var viewModel: VMConfigurationViewModel
+    
     @State private var device: VBStorageDevice
     var onSave: (VBStorageDevice) -> Void
 
@@ -17,18 +19,12 @@ struct StorageDeviceDetailView: View {
         self.onSave = onSave
     }
 
-    private let formatter: ByteCountFormatter = {
-        let f = ByteCountFormatter()
-        f.allowedUnits = [.useGB, .useMB, .useTB]
-        f.formattingContext = .standalone
-        f.countStyle = .file
-        return f
-    }()
-
     @State private var nameError: String?
 
     @Environment(\.dismiss)
     private var dismiss
+    
+    private var canEditName: Bool { device.usesManagedDiskImage }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -39,18 +35,12 @@ struct StorageDeviceDetailView: View {
                     EphemeralTextField(.constant(device.displayName), alignment: .leading) { name in
                         Text(name)
                     } editableContent: { binding in
-                        Text(binding.wrappedValue)
+                        TextField("", text: binding)
                     }
-                    .disabled(true)
+                    .disabled(!canEditName)
                 }
-
-                if let nameError {
-                    Text(nameError)
-                        .font(.caption)
-                        .foregroundColor(.red)
-                        .fixedSize(horizontal: false, vertical: true)
-                        .lineLimit(nil)
-                }
+                
+                diskImageDetail
             }
             .padding(.bottom)
 
@@ -64,6 +54,8 @@ struct StorageDeviceDetailView: View {
             .padding(.top)
             .disabled(device.isBootVolume)
             .help(device.isBootVolume ? "These options are not available for the boot device" : "")
+            
+            Spacer()
 
             HStack {
                 Button("Cancel") {
@@ -79,18 +71,60 @@ struct StorageDeviceDetailView: View {
                 }
                 .keyboardShortcut(.defaultAction)
             }
-            .padding(.vertical)
+            .padding(.top)
         }
+    }
+    
+    @ViewBuilder
+    private var diskImageDetail: some View {
+        switch device.backing {
+        case .managedImage(let image):
+            ManagedDiskImageEditor(
+                image: image,
+                isExistingDiskImage: device.diskImageExists(for: viewModel.vm),
+                isForBootVolume: device.isBootVolume,
+                onSave: updateImage
+            )
+        case .customImage(let url):
+            customDiskImageURLView(with: url)
+        }
+    }
+    
+    @ViewBuilder
+    private func customDiskImageURLView(with url: URL) -> some View {
+        Text(url.path)
+    }
+    
+    private func updateImage(with newImage: VBManagedDiskImage) {
+        device.backing = .managedImage(newImage)
+    }
+}
+
+extension VBStorageDevice {
+    var usesManagedDiskImage: Bool {
+        guard case .managedImage = backing else { return false }
+        return true
     }
 }
 
 #if DEBUG
 struct StorageDeviceDetailView_Previews: PreviewProvider {
     static var previews: some View {
-        _ConfigurationSectionPreview(ungrouped: true) {
-            StorageDeviceDetailView(device: $0.wrappedValue.hardware.storageDevices[0], onSave: { _ in })
+        let config = StorageConfigurationView_Previews.config
+        ForEach(config.hardware.storageDevices.indices, id: \.self) {
+            preview(at: $0)
+                .previewDisplayName(config.hardware.storageDevices[$0].displayName)
+        }
+    }
+    
+    @ViewBuilder
+    static func preview(at index: Int) -> some View {
+        let config = StorageConfigurationView_Previews.config
+        _ConfigurationSectionPreview(config, ungrouped: true) {
+            StorageDeviceDetailView(device: $0.wrappedValue.hardware.storageDevices[index], onSave: { _ in })
         }
         .frame(maxHeight: 400)
+        .environmentObject(VMConfigurationViewModel(.preview))
     }
 }
 #endif

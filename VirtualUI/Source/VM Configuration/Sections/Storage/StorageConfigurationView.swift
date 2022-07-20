@@ -55,6 +55,7 @@ struct StorageConfigurationView: View {
             StorageDeviceDetailView(device: device, onSave: { updatedDevice in
                 hardware.addOrUpdate(updatedDevice)
             })
+            .environmentObject(viewModel)
             .padding()
             .frame(minWidth: 280, idealWidth: 340, maxWidth: .infinity)
         }
@@ -134,6 +135,7 @@ struct StorageConfigurationView_Previews: PreviewProvider {
     static var config: VBMacConfiguration {
         var c = VBMacConfiguration.default
         c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Custom", size: VBManagedDiskImage.minimumExtraDiskImageSize))))
+        c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "FakeCustomDisk", size: VBManagedDiskImage.minimumExtraDiskImageSize, format: .raw))))
         return c
     }
     static var previews: some View {

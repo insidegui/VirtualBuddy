@@ -28,14 +28,6 @@ public extension VBVirtualMachine {
     static let thumbnailFileName = "Thumbnail.jpg"
 }
 
-public extension VBVirtualMachine {
-    static let preview: VBVirtualMachine =  {
-        try! VBVirtualMachine(
-            bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm")
-        )
-    }()
-}
-
 extension VBVirtualMachine {
 
     static let configurationFilename = "Config.plist"
@@ -105,6 +97,12 @@ public extension VBVirtualMachine {
     
     init(bundleURL: URL) throws {
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
+            #if DEBUG
+            guard !ProcessInfo.isSwiftUIPreview else {
+                fatalError("Missing SwiftUI preview VM at \(bundleURL.path)")
+            }
+            #endif
+            
             try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
         
@@ -119,11 +117,19 @@ public extension VBVirtualMachine {
     }
 
     func saveConfiguration() throws {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return }
+        #endif
+        
         let configData = try PropertyListEncoder().encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
     }
 
     func loadConfiguration() throws -> VBMacConfiguration {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return .default }
+        #endif
+        
         if let data = metadataContents(Self.configurationFilename) {
             return try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
         } else {
@@ -132,6 +138,10 @@ public extension VBVirtualMachine {
     }
 
     mutating func reloadConfiguration() {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return }
+        #endif
+        
         guard let config = try? loadConfiguration() else {
             assertionFailure("Failed to reload configuration")
             return

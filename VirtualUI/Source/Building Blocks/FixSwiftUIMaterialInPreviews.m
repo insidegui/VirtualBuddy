@@ -13,7 +13,7 @@ XCODE_RUNNING_FOR_PREVIEWS environment variable so that it won't affect regular 
 @import Cocoa;
 @import ObjectiveC.runtime;
 
-#import <VirtualUI/VirtualUI-Swift.h>
+@import VirtualCore;
 
 @interface FixSwiftUIMaterialInPreviews : NSObject
 

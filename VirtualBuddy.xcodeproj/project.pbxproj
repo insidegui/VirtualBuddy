@@ -14,7 +14,6 @@
 		F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725622886DD37004FF8A7 /* SharedFolderListItem.swift */; };
 		F41725662886DF58004FF8A7 /* OpenPanelHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725652886DF58004FF8A7 /* OpenPanelHelper.swift */; };
 		F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725672886E5AD004FF8A7 /* MaterialView.swift */; };
-		F417256A2886E5C1004FF8A7 /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725692886E5C1004FF8A7 /* PreviewSupport.swift */; };
 		F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */; };
 		F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */; };
 		F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417257028877121004FF8A7 /* DiskImageGenerator.swift */; };
@@ -41,6 +40,9 @@
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
 		F47FFA57280633F000BD1F87 /* VMScreenshotter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */; };
+		F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */; };
+		F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0628885E140080DDFA /* PreviewSupport.swift */; };
+		F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
 		F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */ = {isa = PBXBuildFile; fileRef = F498AD002884BF13006F1C00 /* VirtualUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
 		F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -181,7 +183,6 @@
 		F41725622886DD37004FF8A7 /* SharedFolderListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFolderListItem.swift; sourceTree = "<group>"; };
 		F41725652886DF58004FF8A7 /* OpenPanelHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenPanelHelper.swift; sourceTree = "<group>"; };
 		F41725672886E5AD004FF8A7 /* MaterialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
-		F41725692886E5C1004FF8A7 /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
 		F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageConfigurationView.swift; sourceTree = "<group>"; };
 		F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageDeviceDetailView.swift; sourceTree = "<group>"; };
 		F417257028877121004FF8A7 /* DiskImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskImageGenerator.swift; sourceTree = "<group>"; };
@@ -208,6 +209,9 @@
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
 		F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMScreenshotter.swift; sourceTree = "<group>"; };
+		F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedDiskImageEditor.swift; sourceTree = "<group>"; };
+		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
+		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
 		F498ACFE2884BF13006F1C00 /* VirtualUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F498AD002884BF13006F1C00 /* VirtualUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualUI.h; sourceTree = "<group>"; };
 		F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
@@ -329,7 +333,6 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				F41725692886E5C1004FF8A7 /* PreviewSupport.swift */,
 				F41725672886E5AD004FF8A7 /* MaterialView.swift */,
 				F41725652886DF58004FF8A7 /* OpenPanelHelper.swift */,
 			);
@@ -341,6 +344,7 @@
 			children = (
 				F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */,
 				F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */,
+				F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -348,6 +352,7 @@
 		F417257228877453004FF8A7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F48E0D0828885E510080DDFA /* Preview */,
 				F417257328877478004FF8A7 /* VirtualCore.xcassets */,
 			);
 			path = Resources;
@@ -415,6 +420,14 @@
 				F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */,
 			);
 			path = Installer;
+			sourceTree = "<group>";
+		};
+		F48E0D0828885E510080DDFA /* Preview */ = {
+			isa = PBXGroup;
+			children = (
+				F48E0D0928885E990080DDFA /* Preview.vbvm */,
+			);
+			path = Preview;
 			sourceTree = "<group>";
 		};
 		F498ACFF2884BF13006F1C00 /* VirtualUI */ = {
@@ -716,6 +729,7 @@
 		F4C189F52848F69B00335EC7 /* Definitions */ = {
 			isa = PBXGroup;
 			children = (
+				F48E0D0628885E140080DDFA /* PreviewSupport.swift */,
 				F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */,
 				F4F9B419284CE37C00F21737 /* Logging.swift */,
 				F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */,
@@ -999,6 +1013,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */,
+				F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1032,13 +1047,13 @@
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */,
 				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
+				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
 				F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */,
-				F417256A2886E5C1004FF8A7 /* PreviewSupport.swift in Sources */,
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenPanelHelper.swift in Sources */,
@@ -1093,6 +1108,7 @@
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
 				F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */,
+				F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
 				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
