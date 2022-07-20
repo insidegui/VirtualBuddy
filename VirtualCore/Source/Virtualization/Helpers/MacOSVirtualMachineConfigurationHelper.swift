@@ -77,7 +77,7 @@ extension VBMacConfiguration {
     }
 
     var vzPointingDevices: [VZPointingDeviceConfiguration] {
-        get throws { [try hardware.pointingDevice.vzConfiguration] }
+        get throws { try hardware.pointingDevice.vzConfigurations }
     }
 
     var vzGraphicsDevices: [VZGraphicsDeviceConfiguration] {
@@ -148,16 +148,19 @@ public extension VBStorageDevice {
 
 extension VBPointingDevice {
 
-    var vzConfiguration: VZPointingDeviceConfiguration {
+    var vzConfigurations: [VZPointingDeviceConfiguration] {
         get throws {
             switch kind {
             case .mouse:
-                return VZUSBScreenCoordinatePointingDeviceConfiguration()
+                return [VZUSBScreenCoordinatePointingDeviceConfiguration()]
             case .trackpad:
                 guard #available(macOS 13.0, *) else {
                     throw Failure("The trackpad pointing device is only available on macOS 13 and later")
                 }
-                return VZMacTrackpadConfiguration()
+                return [
+                    VZMacTrackpadConfiguration(),
+                    VZUSBScreenCoordinatePointingDeviceConfiguration()
+                ]
             }
         }
     }
