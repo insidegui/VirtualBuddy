@@ -21,8 +21,8 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 - [x] Boot into recovery mode (in order to disable SIP, for example)
 - [x] Networking and file sharing support
 - [x] Clipboard sharing (without the need to be running macOS Ventura) (experimental ¹)
+- [x] Customize virtual machine hardware configuration
 - [ ] Edit NVRAM variables
-- [ ] Customize virtual machine hardware configuration
 
 _¹ To enable clipboard sharing, build the `VirtualBuddyGuest` scheme, then copy the `VirtualBuddyGuest` app to the virtual machine (through file sharing, for example) and run it. This will keep the clipboard in sync between the guest and host machines. The feature is experimental, so it might be buggy and it's definitely not secure._
 
@@ -42,7 +42,7 @@ The default mode the VM OS selects for the display uses the native resolution th
 
 ## Building
 
-Xcode 14 is recommended.
+**Xcode 14** is required.
 
 - Open the `VirtualBuddy/Config/Signing.xcconfig` file
 - Set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`
@@ -50,4 +50,4 @@ Xcode 14 is recommended.
 - Under "Targets", select "VirtualBuddy"
 - Go to the Signing & Capabilities tab and select your development team under Signing > Team
 - Repeat the same process for the "VirtualBuddyGuest" target
-- Build the `VirtualBuddy` scheme
+- Build the `VirtualBuddy` scheme (the one that **doesn't** have `(Managed)` in its name)
