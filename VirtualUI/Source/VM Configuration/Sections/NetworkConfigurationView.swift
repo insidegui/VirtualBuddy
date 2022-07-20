@@ -143,26 +143,6 @@ struct NetworkConfigurationView: View {
 
 #if DEBUG
 
-private extension VBMacConfiguration {
-    static var networkPreviewNAT: VBMacConfiguration {
-        var config = VBMacConfiguration.default
-        config.hardware.networkDevices = [VBNetworkDevice(id: "Default", name: "Default", kind: .NAT, macAddress: "0A:82:7F:CE:C0:58")]
-        return config
-    }
-    
-    static var networkPreviewBridge: VBMacConfiguration {
-        var config = VBMacConfiguration.default
-        config.hardware.networkDevices = [VBNetworkDevice(id: VBNetworkDevice.defaultBridgeInterfaceID ?? "ERROR", name: "Bridge", kind: .bridge, macAddress: "0A:82:7F:CE:C0:58")]
-        return config
-    }
-    
-    static var networkPreviewNone: VBMacConfiguration {
-        var config = VBMacConfiguration.default
-        config.hardware.networkDevices = []
-        return config
-    }
-}
-
 struct NetworkConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         _ConfigurationSectionPreview(.networkPreviewNAT) {

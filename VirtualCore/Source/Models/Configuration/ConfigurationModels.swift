@@ -88,6 +88,14 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
             format: .raw
         )
     }
+    
+    public static var template: VBManagedDiskImage {
+        VBManagedDiskImage(
+            filename: RandomNameGenerator.shared.newName(),
+            size: VBManagedDiskImage.minimumExtraDiskImageSize,
+            format: .raw
+        )
+    }
 }
 
 /// Configures a storage device.
@@ -538,18 +546,6 @@ public extension VBStorageDevice {
         let url = vm.diskImageURL(for: self)
         return FileManager.default.fileExists(atPath: url.path)
     }
-}
-
-public extension VBMacDevice {
-
-    mutating func addOrUpdate(_ storage: VBStorageDevice) {
-        if let idx = storageDevices.firstIndex(where: { $0.id == storage.id }) {
-            storageDevices[idx] = storage
-        } else {
-            storageDevices.append(storage)
-        }
-    }
-
 }
 
 public extension VBNetworkDevice {

@@ -46,4 +46,14 @@ public final class VMConfigurationViewModel: ObservableObject {
         return updatedState
     }
     
+    public func createImage(for device: VBStorageDevice) async throws {
+        guard let image = device.managedImage else {
+            throw Failure("Only managed disk images can be created.")
+        }
+        
+        let settings = DiskImageGenerator.ImageSettings(for: image, in: vm)
+        
+        try await DiskImageGenerator.generateImage(with: settings)
+    }
+    
 }

@@ -51,20 +51,36 @@ struct ManagedDiskImageEditor: View {
             NumericPropertyControl(
                 value: $image.size.gbStorageValue,
                 range: minimumSize.gbStorageValue...VBManagedDiskImage.maximumExtraDiskImageSize.gbStorageValue,
+                hideSlider: isExistingDiskImage,
                 label: "Disk Image Size (GB)",
-                formatter: NumberFormatter.numericPropertyControlDefault)
+                formatter: NumberFormatter.numericPropertyControlDefault
+            )
+            .disabled(isExistingDiskImage)
 
-            Group {
-                if isExistingDiskImage {
-                    Text("It's not possible to decrease the size of an existing storage device. Increasing the configured size will cause the disk image to be resized when you save the configuration for this virtual machine.")
-                } else {
-                    Text("An empty disk image with the specified size will be created when you save the configuration for this virtual machine. After the disk image has been created, it's no longer possible to reduce its size, only increase it.")
+            VStack(alignment: .leading, spacing: 8) {
+                if !isExistingDiskImage {
+                    Text("You'll have to use Disk Utility in the guest operating system to initialize the disk image. If you see an error after it boots up, choose the \"Initialize\" option.")
+                        .foregroundColor(.yellow)
                 }
+                
+                Text(sizeMessage)
             }
-            .font(.callout)
-            .foregroundColor(.secondary)
-            .fixedSize(horizontal: false, vertical: true)
-            .lineLimit(nil)
+                .font(.callout)
+                .foregroundColor(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                .lineLimit(nil)
+        }
+        .onChange(of: image) { newValue in
+            onSave(newValue)
+        }
+    }
+    
+    private var sizeMessage: String {
+        if isExistingDiskImage {
+            return "It's not possible to change the size of an existing storage device."
+        } else {
+            let prefix = VBSettingsContainer.current.isLibraryInAPFSVolume ? "The storage space you make available for the disk image won't be used immediately, only the space that's actually used by the virtual machine will be consumed. " : ""
+            return "\(prefix)After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
         }
     }
 }

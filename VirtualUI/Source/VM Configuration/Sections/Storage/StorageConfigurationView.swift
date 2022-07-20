@@ -32,7 +32,7 @@ struct StorageConfigurationView: View {
             EmptyView()
         } addButton: { label in
             Button {
-                configure(.template)
+                create()
             } label: {
                 label
             }
@@ -52,7 +52,13 @@ struct StorageConfigurationView: View {
         }
         .sheet(isPresented: $isShowingDeviceConfigurationSheet) {
             let device = deviceBeingConfigured ?? .template
-            StorageDeviceDetailView(device: device, onSave: { updatedDevice in
+            let isNewDevice = deviceBeingConfigured == nil
+
+            StorageDeviceDetailView(device: device, isNewDevice: isNewDevice, onSave: { updatedDevice in
+                if isNewDevice {
+                    try await createImageIfNeeded(for: updatedDevice)
+                }
+                
                 hardware.addOrUpdate(updatedDevice)
             })
             .environmentObject(viewModel)
@@ -61,9 +67,19 @@ struct StorageConfigurationView: View {
         }
     }
 
-    private func configure(_ device: VBStorageDevice) {
+    private func configure(_ device: VBStorageDevice?) {
         deviceBeingConfigured = device
         isShowingDeviceConfigurationSheet = true
+    }
+    
+    private func create() {
+        configure(nil)
+    }
+    
+    private func createImageIfNeeded(for newDevice: VBStorageDevice) async throws {
+        guard newDevice.usesManagedDiskImage else { return }
+        
+        try await viewModel.createImage(for: newDevice)
     }
 }
 
@@ -132,14 +148,8 @@ extension VBStorageDevice {
 
 #if DEBUG
 struct StorageConfigurationView_Previews: PreviewProvider {
-    static var config: VBMacConfiguration {
-        var c = VBMacConfiguration.default
-        c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Custom", size: VBManagedDiskImage.minimumExtraDiskImageSize))))
-        c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "FakeCustomDisk", size: VBManagedDiskImage.minimumExtraDiskImageSize, format: .raw))))
-        return c
-    }
     static var previews: some View {
-        _ConfigurationSectionPreview(config) { StorageConfigurationView(hardware: $0.hardware) }
+        _ConfigurationSectionPreview { StorageConfigurationView(hardware: $0.hardware) }
             .environmentObject(VMConfigurationViewModel(.preview))
     }
 }

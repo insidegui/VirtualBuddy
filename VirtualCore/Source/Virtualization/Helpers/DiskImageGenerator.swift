@@ -21,18 +21,18 @@ fileprivate extension VBManagedDiskImage.Format {
     }
 }
 
-final class DiskImageGenerator {
-    struct ImageSettings {
-        var url: URL
-        var template: VBManagedDiskImage
+public final class DiskImageGenerator {
+    public struct ImageSettings {
+        public var url: URL
+        public var template: VBManagedDiskImage
         
-        init(for image: VBManagedDiskImage, in vm: VBVirtualMachine) {
+        public init(for image: VBManagedDiskImage, in vm: VBVirtualMachine) {
             self.url = vm.diskImageURL(for: image)
             self.template = image
         }
     }
 
-    static func generateImage(with settings: ImageSettings) async throws {
+    public static func generateImage(with settings: ImageSettings) async throws {
         switch settings.template.format {
         case .raw:
             try generateRaw(with: settings)
@@ -59,7 +59,6 @@ final class DiskImageGenerator {
     }
 
     private static func hdiutil(with settings: ImageSettings) async throws {
-        // hdiutil create -layout GPTSPUD -type SPARSE -megabytes 100 -fs APFS -volname Test -nospotlight
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
         process.arguments = [

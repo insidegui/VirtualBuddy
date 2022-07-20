@@ -90,16 +90,18 @@ public struct VMConfigurationSheet: View {
     
     @ViewBuilder
     private var validationErrors: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            switch viewModel.supportState {
-            case .supported:
-                EmptyView()
-            case .unsupported(let errors):
-                ForEach(errors, id: \.self) { Text($0) }
-                    .foregroundColor(.red)
-            case .warnings(let warnings):
-                ForEach(warnings, id: \.self) { Text($0) }
-                    .foregroundColor(.yellow)
+        if viewModel.supportState != .supported {
+            VStack(alignment: .leading, spacing: 4) {
+                switch viewModel.supportState {
+                case .supported:
+                    EmptyView()
+                case .unsupported(let errors):
+                    ForEach(errors, id: \.self) { Text($0) }
+                        .foregroundColor(.red)
+                case .warnings(let warnings):
+                    ForEach(warnings, id: \.self) { Text($0) }
+                        .foregroundColor(.yellow)
+                }
             }
         }
     }

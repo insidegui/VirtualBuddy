@@ -20,6 +20,7 @@ public extension NSOpenPanel {
             panel.allowedContentTypes = Array(contentTypes)
         }
 
+        panel.treatsFilePackagesAsDirectories = true
         panel.directoryURL = directoryURL ?? URL(fileURLWithPath: NSHomeDirectory())
 
         guard panel.runModal() == .OK, let url = panel.url else { return nil }
