@@ -22,17 +22,21 @@ public struct VMConfigurationSheet: View {
 
     @State private var showingValidationErrors = false
     
+    private var showsCancelButton = true
+    private var customConfirmationButtonAction: (() -> Void)? = nil
+    
     /// Initializes the VM configuration sheet, bound to a VM configuration model.
-    /// - Parameter machine:The VM being configured.
     /// - Parameter configuration: The binding that will be updated when the user saves the configuration by clicking the "Done" button.
     public init(configuration: Binding<VBMacConfiguration>) {
         self.init(configuration: configuration, showingValidationErrors: false)
     }
     
-    init(configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool) {
+    init(configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool = false, showsCancelButton: Bool = true, customConfirmationButtonAction: (() -> Void)? = nil) {
         self.initialConfiguration = configuration.wrappedValue
         self._savedConfiguration = configuration
         self._showingValidationErrors = .init(wrappedValue: showingValidationErrors)
+        self.showsCancelButton = showsCancelButton
+        self.customConfirmationButtonAction = customConfirmationButtonAction
     }
     
     @Environment(\.dismiss) private var dismiss
@@ -58,10 +62,12 @@ public struct VMConfigurationSheet: View {
                 validationErrors
             }
             HStack {
-                Button("Cancel") {
-                    dismiss()
+                if showsCancelButton {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                    .keyboardShortcut(.cancelAction)
                 }
-                .keyboardShortcut(.cancelAction)
                 
                 Spacer()
                 
@@ -116,7 +122,11 @@ public struct VMConfigurationSheet: View {
             
             savedConfiguration = viewModel.config
             
-            dismiss()
+            if let customConfirmationButtonAction {
+                customConfirmationButtonAction()
+            } else {
+                dismiss()
+            }
         }
     }
     

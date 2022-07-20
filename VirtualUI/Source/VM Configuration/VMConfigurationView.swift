@@ -9,7 +9,6 @@ import SwiftUI
 import VirtualCore
 
 struct VMConfigurationView: View {
-    @EnvironmentObject var controller: VMController
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
     var initialConfiguration: VBMacConfiguration
@@ -187,12 +186,12 @@ struct VMConfigurationView_Previews: PreviewProvider {
     }
 
     struct _Template: View {
-        @StateObject var controller = VMController(with: .preview)
+        @State private var vm = VBVirtualMachine.preview
 
         var body: some View {
             PreviewSheet {
-                VMConfigurationSheet(configuration: $controller.virtualMachineModel.configuration)
-                    .environmentObject(VMConfigurationViewModel(controller.virtualMachineModel))
+                VMConfigurationSheet(configuration: $vm.configuration)
+                    .environmentObject(VMConfigurationViewModel(vm))
                     .frame(width: 360, height: 600, alignment: .top)
             }
         }

@@ -116,7 +116,8 @@ final class VMInstallationViewModel: ObservableObject {
 
                 createInitialName()
             case .configuration:
-                showNextButton = true
+                showNextButton = false
+                disableNextButton = true
             
                 Task {
                     do {

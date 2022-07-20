@@ -105,7 +105,14 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Configure Your Virtual Mac")
 
-            
+            if let machine = viewModel.machine {
+                VMInstallerConfigurationStepView(vm: machine) { configuredModel in
+                    viewModel.machine = configuredModel
+                    viewModel.goNext()
+                }
+            } else {
+                Text("Preparing…")
+            }
         }
     }
 
