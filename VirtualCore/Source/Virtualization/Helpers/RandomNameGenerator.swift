@@ -7,14 +7,14 @@
 
 import Foundation
 
-final class RandomNameGenerator {
+public final class RandomNameGenerator {
 
-    static let shared = RandomNameGenerator()
+    public static let shared = RandomNameGenerator()
 
     private var adjectives = [String]()
     private var animals = [String]()
 
-    init() {
+    private init() {
         guard let animalsData = NSDataAsset(name: "Animals", bundle: .virtualCore)?.data,
               let adjectivesData = NSDataAsset(name: "Adjectives", bundle: .virtualCore)?.data
         else {
@@ -26,7 +26,7 @@ final class RandomNameGenerator {
         animals = String(decoding: animalsData, as: UTF8.self).components(separatedBy: .newlines)
     }
 
-    func newName() -> String {
+    public func newName() -> String {
         guard !adjectives.isEmpty, !animals.isEmpty else {
             return UUID().uuidString
         }

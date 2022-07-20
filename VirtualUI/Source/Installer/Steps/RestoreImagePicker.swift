@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import Combine
 
 final class RestoreImagePickerController: ObservableObject {
     
@@ -37,9 +38,9 @@ final class RestoreImagePickerController: ObservableObject {
     func validateSelectedRestoreImage() -> Bool {
         if let info = selectedRestoreImage {
             if info.needsCookie, cookie == nil {
-                return true
-            } else {
                 return false
+            } else {
+                return true
             }
         } else {
             return selectedRestoreImage != nil
@@ -71,6 +72,7 @@ struct RestoreImagePicker: View {
     @StateObject var controller = RestoreImagePickerController()
     
     @Binding var selection: VBRestoreImageInfo?
+    var validationChanged: PassthroughSubject<Bool, Never>
     var onUseLocalFile: (URL) -> Void = { _ in }
 
     var body: some View {
@@ -89,7 +91,10 @@ struct RestoreImagePicker: View {
             }
         }
         .disabled(controller.restoreImageOptions.isEmpty)
-        .onChange(of: controller.selectedRestoreImage, perform: { selection = $0 })
+        .onChange(of: controller.selectedRestoreImage, perform: {
+            selection = $0
+            validationChanged.send(controller.validateSelectedRestoreImage())
+        })
         .onAppearOnce { controller.loadRestoreImageOptions() }
 
         if let selectedImage = controller.selectedRestoreImage,
@@ -193,7 +198,7 @@ struct RestoreImagePicker_Previews: PreviewProvider {
         @State private var image: VBRestoreImageInfo?
         
         var body: some View {
-            RestoreImagePicker(selection: $image)
+            RestoreImagePicker(selection: $image, validationChanged: PassthroughSubject<Bool, Never>())
         }
     }
 }

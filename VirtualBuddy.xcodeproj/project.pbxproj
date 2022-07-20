@@ -55,6 +55,7 @@
 		F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D28288883150080DDFA /* HostingWindowController.swift */; };
 		F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D29288883150080DDFA /* WindowEnvironment.swift */; };
 		F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */; };
+		F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */; };
 		F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */ = {isa = PBXBuildFile; fileRef = F498AD002884BF13006F1C00 /* VirtualUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
 		F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -228,6 +229,7 @@
 		F48E0D28288883150080DDFA /* HostingWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostingWindowController.swift; sourceTree = "<group>"; };
 		F48E0D29288883150080DDFA /* WindowEnvironment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowEnvironment.swift; sourceTree = "<group>"; };
 		F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualUIConstants.swift; sourceTree = "<group>"; };
+		F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageDownloadView.swift; sourceTree = "<group>"; };
 		F498ACFE2884BF13006F1C00 /* VirtualUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F498AD002884BF13006F1C00 /* VirtualUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualUI.h; sourceTree = "<group>"; };
 		F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
@@ -436,6 +438,7 @@
 			isa = PBXGroup;
 			children = (
 				F48E0D13288882BD0080DDFA /* Components */,
+				F48E0D30288884780080DDFA /* Steps */,
 				F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */,
 				F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */,
 			);
@@ -446,8 +449,6 @@
 			isa = PBXGroup;
 			children = (
 				F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */,
-				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
-				F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */,
 				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
 			);
 			path = Components;
@@ -469,6 +470,16 @@
 				F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */,
 			);
 			path = Definitions;
+			sourceTree = "<group>";
+		};
+		F48E0D30288884780080DDFA /* Steps */ = {
+			isa = PBXGroup;
+			children = (
+				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
+				F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */,
+				F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */,
+			);
+			path = Steps;
 			sourceTree = "<group>";
 		};
 		F498ACFF2884BF13006F1C00 /* VirtualUI */ = {
@@ -1087,6 +1098,7 @@
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,
+				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,

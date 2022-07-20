@@ -12,7 +12,7 @@ import Virtualization
 import VirtualCore
 
 struct VMInstallData: Hashable {
-    var name = "New Mac VM"
+    var name = RandomNameGenerator.shared.newName()
     var cookie: String?
     var restoreImageInfo: VBRestoreImageInfo? {
         didSet {
@@ -22,28 +22,20 @@ struct VMInstallData: Hashable {
         }
     }
     var restoreImageURL: URL?
+    
+    var downloadURL: URL? {
+        restoreImageURL ?? restoreImageInfo?.url
+    }
 }
 
 final class VMInstallationViewModel: ObservableObject {
-
-    var library: VMLibraryController? {
-        didSet {
-            guard let library = library else {
-                return
-            }
-
-            downloader = VBDownloader(with: library, cookie: data.cookie)
-        }
-    }
-
-    private var downloader: VBDownloader?
-
-    enum Step: Hashable {
+    
+    enum Step: Int, Hashable {
         case installKind
         case restoreImageInput
         case restoreImageSelection
-        case configure
         case name
+        case configuration
         case download
         case install
         case done
@@ -69,8 +61,6 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published private(set) var state = State.idle
 
-    
-
     @Published var step = Step.installKind {
         didSet {
             guard step != oldValue else { return }
@@ -84,7 +74,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published private(set) var buttonTitle = "Next"
     @Published private(set) var showNextButton = true
-    @Published private(set) var disableNextButton = false
+    @Published  var disableNextButton = false
 
     private var needsDownload: Bool {
         guard let url = data.restoreImageURL else { return true }
@@ -98,8 +88,8 @@ final class VMInstallationViewModel: ObservableObject {
             case .restoreImageInput, .restoreImageSelection:
                 step = .name
             case .name:
-                step = .configure
-            case .configure:
+                step = .configuration
+            case .configuration:
                 step = needsDownload ? .download : .install
             case .download:
                 step = .install
@@ -125,7 +115,7 @@ final class VMInstallationViewModel: ObservableObject {
                 showNextButton = true
 
                 createInitialName()
-            case .configure:
+            case .configuration:
                 showNextButton = true
             
                 Task {
@@ -136,8 +126,6 @@ final class VMInstallationViewModel: ObservableObject {
                     }
                 }
             case .download:
-                Task { await startDownload() }
-
                 showNextButton = false
             case .install:
                 Task { await startInstallation() }
@@ -186,55 +174,20 @@ final class VMInstallationViewModel: ObservableObject {
             data.name = name
         }
     }
+    
+    func handleDownloadCompleted(with fileURL: URL) {
+        data.restoreImageURL = fileURL
+        goNext()
+    }
 
     private lazy var cancellables = Set<AnyCancellable>()
-
-    @MainActor
-    private func startDownload() {
-        downloader!.cookie = data.cookie
-
-        downloader!.$state.sink { [weak self] downloadState in
-            guard let self = self else { return }
-            self.handleDownloadState(downloadState)
-        }
-        .store(in: &cancellables)
-
-        downloader!.startDownload(with: data.restoreImageURL!)
-    }
-
-    private func handleDownloadState(_ downloadState: VBDownloader.State) {
-        guard step == .download else { return }
-
-        switch downloadState {
-            case .idle:
-                break
-            case .downloading(let progress, let eta):
-                let info: String?
-                if let eta = eta {
-                    info = "Estimated time remaining: \(formattedETA(from: eta))"
-                } else {
-                    info = nil
-                }
-
-                self.state = .loading(progress, info)
-            case .failed(let error):
-                self.state = .error("Download failed: \(error)")
-            case .done:
-                goNext()
-        }
-    }
 
     private var vmInstaller: VZMacOSInstaller?
     private var progressObservation: NSKeyValueObservation?
     
     @MainActor
     private func prepareModel() throws {
-        guard let library = library else {
-            state = .error("Missing library instance")
-            return
-        }
-        
-        let vmURL = library.libraryURL
+        let vmURL = VMLibraryController.shared.libraryURL
             .appendingPathComponent(data.name)
             .appendingPathExtension(VBVirtualMachine.bundleExtension)
 
@@ -312,22 +265,7 @@ final class VMInstallationViewModel: ObservableObject {
     func continueWithLocalFile(at url: URL) {
         data.restoreImageURL = url
 
-        step = .configure
-    }
-
-    private func formattedETA(from eta: Double) -> String {
-        let time = Int(eta)
-
-        let seconds = time % 60
-        let minutes = (time / 60) % 60
-        let hours = (time / 3600)
-
-        if hours >= 1 {
-            return String(format: "%0.2d:%0.2d:%0.2d",hours,minutes,seconds)
-        } else {
-            return String(format: "%0.2d:%0.2d",minutes,seconds)
-        }
-
+        step = .configuration
     }
 
     private func cleanupInstallerArtifacts() {

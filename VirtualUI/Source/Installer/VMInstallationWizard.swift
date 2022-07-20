@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import Combine
 
 public struct VMInstallationWizard: View {
     @EnvironmentObject var library: VMLibraryController
@@ -15,6 +16,8 @@ public struct VMInstallationWizard: View {
     @Environment(\.closeWindow) var closeWindow
     
     public init() { }
+    
+    private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
 
     public var body: some View {
         VStack {
@@ -26,12 +29,12 @@ public struct VMInstallationWizard: View {
                         restoreImageURLInput
                     case .restoreImageSelection:
                         restoreImageSelection
-                    case .configure:
+                    case .configuration:
                         configureVM
                     case .name:
                         renameVM
                     case .download:
-                        downloadProgress
+                        downloadView
                     case .install:
                         installProgress
                     case .done:
@@ -60,9 +63,8 @@ public struct VMInstallationWizard: View {
         .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity, alignment: .top)
         .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
         .windowTitle("New macOS VM")
-        .onAppear {
-            guard viewModel.library == nil else { return }
-            viewModel.library = library
+        .onReceive(stepValidationStateChanged) { isValid in
+            viewModel.disableNextButton = !isValid
         }
     }
 
@@ -88,10 +90,13 @@ public struct VMInstallationWizard: View {
     private var restoreImageSelection: some View {
         VStack {
             InstallationWizardTitle("Pick a macOS Version to Download and Install")
-
-            RestoreImagePicker(selection: $viewModel.data.restoreImageInfo, onUseLocalFile: { localURL in
-                viewModel.continueWithLocalFile(at: localURL)
-            })
+            
+            RestoreImagePicker(
+                selection: $viewModel.data.restoreImageInfo,
+                validationChanged: stepValidationStateChanged,
+                onUseLocalFile: { localURL in
+                    viewModel.continueWithLocalFile(at: localURL)
+                })
         }
     }
     
@@ -120,11 +125,15 @@ public struct VMInstallationWizard: View {
     }
 
     @ViewBuilder
-    private var downloadProgress: some View {
+    private var downloadView: some View {
         VStack {
             InstallationWizardTitle("Downloading \(vmDisplayName)")
 
-            loadingView
+            if let url = viewModel.data.downloadURL {
+                RestoreImageDownloadView(imageURL: url, cookie: viewModel.data.cookie) { fileURL in
+                    viewModel.handleDownloadCompleted(with: fileURL)
+                }
+            }
         }
     }
 

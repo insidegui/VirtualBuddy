@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class VBDownloader: NSObject {
+public final class VBDownloader: NSObject, ObservableObject {
 
     let library: VMLibraryController
     public var cookie: String?
