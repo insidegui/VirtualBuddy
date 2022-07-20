@@ -1,6 +1,8 @@
 # What's new in VirtualBuddy 1.2
 
-- Virtual machines can now be configured with custom CPU, RAM, network, display, and many other options
+- Virtual machines can now be configured with custom CPU, RAM, storage devices, network devices, displays, and many other options
 - The option to capture system keyboard shortcuts is now persisted for each virtual machine in the library
-- Adds support for shared folders to share specific directories from your Mac with the VM
-- The default library directory for new installs is now ~/Library/Application Support/VirtualBuddy
+- Adds support for shared folders to share specific directories from your Mac with the virtual machine
+- Adds support for bridged networking, allowing a physical network interface from your Mac to be exposed to the virtual machine
+- Additional storage can now be added to virtual machines by creating new disk images from within VirtualBuddy
+- The default library directory for new installs is now ~/Library/Application Support/VirtualBuddy (this is where VirtualBuddy stores virtual machines and downloads)
