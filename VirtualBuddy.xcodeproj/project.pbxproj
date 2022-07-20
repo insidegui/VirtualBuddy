@@ -28,11 +28,9 @@
 		F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */; };
 		F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */; };
 		F42258802885E71D009420AE /* PropertyControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587F2885E71D009420AE /* PropertyControl.swift */; };
-		F4471004286D0C1200F030EB /* NSAlert+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
-		F465C3B6284F969C006E9ED4 /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */; };
 		F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B7284FA252006E9ED4 /* VBDownloader.swift */; };
 		F46FFBA52804E81E00D61023 /* VBObjCHookingPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = F46FFBA32804E81E00D61023 /* VBObjCHookingPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */; };
@@ -44,6 +42,19 @@
 		F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0628885E140080DDFA /* PreviewSupport.swift */; };
 		F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
 		F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */; };
+		F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */; };
+		F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */; };
+		F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */; };
+		F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */; };
+		F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */; };
+		F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */; };
+		F48E0D23288882E50080DDFA /* DecentFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D20288882E50080DDFA /* DecentFormView.swift */; };
+		F48E0D24288882E50080DDFA /* NSAlert+Confirmation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D21288882E50080DDFA /* NSAlert+Confirmation.swift */; };
+		F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D22288882E50080DDFA /* OnAppearOnce.swift */; };
+		F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D27288883150080DDFA /* OpenCocoaWindowAction.swift */; };
+		F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D28288883150080DDFA /* HostingWindowController.swift */; };
+		F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D29288883150080DDFA /* WindowEnvironment.swift */; };
+		F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */; };
 		F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */ = {isa = PBXBuildFile; fileRef = F498AD002884BF13006F1C00 /* VirtualUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
 		F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -62,9 +73,6 @@
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
 		F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */; };
 		F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5DA28873628005AA632 /* GroupedList.swift */; };
-		F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */; };
-		F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */; };
-		F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */; };
 		F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */; };
 		F4BE9C5627FF052100B648F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5527FF052100B648F8 /* Assets.xcassets */; };
 		F4BE9C5927FF052100B648F8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5827FF052100B648F8 /* Preview Assets.xcassets */; };
@@ -79,9 +87,6 @@
 		F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */; };
 		F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */; };
 		F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4C0C96D284FD1DB00D02237 /* VMInstallationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0C96C284FD1DB00D02237 /* VMInstallationViewModel.swift */; };
-		F4C0C98B284FD8AD00D02237 /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0C98A284FD8AD00D02237 /* InstallMethodPicker.swift */; };
-		F4C0C9A8284FE01700D02237 /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C0C9A7284FE01700D02237 /* AuthenticatingWebView.swift */; };
 		F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */ = {isa = PBXBuildFile; fileRef = F4C189E22848F59F00335EC7 /* VirtualWormhole.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
 		F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -101,14 +106,12 @@
 		F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */; };
 		F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F4D0F71728674E4B004D5782 /* Sparkle */; };
 		F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */; };
-		F4D0F71D28675026004D5782 /* OnAppearOnce.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71C28675026004D5782 /* OnAppearOnce.swift */; };
 		F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
 		F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B412284CDB7B00F21737 /* PreferencesView.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
-		F4F9B41D284CE6A500F21737 /* DecentFormView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B41C284CE6A500F21737 /* DecentFormView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -198,11 +201,9 @@
 		F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurationView.swift; sourceTree = "<group>"; };
 		F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareConfigurationView.swift; sourceTree = "<group>"; };
 		F422587F2885E71D009420AE /* PropertyControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyControl.swift; sourceTree = "<group>"; };
-		F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSAlert+Confirmation.swift"; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
-		F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
 		F465C3B7284FA252006E9ED4 /* VBDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDownloader.swift; sourceTree = "<group>"; };
 		F46FFBA32804E81E00D61023 /* VBObjCHookingPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VBObjCHookingPoint.h; sourceTree = "<group>"; };
 		F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VBObjCHookingPoint.m; sourceTree = "<group>"; };
@@ -214,6 +215,19 @@
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
 		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
+		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
+		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
+		F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImagePicker.swift; sourceTree = "<group>"; };
+		F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
+		F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
+		F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationViewModel.swift; sourceTree = "<group>"; };
+		F48E0D20288882E50080DDFA /* DecentFormView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecentFormView.swift; sourceTree = "<group>"; };
+		F48E0D21288882E50080DDFA /* NSAlert+Confirmation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSAlert+Confirmation.swift"; sourceTree = "<group>"; };
+		F48E0D22288882E50080DDFA /* OnAppearOnce.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnAppearOnce.swift; sourceTree = "<group>"; };
+		F48E0D27288883150080DDFA /* OpenCocoaWindowAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenCocoaWindowAction.swift; sourceTree = "<group>"; };
+		F48E0D28288883150080DDFA /* HostingWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostingWindowController.swift; sourceTree = "<group>"; };
+		F48E0D29288883150080DDFA /* WindowEnvironment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowEnvironment.swift; sourceTree = "<group>"; };
+		F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualUIConstants.swift; sourceTree = "<group>"; };
 		F498ACFE2884BF13006F1C00 /* VirtualUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F498AD002884BF13006F1C00 /* VirtualUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualUI.h; sourceTree = "<group>"; };
 		F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
@@ -232,9 +246,6 @@
 		F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Validation.swift"; sourceTree = "<group>"; };
 		F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Summary.swift"; sourceTree = "<group>"; };
 		F4B5C5DA28873628005AA632 /* GroupedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedList.swift; sourceTree = "<group>"; };
-		F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenCocoaWindowAction.swift; sourceTree = "<group>"; };
-		F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HostingWindowController.swift; sourceTree = "<group>"; };
-		F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WindowEnvironment.swift; sourceTree = "<group>"; };
 		F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyApp.swift; sourceTree = "<group>"; };
 		F4BE9C5527FF052100B648F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -251,9 +262,6 @@
 		F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyAppDelegate.swift; sourceTree = "<group>"; };
 		F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMSessionConfigurationView.swift; sourceTree = "<group>"; };
 		F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualizationPrivate.h; sourceTree = "<group>"; };
-		F4C0C96C284FD1DB00D02237 /* VMInstallationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallationViewModel.swift; sourceTree = "<group>"; };
-		F4C0C98A284FD8AD00D02237 /* InstallMethodPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
-		F4C0C9A7284FE01700D02237 /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
 		F4C122482807146200D359E2 /* Versions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Versions.xcconfig; sourceTree = "<group>"; };
 		F4C1224A2807156200D359E2 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		F4C1224D280715B500D359E2 /* Paths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Paths.xcconfig; sourceTree = "<group>"; };
@@ -275,14 +283,12 @@
 		F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Screenshot.swift"; sourceTree = "<group>"; };
 		F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareUpdateController.swift; sourceTree = "<group>"; };
 		F4D0F71B28674F24004D5782 /* Features.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Features.xcconfig; sourceTree = "<group>"; };
-		F4D0F71C28675026004D5782 /* OnAppearOnce.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnAppearOnce.swift; sourceTree = "<group>"; };
 		F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChannel.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
 		F4F9B412284CDB7B00F21737 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
-		F4F9B41C284CE6A500F21737 /* DecentFormView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecentFormView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -335,6 +341,10 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F48E0D26288883150080DDFA /* HostingWindowController */,
+				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
+				F48E0D21288882E50080DDFA /* NSAlert+Confirmation.swift */,
+				F48E0D22288882E50080DDFA /* OnAppearOnce.swift */,
 				F41725672886E5AD004FF8A7 /* MaterialView.swift */,
 				F41725652886DF58004FF8A7 /* OpenPanelHelper.swift */,
 			);
@@ -414,22 +424,51 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
-		F465C3B4284F968E006E9ED4 /* Installer */ = {
-			isa = PBXGroup;
-			children = (
-				F4C0C989284FD89700D02237 /* Components */,
-				F4C0C96C284FD1DB00D02237 /* VMInstallationViewModel.swift */,
-				F465C3B5284F969C006E9ED4 /* VMInstallationWizard.swift */,
-			);
-			path = Installer;
-			sourceTree = "<group>";
-		};
 		F48E0D0828885E510080DDFA /* Preview */ = {
 			isa = PBXGroup;
 			children = (
 				F48E0D0928885E990080DDFA /* Preview.vbvm */,
 			);
 			path = Preview;
+			sourceTree = "<group>";
+		};
+		F48E0D12288882BD0080DDFA /* Installer */ = {
+			isa = PBXGroup;
+			children = (
+				F48E0D13288882BD0080DDFA /* Components */,
+				F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */,
+				F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */,
+			);
+			path = Installer;
+			sourceTree = "<group>";
+		};
+		F48E0D13288882BD0080DDFA /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */,
+				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
+				F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */,
+				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F48E0D26288883150080DDFA /* HostingWindowController */ = {
+			isa = PBXGroup;
+			children = (
+				F48E0D27288883150080DDFA /* OpenCocoaWindowAction.swift */,
+				F48E0D28288883150080DDFA /* HostingWindowController.swift */,
+				F48E0D29288883150080DDFA /* WindowEnvironment.swift */,
+			);
+			path = HostingWindowController;
+			sourceTree = "<group>";
+		};
+		F48E0D2D288883450080DDFA /* Definitions */ = {
+			isa = PBXGroup;
+			children = (
+				F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */,
+			);
+			path = Definitions;
 			sourceTree = "<group>";
 		};
 		F498ACFF2884BF13006F1C00 /* VirtualUI */ = {
@@ -444,6 +483,8 @@
 		F498AD092884BF20006F1C00 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F48E0D2D288883450080DDFA /* Definitions */,
+				F48E0D12288882BD0080DDFA /* Installer */,
 				F41725642886DF4A004FF8A7 /* Components */,
 				F498AD102884C35F006F1C00 /* VM Configuration */,
 				F498AD0F2884C35A006F1C00 /* Building Blocks */,
@@ -551,7 +592,6 @@
 		F4A21BFA2803395F001072B8 /* Components */ = {
 			isa = PBXGroup;
 			children = (
-				F4B8A422282EC8EB00D2F78D /* HostingWindowController */,
 				F4BE9C7D27FF0AEB00B648F8 /* SwiftUIVMView.swift */,
 			);
 			path = Components;
@@ -575,16 +615,6 @@
 				F41725622886DD37004FF8A7 /* SharedFolderListItem.swift */,
 			);
 			path = Sharing;
-			sourceTree = "<group>";
-		};
-		F4B8A422282EC8EB00D2F78D /* HostingWindowController */ = {
-			isa = PBXGroup;
-			children = (
-				F4B8A423282EC8EB00D2F78D /* OpenCocoaWindowAction.swift */,
-				F4B8A424282EC8EB00D2F78D /* HostingWindowController.swift */,
-				F4B8A425282EC8EB00D2F78D /* WindowEnvironment.swift */,
-			);
-			path = HostingWindowController;
 			sourceTree = "<group>";
 		};
 		F4BE9C4527FF052100B648F8 = {
@@ -615,13 +645,11 @@
 		F4BE9C5027FF052100B648F8 /* VirtualBuddy */ = {
 			isa = PBXGroup;
 			children = (
-				F4F9B41B284CE69000F21737 /* Components */,
 				F4C122472807145600D359E2 /* Config */,
 				F4F9B411284CDB5300F21737 /* Settings */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
 				F4A21BF82803394B001072B8 /* Session */,
 				F4A21BF728033941001072B8 /* Library */,
-				F465C3B4284F968E006E9ED4 /* Installer */,
 				F4BE9C7F27FF10FB00B648F8 /* Info.plist */,
 				F4BE9C5527FF052100B648F8 /* Assets.xcassets */,
 				F4BE9C5727FF052100B648F8 /* Preview Content */,
@@ -668,15 +696,6 @@
 				F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */,
 			);
 			path = Headers;
-			sourceTree = "<group>";
-		};
-		F4C0C989284FD89700D02237 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				F4C0C98A284FD8AD00D02237 /* InstallMethodPicker.swift */,
-				F4C0C9A7284FE01700D02237 /* AuthenticatingWebView.swift */,
-			);
-			path = Components;
 			sourceTree = "<group>";
 		};
 		F4C122472807145600D359E2 /* Config */ = {
@@ -792,16 +811,6 @@
 				F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */,
 			);
 			path = Settings;
-			sourceTree = "<group>";
-		};
-		F4F9B41B284CE69000F21737 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				F4F9B41C284CE6A500F21737 /* DecentFormView.swift */,
-				F4D0F71C28675026004D5782 /* OnAppearOnce.swift */,
-				F4471003286D0C1200F030EB /* NSAlert+Confirmation.swift */,
-			);
-			path = Components;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1045,29 +1054,42 @@
 			files = (
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
+				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
+				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
+				F48E0D23288882E50080DDFA /* DecentFormView.swift in Sources */,
 				F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */,
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */,
+				F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */,
 				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
 				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
+				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
+				F48E0D24288882E50080DDFA /* NSAlert+Confirmation.swift in Sources */,
 				F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */,
+				F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */,
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
+				F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */,
+				F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenPanelHelper.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
+				F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */,
 				F498AD1A2884C5FF006F1C00 /* SliderConversion.swift in Sources */,
 				F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */,
 				F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */,
+				F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */,
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
+				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
+				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1077,23 +1099,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */,
-				F4B8A426282EC8EB00D2F78D /* OpenCocoaWindowAction.swift in Sources */,
-				F4B8A428282EC8EB00D2F78D /* WindowEnvironment.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
-				F4D0F71D28675026004D5782 /* OnAppearOnce.swift in Sources */,
 				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
-				F4F9B41D284CE6A500F21737 /* DecentFormView.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
 				F4A21BF628033309001072B8 /* LibraryView.swift in Sources */,
-				F4B8A427282EC8EB00D2F78D /* HostingWindowController.swift in Sources */,
-				F4C0C9A8284FE01700D02237 /* AuthenticatingWebView.swift in Sources */,
-				F465C3B6284F969C006E9ED4 /* VMInstallationWizard.swift in Sources */,
-				F4471004286D0C1200F030EB /* NSAlert+Confirmation.swift in Sources */,
-				F4C0C98B284FD8AD00D02237 /* InstallMethodPicker.swift in Sources */,
 				F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
 				F4BE9C7E27FF0AEB00B648F8 /* SwiftUIVMView.swift in Sources */,
-				F4C0C96D284FD1DB00D02237 /* VMInstallationViewModel.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

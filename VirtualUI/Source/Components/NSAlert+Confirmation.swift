@@ -7,7 +7,7 @@
 
 import Cocoa
 
-extension NSAlert {
+public extension NSAlert {
 
     static func runConfirmationAlert(title: String,
                                      message: String,

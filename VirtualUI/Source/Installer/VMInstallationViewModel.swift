@@ -61,9 +61,6 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published var data = VMInstallData() {
         didSet {
-            if step == .restoreImageSelection {
-                validateSelectedRestoreImage()
-            }
             if step == .name {
                 disableNextButton = data.name.isEmpty
             }
@@ -72,7 +69,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published private(set) var state = State.idle
 
-    let api = VBAPIClient()
+    
 
     @Published var step = Step.installKind {
         didSet {
@@ -120,8 +117,6 @@ final class VMInstallationViewModel: ObservableObject {
             case .restoreImageInput:
                 showNextButton = true
             case .restoreImageSelection:
-                loadRestoreImageOptions()
-
                 showNextButton = true
                 disableNextButton = true
             case .name:
@@ -165,38 +160,6 @@ final class VMInstallationViewModel: ObservableObject {
             step = .restoreImageSelection
         case .remoteManual:
             step = .restoreImageInput
-        }
-    }
-
-    private func loadRestoreImageOptions() {
-        state = .loading(nil, nil)
-
-        Task {
-            do {
-                let images = try await api.fetchRestoreImages()
-
-                DispatchQueue.main.async {
-                    self.restoreImageOptions = images
-
-                    self.state = .idle
-                }
-            } catch {
-                DispatchQueue.main.async {
-                    self.state = .error(error.localizedDescription)
-                }
-            }
-        }
-    }
-
-    private func validateSelectedRestoreImage() {
-        if let info = data.restoreImageInfo {
-            if info.needsCookie, data.cookie == nil {
-                disableNextButton = true
-            } else {
-                disableNextButton = false
-            }
-        } else {
-            disableNextButton = data.restoreImageURL == nil
         }
     }
 
@@ -378,29 +341,4 @@ final class VMInstallationViewModel: ObservableObject {
 
 extension UTType {
     static let ipsw = UTType(filenameExtension: "ipsw")!
-}
-
-extension VMInstallationViewModel {
-
-    enum RestoreImageAdvisory: Hashable {
-        case manualDownloadTip(_ title: String, _ url: URL)
-        case alreadyDownloaded(_ title: String, _ localURL: URL)
-        case failure(_ message: String)
-    }
-
-    @MainActor
-    func restoreAdvisory(for info: VBRestoreImageInfo) -> RestoreImageAdvisory? {
-        guard let library = library else { return nil }
-
-        do {
-            if let existingDownloadURL = try library.existingLocalURL(for: info.url) {
-                return .alreadyDownloaded(info.name, existingDownloadURL)
-            } else {
-                return .manualDownloadTip(info.name, info.url)
-            }
-        } catch {
-            return .failure(error.localizedDescription)
-        }
-    }
-
 }

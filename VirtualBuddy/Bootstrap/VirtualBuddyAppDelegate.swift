@@ -6,6 +6,8 @@
 //
 
 import Cocoa
+@_exported import VirtualCore
+@_exported import VirtualUI
 
 #if BUILDING_NON_MANAGED_RELEASE
 #error("Trying to build for release without using the managed scheme. This build won't include managed entitlements. This error is here for Rambo, you may safely comment it out and keep going.")
