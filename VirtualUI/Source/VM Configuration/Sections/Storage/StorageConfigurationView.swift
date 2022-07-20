@@ -72,7 +72,7 @@ struct StorageDeviceListItem: View {
 
     var body: some View {
         HStack(spacing: 4) {
-            Toggle(device.name, isOn: $device.isEnabled)
+            Toggle(device.displayName, isOn: $device.isEnabled)
                 .disabled(device.isBootVolume)
                 .help(device.isBootVolume ? "The boot storage device can't be disabled" : "Enable/disable this storage device")
 
@@ -89,7 +89,7 @@ struct StorageDeviceListItem: View {
         HStack(spacing: 6) {
             device.iconView
 
-            Text(device.name)
+            Text(device.displayName)
 
             Spacer()
 
@@ -133,7 +133,7 @@ extension VBStorageDevice {
 struct StorageConfigurationView_Previews: PreviewProvider {
     static var config: VBMacConfiguration {
         var c = VBMacConfiguration.default
-        c.hardware.storageDevices.append(.init(name: "Custom", isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Custom", size: VBManagedDiskImage.minimumExtraDiskImageSize))))
+        c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Custom", size: VBManagedDiskImage.minimumExtraDiskImageSize))))
         return c
     }
     static var previews: some View {

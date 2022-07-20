@@ -36,19 +36,12 @@ struct StorageDeviceDetailView: View {
                 HStack {
                     device.iconView
 
-                    EphemeralTextField($device.name, alignment: .leading) { name in
+                    EphemeralTextField(.constant(device.displayName), alignment: .leading) { name in
                         Text(name)
                     } editableContent: { binding in
-                        TextField("", text: binding)
-                    } validate: { newName in
-                        if let error = VBStorageDevice.validationError(for: newName) {
-                            nameError = error
-                            return false
-                        } else {
-                            nameError = nil
-                            return true
-                        }
+                        Text(binding.wrappedValue)
                     }
+                    .disabled(true)
                 }
 
                 if let nameError {

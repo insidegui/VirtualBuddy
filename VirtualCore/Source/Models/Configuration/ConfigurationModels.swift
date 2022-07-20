@@ -93,9 +93,8 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
 /// Configures a storage device.
 /// **Read the note at the top of this file before modifying this**
 public struct VBStorageDevice: Identifiable, Hashable, Codable {
-    public init(id: String = UUID().uuidString, name: String, isBootVolume: Bool, isEnabled: Bool = true, isReadOnly: Bool, isUSBMassStorageDevice: Bool, backing: VBStorageDevice.BackingStore) {
+    public init(id: String = UUID().uuidString, isBootVolume: Bool, isEnabled: Bool = true, isReadOnly: Bool, isUSBMassStorageDevice: Bool, backing: VBStorageDevice.BackingStore) {
         self.id = id
-        self.name = name
         self.isBootVolume = isBootVolume
         self.isEnabled = isEnabled
         self.isReadOnly = isReadOnly
@@ -111,9 +110,6 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
     }
     
     public var id: String = UUID().uuidString
-    /// A descriptive name for the device.
-    /// ASCII characters only, no longer than 20 bytes.
-    public var name: String
     /// `true` for the initial boot volume (Disk.img) that's created by VirtualBuddy.
     public internal(set) var isBootVolume: Bool
     /// Setting to `false` disables the storage device without removing it from the VM.
@@ -129,7 +125,6 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
     
     public static var defaultBootDevice: VBStorageDevice {
         VBStorageDevice(
-            name: "Macintosh HD",
             isBootVolume: true,
             isReadOnly: false,
             isUSBMassStorageDevice: false,
@@ -147,12 +142,22 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
         )
         
         return VBStorageDevice(
-            name: name,
             isBootVolume: false,
             isReadOnly: false,
             isUSBMassStorageDevice: false,
             backing: .managedImage(image)
         )
+    }
+    
+    public var displayName: String {
+        guard !isBootVolume else { return "Boot" }
+        
+        switch backing {
+        case .customImage(let url):
+            return url.deletingPathExtension().lastPathComponent
+        case .managedImage(let image):
+            return image.filename
+        }
     }
 }
 

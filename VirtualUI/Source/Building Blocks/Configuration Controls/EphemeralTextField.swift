@@ -42,6 +42,8 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     
     @State private var internalValue: Value
     
+    @Environment(\.isEnabled) private var isEnabled
+    
     @Environment(\.unfocusActiveField)
     private var unfocus
     
@@ -59,7 +61,11 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
             staticContent(internalValue)
                 .lineLimit(1)
                 .contentShape(Rectangle())
-                .onTapGesture { isInEditMode = true }
+                .onTapGesture {
+                    guard isEnabled else { return }
+                    
+                    isInEditMode = true
+                }
                 .onHover { isHovered = $0 }
                 .opacity(isInEditMode ? 0 : 1)
                 .background {
@@ -153,11 +159,15 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     
     @State private var isHovered = false
     
+    private var drawHoverBackground: Bool {
+        isEnabled && (isHovered || isInEditMode)
+    }
+    
     @ViewBuilder
     private var hoverBackground: some View {
         RoundedRectangle(cornerRadius: 6, style: .continuous)
             .foregroundColor(.white.opacity(0.07))
-            .opacity(isHovered || isInEditMode ? 1 : 0)
+            .opacity(drawHoverBackground ? 1 : 0)
             .animation(.easeOut(duration: 0.24), value: isHovered)
     }
 }
