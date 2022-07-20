@@ -27,10 +27,10 @@ public final class VBSettingsContainer: ObservableObject {
     }
 
     private lazy var cancellables = Set<AnyCancellable>()
-    
-    public var isLibraryInAPFSVolume: Bool { settings.libraryURL.hasAPFSIdentifier }
 
 }
+
+// MARK: - Internal Extensions
 
 private extension VBSettingsContainer {
 
@@ -64,16 +64,4 @@ private extension VBSettingsContainer {
         }
     }
 
-}
-
-extension URL {
-    var hasAPFSIdentifier: Bool {
-        guard let values = try? resourceValues(forKeys: [.fileContentIdentifierKey]),
-              values.fileContentIdentifier != nil
-        else {
-            return false
-        }
-        
-        return true
-    }
 }

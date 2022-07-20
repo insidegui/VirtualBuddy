@@ -1,5 +1,5 @@
 //
-//  VMInstallerConfigurationStepView.swift
+//  InstallConfigurationStepView.swift
 //  VirtualUI
 //
 //  Created by Guilherme Rambo on 20/07/22.
@@ -8,20 +8,23 @@
 import SwiftUI
 import VirtualCore
 
-struct VMInstallerConfigurationStepView: View {
+struct InstallConfigurationStepView: View {
     @StateObject private var viewModel: VMConfigurationViewModel
     @State private var vm: VBVirtualMachine
     var onSave: (VBVirtualMachine) -> Void
     
     init(vm: VBVirtualMachine, onSave: @escaping (VBVirtualMachine) -> Void) {
         self._vm = .init(wrappedValue: vm)
-        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(vm))
+        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(vm, context: .preInstall))
         self.onSave = onSave
     }
     
     var body: some View {
-        VMConfigurationSheet(configuration: $vm.configuration, showsCancelButton: false, customConfirmationButtonAction: {
-            onSave(viewModel.vm)
+        VMConfigurationSheet(configuration: $vm.configuration, customConfirmationButtonAction: { configuration in
+            var updatedVM = vm
+            updatedVM.configuration = configuration
+            self.vm = updatedVM
+            onSave(updatedVM)
         })
             .environmentObject(viewModel)
     }
@@ -37,7 +40,7 @@ struct VMInstallerConfigurationStepView_Previews: PreviewProvider {
         @State private var vm = VBVirtualMachine.preview
 
         var body: some View {
-            VMInstallerConfigurationStepView(vm: vm, onSave: { _ in })
+            InstallConfigurationStepView(vm: vm, onSave: { _ in })
         }
     }
 }

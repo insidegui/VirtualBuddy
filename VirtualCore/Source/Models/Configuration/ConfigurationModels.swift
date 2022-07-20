@@ -51,7 +51,7 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
         self.format = format
     }
     
-    public static let defaultBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    public static let defaultBootDiskImageSize: UInt64 = 128 * .storageGigabyte
     public static let minimumBootDiskImageSize: UInt64 = 64 * .storageGigabyte
     public static let maximumBootDiskImageSize: UInt64 = 512 * .storageGigabyte
 
@@ -371,10 +371,7 @@ public extension VBSharedFolder {
 
     var shortNameForDialogs: String { url.lastPathComponent }
 
-    var externalVolumeURL: URL? {
-        guard (try? url.resourceValues(forKeys: [.volumeIsInternalKey]))?.volumeIsInternal != true else { return nil }
-        return try? url.resourceValues(forKeys: [.volumeURLKey]).volume
-    }
+    var externalVolumeURL: URL? { url.externalVolumeURL }
 
     var errorMessage: String? {
         guard !url.isReadableDirectory else { return nil }

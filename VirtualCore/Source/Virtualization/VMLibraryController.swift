@@ -12,6 +12,8 @@ import OSLog
 @MainActor
 public final class VMLibraryController: ObservableObject {
 
+    private lazy var logger = Logger(for: Self.self)
+
     public enum State {
         case loading
         case loaded([VBVirtualMachine])
@@ -105,7 +107,7 @@ public final class VMLibraryController: ObservableObject {
         
         self.state = .loaded(vms)
     }
-    
+
 }
 
 private final class VMLibraryFilePresenter: NSObject, NSFilePresenter {

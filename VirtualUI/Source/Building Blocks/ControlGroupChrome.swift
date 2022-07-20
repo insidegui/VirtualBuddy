@@ -7,16 +7,20 @@ public enum ControlGroupLevel: Int {
 
 public extension View {
     func controlGroup(cornerRadius: CGFloat = 10, level: ControlGroupLevel = .primary) -> some View {
-        modifier(ControlGroupChrome(cornerRadius: cornerRadius, level: level))
+        modifier(ControlGroupChrome(level: level, shapeBuilder: { RoundedRectangle(cornerRadius: cornerRadius, style: .continuous) }))
+    }
+
+    func controlGroup<S>(_ shape: S, level: ControlGroupLevel = .primary) -> some View where S: InsettableShape {
+        modifier(ControlGroupChrome<S>(level: level, shapeBuilder: { shape }))
     }
 }
 
-private struct ControlGroupChrome: ViewModifier {
+private struct ControlGroupChrome<Shape: InsettableShape>: ViewModifier {
     @Environment(\.colorScheme)
     private var colorScheme
 
-    var cornerRadius: CGFloat
     var level: ControlGroupLevel
+    var shapeBuilder: () -> Shape
 
     var dark: Bool { colorScheme == .dark }
 
@@ -70,8 +74,8 @@ private struct ControlGroupChrome: ViewModifier {
             .unfocusOnTap()
     }
 
-    private var shape: some InsettableShape {
-        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+    private var shape: Shape {
+        shapeBuilder()
     }
 }
 

@@ -9,9 +9,13 @@ import Cocoa
 
 public extension VBMacConfiguration {
     
-    func validate(for model: VBVirtualMachine) async -> SupportState {
+    func validate(for model: VBVirtualMachine, skipVirtualizationConfig: Bool) async -> SupportState {
         var tempModel = model
         tempModel.configuration = self
+
+        guard !skipVirtualizationConfig else {
+            return hostSupportState
+        }
 
         do {
             let config = try await VMInstance.makeConfiguration(for: tempModel)

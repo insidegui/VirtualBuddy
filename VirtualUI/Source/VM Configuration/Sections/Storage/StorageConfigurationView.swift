@@ -18,10 +18,20 @@ struct StorageConfigurationView: View {
     @State private var isShowingDeviceConfigurationSheet = false
     @State private var deviceBeingConfigured: VBStorageDevice?
 
+    private var hideBootDisk: Bool { viewModel.context == .preInstall }
+
+    private func shouldHide(_ device: VBStorageDevice) -> Bool {
+        if hideBootDisk {
+            return device.isBootVolume
+        } else {
+            return false
+        }
+    }
+
     var body: some View {
         GroupedList {
             List(selection: $selection) {
-                ForEach($hardware.storageDevices) { $device in
+                ForEach($hardware.storageDevices.filter({ !shouldHide($0.wrappedValue) })) { $device in
                     StorageDeviceListItem(device: $device) {
                         configure(device)
                     }

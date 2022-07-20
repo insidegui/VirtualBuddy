@@ -15,10 +15,17 @@ struct ConfigurationSection<Header: View, Content: View>: View {
 
     var content: () -> Content
     var header: () -> Header
+    var collapsingDisabled: Bool
 
-    init(_ collapsed: Binding<Bool>? = nil, @ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
-        self._collapsedStateBinding = collapsed ?? .constant(true)
-        self._isCollapsed = .init(wrappedValue: collapsed?.wrappedValue ?? true)
+    init(_ collapsed: Binding<Bool>? = nil, collapsingDisabled: Bool = false, @ViewBuilder _ content: @escaping () -> Content, @ViewBuilder header: @escaping () -> Header) {
+        if collapsingDisabled {
+            self._collapsedStateBinding = .constant(false)
+            self._isCollapsed = .init(wrappedValue: false)
+        } else {
+            self._collapsedStateBinding = collapsed ?? .constant(true)
+            self._isCollapsed = .init(wrappedValue: collapsed?.wrappedValue ?? true)
+        }
+        self.collapsingDisabled = collapsingDisabled
         self.header = header
         self.content = content
     }
@@ -54,8 +61,10 @@ struct ConfigurationSection<Header: View, Content: View>: View {
 
             Spacer()
 
-            Image(systemName: "chevron.down")
-                .rotationEffect(.degrees(isCollapsed ? -90 : 0))
+            if !collapsingDisabled {
+                Image(systemName: "chevron.down")
+                    .rotationEffect(.degrees(isCollapsed ? -90 : 0))
+            }
         }
             .font(.system(size: 14, weight: .medium, design: .rounded))
             .padding(.horizontal)
@@ -68,6 +77,8 @@ struct ConfigurationSection<Header: View, Content: View>: View {
                     .foregroundColor(.black.opacity(isCollapsed ? 0 : 0.5))
             }
             .onTapGesture {
+                guard !collapsingDisabled else { return }
+                
                 withAnimation(.default) {
                     isCollapsed.toggle()
                 }

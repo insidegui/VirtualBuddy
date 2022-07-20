@@ -58,8 +58,8 @@ public struct VMInstallationWizard: View {
                     .disabled(viewModel.disableNextButton)
             }
         }
-        .padding()
-        .padding(.horizontal, 36)
+        .padding(viewModel.step != .configuration ? 16 : 0)
+        .padding(.horizontal, viewModel.step != .configuration ? 36 : 0)
         .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity, alignment: .top)
         .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
         .windowTitle("New macOS VM")
@@ -106,8 +106,10 @@ public struct VMInstallationWizard: View {
             InstallationWizardTitle("Configure Your Virtual Mac")
 
             if let machine = viewModel.machine {
-                VMInstallerConfigurationStepView(vm: machine) { configuredModel in
+                InstallConfigurationStepView(vm: machine) { configuredModel in
                     viewModel.machine = configuredModel
+                    try? viewModel.machine?.saveMetadata()
+
                     viewModel.goNext()
                 }
             } else {
@@ -149,7 +151,8 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Installing \(vmDisplayName)")
 
-            loadingView
+            InstallProgressStepView()
+                .environmentObject(viewModel)
         }
     }
 

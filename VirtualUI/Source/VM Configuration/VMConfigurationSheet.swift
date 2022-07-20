@@ -22,8 +22,8 @@ public struct VMConfigurationSheet: View {
 
     @State private var showingValidationErrors = false
     
-    private var showsCancelButton = true
-    private var customConfirmationButtonAction: (() -> Void)? = nil
+    private var showsCancelButton: Bool { viewModel.context == .postInstall }
+    private var customConfirmationButtonAction: ((VBMacConfiguration) -> Void)? = nil
     
     /// Initializes the VM configuration sheet, bound to a VM configuration model.
     /// - Parameter configuration: The binding that will be updated when the user saves the configuration by clicking the "Done" button.
@@ -31,11 +31,10 @@ public struct VMConfigurationSheet: View {
         self.init(configuration: configuration, showingValidationErrors: false)
     }
     
-    init(configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool = false, showsCancelButton: Bool = true, customConfirmationButtonAction: (() -> Void)? = nil) {
+    init(configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool = false, customConfirmationButtonAction: ((VBMacConfiguration) -> Void)? = nil) {
         self.initialConfiguration = configuration.wrappedValue
         self._savedConfiguration = configuration
         self._showingValidationErrors = .init(wrappedValue: showingValidationErrors)
-        self.showsCancelButton = showsCancelButton
         self.customConfirmationButtonAction = customConfirmationButtonAction
     }
     
@@ -71,11 +70,12 @@ public struct VMConfigurationSheet: View {
                 
                 Spacer()
                 
-                Button("Done") {
+                Button(viewModel.context == .preInstall ? "Continue" : "Done") {
                     validateAndSave()
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(showingValidationErrors)
+                .controlSize(viewModel.context == .preInstall ? .large : .regular)
             }
         }
         .frame(maxWidth: .infinity)
@@ -123,7 +123,7 @@ public struct VMConfigurationSheet: View {
             savedConfiguration = viewModel.config
             
             if let customConfirmationButtonAction {
-                customConfirmationButtonAction()
+                customConfirmationButtonAction(savedConfiguration)
             } else {
                 dismiss()
             }
@@ -131,3 +131,53 @@ public struct VMConfigurationSheet: View {
     }
     
 }
+
+#if DEBUG
+struct VMConfigurationSheet_Previews: PreviewProvider {
+    static var previews: some View {
+        _Template(context: .postInstall)
+            .previewDisplayName("Post Install")
+
+        _Template(context: .preInstall)
+            .previewDisplayName("Pre Install")
+    }
+
+    struct _Template: View {
+        @State private var vm = VBVirtualMachine.preview
+        var context: VMConfigurationContext
+
+        var body: some View {
+            if context == .postInstall {
+                PreviewSheet {
+                    VMConfigurationSheet(configuration: $vm.configuration)
+                        .environmentObject(VMConfigurationViewModel(vm, context: context))
+                        .frame(width: 360, height: 600, alignment: .top)
+                }
+            } else {
+                VMConfigurationSheet(configuration: $vm.configuration)
+                    .environmentObject(VMConfigurationViewModel(vm, context: context))
+                    .frame(width: 360, height: 600, alignment: .top)
+            }
+        }
+    }
+}
+
+/// Simulates a macOS sheet for SwiftUI previews.
+struct PreviewSheet<Content: View>: View {
+    var content: () -> Content
+
+    init(@ViewBuilder _ content: @escaping () -> Content) {
+        self.content = content
+    }
+
+    var body: some View {
+        ZStack {}
+        .frame(width: 500, height: 700)
+        .background(Color.black.opacity(0.5))
+        .overlay {
+            content()
+                .controlGroup()
+        }
+    }
+}
+#endif

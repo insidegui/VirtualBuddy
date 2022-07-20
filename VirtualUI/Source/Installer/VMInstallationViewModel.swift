@@ -113,8 +113,6 @@ final class VMInstallationViewModel: ObservableObject {
                 commitOSSelection()
             
                 showNextButton = true
-
-                createInitialName()
             case .configuration:
                 showNextButton = false
                 disableNextButton = true
@@ -163,19 +161,6 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
-    private func createInitialName() {
-        if let info = data.restoreImageInfo {
-            data.name = info.name
-        } else {
-            let inferredName = data.restoreImageURL?
-                .deletingPathExtension()
-                .lastPathComponent
-                .replacingOccurrences(of: "_Restore", with: "")
-            guard let name = inferredName else { return }
-            data.name = name
-        }
-    }
-    
     func handleDownloadCompleted(with fileURL: URL) {
         data.restoreImageURL = fileURL
         goNext()
@@ -225,6 +210,7 @@ final class VMInstallationViewModel: ObservableObject {
                     case .failure(let error):
                         self.state = .error(error.localizedDescription)
                     case .success:
+                        self.machine?.metadata.installFinished = true
                         self.step = .done
                 }
             }
@@ -266,7 +252,7 @@ final class VMInstallationViewModel: ObservableObject {
     func continueWithLocalFile(at url: URL) {
         data.restoreImageURL = url
 
-        step = .configuration
+        step = .name
     }
 
     private func cleanupInstallerArtifacts() {

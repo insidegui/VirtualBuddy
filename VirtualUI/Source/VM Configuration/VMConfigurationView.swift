@@ -14,7 +14,7 @@ struct VMConfigurationView: View {
     var initialConfiguration: VBMacConfiguration
 
     static var labelSpacing: CGFloat { 2 }
-    
+
     @AppStorage("config.general.collapsed")
     private var generalCollapsed = true
 
@@ -35,9 +35,14 @@ struct VMConfigurationView: View {
     
     @AppStorage("config.sharing.collapsed")
     private var sharingCollasped = true
+
+    private var showBootDiskSection: Bool { viewModel.context == .preInstall }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            if showBootDiskSection {
+                bootDisk
+            }
             general
             storage
             display
@@ -88,15 +93,42 @@ struct VMConfigurationView: View {
     }
 
     @ViewBuilder
+    private var bootDisk: some View {
+        ConfigurationSection(.constant(false), collapsingDisabled: true) {
+            if let image = (try? viewModel.vm.bootDevice)?.managedImage {
+                ManagedDiskImageEditor(image: image, isExistingDiskImage: false, isForBootVolume: true) { image in
+                    viewModel.updateBootStorageDevice(with: image)
+                }
+            } else {
+                Text("Something went terribly wrong: VM doesn't have a boot storage device with a managed disk image.")
+                    .foregroundColor(.red)
+            }
+        } header: {
+            summaryHeader(
+                "Boot Disk",
+                systemImage: "wrench.and.screwdriver"
+            )
+        }
+    }
+
+    private var storageSummary: String {
+        if showBootDiskSection {
+            return viewModel.config.hardware.storageDevices.count == 1 ? "None" : viewModel.config.storageSummary
+        } else {
+            return viewModel.config.storageSummary
+        }
+    }
+
+    @ViewBuilder
     private var storage: some View {
         ConfigurationSection($storageCollapsed) {
             StorageConfigurationView(hardware: $viewModel.config.hardware)
                 .environmentObject(viewModel)
         } header: {
             summaryHeader(
-                "Storage",
+                showBootDiskSection ? "Additional Storage" : "Storage",
                 systemImage: "externaldrive",
-                summary: viewModel.config.storageSummary
+                summary: storageSummary
             )
         }
         .contextMenu {
@@ -182,38 +214,7 @@ struct VMConfigurationView: View {
 #if DEBUG
 struct VMConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
-        _Template()
-    }
-
-    struct _Template: View {
-        @State private var vm = VBVirtualMachine.preview
-
-        var body: some View {
-            PreviewSheet {
-                VMConfigurationSheet(configuration: $vm.configuration)
-                    .environmentObject(VMConfigurationViewModel(vm))
-                    .frame(width: 360, height: 600, alignment: .top)
-            }
-        }
-    }
-}
-
-/// Simulates a macOS sheet for SwiftUI previews.
-struct PreviewSheet<Content: View>: View {
-    var content: () -> Content
-    
-    init(@ViewBuilder _ content: @escaping () -> Content) {
-        self.content = content
-    }
-    
-    var body: some View {
-        ZStack {}
-        .frame(width: 500, height: 700)
-        .background(Color.black.opacity(0.5))
-        .overlay {
-            content()
-                .controlGroup()
-        }
+        VMConfigurationSheet_Previews.previews
     }
 }
 #endif

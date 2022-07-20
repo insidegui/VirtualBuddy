@@ -51,7 +51,7 @@ public final class VMController: ObservableObject {
     
     public init(with vm: VBVirtualMachine) {
         self.virtualMachineModel = vm
-        virtualMachineModel.reloadConfiguration()
+        virtualMachineModel.reloadMetadata()
 
         /// Ensure configuration is persisted whenever it changes.
         $virtualMachineModel
@@ -59,7 +59,7 @@ public final class VMController: ObservableObject {
             .throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true)
             .sink { updatedModel in
                 do {
-                    try updatedModel.saveConfiguration()
+                    try updatedModel.saveMetadata()
                 } catch {
                     assertionFailure("Failed to save configuration: \(error)")
                 }

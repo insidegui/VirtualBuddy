@@ -6,16 +6,31 @@ public typealias VoidSubject = PassthroughSubject<(), Never>
 
 public struct VBVirtualMachine: Identifiable {
 
+    public struct Metadata: Codable {
+        public static let currentVersion = 1
+        public var version = Self.currentVersion
+        public var installFinished: Bool = false
+        public var firstBootDate: Date? = nil
+        public var lastBootDate: Date? = nil
+    }
+
     public var id: String { bundleURL.absoluteString }
     public let bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
+
     private var _configuration: VBMacConfiguration?
+    private var _metadata: Metadata?
     
     public var configuration: VBMacConfiguration {
-        /// Masking private `_configuration` to avoid making the public API optional
-        /// without having to do any special `Codable` shenanigans.
+        /// Masking private `_configuration` since it's initialized dynamically from a file.
         get { _configuration ?? .default }
         set { _configuration = newValue }
+    }
+
+    public var metadata: Metadata {
+        /// Masking private `_metadata` since it's initialized dynamically from a file.
+        get { _metadata ?? .init() }
+        set { _metadata = newValue }
     }
 
     public private(set) var didInvalidateThumbnail = VoidSubject()
@@ -30,6 +45,7 @@ public extension VBVirtualMachine {
 
 extension VBVirtualMachine {
 
+    static let metadataFilename = "Metadata.plist"
     static let configurationFilename = "Config.plist"
     
     func diskImageURL(for device: VBStorageDevice) -> URL {
@@ -46,8 +62,8 @@ extension VBVirtualMachine {
             .appendingPathComponent(image.filename)
             .appendingPathExtension(image.format.fileExtension)
     }
-    
-    var bootDevice: VBStorageDevice {
+
+    public var bootDevice: VBStorageDevice {
         get throws {
             guard let device = configuration.hardware.storageDevices.first(where: { $0.isBootVolume }) else {
                 throw Failure("The virtual machine doesn't have a storage device to boot from.")
@@ -80,7 +96,7 @@ extension VBVirtualMachine {
     var hardwareModelURL: URL {
         bundleURL.appendingPathComponent("HardwareModel")
     }
-    
+
     var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
 
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
@@ -107,46 +123,70 @@ public extension VBVirtualMachine {
         }
         
         self.bundleURL = bundleURL
-        var config = try loadConfiguration()
-        
+        var (metadata, config) = try loadMetadata()
+
+        /// Migration from previous versions that didn't have a configuration file
+        /// describing the storage devices.
         config.hardware.addMissingBootDeviceIfNeeded()
         
         self.configuration = config
 
-        try saveConfiguration()
+        if let metadata {
+            self.metadata = metadata
+        } else {
+            /// Migration from previous versions that didn't have a metadata file.
+            self.metadata = Metadata(installFinished: true, firstBootDate: .now, lastBootDate: .now)
+        }
+
+        try saveMetadata()
     }
 
-    func saveConfiguration() throws {
+    func saveMetadata() throws {
         #if DEBUG
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
         
         let configData = try PropertyListEncoder().encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
+
+        let metaData = try PropertyListEncoder().encode(metadata)
+        try write(metaData, forMetadataFileNamed: Self.metadataFilename)
     }
 
-    func loadConfiguration() throws -> VBMacConfiguration {
+    func loadMetadata() throws -> (Metadata?, VBMacConfiguration) {
         #if DEBUG
-        guard !ProcessInfo.isSwiftUIPreview else { return .default }
+        guard !ProcessInfo.isSwiftUIPreview else { return (nil, .default) }
         #endif
-        
+
+        let metadata: Metadata?
+        let config: VBMacConfiguration
+
         if let data = metadataContents(Self.configurationFilename) {
-            return try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
+            config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
         } else {
-            return .default
+            config = .default
         }
+
+        if let data = metadataContents(Self.metadataFilename) {
+            metadata = try PropertyListDecoder().decode(Metadata.self, from: data)
+        } else {
+            metadata = nil
+        }
+
+        return (metadata, config)
     }
 
-    mutating func reloadConfiguration() {
+    mutating func reloadMetadata() {
         #if DEBUG
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
         
-        guard let config = try? loadConfiguration() else {
-            assertionFailure("Failed to reload configuration")
+        guard let (metadata, config) = try? loadMetadata() else {
+            assertionFailure("Failed to reload metadata")
             return
         }
 
+        self.metadata = metadata ?? .init()
         self.configuration = config
     }
     

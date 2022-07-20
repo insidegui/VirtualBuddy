@@ -8,6 +8,11 @@
 import SwiftUI
 import VirtualCore
 
+public enum VMConfigurationContext: Int {
+    case preInstall
+    case postInstall
+}
+
 public final class VMConfigurationViewModel: ObservableObject {
     
     @Published var config: VBMacConfiguration {
@@ -27,17 +32,20 @@ public final class VMConfigurationViewModel: ObservableObject {
     @Published var selectedDisplayPreset: VBDisplayPreset?
     
     @Published private(set) var vm: VBVirtualMachine
+
+    public let context: VMConfigurationContext
     
-    public init(_ vm: VBVirtualMachine) {
+    public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall) {
         self.config = vm.configuration
         self.vm = vm
+        self.context = context
         
         Task { await validate() }
     }
 
     @discardableResult
     public func validate() async -> VBMacConfiguration.SupportState {
-        let updatedState = await config.validate(for: vm)
+        let updatedState = await config.validate(for: vm, skipVirtualizationConfig: context == .preInstall)
 
         await MainActor.run {
             supportState = updatedState
@@ -54,6 +62,16 @@ public final class VMConfigurationViewModel: ObservableObject {
         let settings = DiskImageGenerator.ImageSettings(for: image, in: vm)
         
         try await DiskImageGenerator.generateImage(with: settings)
+    }
+
+    public func updateBootStorageDevice(with image: VBManagedDiskImage) {
+        guard let idx = config.hardware.storageDevices.firstIndex(where: { $0.isBootVolume }) else {
+            fatalError("Missing boot device in VM configuration")
+        }
+
+        var device = config.hardware.storageDevices[idx]
+        device.backing = .managedImage(image)
+        config.hardware.addOrUpdate(device)
     }
     
 }
