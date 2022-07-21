@@ -124,6 +124,7 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     
     private func commit() {
         guard validate(internalValue) else {
+            self.internalValue = value
             shake()
             return
         }

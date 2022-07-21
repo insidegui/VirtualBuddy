@@ -15,18 +15,18 @@ struct VirtualMachineButtonStyle: ButtonStyle {
     func makeBody(configuration: Configuration) -> some View {
         LibraryItemView(
             vm: vm,
-            isPressed: configuration.isPressed,
-            label: { configuration.label }
+            name: vm.name,
+            isPressed: configuration.isPressed
         )
     }
 
 }
 
-struct LibraryItemView<Label>: View where Label: View {
+struct LibraryItemView: View {
 
-    var vm: VBVirtualMachine
+    @State var vm: VBVirtualMachine
+    @State var name: String
     var isPressed = false
-    var label: () -> Label
 
     @State private var thumbnail: Image?
 
@@ -36,7 +36,19 @@ struct LibraryItemView<Label>: View where Label: View {
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .shadow(color: Color.black.opacity(0.4), radius: 4)
 
-            label()
+            EphemeralTextField($name, alignment: .leading) { name in
+                Text(name)
+            } editableContent: { name in
+                TextField("VM Name", text: name)
+            } validate: { name in
+                do {
+                    try VMLibraryController.shared.validateNewName(name, for: vm)
+                    return true
+                } catch {
+                    return false
+                }
+            }
+            .font(.system(size: 16, weight: .medium, design: .rounded))
         }
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
@@ -55,6 +67,20 @@ struct LibraryItemView<Label>: View where Label: View {
         .scaleEffect(isPressed ? 0.96 : 1)
         .onAppear { refreshThumbnail() }
         .onReceive(vm.didInvalidateThumbnail) { refreshThumbnail() }
+        .contextMenu { contextMenuItems }
+        .onChange(of: name) { [name] newName in
+            guard newName != name else { return }
+
+            do {
+                try VMLibraryController.shared.rename(vm, to: newName)
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
+        .onChange(of: vm.name) { [vm] updatedName in
+            guard updatedName != vm.name else { return }
+            self.name = updatedName
+        }
     }
 
     private func refreshThumbnail() {
@@ -86,6 +112,13 @@ struct LibraryItemView<Label>: View where Label: View {
                     .foregroundColor(.secondary)
             }
             .frame(minHeight: 140)
+        }
+    }
+
+    @ViewBuilder
+    private var contextMenuItems: some View {
+        Button("Reveal In Finder") {
+            NSWorkspace.shared.selectFile(vm.bundleURL.path, inFileViewerRootedAtPath: vm.bundleURL.deletingLastPathComponent().path)
         }
     }
 

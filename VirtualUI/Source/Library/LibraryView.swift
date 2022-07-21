@@ -82,11 +82,8 @@ public struct LibraryView: View {
         ScrollView(.vertical) {
             LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
                 ForEach(vms) { vm in
-                    Button {
+                    Button(vm.name) {
                         launch(vm)
-                    } label: {
-                        Text(vm.name)
-                            .font(.system(size: 16, weight: .medium, design: .rounded))
                     }
                     .buttonStyle(VirtualMachineButtonStyle(vm: vm))
                 }

@@ -108,6 +108,35 @@ public final class VMLibraryController: ObservableObject {
         self.state = .loaded(vms)
     }
 
+    public func validateNewName(_ name: String, for vm: VBVirtualMachine) throws {
+        try urlForRenaming(vm, to: name)
+    }
+
+    @discardableResult
+    func urlForRenaming(_ vm: VBVirtualMachine, to name: String) throws -> URL {
+        guard name.count >= 3 else {
+            throw Failure("Name must be at least 3 characters long.")
+        }
+
+        let newURL = vm
+            .bundleURL
+            .deletingLastPathComponent()
+            .appendingPathComponent(name)
+            .appendingPathExtension(VBVirtualMachine.bundleExtension)
+
+        guard !fileManager.fileExists(atPath: newURL.path) else {
+            throw Failure("Another virtual machine is already using this name, please choose another one.")
+        }
+
+        return newURL
+    }
+
+    public func rename(_ vm: VBVirtualMachine, to newName: String) throws {
+        let newURL = try urlForRenaming(vm, to: newName)
+
+        try fileManager.moveItem(at: vm.bundleURL, to: newURL)
+    }
+
 }
 
 private final class VMLibraryFilePresenter: NSObject, NSFilePresenter {
