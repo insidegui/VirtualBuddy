@@ -123,7 +123,22 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Name Your Virtual Mac")
 
-            TextField("VM Name", text: $viewModel.data.name, onCommit: viewModel.goNext)
+            HStack {
+                TextField("VM Name", text: $viewModel.data.name, onCommit: viewModel.goNext)
+                    .textFieldStyle(.roundedBorder)
+                    .controlSize(.large)
+
+                Spacer()
+
+                Button {
+                    viewModel.data.name = RandomNameGenerator.shared.newName()
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                        .help("Generate new name")
+                }
+                .buttonStyle(.borderless)
+                .font(.system(size: 15, weight: .medium, design: .rounded))
+            }
         }
     }
 
