@@ -27,12 +27,11 @@ public final class RandomNameGenerator {
     }
 
     public func newName() -> String {
-        guard !adjectives.isEmpty, !animals.isEmpty else {
+        guard let adjective = adjectives.randomElement(),
+              let animal = animals.randomElement()
+        else {
             return UUID().uuidString
         }
-
-        let adjective = adjectives.shuffled()[0]
-        let animal = animals.shuffled()[0]
 
         return adjective + " " + animal
     }
