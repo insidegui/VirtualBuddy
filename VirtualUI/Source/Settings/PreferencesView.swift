@@ -8,7 +8,7 @@
 import SwiftUI
 import VirtualCore
 
-struct PreferencesView: View {
+public struct PreferencesView: View {
 
     @EnvironmentObject var container: VBSettingsContainer
 
@@ -19,7 +19,9 @@ struct PreferencesView: View {
 
     @State private var libraryPathText = ""
 
-    var body: some View {
+    public init() { }
+
+    public var body: some View {
         DecentFormView {
             DecentFormControl {
                 VStack(alignment: .leading, spacing: 8) {

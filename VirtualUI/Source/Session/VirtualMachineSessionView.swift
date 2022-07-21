@@ -7,13 +7,12 @@
 
 import SwiftUI
 import VirtualCore
-import VirtualUI
 
-struct VirtualMachineSessionView: View {
+public struct VirtualMachineSessionView: View {
     @StateObject var controller: VMController
     @EnvironmentObject var library: VMLibraryController
 
-    var body: some View {
+    public var body: some View {
         controllerStateView
             .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 960, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
@@ -121,58 +120,7 @@ struct VirtualMachineSessionView: View {
             VMScreenshotBackgroundView(vm: $controller.virtualMachineModel)
         }
     }
-    
-    // MARK: - Toolbar Buttons
-    
-    private var toolbarContents: some View {
-        HStack {
-            pauseResumeToolbarButton
-            
-            if case .running = controller.state {
-                Button {
-                    Task { try await controller.stop() }
-                } label: {
-                    Image(systemName: "stop.fill")
-                }
-                .help("Shutdown")
-                
-                Button {
-                    Task { try await controller.forceStop() }
-                } label: {
-                    Image(systemName: "exclamationmark.square.fill")
-                }
-                .help("Force stop")
-            }
 
-            Button {
-                NSApp.sendAction(#selector(VirtualBuddyAppDelegate.restoreDefaultWindowPosition(_:)), to: nil, from: nil)
-            } label: {
-                Image(systemName: "macwindow")
-            }
-            .help("Restore default window size and position")
-        }
-    }
-    
-    @ViewBuilder
-    private var pauseResumeToolbarButton: some View {
-        if controller.canResume {
-            Button {
-                Task { try await controller.resume() }
-            } label: {
-                Image(systemName: "play.fill")
-            }
-            .help("Resume")
-        } else if controller.canPause {
-            Button {
-                Task { try await controller.pause() }
-            } label: {
-                Image(systemName: "pause.fill")
-            }
-            .help("Pause")
-        } else {
-            EmptyView()
-        }
-    }
 }
 
 struct VMScreenshotBackgroundView: View {

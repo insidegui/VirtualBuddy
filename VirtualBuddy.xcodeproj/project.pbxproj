@@ -31,6 +31,12 @@
 		F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01492888C2F800EB15CD /* InstallationConsole.swift */; };
 		F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014B2888C34B00EB15CD /* LogConsole.swift */; };
 		F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */; };
+		F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01512888FC0C00EB15CD /* LibraryView.swift */; };
+		F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01542888FC0C00EB15CD /* VMSessionConfigurationView.swift */; };
+		F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01552888FC0C00EB15CD /* VirtualMachineSessionView.swift */; };
+		F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */; };
+		F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01592888FC0C00EB15CD /* PreferencesView.swift */; };
+		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -72,7 +78,6 @@
 		F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49A68E02884917E00A17582 /* ConfigurationModels.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
-		F4A21BF628033309001072B8 /* LibraryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF528033309001072B8 /* LibraryView.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
 		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
@@ -87,10 +92,7 @@
 		F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C7327FF055100B648F8 /* VBVirtualMachine.swift */; };
 		F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */; };
 		F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C7927FF05B900B648F8 /* VMController.swift */; };
-		F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C7B27FF0AA500B648F8 /* VirtualMachineSessionView.swift */; };
-		F4BE9C7E27FF0AEB00B648F8 /* SwiftUIVMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C7D27FF0AEB00B648F8 /* SwiftUIVMView.swift */; };
 		F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */; };
-		F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */; };
 		F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */ = {isa = PBXBuildFile; fileRef = F4C189E22848F59F00335EC7 /* VirtualWormhole.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
@@ -115,7 +117,6 @@
 		F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */; };
 		F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
-		F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B412284CDB7B00F21737 /* PreferencesView.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
@@ -211,6 +212,12 @@
 		F42C01492888C2F800EB15CD /* InstallationConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationConsole.swift; sourceTree = "<group>"; };
 		F42C014B2888C34B00EB15CD /* LogConsole.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogConsole.swift; sourceTree = "<group>"; };
 		F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallProgressStepView.swift; sourceTree = "<group>"; };
+		F42C01512888FC0C00EB15CD /* LibraryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
+		F42C01542888FC0C00EB15CD /* VMSessionConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMSessionConfigurationView.swift; sourceTree = "<group>"; };
+		F42C01552888FC0C00EB15CD /* VirtualMachineSessionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionView.swift; sourceTree = "<group>"; };
+		F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIVMView.swift; sourceTree = "<group>"; };
+		F42C01592888FC0C00EB15CD /* PreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -250,7 +257,6 @@
 		F49A68E02884917E00A17582 /* ConfigurationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationModels.swift; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
-		F4A21BF528033309001072B8 /* LibraryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryView.swift; sourceTree = "<group>"; };
 		F4B068B428882EB7003743BF /* VirtualBuddy_Managed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy_Managed.entitlements; sourceTree = "<group>"; };
 		F4B068B528882F5D003743BF /* AppEntitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppEntitlements.xcconfig; sourceTree = "<group>"; };
 		F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFoldersManagementView.swift; sourceTree = "<group>"; };
@@ -268,11 +274,8 @@
 		F4BE9C7327FF055100B648F8 /* VBVirtualMachine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VBVirtualMachine.swift; sourceTree = "<group>"; };
 		F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MacOSVirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
 		F4BE9C7927FF05B900B648F8 /* VMController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMController.swift; sourceTree = "<group>"; };
-		F4BE9C7B27FF0AA500B648F8 /* VirtualMachineSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionView.swift; sourceTree = "<group>"; };
-		F4BE9C7D27FF0AEB00B648F8 /* SwiftUIVMView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwiftUIVMView.swift; sourceTree = "<group>"; };
 		F4BE9C7F27FF10FB00B648F8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyAppDelegate.swift; sourceTree = "<group>"; };
-		F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMSessionConfigurationView.swift; sourceTree = "<group>"; };
 		F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualizationPrivate.h; sourceTree = "<group>"; };
 		F4C122482807146200D359E2 /* Versions.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Versions.xcconfig; sourceTree = "<group>"; };
 		F4C1224A2807156200D359E2 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
@@ -299,7 +302,6 @@
 		F4D0F71B28674F24004D5782 /* Features.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Features.xcconfig; sourceTree = "<group>"; };
 		F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChannel.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
-		F4F9B412284CDB7B00F21737 /* PreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
@@ -420,6 +422,57 @@
 			path = Components;
 			sourceTree = "<group>";
 		};
+		F42C01502888FC0C00EB15CD /* Library */ = {
+			isa = PBXGroup;
+			children = (
+				F42C015F2888FC2500EB15CD /* Components */,
+				F42C01512888FC0C00EB15CD /* LibraryView.swift */,
+			);
+			path = Library;
+			sourceTree = "<group>";
+		};
+		F42C01522888FC0C00EB15CD /* Session */ = {
+			isa = PBXGroup;
+			children = (
+				F42C01562888FC0C00EB15CD /* Components */,
+				F42C01532888FC0C00EB15CD /* Configuration */,
+				F42C01552888FC0C00EB15CD /* VirtualMachineSessionView.swift */,
+			);
+			path = Session;
+			sourceTree = "<group>";
+		};
+		F42C01532888FC0C00EB15CD /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				F42C01542888FC0C00EB15CD /* VMSessionConfigurationView.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		F42C01562888FC0C00EB15CD /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F42C01582888FC0C00EB15CD /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				F42C01592888FC0C00EB15CD /* PreferencesView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		F42C015F2888FC2500EB15CD /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F42C01602888FC3500EB15CD /* LibraryItemView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -510,6 +563,9 @@
 		F498AD092884BF20006F1C00 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F42C01502888FC0C00EB15CD /* Library */,
+				F42C01522888FC0C00EB15CD /* Session */,
+				F42C01582888FC0C00EB15CD /* Settings */,
 				F48E0D2D288883450080DDFA /* Definitions */,
 				F48E0D12288882BD0080DDFA /* Installer */,
 				F41725642886DF4A004FF8A7 /* Components */,
@@ -590,40 +646,6 @@
 			path = Helpers;
 			sourceTree = "<group>";
 		};
-		F4A21BF728033941001072B8 /* Library */ = {
-			isa = PBXGroup;
-			children = (
-				F4A21BF528033309001072B8 /* LibraryView.swift */,
-			);
-			path = Library;
-			sourceTree = "<group>";
-		};
-		F4A21BF82803394B001072B8 /* Session */ = {
-			isa = PBXGroup;
-			children = (
-				F4A21BFA2803395F001072B8 /* Components */,
-				F4A21BF928033957001072B8 /* Configuration */,
-				F4BE9C7B27FF0AA500B648F8 /* VirtualMachineSessionView.swift */,
-			);
-			path = Session;
-			sourceTree = "<group>";
-		};
-		F4A21BF928033957001072B8 /* Configuration */ = {
-			isa = PBXGroup;
-			children = (
-				F4BE9C8227FF120C00B648F8 /* VMSessionConfigurationView.swift */,
-			);
-			path = Configuration;
-			sourceTree = "<group>";
-		};
-		F4A21BFA2803395F001072B8 /* Components */ = {
-			isa = PBXGroup;
-			children = (
-				F4BE9C7D27FF0AEB00B648F8 /* SwiftUIVMView.swift */,
-			);
-			path = Components;
-			sourceTree = "<group>";
-		};
 		F4A21BFB28033968001072B8 /* Bootstrap */ = {
 			isa = PBXGroup;
 			children = (
@@ -673,10 +695,7 @@
 			isa = PBXGroup;
 			children = (
 				F4C122472807145600D359E2 /* Config */,
-				F4F9B411284CDB5300F21737 /* Settings */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
-				F4A21BF82803394B001072B8 /* Session */,
-				F4A21BF728033941001072B8 /* Library */,
 				F4BE9C7F27FF10FB00B648F8 /* Info.plist */,
 				F4BE9C5527FF052100B648F8 /* Assets.xcassets */,
 				F4BE9C5727FF052100B648F8 /* Preview Content */,
@@ -831,14 +850,6 @@
 				F4C2374C2888A462001FF286 /* VolumeUtils.swift */,
 			);
 			path = Utilities;
-			sourceTree = "<group>";
-		};
-		F4F9B411284CDB5300F21737 /* Settings */ = {
-			isa = PBXGroup;
-			children = (
-				F4F9B412284CDB7B00F21737 /* PreferencesView.swift */,
-			);
-			path = Settings;
 			sourceTree = "<group>";
 		};
 		F4F9B414284CE0DC00F21737 /* Settings */ = {
@@ -1095,6 +1106,8 @@
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
 				F48E0D34288889E60080DDFA /* InstallConfigurationStepView.swift in Sources */,
+				F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */,
+				F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */,
 				F48E0D23288882E50080DDFA /* DecentFormView.swift in Sources */,
 				F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */,
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
@@ -1102,10 +1115,13 @@
 				F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */,
 				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
 				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
+				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */,
 				F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */,
+				F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
+				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
@@ -1133,6 +1149,7 @@
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
+				F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1140,14 +1157,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4BE9C7C27FF0AA500B648F8 /* VirtualMachineSessionView.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
-				F4BE9C8327FF120C00B648F8 /* VMSessionConfigurationView.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
-				F4A21BF628033309001072B8 /* LibraryView.swift in Sources */,
-				F4F9B413284CDB7B00F21737 /* PreferencesView.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
-				F4BE9C7E27FF0AEB00B648F8 /* SwiftUIVMView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

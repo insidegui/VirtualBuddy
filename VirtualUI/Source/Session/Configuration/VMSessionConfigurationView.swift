@@ -7,7 +7,6 @@
 
 import SwiftUI
 import VirtualCore
-import VirtualUI
 
 struct VMSessionConfigurationView: View {
     @EnvironmentObject var controller: VMController
