@@ -30,13 +30,17 @@ struct LibraryItemView: View {
 
     @State private var thumbnail: Image?
 
+    var nameFieldFocus = BoolSubject()
+
+    @State private var isShowingDuplicateSheet = false
+
     var body: some View {
         VStack(spacing: 12) {
             thumbnailView
                 .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
                 .shadow(color: Color.black.opacity(0.4), radius: 4)
 
-            EphemeralTextField($name, alignment: .leading) { name in
+            EphemeralTextField($name, alignment: .leading, setFocus: nameFieldFocus) { name in
                 Text(name)
             } editableContent: { name in
                 TextField("VM Name", text: name)
@@ -81,6 +85,9 @@ struct LibraryItemView: View {
             guard updatedName != vm.name else { return }
             self.name = updatedName
         }
+        .sheet(isPresented: $isShowingDuplicateSheet) {
+            DuplicateVMSheet(vm: vm)
+        }
     }
 
     private func refreshThumbnail() {
@@ -116,9 +123,39 @@ struct LibraryItemView: View {
     }
 
     @ViewBuilder
-    private var contextMenuItems: some View {
-        Button("Reveal In Finder") {
+    fileprivate var contextMenuItems: some View {
+        Button {
             NSWorkspace.shared.selectFile(vm.bundleURL.path, inFileViewerRootedAtPath: vm.bundleURL.deletingLastPathComponent().path)
+        } label: {
+            Label("Show in Finder", systemImage: "folder")
+        }
+
+        Divider()
+
+        Button {
+            isShowingDuplicateSheet = true
+        } label: {
+            Text("Duplicate")
+        }
+
+        Button {
+            nameFieldFocus.send(true)
+        } label: {
+            Text("Rename")
+        }
+
+        Divider()
+
+        Button {
+            Task {
+                do {
+                    try await VMLibraryController.shared.moveToTrash(vm)
+                } catch {
+                    await NSAlert(error: error).runModal()
+                }
+            }
+        } label: {
+            Text("Move to Trash")
         }
     }
 

@@ -5,7 +5,7 @@
 //  Created by Guilherme Rambo on 10/04/22.
 //
 
-import Foundation
+import SwiftUI
 import Combine
 import OSLog
 
@@ -86,7 +86,7 @@ public final class VMLibraryController: ObservableObject {
     public func loadMachines() {
         filePresenter.presentedItemURL = libraryURL
 
-        guard let enumerator = fileManager.enumerator(at: libraryURL, includingPropertiesForKeys: nil, options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants], errorHandler: nil) else {
+        guard let enumerator = fileManager.enumerator(at: libraryURL, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants], errorHandler: nil) else {
             state = .failed(.init("Failed to open directory at \(libraryURL.path)"))
             return
         }
@@ -104,12 +104,52 @@ public final class VMLibraryController: ObservableObject {
                 assertionFailure("Failed to construct VM model: \(error)")
             }
         }
+
+        vms.sort(by: { $0.bundleURL.creationDate > $1.bundleURL.creationDate })
         
         self.state = .loaded(vms)
     }
 
+    public func reload(animated: Bool = true) {
+        if animated {
+            withAnimation(.spring()) {
+                loadMachines()
+            }
+        } else {
+            loadMachines()
+        }
+    }
+
     public func validateNewName(_ name: String, for vm: VBVirtualMachine) throws {
         try urlForRenaming(vm, to: name)
+    }
+
+}
+
+// MARK: - Management Actions
+
+public extension VMLibraryController {
+
+    func duplicate(_ vm: VBVirtualMachine, using method: VBVirtualMachine.DuplicationMethod) throws {
+        let newName = "Copy of " + vm.name
+
+        let copyURL = try urlForRenaming(vm, to: newName)
+
+        try fileManager.copyItem(at: vm.bundleURL, to: copyURL)
+
+        reload()
+    }
+
+    func moveToTrash(_ vm: VBVirtualMachine) async throws {
+        try await NSWorkspace.shared.recycle([vm.bundleURL])
+
+        reload()
+    }
+
+    func rename(_ vm: VBVirtualMachine, to newName: String) throws {
+        let newURL = try urlForRenaming(vm, to: newName)
+
+        try fileManager.moveItem(at: vm.bundleURL, to: newURL)
     }
 
     @discardableResult
@@ -130,14 +170,10 @@ public final class VMLibraryController: ObservableObject {
 
         return newURL
     }
-
-    public func rename(_ vm: VBVirtualMachine, to newName: String) throws {
-        let newURL = try urlForRenaming(vm, to: newName)
-
-        try fileManager.moveItem(at: vm.bundleURL, to: newURL)
-    }
-
+    
 }
+
+// MARK: - File Presenter
 
 private final class VMLibraryFilePresenter: NSObject, NSFilePresenter {
 
@@ -213,4 +249,8 @@ public extension VMLibraryController {
         }
     }
 
+}
+
+extension URL {
+    var creationDate: Date { (try? resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast }
 }

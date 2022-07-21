@@ -1,5 +1,7 @@
 # What's new in VirtualBuddy 1.2
 
+- Managing virtual machines can now be done entirely within the library view, the contextual menu offers options for renaming, deleting, duplicating, and showing the VM in Finder
+- The library now sorts virtual machines by creation date, in reverse chronological order
 - Virtual machines can now be configured with custom CPU, RAM, storage devices, network devices, displays, and many other options
 - The option to capture system keyboard shortcuts is now persisted for each virtual machine in the library
 - Adds support for shared folders to share specific directories from your Mac with the virtual machine

@@ -3,8 +3,16 @@ import UniformTypeIdentifiers
 import Combine
 
 public typealias VoidSubject = PassthroughSubject<(), Never>
+public typealias BoolSubject = PassthroughSubject<Bool, Never>
 
 public struct VBVirtualMachine: Identifiable {
+
+    public enum DuplicationMethod: Int, Identifiable, CaseIterable {
+        public var id: RawValue { rawValue }
+
+        case changeID
+        case clone
+    }
 
     public struct Metadata: Codable {
         public static let currentVersion = 1

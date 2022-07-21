@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import VirtualCore
 
 private struct EphemeralTextFieldContentWidthKey: PreferenceKey {
     static var defaultValue: CGFloat = 0
@@ -23,9 +24,11 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
     var clamp: (Value) -> Value
     var validate: (Value) -> Bool
     var alignment: Alignment
+    var setFocus: BoolSubject
     
     init(_ value: Binding<Value>,
          alignment: Alignment = .trailing,
+         setFocus: BoolSubject = .init(),
          @ViewBuilder staticContent: @escaping (Value) -> StaticContent,
          @ViewBuilder editableContent: @escaping (Binding<Value>) -> EditableContent,
          clamp: @escaping (Value) -> Value = { $0 },
@@ -34,6 +37,7 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
         self._value = value
         self._internalValue = .init(wrappedValue: value.wrappedValue)
         self.alignment = alignment
+        self.setFocus = setFocus
         self.staticContent = staticContent
         self.editableContent = editableContent
         self.clamp = clamp
@@ -62,9 +66,7 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
                 .lineLimit(1)
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    guard isEnabled else { return }
-                    
-                    isInEditMode = true
+                    beginEditing()
                 }
                 .onHover { isHovered = $0 }
                 .opacity(isInEditMode ? 0 : 1)
@@ -120,6 +122,21 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
         .onChange(of: value) { newValue in
             internalValue = newValue
         }
+        .onReceive(setFocus) { focus in
+            guard focus != isInEditMode else { return }
+            
+            if focus {
+                beginEditing()
+            } else {
+                cancel()
+            }
+        }
+    }
+
+    private func beginEditing() {
+        guard isEnabled else { return }
+
+        isInEditMode = true
     }
     
     private func commit() {
