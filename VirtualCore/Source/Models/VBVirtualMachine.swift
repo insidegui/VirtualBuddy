@@ -7,12 +7,14 @@ public typealias BoolSubject = PassthroughSubject<Bool, Never>
 
 public struct VBVirtualMachine: Identifiable {
 
+    #if ENABLE_HARDWARE_ID_CHANGE
     public enum DuplicationMethod: Int, Identifiable, CaseIterable {
         public var id: RawValue { rawValue }
 
         case changeID
         case clone
     }
+    #endif
 
     public struct Metadata: Codable {
         public static let currentVersion = 1
@@ -23,7 +25,7 @@ public struct VBVirtualMachine: Identifiable {
     }
 
     public var id: String { bundleURL.absoluteString }
-    public let bundleURL: URL
+    public internal(set) var bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
 
     private var _configuration: VBMacConfiguration?
@@ -197,5 +199,16 @@ public extension VBVirtualMachine {
         self.metadata = metadata ?? .init()
         self.configuration = config
     }
-    
+
+}
+
+extension URL {
+    var creationDate: Date {
+        get { (try? resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast }
+        set {
+            var values = URLResourceValues()
+            values.creationDate = newValue
+            try? setResourceValues(values)
+        }
+    }
 }

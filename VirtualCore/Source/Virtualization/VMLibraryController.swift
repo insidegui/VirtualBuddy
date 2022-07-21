@@ -130,14 +130,34 @@ public final class VMLibraryController: ObservableObject {
 
 public extension VMLibraryController {
 
+    #if ENABLE_HARDWARE_ID_CHANGE
     func duplicate(_ vm: VBVirtualMachine, using method: VBVirtualMachine.DuplicationMethod) throws {
+        var newVM = try duplicate(vm)
+
+        if method == .changeID {
+            try newVM.generateNewMachineIdentifier()
+            try newVM.generateAuxiliaryStorage()
+        }
+
+        reload()
+    }
+    #endif
+
+    @discardableResult
+    func duplicate(_ vm: VBVirtualMachine) throws -> VBVirtualMachine {
         let newName = "Copy of " + vm.name
 
         let copyURL = try urlForRenaming(vm, to: newName)
 
         try fileManager.copyItem(at: vm.bundleURL, to: copyURL)
 
+        var newVM = try VBVirtualMachine(bundleURL: copyURL)
+
+        newVM.bundleURL.creationDate = .now
+
         reload()
+
+        return newVM
     }
 
     func moveToTrash(_ vm: VBVirtualMachine) async throws {
@@ -249,8 +269,4 @@ public extension VMLibraryController {
         }
     }
 
-}
-
-extension URL {
-    var creationDate: Date { (try? resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast }
 }

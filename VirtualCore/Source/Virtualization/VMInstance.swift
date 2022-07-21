@@ -79,66 +79,13 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let macPlatform = VZMacPlatformConfiguration()
 
-        let hardwareModel: VZMacHardwareModel
-
-        if FileManager.default.fileExists(atPath: model.hardwareModelURL.path) {
-            guard let hardwareModelData = try? Data(contentsOf: model.hardwareModelURL) else {
-                throw Failure("Failed to retrieve hardware model data.")
-            }
-
-            guard let hw = VZMacHardwareModel(dataRepresentation: hardwareModelData) else {
-                throw Failure("Failed to create hardware model.")
-            }
-
-            hardwareModel = hw
-        } else {
-            guard let image = image else {
-                throw Failure("Hardware model data doesn't exist, but a restore image was not provided to create the initial data.")
-            }
-
-            guard let hw = image.mostFeaturefulSupportedConfiguration?.hardwareModel else {
-                throw Failure("Failed to obtain hardware model from restore image")
-            }
-
-            hardwareModel = hw
-
-            try hw.dataRepresentation.write(to: model.hardwareModelURL)
-        }
-
-        guard hardwareModel.isSupported else {
-            throw Failure("The hardware model is not supported on the current host")
-        }
+        let hardwareModel = try model.fetchOrGenerateHardwareModel(with: image)
 
         macPlatform.hardwareModel = hardwareModel
 
-        if FileManager.default.fileExists(atPath: model.auxiliaryStorageURL.path) {
-            macPlatform.auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: model.auxiliaryStorageURL)
-        } else {
-            macPlatform.auxiliaryStorage = try VZMacAuxiliaryStorage(
-                creatingStorageAt: model.auxiliaryStorageURL,
-                hardwareModel: hardwareModel
-            )
-        }
+        macPlatform.auxiliaryStorage = try model.fetchOrGenerateAuxiliaryStorage(hardwareModel: hardwareModel)
 
-        let machineIdentifier: VZMacMachineIdentifier
-
-        if FileManager.default.fileExists(atPath: model.machineIdentifierURL.path) {
-            guard let machineIdentifierData = try? Data(contentsOf: model.machineIdentifierURL) else {
-                throw Failure("Failed to retrieve machine identifier data.")
-            }
-
-            guard let mid = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
-                throw Failure("Failed to create machine identifier.")
-            }
-
-            machineIdentifier = mid
-        } else {
-            machineIdentifier = VZMacMachineIdentifier()
-
-            try machineIdentifier.dataRepresentation.write(to: model.machineIdentifierURL)
-        }
-
-        macPlatform.machineIdentifier = machineIdentifier
+        macPlatform.machineIdentifier = try model.fetchOrGenerateMachineIdentifier()
 
         return macPlatform
     }
@@ -267,6 +214,8 @@ public final class VMInstance: NSObject, ObservableObject {
 extension VMInstance: VZVirtualMachineDelegate {
     
     public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
+        logger.error("Stopped with error: \(String(describing: error), privacy: .public)")
+
         DispatchQueue.main.async {
             self._wormhole = nil
             

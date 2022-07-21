@@ -32,7 +32,9 @@ struct LibraryItemView: View {
 
     var nameFieldFocus = BoolSubject()
 
+    #if ENABLE_HARDWARE_ID_CHANGE
     @State private var isShowingDuplicateSheet = false
+    #endif
 
     var body: some View {
         VStack(spacing: 12) {
@@ -85,9 +87,11 @@ struct LibraryItemView: View {
             guard updatedName != vm.name else { return }
             self.name = updatedName
         }
+        #if ENABLE_HARDWARE_ID_CHANGE
         .sheet(isPresented: $isShowingDuplicateSheet) {
             DuplicateVMSheet(vm: vm)
         }
+        #endif
     }
 
     private func refreshThumbnail() {
@@ -123,7 +127,7 @@ struct LibraryItemView: View {
     }
 
     @ViewBuilder
-    fileprivate var contextMenuItems: some View {
+    private var contextMenuItems: some View {
         Button {
             NSWorkspace.shared.selectFile(vm.bundleURL.path, inFileViewerRootedAtPath: vm.bundleURL.deletingLastPathComponent().path)
         } label: {
@@ -133,7 +137,7 @@ struct LibraryItemView: View {
         Divider()
 
         Button {
-            isShowingDuplicateSheet = true
+            duplicate()
         } label: {
             Text("Duplicate")
         }
@@ -157,6 +161,20 @@ struct LibraryItemView: View {
         } label: {
             Text("Move to Trash")
         }
+    }
+
+    private func duplicate() {
+        #if ENABLE_HARDWARE_ID_CHANGE
+        isShowingDuplicateSheet = true
+        #else
+        Task {
+            do {
+                try await VMLibraryController.shared.duplicate(vm)
+            } catch {
+                await NSAlert(error: error).runModal()
+            }
+        }
+        #endif
     }
 
 }

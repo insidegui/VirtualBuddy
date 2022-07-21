@@ -4,7 +4,7 @@
 //
 //  Created by Guilherme Rambo on 21/07/22.
 //
-
+#if ENABLE_HARDWARE_ID_CHANGE
 import SwiftUI
 import VirtualCore
 
@@ -105,4 +105,5 @@ struct DuplicateVMSheet_Previews: PreviewProvider {
             .frame(maxWidth: 500, maxHeight: 400)
     }
 }
+#endif
 #endif
