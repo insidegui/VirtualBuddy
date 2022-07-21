@@ -7,4 +7,5 @@
 - Adds support for shared folders to share specific directories from your Mac with the virtual machine
 - Adds support for bridged networking, allowing a physical network interface from your Mac to be exposed to the virtual machine
 - Additional storage can now be added to virtual machines by creating new disk images from within VirtualBuddy
+- A new debug console showing logs related to the installation process is now available while installing macOS in a new virtual machine
 - The default library directory for new installs is now ~/Library/Application Support/VirtualBuddy (this is where VirtualBuddy stores virtual machines and downloads)
