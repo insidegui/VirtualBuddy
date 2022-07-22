@@ -12,7 +12,7 @@ public extension VBVirtualMachine {
     func metadataDirectoryCreatingIfNeeded() throws -> URL {
         let baseURL = metadataDirectoryURL
         if !FileManager.default.fileExists(atPath: baseURL.path) {
-            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: false)
         }
         return baseURL
     }
