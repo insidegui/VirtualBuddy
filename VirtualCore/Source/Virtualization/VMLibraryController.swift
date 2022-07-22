@@ -29,6 +29,8 @@ public final class VMLibraryController: ObservableObject {
     }
     
     @Published public private(set) var virtualMachines: [VBVirtualMachine] = []
+
+    @Published public internal(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
     
     public static let shared = VMLibraryController()
 

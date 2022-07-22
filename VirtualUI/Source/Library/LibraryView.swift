@@ -86,6 +86,7 @@ public struct LibraryView: View {
                         launch(vm)
                     }
                     .buttonStyle(VirtualMachineButtonStyle(vm: vm))
+                    .environmentObject(library)
                 }
             }
             .padding()

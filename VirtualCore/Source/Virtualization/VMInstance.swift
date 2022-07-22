@@ -14,6 +14,8 @@ import VirtualWormhole
 
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
+
+    private let library = VMLibraryController.shared
     
     private lazy var logger = Logger(for: Self.self)
     
@@ -157,6 +159,8 @@ public final class VMInstance: NSObject, ObservableObject {
             opts.bootMacOSRecovery = options.bootInRecoveryMode
             try await vm._start(with: opts)
         }
+
+        VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
     }
     
     func pause() async throws {
@@ -175,12 +179,16 @@ public final class VMInstance: NSObject, ObservableObject {
         let vm = try ensureVM()
         
         try vm.requestStop()
+
+        library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
     
     func forceStop() async throws {
         let vm = try ensureVM()
         
         try await vm.stop()
+
+        library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
     
     private func ensureVM() throws -> VZVirtualMachine {
@@ -216,18 +224,22 @@ extension VMInstance: VZVirtualMachineDelegate {
     public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
         logger.error("Stopped with error: \(String(describing: error), privacy: .public)")
 
-        DispatchQueue.main.async {
-            self._wormhole = nil
+        DispatchQueue.main.async { [self] in
+            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
             
-            self.onVMStop(error)
+            _wormhole = nil
+            
+            onVMStop(error)
         }
     }
 
     public func guestDidStop(_ virtualMachine: VZVirtualMachine) {
-        DispatchQueue.main.async {
-            self._wormhole = nil
+        DispatchQueue.main.async { [self] in
+            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
+
+            _wormhole = nil
             
-            self.onVMStop(nil)
+            onVMStop(nil)
         }
     }
     

@@ -22,7 +22,10 @@ struct VirtualMachineButtonStyle: ButtonStyle {
 
 }
 
+@MainActor
 struct LibraryItemView: View {
+
+    @EnvironmentObject var library: VMLibraryController
 
     @State var vm: VBVirtualMachine
     @State var name: String
@@ -35,6 +38,8 @@ struct LibraryItemView: View {
     #if ENABLE_HARDWARE_ID_CHANGE
     @State private var isShowingDuplicateSheet = false
     #endif
+
+    private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -55,6 +60,7 @@ struct LibraryItemView: View {
                 }
             }
             .font(.system(size: 16, weight: .medium, design: .rounded))
+            .disabled(isVMBooted)
         }
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
@@ -147,6 +153,7 @@ struct LibraryItemView: View {
         } label: {
             Text("Rename")
         }
+        .disabled(isVMBooted)
 
         Divider()
 
@@ -155,12 +162,13 @@ struct LibraryItemView: View {
                 do {
                     try await VMLibraryController.shared.moveToTrash(vm)
                 } catch {
-                    await NSAlert(error: error).runModal()
+                    NSAlert(error: error).runModal()
                 }
             }
         } label: {
             Text("Move to Trash")
         }
+        .disabled(isVMBooted)
     }
 
     private func duplicate() {
@@ -169,9 +177,9 @@ struct LibraryItemView: View {
         #else
         Task {
             do {
-                try await VMLibraryController.shared.duplicate(vm)
+                try VMLibraryController.shared.duplicate(vm)
             } catch {
-                await NSAlert(error: error).runModal()
+                NSAlert(error: error).runModal()
             }
         }
         #endif
