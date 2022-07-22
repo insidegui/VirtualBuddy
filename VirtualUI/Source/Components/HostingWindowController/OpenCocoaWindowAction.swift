@@ -56,7 +56,11 @@ public struct OpenCocoaWindowAction {
     /// when the window has been closed via the ``isOpen`` published property.
     public final class Token: Hashable, ObservableObject {
         
-        private var id = UUID()
+        private var id: String
+
+        init(id: String) {
+            self.id = id
+        }
         
         fileprivate lazy var cancellables = Set<AnyCancellable>()
         
@@ -85,12 +89,16 @@ public struct OpenCocoaWindowAction {
     /// structure that you get from the Environment.
     @MainActor
     @discardableResult
-    public func callAsFunction<Content>(@ViewBuilder _ content: @escaping () -> Content) -> Token where Content: View {
-        let token = Token()
-        
-        let controller = HostingWindowController(rootView: content())
+    public func callAsFunction<Content>(id: String? = nil, @ViewBuilder _ content: @escaping () -> Content) -> Token where Content: View {
+        let token = Token(id: id ?? UUID().uuidString)
 
-        manager[token] = controller
+        if let existingController = manager[token] {
+            existingController.showWindow(nil)
+        } else {
+            let controller = HostingWindowController(rootView: content())
+
+            manager[token] = controller
+        }
         
         return token
     }

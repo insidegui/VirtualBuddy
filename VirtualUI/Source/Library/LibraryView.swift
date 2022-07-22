@@ -109,7 +109,7 @@ public struct LibraryView: View {
     @Environment(\.openCocoaWindow) private var openWindow
     
     private func launch(_ vm: VBVirtualMachine) {
-        openWindow {
+        openWindow(id: vm.id) {
             VirtualMachineSessionView(controller: VMController(with: vm))
                 .environmentObject(library)
         }
