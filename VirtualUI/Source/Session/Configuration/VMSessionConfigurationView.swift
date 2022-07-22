@@ -63,6 +63,7 @@ extension View {
     }
 }
 
+#if DEBUG
 struct VMSessionConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         VMSessionConfigurationView()
@@ -70,3 +71,4 @@ struct VMSessionConfigurationView_Previews: PreviewProvider {
             .padding()
     }
 }
+#endif

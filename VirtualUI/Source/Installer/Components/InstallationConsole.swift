@@ -12,9 +12,7 @@ struct InstallationConsole: View {
 
     @Binding var isExpanded: Bool
 
-    #if DEBUG
     var overridePredicate: LogStreamer.Predicate? = nil
-    #endif
 
     private var predicate: LogStreamer.Predicate {
         overridePredicate ?? .process("com.apple.Virtualization.Installation")
