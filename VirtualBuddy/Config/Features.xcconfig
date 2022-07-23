@@ -1,3 +1,6 @@
+// ENABLE_SPARKLE = Enables building with Sparkle for automatic updates
+// ENABLE_SPICE_CLIPBOARD_SYNC = Enables the native support for clipboard sync introduced in macOS 13
+// ENABLE_HARDWARE_ID_CHANGE = Enables changing the machine identifier when duplicating VMs
 OTHER_SWIFT_FLAGS = -D ENABLE_SPARKLE
 
 VB_SPARKLE_PUBLIC_ED_KEY=dj8ljUPnwoLj/dLs6HyJg5Ayw+t8zWtgjQUfQsH56ww=

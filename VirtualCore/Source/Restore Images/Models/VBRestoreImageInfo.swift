@@ -7,8 +7,8 @@
 
 import Foundation
 
-public struct VBRestoreImageInfo: Hashable, Identifiable, Decodable {
-    public enum Channel: String, Decodable {
+public struct VBRestoreImageInfo: Hashable, Identifiable, Codable {
+    public enum Channel: String, Codable {
         case regular
         case developerBeta = "devbeta"
         case publicBeta = "pubbeta"

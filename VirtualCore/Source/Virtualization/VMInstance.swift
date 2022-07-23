@@ -14,6 +14,8 @@ import VirtualWormhole
 
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
+
+    private let library = VMLibraryController.shared
     
     private lazy var logger = Logger(for: Self.self)
     
@@ -79,66 +81,13 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let macPlatform = VZMacPlatformConfiguration()
 
-        let hardwareModel: VZMacHardwareModel
-
-        if FileManager.default.fileExists(atPath: model.hardwareModelURL.path) {
-            guard let hardwareModelData = try? Data(contentsOf: model.hardwareModelURL) else {
-                throw Failure("Failed to retrieve hardware model data.")
-            }
-
-            guard let hw = VZMacHardwareModel(dataRepresentation: hardwareModelData) else {
-                throw Failure("Failed to create hardware model.")
-            }
-
-            hardwareModel = hw
-        } else {
-            guard let image = image else {
-                throw Failure("Hardware model data doesn't exist, but a restore image was not provided to create the initial data.")
-            }
-
-            guard let hw = image.mostFeaturefulSupportedConfiguration?.hardwareModel else {
-                throw Failure("Failed to obtain hardware model from restore image")
-            }
-
-            hardwareModel = hw
-
-            try hw.dataRepresentation.write(to: model.hardwareModelURL)
-        }
-
-        guard hardwareModel.isSupported else {
-            throw Failure("The hardware model is not supported on the current host")
-        }
+        let hardwareModel = try model.fetchOrGenerateHardwareModel(with: image)
 
         macPlatform.hardwareModel = hardwareModel
 
-        if FileManager.default.fileExists(atPath: model.auxiliaryStorageURL.path) {
-            macPlatform.auxiliaryStorage = VZMacAuxiliaryStorage(contentsOf: model.auxiliaryStorageURL)
-        } else {
-            macPlatform.auxiliaryStorage = try VZMacAuxiliaryStorage(
-                creatingStorageAt: model.auxiliaryStorageURL,
-                hardwareModel: hardwareModel
-            )
-        }
+        macPlatform.auxiliaryStorage = try model.fetchOrGenerateAuxiliaryStorage(hardwareModel: hardwareModel)
 
-        let machineIdentifier: VZMacMachineIdentifier
-
-        if FileManager.default.fileExists(atPath: model.machineIdentifierURL.path) {
-            guard let machineIdentifierData = try? Data(contentsOf: model.machineIdentifierURL) else {
-                throw Failure("Failed to retrieve machine identifier data.")
-            }
-
-            guard let mid = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
-                throw Failure("Failed to create machine identifier.")
-            }
-
-            machineIdentifier = mid
-        } else {
-            machineIdentifier = VZMacMachineIdentifier()
-
-            try machineIdentifier.dataRepresentation.write(to: model.machineIdentifierURL)
-        }
-
-        macPlatform.machineIdentifier = machineIdentifier
+        macPlatform.machineIdentifier = try model.fetchOrGenerateMachineIdentifier()
 
         return macPlatform
     }
@@ -151,23 +100,23 @@ public final class VMInstance: NSObject, ObservableObject {
 
         c.platform = try await Self.createMacPlaform(for: model, installImageURL: installImageURL)
         c.bootLoader = helper.createBootLoader()
-        c.cpuCount = helper.computeCPUCount()
-        c.memorySize = helper.computeMemorySize()
-        c.graphicsDevices = [helper.createGraphicsDeviceConfiguration()]
-        c.storageDevices = [
-            try helper.createBlockDeviceConfiguration()
-        ]
-        if let additionalBlockDevice = try helper.createAdditionalBlockDevice() {
-            c.storageDevices.append(additionalBlockDevice)
-        }
-        c.networkDevices = [
-            helper.createNetworkDeviceConfiguration(),
-        ]
-        c.pointingDevices = [
-            helper.createPointingDeviceConfiguration2()
-        ]
+        c.cpuCount = model.configuration.hardware.cpuCount
+        c.memorySize = model.configuration.hardware.memorySize
+        c.graphicsDevices = model.configuration.vzGraphicsDevices
+        c.networkDevices = try model.configuration.vzNetworkDevices
+        c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
-        c.audioDevices = [helper.createAudioDeviceConfiguration()]
+        c.audioDevices = model.configuration.vzAudioDevices
+        c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
+        
+        if #available(macOS 13.0, *), let clipboardSync = model.configuration.vzClipboardSyncDevice {
+            c.consoleDevices = [clipboardSync]
+        }
+        
+        let bootDevice = try await helper.createBootBlockDevice()
+        let additionalBlockDevices = try await helper.createAdditionalBlockDevices()
+
+        c.storageDevices = [bootDevice] + additionalBlockDevices
         
         return c
     }
@@ -210,6 +159,8 @@ public final class VMInstance: NSObject, ObservableObject {
             opts.bootMacOSRecovery = options.bootInRecoveryMode
             try await vm._start(with: opts)
         }
+
+        VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
     }
     
     func pause() async throws {
@@ -228,12 +179,16 @@ public final class VMInstance: NSObject, ObservableObject {
         let vm = try ensureVM()
         
         try vm.requestStop()
+
+        library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
     
     func forceStop() async throws {
         let vm = try ensureVM()
         
         try await vm.stop()
+
+        library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
     
     private func ensureVM() throws -> VZVirtualMachine {
@@ -267,18 +222,24 @@ public final class VMInstance: NSObject, ObservableObject {
 extension VMInstance: VZVirtualMachineDelegate {
     
     public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
-        DispatchQueue.main.async {
-            self._wormhole = nil
+        logger.error("Stopped with error: \(String(describing: error), privacy: .public)")
+
+        DispatchQueue.main.async { [self] in
+            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
             
-            self.onVMStop(error)
+            _wormhole = nil
+            
+            onVMStop(error)
         }
     }
 
     public func guestDidStop(_ virtualMachine: VZVirtualMachine) {
-        DispatchQueue.main.async {
-            self._wormhole = nil
+        DispatchQueue.main.async { [self] in
+            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
+
+            _wormhole = nil
             
-            self.onVMStop(nil)
+            onVMStop(nil)
         }
     }
     

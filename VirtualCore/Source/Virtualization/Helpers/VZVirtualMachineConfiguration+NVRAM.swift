@@ -11,7 +11,7 @@ import Virtualization
 public struct Failure: LocalizedError {
     public var errorDescription: String?
     
-    init(_ msg: String) { self.errorDescription = msg }
+    public init(_ msg: String) { self.errorDescription = msg }
 }
 
 public extension VZMacAuxiliaryStorage {

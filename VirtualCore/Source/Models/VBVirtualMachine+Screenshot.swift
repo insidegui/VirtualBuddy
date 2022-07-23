@@ -15,7 +15,7 @@ public extension VBVirtualMachine {
         return NSImage(data: imageData)
     }
 
-    func generateThumbnail(maxSize: CGSize = .init(width: 640, height: 480)) -> NSImage? {
+    func thumbnailImage(maxSize: CGSize = .init(width: 640, height: 480)) -> NSImage? {
         if let existingData = metadataContents(Self.thumbnailFileName),
            let existingImage = NSImage(data: existingData)
         {
@@ -51,6 +51,14 @@ public extension VBVirtualMachine {
         }
 
         return NSImage(data: jpegData)
+    }
+
+    func invalidateThumbnail() throws {
+        try deleteMetadataFile(named: Self.thumbnailFileName)
+
+        DispatchQueue.main.async {
+            self.didInvalidateThumbnail.send()
+        }
     }
 
 }

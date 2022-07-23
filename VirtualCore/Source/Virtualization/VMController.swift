@@ -13,7 +13,6 @@ import OSLog
 
 public struct VMSessionOptions: Hashable, Codable {
     public var bootInRecoveryMode = false
-    public var captureSystemKeys = false
     
     public static let `default` = VMSessionOptions()
 }
@@ -44,14 +43,28 @@ public final class VMController: ObservableObject {
     }
     
     private(set) var virtualMachine: VZVirtualMachine?
-    
-    private var isLoadingNVRAM = false
-    
+
     @Published
     public var virtualMachineModel: VBVirtualMachine
+
+    private lazy var cancellables = Set<AnyCancellable>()
     
     public init(with vm: VBVirtualMachine) {
         self.virtualMachineModel = vm
+        virtualMachineModel.reloadMetadata()
+
+        /// Ensure configuration is persisted whenever it changes.
+        $virtualMachineModel
+            .dropFirst()
+            .throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true)
+            .sink { updatedModel in
+                do {
+                    try updatedModel.saveMetadata()
+                } catch {
+                    assertionFailure("Failed to save configuration: \(error)")
+                }
+            }
+            .store(in: &cancellables)
     }
 
     private var instance: VMInstance?
