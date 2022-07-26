@@ -1,29 +1,50 @@
 import Foundation
 import UniformTypeIdentifiers
+import Combine
 
-public struct VBVirtualMachine: Identifiable, Hashable {
-    
-    public struct Metadata: Hashable, Codable {
-        public internal(set) var operatingSystemVersion: String
-        public internal(set) var operatingSystemBuild: String
-        public internal(set) var xCodeVersion: String?
-        public internal(set) var NVRAM = [VBNVRAMVariable]()
+public typealias VoidSubject = PassthroughSubject<(), Never>
+public typealias BoolSubject = PassthroughSubject<Bool, Never>
+
+public struct VBVirtualMachine: Identifiable {
+
+    #if ENABLE_HARDWARE_ID_CHANGE
+    public enum DuplicationMethod: Int, Identifiable, CaseIterable {
+        public var id: RawValue { rawValue }
+
+        case changeID
+        case clone
     }
-    
-    public struct InstallOptions: Hashable {
-        public let diskImageSize: Int
-        
-        public init(diskImageSize: Int) {
-            self.diskImageSize = diskImageSize
-        }
+    #endif
+
+    public struct Metadata: Codable {
+        public static let currentVersion = 1
+        public var version = Self.currentVersion
+        public var installFinished: Bool = false
+        public var firstBootDate: Date? = nil
+        public var lastBootDate: Date? = nil
     }
-    
+
     public var id: String { bundleURL.absoluteString }
-    public let bundleURL: URL
+    public internal(set) var bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
-    public var installOptions: InstallOptions?
+
+    private var _configuration: VBMacConfiguration?
+    private var _metadata: Metadata?
     
-    public internal(set) var metadata: Metadata
+    public var configuration: VBMacConfiguration {
+        /// Masking private `_configuration` since it's initialized dynamically from a file.
+        get { _configuration ?? .default }
+        set { _configuration = newValue }
+    }
+
+    public var metadata: Metadata {
+        /// Masking private `_metadata` since it's initialized dynamically from a file.
+        get { _metadata ?? .init() }
+        set { _metadata = newValue }
+    }
+
+    public private(set) var didInvalidateThumbnail = VoidSubject()
+    
 }
 
 public extension VBVirtualMachine {
@@ -32,27 +53,46 @@ public extension VBVirtualMachine {
     static let thumbnailFileName = "Thumbnail.jpg"
 }
 
-public extension VBVirtualMachine {
-    static let preview = VBVirtualMachine(
-        bundleURL: URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("Sample.vbvm"),
-        installOptions: InstallOptions(diskImageSize: .defaultDiskImageSize),
-        metadata: Metadata(
-            operatingSystemVersion: "12.4",
-            operatingSystemBuild: "XYZ123",
-            xCodeVersion: "13.3.1 (13E500a)",
-            NVRAM: [.init(name: "boot-args", value: "amfi_get_out_of_my_way=1 cs_debug=1")]
-        )
-    )
-}
-
 extension VBVirtualMachine {
+
+    static let metadataFilename = "Metadata.plist"
+    static let configurationFilename = "Config.plist"
     
-    var diskImagePath: String {
-        bundleURL.appendingPathComponent("Disk.img").path
+    func diskImageURL(for device: VBStorageDevice) -> URL {
+        switch device.backing {
+        case .managedImage(let image):
+            return diskImageURL(for: image)
+        case .customImage(let customURL):
+            return customURL
+        }
     }
     
-    var extraDiskImagePath: String {
-        bundleURL.appendingPathComponent("Disk2.img").path
+    func diskImageURL(for image: VBManagedDiskImage) -> URL {
+        bundleURL
+            .appendingPathComponent(image.filename)
+            .appendingPathExtension(image.format.fileExtension)
+    }
+
+    public var bootDevice: VBStorageDevice {
+        get throws {
+            guard let device = configuration.hardware.storageDevices.first(where: { $0.isBootVolume }) else {
+                throw Failure("The virtual machine doesn't have a storage device to boot from.")
+            }
+            
+            return device
+        }
+    }
+
+    var bootDiskImage: VBManagedDiskImage {
+        get throws {
+            let device = try bootDevice
+
+            guard case .managedImage(let image) = device.backing else {
+                throw Failure("The boot device must use a disk image managed by VirtualBuddy")
+            }
+            
+            return image
+        }
     }
 
     var auxiliaryStorageURL: URL {
@@ -66,18 +106,11 @@ extension VBVirtualMachine {
     var hardwareModelURL: URL {
         bundleURL.appendingPathComponent("HardwareModel")
     }
-    
+
     var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
-    
-    var metadataFileURL: URL { Self.metadataFileURL(for: bundleURL) }
-    
+
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
         bundleURL.appendingPathComponent(".vbdata")
-    }
-    
-    static func metadataFileURL(for bundleURL: URL) -> URL {
-        metadataDirectoryURL(for: bundleURL)
-            .appendingPathComponent("metadata.plist")
     }
 
 }
@@ -88,29 +121,94 @@ public extension UTType {
 
 public extension VBVirtualMachine {
     
-    init(bundleURL: URL, installOptions: InstallOptions? = nil) throws {
+    init(bundleURL: URL) throws {
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
+            #if DEBUG
+            guard !ProcessInfo.isSwiftUIPreview else {
+                fatalError("Missing SwiftUI preview VM at \(bundleURL.path)")
+            }
+            #endif
+            
             try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
         
         self.bundleURL = bundleURL
-        self.installOptions = installOptions
-        self.metadata = try Metadata(bundleURL: bundleURL)
+        var (metadata, config) = try loadMetadata()
+
+        /// Migration from previous versions that didn't have a configuration file
+        /// describing the storage devices.
+        config.hardware.addMissingBootDeviceIfNeeded()
+        
+        self.configuration = config
+
+        if let metadata {
+            self.metadata = metadata
+        } else {
+            /// Migration from previous versions that didn't have a metadata file.
+            self.metadata = Metadata(installFinished: true, firstBootDate: .now, lastBootDate: .now)
+        }
+
+        try saveMetadata()
     }
-    
+
+    func saveMetadata() throws {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return }
+        #endif
+        
+        let configData = try PropertyListEncoder().encode(configuration)
+        try write(configData, forMetadataFileNamed: Self.configurationFilename)
+
+        let metaData = try PropertyListEncoder().encode(metadata)
+        try write(metaData, forMetadataFileNamed: Self.metadataFilename)
+    }
+
+    func loadMetadata() throws -> (Metadata?, VBMacConfiguration) {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return (nil, .default) }
+        #endif
+
+        let metadata: Metadata?
+        let config: VBMacConfiguration
+
+        if let data = metadataContents(Self.configurationFilename) {
+            config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
+        } else {
+            config = .default
+        }
+
+        if let data = metadataContents(Self.metadataFilename) {
+            metadata = try PropertyListDecoder().decode(Metadata.self, from: data)
+        } else {
+            metadata = nil
+        }
+
+        return (metadata, config)
+    }
+
+    mutating func reloadMetadata() {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return }
+        #endif
+        
+        guard let (metadata, config) = try? loadMetadata() else {
+            assertionFailure("Failed to reload metadata")
+            return
+        }
+
+        self.metadata = metadata ?? .init()
+        self.configuration = config
+    }
+
 }
 
-extension VBVirtualMachine.Metadata {
-    
-    init(bundleURL: URL) throws {
-        let fileURL = VBVirtualMachine.metadataFileURL(for: bundleURL)
-        
-        if FileManager.default.fileExists(atPath: fileURL.path) {
-            let data = try Data(contentsOf: bundleURL)
-            self = try PropertyListDecoder().decode(VBVirtualMachine.Metadata.self, from: data)
-        } else {
-            self.init(operatingSystemVersion: "??", operatingSystemBuild: "??", xCodeVersion: nil, NVRAM: [])
+extension URL {
+    var creationDate: Date {
+        get { (try? resourceValues(forKeys: [.creationDateKey]))?.creationDate ?? .distantPast }
+        set {
+            var values = URLResourceValues()
+            values.creationDate = newValue
+            try? setResourceValues(values)
         }
     }
-    
 }

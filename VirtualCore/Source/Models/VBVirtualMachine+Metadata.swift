@@ -12,7 +12,7 @@ public extension VBVirtualMachine {
     func metadataDirectoryCreatingIfNeeded() throws -> URL {
         let baseURL = metadataDirectoryURL
         if !FileManager.default.fileExists(atPath: baseURL.path) {
-            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: false)
         }
         return baseURL
     }
@@ -23,6 +23,16 @@ public extension VBVirtualMachine {
         let fileURL = baseURL.appendingPathComponent(name)
 
         try data.write(to: fileURL, options: .atomic)
+    }
+
+    func deleteMetadataFile(named name: String) throws {
+        let baseURL = try metadataDirectoryCreatingIfNeeded()
+
+        let fileURL = baseURL.appendingPathComponent(name)
+
+        guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+        try FileManager.default.removeItem(at: fileURL)
     }
 
     func metadataContents(_ fileName: String) -> Data? {

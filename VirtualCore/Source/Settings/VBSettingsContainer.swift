@@ -30,6 +30,8 @@ public final class VBSettingsContainer: ObservableObject {
 
 }
 
+// MARK: - Internal Extensions
+
 private extension VBSettingsContainer {
 
     func bind() {
