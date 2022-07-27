@@ -22,19 +22,19 @@ struct VMConfigurationView: View {
     private var storageCollapsed = true
 
     @AppStorage("config.display.collapsed")
-    private var displayCollasped = true
+    private var displayCollapsed = true
     
     @AppStorage("config.pointing.collapsed")
-    private var pointingCollasped = true
+    private var pointingCollapsed = true
     
     @AppStorage("config.network.collapsed")
-    private var networkCollasped = true
+    private var networkCollapsed = true
     
     @AppStorage("config.sound.collapsed")
-    private var soundCollasped = true
+    private var soundCollapsed = true
     
     @AppStorage("config.sharing.collapsed")
-    private var sharingCollasped = true
+    private var sharingCollapsed = true
 
     private var showBootDiskSection: Bool { viewModel.context == .preInstall }
     
@@ -141,7 +141,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var display: some View {
-        ConfigurationSection($displayCollasped) {
+        ConfigurationSection($displayCollapsed) {
             DisplayConfigurationView(
                 device: $viewModel.config.hardware.displayDevices[0],
                 selectedPreset: $viewModel.selectedDisplayPreset
@@ -160,7 +160,7 @@ struct VMConfigurationView: View {
     
     @ViewBuilder
     private var pointingDevice: some View {
-        ConfigurationSection($pointingCollasped) {
+        ConfigurationSection($pointingCollapsed) {
             PointingDeviceConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -173,7 +173,7 @@ struct VMConfigurationView: View {
     
     @ViewBuilder
     private var network: some View {
-        ConfigurationSection($networkCollasped) {
+        ConfigurationSection($networkCollapsed) {
             NetworkConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -186,7 +186,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var sound: some View {
-        ConfigurationSection($soundCollasped) {
+        ConfigurationSection($soundCollapsed) {
             SoundConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
             summaryHeader(
@@ -199,7 +199,7 @@ struct VMConfigurationView: View {
 
     @ViewBuilder
     private var sharing: some View {
-        ConfigurationSection($sharingCollasped) {
+        ConfigurationSection($sharingCollapsed) {
             SharingConfigurationView(configuration: $viewModel.config)
         } header: {
             summaryHeader(
