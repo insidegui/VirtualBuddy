@@ -43,6 +43,7 @@
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
 		F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B7284FA252006E9ED4 /* VBDownloader.swift */; };
+		F46627A4288B517D006C7499 /* NVRAMConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46627A3288B517D006C7499 /* NVRAMConfigurationView.swift */; };
 		F46FFBA52804E81E00D61023 /* VBObjCHookingPoint.h in Headers */ = {isa = PBXBuildFile; fileRef = F46FFBA32804E81E00D61023 /* VBObjCHookingPoint.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */; };
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
@@ -226,6 +227,7 @@
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
 		F465C3B7284FA252006E9ED4 /* VBDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDownloader.swift; sourceTree = "<group>"; };
+		F46627A3288B517D006C7499 /* NVRAMConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NVRAMConfigurationView.swift; sourceTree = "<group>"; };
 		F46FFBA32804E81E00D61023 /* VBObjCHookingPoint.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VBObjCHookingPoint.h; sourceTree = "<group>"; };
 		F46FFBA42804E81E00D61023 /* VBObjCHookingPoint.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VBObjCHookingPoint.m; sourceTree = "<group>"; };
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
@@ -413,6 +415,7 @@
 				F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */,
 				F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */,
 				F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */,
+				F46627A3288B517D006C7499 /* NVRAMConfigurationView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -1144,6 +1147,7 @@
 				F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
 				F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */,
+				F46627A4288B517D006C7499 /* NVRAMConfigurationView.swift in Sources */,
 				F498AD1A2884C5FF006F1C00 /* SliderConversion.swift in Sources */,
 				F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */,
 				F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */,

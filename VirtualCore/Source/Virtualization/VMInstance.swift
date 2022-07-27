@@ -45,8 +45,6 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
     
-    private var isLoadingNVRAM = false
-    
     var virtualMachineModel: VBVirtualMachine {
         didSet {
             precondition(oldValue.id == virtualMachineModel.id, "Can't change the virtual machine identity after initializing the controller")

@@ -35,3 +35,17 @@ public extension VZMacAuxiliaryStorage {
     }
     
 }
+
+#if DEBUG
+public extension VBMacConfiguration {
+    static var nvramEditorPreview: VBMacConfiguration {
+        let storage = VZMacAuxiliaryStorage(contentsOf: URL(fileURLWithPath: "/Users/insidegui/Downloads/AuxiliaryStorage"))
+        let variables = try! storage.fetchNVRAMVariables()
+        var config = VBVirtualMachine.preview.configuration
+        var device = config.hardware
+        device.NVRAM = variables
+        config.hardware = device
+        return config
+    }
+}
+#endif
