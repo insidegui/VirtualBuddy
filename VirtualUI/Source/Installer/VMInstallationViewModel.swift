@@ -106,6 +106,7 @@ final class VMInstallationViewModel: ObservableObject {
                 showNextButton = true
             case .restoreImageInput:
                 showNextButton = true
+                validateCustomURL()
             case .restoreImageSelection:
                 showNextButton = true
                 disableNextButton = true
@@ -234,11 +235,40 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published var provisionalRestoreImageURL = "" {
         didSet {
-            if step == .restoreImageInput {
-                disableNextButton = !provisionalRestoreImageURL.hasPrefix("https")
-                || !provisionalRestoreImageURL.hasSuffix("ipsw")
-            }
+            guard step == .restoreImageInput else { return }
+
+            validateCustomURL()
         }
+    }
+
+    private let allowedCustomDownloadSchemes: Set<String> = [
+        "http",
+        "https",
+        "ftp"
+    ]
+
+    private func validateCustomURL() {
+        let isValid = isCustomURLValid()
+        disableNextButton = !isValid
+    }
+
+    private func isCustomURLValid() -> Bool {
+        guard !provisionalRestoreImageURL.isEmpty else {
+            return false
+        }
+        guard let url = URL(string: provisionalRestoreImageURL) else {
+            return false
+        }
+
+        guard let scheme = url.scheme else {
+            return false
+        }
+
+        guard allowedCustomDownloadSchemes.contains(scheme.lowercased()) else {
+            return false
+        }
+
+        return true
     }
 
     func selectIPSWFile() {
