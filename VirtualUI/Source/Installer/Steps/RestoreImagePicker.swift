@@ -90,6 +90,7 @@ struct RestoreImagePicker: View {
                 }
             }
         }
+        .controlSize(.large)
         .disabled(controller.restoreImageOptions.isEmpty)
         .onChange(of: controller.selectedRestoreImage, perform: {
             selection = $0
