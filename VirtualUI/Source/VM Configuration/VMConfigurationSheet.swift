@@ -39,7 +39,7 @@ public struct VMConfigurationSheet: View {
     }
     
     @Environment(\.dismiss) private var dismiss
-    
+
     public var body: some View {
         ScrollView(.vertical) {
             VMConfigurationView(initialConfiguration: initialConfiguration)

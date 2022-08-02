@@ -28,6 +28,18 @@ public extension View {
     func windowTitle(_ title: String) -> some View {
         environment(\.windowTitle, title)
     }
+
+    /// Sets the title visibility for the window that contains this SwiftUI view.
+    /// Only available when the view hierarchy is being presented with `HostingWindowController`.
+    func windowTitleHidden(_ hidden: Bool) -> some View {
+        environment(\.windowTitleVisibility, hidden ? .hidden : .visible)
+    }
+
+    /// Sets whether the title bar background is hidden for the window that contains this SwiftUI view.
+    /// Only available when the view hierarchy is being presented with `HostingWindowController`.
+    func windowTitleBarTransparent(_ transparent: Bool) -> some View {
+        environment(\.windowTitleBarTransparent, transparent)
+    }
     
     /// When `true`, indicates that the view hierarchy is responsible for render its own chrome for
     /// the Cocoa window that's hosting it. Causes `HostingWindowController` to configure
@@ -81,6 +93,14 @@ private struct WindowTitleEnvironmentKey: EnvironmentKey {
     static let defaultValue: String = ""
 }
 
+private struct WindowTitleVisibilityEnvironmentKey: EnvironmentKey {
+    static let defaultValue: NSWindow.TitleVisibility = .visible
+}
+
+private struct WindowTitleBarTransparentEnvironmentKey: EnvironmentKey {
+    static let defaultValue: Bool = false
+}
+
 private struct HostingWindowKey: EnvironmentKey {
     static let defaultValue: () -> NSWindow? = { nil }
 }
@@ -122,6 +142,22 @@ extension EnvironmentValues {
         set {
             self[WindowTitleEnvironmentKey.self] = newValue
             cocoaWindow?.title = newValue
+        }
+    }
+
+    var windowTitleVisibility: NSWindow.TitleVisibility {
+        get { self[WindowTitleVisibilityEnvironmentKey.self] }
+        set {
+            self[WindowTitleVisibilityEnvironmentKey.self] = newValue
+            cocoaWindow?.titleVisibility = newValue
+        }
+    }
+
+    var windowTitleBarTransparent: Bool {
+        get { self[WindowTitleBarTransparentEnvironmentKey.self] }
+        set {
+            self[WindowTitleBarTransparentEnvironmentKey.self] = newValue
+            cocoaWindow?.titlebarAppearsTransparent = newValue
         }
     }
     

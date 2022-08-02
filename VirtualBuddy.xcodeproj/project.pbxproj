@@ -39,6 +39,7 @@
 		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
 		F44C00F92889C1A700640BF5 /* DuplicateVMSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00F82889C1A700640BF5 /* DuplicateVMSheet.swift */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
+		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -222,6 +223,7 @@
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F44C00F82889C1A700640BF5 /* DuplicateVMSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateVMSheet.swift; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
+		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -522,6 +524,7 @@
 				F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */,
 				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
 				F42C01492888C2F800EB15CD /* InstallationConsole.swift */,
+				F4561A6728981B4100055289 /* VirtualMachineNameField.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1111,6 +1114,7 @@
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
+				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
 				F48E0D34288889E60080DDFA /* InstallConfigurationStepView.swift in Sources */,
 				F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */,
 				F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */,

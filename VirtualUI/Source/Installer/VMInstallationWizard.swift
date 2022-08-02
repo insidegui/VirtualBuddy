@@ -21,30 +21,28 @@ public struct VMInstallationWizard: View {
 
     public var body: some View {
         VStack {
-            ZStack(alignment: .top) {
-                switch viewModel.step {
-                    case .installKind:
-                        installKindSelection
-                    case .restoreImageInput:
-                        restoreImageURLInput
-                    case .restoreImageSelection:
-                        restoreImageSelection
-                    case .configuration:
-                        configureVM
-                    case .name:
-                        renameVM
-                    case .download:
-                        downloadView
-                    case .install:
-                        installProgress
-                    case .done:
-                        finishingLine
-                }
+            switch viewModel.step {
+                case .installKind:
+                    installKindSelection
+                case .restoreImageInput:
+                    restoreImageURLInput
+                case .restoreImageSelection:
+                    restoreImageSelection
+                case .configuration:
+                    configureVM
+                case .name:
+                    renameVM
+                case .download:
+                    downloadView
+                case .install:
+                    installProgress
+                case .done:
+                    finishingLine
             }
 
-            Spacer()
-
             if viewModel.showNextButton {
+                Spacer()
+
                 Button(viewModel.buttonTitle, action: {
                     if viewModel.step == .done {
                         library.loadMachines()
@@ -60,12 +58,15 @@ public struct VMInstallationWizard: View {
         }
         .padding(viewModel.step != .configuration ? 16 : 0)
         .padding(.horizontal, viewModel.step != .configuration ? 36 : 0)
-        .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity, alignment: .top)
         .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
+        .windowTitleHidden(true)
+        .windowTitleBarTransparent(true)
         .windowTitle("New macOS VM")
         .onReceive(stepValidationStateChanged) { isValid in
             viewModel.disableNextButton = !isValid
         }
+        .edgesIgnoringSafeArea(.top)
+        .frame(minWidth: 470)
     }
 
     @ViewBuilder
@@ -83,13 +84,15 @@ public struct VMInstallationWizard: View {
             InstallationWizardTitle("Enter the URL for the macOS IPSW:")
 
             TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
+                .textFieldStyle(.roundedBorder)
+                .controlSize(.large)
         }
     }
 
     @ViewBuilder
     private var restoreImageSelection: some View {
         VStack {
-            InstallationWizardTitle("Pick a macOS Version to Download and Install")
+            InstallationWizardTitle("Pick a macOS Version to Download")
             
             RestoreImagePicker(
                 selection: $viewModel.data.restoreImageInfo,
@@ -123,22 +126,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Name Your Virtual Mac")
 
-            HStack {
-                TextField("VM Name", text: $viewModel.data.name, onCommit: viewModel.goNext)
-                    .textFieldStyle(.roundedBorder)
-                    .controlSize(.large)
-
-                Spacer()
-
-                Button {
-                    viewModel.data.name = RandomNameGenerator.shared.newName()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .help("Generate new name")
-                }
-                .buttonStyle(.borderless)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
-            }
+            VirtualMachineNameField(name: $viewModel.data.name, onCommit: viewModel.goNext)
         }
     }
 
@@ -176,7 +164,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle(vmDisplayName)
 
-            Text("Your VM is ready!")
+            Text("Your virtual Mac is ready!")
         }
     }
 

@@ -72,7 +72,7 @@ final class VMInstallationViewModel: ObservableObject {
     @Published
     private(set) var restoreImageOptions = [VBRestoreImageInfo]()
 
-    @Published private(set) var buttonTitle = "Next"
+    @Published private(set) var buttonTitle = "Continue"
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
 

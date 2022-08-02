@@ -28,11 +28,11 @@ enum InstallMethod: String, Identifiable, CaseIterable, CustomStringConvertible 
     var imageName: String {
         switch self {
             case .localFile:
-                return "externaldrive.fill.badge.plus"
+                return "folder.fill"
             case .remoteOptions:
-                return "network"
+                return "square.and.arrow.down.fill"
             case .remoteManual:
-                return "questionmark.app.fill"
+                return "text.cursor"
         }
     }
 }
@@ -41,8 +41,22 @@ struct InstallMethodPicker: View {
 
     @Binding var selection: InstallMethod
 
+    @FocusState private var isFocused: Bool
+
+    private var selectionIndex: Int { InstallMethod.allCases.firstIndex(of: selection) ?? 0 }
+
+    private var previousMethod: InstallMethod? {
+        guard selectionIndex > 0 else { return nil }
+        return InstallMethod.allCases[selectionIndex - 1]
+    }
+
+    private var nextMethod: InstallMethod? {
+        guard selectionIndex < InstallMethod.allCases.count - 1 else { return nil }
+        return InstallMethod.allCases[selectionIndex + 1]
+    }
+
     var body: some View {
-        HStack(spacing: 16) {
+        VStack(spacing: 16) {
             ForEach(InstallMethod.allCases) { method in
                 InstallMethodView(
                     method: method,
@@ -61,6 +75,26 @@ struct InstallMethodPicker: View {
                 }
             } label: { }
         }
+        .overlay {
+            /// Horrible hack to hide the focus ring while still allowing for keyboard navigation.
+            Rectangle()
+                .frame(width: 0, height: 0)
+                .opacity(0)
+                .focusable(true)
+                .focused($isFocused)
+                .onMoveCommand { direction in
+                    if direction == .down {
+                        guard let nextMethod else { return }
+                        selection = nextMethod
+                    } else if direction == .up {
+                        guard let previousMethod else { return }
+                        selection = previousMethod
+                    }
+                }
+        }
+        .onAppearOnce {
+            isFocused = true
+        }
     }
 
 }
@@ -70,36 +104,39 @@ struct InstallMethodView: View {
     let method: InstallMethod
     let isSelected: Bool
 
-    var body: some View {
-        VStack {
-            Image(systemName: method.imageName)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 50)
+    var lineWidth: CGFloat { isSelected ? 2 : 1 }
 
-            Spacer()
+    var body: some View {
+        HStack {
+            Image(systemName: method.imageName)
 
             Text(method.description)
         }
-        .foregroundColor(isSelected ? .accentColor : nil)
+        .foregroundColor(isSelected ? .accentColor : .secondary)
         .padding()
-        .frame(width: 200, height: 140)
         .multilineTextAlignment(.center)
-        .foregroundColor(.secondary)
-        .font(.system(size: 13, weight: .medium))
-        .background {
-            shape
-                .foregroundStyle(isSelected ? Material.ultraThick : Material.thin)
-                .overlay(shape.stroke(borderColor, style: StrokeStyle(lineWidth: 2)))
-        }
+        .font(.system(size: 14))
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(shape.stroke(borderColor, style: StrokeStyle(lineWidth: lineWidth)))
+        .materialBackground(.menu, blendMode: .withinWindow, state: isSelected ? .active : .inactive, in: shape)
+        .clipShape(shape)
+        .shadow(color: .black.opacity(0.24), radius: 8, x: 0, y: 0)
     }
 
     private var borderColor: Color {
-        isSelected ? .accentColor : .secondary.opacity(0.5)
+        isSelected ? .accentColor : .primary.opacity(0.2)
     }
 
     private var shape: some Shape {
-        RoundedRectangle(cornerRadius: 12, style: .continuous)
+        RoundedRectangle(cornerRadius: 14, style: .continuous)
     }
 
 }
+
+#if DEBUG
+struct InstallMethodPicker_Previews: PreviewProvider {
+    static var previews: some View {
+        InstallMethodPicker(selection: .constant(.remoteOptions))
+    }
+}
+#endif
