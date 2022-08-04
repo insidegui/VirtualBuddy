@@ -23,6 +23,11 @@
 			<true/>
 		</dict>
 	</array>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>SUPublicEDKey</key>
 	<string>$(VB_SPARKLE_PUBLIC_ED_KEY)</string>
 	<key>SUScheduledCheckInterval</key>
