@@ -234,6 +234,7 @@
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
 		F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMScreenshotter.swift; sourceTree = "<group>"; };
+		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedDiskImageEditor.swift; sourceTree = "<group>"; };
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
 		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
@@ -761,6 +762,7 @@
 				F4C1224D280715B500D359E2 /* Paths.xcconfig */,
 				F4C122482807146200D359E2 /* Versions.xcconfig */,
 				F4C1224A2807156200D359E2 /* Signing.xcconfig */,
+				F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */,
 				F4B068B528882F5D003743BF /* AppEntitlements.xcconfig */,
 				F4D0F71B28674F24004D5782 /* Features.xcconfig */,
 				F4C1224E280715F200D359E2 /* Main.xcconfig */,
@@ -1400,7 +1402,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1594,7 +1595,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1847,7 +1847,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1877,7 +1876,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "\"© 2022 Buddy Software LTD\"";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

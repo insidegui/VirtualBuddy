@@ -1,0 +1,2 @@
+INFOPLIST_KEY_NSHumanReadableCopyright = © 2022 Buddy Software LTD
+INFOPLIST_KEY_NSMicrophoneUsageDescription = Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.
