@@ -42,7 +42,7 @@ The default mode the VM OS selects for the display uses the native resolution th
 
 ## Building
 
-**Xcode 14** is required.
+**Xcode 14 beta** is required (the Xcode 14 RC uses the macOS 12 SDK, so you must use Xcode 14 beta 6 or earlier).
 
 - Open the `VirtualBuddy/Config/Signing.xcconfig` file
 - Set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`
