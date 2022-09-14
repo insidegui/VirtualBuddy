@@ -1,0 +1,89 @@
+{
+  "apiVersion": 1,
+  "restoreImages": [
+    {
+      "name": "macOS 13.0 Developer Beta 7",
+      "build": "22A5342f",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-66750/108EF06D-FBEE-4910-BA83-56A5C9B54110/UniversalMac_13.0_22A5342f_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 6",
+      "build": "22A5331f",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-61458/80300AD0-69E5-4429-AE3E-A936CA83B5FC/UniversalMac_13.0_22A5331f_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 5",
+      "build": "22A5321d",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-51397/8EF0874D-388A-4F62-B58A-89F968DD3082/UniversalMac_13.0_22A5321d_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 4",
+      "build": "22A5311f",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-43316/6CE4D83A-E44C-4DD1-B47F-DE168355662E/UniversalMac_13.0_22A5311f_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 3 (22A5295i)",
+      "build": "22A5295i",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-38309/6EDC76A0-4432-4C64-83C5-F43C885A75D6/UniversalMac_13.0_22A5295i_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 3",
+      "build": "22A5295h",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-34274/130176F5-C4CB-4664-A2F0-F29CA1281694/UniversalMac_13.0_22A5295h_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 2",
+      "build": "22A5286j",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-30346/9DD787A7-044B-4650-86D4-84E80B6B9C36/UniversalMac_13.0_22A5286j_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 13.0 Developer Beta 1",
+      "build": "22A5266r",
+      "url": "https://developer.apple.com/services-account/download?path=%2FWWDC_2022%2FmacOS_13_beta%2FUniversalMac_13.0_22A5266r_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": true
+    },
+    {
+      "name": "macOS 12.6",
+      "build": "21G115",
+      "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-40537/0EC7C669-13E9-49FB-BD64-9EECC1D174B2/UniversalMac_12.6_21G115_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 12.5",
+      "build": "21G72",
+      "url": "https://updates.cdn-apple.com/2022SummerFCS/fullrestores/012-42731/BD9917E0-262C-41C5-A69F-AC316A534A39/UniversalMac_12.5_21G72_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 12.4",
+      "build": "21F79",
+      "url": "https://updates.cdn-apple.com/2022SpringFCS/fullrestores/012-06874/9CECE956-D945-45E2-93E9-4FFDC81BB49A/UniversalMac_12.4_21F79_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 12.3.1",
+      "build": "21E258",
+      "url": "https://updates.cdn-apple.com/2022SpringFCS/fullrestores/002-79219/851BEDF0-19DB-4040-B765-0F4089D1530D/UniversalMac_12.3.1_21E258_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    }
+  ]
+}
