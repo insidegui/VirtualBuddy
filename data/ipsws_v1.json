@@ -2,6 +2,13 @@
   "apiVersion": 1,
   "restoreImages": [
     {
+      "name": "macOS 13.0 Developer Beta 8",
+      "build": "22A5352e",
+      "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-70113/6F1F08B7-9A1B-48A9-93DB-55EE21121C87/UniversalMac_13.0_22A5352e_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
       "name": "macOS 13.0 Developer Beta 7",
       "build": "22A5342f",
       "url": "https://updates.cdn-apple.com/2022SummerSeed/fullrestores/012-66750/108EF06D-FBEE-4910-BA83-56A5C9B54110/UniversalMac_13.0_22A5342f_Restore.ipsw",
