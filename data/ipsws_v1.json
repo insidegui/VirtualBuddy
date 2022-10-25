@@ -2,10 +2,10 @@
   "apiVersion": 1,
   "restoreImages": [
     {
-      "name": "macOS 13.0 Release Candidate 2",
+      "name": "macOS 13.0",
       "build": "22A380",
       "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-92188/2C38BCD1-2BFF-4A10-B358-94E8E28BE805/UniversalMac_13.0_22A380_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
@@ -103,6 +103,13 @@
       "name": "macOS 12.6",
       "build": "21G115",
       "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-40537/0EC7C669-13E9-49FB-BD64-9EECC1D174B2/UniversalMac_12.6_21G115_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "name": "macOS 12.5.1",
+      "build": "21G83",
+      "url": "https://updates.cdn-apple.com/2022SummerFCS/fullrestores/012-51674/A7019DDB-3355-470F-A355-4162A187AB6C/UniversalMac_12.5.1_21G83_Restore.ipsw",
       "channel": "regular",
       "needsCookie": false
     },
