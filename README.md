@@ -2,7 +2,7 @@
 
 VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal of offering features that are useful to developers who need to test their apps on multiple versions of macOS, especially betas.
 
-**Requires macOS 12.3 and an Apple Silicon Mac**
+**Requires macOS 12.3, XCode beta 14, and an Apple Silicon Mac**
 
 ⚠️ WARNING: This project is experimental. Things might break or not work as expected.
 
