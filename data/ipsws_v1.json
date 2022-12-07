@@ -51,7 +51,7 @@
       "needsCookie": false
     },
     {
-      "name": "macOS 13.0 Release Candidate",
+      "name": "macOS 13.0 RC",
       "build": "22A379",
       "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/071-08994/1118ADF4-1CC9-4554-9333-B1F64CF0C820/UniversalMac_13.0_22A379_Restore.ipsw",
       "channel": "devbeta",
