@@ -2,10 +2,10 @@
   "apiVersion": 1,
   "restoreImages": [
     {
-      "name": "macOS 13.1 RC",
+      "name": "macOS 13.1",
       "build": "22C65",
       "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-60270/0A7F49BA-FC31-4AD9-8E45-49B1FB9128A6/UniversalMac_13.1_22C65_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
