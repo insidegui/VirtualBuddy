@@ -142,6 +142,13 @@
       "needsCookie": true
     },
     {
+      "name": "macOS 12.6.1",
+      "build": "21G217",
+      "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-66032/8D8D90C6-A876-4FFF-BBF4-D158939B3841/UniversalMac_12.6.1_21G217_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
       "name": "macOS 12.6",
       "build": "21G115",
       "url": "https://updates.cdn-apple.com/2022FallFCS/fullrestores/012-40537/0EC7C669-13E9-49FB-BD64-9EECC1D174B2/UniversalMac_12.6_21G115_Restore.ipsw",
