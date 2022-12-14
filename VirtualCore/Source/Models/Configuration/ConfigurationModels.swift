@@ -281,6 +281,14 @@ public struct VBMacDevice: Hashable, Codable {
         guard _storageDevices == nil else { return }
         _storageDevices = [.defaultBootDevice]
     }
+
+    public mutating func addNVRAMVariable() {
+        NVRAM.append(VBNVRAMVariable(name: "new-var-\(NVRAM.count)", value: ""))
+    }
+
+    public mutating func removeNVRAMVariables(with vars: Set<VBNVRAMVariable.ID>) {
+        NVRAM.removeAll { vars.contains($0.id) }
+    }
 }
 
 // MARK: - Sharing And Other Features

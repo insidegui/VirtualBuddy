@@ -36,6 +36,9 @@ struct VMConfigurationView: View {
     @AppStorage("config.sharing.collapsed")
     private var sharingCollapsed = true
 
+    @AppStorage("config.nvram.collapsed")
+    private var nvramCollapsed = true
+
     private var showBootDiskSection: Bool { viewModel.context == .preInstall }
     
     var body: some View {
@@ -51,6 +54,7 @@ struct VMConfigurationView: View {
             sound
             sharing
                 .frame(minWidth: 0, idealWidth: VMConfigurationSheet.defaultWidth)
+            nvram
         }
         .font(.system(size: 12))
     }
@@ -206,6 +210,19 @@ struct VMConfigurationView: View {
                 "Sharing",
                 systemImage: "folder",
                 summary: viewModel.config.sharingSummary
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var nvram: some View {
+        ConfigurationSection($nvramCollapsed) {
+            NVRAMConfigurationView(hardware: $viewModel.config.hardware)
+        } header: {
+            summaryHeader(
+                "NVRAM",
+                systemImage: "square.stack.3d.forward.dottedline",
+                summary: viewModel.config.nvramSummary
             )
         }
     }

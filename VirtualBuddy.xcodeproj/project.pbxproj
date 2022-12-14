@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05BE3C3129495B1900862C16 /* NVRAMConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE3C3029495AE300862C16 /* NVRAMConfigurationView.swift */; };
+		05BE3C3529495BDF00862C16 /* NVRAMManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE3C3429495BDF00862C16 /* NVRAMManagementView.swift */; };
+		05BE3C3729495FC800862C16 /* NVRAMVariableListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE3C3629495FC800862C16 /* NVRAMVariableListItem.swift */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
@@ -191,6 +194,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		05BE3C3029495AE300862C16 /* NVRAMConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NVRAMConfigurationView.swift; sourceTree = "<group>"; };
+		05BE3C3429495BDF00862C16 /* NVRAMManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NVRAMManagementView.swift; sourceTree = "<group>"; };
+		05BE3C3629495FC800862C16 /* NVRAMVariableListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NVRAMVariableListItem.swift; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
@@ -361,6 +367,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		05BE3C2F29495AD800862C16 /* NVRAM */ = {
+			isa = PBXGroup;
+			children = (
+				05BE3C3029495AE300862C16 /* NVRAMConfigurationView.swift */,
+				05BE3C3429495BDF00862C16 /* NVRAMManagementView.swift */,
+				05BE3C3629495FC800862C16 /* NVRAMVariableListItem.swift */,
+			);
+			path = NVRAM;
+			sourceTree = "<group>";
+		};
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
@@ -409,6 +425,7 @@
 		F42258752885E132009420AE /* Sections */ = {
 			isa = PBXGroup;
 			children = (
+				05BE3C2F29495AD800862C16 /* NVRAM */,
 				F417256D2887543B004FF8A7 /* Storage */,
 				F4B5C5D12886FA77005AA632 /* Sharing */,
 				F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */,
@@ -1112,6 +1129,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
+				05BE3C3129495B1900862C16 /* NVRAMConfigurationView.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
@@ -1122,6 +1140,7 @@
 				F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */,
 				F48E0D23288882E50080DDFA /* DecentFormView.swift in Sources */,
 				F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */,
+				05BE3C3729495FC800862C16 /* NVRAMVariableListItem.swift in Sources */,
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */,
 				F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */,
@@ -1160,6 +1179,7 @@
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
+				05BE3C3529495BDF00862C16 /* NVRAMManagementView.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 				F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */,

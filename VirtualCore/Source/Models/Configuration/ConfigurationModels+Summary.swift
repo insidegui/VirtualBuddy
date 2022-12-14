@@ -63,4 +63,6 @@ public extension VBMacConfiguration {
     
     var pointingDeviceSummary: String { hardware.pointingDevice.kind.name }
 
+    var nvramSummary: String { "\(hardware.NVRAM.count) Variables" }
+
 }

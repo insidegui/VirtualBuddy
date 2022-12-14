@@ -27,6 +27,10 @@ public extension VBMacConfiguration {
         c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Fake Managed Disk", size: VBManagedDiskImage.minimumExtraDiskImageSize, format: .raw))))
         c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .customImage(Bundle.virtualCore.url(forResource: "Fake Custom Path Disk", withExtension: "dmg", subdirectory: "Preview.vbvm")!)))
         
+        c.hardware.NVRAM.append(.init(name: "auto-boot", value: "true"))
+        c.hardware.NVRAM.append(.init(name: "fmm-computer-name", value: "Cool Computer"))
+        c.hardware.NVRAM.append(.init(name: "boot-args", value: "keepsyms=1 debug=0x14e"))
+
         c.sharedFolders = [
             .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99074")!, url: URL(fileURLWithPath: "/Users/insidegui/Desktop"), isReadOnly: true),
             .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99075")!, url: URL(fileURLWithPath: "/Users/insidegui/Downloads"), isReadOnly: false),
@@ -63,6 +67,12 @@ public extension VBMacConfiguration {
         return mSelf
     }
     
+    var removingNVRAM: Self {
+        var mSelf = self
+        mSelf.hardware.NVRAM = []
+        return mSelf
+    }
+
 }
 
 #endif
