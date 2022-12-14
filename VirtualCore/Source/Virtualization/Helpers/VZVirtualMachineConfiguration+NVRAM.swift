@@ -33,5 +33,17 @@ public extension VZMacAuxiliaryStorage {
             try _removeNVRAMVariableNamed(variable.name)
         }
     }
+
+    func updateNVRAM(_ variables: [VBNVRAMVariable]) throws {
+        for variable in variables {
+            print("\(variable)")
+            do {
+                try updateNVRAM(variable)
+            } catch {
+                // TODO: We should error or something
+                print("\(error)")
+            }
+        }
+    }
     
 }

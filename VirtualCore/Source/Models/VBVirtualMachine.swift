@@ -161,6 +161,10 @@ public extension VBVirtualMachine {
 
         let metaData = try PropertyListEncoder().encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
+
+        // Persist NVRAM variables
+        let storage = try fetchOrGenerateAuxiliaryStorage()
+        try storage.updateNVRAM(self.configuration.hardware.NVRAM)
     }
 
     func loadMetadata() throws -> (Metadata?, VBMacConfiguration) {
@@ -169,7 +173,7 @@ public extension VBVirtualMachine {
         #endif
 
         let metadata: Metadata?
-        let config: VBMacConfiguration
+        var config: VBMacConfiguration
 
         if let data = metadataContents(Self.configurationFilename) {
             config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
@@ -182,6 +186,10 @@ public extension VBVirtualMachine {
         } else {
             metadata = nil
         }
+
+        // Load NVRAM variables
+        let storage = try fetchOrGenerateAuxiliaryStorage()
+        config.hardware.NVRAM = try storage.fetchNVRAMVariables()
 
         return (metadata, config)
     }
