@@ -2,7 +2,11 @@
 
 VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal of offering features that are useful to developers who need to test their apps on multiple versions of macOS, especially betas.
 
-**Requires macOS 12.3 and an Apple Silicon Mac**
+## System Requirements
+
+- **Apple Silicon Mac**
+- macOS 12.3 or later
+- In order to install a version of macOS that's newer than the version running on the host (for example, macOS 13 VM in VirtualBuddy running on macOS 12), Xcode is required; Xcode beta may be required for installing macOS betas (`FB11061314`)
 
 ⚠️ WARNING: This project is experimental. Things might break or not work as expected.
 
@@ -40,9 +44,21 @@ VirtualBuddy sets up its virtual machines to have the same screen resolution as 
 
 The default mode the VM OS selects for the display uses the native resolution that's available to it though, which can make things look really small. In order to address this, go into System Preferences > Displays within the guest operating system and choose a scaled resolution.
 
+#### Sharing Folders Between Host and Virtual Machine
+
+You can share folders from your Mac to the Virtual Machine and vice-versa using regular macOS file sharing that can be configured in System Preferences/Settings.
+
+When both the Virtual Machine and the host are running macOS 13 or later, it's possible to share folders directly by configuring them in the VM settings within VirtualBuddy before booting up the VM.
+
+To mount shared folders in the VM, run the following command in the VM's Terminal:
+
+```bash
+mkdir -p ~/Desktop/VirtualBuddyShared && mount -t virtiofs VirtualBuddyShared ~/Desktop/VirtualBuddyShared
+```
+
 ## Building
 
-**Xcode 14 beta** is required (the Xcode 14 RC uses the macOS 12 SDK, so you must use Xcode 14 beta 6 or earlier).
+**Xcode 14.1** is required.
 
 - Open the `VirtualBuddy/Config/Signing.xcconfig` file
 - Set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`
