@@ -2,6 +2,13 @@
   "apiVersion": 1,
   "restoreImages": [
     {
+      "name": "macOS 13.2 Developer Beta 2",
+      "build": "22D5038i",
+      "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/032-33181/62ECE236-5806-4136-AD08-EDC026FD80A5/UniversalMac_13.2_22D5038i_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
       "name": "macOS 13.2 Developer Beta 1",
       "build": "22D5027d",
       "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/032-12640/6B472BA3-E678-4251-92D1-7AA23B66F53E/UniversalMac_13.2_22D5027d_Restore.ipsw",
