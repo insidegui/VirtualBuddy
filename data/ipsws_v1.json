@@ -2,10 +2,10 @@
   "apiVersion": 1,
   "restoreImages": [
     {
-      "name": "macOS 13.2 RC",
+      "name": "macOS 13.2",
       "build": "22D49",
       "url": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/032-35688/0350BB21-2B4B-4850-BF77-70B830283B28/UniversalMac_13.2_22D49_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
