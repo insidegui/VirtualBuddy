@@ -15,12 +15,17 @@ extension WormholeManager {
 struct GuestDashboard<HostConnection>: View where HostConnection: HostConnectionStateProvider {
     @EnvironmentObject private var launchAtLoginManager: GuestLaunchAtLoginManager
     @EnvironmentObject private var hostConnection: HostConnection
+    @EnvironmentObject private var sharedFolders: GuestSharedFoldersManager
 
     @State var activated = false
-    
+
     var body: some View {
         VStack {
             connectionState
+
+            if #available(macOS 13.0, *) {
+                sharedFoldersState
+            }
 
             Spacer()
 
@@ -31,7 +36,7 @@ struct GuestDashboard<HostConnection>: View where HostConnection: HostConnection
             Spacer()
         }
             .padding()
-            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
+            .frame(minWidth: 300, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
             .onAppear {
                 _ = WormholeManager.shared
             }
@@ -52,6 +57,25 @@ struct GuestDashboard<HostConnection>: View where HostConnection: HostConnection
         }
         .foregroundStyle(.secondary)
         .font(.caption)
+    }
+
+    @ViewBuilder
+    private var sharedFoldersState: some View {
+        if let error = sharedFolders.error {
+            VStack {
+                Text("Failed to mount shared folders:")
+                    .foregroundColor(.secondary)
+                Text(error.localizedDescription)
+                    .foregroundColor(.red)
+            }
+        } else {
+            HStack {
+                Text("Shared Folders:")
+                Button("Reveal in Finder") {
+                    sharedFolders.revealInFinder()
+                }
+            }
+        }
     }
 
     private var launchAtLoginBinding: Binding<Bool> {
@@ -77,6 +101,7 @@ struct GuestDashboard_Previews: PreviewProvider {
         GuestDashboard<MockHostConnectionStateProvider>()
             .environmentObject(GuestLaunchAtLoginManager())
             .environmentObject(MockHostConnectionStateProvider())
+            .environmentObject(GuestSharedFoldersManager())
     }
 }
 

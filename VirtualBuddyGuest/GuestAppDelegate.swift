@@ -8,6 +8,8 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
+    private lazy var sharedFolders = GuestSharedFoldersManager()
+
     private lazy var dashboardItem: StatusItemManager = {
         StatusItemManager(
             configuration: .default.id("dashboard"),
@@ -15,11 +17,16 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
             content: GuestDashboard<WormholeManager>()
                 .environmentObject(self.launchAtLoginManager)
                 .environmentObject(WormholeManager.shared)
+                .environmentObject(self.sharedFolders)
         )
     }()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         launchAtLoginManager.autoEnableIfNeeded()
+
+        Task {
+            try? await sharedFolders.mount()
+        }
         
         dashboardItem.install()
     }

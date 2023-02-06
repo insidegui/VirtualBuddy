@@ -37,6 +37,8 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     @DecodableDefault.True public var captureSystemKeys = true
 
+    public var hasSharedFolders: Bool { !sharedFolders.filter(\.isEnabled).isEmpty }
+
 }
 
 // MARK: - Hardware Configuration
