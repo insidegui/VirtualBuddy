@@ -35,6 +35,7 @@
 		F41369B529918576002CE8D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F41369B329918576002CE8D3 /* Main.storyboard */; };
 		F41369BF2991863A002CE8D3 /* VirtualBuddyGuestHelper.app in Embed Login Item */ = {isa = PBXBuildFile; fileRef = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */; };
+		F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
@@ -280,6 +281,7 @@
 		F41369C5299187E1002CE8D3 /* VirtualBuddyGuest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VirtualBuddyGuest-Bridging-Header.h"; sourceTree = "<group>"; };
 		F41369C6299187E2002CE8D3 /* GuestLoginItemHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GuestLoginItemHelper.h; sourceTree = "<group>"; };
 		F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GuestLoginItemHelper.m; sourceTree = "<group>"; };
+		F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostConnectionStateProvider.swift; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
@@ -519,6 +521,7 @@
 				F41369C4299187D8002CE8D3 /* Support */,
 				F4C18A4628491B8500335EC7 /* GuestDashboard.swift */,
 				F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */,
+				F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */,
 			);
 			path = Dashboard;
 			sourceTree = "<group>";
@@ -1482,6 +1485,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */,
+				F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */,
 				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
 				F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */,
 				F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */,

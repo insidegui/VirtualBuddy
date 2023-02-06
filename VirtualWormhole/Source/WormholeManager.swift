@@ -10,7 +10,9 @@ import Virtualization
 import OSLog
 import MultipeerKit
 
-public final class WormholeManager: NSObject {
+public final class WormholeManager: NSObject, ObservableObject {
+
+    @Published public private(set) var isConnected = false
     
     public enum Side: Int, CustomStringConvertible {
         case host
@@ -62,7 +64,13 @@ public final class WormholeManager: NSObject {
         transceiver.stop()
     }
     
-    private var connectedPeer: Peer?
+    private var connectedPeers = Set<Peer>() {
+        didSet {
+            DispatchQueue.main.async {
+                self.isConnected = !self.connectedPeers.isEmpty
+            }
+        }
+    }
     
     private lazy var transceiver = MultipeerTransceiver(
         configuration: MultipeerConfiguration(
@@ -97,10 +105,13 @@ extension MultipeerTransceiver: WormholeMultiplexer {
 private extension WormholeManager {
     
     func handlePeerInvitation(from peer: Peer, with data: Data?, decision: @escaping (Bool) -> Void) {
-        guard peer.id == connectedPeer?.id || connectedPeer == nil else {
-            logger.debug("Refusing invitation from \(peer.name): not our buddy")
-            decision(false)
-            return
+        /// Guest can only connect to one host at a time.
+        if side == .guest {
+            guard connectedPeers.isEmpty || peer.id == connectedPeers.first?.id else {
+                logger.debug("Refusing invitation from \(peer.name): not our buddy")
+                decision(false)
+                return
+            }
         }
         
         decision(true)
@@ -109,28 +120,34 @@ private extension WormholeManager {
     func startTransceiver() {
         transceiver.peerConnected = { [weak self] peer in
             guard let self = self else { return }
-            
-            guard self.connectedPeer == nil else {
-                self.logger.error("Refusing connection from \(peer.name) because we already have a remote peer")
-                return
+
+            /// Guest can only connect to one host at a time.
+            if self.side == .guest {
+                guard self.connectedPeers.isEmpty else {
+                    self.logger.error("Refusing connection from \(peer.name) because we already have a remote peer")
+                    return
+                }
             }
             
             self.logger.debug("Connected: \(peer.name)")
             
-            self.connectedPeer = peer
+            self.connectedPeers.insert(peer)
         }
         
         transceiver.peerDisconnected = { [weak self] peer in
             guard let self = self else { return }
-            
-            guard peer.id == self.connectedPeer?.id else {
-                self.logger.error("Ignoring disconnect from \(peer.name), which is not our buddy")
-                return
+
+            /// Guest can only connect to one host at a time.
+            if self.side == .guest {
+                guard peer.id == self.connectedPeers.first?.id else {
+                    self.logger.error("Ignoring disconnect from \(peer.name), which is not our buddy")
+                    return
+                }
             }
             
             self.logger.debug("Disconnected: \(peer.name)")
             
-            self.connectedPeer = nil
+            self.connectedPeers.remove(peer)
         }
         
         transceiver.resume()

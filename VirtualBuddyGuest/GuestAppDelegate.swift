@@ -1,6 +1,7 @@
 import Cocoa
 import SwiftUI
 import VirtualUI
+import VirtualWormhole
 
 @NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
@@ -11,7 +12,9 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         StatusItemManager(
             configuration: .default.id("dashboard"),
             statusItem: .button(label: { Image("StatusItem") }),
-            content: GuestDashboard().environmentObject(self.launchAtLoginManager)
+            content: GuestDashboard<WormholeManager>()
+                .environmentObject(self.launchAtLoginManager)
+                .environmentObject(WormholeManager.shared)
         )
     }()
 
