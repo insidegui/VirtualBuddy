@@ -7,6 +7,22 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695129916F6E002CE8D3 /* StatusItemButton.swift */; };
+		F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */; };
+		F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */; };
+		F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695529916F6E002CE8D3 /* StatusItemPanelContentController.swift */; };
+		F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift */; };
+		F413696829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift */; };
+		F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695929916F6E002CE8D3 /* StatusBarContentPanel.swift */; };
+		F413696A29916F6E002CE8D3 /* StatusBarHighlightView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695A29916F6E002CE8D3 /* StatusBarHighlightView.swift */; };
+		F413696B29916F6E002CE8D3 /* NSStatusItem+.h in Headers */ = {isa = PBXBuildFile; fileRef = F413695C29916F6E002CE8D3 /* NSStatusItem+.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F413696C29916F6E002CE8D3 /* NSApplication+MenuBar.h in Headers */ = {isa = PBXBuildFile; fileRef = F413695D29916F6E002CE8D3 /* NSApplication+MenuBar.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F413696D29916F6E002CE8D3 /* NSStatusBarPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F413695E29916F6E002CE8D3 /* NSStatusBarPrivate.h */; };
+		F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */ = {isa = PBXBuildFile; fileRef = F413695F29916F6E002CE8D3 /* NSApplication+MenuBar.m */; };
+		F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */ = {isa = PBXBuildFile; fileRef = F413696029916F6E002CE8D3 /* NSStatusItem+.m */; };
+		F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413696129916F6E002CE8D3 /* StatusItemManager.swift */; };
+		F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */; };
+		F413697C29917177002CE8D3 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F413697B29917177002CE8D3 /* VirtualUI.xcassets */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
@@ -191,6 +207,22 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		F413695129916F6E002CE8D3 /* StatusItemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemButton.swift; sourceTree = "<group>"; };
+		F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarPanelChrome.swift; sourceTree = "<group>"; };
+		F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemProviderProtocol.swift; sourceTree = "<group>"; };
+		F413695529916F6E002CE8D3 /* StatusItemPanelContentController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemPanelContentController.swift; sourceTree = "<group>"; };
+		F413695729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VUIAppKitViewControllerHost.swift; sourceTree = "<group>"; };
+		F413695829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemMenuBarExtraView.swift; sourceTree = "<group>"; };
+		F413695929916F6E002CE8D3 /* StatusBarContentPanel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarContentPanel.swift; sourceTree = "<group>"; };
+		F413695A29916F6E002CE8D3 /* StatusBarHighlightView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarHighlightView.swift; sourceTree = "<group>"; };
+		F413695C29916F6E002CE8D3 /* NSStatusItem+.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSStatusItem+.h"; sourceTree = "<group>"; };
+		F413695D29916F6E002CE8D3 /* NSApplication+MenuBar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSApplication+MenuBar.h"; sourceTree = "<group>"; };
+		F413695E29916F6E002CE8D3 /* NSStatusBarPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NSStatusBarPrivate.h; sourceTree = "<group>"; };
+		F413695F29916F6E002CE8D3 /* NSApplication+MenuBar.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSApplication+MenuBar.m"; sourceTree = "<group>"; };
+		F413696029916F6E002CE8D3 /* NSStatusItem+.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSStatusItem+.m"; sourceTree = "<group>"; };
+		F413696129916F6E002CE8D3 /* StatusItemManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemManager.swift; sourceTree = "<group>"; };
+		F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGFloat+OnePixel.swift"; sourceTree = "<group>"; };
+		F413697B29917177002CE8D3 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
@@ -361,9 +393,63 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F413694F29916F6E002CE8D3 /* SwiftUI Status Item */ = {
+			isa = PBXGroup;
+			children = (
+				F413695029916F6E002CE8D3 /* Components */,
+				F413696129916F6E002CE8D3 /* StatusItemManager.swift */,
+			);
+			path = "SwiftUI Status Item";
+			sourceTree = "<group>";
+		};
+		F413695029916F6E002CE8D3 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F413695429916F6E002CE8D3 /* Cocoa */,
+				F413695B29916F6E002CE8D3 /* ObjC */,
+				F413695129916F6E002CE8D3 /* StatusItemButton.swift */,
+				F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */,
+				F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		F413695429916F6E002CE8D3 /* Cocoa */ = {
+			isa = PBXGroup;
+			children = (
+				F413695529916F6E002CE8D3 /* StatusItemPanelContentController.swift */,
+				F413695729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift */,
+				F413695829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift */,
+				F413695929916F6E002CE8D3 /* StatusBarContentPanel.swift */,
+				F413695A29916F6E002CE8D3 /* StatusBarHighlightView.swift */,
+			);
+			path = Cocoa;
+			sourceTree = "<group>";
+		};
+		F413695B29916F6E002CE8D3 /* ObjC */ = {
+			isa = PBXGroup;
+			children = (
+				F413695E29916F6E002CE8D3 /* NSStatusBarPrivate.h */,
+				F413695C29916F6E002CE8D3 /* NSStatusItem+.h */,
+				F413696029916F6E002CE8D3 /* NSStatusItem+.m */,
+				F413695D29916F6E002CE8D3 /* NSApplication+MenuBar.h */,
+				F413695F29916F6E002CE8D3 /* NSApplication+MenuBar.m */,
+			);
+			path = ObjC;
+			sourceTree = "<group>";
+		};
+		F413697A29917169002CE8D3 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F413697B29917177002CE8D3 /* VirtualUI.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
 				F48E0D26288883150080DDFA /* HostingWindowController */,
 				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
 				F48E0D21288882E50080DDFA /* NSAlert+Confirmation.swift */,
@@ -563,6 +649,7 @@
 		F498ACFF2884BF13006F1C00 /* VirtualUI */ = {
 			isa = PBXGroup;
 			children = (
+				F413697A29917169002CE8D3 /* Resources */,
 				F498AD092884BF20006F1C00 /* Source */,
 				F498AD002884BF13006F1C00 /* VirtualUI.h */,
 			);
@@ -591,6 +678,7 @@
 				F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */,
 				F498AD132884C36A006F1C00 /* ControlGroupChrome.swift */,
 				F498AD192884C5FF006F1C00 /* SliderConversion.swift */,
+				F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */,
 			);
 			path = "Building Blocks";
 			sourceTree = "<group>";
@@ -879,7 +967,10 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F413696B29916F6E002CE8D3 /* NSStatusItem+.h in Headers */,
 				F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */,
+				F413696C29916F6E002CE8D3 /* NSApplication+MenuBar.h in Headers */,
+				F413696D29916F6E002CE8D3 /* NSStatusBarPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1013,7 +1104,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1340;
-				LastUpgradeCheck = 1400;
+				LastUpgradeCheck = 1420;
 				TargetAttributes = {
 					F498ACFD2884BF13006F1C00 = {
 						CreatedOnToolsVersion = 14.0;
@@ -1067,6 +1158,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F413697C29917177002CE8D3 /* VirtualUI.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1112,11 +1204,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
+				F413696A29916F6E002CE8D3 /* StatusBarHighlightView.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
+				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
+				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
+				F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */,
 				F48E0D34288889E60080DDFA /* InstallConfigurationStepView.swift in Sources */,
 				F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */,
 				F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */,
@@ -1127,25 +1223,32 @@
 				F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */,
 				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
 				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
+				F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */,
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
+				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */,
 				F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */,
 				F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F44C00F92889C1A700640BF5 /* DuplicateVMSheet.swift in Sources */,
+				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
+				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
 				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
 				F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */,
+				F413696829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift in Sources */,
 				F48E0D24288882E50080DDFA /* NSAlert+Confirmation.swift in Sources */,
 				F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */,
 				F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */,
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
+				F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */,
 				F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */,
 				F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */,
+				F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */,
 				F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
@@ -1162,6 +1265,7 @@
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
+				F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */,
 				F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
