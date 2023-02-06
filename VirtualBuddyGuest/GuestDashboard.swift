@@ -12,20 +12,23 @@ extension WormholeManager {
     static let shared = WormholeManager(for: .guest)
 }
 
-struct ContentView: View {
+struct GuestDashboard: View {
     @State var activated = false
     
     var body: some View {
         Text("Guest Service Running")
             .padding()
+            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
             .onAppear {
                 _ = WormholeManager.shared
             }
     }
 }
 
-struct ContentView_Previews: PreviewProvider {
+#if DEBUG
+struct GuestDashboard_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView()
+        GuestDashboard()
     }
 }
+#endif

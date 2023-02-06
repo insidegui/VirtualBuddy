@@ -23,6 +23,12 @@
 		F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413696129916F6E002CE8D3 /* StatusItemManager.swift */; };
 		F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */; };
 		F413697C29917177002CE8D3 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F413697B29917177002CE8D3 /* VirtualUI.xcassets */; };
+		F4136999299179B1002CE8D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4136998299179B1002CE8D3 /* Main.storyboard */; };
+		F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
+		F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
+		F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F41369A329917FA0002CE8D3 /* ScreenChangeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
@@ -123,8 +129,8 @@
 		F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */; };
 		F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */; };
 		F4C18A3D284914C600335EC7 /* MultipeerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4C18A3C284914C600335EC7 /* MultipeerKit */; };
-		F4C18A4528491B8500335EC7 /* VirtualBuddyGuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4428491B8500335EC7 /* VirtualBuddyGuestApp.swift */; };
-		F4C18A4728491B8500335EC7 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4628491B8500335EC7 /* ContentView.swift */; };
+		F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */; };
+		F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4628491B8500335EC7 /* GuestDashboard.swift */; };
 		F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4828491B8500335EC7 /* Assets.xcassets */; };
 		F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */; };
 		F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
@@ -142,6 +148,20 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		F413699C299179F8002CE8D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
+			remoteInfo = VirtualCore;
+		};
+		F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
+			remoteInfo = VirtualUI;
+		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
@@ -200,6 +220,8 @@
 			dstSubfolderSpec = 10;
 			files = (
 				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
+				F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */,
+				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -223,6 +245,8 @@
 		F413696129916F6E002CE8D3 /* StatusItemManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemManager.swift; sourceTree = "<group>"; };
 		F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CGFloat+OnePixel.swift"; sourceTree = "<group>"; };
 		F413697B29917177002CE8D3 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
+		F4136998299179B1002CE8D3 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
+		F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenChangeModifier.swift; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
@@ -329,8 +353,8 @@
 		F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHSharedClipboardService.swift; sourceTree = "<group>"; };
 		F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceProtocol.swift; sourceTree = "<group>"; };
 		F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddyGuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		F4C18A4428491B8500335EC7 /* VirtualBuddyGuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyGuestApp.swift; sourceTree = "<group>"; };
-		F4C18A4628491B8500335EC7 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAppDelegate.swift; sourceTree = "<group>"; };
+		F4C18A4628491B8500335EC7 /* GuestDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestDashboard.swift; sourceTree = "<group>"; };
 		F4C18A4828491B8500335EC7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuest.entitlements; sourceTree = "<group>"; };
@@ -387,6 +411,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
+				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
+				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +436,7 @@
 				F413695129916F6E002CE8D3 /* StatusItemButton.swift */,
 				F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */,
 				F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */,
+				F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -925,10 +952,11 @@
 		F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */ = {
 			isa = PBXGroup;
 			children = (
-				F4C18A4428491B8500335EC7 /* VirtualBuddyGuestApp.swift */,
-				F4C18A4628491B8500335EC7 /* ContentView.swift */,
+				F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */,
+				F4C18A4628491B8500335EC7 /* GuestDashboard.swift */,
 				F4C18A4828491B8500335EC7 /* Assets.xcassets */,
 				F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */,
+				F4136998299179B1002CE8D3 /* Main.storyboard */,
 				F4C18A4A28491B8500335EC7 /* Preview Content */,
 			);
 			path = VirtualBuddyGuest;
@@ -1090,6 +1118,8 @@
 			);
 			dependencies = (
 				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
+				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
+				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddyGuest;
 			productName = VirtualBuddyGuest;
@@ -1191,6 +1221,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4136999299179B1002CE8D3 /* Main.storyboard in Resources */,
 				F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */,
 				F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */,
 			);
@@ -1256,6 +1287,7 @@
 				F498AD1A2884C5FF006F1C00 /* SliderConversion.swift in Sources */,
 				F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */,
 				F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */,
+				F41369A329917FA0002CE8D3 /* ScreenChangeModifier.swift in Sources */,
 				F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */,
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
@@ -1334,14 +1366,24 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4C18A4728491B8500335EC7 /* ContentView.swift in Sources */,
-				F4C18A4528491B8500335EC7 /* VirtualBuddyGuestApp.swift in Sources */,
+				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
+				F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		F413699D299179F8002CE8D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
+			targetProxy = F413699C299179F8002CE8D3 /* PBXContainerItemProxy */;
+		};
+		F41369A1299179F8002CE8D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
+			targetProxy = F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */;
+		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
@@ -1533,7 +1575,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -1725,7 +1770,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2110,7 +2158,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2137,7 +2188,10 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",

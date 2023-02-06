@@ -15,7 +15,7 @@ extension EnvironmentValues {
 
 }
 
-/// A button that's used in ``ModernBatteryStatusView`` to provide the contents for the status item
+/// A button that's used in ``StatusItemManager`` to provide the contents for the status item
 /// when using the `.button` content type.
 /// Custom views can use ``StatusItemButtonLook`` to implement a view that's compatible
 /// with status items, but that aren't necessarily a button.
@@ -66,13 +66,18 @@ struct StatusItemButtonLook<Label: View>: View {
     @Environment(\.isStatusItemHighlighted)
     private var isHighlighted
 
+    @State private var screen: NSScreen?
+
+    private var height: CGFloat { StatusItemButtonStyle.effectiveHeight(for: screen) }
+
     var body: some View {
         label()
             .font(.system(size: StatusItemButtonStyle.glyphFontSize))
             .offset(y: StatusItemButtonStyle.glyphOffsetY)
-            .frame(width: nil, height: StatusItemButtonStyle.effectiveHeight)
+            .frame(minWidth: StatusItemButtonStyle.effectiveWidth, minHeight: height, maxHeight: height)
             .background(background)
             .contentShape(Rectangle())
+            .onScreenChanged { screen = $0 }
     }
 
     @ViewBuilder
@@ -85,8 +90,10 @@ struct StatusItemButtonLook<Label: View>: View {
 }
 
 struct StatusItemButtonStyle: ButtonStyle {
-    static var height: CGFloat { 37 }
-    static var width: CGFloat { 40 }
+    static var heightRegular: CGFloat { 22 }
+    static var heightTall: CGFloat { 37 }
+
+    static var width: CGFloat { 36 }
 
     static var verticalPadding: CGFloat { 6 }
     static var horizontalPadding: CGFloat { NSStatusItem.vui_idealPadding }
@@ -95,8 +102,14 @@ struct StatusItemButtonStyle: ButtonStyle {
 
     static var highlightCornerRadius: CGFloat { 4 }
 
-    static var effectiveHeight: CGFloat {
-        Self.height - Self.verticalPadding * 2
+    static func effectiveHeight(for screen: NSScreen?) -> CGFloat {
+        guard let screen else { return Self.heightRegular }
+
+        if screen.hasTallMenuBar {
+            return Self.heightTall - Self.verticalPadding * 2
+        } else {
+            return Self.heightRegular
+        }
     }
 
     static var effectiveWidth: CGFloat {
@@ -108,65 +121,3 @@ struct StatusItemButtonStyle: ButtonStyle {
     }
 
 }
-
-#if DEBUG
-@available(macOS 12.0, *)
-struct StatusItemButton_Previews: PreviewProvider {
-    static var previews: some View {
-        Preview(highlighted: false, thiccBoi: true)
-            .previewDisplayName("Notch")
-        Preview(highlighted: true, thiccBoi: true)
-            .previewDisplayName("Notch - Highlighted")
-
-        Preview(highlighted: false, thiccBoi: false)
-            .previewDisplayName("Regular")
-        Preview(highlighted: true, thiccBoi: false)
-            .previewDisplayName("Regular - Highlighted")
-    }
-
-    private final class FakeStatusItemProvider: StatusItemProvider {
-        @Published var isStatusItemHighlighted: Bool
-        @Published var isStatusItemOccluded: Bool
-
-        func showPopUpMenu(using builder: () -> NSMenu) {
-            
-        }
-
-        func togglePanelVisible() {
-            
-        }
-
-        init(_ value: Bool) {
-            self.isStatusItemHighlighted = value
-            self.isStatusItemOccluded = false
-        }
-    }
-
-    private struct Preview: View {
-        var highlighted: Bool
-        var thiccBoi: Bool
-
-        var fakeMenuBarHeight: CGFloat {
-            if thiccBoi {
-                return 37
-            } else {
-                return 22
-            }
-        }
-
-        var body: some View {
-            ZStack {
-                Rectangle()
-                    .frame(width: 200, height: fakeMenuBarHeight)
-                    .foregroundStyle(Material.thin)
-
-                StatusItemButtonLook {
-                    Image(systemName: "switch.2")
-                }
-                .environmentObject(FakeStatusItemProvider(highlighted))
-            }
-            .frame(height: fakeMenuBarHeight)
-        }
-    }
-}
-#endif

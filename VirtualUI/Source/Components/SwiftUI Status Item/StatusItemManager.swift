@@ -4,49 +4,61 @@ import Combine
 import OSLog
 import notify
 
-final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
+public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
 
     private lazy var logger: Logger = {
         Logger(subsystem: VirtualUIConstants.subsystemName, category: "StatusItemManager(\(configuration.id))")
     }()
 
     /// Configures the status item's identity and behavior.
-    struct Configuration {
+    public struct Configuration {
         /// Unique identifier for this status item.
-        var id: String
+        public internal(set) var id: String
         /// The behavior for allowing removal of the status item by dragging out of the menu bar.
-        var behavior: NSStatusItem.Behavior
+        public var behavior: NSStatusItem.Behavior
         /// Custom autosave name used by AppKit to store item's on/off and position preferences.
-        var autosaveName: String?
+        public var autosaveName: String?
 
-        static var `default`: Configuration {
+        public static var `default`: Configuration {
             Configuration(id: UUID().uuidString, behavior: .removalAllowed, autosaveName: nil)
+        }
+
+        public func id(_ id: String) -> Self {
+            var mSelf = self
+            mSelf.id = id
+            return mSelf
+        }
+
+        public init(id: String, behavior: NSStatusItem.Behavior, autosaveName: String? = nil) {
+            self.id = id
+            self.behavior = behavior
+            self.autosaveName = autosaveName
         }
     }
     
-    @Published private(set) var isStatusItemHighlighted: Bool = false
+    @Published public private(set) var isStatusItemHighlighted: Bool = false
 
-    @Published private(set) var isPanelVisible = false
+    @Published public private(set) var isPanelVisible = false
 
-    @Published private(set) var isStatusItemVisible = true
+    @Published public private(set) var isStatusItemVisible = true
 
     /// `true` whenever the status item is not actually visible in the Menu Bar.
     /// This differs from `isStatusItemVisible`, which reflects a user-defined setting.
     /// It will be `false` if the status item is not visible in the Menu Bar because not enough space was available,
     /// when using tools such as Bartender to hide status items, or if there's UI covering the status item.
-    @Published private(set) var isStatusItemOccluded = false
+    @Published public private(set) var isStatusItemOccluded = false
 
     let willShowPanel = PassthroughSubject<Void, Never>()
     let willClosePanel = PassthroughSubject<Void, Never>()
 
     private let configuration: Configuration
 
-    enum StatusItemView<V: View> {
+    public enum StatusItemView<V: View> {
         case button(label: () -> V)
         case custom(body: () -> V)
     }
 
-    init<StatusItem: View, Content: View>(configuration: Configuration = .default,
+    public init<StatusItem: View, Content: View>(configuration: Configuration = .default,
                                           statusItem: StatusItemView<StatusItem>,
                                           content: @escaping @autoclosure () -> Content)
     {
@@ -71,7 +83,7 @@ final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
         super.init()
     }
     
-    convenience init<StatusItem: View, Content: NSViewController>(configuration: Configuration = .default,
+    public convenience init<StatusItem: View, Content: NSViewController>(configuration: Configuration = .default,
                                                                   statusItem: StatusItemView<StatusItem>,
                                                                   content: @escaping @autoclosure () -> Content)
     {
@@ -112,7 +124,7 @@ final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
 
     private var installed = false
 
-    func install() {
+    public func install() {
         guard !installed else { return }
         installed = true
 
@@ -120,15 +132,6 @@ final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
     }
 
     private var eventObservers = [Any]()
-
-    private var isAppSwitcherVisible = false {
-        didSet {
-            #if DEBUG
-            guard oldValue != isAppSwitcherVisible else { return }
-            logger.debug("👀 isAppSwitcherVisible = \(self.isAppSwitcherVisible, privacy: .public)")
-            #endif
-        }
-    }
 
     private var statusItemWindowCancellable: AnyCancellable?
 
@@ -327,7 +330,7 @@ final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
         }
     }
 
-    func windowWillClose(_ notification: Notification) {
+    public func windowWillClose(_ notification: Notification) {
         willClosePanel.send()
         
         DispatchQueue.main.async {
@@ -337,13 +340,13 @@ final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
         }
     }
 
-    func windowDidResignKey(_ notification: Notification) {
+    public func windowDidResignKey(_ notification: Notification) {
         logger.debug("🔑 RESIGNED KEY")
 
         delayedHidePanel()
     }
 
-    func windowDidBecomeKey(_ notification: Notification) {
+    public func windowDidBecomeKey(_ notification: Notification) {
         logger.debug("🔑 BECAME KEY")
 
         panelHideDelayItem?.cancel()
