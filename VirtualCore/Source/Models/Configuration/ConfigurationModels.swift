@@ -298,7 +298,7 @@ public struct VBSharedFolder: Identifiable, Hashable, Codable {
     /// ```
     public static let virtualBuddyShareName = "VirtualBuddyShared"
     
-    public init(id: UUID = UUID(), url: URL, isEnabled: Bool = true, isReadOnly: Bool = true, customMountPointName: String? = nil) {
+    public init(id: UUID = UUID(), url: URL, isEnabled: Bool = true, isReadOnly: Bool = false, customMountPointName: String? = nil) {
         self.id = id
         self.url = url
         self.isEnabled = isEnabled
@@ -311,7 +311,7 @@ public struct VBSharedFolder: Identifiable, Hashable, Codable {
     public var url: URL
     @DecodableDefault.True
     public var isEnabled = true
-    public var isReadOnly = true
+    public var isReadOnly = false
     
     /// A custom name for the folder when mounted in the guest OS.
     public var customMountPointName: String? = nil
