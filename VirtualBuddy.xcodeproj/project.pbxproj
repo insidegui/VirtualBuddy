@@ -29,6 +29,12 @@
 		F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
 		F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F41369A329917FA0002CE8D3 /* ScreenChangeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */; };
+		F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */; };
+		F41369AE29918576002CE8D3 /* GuestHelperAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369AD29918576002CE8D3 /* GuestHelperAppDelegate.swift */; };
+		F41369B229918576002CE8D3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F41369B129918576002CE8D3 /* Assets.xcassets */; };
+		F41369B529918576002CE8D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F41369B329918576002CE8D3 /* Main.storyboard */; };
+		F41369BF2991863A002CE8D3 /* VirtualBuddyGuestHelper.app in Embed Login Item */ = {isa = PBXBuildFile; fileRef = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
@@ -162,6 +168,13 @@
 			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
 			remoteInfo = VirtualUI;
 		};
+		F41369BC29918617002CE8D3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F41369AA29918576002CE8D3;
+			remoteInfo = VirtualBuddyGuestHelper;
+		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
@@ -200,6 +213,17 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
+		F41369BE2991861C002CE8D3 /* Embed Login Item */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = Contents/Library/LoginItems;
+			dstSubfolderSpec = 1;
+			files = (
+				F41369BF2991863A002CE8D3 /* VirtualBuddyGuestHelper.app in Embed Login Item */,
+			);
+			name = "Embed Login Item";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4BE9C7027FF053A00B648F8 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -247,6 +271,15 @@
 		F413697B29917177002CE8D3 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F4136998299179B1002CE8D3 /* Main.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Main.storyboard; sourceTree = "<group>"; };
 		F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenChangeModifier.swift; sourceTree = "<group>"; };
+		F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestLaunchAtLoginManager.swift; sourceTree = "<group>"; };
+		F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddyGuestHelper.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F41369AD29918576002CE8D3 /* GuestHelperAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestHelperAppDelegate.swift; sourceTree = "<group>"; };
+		F41369B129918576002CE8D3 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F41369B429918576002CE8D3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		F41369B629918576002CE8D3 /* VirtualBuddyGuestHelper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuestHelper.entitlements; sourceTree = "<group>"; };
+		F41369C5299187E1002CE8D3 /* VirtualBuddyGuest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VirtualBuddyGuest-Bridging-Header.h"; sourceTree = "<group>"; };
+		F41369C6299187E2002CE8D3 /* GuestLoginItemHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GuestLoginItemHelper.h; sourceTree = "<group>"; };
+		F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GuestLoginItemHelper.m; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
@@ -371,6 +404,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		F41369A829918576002CE8D3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACFB2884BF13006F1C00 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -471,6 +511,37 @@
 				F413697B29917177002CE8D3 /* VirtualUI.xcassets */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		F41369A4299183BA002CE8D3 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				F41369C4299187D8002CE8D3 /* Support */,
+				F4C18A4628491B8500335EC7 /* GuestDashboard.swift */,
+				F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */ = {
+			isa = PBXGroup;
+			children = (
+				F41369AD29918576002CE8D3 /* GuestHelperAppDelegate.swift */,
+				F41369B129918576002CE8D3 /* Assets.xcassets */,
+				F41369B329918576002CE8D3 /* Main.storyboard */,
+				F41369B629918576002CE8D3 /* VirtualBuddyGuestHelper.entitlements */,
+			);
+			path = VirtualBuddyGuestHelper;
+			sourceTree = "<group>";
+		};
+		F41369C4299187D8002CE8D3 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				F41369C6299187E2002CE8D3 /* GuestLoginItemHelper.h */,
+				F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */,
+				F41369C5299187E1002CE8D3 /* VirtualBuddyGuest-Bridging-Header.h */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 		F41725642886DF4A004FF8A7 /* Components */ = {
@@ -799,6 +870,7 @@
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
 				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
 				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
+				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -812,6 +884,7 @@
 				F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */,
 				F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */,
 				F498ACFE2884BF13006F1C00 /* VirtualUI.framework */,
+				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -952,8 +1025,8 @@
 		F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */ = {
 			isa = PBXGroup;
 			children = (
+				F41369A4299183BA002CE8D3 /* Dashboard */,
 				F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */,
-				F4C18A4628491B8500335EC7 /* GuestDashboard.swift */,
 				F4C18A4828491B8500335EC7 /* Assets.xcassets */,
 				F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */,
 				F4136998299179B1002CE8D3 /* Main.storyboard */,
@@ -1023,6 +1096,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F41369B729918576002CE8D3 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuestHelper" */;
+			buildPhases = (
+				F41369A729918576002CE8D3 /* Sources */,
+				F41369A829918576002CE8D3 /* Frameworks */,
+				F41369A929918576002CE8D3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VirtualBuddyGuestHelper;
+			productName = VirtualBuddyGuestHelper;
+			productReference = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */;
+			productType = "com.apple.product-type.application";
+		};
 		F498ACFD2884BF13006F1C00 /* VirtualUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */;
@@ -1113,10 +1203,12 @@
 				F4C18A3F28491B8500335EC7 /* Frameworks */,
 				F4C18A4028491B8500335EC7 /* Resources */,
 				F4C18A5628491B9D00335EC7 /* Embed Frameworks */,
+				F41369BE2991861C002CE8D3 /* Embed Login Item */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F41369BD29918617002CE8D3 /* PBXTargetDependency */,
 				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
 				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
 				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
@@ -1133,9 +1225,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1340;
+				LastSwiftUpdateCheck = 1420;
 				LastUpgradeCheck = 1420;
 				TargetAttributes = {
+					F41369AA29918576002CE8D3 = {
+						CreatedOnToolsVersion = 14.2;
+						LastSwiftMigration = 1420;
+					};
 					F498ACFD2884BF13006F1C00 = {
 						CreatedOnToolsVersion = 14.0;
 						LastSwiftMigration = 1400;
@@ -1154,6 +1250,7 @@
 					};
 					F4C18A4128491B8500335EC7 = {
 						CreatedOnToolsVersion = 13.4;
+						LastSwiftMigration = 1420;
 					};
 				};
 			};
@@ -1176,6 +1273,7 @@
 			targets = (
 				F4BE9C4D27FF052100B648F8 /* VirtualBuddy */,
 				F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */,
+				F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
@@ -1184,6 +1282,15 @@
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		F41369A929918576002CE8D3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F41369B229918576002CE8D3 /* Assets.xcassets in Resources */,
+				F41369B529918576002CE8D3 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACFC2884BF13006F1C00 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1230,6 +1337,14 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		F41369A729918576002CE8D3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F41369AE29918576002CE8D3 /* GuestHelperAppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACFA2884BF13006F1C00 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1366,8 +1481,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */,
 				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
 				F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */,
+				F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1383,6 +1500,11 @@
 			isa = PBXTargetDependency;
 			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
 			targetProxy = F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */;
+		};
+		F41369BD29918617002CE8D3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */;
+			targetProxy = F41369BC29918617002CE8D3 /* PBXContainerItemProxy */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1411,7 +1533,136 @@
 		};
 /* End PBXTargetDependency section */
 
+/* Begin PBXVariantGroup section */
+		F41369B329918576002CE8D3 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				F41369B429918576002CE8D3 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
 /* Begin XCBuildConfiguration section */
+		F41369B829918576002CE8D3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F41369B929918576002CE8D3 /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug_Managed;
+		};
+		F41369BA29918576002CE8D3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F41369BB29918576002CE8D3 /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_LSBackgroundOnly = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release_Managed;
+		};
 		F498AD062884BF13006F1C00 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1566,6 +1817,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1587,6 +1839,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddyGuest/Dashboard/Support/VirtualBuddyGuest-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug_Managed;
@@ -1761,6 +2015,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -1782,6 +2037,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddyGuest/Dashboard/Support/VirtualBuddyGuest-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release_Managed;
@@ -2149,6 +2405,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -2170,6 +2427,8 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddyGuest/Dashboard/Support/VirtualBuddyGuest-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -2179,6 +2438,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -2200,6 +2460,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "VirtualBuddyGuest/Dashboard/Support/VirtualBuddyGuest-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
@@ -2207,6 +2468,17 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		F41369B729918576002CE8D3 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuestHelper" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F41369B829918576002CE8D3 /* Debug */,
+				F41369B929918576002CE8D3 /* Debug_Managed */,
+				F41369BA29918576002CE8D3 /* Release */,
+				F41369BB29918576002CE8D3 /* Release_Managed */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
