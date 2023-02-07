@@ -1,7 +1,7 @@
 import Cocoa
 import SwiftUI
 
-protocol StatusItemProvider: ObservableObject {
+public protocol StatusItemProvider: ObservableObject {
     /// `true` when the background of the status item's view should be highlighted.
     var isStatusItemHighlighted: Bool { get }
 

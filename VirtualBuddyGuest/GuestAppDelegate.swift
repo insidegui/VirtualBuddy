@@ -21,6 +21,14 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         )
     }()
 
+    private var shouldShowPanelAfterLaunching: Bool {
+        get { !UserDefaults.standard.bool(forKey: "shownPanelOnFirstLauch") || UserDefaults.standard.bool(forKey: "ShowPanelOnLaunch") }
+        set {
+            UserDefaults.standard.set(!newValue, forKey: "shownPanelOnFirstLauch")
+            UserDefaults.standard.synchronize()
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         launchAtLoginManager.autoEnableIfNeeded()
 
@@ -29,6 +37,21 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         }
         
         dashboardItem.install()
+
+        perform(#selector(showPanelForFirstLaunchIfNeeded), with: nil, afterDelay: 0.5)
+    }
+
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        dashboardItem.showPanel()
+
+        return true
+    }
+
+    @objc private func showPanelForFirstLaunchIfNeeded() {
+        guard shouldShowPanelAfterLaunching else { return }
+        shouldShowPanelAfterLaunching = false
+
+        dashboardItem.showPanel()
     }
 
 }

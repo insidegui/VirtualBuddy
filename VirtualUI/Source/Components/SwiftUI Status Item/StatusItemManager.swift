@@ -48,8 +48,8 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
     /// when using tools such as Bartender to hide status items, or if there's UI covering the status item.
     @Published public private(set) var isStatusItemOccluded = false
 
-    let willShowPanel = PassthroughSubject<Void, Never>()
-    let willClosePanel = PassthroughSubject<Void, Never>()
+    public let willShowPanel = PassthroughSubject<Void, Never>()
+    public let willClosePanel = PassthroughSubject<Void, Never>()
 
     private let configuration: Configuration
 
@@ -181,7 +181,7 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
 
     private var panel: StatusBarContentPanel?
 
-    func togglePanelVisible() {
+    public func togglePanelVisible() {
         if isPanelVisible {
             hidePanel()
             isStatusItemHighlighted = false
@@ -193,7 +193,7 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
     
     private var primaryMenuObserver: Any?
     
-    func showPopUpMenu(using builder: () -> NSMenu) {
+    public func showPopUpMenu(using builder: () -> NSMenu) {
         guard let view = item.vui_contentView else { return }
 
         let origin = NSEvent.mouseLocation(in: view)
@@ -216,7 +216,7 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
         menu.popUp(positioning: nil, at: origin, in: view)
     }
 
-    func showPanel() {
+    public func showPanel() {
         defer { willShowPanel.send() }
 
         let basePanelSize = NSSize(width: 300, height: 300)
@@ -308,7 +308,7 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
 
     private var panelIsClosing = false
 
-    func hidePanel(animated: Bool = true) {
+    public func hidePanel(animated: Bool = true) {
         guard isPanelVisible, !panelIsClosing else { return }
 
         guard animated else {
