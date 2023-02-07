@@ -99,6 +99,7 @@
 		F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */; };
 		F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */; };
 		F48E0D34288889E60080DDFA /* InstallConfigurationStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */; };
+		F4959F3C2992A284001DF4CB /* GuestAppInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4959F3B2992A284001DF4CB /* GuestAppInstaller.swift */; };
 		F498AD012884BF13006F1C00 /* VirtualUI.h in Headers */ = {isa = PBXBuildFile; fileRef = F498AD002884BF13006F1C00 /* VirtualUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
 		F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -347,6 +348,7 @@
 		F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualUIConstants.swift; sourceTree = "<group>"; };
 		F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageDownloadView.swift; sourceTree = "<group>"; };
 		F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallConfigurationStepView.swift; sourceTree = "<group>"; };
+		F4959F3B2992A284001DF4CB /* GuestAppInstaller.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAppInstaller.swift; sourceTree = "<group>"; };
 		F498ACFE2884BF13006F1C00 /* VirtualUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F498AD002884BF13006F1C00 /* VirtualUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualUI.h; sourceTree = "<group>"; };
 		F498AD0D2884BF9D006F1C00 /* VMConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMConfigurationView.swift; sourceTree = "<group>"; };
@@ -1033,6 +1035,7 @@
 			children = (
 				F41369A4299183BA002CE8D3 /* Dashboard */,
 				F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */,
+				F4959F3B2992A284001DF4CB /* GuestAppInstaller.swift */,
 				F4C18A4828491B8500335EC7 /* Assets.xcassets */,
 				F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */,
 				F4136998299179B1002CE8D3 /* Main.storyboard */,
@@ -1512,6 +1515,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */,
+				F4959F3C2992A284001DF4CB /* GuestAppInstaller.swift in Sources */,
 				F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */,
 				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
 				F41369CC2991A68F002CE8D3 /* GuestSharedFoldersManager.swift in Sources */,

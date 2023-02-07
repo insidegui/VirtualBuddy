@@ -29,8 +29,24 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private let installer = GuestAppInstaller()
+
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        do {
+            try installer.installIfNeeded()
+        } catch {
+            let alert = NSAlert(error: error)
+            alert.runModal()
+        }
+    }
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        /// Skip regular app activation if installation is needed (i.e. running from disk image).
+        guard !installer.needsInstall else { return }
+
         launchAtLoginManager.autoEnableIfNeeded()
+
+        WormholeManager.shared.activate()
 
         Task {
             try? await sharedFolders.mount()

@@ -135,6 +135,7 @@ public final class VMInstance: NSObject, ObservableObject {
         _virtualMachine = VZVirtualMachine(configuration: config)
         
         _wormhole = WormholeManager(for: .host)
+        _wormhole?.activate()
     }
     
     private var hookingPoint: VBObjCHookingPoint?

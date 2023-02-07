@@ -37,9 +37,6 @@ struct GuestDashboard<HostConnection>: View where HostConnection: HostConnection
         }
             .padding()
             .frame(minWidth: 300, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
-            .onAppear {
-                _ = WormholeManager.shared
-            }
     }
 
     @ViewBuilder

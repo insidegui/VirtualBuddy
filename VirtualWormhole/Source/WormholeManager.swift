@@ -44,19 +44,21 @@ public final class WormholeManager: NSObject, ObservableObject {
         self.side = side
 
         super.init()
+    }
 
+    public func activate() {
         for serviceType in serviceTypes {
             logger.debug("Registered \(String(describing: serviceType), privacy: .public)")
-            
+
             let service = serviceType.init(with: transceiver)
-            
+
             service.activate()
-            
+
             activeServices.append(service)
         }
-        
-        logger.debug("Initialized for \(side, privacy: .public)")
-        
+
+        logger.debug("Initialized for \(self.side, privacy: .public)")
+
         startTransceiver()
     }
     

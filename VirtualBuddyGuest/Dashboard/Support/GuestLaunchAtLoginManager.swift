@@ -4,7 +4,7 @@ import OSLog
 
 final class GuestLaunchAtLoginManager: ObservableObject {
 
-    private lazy var logger = Logger(subsystem: "codes.rambo.VirtualBuddyGuest", category: String(describing: Self.self))
+    private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: Self.self))
 
     var isLaunchAtLoginEnabled: Bool {
         if #available(macOS 13.0, *) {
