@@ -1146,6 +1146,7 @@
 				F4BE9C4B27FF052100B648F8 /* Frameworks */,
 				F4BE9C4C27FF052100B648F8 /* Resources */,
 				F4BE9C7027FF053A00B648F8 /* Embed Frameworks */,
+				F4959F1F29927FB5001DF4CB /* Create Guest Debug Disk Image */,
 			);
 			buildRules = (
 			);
@@ -1341,6 +1342,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F4959F1F29927FB5001DF4CB /* Create Guest Debug Disk Image */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				$BUILT_PRODUCTS_DIR/VirtualBuddyGuest.app,
+			);
+			name = "Create Guest Debug Disk Image";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$BUILT_PRODUCTS_DIR/VirtualBuddy.app/Contents/Resources/VirtualBuddyGuest-Debug.dmg",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"${CONFIGURATION}\" = \"Debug\" ] || [ \"${CONFIGURATION}\" = \"Debug_Managed\" ]; then\n    GUEST_DMG_DEST_PATH=\"$SCRIPT_OUTPUT_FILE_0\"\n    \n    GUEST_APP_PATH=\"$SCRIPT_INPUT_FILE_0\"\n    GUEST_TEMP_MOUNT_PATH=\"/private/tmp/VirtualBuddyGuestImage-Debug\"\n    GUEST_TEMP_DMG_PATH=\"/private/tmp/VirtualBuddyGuest-Debug.dmg\"\n    \n    hdiutil detach -force $GUEST_TEMP_MOUNT_PATH || echo \"\"\n    \n    rm $GUEST_TEMP_DMG_PATH || echo \"\"\n    \n    hdiutil create -layout MBRSPUD -size 20M -fs HFS+ -volname GuestDebug $GUEST_TEMP_DMG_PATH\n    \n    hdiutil attach -imagekey diskimage-class=CRawDiskImage -noverify $GUEST_TEMP_DMG_PATH -mountpoint $GUEST_TEMP_MOUNT_PATH\n    \n    cp -R $GUEST_APP_PATH \"$GUEST_TEMP_MOUNT_PATH/\"\n    \n    hdiutil detach -force $GUEST_TEMP_MOUNT_PATH\n    \n    xattr -cr $GUEST_TEMP_DMG_PATH\n    \n    yes | cp -rf $GUEST_TEMP_DMG_PATH $GUEST_DMG_DEST_PATH\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F41369A729918576002CE8D3 /* Sources */ = {

@@ -48,6 +48,11 @@ struct MacOSVirtualMachineConfigurationHelper {
             output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
         }
 
+        if vm.configuration.guestAdditionsEnabled {
+            let guestDisk = try VZVirtioBlockDeviceConfiguration.guestAdditionsDisk
+            output.append(guestDisk)
+        }
+
         return output
     }    
 
@@ -232,4 +237,30 @@ extension VBSharedFolder {
         return VZSharedDirectory(url: url, readOnly: isReadOnly)
     }
     
+}
+
+// MARK: - VirtualBuddyGuest Disk Image
+
+extension VZVirtioBlockDeviceConfiguration {
+
+    static let guestAdditionsDiskImageName: String = {
+        #if DEBUG
+        return "VirtualBuddyGuest-Debug"
+        #else
+        return "VirtualBuddyGuest"
+        #endif
+    }()
+
+    static var guestAdditionsDisk: VZVirtioBlockDeviceConfiguration {
+        get throws {
+            guard let guestImageURL = Bundle.main.url(forResource: Self.guestAdditionsDiskImageName, withExtension: "dmg") else {
+                throw CocoaError(.fileNoSuchFile, userInfo: [NSLocalizedDescriptionKey: "Missing \(Self.guestAdditionsDiskImageName).dmg in the app's resources."])
+            }
+
+            let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImageURL, readOnly: true)
+
+            return VZVirtioBlockDeviceConfiguration(attachment: guestAttachment)
+        }
+    }
+
 }
