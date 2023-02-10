@@ -129,7 +129,7 @@ struct RestoreImagePicker: View {
                 .foregroundColor(.secondary)
             case .alreadyDownloaded(let title, let localURL):
                 VStack {
-                    Text("\(title) is already downloaded. Click \"Next\" below to re-download it or proceed with the installation right now by using the previously downloaded image.")
+                    Text("\(title) is already downloaded. Click \"Continue\" below to re-download it or proceed with the installation right now by using the previously downloaded image.")
                         .foregroundColor(.green)
 
                     Button("Install Now") { onUseLocalFile(localURL) }
