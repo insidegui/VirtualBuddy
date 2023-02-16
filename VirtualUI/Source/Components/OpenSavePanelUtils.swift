@@ -17,7 +17,7 @@ public extension NSOpenPanel {
         }
 
         panel.treatsFilePackagesAsDirectories = true
-        panel.directoryURL = directoryURL ?? URL(fileURLWithPath: NSHomeDirectory())
+        panel.directoryURL = directoryURL
 
         guard panel.runModal() == .OK, let url = panel.url else { return nil }
 
@@ -34,7 +34,7 @@ public extension NSSavePanel {
         panel.allowedContentTypes = Array(contentTypes)
 
         panel.treatsFilePackagesAsDirectories = true
-        panel.directoryURL = directoryURL ?? URL(fileURLWithPath: NSHomeDirectory())
+        panel.directoryURL = directoryURL
 
         guard panel.runModal() == .OK, let url = panel.url else { return nil }
 
