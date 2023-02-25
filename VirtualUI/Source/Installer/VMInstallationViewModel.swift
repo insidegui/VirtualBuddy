@@ -22,6 +22,7 @@ struct VMInstallData: Hashable {
         }
     }
     var restoreImageURL: URL?
+    var installImageURL: URL?
     
     var downloadURL: URL? {
         restoreImageURL ?? restoreImageInfo?.url
@@ -77,7 +78,7 @@ final class VMInstallationViewModel: ObservableObject {
     @Published  var disableNextButton = false
 
     private var needsDownload: Bool {
-        guard let url = data.restoreImageURL else { return true }
+        guard let url = data.restoreImageURL ?? data.installImageURL else { return true }
         return !url.isFileURL
     }
 
@@ -143,7 +144,7 @@ final class VMInstallationViewModel: ObservableObject {
     private func commitInstallMethod() {
         switch installMethod {
         case .localFile:
-            selectIPSWFile()
+            selectInstallFile()
         case .remoteOptions:
             step = .restoreImageSelection
         case .remoteManual:
@@ -178,13 +179,61 @@ final class VMInstallationViewModel: ObservableObject {
             .appendingPathComponent(data.name)
             .appendingPathExtension(VBVirtualMachine.bundleExtension)
 
-        let model = try VBVirtualMachine(bundleURL: vmURL)
+        let model: VBVirtualMachine
+        if let linuxInstallerURL = data.installImageURL, #available(macOS 13, *) {
+            model = try VBVirtualMachine(creatingAtURL: vmURL, linuxInstallerURL: linuxInstallerURL)
+        } else {
+            model = try VBVirtualMachine(bundleURL: vmURL)
+        }
         
         self.machine = model
     }
 
     @MainActor
     private func startInstallation() async {
+        switch machine?.configuration.systemType {
+        case .mac:
+            await startMacInstallation()
+        case .linux:
+            guard #available(macOS 13, *) else {
+                state = .error("This configuration requires macOS 13")
+                break
+            }
+            await startLinuxInstallation()
+        case .none:
+            state = .error("Missing VM model or system type")
+        }
+    }
+
+    @available(macOS 13, *)
+    @MainActor
+    private func startLinuxInstallation() async {
+        guard let installURL = data.installImageURL else {
+            state = .error("Missing install image URL")
+            return
+        }
+
+        guard let model = machine else {
+            state = .error("Missing VM model")
+            return
+        }
+
+        do {
+            let config = try await VMInstance.makeConfiguration(for: model, installImageURL: installURL)
+            do {
+                try config.validate()
+            } catch {
+                throw Failure("Failed to validate configuration: \(String(describing: error))")
+            }
+            
+            step = .done
+        } catch {
+            state = .error(error.localizedDescription)
+        }
+    }
+
+    @MainActor
+    private func startMacInstallation() async { // TODO: handle Linux installation
         guard let restoreURL = data.restoreImageURL else {
             state = .error("Missing restore image URL")
             return
@@ -271,8 +320,14 @@ final class VMInstallationViewModel: ObservableObject {
         return true
     }
 
-    func selectIPSWFile() {
-        guard let url = NSOpenPanel.run(accepting: [.ipsw]) else {
+    func selectInstallFile() {
+        let acceptedFiles: Set<UTType>
+        if #available(macOS 13, *) {
+            acceptedFiles = [.ipsw, .iso]
+        } else {
+            acceptedFiles = [.ipsw]
+        }
+        guard let url = NSOpenPanel.run(accepting: acceptedFiles) else {
             return
         }
 
@@ -280,7 +335,16 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     func continueWithLocalFile(at url: URL) {
-        data.restoreImageURL = url
+        if let fileType = try? url.resourceValues(forKeys: [.contentTypeKey]).contentType {
+            switch fileType {
+            case .ipsw:
+                data.restoreImageURL = url
+            case .iso:
+                data.installImageURL = url
+            default:
+                break
+            }
+        }
 
         step = .name
     }
@@ -296,4 +360,5 @@ final class VMInstallationViewModel: ObservableObject {
 
 extension UTType {
     static let ipsw = UTType(filenameExtension: "ipsw")!
+    static let iso = UTType(filenameExtension: "iso")!
 }

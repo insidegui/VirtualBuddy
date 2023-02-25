@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
+		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
@@ -191,6 +193,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinuxVirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
+		4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
@@ -647,7 +651,9 @@
 		F4A21BF028032FBD001072B8 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */,
 				F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */,
+				0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */,
 				F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */,
 				F47FFA56280633F000BD1F87 /* VMScreenshotter.swift */,
 				F417257028877121004FF8A7 /* DiskImageGenerator.swift */,
@@ -1192,6 +1198,7 @@
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
 				F46FFBA62804E81E00D61023 /* VBObjCHookingPoint.m in Sources */,
+				4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */,
 				F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
 				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
@@ -1211,6 +1218,7 @@
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,
+				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,
 				F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
