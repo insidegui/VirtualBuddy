@@ -11,7 +11,7 @@ import Virtualization
 protocol VirtualMachineConfigurationHelper {
     var vm: VBVirtualMachine { get }
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration
-    func createBootLoader() -> VZBootLoader
+    func createBootLoader() throws -> VZBootLoader
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration]
     func createKeyboardConfiguration() -> VZKeyboardConfiguration

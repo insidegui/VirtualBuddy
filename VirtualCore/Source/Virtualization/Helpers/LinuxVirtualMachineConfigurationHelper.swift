@@ -18,14 +18,13 @@ struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
         return usbDeviceConfiguration
     }
 
-    func createBootLoader() -> VZBootLoader {
+    func createBootLoader() throws -> VZBootLoader {
         let efi = VZEFIBootLoader()
         let storeURL = vm.metadataDirectoryURL.appendingPathComponent("nvram")
         if FileManager.default.fileExists(atPath: storeURL.path) {
             efi.variableStore = VZEFIVariableStore(url: storeURL)
         } else {
-            efi.variableStore = try? VZEFIVariableStore(creatingVariableStoreAt: storeURL, options: [])
-            // FIXME: handle errors
+            efi.variableStore = try VZEFIVariableStore(creatingVariableStoreAt: storeURL, options: [])
         }
         return efi
     }

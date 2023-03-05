@@ -124,7 +124,7 @@ public final class VMInstance: NSObject, ObservableObject {
         let c = VZVirtualMachineConfiguration()
 
         c.platform = platform
-        c.bootLoader = helper.createBootLoader()
+        c.bootLoader = try helper.createBootLoader()
         c.cpuCount = model.configuration.hardware.cpuCount
         c.memorySize = model.configuration.hardware.memorySize
         c.graphicsDevices = helper.createGraphicsDevices()
