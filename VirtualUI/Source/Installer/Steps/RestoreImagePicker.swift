@@ -18,7 +18,7 @@ final class RestoreImagePickerController: ObservableObject {
     @Published var errorMessage: String?
     @Published var cookie: String?
     
-    func loadRestoreImageOptions(for guest: VBAPIClient.GuestType) {
+    func loadRestoreImageOptions(for guest: VBGuestType) {
         Task {
             do {
                 let images = try await api.fetchRestoreImages(for: guest)
@@ -96,7 +96,7 @@ struct RestoreImagePicker: View {
             selection = $0
             validationChanged.send(controller.validateSelectedRestoreImage())
         })
-        .onAppearOnce { controller.loadRestoreImageOptions(for: .macOS) }
+        .onAppearOnce { controller.loadRestoreImageOptions(for: .mac) }
 
         if let selectedImage = controller.selectedRestoreImage,
            let advisory = controller.restoreAdvisory(for: selectedImage)

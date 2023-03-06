@@ -9,20 +9,6 @@ import Foundation
 
 public final class VBAPIClient {
 
-    public enum GuestType {
-        case macOS
-        case Linux
-
-        var path: String {
-            switch self {
-            case .macOS:
-                return "/restore/mac"
-            case .Linux:
-                return "/restore/linux"
-            }
-        }
-    }
-
     public struct Environment: Hashable {
         public var baseURL: URL
         public var apiKey: String
@@ -84,8 +70,8 @@ public final class VBAPIClient {
     }
 
     @MainActor
-    public func fetchRestoreImages(for guest: GuestType) async throws -> [VBRestoreImageInfo] {
-        let req = request(for: guest.path)
+    public func fetchRestoreImages(for guest: VBGuestType) async throws -> [VBRestoreImageInfo] {
+        let req = request(for: guest.restoreImagesAPIPath)
 
         let (data, res) = try await URLSession.shared.data(for: req)
 
@@ -100,4 +86,15 @@ public final class VBAPIClient {
         return response.images
     }
 
+}
+
+private extension VBGuestType {
+    var restoreImagesAPIPath: String {
+        switch self {
+        case .mac:
+            return "/restore/mac"
+        case .linux:
+            return "/restore/linux"
+        }
+    }
 }
