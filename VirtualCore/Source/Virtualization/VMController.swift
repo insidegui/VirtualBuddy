@@ -14,6 +14,9 @@ import OSLog
 public struct VMSessionOptions: Hashable, Codable {
     public var bootInRecoveryMode = false
     
+    @DecodableDefault.False
+    public var bootOnInstallDevice = false
+    
     public static let `default` = VMSessionOptions()
 }
 
@@ -52,6 +55,9 @@ public final class VMController: ObservableObject {
     public init(with vm: VBVirtualMachine) {
         self.virtualMachineModel = vm
         virtualMachineModel.reloadMetadata()
+        if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
+            options.bootOnInstallDevice = true
+        }
 
         /// Ensure configuration is persisted whenever it changes.
         $virtualMachineModel
@@ -92,6 +98,7 @@ public final class VMController: ObservableObject {
             let vm = try newInstance.virtualMachine
             
             state = .running(vm)
+            virtualMachineModel.metadata.installFinished = true
         } catch {
             state = .stopped(error)
         }

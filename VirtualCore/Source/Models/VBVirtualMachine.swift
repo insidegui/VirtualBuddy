@@ -22,6 +22,7 @@ public struct VBVirtualMachine: Identifiable {
         public var installFinished: Bool = false
         public var firstBootDate: Date? = nil
         public var lastBootDate: Date? = nil
+        public var installImageURL: URL? = nil
     }
 
     public var id: String { bundleURL.absoluteString }
@@ -148,6 +149,16 @@ public extension VBVirtualMachine {
             self.metadata = Metadata(installFinished: true, firstBootDate: .now, lastBootDate: .now)
         }
 
+        try saveMetadata()
+    }
+
+    @available(macOS 13, *)
+    init(creatingAtURL bundleURL: URL, linuxInstallerURL: URL) throws {
+        guard !FileManager.default.fileExists(atPath: bundleURL.path) else { fatalError() }
+        try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
+        self.bundleURL = bundleURL
+        self.configuration = .init(systemType: .linux)
+        self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now, installImageURL: linuxInstallerURL)
         try saveMetadata()
     }
 
