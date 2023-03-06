@@ -86,7 +86,10 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Select an installation method:")
 
-            InstallMethodPicker(selection: $viewModel.installMethod)
+            InstallMethodPicker(
+                guestType: viewModel.selectedSystemType,
+                selection: $viewModel.installMethod
+            )
         }
     }
 
@@ -108,7 +111,7 @@ public struct VMInstallationWizard: View {
             
             RestoreImagePicker(
                 selection: $viewModel.data.restoreImageInfo,
-                guestType: viewModel.selectedSystemType ?? .mac,
+                guestType: viewModel.selectedSystemType,
                 validationChanged: stepValidationStateChanged,
                 onUseLocalFile: { localURL in
                     viewModel.continueWithLocalFile(at: localURL)

@@ -6,25 +6,28 @@
 //
 
 import SwiftUI
+import VirtualCore
 
-enum InstallMethod: String, Identifiable, CaseIterable, CustomStringConvertible {
+enum InstallMethod: String, Identifiable, CaseIterable {
     var id: RawValue { rawValue }
 
     case localFile
     case remoteOptions
     case remoteManual
 
-    var description: String {
+    func description(for type: VBGuestType) -> String {
         switch self {
             case .localFile:
-                guard #available(macOS 13, *) else {
-                    return "Open custom IPSW file from local storage"
-                }
-            return "Open custom IPSW or ISO file from local storage"
+            switch type {
+            case .mac:
+                return "Open custom IPSW file from local storage"
+            case .linux:
+                return "Open custom ISO file from local storage"
+            }
             case .remoteOptions:
-                return "Download macOS installer from a list of options"
+                return "Download \(type.name) installer from a list of options"
             case .remoteManual:
-                return "Download macOS installer from a custom URL"
+                return "Download \(type.name) installer from a custom URL"
         }
     }
 
@@ -42,6 +45,7 @@ enum InstallMethod: String, Identifiable, CaseIterable, CustomStringConvertible 
 
 struct InstallMethodPicker: View {
 
+    var guestType: VBGuestType
     @Binding var selection: InstallMethod
 
     @FocusState private var isFocused: Bool
@@ -63,6 +67,7 @@ struct InstallMethodPicker: View {
             ForEach(InstallMethod.allCases) { method in
                 InstallMethodView(
                     method: method,
+                    description: method.description(for: guestType),
                     isSelected: selection == method
                 )
                 .onTapGesture {
@@ -73,7 +78,7 @@ struct InstallMethodPicker: View {
         .accessibilityRepresentation {
             Picker(selection: $selection) {
                 ForEach(InstallMethod.allCases) { method in
-                    Text(method.description)
+                    Text(method.description(for: guestType))
                         .tag(method)
                 }
             } label: { }
@@ -105,6 +110,7 @@ struct InstallMethodPicker: View {
 struct InstallMethodView: View {
 
     let method: InstallMethod
+    let description: String
     let isSelected: Bool
 
     var lineWidth: CGFloat { isSelected ? 2 : 1 }
@@ -113,7 +119,7 @@ struct InstallMethodView: View {
         HStack {
             Image(systemName: method.imageName)
 
-            Text(method.description)
+            Text(description)
         }
         .foregroundColor(isSelected ? .accentColor : .secondary)
         .padding()
@@ -139,7 +145,7 @@ struct InstallMethodView: View {
 #if DEBUG
 struct InstallMethodPicker_Previews: PreviewProvider {
     static var previews: some View {
-        InstallMethodPicker(selection: .constant(.remoteOptions))
+        InstallMethodPicker(guestType: .mac, selection: .constant(.remoteOptions))
     }
 }
 #endif
