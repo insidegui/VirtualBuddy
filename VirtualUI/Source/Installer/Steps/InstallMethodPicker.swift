@@ -17,7 +17,10 @@ enum InstallMethod: String, Identifiable, CaseIterable, CustomStringConvertible 
     var description: String {
         switch self {
             case .localFile:
-                return "Open custom IPSW file from local storage"
+                guard #available(macOS 13, *) else {
+                    return "Open custom IPSW file from local storage"
+                }
+            return "Open custom IPSW or ISO file from local storage"
             case .remoteOptions:
                 return "Download macOS installer from a list of options"
             case .remoteManual:

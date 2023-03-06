@@ -27,8 +27,16 @@ public struct VBMacConfiguration: Hashable, Codable {
         case unsupported([String])
     }
 
+    public enum SystemType: String, Codable, CaseIterable {
+        case mac
+        case linux
+    }
+
     public static let currentVersion = 0
     @DecodableDefault.Zero public var version = VBMacConfiguration.currentVersion
+
+    @DecodableDefault.FirstCase
+    public var systemType: SystemType = .mac
 
     public var hardware = VBMacDevice.default
     public var sharedFolders = [VBSharedFolder]()

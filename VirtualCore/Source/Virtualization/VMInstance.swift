@@ -92,17 +92,42 @@ public final class VMInstance: NSObject, ObservableObject {
         return macPlatform
     }
 
+    @available(macOS 13.0, *)
+    public static func createGenericPlatform(for model: VBVirtualMachine, installImageURL: URL?) async throws -> VZGenericPlatformConfiguration {
+        let genericPlatform = VZGenericPlatformConfiguration()
+        return genericPlatform
+    }
+
     // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
 
     public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil) async throws -> VZVirtualMachineConfiguration {
-        let helper = MacOSVirtualMachineConfigurationHelper(vm: model)
+        let helper: VirtualMachineConfigurationHelper
+        let platform: VZPlatformConfiguration
+        let installDevice: [VZStorageDeviceConfiguration]
+        switch model.configuration.systemType {
+        case .mac:
+            helper = MacOSVirtualMachineConfigurationHelper(vm: model)
+            platform = try await Self.createMacPlaform(for: model, installImageURL: installImageURL)
+            installDevice = []
+        case .linux:
+            guard #available(macOS 13.0, *) else {
+                throw Failure("This configuration requires macOS 13")
+            }
+            helper = LinuxVirtualMachineConfigurationHelper(vm: model)
+            platform = try await Self.createGenericPlatform(for: model, installImageURL: nil)
+            if let installImageURL {
+                installDevice = [try helper.createInstallDevice(installImageURL: installImageURL)]
+            } else {
+                installDevice = []
+            }
+        }
         let c = VZVirtualMachineConfiguration()
 
-        c.platform = try await Self.createMacPlaform(for: model, installImageURL: installImageURL)
-        c.bootLoader = helper.createBootLoader()
+        c.platform = platform
+        c.bootLoader = try helper.createBootLoader()
         c.cpuCount = model.configuration.hardware.cpuCount
         c.memorySize = model.configuration.hardware.memorySize
-        c.graphicsDevices = model.configuration.vzGraphicsDevices
+        c.graphicsDevices = helper.createGraphicsDevices()
         c.networkDevices = try model.configuration.vzNetworkDevices
         c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
@@ -116,13 +141,19 @@ public final class VMInstance: NSObject, ObservableObject {
         let bootDevice = try await helper.createBootBlockDevice()
         let additionalBlockDevices = try await helper.createAdditionalBlockDevices()
 
-        c.storageDevices = [bootDevice] + additionalBlockDevices
+        c.storageDevices = installDevice + [bootDevice] + additionalBlockDevices
         
         return c
     }
     
     private func createVirtualMachine() async throws {
-        let config = try await Self.makeConfiguration(for: virtualMachineModel)
+        let installImage: URL?
+        if options.bootOnInstallDevice, #available(macOS 13.0, *) {
+            installImage = virtualMachineModel.metadata.installImageURL
+        } else {
+            installImage = nil
+        }
+        let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage) // add install iso here for linux (hack)
 
         do {
             try config.validate()
@@ -151,9 +182,7 @@ public final class VMInstance: NSObject, ObservableObject {
         hookingPoint?.hook()
 
         if #available(macOS 13, *) {
-            let opts = VZMacOSVirtualMachineStartOptions()
-            opts.startUpFromMacOSRecovery = options.bootInRecoveryMode
-            try await vm.start(options: opts)
+            try await vm.start(options: startOptions)
         } else {
             let opts = _VZVirtualMachineStartOptions()
             opts.bootMacOSRecovery = options.bootInRecoveryMode
@@ -161,6 +190,18 @@ public final class VMInstance: NSObject, ObservableObject {
         }
 
         VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
+    }
+    
+    @available(macOS 13, *)
+    private var startOptions: VZVirtualMachineStartOptions {
+        switch virtualMachineModel.configuration.systemType {
+        case .mac:
+            let opts = VZMacOSVirtualMachineStartOptions()
+            opts.startUpFromMacOSRecovery = options.bootInRecoveryMode
+            return opts
+        case .linux:
+            return VZVirtualMachineStartOptions()
+        }
     }
     
     func pause() async throws {

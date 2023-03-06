@@ -7,6 +7,7 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 - **Apple Silicon Mac**
 - macOS 12.3 or later
 - In order to install a version of macOS that's newer than the version running on the host (for example, macOS 13 VM in VirtualBuddy running on macOS 12), Xcode is required; Xcode beta may be required for installing macOS betas (`FB11061314`)
+- In order to install a Linux distro, macOS 13 is required
 
 ⚠️ WARNING: This project is experimental. Things might break or not work as expected.
 
@@ -17,11 +18,15 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 ### Feature Checklist
 
 - [x] Ability to boot any version of macOS 12 or macOS 13, including betas
+- [x] Ability to boot some ARM-based Linux distros (tested with Ubuntu Server and Ubuntu Desktop)
 - [x] Built-in installation wizard
 	- [x] Select from a collection of restore images available on Apple's servers
 	- [x] Install the latest stable version of macOS
 	- [x] Local restore image IPSW file
 	- [x] Custom restore image URL
+	- [x] Install a Linux distro from a local .iso file
+	- [ ] Select from a collection of Linux distros
+	- [ ] Install Linux from URL
 - [x] Boot into recovery mode (in order to disable SIP, for example)
 - [x] Networking and file sharing support
 - [x] Clipboard sharing (without the need to be running macOS Ventura) (experimental ¹)

@@ -106,7 +106,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var configureVM: some View {
         VStack {
-            InstallationWizardTitle("Configure Your Virtual Mac")
+            InstallationWizardTitle("Configure Your Virtual Machine")
 
             if let machine = viewModel.machine {
                 InstallConfigurationStepView(vm: machine) { configuredModel in
@@ -124,7 +124,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var renameVM: some View {
         VStack {
-            InstallationWizardTitle("Name Your Virtual Mac")
+            InstallationWizardTitle("Name Your Virtual Machine")
 
             VirtualMachineNameField(name: $viewModel.data.name, onCommit: viewModel.goNext)
         }
@@ -164,7 +164,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle(vmDisplayName)
 
-            Text("Your virtual Mac is ready!")
+            Text("Your virtual machine is ready!")
         }
     }
 

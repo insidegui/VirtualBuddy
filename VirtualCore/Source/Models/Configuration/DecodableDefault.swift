@@ -41,6 +41,7 @@ public extension DecodableDefault {
     typealias Source = DecodableDefaultSource
     typealias List = Decodable & ExpressibleByArrayLiteral
     typealias Map = Decodable & ExpressibleByDictionaryLiteral
+    typealias Enum = Decodable & CaseIterable
 
     enum Sources {
         public enum Zero: Source {
@@ -70,6 +71,10 @@ public extension DecodableDefault {
         public enum EmptyPlaceholder<T: ProvidesEmptyPlaceholder>: Source {
             public static var defaultValue: T { .empty }
         }
+        
+        public enum FirstCase<T: Enum>: Source {
+            public static var defaultValue: T { T.allCases.first! }
+        }
     }
 }
 
@@ -81,6 +86,7 @@ public extension DecodableDefault {
     typealias EmptyList<T: List> = Wrapper<Sources.EmptyList<T>>
     typealias EmptyMap<T: Map> = Wrapper<Sources.EmptyMap<T>>
     typealias EmptyPlaceholder<T: ProvidesEmptyPlaceholder> = Wrapper<Sources.EmptyPlaceholder<T>>
+    typealias FirstCase<T: Enum> = Wrapper<Sources.FirstCase<T>>
 }
 
 extension DecodableDefault.Wrapper: Equatable where Value: Equatable {}
