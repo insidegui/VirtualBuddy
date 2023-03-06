@@ -24,6 +24,24 @@ public enum VBGuestType: String, Identifiable, Codable, CaseIterable {
     
     case mac
     case linux
+
+    public var isSupportedByHost: Bool {
+        switch self {
+        case .mac:
+            return true
+        case .linux:
+            guard #available(macOS 13.0, *) else { return false }
+            #if DEBUG
+            return !UserDefaults.standard.bool(forKey: "VBSimulateLinuxGuestNotSupported")
+            #else
+            return true
+            #endif
+        }
+    }
+
+    public static let supportedByHost: [VBGuestType] = {
+        allCases.filter(\.isSupportedByHost)
+    }()
 }
 
 public struct VBMacConfiguration: Hashable, Codable {

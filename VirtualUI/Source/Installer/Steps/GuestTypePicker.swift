@@ -41,7 +41,7 @@ struct GuestTypePicker: View {
 
     var body: some View {
         HStack(spacing: 16) {
-            ForEach(VBGuestType.allCases) { type in
+            ForEach(VBGuestType.supportedByHost) { type in
                 GuestTypeItemView(
                     type: type,
                     isSelected: selection == type

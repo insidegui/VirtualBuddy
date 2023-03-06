@@ -80,6 +80,11 @@ final class VMInstallationViewModel: ObservableObject {
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
 
+    init() {
+        /// Skip OS selection if there's only a single supported OS.
+        step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
+    }
+
     private var needsDownload: Bool {
         guard let url = data.restoreImageURL ?? data.installImageURL else { return true }
         return !url.isFileURL

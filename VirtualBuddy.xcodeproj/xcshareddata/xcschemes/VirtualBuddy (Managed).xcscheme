@@ -55,6 +55,10 @@
             argument = "-VBAPIEnvironment local"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateLinuxGuestNotSupported YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

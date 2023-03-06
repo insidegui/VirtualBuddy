@@ -84,7 +84,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var installKindSelection: some View {
         VStack {
-            InstallationWizardTitle("Select an Installation Method")
+            InstallationWizardTitle("How Would You Like to Install \(viewModel.selectedSystemType.name)?")
 
             InstallMethodPicker(
                 guestType: viewModel.selectedSystemType,
