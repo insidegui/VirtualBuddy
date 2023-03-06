@@ -12,6 +12,7 @@ struct DisplayConfigurationView: View {
     
     @Binding var device: VBDisplayDevice
     @Binding var selectedPreset: VBDisplayPreset?
+    var canChangePPI: Bool
     
     var body: some View {
         if let warning = selectedPreset?.warning {
@@ -36,13 +37,15 @@ struct DisplayConfigurationView: View {
             spacing: VMConfigurationView.labelSpacing
         )
 
-        NumericPropertyControl(
-            value: $device.pixelsPerInch,
-            range: VBDisplayDevice.displayPPIRange,
-            label: "Pixels Per Inch",
-            formatter: NumberFormatter.numericPropertyControlDefault,
-            spacing: VMConfigurationView.labelSpacing
-        )
+        if canChangePPI {
+            NumericPropertyControl(
+                value: $device.pixelsPerInch,
+                range: VBDisplayDevice.displayPPIRange,
+                label: "Pixels Per Inch",
+                formatter: NumberFormatter.numericPropertyControlDefault,
+                spacing: VMConfigurationView.labelSpacing
+            )
+        }
     }
     
     @ViewBuilder
@@ -88,7 +91,7 @@ private struct DisplayPresetPicker: View {
 struct DisplayConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         _ConfigurationSectionPreview {
-            DisplayConfigurationView(device: $0.hardware.displayDevices[0], selectedPreset: .constant(nil))
+            DisplayConfigurationView(device: $0.hardware.displayDevices[0], selectedPreset: .constant(nil), canChangePPI: true)
         }
     }
 }

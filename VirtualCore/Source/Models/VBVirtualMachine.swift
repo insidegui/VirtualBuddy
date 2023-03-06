@@ -185,7 +185,8 @@ public extension VBVirtualMachine {
         if let data = metadataContents(Self.configurationFilename) {
             config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
         } else {
-            config = .default
+            /// Linux guests don't go through this code path, so it should be safe to assume Mac here (famous last words).
+            config = .default.guestType(.mac)
         }
 
         if let data = metadataContents(Self.metadataFilename) {

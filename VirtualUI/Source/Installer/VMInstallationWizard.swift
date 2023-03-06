@@ -147,9 +147,7 @@ public struct VMInstallationWizard: View {
     }
 
     private var vmDisplayName: String {
-        viewModel.data.name.isEmpty ?
-        viewModel.data.restoreImageURL?.lastPathComponent ?? "-"
-        : viewModel.data.name
+        viewModel.data.name.isEmpty ? viewModel.selectedSystemType.name : viewModel.data.name
     }
 
     @ViewBuilder
