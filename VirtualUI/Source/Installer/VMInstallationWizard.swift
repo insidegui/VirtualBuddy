@@ -63,7 +63,7 @@ public struct VMInstallationWizard: View {
         .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
         .windowTitleHidden(true)
         .windowTitleBarTransparent(true)
-        .windowTitle("New macOS VM")
+        .windowTitle("New Virtual Machine")
         .onReceive(stepValidationStateChanged) { isValid in
             viewModel.disableNextButton = !isValid
         }
@@ -74,7 +74,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var guestSystemTypeSelection: some View {
         VStack {
-            InstallationWizardTitle("Select an operating system:")
+            InstallationWizardTitle("Select an Operating System")
 
             GuestTypePicker(selection: $viewModel.selectedSystemType)
         }
@@ -84,7 +84,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var installKindSelection: some View {
         VStack {
-            InstallationWizardTitle("Select an installation method:")
+            InstallationWizardTitle("Select an Installation Method")
 
             InstallMethodPicker(
                 guestType: viewModel.selectedSystemType,
@@ -96,7 +96,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var restoreImageURLInput: some View {
         VStack {
-            InstallationWizardTitle("Enter the URL for the macOS IPSW:")
+            InstallationWizardTitle(viewModel.selectedSystemType.customURLPrompt)
 
             TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
                 .textFieldStyle(.roundedBorder)
@@ -107,7 +107,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var restoreImageSelection: some View {
         VStack {
-            InstallationWizardTitle("Pick a macOS Version to Download")
+            InstallationWizardTitle(viewModel.selectedSystemType.restoreImagePickerPrompt)
             
             RestoreImagePicker(
                 selection: $viewModel.data.restoreImageInfo,
@@ -180,7 +180,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle(vmDisplayName)
 
-            Text("Your virtual machine is ready!")
+            Text(viewModel.selectedSystemType.installFinishedMessage)
         }
     }
 
