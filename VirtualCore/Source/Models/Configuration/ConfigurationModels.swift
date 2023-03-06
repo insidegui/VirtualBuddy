@@ -19,6 +19,13 @@ import SystemConfiguration
  the `@DecodableDefault` property wrapper can be used.
  */
 
+public enum VBGuestType: String, Identifiable, Codable, CaseIterable {
+    public var id: RawValue { rawValue }
+    
+    case mac
+    case linux
+}
+
 public struct VBMacConfiguration: Hashable, Codable {
     
     public enum SupportState: Hashable {
@@ -27,16 +34,11 @@ public struct VBMacConfiguration: Hashable, Codable {
         case unsupported([String])
     }
 
-    public enum SystemType: String, Codable, CaseIterable {
-        case mac
-        case linux
-    }
-
     public static let currentVersion = 0
     @DecodableDefault.Zero public var version = VBMacConfiguration.currentVersion
 
     @DecodableDefault.FirstCase
-    public var systemType: SystemType = .mac
+    public var systemType: VBGuestType = .mac
 
     public var hardware = VBMacDevice.default
     public var sharedFolders = [VBSharedFolder]()
@@ -409,6 +411,12 @@ public extension URL {
 
 public extension VBMacConfiguration {
     static var `default`: VBMacConfiguration { .init() }
+
+    func guestType(_ type: VBGuestType) -> Self {
+        var mSelf = self
+        mSelf.systemType = type
+        return mSelf
+    }
 }
 
 public extension VBMacDevice {

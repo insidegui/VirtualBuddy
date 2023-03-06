@@ -22,6 +22,8 @@ public struct VMInstallationWizard: View {
     public var body: some View {
         VStack {
             switch viewModel.step {
+                case .systemType:
+                    guestSystemTypeSelection
                 case .installKind:
                     installKindSelection
                 case .restoreImageInput:
@@ -61,7 +63,7 @@ public struct VMInstallationWizard: View {
         .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
         .windowTitleHidden(true)
         .windowTitleBarTransparent(true)
-        .windowTitle("New macOS VM")
+        .windowTitle("New Virtual Machine")
         .onReceive(stepValidationStateChanged) { isValid in
             viewModel.disableNextButton = !isValid
         }
@@ -70,18 +72,31 @@ public struct VMInstallationWizard: View {
     }
 
     @ViewBuilder
+    private var guestSystemTypeSelection: some View {
+        VStack {
+            InstallationWizardTitle("Select an Operating System")
+
+            GuestTypePicker(selection: $viewModel.selectedSystemType)
+        }
+        .frame(minWidth: 400, minHeight: 360)
+    }
+
+    @ViewBuilder
     private var installKindSelection: some View {
         VStack {
-            InstallationWizardTitle("Select an installation method:")
+            InstallationWizardTitle("How Would You Like to Install \(viewModel.selectedSystemType.name)?")
 
-            InstallMethodPicker(selection: $viewModel.installMethod)
+            InstallMethodPicker(
+                guestType: viewModel.selectedSystemType,
+                selection: $viewModel.installMethod
+            )
         }
     }
 
     @ViewBuilder
     private var restoreImageURLInput: some View {
         VStack {
-            InstallationWizardTitle("Enter the URL for the macOS IPSW:")
+            InstallationWizardTitle(viewModel.selectedSystemType.customURLPrompt)
 
             TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
                 .textFieldStyle(.roundedBorder)
@@ -92,10 +107,11 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var restoreImageSelection: some View {
         VStack {
-            InstallationWizardTitle("Pick a macOS Version to Download")
+            InstallationWizardTitle(viewModel.selectedSystemType.restoreImagePickerPrompt)
             
             RestoreImagePicker(
                 selection: $viewModel.data.restoreImageInfo,
+                guestType: viewModel.selectedSystemType,
                 validationChanged: stepValidationStateChanged,
                 onUseLocalFile: { localURL in
                     viewModel.continueWithLocalFile(at: localURL)
@@ -131,9 +147,7 @@ public struct VMInstallationWizard: View {
     }
 
     private var vmDisplayName: String {
-        viewModel.data.name.isEmpty ?
-        viewModel.data.restoreImageURL?.lastPathComponent ?? "-"
-        : viewModel.data.name
+        viewModel.data.name.isEmpty ? viewModel.selectedSystemType.name : viewModel.data.name
     }
 
     @ViewBuilder
@@ -164,7 +178,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle(vmDisplayName)
 
-            Text("Your virtual machine is ready!")
+            Text(viewModel.selectedSystemType.installFinishedMessage)
         }
     }
 

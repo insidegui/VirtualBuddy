@@ -36,19 +36,34 @@ struct VMConfigurationView: View {
     @AppStorage("config.sharing.collapsed")
     private var sharingCollapsed = true
 
+    private var systemType: VBGuestType { viewModel.config.systemType }
+
     private var showBootDiskSection: Bool { viewModel.context == .preInstall }
+
+    private var showPointingDeviceSection: Bool { systemType.supportsVirtualTrackpad }
+
+    private var showDisplayPPISelection: Bool { systemType.supportsDisplayPPI }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if showBootDiskSection {
                 bootDisk
             }
+
             general
+
             storage
+
             display
-            pointingDevice
+
+            if showPointingDeviceSection {
+                pointingDevice
+            }
+
             network
+
             sound
+
             sharing
                 .frame(minWidth: 0, idealWidth: VMConfigurationSheet.defaultWidth)
         }
@@ -144,13 +159,15 @@ struct VMConfigurationView: View {
         ConfigurationSection($displayCollapsed) {
             DisplayConfigurationView(
                 device: $viewModel.config.hardware.displayDevices[0],
-                selectedPreset: $viewModel.selectedDisplayPreset
+                selectedPreset: $viewModel.selectedDisplayPreset,
+                canChangePPI: showDisplayPPISelection
             )
         } header: {
             summaryHeader("Display", systemImage: "display", summary: viewModel.config.displaySummary) {
                 DisplayConfigurationView(
                     device: $viewModel.config.hardware.displayDevices[0],
-                    selectedPreset: $viewModel.selectedDisplayPreset
+                    selectedPreset: $viewModel.selectedDisplayPreset,
+                    canChangePPI: showDisplayPPISelection
                 )
                 .presetPicker
                 .frame(width: 24)
