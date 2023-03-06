@@ -32,6 +32,7 @@ struct VMInstallData: Hashable {
 final class VMInstallationViewModel: ObservableObject {
     
     enum Step: Int, Hashable {
+        case systemType
         case installKind
         case restoreImageInput
         case restoreImageSelection
@@ -49,6 +50,8 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     @Published var installMethod = InstallMethod.localFile
+
+    @Published var selectedSystemType: VBGuestType = .mac
     
     @Published var machine: VBVirtualMachine?
 
@@ -62,7 +65,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published private(set) var state = State.idle
 
-    @Published var step = Step.installKind {
+    @Published var step = Step.systemType {
         didSet {
             guard step != oldValue else { return }
 
@@ -84,6 +87,8 @@ final class VMInstallationViewModel: ObservableObject {
 
     func goNext() {
         switch step {
+            case .systemType:
+                step = .installKind
             case .installKind:
                 commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:
@@ -103,7 +108,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     private func performActions(for step: Step) {
         switch step {
-            case .installKind:
+            case .systemType, .installKind:
                 showNextButton = true
             case .restoreImageInput:
                 showNextButton = true

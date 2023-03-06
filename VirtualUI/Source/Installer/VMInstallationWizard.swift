@@ -22,6 +22,8 @@ public struct VMInstallationWizard: View {
     public var body: some View {
         VStack {
             switch viewModel.step {
+                case .systemType:
+                    guestSystemTypeSelection
                 case .installKind:
                     installKindSelection
                 case .restoreImageInput:
@@ -70,6 +72,16 @@ public struct VMInstallationWizard: View {
     }
 
     @ViewBuilder
+    private var guestSystemTypeSelection: some View {
+        VStack {
+            InstallationWizardTitle("Select an operating system:")
+
+            GuestTypePicker(selection: $viewModel.selectedSystemType)
+        }
+        .frame(minWidth: 400, minHeight: 360)
+    }
+
+    @ViewBuilder
     private var installKindSelection: some View {
         VStack {
             InstallationWizardTitle("Select an installation method:")
@@ -96,6 +108,7 @@ public struct VMInstallationWizard: View {
             
             RestoreImagePicker(
                 selection: $viewModel.data.restoreImageInfo,
+                guestType: viewModel.selectedSystemType ?? .mac,
                 validationChanged: stepValidationStateChanged,
                 onUseLocalFile: { localURL in
                     viewModel.continueWithLocalFile(at: localURL)

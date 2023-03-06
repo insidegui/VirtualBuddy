@@ -19,7 +19,9 @@ import SystemConfiguration
  the `@DecodableDefault` property wrapper can be used.
  */
 
-public enum VBGuestType: String, Codable, CaseIterable {
+public enum VBGuestType: String, Identifiable, Codable, CaseIterable {
+    public var id: RawValue { rawValue }
+    
     case mac
     case linux
 }

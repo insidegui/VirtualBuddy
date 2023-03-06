@@ -72,6 +72,7 @@ struct RestoreImagePicker: View {
     @StateObject var controller = RestoreImagePickerController()
     
     @Binding var selection: VBRestoreImageInfo?
+    var guestType: VBGuestType
     var validationChanged: PassthroughSubject<Bool, Never>
     var onUseLocalFile: (URL) -> Void = { _ in }
 
@@ -96,7 +97,7 @@ struct RestoreImagePicker: View {
             selection = $0
             validationChanged.send(controller.validateSelectedRestoreImage())
         })
-        .onAppearOnce { controller.loadRestoreImageOptions(for: .mac) }
+        .onAppearOnce { controller.loadRestoreImageOptions(for: guestType) }
 
         if let selectedImage = controller.selectedRestoreImage,
            let advisory = controller.restoreAdvisory(for: selectedImage)
@@ -199,7 +200,7 @@ struct RestoreImagePicker_Previews: PreviewProvider {
         @State private var image: VBRestoreImageInfo?
         
         var body: some View {
-            RestoreImagePicker(selection: $image, validationChanged: PassthroughSubject<Bool, Never>())
+            RestoreImagePicker(selection: $image, guestType: .mac, validationChanged: PassthroughSubject<Bool, Never>())
         }
     }
 }
