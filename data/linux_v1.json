@@ -1,0 +1,34 @@
+{
+  "apiVersion": 1,
+  "channels": [
+      {
+        "id": "stable",
+        "name": "Stable",
+        "note": "Public, stable releases.",
+        "icon": "checkmark.seal"
+      },
+      {
+        "id": "daily",
+        "name": "Daily",
+        "note": "Daily builds meant for testing.",
+        "icon": "wrench.and.screwdriver"
+      }
+    ],
+  "groups": [
+    {
+      "id": "ubuntu",
+      "name": "Ubuntu",
+      "majorVersion": "20.0",
+      "minHostVersion": "13.0"
+    }
+  ],
+  "restoreImages": [
+    {
+      "group": "ubuntu",
+      "name": "Focal Fossa Daily Build",
+      "build": "20.04.5 LTS",
+      "url": "https://cdimage.ubuntu.com/focal/daily-live/current/focal-desktop-arm64.iso",
+      "channel": "daily"
+    }
+  ]
+}

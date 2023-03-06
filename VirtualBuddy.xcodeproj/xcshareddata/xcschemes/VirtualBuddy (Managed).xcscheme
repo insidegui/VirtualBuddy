@@ -52,8 +52,8 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-VBAPIEnvironment development"
-            isEnabled = "NO">
+            argument = "-VBAPIEnvironment local"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
