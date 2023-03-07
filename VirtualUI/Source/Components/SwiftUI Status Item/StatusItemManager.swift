@@ -217,6 +217,10 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
     }
 
     public func showPanel() {
+        if let panel {
+            guard !panel.isVisible else { return }
+        }
+
         defer { willShowPanel.send() }
 
         let basePanelSize = NSSize(width: 300, height: 300)

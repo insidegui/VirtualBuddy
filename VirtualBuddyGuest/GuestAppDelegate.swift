@@ -58,7 +58,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
-        dashboardItem.showPanel()
+        showPanel()
 
         return true
     }
@@ -67,6 +67,12 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         guard shouldShowPanelAfterLaunching else { return }
         shouldShowPanelAfterLaunching = false
 
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(showPanelForFirstLaunchIfNeeded), object: nil)
+
+        showPanel()
+    }
+
+    @objc private func showPanel() {
         dashboardItem.showPanel()
     }
 
