@@ -52,7 +52,11 @@
       </BuildableProductRunnable>
       <CommandLineArguments>
          <CommandLineArgument
-            argument = "-VBAPIEnvironment development"
+            argument = "-VBAPIEnvironment local"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateLinuxGuestNotSupported YES"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

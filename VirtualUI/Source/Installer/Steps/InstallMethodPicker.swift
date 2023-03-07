@@ -7,38 +7,9 @@
 
 import SwiftUI
 
-enum InstallMethod: String, Identifiable, CaseIterable, CustomStringConvertible {
-    var id: RawValue { rawValue }
-
-    case localFile
-    case remoteOptions
-    case remoteManual
-
-    var description: String {
-        switch self {
-            case .localFile:
-                return "Open custom IPSW file from local storage"
-            case .remoteOptions:
-                return "Download macOS installer from a list of options"
-            case .remoteManual:
-                return "Download macOS installer from a custom URL"
-        }
-    }
-
-    var imageName: String {
-        switch self {
-            case .localFile:
-                return "folder.fill"
-            case .remoteOptions:
-                return "square.and.arrow.down.fill"
-            case .remoteManual:
-                return "text.cursor"
-        }
-    }
-}
-
 struct InstallMethodPicker: View {
 
+    var guestType: VBGuestType
     @Binding var selection: InstallMethod
 
     @FocusState private var isFocused: Bool
@@ -60,6 +31,7 @@ struct InstallMethodPicker: View {
             ForEach(InstallMethod.allCases) { method in
                 InstallMethodView(
                     method: method,
+                    description: method.description(for: guestType),
                     isSelected: selection == method
                 )
                 .onTapGesture {
@@ -70,7 +42,7 @@ struct InstallMethodPicker: View {
         .accessibilityRepresentation {
             Picker(selection: $selection) {
                 ForEach(InstallMethod.allCases) { method in
-                    Text(method.description)
+                    Text(method.description(for: guestType))
                         .tag(method)
                 }
             } label: { }
@@ -102,6 +74,7 @@ struct InstallMethodPicker: View {
 struct InstallMethodView: View {
 
     let method: InstallMethod
+    let description: String
     let isSelected: Bool
 
     var lineWidth: CGFloat { isSelected ? 2 : 1 }
@@ -110,7 +83,7 @@ struct InstallMethodView: View {
         HStack {
             Image(systemName: method.imageName)
 
-            Text(method.description)
+            Text(description)
         }
         .foregroundColor(isSelected ? .accentColor : .secondary)
         .padding()
@@ -136,7 +109,7 @@ struct InstallMethodView: View {
 #if DEBUG
 struct InstallMethodPicker_Previews: PreviewProvider {
     static var previews: some View {
-        InstallMethodPicker(selection: .constant(.remoteOptions))
+        InstallMethodPicker(guestType: .mac, selection: .constant(.remoteOptions))
     }
 }
 #endif

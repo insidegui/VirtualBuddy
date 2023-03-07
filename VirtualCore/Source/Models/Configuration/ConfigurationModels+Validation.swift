@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import UniformTypeIdentifiers
 
 public extension VBMacConfiguration {
     
@@ -155,4 +156,42 @@ public extension VBPointingDevice.Kind {
             return self == .mouse
         }
     }
+}
+
+public extension VBGuestType {
+    var isSupportedByHost: Bool {
+        switch self {
+        case .mac:
+            return true
+        case .linux:
+            guard #available(macOS 13.0, *) else { return false }
+            #if DEBUG
+            return !UserDefaults.standard.bool(forKey: "VBSimulateLinuxGuestNotSupported")
+            #else
+            return true
+            #endif
+        }
+    }
+
+    static let supportedByHost: [VBGuestType] = {
+        allCases.filter(\.isSupportedByHost)
+    }()
+
+    var supportsVirtualTrackpad: Bool { self == .mac }
+
+    var supportsDisplayPPI: Bool { self == .mac }
+
+    var supportedRestoreImageTypes: Set<UTType> {
+        switch self {
+        case .mac: return [.ipsw]
+        case .linux: return [.iso, .img]
+        }
+    }
+    
+}
+
+public extension UTType {
+    static let ipsw = UTType(filenameExtension: "ipsw")!
+    static let iso = UTType(filenameExtension: "iso")!
+    static let img = UTType(filenameExtension: "img")!
 }

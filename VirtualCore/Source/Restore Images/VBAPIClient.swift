@@ -10,13 +10,20 @@ import Foundation
 public final class VBAPIClient {
 
     public struct Environment: Hashable {
-        public var baseURL = URL(string: "https://virtualbuddy-api-dev.bestbuddyapps3496.workers.dev")!
-        public var apiKey = "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
+        public var baseURL: URL
+        public var apiKey: String
+
+        #if DEBUG
+        public static let local = Environment(
+            baseURL: URL(string: "https://virtualbuddy.ngrok.io")!,
+            apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
+        )
 
         public static let development = Environment(
             baseURL: URL(string: "https://virtualbuddy-api-dev.bestbuddyapps3496.workers.dev")!,
             apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
         )
+        #endif
 
         public static let production = Environment(
             baseURL: URL(string: "https://api.virtualbuddy.app")!,
@@ -24,13 +31,22 @@ public final class VBAPIClient {
         )
 
         public static var current: Environment {
-            if let override = UserDefaults.standard.string(forKey: "VBAPIEnvironment"),
-               override == "development"
-            {
-                return .development
+            #if DEBUG
+            if let override = UserDefaults.standard.string(forKey: "VBAPIEnvironment") {
+                if override == "development" {
+                    return .development
+                } else if override == "local" {
+                    return .local
+                } else {
+                    assertionFailure("Unknown API environment: \(override)")
+                    return .production
+                }
             } else {
                 return .production
             }
+            #else
+            return .production
+            #endif
         }
     }
 
@@ -54,8 +70,8 @@ public final class VBAPIClient {
     }
 
     @MainActor
-    public func fetchRestoreImages() async throws -> [VBRestoreImageInfo] {
-        let req = request(for: "restore")
+    public func fetchRestoreImages(for guest: VBGuestType) async throws -> [VBRestoreImageInfo] {
+        let req = request(for: guest.restoreImagesAPIPath)
 
         let (data, res) = try await URLSession.shared.data(for: req)
 
@@ -70,4 +86,15 @@ public final class VBAPIClient {
         return response.images
     }
 
+}
+
+private extension VBGuestType {
+    var restoreImagesAPIPath: String {
+        switch self {
+        case .mac:
+            return "/restore/mac"
+        case .linux:
+            return "/restore/linux"
+        }
+    }
 }

@@ -18,10 +18,10 @@ final class RestoreImagePickerController: ObservableObject {
     @Published var errorMessage: String?
     @Published var cookie: String?
     
-    func loadRestoreImageOptions() {
+    func loadRestoreImageOptions(for guest: VBGuestType) {
         Task {
             do {
-                let images = try await api.fetchRestoreImages()
+                let images = try await api.fetchRestoreImages(for: guest)
                 
                 await MainActor.run {
                     self.restoreImageOptions = images
@@ -72,6 +72,7 @@ struct RestoreImagePicker: View {
     @StateObject var controller = RestoreImagePickerController()
     
     @Binding var selection: VBRestoreImageInfo?
+    var guestType: VBGuestType
     var validationChanged: PassthroughSubject<Bool, Never>
     var onUseLocalFile: (URL) -> Void = { _ in }
 
@@ -96,7 +97,7 @@ struct RestoreImagePicker: View {
             selection = $0
             validationChanged.send(controller.validateSelectedRestoreImage())
         })
-        .onAppearOnce { controller.loadRestoreImageOptions() }
+        .onAppearOnce { controller.loadRestoreImageOptions(for: guestType) }
 
         if let selectedImage = controller.selectedRestoreImage,
            let advisory = controller.restoreAdvisory(for: selectedImage)
@@ -129,7 +130,7 @@ struct RestoreImagePicker: View {
                 .foregroundColor(.secondary)
             case .alreadyDownloaded(let title, let localURL):
                 VStack {
-                    Text("\(title) is already downloaded. Click \"Next\" below to re-download it or proceed with the installation right now by using the previously downloaded image.")
+                    Text("\(title) is already downloaded. Click \"Continue\" below to re-download it or proceed with the installation right now by using the previously downloaded image.")
                         .foregroundColor(.green)
 
                     Button("Install Now") { onUseLocalFile(localURL) }
@@ -145,12 +146,12 @@ struct RestoreImagePicker: View {
         .padding(.top)
     }
     
-    @State private var authRequirementFlow: VBRestoreImageInfo.AuthRequirement?
+    @State private var authRequirementFlow: VBGuestReleaseChannel.Authentication?
 
     @ViewBuilder
-    private func authenticationEntryPoint(with requirement: VBRestoreImageInfo.AuthRequirement) -> some View {
+    private func authenticationEntryPoint(with requirement: VBGuestReleaseChannel.Authentication) -> some View {
         VStack(spacing: 16) {
-            Text(requirement.explainer)
+            Text(requirement.note)
                 .font(.system(size: 12))
                 .lineSpacing(1.2)
                 .foregroundColor(.secondary)
@@ -179,7 +180,7 @@ struct RestoreImagePicker: View {
         .controlSize(.large)
         .multilineTextAlignment(.center)
         .sheet(item: $authRequirementFlow, content: { requirement in
-            AuthenticatingWebView(url: requirement.signInURL) { cookies in
+            AuthenticatingWebView(url: requirement.url) { cookies in
                 guard let headerValue = requirement.satisfiedCookieHeaderValue(with: cookies) else { return }
                 self.controller.cookie = headerValue
                 self.authRequirementFlow = nil
@@ -199,7 +200,7 @@ struct RestoreImagePicker_Previews: PreviewProvider {
         @State private var image: VBRestoreImageInfo?
         
         var body: some View {
-            RestoreImagePicker(selection: $image, validationChanged: PassthroughSubject<Bool, Never>())
+            RestoreImagePicker(selection: $image, guestType: .mac, validationChanged: PassthroughSubject<Bool, Never>())
         }
     }
 }

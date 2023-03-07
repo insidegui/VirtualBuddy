@@ -65,7 +65,6 @@ struct LibraryItemView: View {
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
         .background(Material.thin, in: backgroundShape)
-        .clipShape(backgroundShape)
         .background {
             if let image = vm.thumbnailImage() {
                 Image(nsImage: image)
@@ -74,6 +73,7 @@ struct LibraryItemView: View {
                     .opacity(isPressed ? 0.1 : 0.4)
             }
         }
+        .clipShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
         .scaleEffect(isPressed ? 0.96 : 1)

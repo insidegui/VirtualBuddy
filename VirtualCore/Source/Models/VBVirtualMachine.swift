@@ -22,6 +22,7 @@ public struct VBVirtualMachine: Identifiable {
         public var installFinished: Bool = false
         public var firstBootDate: Date? = nil
         public var lastBootDate: Date? = nil
+        public var installImageURL: URL? = nil
     }
 
     public var id: String { bundleURL.absoluteString }
@@ -151,6 +152,16 @@ public extension VBVirtualMachine {
         try saveMetadata()
     }
 
+    @available(macOS 13, *)
+    init(creatingAtURL bundleURL: URL, linuxInstallerURL: URL) throws {
+        guard !FileManager.default.fileExists(atPath: bundleURL.path) else { fatalError() }
+        try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
+        self.bundleURL = bundleURL
+        self.configuration = .init(systemType: .linux)
+        self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now, installImageURL: linuxInstallerURL)
+        try saveMetadata()
+    }
+
     func saveMetadata() throws {
         #if DEBUG
         guard !ProcessInfo.isSwiftUIPreview else { return }
@@ -174,7 +185,8 @@ public extension VBVirtualMachine {
         if let data = metadataContents(Self.configurationFilename) {
             config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
         } else {
-            config = .default
+            /// Linux guests don't go through this code path, so it should be safe to assume Mac here (famous last words).
+            config = .default.guestType(.mac)
         }
 
         if let data = metadataContents(Self.metadataFilename) {
