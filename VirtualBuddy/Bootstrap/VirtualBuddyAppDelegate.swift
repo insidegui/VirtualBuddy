@@ -18,6 +18,12 @@ import Cocoa
     func applicationWillFinishLaunching(_ notification: Notification) {
         NSApp?.appearance = NSAppearance(named: .darkAqua)
     }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        Task {
+            try? await GuestAdditionsDiskImage.current.installIfNeeded()
+        }
+    }
     
     @objc func restoreDefaultWindowPosition(_ sender: Any?) {
         guard let window = NSApp?.keyWindow ?? NSApp?.mainWindow else { return }
