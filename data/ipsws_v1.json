@@ -53,6 +53,14 @@
   "restoreImages": [
     {
       "group": "ventura",
+      "name": "macOS 13.3 Developer Beta 3",
+      "build": "22E5236f",
+      "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/032-60411/1DDA996F-B620-4770-8FFE-87AB2043784D/UniversalMac_13.3_22E5236f_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "ventura",
       "name": "macOS 13.3 Developer Beta 2",
       "build": "22E5230e",
       "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/032-54760/AE02E378-FD59-474D-93AB-C52617103C72/UniversalMac_13.3_22E5230e_Restore.ipsw",
