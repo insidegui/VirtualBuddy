@@ -15,6 +15,8 @@ struct ClipboardMessage: Codable {
 }
 
 final class WHSharedClipboardService: WormholeService {
+
+    static let id = "clipboard"
     
     private lazy var logger = Logger(for: Self.self)
 
@@ -68,7 +70,7 @@ final class WHSharedClipboardService: WormholeService {
         
         previousMessage = message
         
-        connection.send(message)
+        connection.send(message, to: nil)
     }
 
 }

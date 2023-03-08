@@ -154,6 +154,7 @@
 		F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F4D0F71728674E4B004D5782 /* Sparkle */; };
 		F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */; };
 		F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */; };
+		F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D3059629B8D9D30006E748 /* WormholePacket.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
@@ -425,6 +426,7 @@
 		F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareUpdateController.swift; sourceTree = "<group>"; };
 		F4D0F71B28674F24004D5782 /* Features.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Features.xcconfig; sourceTree = "<group>"; };
 		F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChannel.swift; sourceTree = "<group>"; };
+		F4D3059629B8D9D30006E748 /* WormholePacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacket.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
@@ -1020,6 +1022,7 @@
 		F4C189EC2848F5A300335EC7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F4D3059529B8D9C70006E748 /* WireProtocol */,
 				F4C189F82848F6F700335EC7 /* Definitions */,
 				F4C189FB2848F8E800335EC7 /* Services */,
 				F4C189ED2848F5B500335EC7 /* WormholeManager.swift */,
@@ -1092,6 +1095,14 @@
 				F4C2374C2888A462001FF286 /* VolumeUtils.swift */,
 			);
 			path = Utilities;
+			sourceTree = "<group>";
+		};
+		F4D3059529B8D9C70006E748 /* WireProtocol */ = {
+			isa = PBXGroup;
+			children = (
+				F4D3059629B8D9D30006E748 /* WormholePacket.swift */,
+			);
+			path = WireProtocol;
 			sourceTree = "<group>";
 		};
 		F4E7680B29B651180075A897 /* Resources */ = {
@@ -1530,6 +1541,7 @@
 			files = (
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
+				F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */,
 				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
 			);
