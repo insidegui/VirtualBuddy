@@ -15,7 +15,11 @@ struct WormholePacket {
 }
 
 extension WormholePacket {
+
     static let magicValue: UInt32 = 0x0DF0FECA
+    static let magicValueCompressed: UInt32 = 0x01F0FECA
+    static let maxUncompressedPayloadSize = 1000000
+    static let compressionAlgorithm = NSData.CompressionAlgorithm.lzma
 
     /// The absolute minimum size an entire packet could be.
     /// Any packet that's not at least this size has something wrong with it.
@@ -38,14 +42,22 @@ extension WormholePacket {
         self.init(payloadType: typeName, payloadLength: UInt64(data.count), payload: data)
     }
 
-    func encoded() -> Data {
+    func encoded() throws -> Data {
         var encodedMagic = magic
         var encodedPayloadLength = payloadLength
+        var encodedPayload = payload
+
+        if payload.count >= Self.maxUncompressedPayloadSize {
+            encodedMagic = Self.magicValueCompressed
+            let compressedPayload = try (payload as NSData).compressed(using: Self.compressionAlgorithm)
+            encodedPayloadLength = UInt64(compressedPayload.count)
+            encodedPayload = compressedPayload as Data
+        }
 
         return Data(bytes: &encodedMagic, count: MemoryLayout<UInt32>.size)
         + Data(payloadType.utf8 + [0])
         + Data(bytes: &encodedPayloadLength, count: MemoryLayout<UInt64>.size)
-        + payload
+        + encodedPayload
     }
 
 }
@@ -78,7 +90,7 @@ extension WormholePacket {
 
             byteOffset += payloadType.count + 1
 
-            let payloadLength = pointer.loadUnaligned(fromByteOffset: byteOffset, as: UInt64.self)
+            var payloadLength = pointer.loadUnaligned(fromByteOffset: byteOffset, as: UInt64.self)
 
             byteOffset += MemoryLayout<UInt64>.size
 
@@ -92,10 +104,15 @@ extension WormholePacket {
                 throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet payload length \(payloadLength) is out of bounds"])
             }
 
-            let payload = Data(data[byteOffset..<upperBound])
+            var payload = Data(data[byteOffset..<upperBound])
 
             guard payload.count == Int(payloadLength) else {
                 throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet specified payload length \(payloadLength), but payload has length \(payload.count)"])
+            }
+
+            if magic == Self.magicValueCompressed {
+                payload = try (payload as NSData).decompressed(using: Self.compressionAlgorithm) as Data
+                payloadLength = UInt64(payload.count)
             }
 
             return WormholePacket(

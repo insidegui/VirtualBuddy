@@ -245,20 +245,24 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
 
     // MARK: - Guest Mode
 
+    private let ttyPath = "/dev/cu.virtio"
+
     private var hostOutputHandle: FileHandle {
         get throws {
-            try FileHandle(forReadingFrom: URL(fileURLWithPath: "/dev/cu.virtio"))
+            try FileHandle(forReadingFrom: URL(fileURLWithPath: ttyPath))
         }
     }
 
     private var hostInputHandle: FileHandle {
         get throws {
-            try FileHandle(forWritingTo: URL(fileURLWithPath: "/dev/cu.virtio"))
+            try FileHandle(forWritingTo: URL(fileURLWithPath: ttyPath))
         }
     }
 
     private func activateGuestIfNeeded() async throws {
         guard side == .guest else { return }
+
+        configureTTY()
 
         logger.debug("Running in guest mode, registering host peer")
 
@@ -266,6 +270,34 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         let output = try hostInputHandle
 
         await register(input: input, output: output, for: .host)
+    }
+
+    private func configureTTY() {
+        do {
+            let proc = Process()
+            proc.executableURL = URL(fileURLWithPath: "/bin/stty")
+            proc.arguments = [
+                "-f",
+                ttyPath,
+                "115200"
+            ]
+            let errPipe = Pipe()
+            let outPipe = Pipe()
+            proc.standardError = errPipe
+            proc.standardOutput = outPipe
+
+            try proc.run()
+            proc.waitUntilExit()
+
+            if let errData = try? errPipe.fileHandleForReading.readToEnd(), !errData.isEmpty {
+                logger.debug("stty stdout: \(String(decoding: errData, as: UTF8.self), privacy: .public)")
+            }
+            if let outData = try? outPipe.fileHandleForReading.readToEnd(), !outData.isEmpty {
+                logger.debug("stty stderr: \(String(decoding: outData, as: UTF8.self), privacy: .public)")
+            }
+        } catch {
+            logger.error("stty error: \(error, privacy: .public)")
+        }
     }
 
 }
@@ -336,7 +368,7 @@ actor WormholeChannel: ObservableObject {
     }
 
     func send(_ packet: WormholePacket) async throws {
-        let data = packet.encoded()
+        let data = try packet.encoded()
 
         if VirtualWormholeConstants.verboseLoggingEnabled {
             logger.debug("\(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")

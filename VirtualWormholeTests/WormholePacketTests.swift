@@ -13,7 +13,7 @@ final class WormholePacketTests: XCTestCase {
     func testPacketEncodingWithTestPayload() throws {
         let payload = TestPayload()
         let packet = try WormholePacket(payload)
-        let data = packet.encoded()
+        let data = try packet.encoded()
 
         XCTAssertEqual(data.hexDump, "CAFEF00D546573745061796C6F6164003A000000000000007B226D657373616765223A2248656C6C6F2C20576F726C6421222C226E756D626572223A34322C2264617461223A227172764D3365375C2F227D")
     }
@@ -21,7 +21,7 @@ final class WormholePacketTests: XCTestCase {
     func testPacketDecodingWithTestPayload() throws {
         let payload = TestPayload()
         let packet = try WormholePacket(payload)
-        let data = packet.encoded()
+        let data = try packet.encoded()
 
         let decodedPacket = try WormholePacket.decode(from: data)
 
@@ -38,7 +38,7 @@ final class WormholePacketTests: XCTestCase {
         var packet = try WormholePacket(payload)
         packet.payloadLength = 1
 
-        let data = packet.encoded()
+        let data = try packet.encoded()
 
         let decodedPacket = try WormholePacket.decode(from: data)
         XCTAssertEqual(Int(packet.payloadLength), decodedPacket.payload.count)
@@ -66,6 +66,19 @@ final class WormholePacketTests: XCTestCase {
         }
     }
 
+    func testCompressedPacketEncodeDecode() async throws {
+        let payload = TestPayload(data: .empty(count: WormholePacket.maxUncompressedPayloadSize + 1))
+
+        let packet = try WormholePacket(payload)
+
+        let data = try packet.encoded()
+
+        let decodedPacket = try WormholePacket.decode(from: data)
+
+        XCTAssertEqual(decodedPacket.magic, WormholePacket.magicValueCompressed)
+        XCTAssertEqual(decodedPacket.payload, packet.payload)
+    }
+
 }
 
 struct TestPayload: Codable {
@@ -77,6 +90,11 @@ struct TestPayload: Codable {
 extension Data {
     var hexDump: String {
         map { String(format: "%02X", $0) }.joined()
+    }
+
+    static func empty(count: Int) -> Data {
+        let bytes = [UInt8](repeating: 0, count: count)
+        return Data(bytes)
     }
 }
 
