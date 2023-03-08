@@ -280,10 +280,14 @@ actor WormholeChannel {
         streamingTask = Task {
             do {
                 for try await packet in WormholePacket.stream(from: input.bytes) {
+                    logger.debug("Got packet: \(String(describing: packet), privacy: .public)")
+                    
                     guard !Task.isCancelled else { break }
 
                     packetSubject.send(packet)
                 }
+
+                logger.debug("Packet streaming cancelled")
             } catch {
                 logger.error("Serial read failure: \(error, privacy: .public)")
 

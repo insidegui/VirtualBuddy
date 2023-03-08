@@ -107,16 +107,24 @@ extension WormholePacket {
 
 // MARK: - Streaming
 
+import OSLog
+
 extension WormholePacket {
+
+    static let logger = Logger(subsystem: VirtualWormholeConstants.subsystemName, category: "WormholePacket")
 
     static func stream(from bytes: FileHandle.AsyncBytes) -> AsyncThrowingStream<WormholePacket, Error> {
         AsyncThrowingStream { continuation in
+            Self.logger.debug("Activating stream")
+
             let task = Task {
                 do {
                     var buffer = Data(capacity: WormholePacket.minimumSize)
 
                     for try await byte in bytes {
                         guard !Task.isCancelled else { break }
+
+//                        Self.logger.debug("RECV: \(buffer.map({ String(format: "%02X", $0) }).joined())")
 
                         buffer.append(byte)
 
@@ -127,7 +135,11 @@ extension WormholePacket {
                             buffer = Data(capacity: WormholePacket.minimumSize)
                         }
                     }
+
+                    Self.logger.debug("Stream ended/cancelled")
                 } catch {
+                    Self.logger.error("Stream failed: \(error, privacy: .public)")
+
                     continuation.finish(throwing: error)
                 }
             }
