@@ -161,6 +161,8 @@ public final class VMInstance: NSObject, ObservableObject {
     private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
         guard virtualMachineModel.configuration.systemType == .mac else { return }
 
+        wormhole.activate()
+
         let guestPort = VZVirtioConsoleDeviceSerialPortConfiguration()
 
         let inputPipe = Pipe()

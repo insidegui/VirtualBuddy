@@ -10,8 +10,9 @@ import Virtualization
 
 protocol WormholeMultiplexer: AnyObject {
     
-    func receive<T>(_ type: T.Type, using callback: @escaping (T) -> Void) where T: Codable
-    func send<T>(_ payload: T, to peerID: WHPeerID?) where T: Codable
+    func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async
+
+    func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error>
     
 }
 

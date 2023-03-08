@@ -70,6 +70,19 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         
         logger.debug("Activate side \(String(describing: self.side))")
 
+        Task {
+            do {
+                try await activateGuestIfNeeded()
+            } catch {
+                logger.fault("Failed to register host peer: \(error, privacy: .public)")
+                assertionFailure("Failed to register host peer: \(error)")
+            }
+        }
+
+        activeServices = serviceTypes
+            .map { $0.init(with: self) }
+        activeServices.forEach { $0.activate() }
+
         $peers
             .map { !$0.isEmpty }
             .receive(on: DispatchQueue.main)
@@ -84,12 +97,21 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         #endif
     }
 
+    private let packetSubject = PassthroughSubject<(peerID: WHPeerID, packet: WormholePacket), Never>()
+
     public func register(input: FileHandle, output: FileHandle, for peerID: WHPeerID) async {
         if let existing = peers[peerID] {
             await existing.invalidate()
         }
 
-        let channel = WormholeChannel(input: input, output: output, peerID: peerID)
+        let channel = await WormholeChannel(
+            input: input,
+            output: output,
+            peerID: peerID
+        ).onPacketReceived { [weak self] senderID, packet in
+            guard let self = self else { return }
+            self.packetSubject.send((senderID, packet))
+        }
 
         peers[peerID] = channel
 
@@ -104,15 +126,89 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         peers[peerID] = nil
     }
 
-    func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) {
+    func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async {
+        guard !peers.isEmpty else { return }
+        
+        if side == .guest {
+            guard peerID == nil || peerID == .host else {
+                logger.fault("Guest can only send messages to host!")
+                assertionFailure("Guest can only send messages to host!")
+                return
+            }
+        }
 
+        do {
+            let packet = try WormholePacket(payload)
+
+            if let peerID {
+                guard let channel = peers[peerID] else {
+                    logger.error("Couldn't find channel for peer \(peerID)")
+                    return
+                }
+
+                try await channel.send(packet)
+            } else {
+                for channel in peers.values {
+                    try await channel.send(packet)
+                }
+            }
+        } catch {
+            logger.fault("Failed to encode packet: \(error, privacy: .public)")
+            assertionFailure("Failed to encode packet: \(error)")
+        }
     }
 
-    func receive<T: Codable>(_ type: T.Type, using callback: @escaping (T) -> Void) {
+    func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
+        AsyncThrowingStream { [weak self] continuation in
+            guard let self = self else {
+                continuation.finish()
+                return
+            }
 
+            let typeName = String(describing: payloadType)
+
+            let cancellable = self.packetSubject
+                .filter { $0.packet.payloadType == typeName }
+                .sink { peerID, packet in
+                    guard let decodedPayload = try? JSONDecoder().decode(payloadType, from: packet.payload) else { return }
+
+                    continuation.yield((peerID, decodedPayload))
+                }
+
+            continuation.onTermination = { @Sendable _ in
+                cancellable.cancel()
+            }
+        }
+    }
+
+    // MARK: - Guest Mode
+
+    private var hostOutputHandle: FileHandle {
+        get throws {
+            try FileHandle(forReadingFrom: URL(fileURLWithPath: "/dev/cu.virtio"))
+        }
+    }
+
+    private var hostInputHandle: FileHandle {
+        get throws {
+            try FileHandle(forWritingTo: URL(fileURLWithPath: "/dev/cu.virtio"))
+        }
+    }
+
+    private func activateGuestIfNeeded() async throws {
+        guard side == .guest else { return }
+
+        logger.debug("Running in guest mode, registering host peer")
+
+        let input = try hostOutputHandle
+        let output = try hostInputHandle
+
+        await register(input: input, output: output, for: .host)
     }
 
 }
+
+// MARK: - Channel Actor
 
 actor WormholeChannel {
 
@@ -126,6 +222,22 @@ actor WormholeChannel {
         self.output = output
         self.peerID = peerID
         self.logger = Logger(subsystem: VirtualWormholeConstants.subsystemName, category: "WormholeChannel-\(peerID)")
+    }
+
+    private let packetSubject = PassthroughSubject<WormholePacket, Never>()
+
+    private lazy var cancellables = Set<AnyCancellable>()
+
+    @discardableResult
+    func onPacketReceived(perform block: @escaping (WHPeerID, WormholePacket) -> Void) -> Self {
+        packetSubject.sink { [weak self] packet in
+            guard let self = self else { return }
+
+            block(self.peerID, packet)
+        }
+        .store(in: &cancellables)
+
+        return self
     }
 
     private var activated = false
@@ -148,6 +260,18 @@ actor WormholeChannel {
         streamingTask?.cancel()
     }
 
+    func send(_ packet: WormholePacket) async throws {
+        let data = packet.encoded()
+
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "WHLogPacketContents") {
+            logger.debug("\(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
+        }
+        #endif
+
+        try output.write(contentsOf: data)
+    }
+
     private var streamingTask: Task<Void, Never>?
 
     private func stream() {
@@ -158,7 +282,7 @@ actor WormholeChannel {
                 for try await packet in WormholePacket.stream(from: input.bytes) {
                     guard !Task.isCancelled else { break }
 
-                    handlePacket(packet)
+                    packetSubject.send(packet)
                 }
             } catch {
                 logger.error("Serial read failure: \(error, privacy: .public)")
@@ -170,10 +294,6 @@ actor WormholeChannel {
                 stream()
             }
         }
-    }
-
-    private func handlePacket(_ packet: WormholePacket) {
-
     }
 
 }

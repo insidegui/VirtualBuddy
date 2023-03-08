@@ -35,6 +35,8 @@ final class GuestAppInstaller {
 
             try NSApplication.shared.relaunch(at: destURL.path)
         } catch {
+            logger.error("Install failed: \(error, privacy: .public)")
+            
             throw CocoaError(.coderInvalidValue, userInfo: [
                 NSLocalizedDescriptionKey: "Failed to install the VirtualBuddyGuest app. This can occur if the Mac user account on the virtual machine can't write to /Applications.",
                 NSUnderlyingErrorKey: error

@@ -8,10 +8,6 @@
 import SwiftUI
 import VirtualWormhole
 
-extension WormholeManager {
-    static let shared = WormholeManager(for: .guest)
-}
-
 struct GuestDashboard<HostConnection>: View where HostConnection: HostConnectionStateProvider {
     @EnvironmentObject private var launchAtLoginManager: GuestLaunchAtLoginManager
     @EnvironmentObject private var hostConnection: HostConnection

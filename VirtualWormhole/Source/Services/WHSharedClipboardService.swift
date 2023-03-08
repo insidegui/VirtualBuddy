@@ -31,10 +31,12 @@ final class WHSharedClipboardService: WormholeService {
     func activate() {
         logger.debug(#function)
 
-        connection.receive(ClipboardMessage.self) { [weak self] in
-            self?.handle($0)
+        Task {
+            for try await message in connection.stream(for: ClipboardMessage.self) {
+                handle(message.payload)
+            }
         }
-        
+
         startObservingClipboard()
     }
     
@@ -70,7 +72,9 @@ final class WHSharedClipboardService: WormholeService {
         
         previousMessage = message
         
-        connection.send(message, to: nil)
+        Task {
+            await connection.send(message, to: nil)
+        }
     }
 
 }

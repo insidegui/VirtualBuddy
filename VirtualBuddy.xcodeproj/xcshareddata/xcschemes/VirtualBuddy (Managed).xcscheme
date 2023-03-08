@@ -53,11 +53,19 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "-VBAPIEnvironment local"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateLinuxGuestNotSupported YES"
             isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-WHRegisterTestPeer YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-WHLogPacketContents YES"
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

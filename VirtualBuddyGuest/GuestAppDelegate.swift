@@ -16,7 +16,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
             statusItem: .button(label: { Image("StatusItem") }),
             content: GuestDashboard<WormholeManager>()
                 .environmentObject(self.launchAtLoginManager)
-                .environmentObject(WormholeManager.shared)
+                .environmentObject(WormholeManager.sharedGuest)
                 .environmentObject(self.sharedFolders)
         )
     }()
@@ -46,7 +46,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
         launchAtLoginManager.autoEnableIfNeeded()
 
-        WormholeManager.shared.activate()
+        WormholeManager.sharedGuest.activate()
 
         Task {
             try? await sharedFolders.mount()
