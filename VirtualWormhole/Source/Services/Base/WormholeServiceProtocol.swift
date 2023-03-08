@@ -9,6 +9,8 @@ import Foundation
 import Virtualization
 
 protocol WormholeMultiplexer: AnyObject {
+
+    var side: WHConnectionSide { get }
     
     func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async
 

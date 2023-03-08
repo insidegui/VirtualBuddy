@@ -5,8 +5,7 @@
 //  Created by Guilherme Rambo on 02/06/22.
 //
 
-import Foundation
-import Virtualization
+import Cocoa
 import OSLog
 
 struct ClipboardMessage: Codable {

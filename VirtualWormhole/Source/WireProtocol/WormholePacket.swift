@@ -82,7 +82,11 @@ extension WormholePacket {
 
             byteOffset += MemoryLayout<UInt64>.size
 
-            let upperBound = Int(byteOffset)+Int(payloadLength)
+            guard UInt64(data.count) > payloadLength else {
+                throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet payload length \(payloadLength) is out of bounds"])
+            }
+
+            let upperBound = Int(byteOffset)+Int(truncatingIfNeeded: payloadLength)
 
             guard data.count >= upperBound else {
                 throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet payload length \(payloadLength) is out of bounds"])

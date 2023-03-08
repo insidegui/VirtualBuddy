@@ -10,6 +10,14 @@ import OSLog
 
 struct VirtualWormholeConstants {
     static let subsystemName = "codes.rambo.VirtualWormhole"
+
+    static let verboseLoggingEnabled: Bool = {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "WHVerbosePacketLogging")
+        #else
+        return false
+        #endif
+    }()
 }
 
 extension Logger {

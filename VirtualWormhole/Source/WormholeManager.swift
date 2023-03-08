@@ -16,6 +16,20 @@ public extension WHPeerID {
     static let host = "Host"
 }
 
+public enum WHConnectionSide: Hashable, CustomStringConvertible {
+    case host
+    case guest
+
+    public var description: String {
+        switch self {
+        case .host:
+            return "Host"
+        case .guest:
+            return "Guest"
+        }
+    }
+}
+
 public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketListenerDelegate, WormholeMultiplexer {
 
     /// Singleton manager used by the VirtualBuddy app to talk
@@ -29,32 +43,19 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
     @Published private(set) var peers = [WHPeerID: WormholeChannel]()
 
     @Published public private(set) var isConnected = false
-    
-    public enum Side: Hashable, CustomStringConvertible {
-        case host
-        case guest
-        
-        public var description: String {
-            switch self {
-            case .host:
-                return "Host"
-            case .guest:
-                return "Guest"
-            }
-        }
-    }
-    
+
     private lazy var logger = Logger(for: Self.self)
 
     let serviceTypes: [WormholeService.Type] = [
-        WHSharedClipboardService.self
+        WHSharedClipboardService.self,
+        WHDarwinNotificationsService.self
     ]
     
     var activeServices: [WormholeService] = []
     
-    let side: Side
+    let side: WHConnectionSide
     
-    public init(for side: Side) {
+    public init(for side: WHConnectionSide) {
         self.side = side
 
         super.init()
@@ -83,11 +84,6 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
             .map { $0.init(with: self) }
         activeServices.forEach { $0.activate() }
 
-        $peers
-            .map { !$0.isEmpty }
-            .receive(on: DispatchQueue.main)
-            .assign(to: &$isConnected)
-
         #if DEBUG
         $peers.removeDuplicates(by: { $0.keys != $1.keys }).sink { [weak self] currentPeers in
             guard let self = self else { return }
@@ -95,6 +91,18 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         }
         .store(in: &cancellables)
         #endif
+
+        Timer
+            .publish(every: 3, tolerance: 1.5, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+
+                Task {
+                    await self.send(WHPing(), to: nil)
+                }
+            }
+            .store(in: &cancellables)
     }
 
     private let packetSubject = PassthroughSubject<(peerID: WHPeerID, packet: WormholePacket), Never>()
@@ -181,6 +189,60 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         }
     }
 
+    // MARK: - Ping
+
+    /// Waits for a connection with the given peer.
+    private func wait(for peerID: WHPeerID) async {
+        guard let channel = peers[peerID] else {
+            logger.error("Can't wait for peer \(peerID) for which a channel doesn't exist")
+            return
+        }
+
+        guard await channel.isConnected == false else { return }
+
+        for await state in await channel.$isConnected.values {
+            guard state else { continue }
+            break
+        }
+    }
+
+    // MARK: - Service Interfaces
+
+    private func service<T: WormholeService>(_ serviceType: T.Type) -> T? {
+        activeServices.first(where: { type(of: $0).id == serviceType.id }) as? T
+    }
+
+    public func darwinNotifications(matching names: Set<String>, from peerID: WHPeerID) async throws -> AsyncStream<String> {
+        guard peers[peerID] != nil else {
+            throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Peer \(peerID) is not registered"])
+        }
+        guard let notificationService = service(WHDarwinNotificationsService.self) else {
+            throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Darwin notifications service not available"])
+        }
+
+        await wait(for: peerID)
+
+        try Task.checkCancellation()
+
+        for name in names {
+            await send(DarwinNotificationMessage.subscribe(name), to: peerID)
+        }
+
+        try Task.checkCancellation()
+
+        return AsyncStream { continuation in
+            let cancellable = notificationService.onPeerNotificationReceived
+                .filter { $0.peerID == peerID }
+                .sink { name, _ in
+                    continuation.yield(name)
+                }
+
+            continuation.onTermination = { @Sendable _ in
+                cancellable.cancel()
+            }
+        }
+    }
+
     // MARK: - Guest Mode
 
     private var hostOutputHandle: FileHandle {
@@ -210,7 +272,7 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
 
 // MARK: - Channel Actor
 
-actor WormholeChannel {
+actor WormholeChannel: ObservableObject {
 
     let input: FileHandle
     let output: FileHandle
@@ -222,6 +284,15 @@ actor WormholeChannel {
         self.output = output
         self.peerID = peerID
         self.logger = Logger(subsystem: VirtualWormholeConstants.subsystemName, category: "WormholeChannel-\(peerID)")
+    }
+
+    @Published private(set) var isConnected = false {
+        didSet {
+            #if DEBUG
+            guard isConnected != oldValue else { return }
+            logger.debug("isConnected = \(self.isConnected, privacy: .public)")
+            #endif
+        }
     }
 
     private let packetSubject = PassthroughSubject<WormholePacket, Never>()
@@ -251,6 +322,10 @@ actor WormholeChannel {
         stream()
     }
 
+    private func updateConnectionState(_ state: Bool) {
+        self.isConnected = state
+    }
+
     func invalidate() {
         guard activated else { return }
         activated = false
@@ -263,11 +338,9 @@ actor WormholeChannel {
     func send(_ packet: WormholePacket) async throws {
         let data = packet.encoded()
 
-        #if DEBUG
-        if UserDefaults.standard.bool(forKey: "WHLogPacketContents") {
+        if VirtualWormholeConstants.verboseLoggingEnabled {
             logger.debug("\(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
         }
-        #endif
 
         try output.write(contentsOf: data)
     }
@@ -280,9 +353,16 @@ actor WormholeChannel {
         streamingTask = Task {
             do {
                 for try await packet in WormholePacket.stream(from: input.bytes) {
-                    logger.debug("Got packet: \(String(describing: packet), privacy: .public)")
+                    if VirtualWormholeConstants.verboseLoggingEnabled {
+                        logger.debug("Got packet: \(String(describing: packet), privacy: .public)")
+                    }
                     
                     guard !Task.isCancelled else { break }
+
+                    guard !packet.isPing && !packet.isPong else {
+                        await handlePingPong(packet)
+                        continue
+                    }
 
                     packetSubject.send(packet)
                 }
@@ -297,6 +377,36 @@ actor WormholeChannel {
 
                 stream()
             }
+        }
+    }
+
+    private var timeoutTask: Task<Void, Never>?
+
+    private func handlePingPong(_ packet: WormholePacket) async {
+        self.isConnected = true
+
+        if packet.isPing {
+            if VirtualWormholeConstants.verboseLoggingEnabled {
+                logger.debug("Received ping")
+            }
+
+            try? await send(WormholePacket(WHPong()))
+        } else {
+            if VirtualWormholeConstants.verboseLoggingEnabled {
+                logger.debug("Received pong")
+            }
+        }
+
+        timeoutTask?.cancel()
+
+        timeoutTask = Task {
+            try? await Task.sleep(nanoseconds: 5 * NSEC_PER_SEC)
+
+            guard !Task.isCancelled else { return }
+
+            logger.warning("Connection timed out")
+
+            self.isConnected = false
         }
     }
 
