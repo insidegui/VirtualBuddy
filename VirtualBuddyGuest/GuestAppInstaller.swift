@@ -20,7 +20,7 @@ final class GuestAppInstaller {
             if FileManager.default.fileExists(atPath: destURL.path) {
                 logger.debug("Removing existing app at \(destURL.path, privacy: .public)")
 
-                if let runningApp = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier!).first {
+                if let runningApp = NSRunningApplication.runningApplications(withBundleIdentifier: Bundle.main.bundleIdentifier!).first(where: { $0.bundleURL == destURL }) {
                     logger.debug("Terminating existing app instance")
 
                     if !runningApp.forceTerminate() {
@@ -36,7 +36,7 @@ final class GuestAppInstaller {
             try NSApplication.shared.relaunch(at: destURL.path)
         } catch {
             logger.error("Install failed: \(error, privacy: .public)")
-            
+
             throw CocoaError(.coderInvalidValue, userInfo: [
                 NSLocalizedDescriptionKey: "Failed to install the VirtualBuddyGuest app. This can occur if the Mac user account on the virtual machine can't write to /Applications.",
                 NSUnderlyingErrorKey: error
