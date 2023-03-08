@@ -155,92 +155,25 @@ actor WormholeChannel {
 
         streamingTask = Task {
             do {
-                for try await line in input.bytes.lines {
-                    guard streamingTask?.isCancelled == false else { break }
+                for try await packet in WormholePacket.stream(from: input.bytes) {
+                    guard !Task.isCancelled else { break }
 
-                    print("RECV: \(line)")
+                    handlePacket(packet)
                 }
-//                for try await byte in input.bytes {
-//                    print("RECV: \(byte)")
-//                }
             } catch {
-                logger.error("File handle failure: \(error, privacy: .public)")
+                logger.error("Serial read failure: \(error, privacy: .public)")
 
                 try? await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
+
+                guard !Task.isCancelled else { return }
 
                 stream()
             }
         }
     }
 
-}
+    private func handlePacket(_ packet: WormholePacket) {
 
-//
-//// MARK: - Multipeer Integration
-//
-//extension MultipeerTransceiver: WormholeMultiplexer {
-//
-//    func receive<T>(_ type: T.Type, using callback: @escaping (T) -> Void) where T : Decodable, T : Encodable {
-//        receive(type) { payload, _ in
-//            callback(payload)
-//        }
-//    }
-//
-//    func send<T>(_ payload: T) where T : Decodable, T : Encodable {
-//        broadcast(payload)
-//    }
-//
-//}
-//
-//private extension WormholeManager {
-//
-//    func handlePeerInvitation(from peer: Peer, with data: Data?, decision: @escaping (Bool) -> Void) {
-//        /// Guest can only connect to one host at a time.
-//        if side == .guest {
-//            guard connectedPeers.isEmpty || peer.id == connectedPeers.first?.id else {
-//                logger.debug("Refusing invitation from \(peer.name): not our buddy")
-//                decision(false)
-//                return
-//            }
-//        }
-//
-//        decision(true)
-//    }
-//
-//    func startTransceiver() {
-//        transceiver.peerConnected = { [weak self] peer in
-//            guard let self = self else { return }
-//
-//            /// Guest can only connect to one host at a time.
-//            if self.side == .guest {
-//                guard self.connectedPeers.isEmpty else {
-//                    self.logger.error("Refusing connection from \(peer.name) because we already have a remote peer")
-//                    return
-//                }
-//            }
-//
-//            self.logger.debug("Connected: \(peer.name)")
-//
-//            self.connectedPeers.insert(peer)
-//        }
-//
-//        transceiver.peerDisconnected = { [weak self] peer in
-//            guard let self = self else { return }
-//
-//            /// Guest can only connect to one host at a time.
-//            if self.side == .guest {
-//                guard peer.id == self.connectedPeers.first?.id else {
-//                    self.logger.error("Ignoring disconnect from \(peer.name), which is not our buddy")
-//                    return
-//                }
-//            }
-//
-//            self.logger.debug("Disconnected: \(peer.name)")
-//
-//            self.connectedPeers.remove(peer)
-//        }
-//
-//        transceiver.resume()
-//    }
-//
-//}
+    }
+
+}

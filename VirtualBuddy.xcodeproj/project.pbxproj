@@ -141,7 +141,6 @@
 		F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */; };
 		F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */; };
 		F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */; };
-		F4C18A3D284914C600335EC7 /* MultipeerKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4C18A3C284914C600335EC7 /* MultipeerKit */; };
 		F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */; };
 		F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4628491B8500335EC7 /* GuestDashboard.swift */; };
 		F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4828491B8500335EC7 /* Assets.xcassets */; };
@@ -155,6 +154,9 @@
 		F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */; };
 		F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */; };
 		F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D3059629B8D9D30006E748 /* WormholePacket.swift */; };
+		F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */; };
+		F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
+		F4D305AA29B8E7120006E748 /* TestStream.bin in Resources */ = {isa = PBXBuildFile; fileRef = F4D305A929B8E7120006E748 /* TestStream.bin */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
@@ -221,6 +223,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = F4C18A4128491B8500335EC7;
 			remoteInfo = VirtualBuddyGuest;
+		};
+		F4D305A129B8DB700006E748 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
+			remoteInfo = VirtualWormhole;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -427,6 +436,9 @@
 		F4D0F71B28674F24004D5782 /* Features.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Features.xcconfig; sourceTree = "<group>"; };
 		F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChannel.swift; sourceTree = "<group>"; };
 		F4D3059629B8D9D30006E748 /* WormholePacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacket.swift; sourceTree = "<group>"; };
+		F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirtualWormholeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacketTests.swift; sourceTree = "<group>"; };
+		F4D305A929B8E7120006E748 /* TestStream.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = TestStream.bin; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
@@ -476,7 +488,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4C18A3D284914C600335EC7 /* MultipeerKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -487,6 +498,14 @@
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
 				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4D3059929B8DB700006E748 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -913,6 +932,7 @@
 				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
 				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
+				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -927,6 +947,7 @@
 				F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */,
 				F498ACFE2884BF13006F1C00 /* VirtualUI.framework */,
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
+				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1105,6 +1126,23 @@
 			path = WireProtocol;
 			sourceTree = "<group>";
 		};
+		F4D3059D29B8DB700006E748 /* VirtualWormholeTests */ = {
+			isa = PBXGroup;
+			children = (
+				F4D305A829B8E70A0006E748 /* Resources */,
+				F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */,
+			);
+			path = VirtualWormholeTests;
+			sourceTree = "<group>";
+		};
+		F4D305A829B8E70A0006E748 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F4D305A929B8E7120006E748 /* TestStream.bin */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		F4E7680B29B651180075A897 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -1251,7 +1289,6 @@
 			);
 			name = VirtualWormhole;
 			packageProductDependencies = (
-				F4C18A3C284914C600335EC7 /* MultipeerKit */,
 			);
 			productName = VirtualWormhole;
 			productReference = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */;
@@ -1279,6 +1316,24 @@
 			productName = VirtualBuddyGuest;
 			productReference = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F4D3059B29B8DB700006E748 /* VirtualWormholeTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4D305A329B8DB700006E748 /* Build configuration list for PBXNativeTarget "VirtualWormholeTests" */;
+			buildPhases = (
+				F4D3059829B8DB700006E748 /* Sources */,
+				F4D3059929B8DB700006E748 /* Frameworks */,
+				F4D3059A29B8DB700006E748 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F4D305A229B8DB700006E748 /* PBXTargetDependency */,
+			);
+			name = VirtualWormholeTests;
+			productName = VirtualWormholeTests;
+			productReference = F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -1314,6 +1369,9 @@
 						CreatedOnToolsVersion = 13.4;
 						LastSwiftMigration = 1420;
 					};
+					F4D3059B29B8DB700006E748 = {
+						CreatedOnToolsVersion = 14.2;
+					};
 				};
 			};
 			buildConfigurationList = F4BE9C4927FF052100B648F8 /* Build configuration list for PBXProject "VirtualBuddy" */;
@@ -1326,7 +1384,6 @@
 			);
 			mainGroup = F4BE9C4527FF052100B648F8;
 			packageReferences = (
-				F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */,
 				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
@@ -1339,6 +1396,7 @@
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
+				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1394,6 +1452,14 @@
 				F4136999299179B1002CE8D3 /* Main.storyboard in Resources */,
 				F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */,
 				F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4D3059A29B8DB700006E748 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4D305AA29B8E7120006E748 /* TestStream.bin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1561,6 +1627,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F4D3059829B8DB700006E748 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1603,6 +1677,11 @@
 			isa = PBXTargetDependency;
 			target = F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */;
 			targetProxy = F4C18A5728491C0D00335EC7 /* PBXContainerItemProxy */;
+		};
+		F4D305A229B8DB700006E748 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
+			targetProxy = F4D305A129B8DB700006E748 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2542,6 +2621,74 @@
 			};
 			name = Release;
 		};
+		F4D305A429B8DB700006E748 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F4D305A529B8DB700006E748 /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug_Managed;
+		};
+		F4D305A629B8DB700006E748 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F4D305A729B8DB700006E748 /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				GENERATE_INFOPLIST_FILE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 13.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release_Managed;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2622,17 +2769,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F4D305A329B8DB700006E748 /* Build configuration list for PBXNativeTarget "VirtualWormholeTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4D305A429B8DB700006E748 /* Debug */,
+				F4D305A529B8DB700006E748 /* Debug_Managed */,
+				F4D305A629B8DB700006E748 /* Release */,
+				F4D305A729B8DB700006E748 /* Release_Managed */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/insidegui/MultipeerKit.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
-			};
-		};
 		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -2644,11 +2794,6 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		F4C18A3C284914C600335EC7 /* MultipeerKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F4C18A3B284914C600335EC7 /* XCRemoteSwiftPackageReference "MultipeerKit" */;
-			productName = MultipeerKit;
-		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
