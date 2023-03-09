@@ -168,10 +168,10 @@ struct VMScreenshotBackgroundView: View {
                     .aspectRatio(contentMode: .fit)
             }
             
-//            MaterialView()
-//                .materialType(.popover)
-//                .materialBlendingMode(.withinWindow)
-//                .materialState(.followsWindowActiveState)
+            MaterialView()
+                .materialType(.popover)
+                .materialBlendingMode(.withinWindow)
+                .materialState(.followsWindowActiveState)
         }
         .onAppearOnce { updateImage() }
         .onReceive(vm.didInvalidateThumbnail) { updateImage() }
