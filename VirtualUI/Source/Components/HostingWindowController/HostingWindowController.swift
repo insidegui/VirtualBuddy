@@ -26,8 +26,12 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
         )
     }
 
-    public init(rootView: Content, windowFactory: (() -> NSWindow)? = nil) {
+    public init(id: String? = nil, rootView: Content, windowFactory: (() -> NSWindow)? = nil) {
         let window = windowFactory?() ?? Self.makeDefaultWindow()
+
+        if let id {
+            window.identifier = .init(id)
+        }
         
         super.init(window: window)
 
@@ -120,7 +124,7 @@ protocol WindowChromeConsumer: AnyObject {
     var confirmBeforeClosingCallback: () async -> Bool { get set }
 }
 
-fileprivate final class HostingWindow: NSWindow {
+fileprivate final class HostingWindow: VBRestorableWindow {
     
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
@@ -138,5 +142,5 @@ fileprivate final class HostingWindow: NSWindow {
     private func closeWithoutConfirmation() {
         super.close()
     }
-    
+
 }

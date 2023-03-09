@@ -7,19 +7,24 @@
 
 import SwiftUI
 import VirtualCore
+import VirtualUI
 
 @main
 struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
     var appDelegate: VirtualBuddyAppDelegate
 
-    @StateObject var settingsContainer = VBSettingsContainer.current
-    @StateObject var updateController = SoftwareUpdateController.shared
-    
+    @StateObject private var settingsContainer = VBSettingsContainer.current
+    @StateObject private var updateController = SoftwareUpdateController.shared
+    @StateObject private var library = VMLibraryController.shared
+    @StateObject private var sessionManager = VirtualMachineSessionUIManager.shared
+
     var body: some Scene {
         WindowGroup {
             LibraryView()
                 .onAppearOnce(perform: updateController.activate)
+                .environmentObject(library)
+                .environmentObject(sessionManager)
         }
         .windowToolbarStyle(.unified)
         .commands {
@@ -30,6 +35,11 @@ struct VirtualBuddyApp: App {
                 }
             }
             #endif
+
+            CommandGroup(before: .windowSize) {
+                VirtualMachineWindowCommands()
+                    .environmentObject(sessionManager)
+            }
         }
         
         Settings {

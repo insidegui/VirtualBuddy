@@ -9,12 +9,11 @@ import SwiftUI
 import VirtualCore
 
 public struct LibraryView: View {
-    @StateObject private var library: VMLibraryController
+    @EnvironmentObject private var library: VMLibraryController
+    @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
 
-    public init() {
-        self._library = .init(wrappedValue: .shared)
-    }
-    
+    public init() { }
+
     public var body: some View {
         libraryContents
             .frame(minWidth: 600, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
@@ -110,8 +109,9 @@ public struct LibraryView: View {
     
     private func launch(_ vm: VBVirtualMachine) {
         openWindow(id: vm.id) {
-            VirtualMachineSessionView(controller: VMController(with: vm))
+            VirtualMachineSessionView(controller: VMController(with: vm), ui: VirtualMachineSessionUI(with: vm))
                 .environmentObject(library)
+                .environmentObject(sessionManager)
         }
     }
 
