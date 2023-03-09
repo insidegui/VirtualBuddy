@@ -95,7 +95,7 @@ public struct OpenCocoaWindowAction {
         if let existingController = manager[token] {
             existingController.showWindow(nil)
         } else {
-            let controller = HostingWindowController(rootView: content())
+            let controller = HostingWindowController(id: id, rootView: content())
 
             manager[token] = controller
         }

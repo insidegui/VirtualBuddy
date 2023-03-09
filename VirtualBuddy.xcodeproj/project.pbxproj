@@ -81,6 +81,7 @@
 		F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F498AD172884C593006F1C00 /* NumericPropertyControl.swift */; };
 		F498AD1A2884C5FF006F1C00 /* SliderConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F498AD192884C5FF006F1C00 /* SliderConversion.swift */; };
 		F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49A68E02884917E00A17582 /* ConfigurationModels.swift */; };
+		F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
@@ -270,6 +271,7 @@
 		F498AD172884C593006F1C00 /* NumericPropertyControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NumericPropertyControl.swift; sourceTree = "<group>"; };
 		F498AD192884C5FF006F1C00 /* SliderConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SliderConversion.swift; sourceTree = "<group>"; };
 		F49A68E02884917E00A17582 /* ConfigurationModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConfigurationModels.swift; sourceTree = "<group>"; };
+		F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestorableWindow.swift; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
 		F4B068B428882EB7003743BF /* VirtualBuddy_Managed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy_Managed.entitlements; sourceTree = "<group>"; };
@@ -383,6 +385,7 @@
 				F41725672886E5AD004FF8A7 /* MaterialView.swift */,
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
 				F42C014B2888C34B00EB15CD /* LogConsole.swift */,
+				F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1184,6 +1187,7 @@
 				F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */,
 				F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */,
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
+				F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
