@@ -65,4 +65,28 @@ class VBRestorableWindow: NSWindow {
         UserDefaults.standard.synchronize()
     }
 
+    private var frameConstraintsDisabled = false
+
+    func withFrameConstraintsDisabled(_ disabled: Bool = true, perform block: () -> Void) {
+        NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(resetConstraintsDisabledFlag), object: nil)
+
+        frameConstraintsDisabled = disabled
+
+        block()
+
+        perform(#selector(resetConstraintsDisabledFlag), with: nil, afterDelay: 0.2)
+    }
+
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
+        guard frameConstraintsDisabled else {
+            return super.constrainFrameRect(frameRect, to: screen)
+        }
+
+        return frameRect
+    }
+
+    @objc private func resetConstraintsDisabledFlag() {
+        frameConstraintsDisabled = false
+    }
+
 }

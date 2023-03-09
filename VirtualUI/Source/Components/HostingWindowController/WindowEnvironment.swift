@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import Combine
 
 // MARK: - Public API
 
@@ -75,6 +76,10 @@ public extension View {
 
     func confirmBeforeClosingWindow(callback: @escaping () async -> Bool) -> some View {
         environment(\.confirmBeforeClosingWindow, callback)
+    }
+
+    func onWindowKeyChange(perform callback: @escaping (Bool) -> Void) -> some View {
+        modifier(OnWindowKeyChangedModifier(callback: callback))
     }
     
 }
@@ -221,4 +226,34 @@ extension EnvironmentValues {
         }
     }
     
+}
+
+private struct OnWindowKeyChangedModifier: ViewModifier {
+
+    var callback: (Bool) -> Void
+
+    @Environment(\.cocoaWindow)
+    private var window
+
+    @State private var cancellables = Set<AnyCancellable>()
+
+    func body(content: Content) -> some View {
+        content
+            .onAppearOnce {
+                guard let window else { return }
+
+                callback(window.isKeyWindow)
+
+                let center = NotificationCenter.default
+
+                center.publisher(for: NSWindow.didBecomeKeyNotification, object: window).sink { _ in
+                    callback(true)
+                }.store(in: &cancellables)
+
+                center.publisher(for: NSWindow.didResignKeyNotification, object: window).sink { _ in
+                    callback(false)
+                }.store(in: &cancellables)
+            }
+    }
+
 }
