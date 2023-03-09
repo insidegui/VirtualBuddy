@@ -30,8 +30,12 @@ class VBRestorableWindow: NSWindow {
 
     private var applicationWillTerminateObserver: Any?
 
+    private var keyRequested = false
+
     override func makeKey() {
         super.makeKey()
+
+        defer { keyRequested = true }
 
         if applicationWillTerminateObserver == nil {
             applicationWillTerminateObserver = NotificationCenter.default.addObserver(forName: NSApplication.willTerminateNotification, object: nil, queue: nil, using: { [weak self] _ in
@@ -39,11 +43,20 @@ class VBRestorableWindow: NSWindow {
             })
         }
 
-        if let savedFrame {
+        if !keyRequested, let savedFrame {
             setFrame(savedFrame, display: true)
         } else {
             vbSaveFrame()
         }
+    }
+
+    override func center() {
+        guard savedFrame == nil else {
+            makeKey()
+            return
+        }
+
+        super.center()
     }
 
     private func vbSaveFrame() {
