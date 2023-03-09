@@ -48,7 +48,8 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
 
     let serviceTypes: [WormholeService.Type] = [
         WHSharedClipboardService.self,
-        WHDarwinNotificationsService.self
+        WHDarwinNotificationsService.self,
+        WHDefaultsImportService.self
     ]
     
     var activeServices: [WormholeService] = []

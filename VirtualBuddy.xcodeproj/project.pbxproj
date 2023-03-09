@@ -124,6 +124,11 @@
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
 		F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */; };
 		F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5DA28873628005AA632 /* GroupedList.swift */; };
+		F4BE580E29BA6C8D00C5525C /* DefaultsDomains.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */; };
+		F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */; };
+		F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */; };
+		F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */; };
+		F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */; };
 		F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */; };
 		F4BE9C5627FF052100B648F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5527FF052100B648F8 /* Assets.xcassets */; };
 		F4BE9C5927FF052100B648F8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5827FF052100B648F8 /* Preview Assets.xcassets */; };
@@ -407,6 +412,11 @@
 		F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Validation.swift"; sourceTree = "<group>"; };
 		F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Summary.swift"; sourceTree = "<group>"; };
 		F4B5C5DA28873628005AA632 /* GroupedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedList.swift; sourceTree = "<group>"; };
+		F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = DefaultsDomains.plist; sourceTree = "<group>"; };
+		F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsImportController.swift; sourceTree = "<group>"; };
+		F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsDomainDescriptor.swift; sourceTree = "<group>"; };
+		F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DefaultsDomain+ExportImport.swift"; sourceTree = "<group>"; };
+		F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDefaultsImportService.swift; sourceTree = "<group>"; };
 		F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyApp.swift; sourceTree = "<group>"; };
 		F4BE9C5527FF052100B648F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -938,6 +948,26 @@
 			path = Sharing;
 			sourceTree = "<group>";
 		};
+		F4BE580B29BA6C6300C5525C /* DefaultsImport */ = {
+			isa = PBXGroup;
+			children = (
+				F4BE580C29BA6C7A00C5525C /* Resources */,
+				F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */,
+				F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */,
+				F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */,
+				F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */,
+			);
+			path = DefaultsImport;
+			sourceTree = "<group>";
+		};
+		F4BE580C29BA6C7A00C5525C /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		F4BE9C4527FF052100B648F8 = {
 			isa = PBXGroup;
 			children = (
@@ -1097,6 +1127,7 @@
 			isa = PBXGroup;
 			children = (
 				F4D305AE29B900790006E748 /* Base */,
+				F4BE580B29BA6C6300C5525C /* DefaultsImport */,
 				F4D305AD29B9006E0006E748 /* DarwinNotifications */,
 				F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */,
 			);
@@ -1477,6 +1508,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4BE580E29BA6C8D00C5525C /* DefaultsDomains.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1669,9 +1701,13 @@
 				F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */,
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
+				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
 				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
+				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,
+				F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */,
 				F4D305B229B907A10006E748 /* WHPing.swift in Sources */,
 				F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */,
+				F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */,
 				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
 			);
