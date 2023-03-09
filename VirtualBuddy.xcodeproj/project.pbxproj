@@ -1332,6 +1332,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F4C18A4E28491B8500335EC7 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuest" */;
 			buildPhases = (
+				F4552F4729BA60C7002A21D8 /* Set VBGuestBuildID in Info.plist */,
 				F4C18A3E28491B8500335EC7 /* Sources */,
 				F4C18A3F28491B8500335EC7 /* Frameworks */,
 				F4C18A4028491B8500335EC7 /* Resources */,
@@ -1498,6 +1499,29 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		F4552F4729BA60C7002A21D8 /* Set VBGuestBuildID in Info.plist */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Set VBGuestBuildID in Info.plist";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/VBGenerated-Info.plist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Ensures VirtualBuddyGuest has a VBGuestBuildID entry in its Info.plist file\n# This entry is used by the app itself when running in a VM to determine when it needs to be updated.\nTEMPLATE=\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?><!DOCTYPE plist PUBLIC \\\"-//Apple//DTD PLIST 1.0//EN\\\" \\\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\\\"><plist version=\\\"1.0\\\"><dict/></plist>\"\nPLISTPATH=\"$DERIVED_FILE_DIR/VBGenerated-Info.plist\"\n\necho $TEMPLATE > \"$PLISTPATH\"\n\n/usr/libexec/PlistBuddy -c \"Add :VBGuestBuildID string xxxxxx\" \"$PLISTPATH\" 2>/dev/null || echo \"\"\n\n/usr/libexec/PlistBuddy -c \"Set :VBGuestBuildID `uuidgen`\" \"$PLISTPATH\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		F41369A729918576002CE8D3 /* Sources */ = {
@@ -2022,6 +2046,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2220,6 +2245,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2610,6 +2636,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2643,6 +2670,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
