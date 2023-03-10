@@ -52,5 +52,35 @@
 			<false/>
 		</dict>
 	</dict>
+	<key>com.apple.Finder</key>
+	<dict>
+		<key>target</key>
+		<dict>
+			<key>bundleIdentifier</key>
+			<string>com.apple.Finder</string>
+			<key>name</key>
+			<string>Finder</string>
+			<key>isSystemApp</key>
+			<true/>
+		</dict>
+		<key>ignoredKeyPaths</key>
+		<array>
+			<string>NSNavLastRootDirectory</string>
+			<string>RecentMoveAndCopyDestinations</string>
+			<string>NewWindowTargetPath</string>
+			<string>FXConnectToLastURL</string>
+			<string>GoToField</string>
+			<string>GoToFieldHistory</string>
+		</array>
+		<key>restart</key>
+		<dict>
+			<key>command</key>
+			<string>killall Finder</string>
+			<key>needsConfirmation</key>
+			<false/>
+			<key>shouldRelaunch</key>
+			<false/>
+		</dict>
+	</dict>
 </dict>
 </plist>
