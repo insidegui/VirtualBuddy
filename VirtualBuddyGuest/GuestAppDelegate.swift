@@ -14,7 +14,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         StatusItemManager(
             configuration: .default.id("dashboard"),
             statusItem: .button(label: { Image("StatusItem") }),
-            content: GuestDashboard<WormholeManager>()
+            content: GuestDashboard()
                 .environmentObject(self.launchAtLoginManager)
                 .environmentObject(WormholeManager.sharedGuest)
                 .environmentObject(self.sharedFolders)

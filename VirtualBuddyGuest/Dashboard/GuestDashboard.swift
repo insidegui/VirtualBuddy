@@ -8,12 +8,15 @@
 import SwiftUI
 import VirtualWormhole
 
-struct GuestDashboard<HostConnection>: View where HostConnection: HostConnectionStateProvider {
+struct GuestDashboard: View {
     @EnvironmentObject private var launchAtLoginManager: GuestLaunchAtLoginManager
-    @EnvironmentObject private var hostConnection: HostConnection
+    @EnvironmentObject private var hostConnection: WormholeManager
     @EnvironmentObject private var sharedFolders: GuestSharedFoldersManager
 
     @State var activated = false
+
+    #warning("FIXME: Temporary, UI will be completely redesigned")
+    @State private var showingDefaultsPopover = false
 
     var body: some View {
         VStack {
@@ -27,6 +30,13 @@ struct GuestDashboard<HostConnection>: View where HostConnection: HostConnection
 
             Form {
                 Toggle("Launch At Login", isOn: launchAtLoginBinding)
+
+                Button("Defaults Import…") {
+                    showingDefaultsPopover.toggle()
+                }
+                .popover(isPresented: $showingDefaultsPopover) {
+                    GuestDefaultsImportView()
+                }
             }
 
             Spacer()
@@ -91,9 +101,9 @@ struct GuestDashboard<HostConnection>: View where HostConnection: HostConnection
 #if DEBUG
 struct GuestDashboard_Previews: PreviewProvider {
     static var previews: some View {
-        GuestDashboard<MockHostConnectionStateProvider>()
+        GuestDashboard()
             .environmentObject(GuestLaunchAtLoginManager())
-            .environmentObject(MockHostConnectionStateProvider())
+            .environmentObject(WormholeManager.sharedGuest)
             .environmentObject(GuestSharedFoldersManager())
     }
 }

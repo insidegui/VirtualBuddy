@@ -8,7 +8,7 @@
 import Foundation
 import Virtualization
 
-protocol WormholeMultiplexer: AnyObject {
+public protocol WormholeMultiplexer: AnyObject {
 
     var side: WHConnectionSide { get }
     
@@ -18,7 +18,7 @@ protocol WormholeMultiplexer: AnyObject {
     
 }
 
-protocol WormholeService: AnyObject {
+public protocol WormholeService: AnyObject {
 
     static var id: String { get }
     

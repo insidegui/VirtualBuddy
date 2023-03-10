@@ -30,7 +30,7 @@ public enum WHConnectionSide: Hashable, CustomStringConvertible {
     }
 }
 
-public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketListenerDelegate, WormholeMultiplexer {
+public final class WormholeManager: NSObject, ObservableObject, WormholeMultiplexer {
 
     /// Singleton manager used by the VirtualBuddy app to talk
     /// to VirtualBuddyGuest running in virtual machines.
@@ -54,12 +54,19 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
     
     var activeServices: [WormholeService] = []
     
-    let side: WHConnectionSide
+    public let side: WHConnectionSide
     
     public init(for side: WHConnectionSide) {
         self.side = side
 
         super.init()
+    }
+
+    public func makeClient<C: WormholeServiceClient>(_ type: C.Type) throws -> C {
+        guard let service = activeServices.compactMap({ $0 as? C.ServiceType }).first else {
+            throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "Service unavailable."])
+        }
+        return C(with: service)
     }
 
     private var activated = false
@@ -77,7 +84,6 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
                 try await activateGuestIfNeeded()
             } catch {
                 logger.fault("Failed to register host peer: \(error, privacy: .public)")
-                assertionFailure("Failed to register host peer: \(error)")
             }
         }
 
@@ -135,7 +141,7 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         peers[peerID] = nil
     }
 
-    func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async {
+    public func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async {
         guard !peers.isEmpty else { return }
         
         if side == .guest {
@@ -167,7 +173,7 @@ public final class WormholeManager: NSObject, ObservableObject, VZVirtioSocketLi
         }
     }
 
-    func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
+    public func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
         AsyncThrowingStream { [weak self] continuation in
             guard let self = self else {
                 continuation.finish()

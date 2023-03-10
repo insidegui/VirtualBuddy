@@ -28,7 +28,7 @@ public struct DefaultsDomainDescriptor: Identifiable, Codable {
     public var restart: Restart?
 }
 
-extension DefaultsDomainDescriptor.Target {
+public extension DefaultsDomainDescriptor.Target {
     var isRunning: Bool {
         NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).contains(where: { !$0.isTerminated })
     }

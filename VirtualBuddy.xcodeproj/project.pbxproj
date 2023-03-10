@@ -176,6 +176,9 @@
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
+		F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */; };
+		F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */; };
+		F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -469,6 +472,9 @@
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
+		F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceClient.swift; sourceTree = "<group>"; };
+		F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDefaultsImportClient.swift; sourceTree = "<group>"; };
+		F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestDefaultsImportView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -586,6 +592,7 @@
 				F41369C4299187D8002CE8D3 /* Support */,
 				F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */,
 				F41369CB2991A68F002CE8D3 /* GuestSharedFoldersManager.swift */,
+				F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */,
 				F4C18A4628491B8500335EC7 /* GuestDashboard.swift */,
 			);
 			path = Dashboard;
@@ -951,11 +958,10 @@
 		F4BE580B29BA6C6300C5525C /* DefaultsImport */ = {
 			isa = PBXGroup;
 			children = (
+				F4FC276829BBAE470012CB65 /* Implementation */,
 				F4BE580C29BA6C7A00C5525C /* Resources */,
-				F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */,
-				F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */,
-				F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */,
 				F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */,
+				F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */,
 			);
 			path = DefaultsImport;
 			sourceTree = "<group>";
@@ -1204,6 +1210,7 @@
 			isa = PBXGroup;
 			children = (
 				F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */,
+				F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -1223,6 +1230,16 @@
 				F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */,
 			);
 			path = Settings;
+			sourceTree = "<group>";
+		};
+		F4FC276829BBAE470012CB65 /* Implementation */ = {
+			isa = PBXGroup;
+			children = (
+				F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */,
+				F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */,
+				F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */,
+			);
+			path = Implementation;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1708,7 +1725,9 @@
 				F4D305B229B907A10006E748 /* WHPing.swift in Sources */,
 				F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */,
 				F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */,
+				F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */,
 				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
+				F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1723,6 +1742,7 @@
 				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
 				F41369CC2991A68F002CE8D3 /* GuestSharedFoldersManager.swift in Sources */,
 				F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */,
+				F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */,
 				F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
