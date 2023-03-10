@@ -13,7 +13,7 @@ public struct DefaultsDomainDescriptor: Identifiable, Codable {
         public var id: String { bundleIdentifier }
         public var bundleIdentifier: String
         public var name: String
-        public var isSystemApp: Bool
+        public var isSystemService: Bool
     }
 
     public struct Restart: Codable {
@@ -30,7 +30,10 @@ public struct DefaultsDomainDescriptor: Identifiable, Codable {
 
 public extension DefaultsDomainDescriptor.Target {
     var isRunning: Bool {
-        NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).contains(where: { !$0.isTerminated })
+        /// System services are not included in `NSRunningApplication.runningApplications`,
+        /// so just assume they're always running (which will be the case most of the time).
+        guard !isSystemService else { return true }
+        return NSRunningApplication.runningApplications(withBundleIdentifier: bundleIdentifier).contains(where: { !$0.isTerminated })
     }
 
     var bundleURL: URL? {

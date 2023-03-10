@@ -10,8 +10,8 @@
 			<string>com.apple.Terminal</string>
 			<key>name</key>
 			<string>Terminal</string>
-			<key>isSystemApp</key>
-			<true/>
+			<key>isSystemService</key>
+			<false/>
 		</dict>
 		<key>ignoredKeyPaths</key>
 		<array/>
@@ -33,7 +33,7 @@
 			<string>com.apple.Dock</string>
 			<key>name</key>
 			<string>Dock</string>
-			<key>isSystemApp</key>
+			<key>isSystemService</key>
 			<true/>
 		</dict>
 		<key>ignoredKeyPaths</key>
@@ -60,7 +60,7 @@
 			<string>com.apple.Finder</string>
 			<key>name</key>
 			<string>Finder</string>
-			<key>isSystemApp</key>
+			<key>isSystemService</key>
 			<true/>
 		</dict>
 		<key>ignoredKeyPaths</key>
