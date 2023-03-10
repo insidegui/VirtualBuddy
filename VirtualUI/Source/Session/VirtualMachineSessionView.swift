@@ -39,6 +39,11 @@ public struct VirtualMachineSessionView: View {
             .onWindowKeyChange { isKey in
                 sessionManager.focusedSessionChanged.send(isKey ? ui : nil)
             }
+            .onAppearOnce {
+                guard vbWindow?.hasSavedFrame == false else { return }
+                guard let display = controller.virtualMachineModel.configuration.hardware.displayDevices.first else { return }
+                vbWindow?.resize(to: .fitScreen, for: display)
+            }
             .onReceive(ui.resizeWindow) { size in
                 guard let display = controller.virtualMachineModel.configuration.hardware.displayDevices.first else {
                     assertionFailure("VM doesn't have a display")

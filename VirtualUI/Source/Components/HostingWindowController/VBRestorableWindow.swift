@@ -22,6 +22,8 @@ class VBRestorableWindow: NSWindow {
         return "window-\(identifier.rawValue)-\(screenNumber)"
     }
 
+    var hasSavedFrame: Bool { savedFrame != nil }
+
     private var savedFrame: NSRect? {
         guard let savedFrameKey else { return nil }
         guard let dict = UserDefaults.standard.dictionary(forKey: savedFrameKey) else { return nil }
@@ -45,8 +47,6 @@ class VBRestorableWindow: NSWindow {
 
         if !keyRequested, let savedFrame {
             setFrame(savedFrame, display: true)
-        } else {
-            vbSaveFrame()
         }
     }
 
