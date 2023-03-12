@@ -61,8 +61,8 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
         self.format = format
     }
     
-    public static let defaultBootDiskImageSize: UInt64 = 128 * .storageGigabyte
-    public static let minimumBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    public static let defaultBootDiskImageSize: UInt64 = 64 * .storageGigabyte
+    public static let minimumBootDiskImageSize: UInt64 = 2 * .storageGigabyte
     public static let maximumBootDiskImageSize: UInt64 = 512 * .storageGigabyte
 
     public static let minimumExtraDiskImageSize: UInt64 = 1 * .storageGigabyte
