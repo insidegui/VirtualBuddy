@@ -61,7 +61,8 @@ public struct VirtualMachineWindowCommands: View {
 
     @State private var focusedSession: VirtualMachineSessionUI?
 
-    @State private var lockProportions = false
+    @AppStorage("vm.window.proportions.locked")
+    private var lockProportions = false
 
     public init() { }
 
@@ -85,7 +86,10 @@ public struct VirtualMachineWindowCommands: View {
             .keyboardShortcut("3", modifiers: .command)
         }
         .disabled(focusedSession == nil)
-        .onReceive(manager.focusedSessionChanged) { focusedSession = $0 }
+        .onReceive(manager.focusedSessionChanged) {
+            focusedSession = $0
+            focusedSession?.lockProportions = lockProportions
+        }
         .onChange(of: lockProportions) { [lockProportions] newValue in
             guard newValue != lockProportions else { return }
             focusedSession?.lockProportions = newValue
