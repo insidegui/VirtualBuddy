@@ -76,9 +76,3 @@ extension VBRestorableWindow {
     }
 
 }
-
-extension NSScreen {
-    var dpi: CGSize {
-        (deviceDescription[NSDeviceDescriptionKey.resolution] as? CGSize) ?? CGSize(width: 72.0, height: 72.0)
-    }
-}
