@@ -68,9 +68,9 @@ extension VBRestorableWindow {
             return
         }
 
-        aspectRatio = ratio
+        contentAspectRatio = ratio
 
-        let newFrame = frameRect(forContentRect: AVMakeRect(aspectRatio: ratio, insideRect: frame))
+        let newFrame = frameRect(forContentRect: AVMakeRect(aspectRatio: ratio, insideRect: contentRect(forFrameRect: frame)))
 
         setFrame(newFrame, display: true)
     }
