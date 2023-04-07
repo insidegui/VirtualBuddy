@@ -61,10 +61,10 @@
     },
     {
       "group": "ventura",
-      "name": "macOS 13.3 RC",
+      "name": "macOS 13.3",
       "build": "22E252",
       "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/002-75537/8250FA0E-0962-46D6-8A90-57A390B9FFD7/UniversalMac_13.3_22E252_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
