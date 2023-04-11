@@ -53,6 +53,14 @@
   "restoreImages": [
     {
       "group": "ventura",
+      "name": "macOS 13.4 Developer Beta 2",
+      "build": "22F5037d",
+      "url": "https://updates.cdn-apple.com/2023SpringSeed/fullrestores/032-69885/ECFA1532-C633-4ACE-9D2C-3B5FD19510D4/UniversalMac_13.4_22F5037d_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "ventura",
       "name": "macOS 13.4 Developer Beta 1",
       "build": "22F5027f",
       "url": "https://updates.cdn-apple.com/2023SpringSeed/fullrestores/032-69187/B11709E0-1CF5-4460-A069-D12E1243E2AD/UniversalMac_13.4_22F5027f_Restore.ipsw",
