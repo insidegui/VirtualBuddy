@@ -58,14 +58,6 @@
   ],
   "restoreImages": [
     {
-      "group": "sonoma",
-      "name": "macOS 14 Developer Beta 1",
-      "build": "23A5257q",
-      "url": "https://developer.apple.com/services-account/download?path=%2FWWDC_2023%2FmacOS_14_Beta_Restore_Images%2FUniversalMac_14.0_23A5257q_Restore.ipsw",
-      "channel": "devbeta",
-      "needsCookie": true
-    },
-    {
       "group": "ventura",
       "name": "macOS 13.5 Developer Beta 2",
       "build": "22G5038d",
