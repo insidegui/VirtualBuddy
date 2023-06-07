@@ -93,13 +93,13 @@ final class VMViewController: NSViewController {
         
         window.makeFirstResponder(vmView)
         
-//        screenshotter.activate(with: view)
+        screenshotter.activate(with: view)
     }
 
     override func viewWillDisappear() {
         super.viewWillDisappear()
 
-//        screenshotter.invalidate()
+        screenshotter.invalidate()
     }
 
 }

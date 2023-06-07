@@ -85,18 +85,19 @@ final class VMScreenshotter {
             logger.fault("Couldn't get view and/or root layer for screenshot")
             return nil
         }
-
-        if let surface = rootLayer.sublayers?.first?.sublayers?.first?.contents as? IOSurface {
-            let ciImage = CIImage(ioSurface: surface)
-            let rect = CGRect(x: 0, y: 0, width: surface.width, height: surface.height)
-            guard let cgImage = context.createCGImage(ciImage, from: rect) else {
-                logger.error("Failed to create CG image from IOSurface")
-                return nil
-            }
-            let result = NSImage(cgImage: cgImage, size: rect.size)
-            return result
-        } else {
-            logger.warning("Couldn't get IOSurface for screenshot, falling back to root layer")
+        
+//        This caused flickering in the view:
+//        if let surface = rootLayer.sublayers?.first?.sublayers?.first?.contents as? IOSurface {
+//            let ciImage = CIImage(ioSurface: surface)
+//            let rect = CGRect(x: 0, y: 0, width: surface.width, height: surface.height)
+//            guard let cgImage = context.createCGImage(ciImage, from: rect) else {
+//                logger.error("Failed to create CG image from IOSurface")
+//                return nil
+//            }
+//            let result = NSImage(cgImage: cgImage, size: rect.size)
+//            return result
+//        } else {
+//            logger.warning("Couldn't get IOSurface for screenshot, falling back to root layer")
 
             return NSImage(size: view.bounds.size, flipped: false) { [weak rootLayer] rect in
                 guard let rootLayer else { return false }
@@ -106,7 +107,7 @@ final class VMScreenshotter {
 
                 return true
             }
-        }
+//        }
     }
 
 }
