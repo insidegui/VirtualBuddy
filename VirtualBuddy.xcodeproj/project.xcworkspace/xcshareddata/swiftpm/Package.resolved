@@ -1,0 +1,23 @@
+{
+  "pins" : [
+    {
+      "identity" : "multipeerkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/MultipeerKit.git",
+      "state" : {
+        "revision" : "ee013fd04f20166ea40ff456a67058c040289c1c",
+        "version" : "0.4.0"
+      }
+    },
+    {
+      "identity" : "sparkle",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/sparkle-project/Sparkle",
+      "state" : {
+        "revision" : "286edd1fa22505a9e54d170e9fd07d775ea233f2",
+        "version" : "2.1.0"
+      }
+    }
+  ],
+  "version" : 2
+}
