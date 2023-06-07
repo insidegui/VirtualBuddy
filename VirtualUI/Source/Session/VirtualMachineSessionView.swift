@@ -55,6 +55,9 @@ public struct VirtualMachineSessionView: View {
             .onReceive(ui.setWindowAspectRatio) { ratio in
                 vbWindow?.applyAspectRatio(ratio)
             }
+            .onReceive(screenshotTaken) { data in
+                controller.storeScreenshot(with: data)
+            }
     }
     
     @ViewBuilder
@@ -72,12 +75,15 @@ public struct VirtualMachineSessionView: View {
             pausedView(with: vm)
         }
     }
-    
+
+    private let screenshotTaken = VMScreenshotter.Subject()
+
     @ViewBuilder
     private func vmView(with vm: VZVirtualMachine) -> some View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
-            captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys
+            captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
+            screenshotSubject: screenshotTaken
         )
     }
     

@@ -16,14 +16,10 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     
     @Binding var controllerState: VMController.State
     let captureSystemKeys: Bool
-    
-    init(controllerState: Binding<VMController.State>, captureSystemKeys: Bool) {
-        self._controllerState = controllerState
-        self.captureSystemKeys = captureSystemKeys
-    }
-    
+    let screenshotSubject: VMScreenshotter.Subject
+
     func makeNSViewController(context: Context) -> VMViewController {
-        let controller = VMViewController()
+        let controller = VMViewController(screenshotSubject: screenshotSubject)
         controller.captureSystemKeys = captureSystemKeys
         return controller
     }
@@ -47,10 +43,18 @@ final class VMViewController: NSViewController {
         }
     }
 
-    convenience init() {
-        self.init(nibName: nil, bundle: nil)
+    let screenshotSubject: VMScreenshotter.Subject
+
+    init(screenshotSubject: VMScreenshotter.Subject) {
+        self.screenshotSubject = screenshotSubject
+
+        super.init(nibName: nil, bundle: nil)
     }
-    
+
+    required init?(coder: NSCoder) {
+        fatalError()
+    }
+
     var virtualMachine: VZVirtualMachine? {
         didSet {
             vmView.virtualMachine = virtualMachine
@@ -77,17 +81,25 @@ final class VMViewController: NSViewController {
             vmView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
-    
+
+    private lazy var screenshotter: VMScreenshotter = {
+        VMScreenshotter(interval: 15, screenshotSubject: screenshotSubject)
+    }()
+
     override func viewDidAppear() {
         super.viewDidAppear()
         
-        print("viewDidAppear")
-        
         guard let window = view.window else { return }
         
-        let result = window.makeFirstResponder(vmView)
+        window.makeFirstResponder(vmView)
         
-        print("makeFirstResponder = \(result)")
+//        screenshotter.activate(with: view)
     }
-    
+
+    override func viewWillDisappear() {
+        super.viewWillDisappear()
+
+//        screenshotter.invalidate()
+    }
+
 }

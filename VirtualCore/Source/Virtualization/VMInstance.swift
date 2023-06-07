@@ -168,18 +168,12 @@ public final class VMInstance: NSObject, ObservableObject {
         _wormhole = WormholeManager(for: .host)
     }
     
-    private var hookingPoint: VBObjCHookingPoint?
-    
     func startVM() async throws {
         try await createVirtualMachine()
         
         let vm = try ensureVM()
-        
-        hookingPoint = VBObjCHookingPoint(vm: vm)
 
         vm.delegate = self
-        
-        hookingPoint?.hook()
 
         if #available(macOS 13, *) {
             try await vm.start(options: startOptions)
@@ -244,16 +238,6 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         
         return vm
-    }
-    
-    func takeScreenshot() async throws -> NSImage {
-        guard let fb = _virtualMachine?._graphicsDevices.first?.framebuffers().first else {
-            throw Failure("Couldn't get framebuffer")
-        }
-        
-        let screenshot = try await fb.takeScreenshot()
-        
-        return screenshot
     }
     
 }
