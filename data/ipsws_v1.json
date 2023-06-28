@@ -75,14 +75,6 @@
     },
     {
       "group": "ventura",
-      "name": "macOS 13.4.1",
-      "build": "22F2083",
-      "url": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01864/A8378F91-BA71-40DF-8F0D-606A16F1836B/UniversalMac_13.4.1_22F2083_Restore.ipsw",
-      "channel": "regular",
-      "needsCookie": false
-    },
-    {
-      "group": "ventura",
       "name": "macOS 13.5 Developer Beta 4",
       "build": "22G5059d",
       "url": "https://updates.cdn-apple.com/2023SpringSeed/fullrestores/042-03209/55CBE04D-FD90-483B-A6D7-45E0FBC1C94F/UniversalMac_13.5_22G5059d_Restore.ipsw",
@@ -111,6 +103,14 @@
       "build": "22G5027e",
       "url": "https://updates.cdn-apple.com/2023SpringSeed/fullrestores/032-86178/CE6C5645-C5C3-41A9-B986-D5F0BD7BB10B/UniversalMac_13.5_22G5027e_Restore.ipsw",
       "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "ventura",
+      "name": "macOS 13.4.1",
+      "build": "22F2083",
+      "url": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01864/A8378F91-BA71-40DF-8F0D-606A16F1836B/UniversalMac_13.4.1_22F2083_Restore.ipsw",
+      "channel": "regular",
       "needsCookie": false
     },
     {
