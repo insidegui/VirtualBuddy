@@ -9,6 +9,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// Classes defined here are no longer SPI in macOS 14
+#if !defined(MAC_OS_VERSION_14_0)
+
+__attribute__((weak_import))
 @interface _VZFramebuffer: NSObject
 
 - (void)takeScreenshotWithCompletionHandler:(void(^)(NSImage *__nullable screenshot, NSError *__nullable error))completion;
@@ -21,6 +25,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray <_VZFramebuffer *> *)framebuffers;
 
 @end
+
+#endif
 
 @interface _VZMultiTouchDeviceConfiguration: NSObject <NSCopying>
 @end
@@ -81,7 +87,9 @@ __attribute__((weak_import))
 - (BOOL)_detachUSBDevice:(id)arg1 error:(void *)arg2;
 - (void)_getUSBControllerLocationIDWithCompletionHandler:(void(^)(id val))arg1;
 
+#if !defined(MAC_OS_VERSION_14_0)
 @property (nonatomic, readonly) NSArray <_VZGraphicsDevice *> *_graphicsDevices;
+#endif
 
 @end
 

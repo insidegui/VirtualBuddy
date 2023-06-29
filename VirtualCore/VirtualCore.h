@@ -16,4 +16,3 @@ FOUNDATION_EXPORT const unsigned char VirtualCoreVersionString[];
 // In this header, you should import all the public headers of your framework using statements like #import <VirtualCore/PublicHeader.h>
 
 #import <VirtualCore/VirtualizationPrivate.h>
-#import <VirtualCore/VBObjCHookingPoint.h>
