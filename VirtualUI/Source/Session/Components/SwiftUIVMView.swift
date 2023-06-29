@@ -16,15 +16,19 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     
     @Binding var controllerState: VMController.State
     let captureSystemKeys: Bool
+    @Binding var automaticallyReconfiguresDisplay: Bool
     let screenshotSubject: VMScreenshotter.Subject
 
     func makeNSViewController(context: Context) -> VMViewController {
         let controller = VMViewController(screenshotSubject: screenshotSubject)
         controller.captureSystemKeys = captureSystemKeys
+        controller.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
         return controller
     }
     
     func updateNSViewController(_ nsViewController: VMViewController, context: Context) {
+        nsViewController.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
+
         if case .running(let vm) = controllerState {
             nsViewController.virtualMachine = vm
         } else {
@@ -40,6 +44,13 @@ final class VMViewController: NSViewController {
         didSet {
             guard captureSystemKeys != oldValue, isViewLoaded else { return }
             vmView.capturesSystemKeys = captureSystemKeys
+        }
+    }
+
+    var automaticallyReconfiguresDisplay: Bool = true {
+        didSet {
+            guard #available(macOS 14.0, *) else { return }
+            vmView.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
         }
     }
 
@@ -71,6 +82,11 @@ final class VMViewController: NSViewController {
         view.layer?.backgroundColor = NSColor.black.cgColor
         
         vmView.capturesSystemKeys = captureSystemKeys
+
+        if #available(macOS 14.0, *) {
+            vmView.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
+        }
+
         vmView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(vmView)
 
