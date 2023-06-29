@@ -121,6 +121,7 @@ public final class VMInstance: NSObject, ObservableObject {
         c.networkDevices = try model.configuration.vzNetworkDevices
         c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
+        c.entropyDevices = helper.createEntropyDevices()
         c.audioDevices = model.configuration.vzAudioDevices
         c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
         

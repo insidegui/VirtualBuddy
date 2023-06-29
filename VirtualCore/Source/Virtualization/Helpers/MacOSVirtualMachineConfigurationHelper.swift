@@ -37,6 +37,18 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
 
         return devices
     }
+
+    func createKeyboardConfiguration() -> VZKeyboardConfiguration {
+        if #available(macOS 14.0, *) {
+            return VZMacKeyboardConfiguration()
+        } else {
+            return VZUSBKeyboardConfiguration()
+        }
+    }
+
+    func createEntropyDevices() -> [VZEntropyDeviceConfiguration] {
+        [VZVirtioEntropyDeviceConfiguration()]
+    }
 }
 
 // MARK: - Configuration Models -> Virtualization

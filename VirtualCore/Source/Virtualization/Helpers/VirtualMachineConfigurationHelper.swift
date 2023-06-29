@@ -16,6 +16,7 @@ protocol VirtualMachineConfigurationHelper {
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration]
     func createKeyboardConfiguration() -> VZKeyboardConfiguration
     func createGraphicsDevices() -> [VZGraphicsDeviceConfiguration]
+    func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration]
 }
 
 extension VirtualMachineConfigurationHelper {
@@ -48,6 +49,8 @@ extension VirtualMachineConfigurationHelper {
     func createKeyboardConfiguration() -> VZKeyboardConfiguration {
         VZUSBKeyboardConfiguration()
     }
+
+    func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration] { [] }
 
 }
 
