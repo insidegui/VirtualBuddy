@@ -5,16 +5,22 @@
 //  Created by Guilherme Rambo on 02/06/22.
 //
 
-import Foundation
-import Virtualization
+import Cocoa
 import OSLog
 
-struct ClipboardMessage: Codable {
-    let timestamp: Int
-    let stringValue: String?
+struct ClipboardData: Codable, Hashable {
+    var type: NSPasteboard.PasteboardType.RawValue
+    var value: Data
+}
+
+struct ClipboardMessage: Codable, Hashable {
+    var timestamp: Date
+    var data: [ClipboardData]
 }
 
 final class WHSharedClipboardService: WormholeService {
+
+    static let id = "clipboard"
     
     private lazy var logger = Logger(for: Self.self)
 
@@ -29,22 +35,29 @@ final class WHSharedClipboardService: WormholeService {
     func activate() {
         logger.debug(#function)
 
-        connection.receive(ClipboardMessage.self) { [weak self] in
-            self?.handle($0)
+        Task {
+            for try await message in connection.stream(for: ClipboardMessage.self) {
+                handle(message.payload)
+            }
         }
-        
+
         startObservingClipboard()
     }
+
+    private let pasteboard = NSPasteboard.general
     
     private func handle(_ message: ClipboardMessage) {
-        guard let str = message.stringValue, str != previousMessage?.stringValue else { return }
+        guard !message.data.isEmpty, message.data != previousMessage?.data else { return }
         
         logger.debug("Handle clipboard message: \(String(describing: message))")
         
         previousMessage = message
         
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(str, forType: .string)
+        pasteboard.read(from: message.data)
+
+        #if DEBUG
+        logger.debug("⏱️ Clipboard message roundtrip time: \(String(format: "%.03f", Date.now.timeIntervalSince(message.timestamp)), privacy: .public)")
+        #endif
     }
     
     private var clipboardTimer: Timer?
@@ -56,19 +69,53 @@ final class WHSharedClipboardService: WormholeService {
     }
     
     private func updateIfNeeded() {
-        guard let str = NSPasteboard.general.string(forType: .string) else { return }
-        guard str != previousMessage?.stringValue else { return }
-        
-        logger.debug("Clipboard contents changed")
+        let currentData = ClipboardData.current
+        guard currentData != previousMessage?.data else { return }
+
+        #if DEBUG
+        logger.debug("Clipboard contents changed: \(String(describing: currentData), privacy: .public)")
+        #endif
         
         let message = ClipboardMessage(
-            timestamp: Int(Date().timeIntervalSinceReferenceDate),
-            stringValue: str
+            timestamp: .now,
+            data: currentData
         )
         
         previousMessage = message
         
-        connection.send(message)
+        Task {
+            await connection.send(message, to: nil)
+        }
     }
 
+}
+
+private extension ClipboardData {
+    static let supportedTypes: [NSPasteboard.PasteboardType] = [
+        .string,
+        .rtf,
+        .rtfd,
+        .pdf,
+        .png,
+        .tiff,
+    ]
+
+    static var current: [ClipboardData] {
+        return supportedTypes.compactMap { type in
+            guard let data = NSPasteboard.general.data(forType: type) else {
+                return nil
+            }
+            return ClipboardData(type: type.rawValue, value: data)
+        }
+    }
+}
+
+private extension NSPasteboard {
+    func read(from data: [ClipboardData]) {
+        clearContents()
+
+        for item in data {
+            setData(item.value, forType: PasteboardType(rawValue: item.type))
+        }
+    }
 }

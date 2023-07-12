@@ -28,35 +28,41 @@ struct SharedFoldersManagementView: View {
     @State private var isShowingHelpPopover = false
     
     var body: some View {
-        GroupedList {
-            List(selection: $selection) {
-                ForEach($configuration.sharedFolders) { $folder in
-                    SharedFolderListItem(folder: $folder)
-                        .contextMenu { folderMenu(for: $folder) }
-                        .tag(folder.id)
+        VStack(alignment: .leading, spacing: 16) {
+            GroupedList {
+                List(selection: $selection) {
+                    ForEach($configuration.sharedFolders) { $folder in
+                        SharedFolderListItem(folder: $folder)
+                            .contextMenu { folderMenu(for: $folder) }
+                            .tag(folder.id)
+                    }
                 }
+            } headerAccessory: {
+                headerAccessory
+            } footerAccessory: {
+                EmptyView()
+            } emptyOverlay: {
+                emptyOverlay
+            } addButton: { label in
+                Button {
+                    addFolder()
+                } label: {
+                    label
+                }
+                .help("Add shared folder")
+            } removeButton: { label in
+                Button {
+                    confirmRemoval()
+                } label: {
+                    label
+                }
+                .help("Remove selection from shared folders")
+                .disabled(selection.isEmpty)
             }
-        } headerAccessory: {
-            headerAccessory
-        } footerAccessory: {
-            EmptyView()
-        } emptyOverlay: {
-            emptyOverlay
-        } addButton: { label in
-            Button {
-                addFolder()
-            } label: {
-                label
-            }
-            .help("Add shared folder")
-        } removeButton: { label in
-            Button {
-                confirmRemoval()
-            } label: {
-                label
-            }
-            .help("Remove selection from shared folders")
-            .disabled(selection.isEmpty)
+
+            Text(VBMacConfiguration.fileSharingNotice)
+                .font(.caption)
+                .foregroundColor(.yellow)
         }
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didMountNotification)) { note in
             availabilityProvider.refreshAvailabilityIfNeeded(with: note)

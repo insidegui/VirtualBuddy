@@ -16,6 +16,7 @@ protocol VirtualMachineConfigurationHelper {
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration]
     func createKeyboardConfiguration() -> VZKeyboardConfiguration
     func createGraphicsDevices() -> [VZGraphicsDeviceConfiguration]
+    func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration]
 }
 
 extension VirtualMachineConfigurationHelper {
@@ -42,24 +43,34 @@ extension VirtualMachineConfigurationHelper {
     }
     
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
-        var output = [VZVirtioBlockDeviceConfiguration]()
-
-        for device in vm.configuration.hardware.storageDevices {
-            guard device.isEnabled, !device.isBootVolume else { continue }
-            
-            let url = vm.diskImageURL(for: device)
-            let attachment = try VZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly)
-
-            output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
-        }
-
-        return output
+        try vm.additionalBlockDevices
     }
 
     func createKeyboardConfiguration() -> VZKeyboardConfiguration {
-        return VZUSBKeyboardConfiguration()
+        VZUSBKeyboardConfiguration()
     }
 
+    func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration] { [] }
+
+}
+
+extension VBVirtualMachine {
+    var additionalBlockDevices: [VZVirtioBlockDeviceConfiguration] {
+        get throws {
+            var output = [VZVirtioBlockDeviceConfiguration]()
+
+            for device in configuration.hardware.storageDevices {
+                guard device.isEnabled, !device.isBootVolume else { continue }
+
+                let url = diskImageURL(for: device)
+                let attachment = try VZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly)
+
+                output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
+            }
+
+            return output
+        }
+    }
 }
 
 extension VBMacConfiguration {

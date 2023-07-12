@@ -41,9 +41,7 @@ public final class VMController: ObservableObject {
     }
     
     @Published
-    public private(set) var state = State.idle {
-        didSet { updateScreenshotter() }
-    }
+    public private(set) var state = State.idle
     
     private(set) var virtualMachine: VZVirtualMachine?
 
@@ -84,8 +82,6 @@ public final class VMController: ObservableObject {
         
         return newInstance
     }
-    
-    private lazy var screenshotter = VMScreenshotter(interval: 15)
 
     public func startVM() async {
         state = .starting
@@ -105,8 +101,6 @@ public final class VMController: ObservableObject {
     }
     
     public func pause() async throws {
-        screenshotter.capture()
-        
         let instance = try ensureInstance()
         
         try await instance.pause()
@@ -125,8 +119,6 @@ public final class VMController: ObservableObject {
     }
     
     public func stop() async throws {
-        screenshotter.capture()
-        
         let instance = try ensureInstance()
         
         try await instance.stop()
@@ -135,8 +127,6 @@ public final class VMController: ObservableObject {
     }
     
     public func forceStop() async throws {
-        screenshotter.capture()
-        
         let instance = try ensureInstance()
         
         try await instance.forceStop()
@@ -152,6 +142,15 @@ public final class VMController: ObservableObject {
         instance.options = options
         
         return instance
+    }
+
+    public func storeScreenshot(with data: Data) {
+        do {
+            try virtualMachineModel.write(data, forMetadataFileNamed: VBVirtualMachine.screenshotFileName)
+            try virtualMachineModel.invalidateThumbnail()
+        } catch {
+            logger.error("Error storing screenshot: \(error)")
+        }
     }
 
 }
@@ -182,21 +181,6 @@ public extension VMController {
             return true
         default:
             return false
-        }
-    }
-    
-}
-
-private extension VMController {
-    
-    func updateScreenshotter() {
-        switch state {
-        case .idle, .paused, .stopped, .starting:
-            screenshotter.invalidate()
-        case .running:
-            guard let instance = try? ensureInstance() else { return }
-            
-            screenshotter.activate(with: instance)
         }
     }
     

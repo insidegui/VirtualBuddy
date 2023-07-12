@@ -13,6 +13,12 @@ struct VirtualUIConstants {
     static let subsystemName = "codes.rambo.VirtualUI"
 }
 
+@available(swift, obsoleted: 1.0, message: "Provided for Objective-C compatibility, don't use in Swift code.")
+@objcMembers
+public final class _VirtualUIConstantsObjC: NSObject {
+    public class var subsystemName: String { VirtualUIConstants.subsystemName }
+}
+
 private final class _VirtualUIStub { }
 
 public extension Bundle {

@@ -23,8 +23,6 @@ public final class VMInstance: NSObject, ObservableObject {
 
     private var _virtualMachine: VZVirtualMachine?
     
-    private var _wormhole: WormholeManager?
-    
     var virtualMachine: VZVirtualMachine {
         get throws {
             guard let vm = _virtualMachine else {
@@ -35,15 +33,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
     
-    var wormhole: WormholeManager {
-        get throws {
-            guard let wh = _wormhole else {
-                throw CocoaError(.validationMissingMandatoryProperty)
-            }
-            
-            return wh
-        }
-    }
+    let wormhole: WormholeManager = .sharedHost
     
     private var isLoadingNVRAM = false
     
@@ -131,13 +121,14 @@ public final class VMInstance: NSObject, ObservableObject {
         c.networkDevices = try model.configuration.vzNetworkDevices
         c.pointingDevices = try model.configuration.vzPointingDevices
         c.keyboards = [helper.createKeyboardConfiguration()]
+        c.entropyDevices = helper.createEntropyDevices()
         c.audioDevices = model.configuration.vzAudioDevices
         c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
         
         if #available(macOS 13.0, *), let clipboardSync = model.configuration.vzClipboardSyncDevice {
             c.consoleDevices = [clipboardSync]
         }
-        
+
         let bootDevice = try await helper.createBootBlockDevice()
         let additionalBlockDevices = try await helper.createAdditionalBlockDevices()
 
@@ -155,6 +146,8 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage) // add install iso here for linux (hack)
 
+        await setupWormhole(for: config)
+
         do {
             try config.validate()
         } catch {
@@ -164,22 +157,66 @@ public final class VMInstance: NSObject, ObservableObject {
         }
 
         _virtualMachine = VZVirtualMachine(configuration: config)
-        
-        _wormhole = WormholeManager(for: .host)
     }
-    
-    private var hookingPoint: VBObjCHookingPoint?
+
+    private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
+        guard virtualMachineModel.configuration.systemType == .mac else { return }
+
+        wormhole.activate()
+
+        let guestPort = VZVirtioConsoleDeviceSerialPortConfiguration()
+
+        let inputPipe = Pipe()
+        let outputPipe = Pipe()
+
+        let inputHandle = inputPipe.fileHandleForWriting
+        let outputHandle = outputPipe.fileHandleForReading
+
+        guestPort.attachment = VZFileHandleSerialPortAttachment(
+            fileHandleForReading: outputHandle,
+            fileHandleForWriting: inputHandle
+        )
+
+        config.serialPorts = [guestPort]
+
+        await wormhole.register(
+            input: inputPipe.fileHandleForReading,
+            output: outputPipe.fileHandleForWriting,
+            for: virtualMachineModel.wormholeID
+        )
+
+        streamGuestNotifications()
+    }
+
+    public func streamGuestNotifications() {
+        logger.debug(#function)
+        
+        let notificationNames: Set<String> = [
+            "com.apple.shieldWindowRaised",
+            "com.apple.shieldWindowLowered"
+        ]
+
+        Task {
+            do {
+                for await notification in try await wormhole.darwinNotifications(matching: notificationNames, from: virtualMachineModel.wormholeID) {
+                    if notification == "com.apple.shieldWindowRaised" {
+                        logger.debug("🔒 Guest locked")
+                    } else if notification == "com.apple.shieldWindowLowered" {
+                        logger.debug("🔓 Guest unlocked")
+                    }
+                }
+            } catch {
+                logger.error("Error subscribing to Darwin notifications: \(error, privacy: .public)")
+            }
+        }
+    }
     
     func startVM() async throws {
         try await createVirtualMachine()
         
         let vm = try ensureVM()
-        
-        hookingPoint = VBObjCHookingPoint(vm: vm)
 
         vm.delegate = self
-        
-        hookingPoint?.hook()
 
         if #available(macOS 13, *) {
             try await vm.start(options: startOptions)
@@ -246,16 +283,6 @@ public final class VMInstance: NSObject, ObservableObject {
         return vm
     }
     
-    func takeScreenshot() async throws -> NSImage {
-        guard let fb = _virtualMachine?._graphicsDevices.first?.framebuffers().first else {
-            throw Failure("Couldn't get framebuffer")
-        }
-        
-        let screenshot = try await fb.takeScreenshot()
-        
-        return screenshot
-    }
-    
 }
 
 // MARK: - VZVirtualMachineDelegate
@@ -263,29 +290,33 @@ public final class VMInstance: NSObject, ObservableObject {
 extension VMInstance: VZVirtualMachineDelegate {
     
     public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
-        logger.error("Stopped with error: \(String(describing: error), privacy: .public)")
-
-        DispatchQueue.main.async { [self] in
-            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
-            
-            _wormhole = nil
-            
-            onVMStop(error)
-        }
+        handleGuestStopped(with: error)
     }
 
     public func guestDidStop(_ virtualMachine: VZVirtualMachine) {
-        DispatchQueue.main.async { [self] in
-            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
-
-            _wormhole = nil
-            
-            onVMStop(nil)
-        }
+        handleGuestStopped(with: nil)
     }
     
     public func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
         
+    }
+
+    private func handleGuestStopped(with error: Error?) {
+        if let error {
+            logger.error("Guest stopped with error: \(String(describing: error), privacy: .public)")
+        } else {
+            logger.debug("Guest stopped")
+        }
+
+        DispatchQueue.main.async { [self] in
+            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
+
+            Task {
+                await wormhole.unregister(virtualMachineModel.wormholeID)
+            }
+
+            onVMStop(error)
+        }
     }
     
 }
@@ -305,4 +336,15 @@ extension NSApplication {
         entitlementValue(for: entitlement) == true
     }
     
+}
+
+private extension VBVirtualMachine {
+    /// ``VBVirtualMachine/id`` uses the VM's filesystem URL,
+    /// but that looks ugly in logs and whatnot, so this returns a cleaned up version.
+    var wormholeID: WHPeerID {
+        let cleanID = URL(fileURLWithPath: id)
+            .deletingPathExtension()
+            .lastPathComponent
+        return cleanID.removingPercentEncoding ?? cleanID
+    }
 }

@@ -23,7 +23,7 @@ public extension VBMacConfiguration {
             
             try config.validate()
             
-            return .supported
+            return hostSupportState
         } catch {
             return hostSupportState.merged(with: .unsupported([error.localizedDescription]))
         }
@@ -45,6 +45,13 @@ public extension VBMacConfiguration {
         if sharedClipboardEnabled, !VBMacConfiguration.isNativeClipboardSharingSupported {
             warnings.append(VBMacConfiguration.clipboardSharingNotice)
         }
+        if hasSharedFolders {
+            if VBMacConfiguration.isFileSharingSupported {
+                warnings.append(VBMacConfiguration.fileSharingNotice)
+            } else {
+                errors.append(VBMacConfiguration.fileSharingNotice)
+            }
+        }
         if hardware.networkDevices.contains(where: { $0.kind == .bridge }), !VBNetworkDevice.appSupportsBridgedNetworking {
             errors.append(VBNetworkDevice.bridgeUnsupportedMessage)
         }
@@ -60,6 +67,14 @@ public extension VBMacConfiguration {
         }
     }()
 
+    static let isFileSharingSupported: Bool = {
+        if #available(macOS 13.0, *) {
+            return true
+        } else {
+            return false
+        }
+    }()
+
     static let clipboardSharingNotice: String = {
         let guestAppInfo = "To use clipboard sync with previous versions of macOS, you can use the VirtualBuddyGuest app."
 
@@ -67,6 +82,16 @@ public extension VBMacConfiguration {
             return "Clipboard sync requires the virtual machine to be running macOS 13 or later. \(guestAppInfo)"
         } else {
             return "Clipboard sync requires macOS 13 or later. \(guestAppInfo)"
+        }
+    }()
+
+    static let fileSharingNotice: String = {
+        let tip = "For previous OS versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
+
+        if isFileSharingSupported {
+            return "File sharing requires the virtual machine to be running macOS 13 or later. \(tip)"
+        } else {
+            return "File sharing requires both the host Mac and the virtual machine to be running macOS 13 or later. \(tip)"
         }
     }()
 }

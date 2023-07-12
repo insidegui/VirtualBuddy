@@ -26,6 +26,29 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
         
         return [graphicsConfiguration]
     }
+
+    func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
+        var devices = try vm.additionalBlockDevices
+
+        if vm.configuration.guestAdditionsEnabled {
+            let guestDisk = try VZVirtioBlockDeviceConfiguration.guestAdditionsDisk
+            devices.append(guestDisk)
+        }
+
+        return devices
+    }
+
+    func createKeyboardConfiguration() -> VZKeyboardConfiguration {
+        if #available(macOS 14.0, *) {
+            return VZMacKeyboardConfiguration()
+        } else {
+            return VZUSBKeyboardConfiguration()
+        }
+    }
+
+    func createEntropyDevices() -> [VZEntropyDeviceConfiguration] {
+        [VZVirtioEntropyDeviceConfiguration()]
+    }
 }
 
 // MARK: - Configuration Models -> Virtualization

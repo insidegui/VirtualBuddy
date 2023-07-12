@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>com.apple.Terminal</key>
+	<dict>
+		<key>target</key>
+		<dict>
+			<key>bundleIdentifier</key>
+			<string>com.apple.Terminal</string>
+			<key>name</key>
+			<string>Terminal</string>
+			<key>isSystemService</key>
+			<false/>
+		</dict>
+		<key>ignoredKeyPaths</key>
+		<array/>
+		<key>restart</key>
+		<dict>
+			<key>command</key>
+			<string>killall Terminal &amp;&amp; sleep 1</string>
+			<key>needsConfirmation</key>
+			<true/>
+			<key>shouldRelaunch</key>
+			<true/>
+		</dict>
+	</dict>
+	<key>com.apple.Dock</key>
+	<dict>
+		<key>target</key>
+		<dict>
+			<key>bundleIdentifier</key>
+			<string>com.apple.Dock</string>
+			<key>name</key>
+			<string>Dock</string>
+			<key>isSystemService</key>
+			<true/>
+		</dict>
+		<key>ignoredKeyPaths</key>
+		<array>
+			<string>persistent-apps</string>
+			<string>persistent-others</string>
+			<string>recent-apps</string>
+		</array>
+		<key>restart</key>
+		<dict>
+			<key>command</key>
+			<string>killall Dock</string>
+			<key>needsConfirmation</key>
+			<false/>
+			<key>shouldRelaunch</key>
+			<false/>
+		</dict>
+	</dict>
+	<key>com.apple.Finder</key>
+	<dict>
+		<key>target</key>
+		<dict>
+			<key>bundleIdentifier</key>
+			<string>com.apple.Finder</string>
+			<key>name</key>
+			<string>Finder</string>
+			<key>isSystemService</key>
+			<true/>
+		</dict>
+		<key>ignoredKeyPaths</key>
+		<array>
+			<string>NSNavLastRootDirectory</string>
+			<string>RecentMoveAndCopyDestinations</string>
+			<string>NewWindowTargetPath</string>
+			<string>FXConnectToLastURL</string>
+			<string>GoToField</string>
+			<string>GoToFieldHistory</string>
+		</array>
+		<key>restart</key>
+		<dict>
+			<key>command</key>
+			<string>killall Finder</string>
+			<key>needsConfirmation</key>
+			<false/>
+			<key>shouldRelaunch</key>
+			<false/>
+		</dict>
+	</dict>
+</dict>
+</plist>
