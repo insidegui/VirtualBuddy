@@ -453,7 +453,7 @@ public extension VBDisplayDevice {
     static var matchHost: VBDisplayDevice {
         guard let screen = NSScreen.main else { return .fallback }
 
-        guard let resolution = screen.deviceDescription[.resolution] as? NSSize else { return .fallback }
+        let resolution = screen.dpi
         guard let size = screen.deviceDescription[.size] as? NSSize else { return .fallback }
 
         let pointHeight = size.height - screen.safeAreaInsets.top
@@ -606,7 +606,7 @@ public extension VBDisplayDevice {
         minimumDisplayDimension...maximumDisplayHeight
     }()
 
-    static let minimumDisplayPPI = 80
+    static let minimumDisplayPPI = 72
 
     static let maximumDisplayPPI = 218
 
@@ -654,4 +654,10 @@ public extension ProcessInfo {
     }
     
     var vb_mainDisplayHasNotch: Bool { NSScreen.main?.auxiliaryTopLeftArea != nil }
+}
+
+public extension NSScreen {
+    var dpi: CGSize {
+        (deviceDescription[NSDeviceDescriptionKey.resolution] as? CGSize) ?? CGSize(width: 72.0, height: 72.0)
+    }
 }

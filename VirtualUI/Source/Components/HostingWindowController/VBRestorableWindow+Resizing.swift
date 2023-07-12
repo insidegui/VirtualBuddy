@@ -68,17 +68,11 @@ extension VBRestorableWindow {
             return
         }
 
-        aspectRatio = ratio
+        contentAspectRatio = ratio
 
-        let newFrame = frameRect(forContentRect: AVMakeRect(aspectRatio: ratio, insideRect: frame))
+        let newFrame = frameRect(forContentRect: AVMakeRect(aspectRatio: ratio, insideRect: contentRect(forFrameRect: frame)))
 
         setFrame(newFrame, display: true)
     }
 
-}
-
-extension NSScreen {
-    var dpi: CGSize {
-        (deviceDescription[NSDeviceDescriptionKey.resolution] as? CGSize) ?? CGSize(width: 72.0, height: 72.0)
-    }
 }
