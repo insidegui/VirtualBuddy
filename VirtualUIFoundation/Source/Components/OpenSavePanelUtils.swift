@@ -2,7 +2,7 @@ import SwiftUI
 import UniformTypeIdentifiers
 import OSLog
 
-private let logger = Logger(subsystem: VirtualUIConstants.subsystemName, category: "OpenSavePanelUtils")
+private let logger = Logger(subsystem: VUIFConstants.subsystemName, category: "OpenSavePanelUtils")
 
 public extension NSOpenPanel {
 

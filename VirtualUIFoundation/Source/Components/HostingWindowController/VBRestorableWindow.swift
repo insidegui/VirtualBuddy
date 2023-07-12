@@ -7,9 +7,9 @@
 
 import Cocoa
 
-class VBRestorableWindow: NSWindow {
+open class VBRestorableWindow: NSWindow {
 
-    override func close() {
+    open override func close() {
         vbSaveFrame()
 
         super.close()
@@ -22,7 +22,7 @@ class VBRestorableWindow: NSWindow {
         return "window-\(identifier.rawValue)-\(screenNumber)"
     }
 
-    var hasSavedFrame: Bool { savedFrame != nil }
+    open var hasSavedFrame: Bool { savedFrame != nil }
 
     private var savedFrame: NSRect? {
         guard let savedFrameKey else { return nil }
@@ -34,7 +34,7 @@ class VBRestorableWindow: NSWindow {
 
     private var keyRequested = false
 
-    override func makeKey() {
+    open override func makeKey() {
         super.makeKey()
 
         defer { keyRequested = true }
@@ -50,7 +50,7 @@ class VBRestorableWindow: NSWindow {
         }
     }
 
-    override func center() {
+    open override func center() {
         guard savedFrame == nil else {
             makeKey()
             return
@@ -67,7 +67,7 @@ class VBRestorableWindow: NSWindow {
 
     private var frameConstraintsDisabled = false
 
-    func withFrameConstraintsDisabled(_ disabled: Bool = true, perform block: () -> Void) {
+    open func withFrameConstraintsDisabled(_ disabled: Bool = true, perform block: () -> Void) {
         NSObject.cancelPreviousPerformRequests(withTarget: self, selector: #selector(resetConstraintsDisabledFlag), object: nil)
 
         frameConstraintsDisabled = disabled
@@ -77,7 +77,7 @@ class VBRestorableWindow: NSWindow {
         perform(#selector(resetConstraintsDisabledFlag), with: nil, afterDelay: 0.2)
     }
 
-    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
+    open override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect {
         guard frameConstraintsDisabled else {
             return super.constrainFrameRect(frameRect, to: screen)
         }

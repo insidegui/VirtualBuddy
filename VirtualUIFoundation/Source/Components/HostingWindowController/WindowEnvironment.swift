@@ -130,7 +130,7 @@ private struct WindowOnOcclusionStateChangedEnvironmentKey: EnvironmentKey {
     static let defaultValue: ((NSWindow.OcclusionState) -> Void)? = nil
 }
 
-extension EnvironmentValues {
+public extension EnvironmentValues {
     
     private var windowChromeConsumer: WindowChromeConsumer? {
         cocoaWindow?.windowController as? WindowChromeConsumer

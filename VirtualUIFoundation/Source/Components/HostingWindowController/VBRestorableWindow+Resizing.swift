@@ -9,9 +9,15 @@ import Cocoa
 import AVFoundation
 import VirtualCore
 
-extension VBRestorableWindow {
+public enum VBRestorableWindowSize: Int {
+    case pointAccurate
+    case pixelAccurate
+    case fitScreen
+}
 
-    func resize(to size: VirtualMachineSessionUI.WindowSize, for display: VBDisplayDevice) {
+public extension VBRestorableWindow {
+
+    func resize(to size: VBRestorableWindowSize, for display: VBDisplayDevice) {
         guard let screen else { return }
 
         let targetSize: CGSize

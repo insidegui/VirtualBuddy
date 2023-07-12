@@ -8,6 +8,7 @@
 import Foundation
 import OSLog
 @_exported import VirtualCore
+@_exported import VirtualUIFoundation
 
 struct VirtualUIConstants {
     static let subsystemName = "codes.rambo.VirtualUI"

@@ -14,6 +14,3 @@ FOUNDATION_EXPORT double VirtualUIVersionNumber;
 FOUNDATION_EXPORT const unsigned char VirtualUIVersionString[];
 
 // In this header, you should import all the public headers of your framework using statements like #import <VirtualUI/PublicHeader.h>
-
-#import <VirtualUI/NSStatusItem+.h>
-#import <VirtualUI/NSApplication+MenuBar.h>

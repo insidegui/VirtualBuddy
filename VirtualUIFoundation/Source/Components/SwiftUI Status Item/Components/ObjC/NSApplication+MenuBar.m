@@ -4,7 +4,7 @@
 
 #import <dlfcn.h>
 
-#import <VirtualUI/VirtualUI-Swift.h>
+#import <VirtualUIFoundation/VirtualUIFoundation-Swift.h>
 
 Boolean __vui_softLinkHIMenuBarRequestVisibility(Boolean visibility, Boolean *outAlreadyInState, void (^completion)(void));
 
@@ -15,7 +15,7 @@ Boolean __vui_softLinkHIMenuBarRequestVisibility(Boolean visibility, Boolean *ou
     static os_log_t _log;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        _log = os_log_create([[_VirtualUIConstantsObjC subsystemName] UTF8String], "NSApplication+VUIMenuBar");
+        _log = os_log_create([[_VUIFConstantsObjC subsystemName] UTF8String], "NSApplication+VUIMenuBar");
     });
     return _log;
 }

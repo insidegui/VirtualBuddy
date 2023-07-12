@@ -7,7 +7,6 @@
 
 import SwiftUI
 import VirtualCore
-import VirtualUI
 import VirtualWormhole
 import Combine
 

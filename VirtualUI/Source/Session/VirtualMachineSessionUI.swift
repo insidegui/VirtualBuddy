@@ -9,6 +9,7 @@ import SwiftUI
 import VirtualCore
 import Combine
 import AVFoundation
+import VirtualUIFoundation
 
 public final class VirtualMachineSessionUIManager: ObservableObject {
     public let focusedSessionChanged = PassthroughSubject<VirtualMachineSessionUI?, Never>()
@@ -20,11 +21,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
 public final class VirtualMachineSessionUI: ObservableObject {
 
-    public enum WindowSize: Int {
-        case pointAccurate
-        case pixelAccurate
-        case fitScreen
-    }
+    public typealias WindowSize = VBRestorableWindowSize
 
     @Published public var lockProportions = false
 

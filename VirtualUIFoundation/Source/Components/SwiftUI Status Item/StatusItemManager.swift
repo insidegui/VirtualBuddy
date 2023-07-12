@@ -7,7 +7,7 @@ import notify
 public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProvider {
 
     private lazy var logger: Logger = {
-        Logger(subsystem: VirtualUIConstants.subsystemName, category: "StatusItemManager(\(configuration.id))")
+        Logger(subsystem: VUIFConstants.subsystemName, category: "StatusItemManager(\(configuration.id))")
     }()
 
     /// Configures the status item's identity and behavior.

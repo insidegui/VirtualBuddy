@@ -1,7 +1,7 @@
 import Cocoa
 import SwiftUI
-import VirtualUI
 import VirtualWormhole
+import VirtualUIFoundation
 
 @NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {

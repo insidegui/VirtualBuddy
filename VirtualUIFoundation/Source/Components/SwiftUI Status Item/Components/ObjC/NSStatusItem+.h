@@ -1,4 +1,4 @@
-@import Cocoa;
+#import <AppKit/AppKit.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

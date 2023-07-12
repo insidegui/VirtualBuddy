@@ -1,3 +1,5 @@
+// This file contains settings applied to the main VirtualBuddy app target only
+
 #include "Paths.xcconfig"
 
 CODE_SIGN_ENTITLEMENTS[config=Debug][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy.entitlements

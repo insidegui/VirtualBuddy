@@ -63,7 +63,7 @@ extension StatusBarPanelChrome where S == RoundedRectangle {
 
 extension Color {
 
-    static let statusItemPanelChromeBorder = Color("StatusItemPanelChromeBorder", bundle: .virtualUI)
+    static let statusItemPanelChromeBorder = Color("StatusItemPanelChromeBorder", bundle: .virtualUIFoundation)
 
 }
 

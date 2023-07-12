@@ -1,0 +1,7 @@
+// This file contains settings applied to components that are used by VirtualBuddyGuest
+
+#include "Main.xcconfig"
+
+// VirtualBuddy requires macOS Ventura and later
+// VirtualBuddyGuest and components that it uses support macOS Monterey and later
+MACOSX_DEPLOYMENT_TARGET = 12.3
