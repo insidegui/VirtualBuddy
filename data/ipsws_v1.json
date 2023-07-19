@@ -91,6 +91,14 @@
     },
     {
       "group": "ventura",
+      "name": "macOS 13.5 RC",
+      "build": "22G74",
+      "url": "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/032-69606/D3E05CDF-E105-434C-A4A1-4E3DC7668DD0/UniversalMac_13.5_22G74_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "ventura",
       "name": "macOS 13.5 Developer Beta 5",
       "build": "22G5072a",
       "url": "https://updates.cdn-apple.com/2023SpringSeed/fullrestores/042-09570/8DA0B0AA-6FD4-42C4-A54E-BC0D53B92AC0/UniversalMac_13.5_22G5072a_Restore.ipsw",
