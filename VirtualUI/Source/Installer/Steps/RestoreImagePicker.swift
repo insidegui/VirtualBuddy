@@ -102,7 +102,7 @@ struct RestoreImagePicker: View {
         if let selectedImage = controller.selectedRestoreImage,
            let advisory = controller.restoreAdvisory(for: selectedImage)
         {
-            avisoryView(with: advisory)
+            advisoryView(with: advisory)
         }
 
         if let authRequirement = selection?.authenticationRequirement {
@@ -118,7 +118,7 @@ struct RestoreImagePicker: View {
     }
     
     @ViewBuilder
-    private func avisoryView(with advisory: RestoreImagePickerController.Advisory) -> some View {
+    private func advisoryView(with advisory: RestoreImagePickerController.Advisory) -> some View {
         VStack {
             switch advisory {
             case .manualDownloadTip(let title, let url):
