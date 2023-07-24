@@ -60,7 +60,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
 
-    public static func createMacPlaform(for model: VBVirtualMachine, installImageURL: URL?) async throws -> VZMacPlatformConfiguration {
+    public static func createMacPlatform(for model: VBVirtualMachine, installImageURL: URL?) async throws -> VZMacPlatformConfiguration {
         let image: VZMacOSRestoreImage?
 
         if let installImageURL = installImageURL {
@@ -97,7 +97,7 @@ public final class VMInstance: NSObject, ObservableObject {
         switch model.configuration.systemType {
         case .mac:
             helper = MacOSVirtualMachineConfigurationHelper(vm: model)
-            platform = try await Self.createMacPlaform(for: model, installImageURL: installImageURL)
+            platform = try await Self.createMacPlatform(for: model, installImageURL: installImageURL)
             installDevice = []
         case .linux:
             guard #available(macOS 13.0, *) else {
