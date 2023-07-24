@@ -139,9 +139,17 @@
     },
     {
       "group": "ventura",
-      "name": "macOS 13.4.1",
+      "name": "macOS 13.4.1 (M2 Host)",
       "build": "22F2083",
       "url": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01864/A8378F91-BA71-40DF-8F0D-606A16F1836B/UniversalMac_13.4.1_22F2083_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "ventura",
+      "name": "macOS 13.4.1 (M1 Host)",
+      "build": "22F82",
+      "url": "https://updates.cdn-apple.com/2023SpringFCS/fullrestores/042-01877/2F49A9FE-7033-41D0-9D0C-64EFCE6B4C22/UniversalMac_13.4.1_22F82_Restore.ipsw",
       "channel": "regular",
       "needsCookie": false
     },
