@@ -596,18 +596,20 @@ public extension VBMacDevice {
 
 public extension VBDisplayDevice {
 
-    static let minimumDisplayDimension = 800
+    static let minimumDisplayWidth = 800
+    
+    static let minimumDisplayHeight = 600
 
     static var maximumDisplayWidth = 6016
 
     static var maximumDisplayHeight = 3384
 
     static let displayWidthRange: ClosedRange<Int> = {
-        minimumDisplayDimension...maximumDisplayWidth
+        minimumDisplayWidth...maximumDisplayWidth
     }()
 
     static let displayHeightRange: ClosedRange<Int> = {
-        minimumDisplayDimension...maximumDisplayHeight
+        minimumDisplayHeight...maximumDisplayHeight
     }()
 
     static let minimumDisplayPPI = 72
