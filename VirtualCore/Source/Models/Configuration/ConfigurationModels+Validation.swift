@@ -55,6 +55,9 @@ public extension VBMacConfiguration {
         if hardware.networkDevices.contains(where: { $0.kind == .bridge }), !VBNetworkDevice.appSupportsBridgedNetworking {
             errors.append(VBNetworkDevice.bridgeUnsupportedMessage)
         }
+        if !VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
+            errors.append(VBDisplayDevice.automaticallyReconfiguresDisplayUnsupportedMessage)
+        }
         
         return SupportState(errors: errors, warnings: warnings)
     }
@@ -136,6 +139,20 @@ public extension VBNetworkDevice {
     }
     
     static let bridgeUnsupportedMessage = "Bridged network devices are not available in this build of the app."
+}
+
+public extension VBDisplayDevice {
+    static let automaticallyReconfiguresDisplayWarningMessage = "Automatic display configuration is only recognized by VMs running macOS 14 and later."
+    
+    static let automaticallyReconfiguresDisplayUnsupportedMessage = "Automatic display configuration requires both host and VM to be on macOS 14 or later."
+    
+    static var automaticallyReconfiguresDisplaySupportedByHost: Bool {
+        if #available(macOS 14.0, *) {
+            return true
+        } else {
+            return false
+        }
+    }
 }
 
 public extension VBPointingDevice.Kind {

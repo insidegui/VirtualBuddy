@@ -83,7 +83,7 @@ public struct VirtualMachineSessionView: View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
             captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
-            automaticallyReconfiguresDisplay: .constant(true),
+            automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
             screenshotSubject: screenshotTaken
         )
     }
