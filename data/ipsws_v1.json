@@ -59,6 +59,14 @@
   "restoreImages": [
     {
       "group": "sonoma",
+      "name": "macOS 14 Developer Beta 4",
+      "build": "23A5301h",
+      "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-25548/9EA6EC3D-5A7D-4D53-A17C-70EE71393921/UniversalMac_14.0_23A5301h_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14 Developer Beta 3 (23A5286i)",
       "build": "23A5286i",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-13887/3B4075C1-B695-49EA-82D9-4B720699D341/UniversalMac_14.0_23A5286i_Restore.ipsw",
