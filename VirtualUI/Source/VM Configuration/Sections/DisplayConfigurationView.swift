@@ -46,6 +46,18 @@ struct DisplayConfigurationView: View {
                 spacing: VMConfigurationView.labelSpacing
             )
         }
+        
+        Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
+        
+        if VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
+            if (device.automaticallyReconfiguresDisplay) {
+                Text(VBDisplayDevice.automaticallyReconfiguresDisplayWarningMessage)
+                    .foregroundColor(.yellow)
+            }
+        } else {
+            Text(VBDisplayDevice.automaticallyReconfiguresDisplayUnsupportedMessage)
+                .foregroundColor(.red)
+        }
     }
     
     @ViewBuilder

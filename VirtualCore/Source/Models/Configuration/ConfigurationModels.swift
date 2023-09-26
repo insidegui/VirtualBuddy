@@ -186,12 +186,13 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
 /// Configures a display device.
 /// **Read the note at the top of this file before modifying this**
 public struct VBDisplayDevice: Identifiable, Hashable, Codable {
-    public init(id: UUID = UUID(), name: String = "Default", width: Int = 1920, height: Int = 1080, pixelsPerInch: Int = 144) {
+    public init(id: UUID = UUID(), name: String = "Default", width: Int = 1920, height: Int = 1080, pixelsPerInch: Int = 144, automaticallyReconfiguresDisplay: Bool = false) {
         self.id = id
         self.name = name
         self.width = width
         self.height = height
         self.pixelsPerInch = pixelsPerInch
+        self.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
     }
     
     public var id = UUID()
@@ -199,6 +200,7 @@ public struct VBDisplayDevice: Identifiable, Hashable, Codable {
     public var width = 1920
     public var height = 1080
     public var pixelsPerInch = 144
+    @DecodableDefault.False public var automaticallyReconfiguresDisplay = false
 }
 
 /// Configures a network device.
