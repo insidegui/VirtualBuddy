@@ -59,15 +59,15 @@
   "restoreImages": [
     {
       "group": "sonoma",
-      "name": "macOS 14 RC 2",
+      "name": "macOS 14.0",
       "build": "23A344",
       "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-54934/0E101AD6-3117-4B63-9BF1-143B6DB9270A/UniversalMac_14.0_23A344_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 RC",
+      "name": "macOS 14.0 RC",
       "build": "23A339",
       "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/002-81996/596571C1-9856-4BB3-B5BF-B5A48F4B406E/UniversalMac_14.0_23A339_Restore.ipsw",
       "channel": "devbeta",
@@ -75,7 +75,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 7",
+      "name": "macOS 14.0 Developer Beta 7",
       "build": "23A5337a",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-41500/D1789AEF-013B-4112-8A1E-401589023267/UniversalMac_14.0_23A5337a_Restore.ipsw",
       "channel": "devbeta",
@@ -83,7 +83,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 6",
+      "name": "macOS 14.0 Developer Beta 6",
       "build": "23A5328b",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-37824/AA6B32A0-3C2C-4BEB-95A1-64E601934330/UniversalMac_14.0_23A5328b_Restore.ipsw",
       "channel": "devbeta",
@@ -91,7 +91,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 5",
+      "name": "macOS 14.0 Developer Beta 5",
       "build": "23A5312d",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-27168/7E046825-8EBA-4AAE-8ECC-DDD51B9306D2/UniversalMac_14.0_23A5312d_Restore.ipsw",
       "channel": "devbeta",
@@ -99,7 +99,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 4",
+      "name": "macOS 14.0 Developer Beta 4",
       "build": "23A5301h",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-25548/9EA6EC3D-5A7D-4D53-A17C-70EE71393921/UniversalMac_14.0_23A5301h_Restore.ipsw",
       "channel": "devbeta",
@@ -107,7 +107,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 3 (23A5286i)",
+      "name": "macOS 14.0 Developer Beta 3 (23A5286i)",
       "build": "23A5286i",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-13887/3B4075C1-B695-49EA-82D9-4B720699D341/UniversalMac_14.0_23A5286i_Restore.ipsw",
       "channel": "devbeta",
@@ -115,7 +115,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 3",
+      "name": "macOS 14.0 Developer Beta 3",
       "build": "23A5286g",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/042-06324/379026FA-C14F-4095-99FD-19F607D10EBF/UniversalMac_14.0_23A5286g_Restore.ipsw",
       "channel": "devbeta",
@@ -123,7 +123,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 2",
+      "name": "macOS 14.0 Developer Beta 2",
       "build": "23A5276g",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/032-95861/67600C59-8516-4A46-B9D7-4007D395CEF5/UniversalMac_14.0_23A5276g_Restore.ipsw",
       "channel": "devbeta",
@@ -131,7 +131,7 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14 Developer Beta 1",
+      "name": "macOS 14.0 Developer Beta 1",
       "build": "23A5257q",
       "url": "https://updates.cdn-apple.com/2023SummerSeed/fullrestores/032-94355/CBE8CBE1-750D-487E-A393-B90FEF60CEBA/UniversalMac_14.0_23A5257q_Restore.ipsw",
       "channel": "devbeta",
