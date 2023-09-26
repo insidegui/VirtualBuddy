@@ -59,10 +59,10 @@
   "restoreImages": [
     {
       "group": "sonoma",
-      "name": "macOS 14 RC 2",
+      "name": "macOS 14",
       "build": "23A344",
       "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-54934/0E101AD6-3117-4B63-9BF1-143B6DB9270A/UniversalMac_14.0_23A344_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
