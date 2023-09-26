@@ -11,7 +11,7 @@ import Combine
 import Virtualization
 import VirtualCore
 
-struct VMInstallData: Hashable {
+struct VMInstallData: Hashable, Codable {
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
     var restoreImageInfo: VBRestoreImageInfo? {
@@ -22,15 +22,26 @@ struct VMInstallData: Hashable {
         }
     }
     var installImageURL: URL?
-    
+
     var downloadURL: URL? {
         installImageURL ?? restoreImageInfo?.url
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case name, restoreImageInfo, installImageURL
     }
 }
 
 final class VMInstallationViewModel: ObservableObject {
-    
-    enum Step: Int, Hashable {
+
+    struct RestorableState: Codable {
+        var method: InstallMethod
+        var systemType: VBGuestType
+        var data: VMInstallData
+        var step: Step
+    }
+
+    enum Step: Int, Hashable, Codable {
         case systemType
         case installKind
         case restoreImageInput
@@ -48,10 +59,19 @@ final class VMInstallationViewModel: ObservableObject {
         case error(_ message: String)
     }
 
+    private var restorableState: RestorableState {
+        RestorableState(
+            method: self.installMethod,
+            systemType: self.selectedSystemType,
+            data: self.data,
+            step: self.step
+        )
+    }
+
     @Published var installMethod = InstallMethod.localFile
 
     @Published var selectedSystemType: VBGuestType = .mac
-    
+
     @Published var machine: VBVirtualMachine?
 
     @Published var data = VMInstallData() {
@@ -69,6 +89,17 @@ final class VMInstallationViewModel: ObservableObject {
             guard step != oldValue else { return }
 
             performActions(for: step)
+
+            if var machine {
+                do {
+                    let restoreData = try PropertyListEncoder().encode(restorableState)
+                    machine.installRestoreData = restoreData
+                    try machine.saveMetadata()
+                    self.machine = machine
+                } catch {
+                    assertionFailure("Failed to save install restore data: \(error)")
+                }
+            }
         }
     }
 
@@ -79,9 +110,31 @@ final class VMInstallationViewModel: ObservableObject {
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
 
-    init() {
+    init(restoring restoreVM: VBVirtualMachine?) {
         /// Skip OS selection if there's only a single supported OS.
         step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
+
+        if let restoreVM {
+            restoreInstallation(with: restoreVM)
+        }
+    }
+
+    private func restoreInstallation(with vm: VBVirtualMachine) {
+        do {
+            guard let restoreData = vm.installRestoreData else {
+                throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "VM is missing install restore data"])
+            }
+
+            let restoredState = try PropertyListDecoder().decode(RestorableState.self, from: restoreData)
+            
+            self.installMethod = restoredState.method
+            self.selectedSystemType = restoredState.systemType
+            self.data = restoredState.data
+            self.machine = vm
+            self.step = restoredState.step
+        } catch {
+            assertionFailure("Couldn't restore install: \(error)")
+        }
     }
 
     private var needsDownload: Bool {
@@ -122,12 +175,12 @@ final class VMInstallationViewModel: ObservableObject {
                 disableNextButton = true
             case .name:
                 commitOSSelection()
-            
+
                 showNextButton = true
             case .configuration:
                 showNextButton = false
                 disableNextButton = true
-            
+
                 Task {
                     do {
                         try await prepareModel()
@@ -192,7 +245,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     private var vmInstaller: VZMacOSInstaller?
     private var progressObservation: NSKeyValueObservation?
-    
+
     @MainActor
     private func prepareModel() throws {
         let vmURL = VMLibraryController.shared.libraryURL
@@ -263,7 +316,7 @@ final class VMInstallationViewModel: ObservableObject {
             } catch {
                 throw Failure("Failed to validate configuration: \(String(describing: error))")
             }
-            
+
             step = .done
         } catch {
             state = .error(error.localizedDescription)
@@ -276,7 +329,7 @@ final class VMInstallationViewModel: ObservableObject {
             state = .error("Missing restore image URL")
             return
         }
-        
+
         guard let model = machine else {
             state = .error("Missing VM model")
             return

@@ -8,7 +8,7 @@
 import Foundation
 import VirtualCore
 
-enum InstallMethod: String, Identifiable, CaseIterable {
+enum InstallMethod: String, Identifiable, CaseIterable, Codable {
     var id: RawValue { rawValue }
 
     case localFile

@@ -11,12 +11,14 @@ import Combine
 
 public struct VMInstallationWizard: View {
     @EnvironmentObject var library: VMLibraryController
-    @StateObject var viewModel = VMInstallationViewModel()
+    @StateObject var viewModel: VMInstallationViewModel
 
     @Environment(\.closeWindow) var closeWindow
-    
-    public init() { }
-    
+
+    public init(restoring restoreVM: VBVirtualMachine? = nil) {
+        self._viewModel = .init(wrappedValue: VMInstallationViewModel(restoring: restoreVM))
+    }
+
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
 
     public var body: some View {
