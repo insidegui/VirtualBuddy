@@ -1,3 +1,5 @@
+
+
 # VirtualBuddy
 
 VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal of offering features that are useful to developers who need to test their apps on multiple versions of macOS, especially betas.
@@ -13,7 +15,7 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 
 [Download from GitHub Releases](https://github.com/insidegui/VirtualBuddy/releases)
 
-![](./Showcase.jpg)
+![](./assets/Showcase.jpg)
 
 ### Feature Checklist
 
@@ -41,7 +43,7 @@ VirtualBuddy automatically mounts a disk image with the VirtualBuddyGuest app wh
 
 VirtualBuddyGuest enables clipboard sharing between host and guest and automatic mounting of the shared folders configured for the virtual machine.
 
-![](./GuestApp.jpg)
+![](./assets/GuestApp.jpg)
 
 #### Taking Advantage of APFS
 
