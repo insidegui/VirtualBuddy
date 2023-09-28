@@ -13,7 +13,7 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 
 [Download from GitHub Releases](https://github.com/insidegui/VirtualBuddy/releases)
 
-![](./Showcase.png)
+![](./Showcase.jpg)
 
 ### Feature Checklist
 
