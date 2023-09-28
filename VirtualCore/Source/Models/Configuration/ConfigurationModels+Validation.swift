@@ -52,9 +52,6 @@ public extension VBMacConfiguration {
         if hardware.networkDevices.contains(where: { $0.kind == .bridge }), !VBNetworkDevice.appSupportsBridgedNetworking {
             errors.append(VBNetworkDevice.bridgeUnsupportedMessage)
         }
-        if !VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
-            errors.append(VBDisplayDevice.automaticallyReconfiguresDisplayUnsupportedMessage)
-        }
         
         return SupportState(errors: errors, warnings: warnings)
     }
