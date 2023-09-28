@@ -124,10 +124,6 @@ public final class VMInstance: NSObject, ObservableObject {
         c.entropyDevices = helper.createEntropyDevices()
         c.audioDevices = model.configuration.vzAudioDevices
         c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
-        
-        if #available(macOS 13.0, *), let clipboardSync = model.configuration.vzClipboardSyncDevice {
-            c.consoleDevices = [clipboardSync]
-        }
 
         let bootDevice = try await helper.createBootBlockDevice()
         let additionalBlockDevices = try await helper.createAdditionalBlockDevices()

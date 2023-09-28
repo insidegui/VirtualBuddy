@@ -42,9 +42,6 @@ public extension VBMacConfiguration {
         if !hardware.pointingDevice.kind.isSupportedByHost {
             errors.append("\(hardware.pointingDevice.kind.name) requires macOS 13 or later.")
         }
-        if sharedClipboardEnabled, !VBMacConfiguration.isNativeClipboardSharingSupported {
-            warnings.append(VBMacConfiguration.clipboardSharingNotice)
-        }
         if hasSharedFolders {
             if VBMacConfiguration.isFileSharingSupported {
                 warnings.append(VBMacConfiguration.fileSharingNotice)
@@ -61,30 +58,12 @@ public extension VBMacConfiguration {
         
         return SupportState(errors: errors, warnings: warnings)
     }
-    
-    static let isNativeClipboardSharingSupported: Bool = {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return false
-        }
-    }()
 
     static let isFileSharingSupported: Bool = {
         if #available(macOS 13.0, *) {
             return true
         } else {
             return false
-        }
-    }()
-
-    static let clipboardSharingNotice: String = {
-        let guestAppInfo = "To use clipboard sync with previous versions of macOS, you can use the VirtualBuddyGuest app."
-
-        if isNativeClipboardSharingSupported {
-            return "Clipboard sync requires the virtual machine to be running macOS 13 or later. \(guestAppInfo)"
-        } else {
-            return "Clipboard sync requires macOS 13 or later. \(guestAppInfo)"
         }
     }()
 

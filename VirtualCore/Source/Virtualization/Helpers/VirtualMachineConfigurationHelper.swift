@@ -174,30 +174,6 @@ extension VBSoundDevice {
 
 extension VBMacConfiguration {
     
-    @available(macOS 13.0, *)
-    var vzClipboardSyncDevice: VZVirtioConsoleDeviceConfiguration? {
-        #if ENABLE_SPICE_CLIPBOARD_SYNC
-        let device = VZVirtioConsoleDeviceConfiguration()
-        
-        let port = VZVirtioConsolePortConfiguration()
-        port.name = VZSpiceAgentPortAttachment.spiceAgentPortName
-        let attachment = VZSpiceAgentPortAttachment()
-        attachment.sharesClipboard = sharedClipboardEnabled
-        port.attachment = attachment
-        device.ports[0] = port
-        
-        print("attachment.sharesClipboard = \(attachment.sharesClipboard)")
-        
-        return device
-        #else
-        return nil
-        #endif
-    }
-    
-}
-
-extension VBMacConfiguration {
-    
     var vzSharedFoldersFileSystemDevices: [VZDirectorySharingDeviceConfiguration] {
         get throws {
             var directories: [String: VZSharedDirectory] = [:]

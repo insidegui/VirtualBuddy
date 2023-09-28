@@ -132,19 +132,6 @@ public final class VMLibraryController: ObservableObject {
 
 public extension VMLibraryController {
 
-    #if ENABLE_HARDWARE_ID_CHANGE
-    func duplicate(_ vm: VBVirtualMachine, using method: VBVirtualMachine.DuplicationMethod) throws {
-        var newVM = try duplicate(vm)
-
-        if method == .changeID {
-            try newVM.generateNewMachineIdentifier()
-            try newVM.generateAuxiliaryStorage()
-        }
-
-        reload()
-    }
-    #endif
-
     @discardableResult
     func duplicate(_ vm: VBVirtualMachine) throws -> VBVirtualMachine {
         let newName = "Copy of " + vm.name

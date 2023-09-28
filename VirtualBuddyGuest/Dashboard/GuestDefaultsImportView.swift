@@ -1,10 +1,4 @@
-//
-//  GuestDefaultsImportView.swift
-//  VirtualBuddyGuest
-//
-//  Created by Guilherme Rambo on 10/03/23.
-//
-
+#if ENABLE_USERDEFAULTS_SYNC
 import SwiftUI
 import VirtualCore
 import VirtualUI
@@ -111,3 +105,5 @@ struct GuestDefaultsImportView_Previews: PreviewProvider {
     }
 }
 #endif
+
+#endif // ENABLE_USERDEFAULTS_SYNC

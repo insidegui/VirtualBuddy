@@ -42,8 +42,6 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     public var hardware = VBMacDevice.default
     public var sharedFolders = [VBSharedFolder]()
-    @DecodableDefault.False
-    public var sharedClipboardEnabled = false
     @DecodableDefault.True
     public var guestAdditionsEnabled = true
 
