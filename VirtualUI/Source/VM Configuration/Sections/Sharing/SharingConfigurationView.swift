@@ -12,24 +12,7 @@ struct SharingConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
 
     var body: some View {
-        #if ENABLE_SPICE_CLIPBOARD_SYNC
-        clipboardSyncToggle
-            .padding(.bottom)
-        #endif
-
         SharedFoldersManagementView(configuration: $configuration)
-    }
-
-    @ViewBuilder
-    private var clipboardSyncToggle: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Toggle("Clipboard Sync", isOn: $configuration.sharedClipboardEnabled)
-                .disabled(!VBMacConfiguration.isNativeClipboardSharingSupported)
-
-            Text(VBMacConfiguration.clipboardSharingNotice)
-                .font(.caption)
-                .foregroundColor(.secondary)
-        }
     }
 }
 

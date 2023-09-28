@@ -71,7 +71,6 @@
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
-		F44C00F92889C1A700640BF5 /* DuplicateVMSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00F82889C1A700640BF5 /* DuplicateVMSheet.swift */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
@@ -359,7 +358,6 @@
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
-		F44C00F82889C1A700640BF5 /* DuplicateVMSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DuplicateVMSheet.swift; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
@@ -734,7 +732,6 @@
 			isa = PBXGroup;
 			children = (
 				F42C01602888FC3500EB15CD /* LibraryItemView.swift */,
-				F44C00F82889C1A700640BF5 /* DuplicateVMSheet.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1609,7 +1606,6 @@
 				F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */,
 				F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
-				F44C00F92889C1A700640BF5 /* DuplicateVMSheet.swift in Sources */,
 				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
