@@ -47,7 +47,9 @@ struct DisplayConfigurationView: View {
             )
         }
         
-        Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
+        if #available(macOS 14.0, *) {
+            Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
+        }
         
         if VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
             if (device.automaticallyReconfiguresDisplay) {
