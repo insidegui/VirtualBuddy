@@ -128,6 +128,15 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
             self.packetSubject.send((senderID, packet))
         }
 
+        /// When running in guest mode, observe the channel's connection state and bind it to the manager's state.
+        if self.side == .guest {
+            await channel.$isConnected.removeDuplicates().receive(on: DispatchQueue.main).sink { [weak self] isConnected in
+                guard let self = self else { return }
+                self.logger.notice("Connection to host changed state (isConnected = \(isConnected, privacy: .public))")
+                self.isConnected = isConnected
+            }.store(in: &cancellables)
+        }
+
         peers[peerID] = channel
 
         await channel.activate()
@@ -327,10 +336,8 @@ actor WormholeChannel: ObservableObject {
 
     @Published private(set) var isConnected = false {
         didSet {
-            #if DEBUG
             guard isConnected != oldValue else { return }
             logger.debug("isConnected = \(self.isConnected, privacy: .public)")
-            #endif
         }
     }
 
@@ -359,10 +366,6 @@ actor WormholeChannel: ObservableObject {
         logger.debug(#function)
 
         stream()
-    }
-
-    private func updateConnectionState(_ state: Bool) {
-        self.isConnected = state
     }
 
     func invalidate() {
