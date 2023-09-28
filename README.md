@@ -1,4 +1,4 @@
-
+<img src="./assets/VirtualBuddyIcon.png" width="128" />
 
 # VirtualBuddy
 
