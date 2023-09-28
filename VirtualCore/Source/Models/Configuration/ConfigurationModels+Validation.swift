@@ -120,8 +120,6 @@ public extension VBNetworkDevice {
 public extension VBDisplayDevice {
     static let automaticallyReconfiguresDisplayWarningMessage = "Automatic display configuration is only recognized by VMs running macOS 14 and later."
     
-    static let automaticallyReconfiguresDisplayUnsupportedMessage = "Automatic display configuration requires both host and VM to be on macOS 14 or later."
-    
     static var automaticallyReconfiguresDisplaySupportedByHost: Bool {
         if #available(macOS 14.0, *) {
             return true

@@ -47,18 +47,13 @@ struct DisplayConfigurationView: View {
             )
         }
         
-        if #available(macOS 14.0, *) {
-            Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
-        }
-        
         if VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
+            Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
+
             if (device.automaticallyReconfiguresDisplay) {
                 Text(VBDisplayDevice.automaticallyReconfiguresDisplayWarningMessage)
                     .foregroundColor(.yellow)
             }
-        } else {
-            Text(VBDisplayDevice.automaticallyReconfiguresDisplayUnsupportedMessage)
-                .foregroundColor(.red)
         }
     }
     
