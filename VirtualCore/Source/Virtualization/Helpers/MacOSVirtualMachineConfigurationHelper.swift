@@ -30,9 +30,8 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
         var devices = try vm.additionalBlockDevices
 
-        if vm.configuration.guestAdditionsEnabled {
-            let guestDisk = try VZVirtioBlockDeviceConfiguration.guestAdditionsDisk
-            devices.append(guestDisk)
+        if vm.configuration.guestAdditionsEnabled, let disk = try? VZVirtioBlockDeviceConfiguration.guestAdditionsDisk {
+            devices.append(disk)
         }
 
         return devices
