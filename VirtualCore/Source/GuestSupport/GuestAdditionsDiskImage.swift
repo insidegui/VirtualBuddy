@@ -70,19 +70,9 @@ public final class GuestAdditionsDiskImage {
         }
     }
 
-    private let imageNameSuffix: String = {
-        #if DEBUG
-        return "-DEBUG"
-        #else
-        return ""
-        #endif
-    }()
+    private var imageName: String { "VirtualBuddyGuest" }
 
-    private var imageName: String { "VirtualBuddyGuest\(imageNameSuffix)" }
-
-    private var libraryURL: URL { VBSettingsContainer.current.settings.libraryURL }
-
-    private var imagesRootURL: URL { libraryURL.appendingPathComponent("_GuestImage") }
+    private var imagesRootURL: URL { URL.defaultVirtualBuddyLibraryURL.appendingPathComponent("_GuestImage") }
 
     private var installedImageDigestURL: URL {
         imagesRootURL
@@ -159,8 +149,7 @@ public final class GuestAdditionsDiskImage {
         p.arguments = [
             scriptPath,
             guestPath,
-            digest,
-            imageNameSuffix
+            digest
         ]
         let outPipe = Pipe()
         let errPipe = Pipe()
@@ -201,9 +190,11 @@ public final class GuestAdditionsDiskImage {
 
 extension VZVirtioBlockDeviceConfiguration {
 
-    static var guestAdditionsDisk: VZVirtioBlockDeviceConfiguration {
+    static var guestAdditionsDisk: VZVirtioBlockDeviceConfiguration? {
         get throws {
             let guestImageURL = GuestAdditionsDiskImage.current.installedImageURL
+
+            guard FileManager.default.fileExists(atPath: guestImageURL.path) else { return nil }
 
             let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImageURL, readOnly: true)
 
