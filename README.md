@@ -4,6 +4,8 @@
 
 VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal of offering features that are useful to developers who need to test their apps on multiple versions of macOS, especially betas.
 
+![](./assets/Showcase.jpg)
+
 ## System Requirements
 
 - **Apple Silicon Mac**
@@ -11,11 +13,9 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 - In order to install a version of macOS that's newer than the version running on the host (for example, macOS 13 VM in VirtualBuddy running on macOS 12), Xcode is required; Xcode beta may be required for installing macOS betas (`FB11061314`)
 - In order to install a Linux distro, macOS 13 is required
 
-⚠️ WARNING: This project is experimental. Things might break or not work as expected.
+## Download
 
-[Download from GitHub Releases](https://github.com/insidegui/VirtualBuddy/releases)
-
-![](./assets/Showcase.jpg)
+VirtualBuddy is free and open-source. If you'd like to support its development, [you may purchase it on Gumroad](https://insidegui.gumroad.com/l/virtualbuddy). If you'd just like to download the latest version, [go to GitHub releases](https://github.com/insidegui/VirtualBuddy/releases/latest).
 
 ### Feature Checklist
 
