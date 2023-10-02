@@ -12,7 +12,9 @@ struct VMSessionConfigurationView: View {
     @EnvironmentObject var controller: VMController
 
     @State private var isShowingVMSettings = false
-    
+
+    private var vm: VBVirtualMachine { controller.virtualMachineModel }
+
     var body: some View {
         VStack(alignment: .trailing) {
             Group {
@@ -49,17 +51,13 @@ struct VMSessionConfigurationView: View {
             VMConfigurationSheet(
                 configuration: $controller.virtualMachineModel.configuration
             )
-            .environmentObject(VMConfigurationViewModel(controller.virtualMachineModel))
+            .environmentObject(VMConfigurationViewModel(vm))
         }
     }
     
-    private var showInstallDeviceOption: Bool {
-        controller.virtualMachineModel.metadata.installImageURL != nil
-    }
-    
-    private var showRecoveryModeOption: Bool {
-        controller.virtualMachineModel.configuration.systemType == .mac
-    }
+    private var showInstallDeviceOption: Bool { vm.configuration.systemType == .linux && vm.metadata.installImageURL != nil }
+
+    private var showRecoveryModeOption: Bool { vm.configuration.systemType == .mac }
 }
 
 struct GroupBackgroundModifier: ViewModifier {
