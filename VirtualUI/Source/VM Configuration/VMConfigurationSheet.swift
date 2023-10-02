@@ -125,15 +125,21 @@ public struct VMConfigurationSheet: View {
 #if DEBUG
 struct VMConfigurationSheet_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(context: .postInstall)
+        _Template(vm: .preview, context: .postInstall)
             .previewDisplayName("Post Install")
 
-        _Template(context: .preInstall)
+        _Template(vm: .preview, context: .preInstall)
             .previewDisplayName("Pre Install")
+
+        _Template(vm: .previewLinux, context: .postInstall)
+            .previewDisplayName("Linux - Post")
+
+        _Template(vm: .previewLinux, context: .preInstall)
+            .previewDisplayName("Linux - Pre")
     }
 
     struct _Template: View {
-        @State private var vm = VBVirtualMachine.preview
+        @State var vm: VBVirtualMachine
         var context: VMConfigurationContext
 
         var body: some View {

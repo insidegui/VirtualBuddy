@@ -166,10 +166,6 @@ public extension VBVirtualMachine {
     }
 
     func loadMetadata() throws -> (Metadata?, VBMacConfiguration) {
-        #if DEBUG
-        guard !ProcessInfo.isSwiftUIPreview else { return (nil, .default) }
-        #endif
-
         let metadata: Metadata?
         let config: VBMacConfiguration
 

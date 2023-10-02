@@ -71,6 +71,8 @@
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
+		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
+		F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
@@ -358,6 +360,8 @@
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
+		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
+		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
@@ -670,6 +674,7 @@
 				F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */,
 				F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */,
 				F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */,
+				F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */,
 			);
 			path = Sections;
 			sourceTree = "<group>";
@@ -769,6 +774,7 @@
 			isa = PBXGroup;
 			children = (
 				F48E0D0928885E990080DDFA /* Preview.vbvm */,
+				F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */,
 			);
 			path = Preview;
 			sourceTree = "<group>";
@@ -1507,6 +1513,7 @@
 			files = (
 				F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */,
 				F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */,
+				F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */,
 				F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1607,6 +1614,7 @@
 				F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */,
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
+				F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
@@ -2118,6 +2126,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2319,6 +2328,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2573,6 +2583,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;
@@ -2599,6 +2610,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GENERATE_INFOPLIST_FILE = YES;

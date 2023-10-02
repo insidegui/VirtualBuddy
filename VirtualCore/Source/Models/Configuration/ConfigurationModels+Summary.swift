@@ -51,4 +51,6 @@ public extension VBMacConfiguration {
     
     var pointingDeviceSummary: String { hardware.pointingDevice.kind.name }
 
+    var keyboardDeviceSummary: String { hardware.keyboardDevice.kind.name }
+
 }

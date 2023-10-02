@@ -251,6 +251,28 @@ public struct VBPointingDevice: Hashable, Codable {
     public var kind = Kind.mouse
 }
 
+/// Configures a keyboard device.
+/// **Read the note at the top of this file before modifying this**
+public struct VBKeyboardDevice: Hashable, Codable, ProvidesEmptyPlaceholder {
+    public enum Kind: Int, Identifiable, CaseIterable, Codable {
+        public var id: RawValue { rawValue }
+
+        case generic
+        case mac
+
+        public var name: String {
+            switch self {
+            case .generic: return "Generic"
+            case .mac: return "Mac"
+            }
+        }
+    }
+
+    public var kind = Kind.generic
+
+    public static var empty: VBKeyboardDevice { VBKeyboardDevice(kind: .generic) }
+}
+
 /// Configures sound input/output.
 /// **Read the note at the top of this file before modifying this**
 public struct VBSoundDevice: Identifiable, Hashable, Codable {
@@ -263,10 +285,11 @@ public struct VBSoundDevice: Identifiable, Hashable, Codable {
 /// Describes a Mac VM with its associated hardware configuration.
 /// **Read the note at the top of this file before modifying this**
 public struct VBMacDevice: Hashable, Codable {
-    public init(cpuCount: Int, memorySize: UInt64, pointingDevice: VBPointingDevice, displayDevices: [VBDisplayDevice], networkDevices: [VBNetworkDevice], soundDevices: [VBSoundDevice], storageDevices: [VBStorageDevice], NVRAM: [VBNVRAMVariable] = [VBNVRAMVariable]()) {
+    public init(cpuCount: Int, memorySize: UInt64, pointingDevice: VBPointingDevice, keyboardDevice: VBKeyboardDevice, displayDevices: [VBDisplayDevice], networkDevices: [VBNetworkDevice], soundDevices: [VBSoundDevice], storageDevices: [VBStorageDevice], NVRAM: [VBNVRAMVariable] = [VBNVRAMVariable]()) {
         self.cpuCount = cpuCount
         self.memorySize = memorySize
         self.pointingDevice = pointingDevice
+        self.keyboardDevice = keyboardDevice
         self.displayDevices = displayDevices
         self.networkDevices = networkDevices
         self.soundDevices = soundDevices
@@ -277,6 +300,8 @@ public struct VBMacDevice: Hashable, Codable {
     public var cpuCount: Int
     public var memorySize: UInt64
     public var pointingDevice: VBPointingDevice
+    @DecodableDefault.EmptyPlaceholder
+    public var keyboardDevice: VBKeyboardDevice
     public var displayDevices: [VBDisplayDevice]
     public var networkDevices: [VBNetworkDevice]
     public var soundDevices: [VBSoundDevice]
@@ -429,6 +454,7 @@ public extension VBMacDevice {
             cpuCount: .vb_suggestedVirtualCPUCount,
             memorySize: .vb_suggestedMemorySize,
             pointingDevice: .default,
+            keyboardDevice: .default,
             displayDevices: [.default],
             networkDevices: [.default],
             soundDevices: [.default],
@@ -439,6 +465,10 @@ public extension VBMacDevice {
 
 public extension VBPointingDevice {
     static var `default`: VBPointingDevice { .init() }
+}
+
+public extension VBKeyboardDevice {
+    static var `default`: VBKeyboardDevice { .empty }
 }
 
 public extension VBNetworkDevice {
