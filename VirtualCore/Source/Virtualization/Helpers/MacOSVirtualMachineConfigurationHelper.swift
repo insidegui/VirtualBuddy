@@ -39,7 +39,12 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
 
     func createKeyboardConfiguration() -> VZKeyboardConfiguration {
         if #available(macOS 14.0, *) {
-            return VZMacKeyboardConfiguration()
+            switch vm.configuration.hardware.keyboardDevice.kind {
+            case .generic:
+                return VZUSBKeyboardConfiguration()
+            case .mac:
+                return VZMacKeyboardConfiguration()
+            }
         } else {
             return VZUSBKeyboardConfiguration()
         }

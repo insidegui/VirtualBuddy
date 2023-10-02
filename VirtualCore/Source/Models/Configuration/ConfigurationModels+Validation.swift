@@ -149,6 +149,31 @@ public extension VBPointingDevice.Kind {
     }
 }
 
+public extension VBKeyboardDevice.Kind {
+    var warning: String? {
+        guard self != .generic else { return nil }
+        return "Mac keyboard is only recognized by VMs running macOS 13 and later."
+    }
+
+    var error: String? {
+        guard !isSupportedByHost else { return nil }
+        return "Mac keyboard requires macOS 14 or later on host and macOS 13 or later on VM."
+    }
+
+    var isSupportedByHost: Bool {
+        switch self {
+        case .generic:
+            return true
+        case .mac:
+            if #available(macOS 14.0, *) {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+}
+
 public extension VBGuestType {
     var isSupportedByHost: Bool {
         switch self {
@@ -169,6 +194,8 @@ public extension VBGuestType {
     }()
 
     var supportsVirtualTrackpad: Bool { self == .mac }
+
+    var supportsKeyboardCustomization: Bool { self == .mac }
 
     var supportsDisplayPPI: Bool { self == .mac }
 
