@@ -124,6 +124,9 @@ public final class VMInstance: NSObject, ObservableObject {
         c.entropyDevices = helper.createEntropyDevices()
         c.audioDevices = model.configuration.vzAudioDevices
         c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
+        if model.configuration.systemType == .linux, #available(macOS 13.0, *) {
+            c.consoleDevices = [(helper as! LinuxVirtualMachineConfigurationHelper).createSpiceAgentConsoleDeviceConfiguration()]
+        }
 
         let bootDevice = try await helper.createBootBlockDevice()
         let additionalBlockDevices = try await helper.createAdditionalBlockDevices()
