@@ -18,16 +18,16 @@
     {
       "id": "ubuntu",
       "name": "Ubuntu",
-      "majorVersion": "20.0",
+      "majorVersion": "22.0",
       "minHostVersion": "13.0"
     }
   ],
   "restoreImages": [
     {
       "group": "ubuntu",
-      "name": "Focal Fossa Daily Build",
-      "build": "20.04.5 LTS",
-      "url": "https://cdimage.ubuntu.com/focal/daily-live/current/focal-desktop-arm64.iso",
+      "name": "Jammy Jellyfish Daily Build",
+      "build": "22.04.3 LTS",
+      "url": "https://cdimage.ubuntu.com/jammy/daily-live/current/jammy-desktop-arm64.iso",
       "channel": "daily"
     }
   ]
