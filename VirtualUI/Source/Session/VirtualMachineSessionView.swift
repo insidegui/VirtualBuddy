@@ -12,7 +12,12 @@ import Combine
 public struct VirtualMachineSessionView: View {
     @StateObject var controller: VMController
     @StateObject var ui: VirtualMachineSessionUI
-    
+
+    public init(controller: VMController, ui: VirtualMachineSessionUI) {
+        self._controller = .init(wrappedValue: controller)
+        self._ui = .init(wrappedValue: ui)
+    }
+
     @EnvironmentObject var library: VMLibraryController
     @EnvironmentObject var sessionManager: VirtualMachineSessionUIManager
 
@@ -57,6 +62,11 @@ public struct VirtualMachineSessionView: View {
             }
             .onReceive(screenshotTaken) { data in
                 controller.storeScreenshot(with: data)
+            }
+            .task {
+                if controller.options.autoBoot {
+                    Task { await controller.startVM() }
+                }
             }
     }
     

@@ -128,6 +128,18 @@ public final class VMLibraryController: ObservableObject {
 
 }
 
+// MARK: - Queries
+
+public extension VMLibraryController {
+    func virtualMachines(matching predicate: (VBVirtualMachine) -> Bool) -> [VBVirtualMachine] {
+        virtualMachines.filter(predicate)
+    }
+
+    func virtualMachine(named name: String) -> VBVirtualMachine? {
+        virtualMachines(matching: { $0.name.caseInsensitiveCompare(name) == .orderedSame }).first
+    }
+}
+
 // MARK: - Management Actions
 
 public extension VMLibraryController {

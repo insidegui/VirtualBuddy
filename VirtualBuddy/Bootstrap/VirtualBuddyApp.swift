@@ -21,17 +21,15 @@ struct VirtualBuddyApp: App {
     @StateObject private var library = VMLibraryController.shared
     @StateObject private var sessionManager = VirtualMachineSessionUIManager.shared
 
+    @Environment(\.openCocoaWindow)
+    private var openWindow
+
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "library") {
             LibraryView()
                 .onAppearOnce(perform: updateController.activate)
                 .environmentObject(library)
                 .environmentObject(sessionManager)
-                .task {
-                    for await action in DeepLinkHandler.shared.actions() {
-                        print(action)
-                    }
-                }
         }
         .windowToolbarStyle(.unified)
         .commands {

@@ -18,8 +18,14 @@ import DeepLinkSecurity
 @objc final class VirtualBuddyAppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationWillFinishLaunching(_ notification: Notification) {
-        if #available(macOS 13.0, *) { DeepLinkHandler.shared.install() }
-
+        if #available(macOS 13.0, *) {
+            Task {
+                await MainActor.run {
+                    DeepLinkHandler.bootstrap()
+                }
+            }
+        }
+        
         NSApp?.appearance = NSAppearance(named: .darkAqua)
     }
 

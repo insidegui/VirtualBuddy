@@ -4,18 +4,13 @@ import DeepLinkSecurity
 import OSLog
 import VirtualCore
 
-private final class DeepLinkAuthUIPresenter: DeepLinkAuthUI {
-    func presentDeepLinkAuth(for request: OpenDeepLinkRequest) async throws -> DeepLinkClientAuthorization {
-        try await DeepLinkAuthPanel.run(for: request)
-    }
-}
-
 struct OpenVMParameters: Codable {
     var name: String
 }
 
 struct BootVMParameters: Codable {
     var name: String
+    var options: VMSessionOptions?
 }
 
 struct StopVMParameters: Codable {
@@ -60,42 +55,4 @@ extension DeepLinkAction {
 
 private extension URLQueryItemDecoder {
     static let deepLink = URLQueryItemDecoder()
-}
-
-final class DeepLinkHandler {
-
-    private lazy var logger = Logger(subsystem: kShellAppSubsystem, category: String(describing: Self.self))
-
-    static let shared = DeepLinkHandler()
-
-    private init() { }
-
-    private let namespace = "VirtualBuddy"
-    private let keyID = "c3bfea24ee1ca95700a4e56d73097aac"
-
-    private(set) lazy var sentinel = DeepLinkSentinel(
-        authUI: DeepLinkAuthUIPresenter(),
-        authStore: KeychainDeepLinkAuthStore(namespace: namespace, keyID: keyID),
-        managementStore: UserDefaultsDeepLinkManagementStore()
-    )
-
-    func actions() -> AsyncCompactMapSequence<AsyncStream<URL>, DeepLinkAction> {
-        sentinel.openURL.compactMap { url in
-            do {
-                let action = try DeepLinkAction(url)
-
-                self.logger.debug("Action: \(String(describing: action))")
-
-                return action
-            } catch {
-                self.logger.error("Error processing deep link URL \"\(url)\": \(error, privacy: .public)")
-                return nil
-            }
-        }
-    }
-
-    func install() {
-        sentinel.installAppleEventHandler()
-    }
-
 }

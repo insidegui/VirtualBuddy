@@ -12,11 +12,15 @@ import Combine
 import OSLog
 
 public struct VMSessionOptions: Hashable, Codable {
+    @DecodableDefault.False
     public var bootInRecoveryMode = false
     
     @DecodableDefault.False
     public var bootOnInstallDevice = false
-    
+
+    @DecodableDefault.False
+    public var autoBoot = false
+
     public static let `default` = VMSessionOptions()
 }
 
@@ -50,11 +54,15 @@ public final class VMController: ObservableObject {
 
     private lazy var cancellables = Set<AnyCancellable>()
     
-    public init(with vm: VBVirtualMachine) {
+    public init(with vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
         self.virtualMachineModel = vm
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
-            options.bootOnInstallDevice = true
+            self.options.bootOnInstallDevice = true
+        }
+
+        if let options {
+            self.options = options
         }
 
         /// Ensure configuration is persisted whenever it changes.

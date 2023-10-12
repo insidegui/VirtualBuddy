@@ -88,6 +88,7 @@
 		F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */ = {isa = PBXBuildFile; productRef = F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */; };
 		F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */; };
 		F43B014C2AD85ABB00164CD1 /* DeepLinkAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */; };
+		F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */; };
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
@@ -404,6 +405,7 @@
 		F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyDeepLinks.swift; sourceTree = "<group>"; };
 		F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthDialog.swift; sourceTree = "<group>"; };
 		F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManager.swift; sourceTree = "<group>"; };
+		F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
@@ -870,6 +872,7 @@
 			children = (
 				F43B01482AD85AAF00164CD1 /* Support */,
 				F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */,
+				F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */,
 			);
 			path = Automation;
 			sourceTree = "<group>";
@@ -1871,6 +1874,7 @@
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
 				F43B014C2AD85ABB00164CD1 /* DeepLinkAuthManager.swift in Sources */,
+				F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
