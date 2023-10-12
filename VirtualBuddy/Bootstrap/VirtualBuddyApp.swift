@@ -9,6 +9,8 @@ import SwiftUI
 import VirtualCore
 import VirtualUI
 
+let kShellAppSubsystem = "codes.rambo.VirtualBuddy"
+
 @main
 struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
@@ -25,6 +27,11 @@ struct VirtualBuddyApp: App {
                 .onAppearOnce(perform: updateController.activate)
                 .environmentObject(library)
                 .environmentObject(sessionManager)
+                .task {
+                    for await action in DeepLinkHandler.shared.actions() {
+                        print(action)
+                    }
+                }
         }
         .windowToolbarStyle(.unified)
         .commands {

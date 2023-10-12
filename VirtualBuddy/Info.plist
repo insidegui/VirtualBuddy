@@ -23,6 +23,19 @@
 			<true/>
 		</dict>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>codes.rambo.VirtualBuddy.Action</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>virtualbuddy</string>
+			</array>
+		</dict>
+	</array>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

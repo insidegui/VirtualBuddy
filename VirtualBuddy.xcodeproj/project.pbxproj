@@ -68,6 +68,26 @@
 		F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */; };
 		F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01592888FC0C00EB15CD /* PreferencesView.swift */; };
 		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
+		F43B01182AD858FE00164CD1 /* DeepLinkSecurity.h in Headers */ = {isa = PBXBuildFile; fileRef = F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
+		F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F43B01352AD8590F00164CD1 /* DeepLinkAuthUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01242AD8590F00164CD1 /* DeepLinkAuthUI.swift */; };
+		F43B01362AD8590F00164CD1 /* DeepLinkSentinel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01252AD8590F00164CD1 /* DeepLinkSentinel.swift */; };
+		F43B01372AD8590F00164CD1 /* OpenDeepLinkRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01272AD8590F00164CD1 /* OpenDeepLinkRequest.swift */; };
+		F43B01382AD8590F00164CD1 /* DeepLinkClientDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01282AD8590F00164CD1 /* DeepLinkClientDescriptor.swift */; };
+		F43B01392AD8590F00164CD1 /* DeepLinkClient+Crypto.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B012A2AD8590F00164CD1 /* DeepLinkClient+Crypto.swift */; };
+		F43B013A2AD8590F00164CD1 /* DeepLinkClientDescriptor+.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B012B2AD8590F00164CD1 /* DeepLinkClientDescriptor+.swift */; };
+		F43B013B2AD8590F00164CD1 /* DeepLinkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B012C2AD8590F00164CD1 /* DeepLinkClient.swift */; };
+		F43B013C2AD8590F00164CD1 /* KeychainDeepLinkAuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B012E2AD8590F00164CD1 /* KeychainDeepLinkAuthStore.swift */; };
+		F43B013D2AD8590F00164CD1 /* MemoryDeepLinkAuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B012F2AD8590F00164CD1 /* MemoryDeepLinkAuthStore.swift */; };
+		F43B013E2AD8590F00164CD1 /* DeepLinkManagementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01302AD8590F00164CD1 /* DeepLinkManagementStore.swift */; };
+		F43B013F2AD8590F00164CD1 /* UserDefaultsDeepLinkManagementStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01312AD8590F00164CD1 /* UserDefaultsDeepLinkManagementStore.swift */; };
+		F43B01402AD8590F00164CD1 /* DeepLinkAuthStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01322AD8590F00164CD1 /* DeepLinkAuthStore.swift */; };
+		F43B01412AD8590F00164CD1 /* DeepLinkSecurityDefines.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01342AD8590F00164CD1 /* DeepLinkSecurityDefines.swift */; };
+		F43B01442AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */; };
+		F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */ = {isa = PBXBuildFile; productRef = F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */; };
+		F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */; };
+		F43B014C2AD85ABB00164CD1 /* DeepLinkAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */; };
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
@@ -202,6 +222,13 @@
 			remoteGlobalIDString = F41369AA29918576002CE8D3;
 			remoteInfo = VirtualBuddyGuestHelper;
 		};
+		F43B01192AD858FE00164CD1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F43B01142AD858FE00164CD1;
+			remoteInfo = DeepLinkSecurity;
+		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
@@ -277,6 +304,7 @@
 			files = (
 				F4BE9C6C27FF053A00B648F8 /* VirtualCore.framework in Embed Frameworks */,
 				F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */,
+				F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -358,6 +386,24 @@
 		F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIVMView.swift; sourceTree = "<group>"; };
 		F42C01592888FC0C00EB15CD /* PreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
+		F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DeepLinkSecurity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeepLinkSecurity.h; sourceTree = "<group>"; };
+		F43B01242AD8590F00164CD1 /* DeepLinkAuthUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthUI.swift; sourceTree = "<group>"; };
+		F43B01252AD8590F00164CD1 /* DeepLinkSentinel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkSentinel.swift; sourceTree = "<group>"; };
+		F43B01272AD8590F00164CD1 /* OpenDeepLinkRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpenDeepLinkRequest.swift; sourceTree = "<group>"; };
+		F43B01282AD8590F00164CD1 /* DeepLinkClientDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkClientDescriptor.swift; sourceTree = "<group>"; };
+		F43B012A2AD8590F00164CD1 /* DeepLinkClient+Crypto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DeepLinkClient+Crypto.swift"; sourceTree = "<group>"; };
+		F43B012B2AD8590F00164CD1 /* DeepLinkClientDescriptor+.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DeepLinkClientDescriptor+.swift"; sourceTree = "<group>"; };
+		F43B012C2AD8590F00164CD1 /* DeepLinkClient.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkClient.swift; sourceTree = "<group>"; };
+		F43B012E2AD8590F00164CD1 /* KeychainDeepLinkAuthStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeychainDeepLinkAuthStore.swift; sourceTree = "<group>"; };
+		F43B012F2AD8590F00164CD1 /* MemoryDeepLinkAuthStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemoryDeepLinkAuthStore.swift; sourceTree = "<group>"; };
+		F43B01302AD8590F00164CD1 /* DeepLinkManagementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkManagementStore.swift; sourceTree = "<group>"; };
+		F43B01312AD8590F00164CD1 /* UserDefaultsDeepLinkManagementStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserDefaultsDeepLinkManagementStore.swift; sourceTree = "<group>"; };
+		F43B01322AD8590F00164CD1 /* DeepLinkAuthStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthStore.swift; sourceTree = "<group>"; };
+		F43B01342AD8590F00164CD1 /* DeepLinkSecurityDefines.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkSecurityDefines.swift; sourceTree = "<group>"; };
+		F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyDeepLinks.swift; sourceTree = "<group>"; };
+		F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthDialog.swift; sourceTree = "<group>"; };
+		F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManager.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
@@ -483,6 +529,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F43B01122AD858FE00164CD1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACFB2884BF13006F1C00 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -495,9 +548,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */,
 				F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */,
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
+				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -739,6 +794,93 @@
 				F42C01602888FC3500EB15CD /* LibraryItemView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		F43B01162AD858FE00164CD1 /* DeepLinkSecurity */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01222AD8590F00164CD1 /* Source */,
+				F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */,
+			);
+			path = DeepLinkSecurity;
+			sourceTree = "<group>";
+		};
+		F43B01222AD8590F00164CD1 /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01332AD8590F00164CD1 /* Base */,
+				F43B01232AD8590F00164CD1 /* UI */,
+				F43B01262AD8590F00164CD1 /* Models */,
+				F43B012D2AD8590F00164CD1 /* Storage */,
+				F43B01252AD8590F00164CD1 /* DeepLinkSentinel.swift */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		F43B01232AD8590F00164CD1 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01242AD8590F00164CD1 /* DeepLinkAuthUI.swift */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		F43B01262AD8590F00164CD1 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01272AD8590F00164CD1 /* OpenDeepLinkRequest.swift */,
+				F43B01282AD8590F00164CD1 /* DeepLinkClientDescriptor.swift */,
+				F43B01292AD8590F00164CD1 /* Extensions */,
+				F43B012C2AD8590F00164CD1 /* DeepLinkClient.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		F43B01292AD8590F00164CD1 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				F43B012A2AD8590F00164CD1 /* DeepLinkClient+Crypto.swift */,
+				F43B012B2AD8590F00164CD1 /* DeepLinkClientDescriptor+.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		F43B012D2AD8590F00164CD1 /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				F43B012E2AD8590F00164CD1 /* KeychainDeepLinkAuthStore.swift */,
+				F43B012F2AD8590F00164CD1 /* MemoryDeepLinkAuthStore.swift */,
+				F43B01302AD8590F00164CD1 /* DeepLinkManagementStore.swift */,
+				F43B01312AD8590F00164CD1 /* UserDefaultsDeepLinkManagementStore.swift */,
+				F43B01322AD8590F00164CD1 /* DeepLinkAuthStore.swift */,
+			);
+			path = Storage;
+			sourceTree = "<group>";
+		};
+		F43B01332AD8590F00164CD1 /* Base */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01342AD8590F00164CD1 /* DeepLinkSecurityDefines.swift */,
+			);
+			path = Base;
+			sourceTree = "<group>";
+		};
+		F43B01422AD85A5200164CD1 /* Automation */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01482AD85AAF00164CD1 /* Support */,
+				F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */,
+			);
+			path = Automation;
+			sourceTree = "<group>";
+		};
+		F43B01482AD85AAF00164CD1 /* Support */ = {
+			isa = PBXGroup;
+			children = (
+				F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */,
+				F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */,
+			);
+			path = Support;
 			sourceTree = "<group>";
 		};
 		F443620D29B79D6800745B43 /* GuestSupport */ = {
@@ -983,6 +1125,7 @@
 				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
+				F43B01162AD858FE00164CD1 /* DeepLinkSecurity */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -998,6 +1141,7 @@
 				F498ACFE2884BF13006F1C00 /* VirtualUI.framework */,
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
 				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
+				F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1007,6 +1151,7 @@
 			children = (
 				F4C122472807145600D359E2 /* Config */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
+				F43B01422AD85A5200164CD1 /* Automation */,
 				F4BE9C7F27FF10FB00B648F8 /* Info.plist */,
 				F4BE9C5527FF052100B648F8 /* Assets.xcassets */,
 				F4BE9C5727FF052100B648F8 /* Preview Content */,
@@ -1242,6 +1387,14 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		F43B01102AD858FE00164CD1 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F43B01182AD858FE00164CD1 /* DeepLinkSecurity.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACF92884BF13006F1C00 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1290,6 +1443,24 @@
 			productReference = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */;
 			productType = "com.apple.product-type.application";
 		};
+		F43B01142AD858FE00164CD1 /* DeepLinkSecurity */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F43B01212AD858FE00164CD1 /* Build configuration list for PBXNativeTarget "DeepLinkSecurity" */;
+			buildPhases = (
+				F43B01102AD858FE00164CD1 /* Headers */,
+				F43B01112AD858FE00164CD1 /* Sources */,
+				F43B01122AD858FE00164CD1 /* Frameworks */,
+				F43B01132AD858FE00164CD1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DeepLinkSecurity;
+			productName = DeepLinkSecurity;
+			productReference = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		F498ACFD2884BF13006F1C00 /* VirtualUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */;
@@ -1324,10 +1495,12 @@
 			dependencies = (
 				F498AD032884BF13006F1C00 /* PBXTargetDependency */,
 				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
+				F43B011A2AD858FE00164CD1 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
 				F4D0F71728674E4B004D5782 /* Sparkle */,
+				F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */,
 			);
 			productName = VirtualBuddy;
 			productReference = F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */;
@@ -1422,11 +1595,14 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1430;
+				LastUpgradeCheck = 1510;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
 						CreatedOnToolsVersion = 14.2;
 						LastSwiftMigration = 1420;
+					};
+					F43B01142AD858FE00164CD1 = {
+						CreatedOnToolsVersion = 15.1;
 					};
 					F498ACFD2884BF13006F1C00 = {
 						CreatedOnToolsVersion = 14.0;
@@ -1464,6 +1640,7 @@
 			mainGroup = F4BE9C4527FF052100B648F8;
 			packageReferences = (
 				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
+				F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -1476,6 +1653,7 @@
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
+				F43B01142AD858FE00164CD1 /* DeepLinkSecurity */,
 			);
 		};
 /* End PBXProject section */
@@ -1487,6 +1665,13 @@
 			files = (
 				F41369B229918576002CE8D3 /* Assets.xcassets in Resources */,
 				F41369B529918576002CE8D3 /* Main.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F43B01132AD858FE00164CD1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1578,6 +1763,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F43B01112AD858FE00164CD1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F43B013E2AD8590F00164CD1 /* DeepLinkManagementStore.swift in Sources */,
+				F43B01392AD8590F00164CD1 /* DeepLinkClient+Crypto.swift in Sources */,
+				F43B013C2AD8590F00164CD1 /* KeychainDeepLinkAuthStore.swift in Sources */,
+				F43B013A2AD8590F00164CD1 /* DeepLinkClientDescriptor+.swift in Sources */,
+				F43B01352AD8590F00164CD1 /* DeepLinkAuthUI.swift in Sources */,
+				F43B01402AD8590F00164CD1 /* DeepLinkAuthStore.swift in Sources */,
+				F43B01362AD8590F00164CD1 /* DeepLinkSentinel.swift in Sources */,
+				F43B01372AD8590F00164CD1 /* OpenDeepLinkRequest.swift in Sources */,
+				F43B013F2AD8590F00164CD1 /* UserDefaultsDeepLinkManagementStore.swift in Sources */,
+				F43B013D2AD8590F00164CD1 /* MemoryDeepLinkAuthStore.swift in Sources */,
+				F43B01382AD8590F00164CD1 /* DeepLinkClientDescriptor.swift in Sources */,
+				F43B01412AD8590F00164CD1 /* DeepLinkSecurityDefines.swift in Sources */,
+				F43B013B2AD8590F00164CD1 /* DeepLinkClient.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACFA2884BF13006F1C00 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1660,9 +1865,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F43B01442AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift in Sources */,
+				F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
+				F43B014C2AD85ABB00164CD1 /* DeepLinkAuthManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1768,6 +1976,11 @@
 			isa = PBXTargetDependency;
 			target = F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */;
 			targetProxy = F41369BC29918617002CE8D3 /* PBXContainerItemProxy */;
+		};
+		F43B011A2AD858FE00164CD1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
+			targetProxy = F43B01192AD858FE00164CD1 /* PBXContainerItemProxy */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -1935,6 +2148,164 @@
 			};
 			name = Release_Managed;
 		};
+		F43B011D2AD858FE00164CD1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.DeepLinkSecurity;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		F43B011E2AD858FE00164CD1 /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.DeepLinkSecurity;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug_Managed;
+		};
+		F43B011F2AD858FE00164CD1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.DeepLinkSecurity;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		F43B01202AD858FE00164CD1 /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MACOSX_DEPLOYMENT_TARGET = 12.3;
+				MARKETING_VERSION = 1.0;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.DeepLinkSecurity;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release_Managed;
+		};
 		F498AD062884BF13006F1C00 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1946,6 +2317,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1954,6 +2326,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -1974,6 +2348,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -1982,6 +2357,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2071,6 +2448,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2129,6 +2508,7 @@
 				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2136,6 +2516,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2157,6 +2539,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2165,6 +2548,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2183,6 +2568,7 @@
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2191,6 +2577,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2275,6 +2663,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2331,6 +2721,7 @@
 				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2338,6 +2729,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2358,6 +2751,7 @@
 				DEVELOPMENT_ASSET_PATHS = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2366,6 +2760,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
@@ -2383,6 +2779,7 @@
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2391,6 +2788,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2535,6 +2934,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2564,6 +2965,8 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/../Frameworks",
@@ -2586,6 +2989,7 @@
 				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2593,6 +2997,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2613,6 +3019,7 @@
 				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -2620,6 +3027,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualCore";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2638,6 +3047,7 @@
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2646,6 +3056,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2665,6 +3077,7 @@
 				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
@@ -2673,6 +3086,8 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -2831,6 +3246,17 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F43B01212AD858FE00164CD1 /* Build configuration list for PBXNativeTarget "DeepLinkSecurity" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F43B011D2AD858FE00164CD1 /* Debug */,
+				F43B011E2AD858FE00164CD1 /* Debug_Managed */,
+				F43B011F2AD858FE00164CD1 /* Release */,
+				F43B01202AD858FE00164CD1 /* Release_Managed */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2911,6 +3337,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kylehughes/URLQueryItemCoder.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -2922,6 +3356,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
+			productName = URLQueryItemCoder;
+		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
