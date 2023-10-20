@@ -96,6 +96,7 @@
 		F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
+		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -224,7 +225,7 @@
 			remoteGlobalIDString = F41369AA29918576002CE8D3;
 			remoteInfo = VirtualBuddyGuestHelper;
 		};
-		F43B01192AD858FE00164CD1 /* PBXContainerItemProxy */ = {
+		F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
@@ -544,6 +545,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1479,6 +1481,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				F4510A7A2AE2B3AB00E24DD9 /* PBXTargetDependency */,
 				F498AD0B2884BF60006F1C00 /* PBXTargetDependency */,
 			);
 			name = VirtualUI;
@@ -1501,7 +1504,6 @@
 			dependencies = (
 				F498AD032884BF13006F1C00 /* PBXTargetDependency */,
 				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
-				F43B011A2AD858FE00164CD1 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
@@ -1655,11 +1657,11 @@
 				F4BE9C4D27FF052100B648F8 /* VirtualBuddy */,
 				F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */,
 				F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */,
+				F43B01142AD858FE00164CD1 /* DeepLinkSecurity */,
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
-				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
-				F43B01142AD858FE00164CD1 /* DeepLinkSecurity */,
+				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 			);
 		};
 /* End PBXProject section */
@@ -1985,10 +1987,10 @@
 			target = F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */;
 			targetProxy = F41369BC29918617002CE8D3 /* PBXContainerItemProxy */;
 		};
-		F43B011A2AD858FE00164CD1 /* PBXTargetDependency */ = {
+		F4510A7A2AE2B3AB00E24DD9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
-			targetProxy = F43B01192AD858FE00164CD1 /* PBXContainerItemProxy */;
+			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;

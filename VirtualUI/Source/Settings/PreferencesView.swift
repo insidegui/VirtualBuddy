@@ -113,6 +113,19 @@ private struct ModernSettingsView: View {
                 Text("This is where VirtualBuddy will store your virtual machines and installer images downloaded within the app.")
                     .foregroundStyle(.secondary)
             }
+
+            Section {
+                LabeledContent("Control which apps can automate VirtualBuddy") {
+                    Button {
+
+                    } label: {
+                        Image(systemName: "ellipsis.circle")
+                    }
+                    .buttonStyle(.borderless)
+                }
+            } header: {
+                Text("Automation")
+            }
         }
         .formStyle(.grouped)
     }
