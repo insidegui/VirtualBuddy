@@ -11,6 +11,8 @@ final class DeepLinkHandler {
     private let library: VMLibraryController
     private let sessionManager: VirtualMachineSessionUIManager
 
+    let runner: ActionRunner
+
     static var shared: DeepLinkHandler {
         guard let _shared else {
             fatalError("Attempting to access DeepLinkHandler instance before calling bootstrap()")
@@ -32,6 +34,12 @@ final class DeepLinkHandler {
         self.updateController = SoftwareUpdateController.shared
         self.library = VMLibraryController.shared
         self.sessionManager = VirtualMachineSessionUIManager.shared
+        self.runner = ActionRunner(
+            settingsContainer: settingsContainer,
+            updateController: updateController,
+            library: library,
+            sessionManager: sessionManager
+        )
     }
 
     private lazy var logger = Logger(subsystem: kShellAppSubsystem, category: String(describing: Self.self))
@@ -44,8 +52,6 @@ final class DeepLinkHandler {
         authStore: KeychainDeepLinkAuthStore(namespace: namespace, keyID: keyID),
         managementStore: UserDefaultsDeepLinkManagementStore()
     )
-
-    private let openWindow = OpenCocoaWindowAction.default
 
     func actions() -> AsyncCompactMapSequence<AsyncStream<URL>, DeepLinkAction> {
         sentinel.openURL.compactMap { url in
@@ -67,51 +73,79 @@ final class DeepLinkHandler {
 
         Task {
             for await action in DeepLinkHandler.shared.actions() {
-                await execute(action)
+                await runner.run(action)
             }
         }
     }
 
     @MainActor
-    private func execute(_ action: DeepLinkAction) {
-        do {
-            switch action {
-            case .open(let params):
-                try openVM(named: params.name, options: nil)
-            case .boot(let params):
-                var effectiveOptions = params.options ?? VMSessionOptions.default
-                effectiveOptions.autoBoot = true
-                try openVM(named: params.name, options: effectiveOptions)
-            case .stop(let params):
-                try stopVM(named: params.name)
+    final class ActionRunner {
+        private let settingsContainer: VBSettingsContainer
+        private let updateController: SoftwareUpdateController
+        private let library: VMLibraryController
+        private let sessionManager: VirtualMachineSessionUIManager
+        private let openWindow = OpenCocoaWindowAction.default
+
+        init(settingsContainer: VBSettingsContainer, updateController: SoftwareUpdateController, library: VMLibraryController, sessionManager: VirtualMachineSessionUIManager) {
+            self.settingsContainer = settingsContainer
+            self.updateController = updateController
+            self.library = library
+            self.sessionManager = sessionManager
+        }
+
+        func run(_ action: DeepLinkAction) async {
+            do {
+                switch action {
+                case .open(let params):
+                    try openVM(named: params.name, options: nil)
+                case .boot(let params):
+                    var effectiveOptions = params.options ?? VMSessionOptions.default
+                    effectiveOptions.autoBoot = true
+                    try openVM(named: params.name, options: effectiveOptions)
+                case .stop(let params):
+                    try await stopVM(named: params.name)
+                }
+            } catch {
+                let alert = NSAlert(error: error)
+                alert.runModal()
             }
-        } catch {
-            let alert = NSAlert(error: error)
-            alert.runModal()
         }
-    }
 
-    @MainActor
-    private func openVM(named name: String, options: VMSessionOptions?) throws {
-        let vm = try getVM(named: name)
+        func openVM(named name: String, options: VMSessionOptions?) throws {
+            let vm = try getVM(named: name)
 
-        openWindow(id: vm.id) {
-            VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
-                .environmentObject(self.library)
-                .environmentObject(self.sessionManager)
+            openWindow(id: vm.id) {
+                VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
+                    .environmentObject(self.library)
+                    .environmentObject(self.sessionManager)
+            }
         }
-    }
 
-    private func stopVM(named name: String) throws {
+        func stopVM(named name: String) async throws {
+            let controller = try getController(forVMNamed: name)
 
-    }
-
-    @MainActor
-    private func getVM(named name: String) throws -> VBVirtualMachine {
-        guard let vm = library.virtualMachine(named: name) else {
-            throw Failure("Couldn't find a virtual machine with the name \"\(name)\".")
+            switch controller.state {
+            case .idle, .stopped:
+                throw Failure("Can't stop virtual machine \"\(name)\" because it's not running.")
+            default:
+                try await controller.stop()
+            }
         }
-        return vm
+
+        func getVM(named name: String) throws -> VBVirtualMachine {
+            guard let vm = library.virtualMachine(named: name) else {
+                throw Failure("Couldn't find a virtual machine with the name \"\(name)\".")
+            }
+            return vm
+        }
+
+        func getController(forVMNamed name: String) throws -> VMController {
+            let vm = try getVM(named: name)
+            guard let controller = library.activeController(for: vm.id) else {
+                throw Failure("Couldn't find active instance of virtual machine with the name \"\(name)\"")
+            }
+            return controller
+        }
     }
 }
 
