@@ -8,7 +8,7 @@ public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore 
     private let defaults: UserDefaults
     private let storageKey: String
 
-    public init(namespace: String = "DeepLinkSecurity", suiteName: String? = nil) {
+    public init(namespace: String = "DeepLinkSecurity", suiteName: String? = nil, inMemory: Bool = false) {
         self.storageKey = "\(namespace)-Management"
 
         if let suiteName {
@@ -18,6 +18,8 @@ public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore 
                 assertionFailure("Failed to initialize user defaults with suite name \"\(suiteName)\"")
                 self.defaults = .standard
             }
+        } else if inMemory {
+            self.defaults = UserDefaults()
         } else {
             self.defaults = .standard
         }

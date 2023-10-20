@@ -7,12 +7,17 @@
 
 import SwiftUI
 import VirtualCore
+import DeepLinkSecurity
 
 /// This is a shell that handles showing the correct version depending on the OS and setting the library path,
 /// which is the only preference in common between legacy OS (Monterey) and modern OSes (Ventura and later).
 public struct PreferencesView: View {
-    public init() { }
-    
+    var deepLinkSentinel: () -> DeepLinkSentinel
+
+    public init(deepLinkSentinel: @escaping @autoclosure () -> DeepLinkSentinel) {
+        self.deepLinkSentinel = deepLinkSentinel
+    }
+
     @EnvironmentObject var container: VBSettingsContainer
 
     private var settings: VBSettings {
@@ -26,6 +31,7 @@ public struct PreferencesView: View {
         Group {
             if #available(macOS 13.0, *) {
                 ModernSettingsView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
+                    .environmentObject(deepLinkSentinel())
             } else {
                 LegacyPreferencesView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
             }
@@ -81,11 +87,14 @@ private struct ModernSettingsView: View {
     var showOpenPanel: () -> Void
 
     @EnvironmentObject var container: VBSettingsContainer
+    @EnvironmentObject var sentinel: DeepLinkSentinel
 
     private var settings: VBSettings {
         get { container.settings }
         nonmutating set { container.settings = newValue }
     }
+
+    @State private var showingAutomationSecuritySheet = false
 
     var body: some View {
         Form {
@@ -117,7 +126,7 @@ private struct ModernSettingsView: View {
             Section {
                 LabeledContent("Control which apps can automate VirtualBuddy") {
                     Button {
-
+                        showingAutomationSecuritySheet = true
                     } label: {
                         Image(systemName: "ellipsis.circle")
                     }
@@ -128,6 +137,14 @@ private struct ModernSettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .sheet(isPresented: $showingAutomationSecuritySheet) {
+            automationSecuritySheet
+        }
+    }
+
+    @ViewBuilder
+    private var automationSecuritySheet: some View {
+        DeepLinkAuthManagementUI(sentinel: sentinel)
     }
 
     
@@ -154,7 +171,7 @@ private extension VBSettingsContainer {
 
 @available(macOS 14.0, *)
 #Preview("Settings") {
-    PreferencesView()
+    PreferencesView(deepLinkSentinel: .preview)
         .environmentObject(VBSettingsContainer.preview)
 }
 #endif

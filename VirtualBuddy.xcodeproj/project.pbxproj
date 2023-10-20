@@ -87,7 +87,6 @@
 		F43B01442AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */; };
 		F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */ = {isa = PBXBuildFile; productRef = F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */; };
 		F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */; };
-		F43B014C2AD85ABB00164CD1 /* DeepLinkAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */; };
 		F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */; };
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -97,6 +96,7 @@
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
+		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -406,7 +406,6 @@
 		F43B01342AD8590F00164CD1 /* DeepLinkSecurityDefines.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkSecurityDefines.swift; sourceTree = "<group>"; };
 		F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyDeepLinks.swift; sourceTree = "<group>"; };
 		F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthDialog.swift; sourceTree = "<group>"; };
-		F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManager.swift; sourceTree = "<group>"; };
 		F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
@@ -414,6 +413,7 @@
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
+		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -790,6 +790,7 @@
 			isa = PBXGroup;
 			children = (
 				F42C01592888FC0C00EB15CD /* PreferencesView.swift */,
+				F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -885,7 +886,6 @@
 			isa = PBXGroup;
 			children = (
 				F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */,
-				F43B014A2AD85ABB00164CD1 /* DeepLinkAuthManager.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -1837,6 +1837,7 @@
 				F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */,
 				F413696829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift in Sources */,
 				F48E0D24288882E50080DDFA /* NSAlert+Confirmation.swift in Sources */,
+				F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */,
 				F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */,
 				F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */,
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
@@ -1878,7 +1879,6 @@
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
-				F43B014C2AD85ABB00164CD1 /* DeepLinkAuthManager.swift in Sources */,
 				F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

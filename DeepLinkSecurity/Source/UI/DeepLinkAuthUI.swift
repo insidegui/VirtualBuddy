@@ -1,4 +1,4 @@
-import Foundation
+import SwiftUI
 
 public protocol DeepLinkAuthUI: AnyObject {
     /// Return ``DeepLinkClientAuthorization/authorized`` if the user has allowed the client to open deep links in the app.

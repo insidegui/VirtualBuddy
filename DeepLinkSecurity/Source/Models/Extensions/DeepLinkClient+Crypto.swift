@@ -1,6 +1,6 @@
 import Cocoa
 
-extension DeepLinkClient {
+public extension DeepLinkClient {
     init(auditTokenDescriptor: NSAppleEventDescriptor) throws {
         let attrs = [kSecGuestAttributeAudit: auditTokenDescriptor.data]
         var client: SecCode!

@@ -48,7 +48,7 @@ struct VirtualBuddyApp: App {
         }
         
         Settings {
-            PreferencesView()
+            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel)
                 .environmentObject(settingsContainer)
                 .frame(minWidth: 420, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
         }

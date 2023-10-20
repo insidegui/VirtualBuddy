@@ -1,7 +1,7 @@
 import Cocoa
 import OSLog
 
-public final class DeepLinkSentinel {
+public final class DeepLinkSentinel: ObservableObject {
     private lazy var logger = Logger.deepLinkLogger(for: Self.self)
 
     public let authUI: DeepLinkAuthUI
