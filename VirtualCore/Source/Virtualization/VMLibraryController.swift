@@ -30,8 +30,9 @@ public final class VMLibraryController: ObservableObject {
     
     @Published public private(set) var virtualMachines: [VBVirtualMachine] = []
 
-    @Published public internal(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()    
-    
+    /// Identifiers for all VMs that are currently in a "booted" state (starting, booted, or paused).
+    @Published public internal(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
+
     public static let shared = VMLibraryController()
 
     let settingsContainer: VBSettingsContainer
@@ -124,6 +125,55 @@ public final class VMLibraryController: ObservableObject {
 
     public func validateNewName(_ name: String, for vm: VBVirtualMachine) throws {
         try urlForRenaming(vm, to: name)
+    }
+
+    // MARK: - VM Controller References
+
+    private final class Coordinator {
+        private let lock = NSRecursiveLock()
+
+        private var _activeVMControllers = [VBVirtualMachine.ID: WeakReference<VMController>]()
+
+        /// References to all active `VMController` instances by VM identifier.
+        /// May hold references to invalidated controllers because this does not hold a strong reference to them.
+        var activeVMControllers: [VBVirtualMachine.ID: WeakReference<VMController>] {
+            get { lock.withLock { _activeVMControllers } }
+            set { lock.withLock { _activeVMControllers = newValue } }
+        }
+
+        func activeController(for virtualMachineID: VBVirtualMachine.ID) -> VMController? {
+            activeVMControllers[virtualMachineID]?.object
+        }
+
+        /// Called when a new `VMController` is initialized so that we can reference it
+        /// outside the scope of the view hierarchy (for automation).
+        func addController(_ controller: VMController) {
+            activeVMControllers[controller.id] = WeakReference(controller)
+        }
+
+        /// Called when a `VMController` is dying so that we can cleanup our reference to it.
+        func removeController(_ controller: VMController) {
+            activeVMControllers[controller.id] = nil
+        }
+    }
+
+    private let coordinator = Coordinator()
+
+    public nonisolated var activeVMControllers: [WeakReference<VMController>] { Array(coordinator.activeVMControllers.values) }
+
+    public nonisolated func activeController(for virtualMachineID: VBVirtualMachine.ID) -> VMController? {
+        coordinator.activeVMControllers[virtualMachineID]?.object
+    }
+
+    /// Called when a new `VMController` is initialized so that we can reference it
+    /// outside the scope of the view hierarchy (for automation).
+    nonisolated func addController(_ controller: VMController) {
+        coordinator.activeVMControllers[controller.id] = WeakReference(controller)
+    }
+
+    /// Called when a `VMController` is dying so that we can cleanup our reference to it.
+    nonisolated func removeController(_ controller: VMController) {
+        coordinator.activeVMControllers[controller.id] = nil
     }
 
 }

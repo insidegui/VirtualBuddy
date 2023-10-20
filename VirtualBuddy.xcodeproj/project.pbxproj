@@ -95,6 +95,7 @@
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
 		F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
+		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -411,6 +412,7 @@
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
+		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -1312,6 +1314,7 @@
 			children = (
 				F4C2374F2888AF67001FF286 /* LogStreamer.swift */,
 				F4C2374C2888A462001FF286 /* VolumeUtils.swift */,
+				F4510A772AE2A16F00E24DD9 /* WeakReference.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1912,6 +1915,7 @@
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
+				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,

@@ -26,7 +26,11 @@ public struct VMSessionOptions: Hashable, Codable {
 
 @MainActor
 public final class VMController: ObservableObject {
-    
+
+    public let id: VBVirtualMachine.ID
+
+    private let library = VMLibraryController.shared
+
     private lazy var logger = Logger(for: Self.self)
     
     @Published
@@ -55,6 +59,7 @@ public final class VMController: ObservableObject {
     private lazy var cancellables = Set<AnyCancellable>()
     
     public init(with vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
+        self.id = vm.id
         self.virtualMachineModel = vm
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
@@ -77,6 +82,8 @@ public final class VMController: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        library.addController(self)
     }
 
     private var instance: VMInstance?
@@ -159,6 +166,10 @@ public final class VMController: ObservableObject {
         } catch {
             logger.error("Error storing screenshot: \(error)")
         }
+    }
+
+    deinit {
+        library.removeController(self)
     }
 
 }
