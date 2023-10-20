@@ -50,6 +50,7 @@ struct VirtualBuddyApp: App {
         Settings {
             PreferencesView()
                 .environmentObject(settingsContainer)
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
         }
     }
 }

@@ -8,8 +8,11 @@
 import SwiftUI
 import VirtualCore
 
+/// This is a shell that handles showing the correct version depending on the OS and setting the library path,
+/// which is the only preference in common between legacy OS (Monterey) and modern OSes (Ventura and later).
 public struct PreferencesView: View {
-
+    public init() { }
+    
     @EnvironmentObject var container: VBSettingsContainer
 
     private var settings: VBSettings {
@@ -19,25 +22,14 @@ public struct PreferencesView: View {
 
     @State private var libraryPathText = ""
 
-    public init() { }
-
     public var body: some View {
-        DecentFormView {
-            DecentFormControl {
-                VStack(alignment: .leading, spacing: 8) {
-                    TextField("Library Path:", text: $libraryPathText)
-                        .onSubmit {
-                            setLibraryPath(to: libraryPathText)
-                        }
-                        .frame(minWidth: 200, maxWidth: 300)
-
-                    Button("Choose…", action: showOpenPanel)
-                }
-            } label: {
-                Text("Library Path:")
+        Group {
+            if #available(macOS 13.0, *) {
+                ModernSettingsView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
+            } else {
+                LegacyPreferencesView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
             }
         }
-        .padding()
         .alert("Error", isPresented: $isShowingErrorAlert, actions: {
             Button("OK") { isShowingErrorAlert = false }
         }, message: {
@@ -78,6 +70,126 @@ public struct PreferencesView: View {
         guard newURL != settings.libraryURL else { return }
 
         setLibraryPath(to: newURL.path)
+    }
+}
+
+/// Settings view for modern OSes (Ventura and later).
+@available(macOS 13.0, *)
+private struct ModernSettingsView: View {
+    @Binding var libraryPathText: String
+    var setLibraryPath: (String) -> Void
+    var showOpenPanel: () -> Void
+
+    @EnvironmentObject var container: VBSettingsContainer
+
+    private var settings: VBSettings {
+        get { container.settings }
+        nonmutating set { container.settings = newValue }
+    }
+
+    var body: some View {
+        Form {
+            Section {
+                LabeledContent("Location") {
+                    HStack {
+                        TextField("", text: $libraryPathText)
+                            .onSubmit {
+                                setLibraryPath(libraryPathText)
+                            }
+
+                        Button {
+                            showOpenPanel()
+                        } label: {
+                            Image(systemName: "ellipsis.circle")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Choose")
+                    }
+                        .labelsHidden()
+                }
+            } header: {
+                Text("Library Storage")
+            } footer: {
+                Text("This is where VirtualBuddy will store your virtual machines and installer images downloaded within the app.")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .formStyle(.grouped)
+    }
+
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+// MARK: - Previews
+
+#if DEBUG
+private extension VBSettingsContainer {
+    static let preview: VBSettingsContainer = {
+        VBSettingsContainer(with: UserDefaults())
+    }()
+}
+
+@available(macOS 14.0, *)
+#Preview("Settings") {
+    PreferencesView()
+        .environmentObject(VBSettingsContainer.preview)
+}
+#endif
+
+
+
+
+
+
+
+
+
+
+
+// MARK: - Legacy Preferences UI (macOS Monterey)
+
+/// Settings view for macOS Monterey.
+/// Should not be getting any new features since Monterey support is in maintenance mode.
+private struct LegacyPreferencesView: View {
+
+    @EnvironmentObject var container: VBSettingsContainer
+
+    private var settings: VBSettings {
+        get { container.settings }
+        nonmutating set { container.settings = newValue }
+    }
+
+    @Binding var libraryPathText: String
+    var setLibraryPath: (String) -> Void
+    var showOpenPanel: () -> Void
+
+    var body: some View {
+        DecentFormView {
+            DecentFormControl {
+                VStack(alignment: .leading, spacing: 8) {
+                    TextField("Library Path:", text: $libraryPathText)
+                        .onSubmit {
+                            setLibraryPath(libraryPathText)
+                        }
+                        .frame(minWidth: 200, maxWidth: 300)
+
+                    Button("Choose…", action: showOpenPanel)
+                }
+            } label: {
+                Text("Library Path:")
+            }
+        }
+        .padding()
     }
 
 }

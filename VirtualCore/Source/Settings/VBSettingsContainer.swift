@@ -19,7 +19,7 @@ public final class VBSettingsContainer: ObservableObject {
 
     public let defaults: UserDefaults
 
-    init(with defaults: UserDefaults = .standard) {
+    public init(with defaults: UserDefaults = .standard) {
         self.defaults = defaults
 
         read()
