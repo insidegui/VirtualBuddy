@@ -126,7 +126,7 @@ final class DeepLinkHandler {
 
             switch controller.state {
             case .idle, .stopped:
-                throw Failure("Can't stop virtual machine \"\(name)\" because it's not running.")
+                throw Failure("Can't stop virtual machine \(name.wrappedInSmartQuotes) because it's not running.")
             default:
                 try await controller.stop()
             }
@@ -134,7 +134,7 @@ final class DeepLinkHandler {
 
         func getVM(named name: String) throws -> VBVirtualMachine {
             guard let vm = library.virtualMachine(named: name) else {
-                throw Failure("Couldn't find a virtual machine with the name \"\(name)\".")
+                throw Failure("Couldn't find a virtual machine with the name \(name.wrappedInSmartQuotes).")
             }
             return vm
         }
@@ -142,7 +142,7 @@ final class DeepLinkHandler {
         func getController(forVMNamed name: String) throws -> VMController {
             let vm = try getVM(named: name)
             guard let controller = library.activeController(for: vm.id) else {
-                throw Failure("Couldn't find active instance of virtual machine with the name \"\(name)\"")
+                throw Failure("Couldn't find active instance of virtual machine with the name \(name.wrappedInSmartQuotes).")
             }
             return controller
         }
@@ -153,4 +153,8 @@ private final class DeepLinkAuthUIPresenter: DeepLinkAuthUI {
     func presentDeepLinkAuth(for request: OpenDeepLinkRequest) async throws -> DeepLinkClientAuthorization {
         try await DeepLinkAuthPanel.run(for: request)
     }
+}
+
+extension String {
+    var wrappedInSmartQuotes: String { "“\(self)”" }
 }
