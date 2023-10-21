@@ -16,6 +16,10 @@ public extension VBVirtualMachine {
         machine.configuration = .preview
         return machine
     }()
+    static let previewLinux: VBVirtualMachine = {
+        var machine = try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: "Preview-Linux", withExtension: "vbvm")!)
+        return machine
+    }()
 }
 
 public extension VBMacConfiguration {

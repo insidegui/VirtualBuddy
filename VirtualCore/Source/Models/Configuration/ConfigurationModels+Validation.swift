@@ -42,9 +42,6 @@ public extension VBMacConfiguration {
         if !hardware.pointingDevice.kind.isSupportedByHost {
             errors.append("\(hardware.pointingDevice.kind.name) requires macOS 13 or later.")
         }
-        if sharedClipboardEnabled, !VBMacConfiguration.isNativeClipboardSharingSupported {
-            warnings.append(VBMacConfiguration.clipboardSharingNotice)
-        }
         if hasSharedFolders {
             if VBMacConfiguration.isFileSharingSupported {
                 warnings.append(VBMacConfiguration.fileSharingNotice)
@@ -55,36 +52,15 @@ public extension VBMacConfiguration {
         if hardware.networkDevices.contains(where: { $0.kind == .bridge }), !VBNetworkDevice.appSupportsBridgedNetworking {
             errors.append(VBNetworkDevice.bridgeUnsupportedMessage)
         }
-        if !VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
-            errors.append(VBDisplayDevice.automaticallyReconfiguresDisplayUnsupportedMessage)
-        }
         
         return SupportState(errors: errors, warnings: warnings)
     }
-    
-    static let isNativeClipboardSharingSupported: Bool = {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return false
-        }
-    }()
 
     static let isFileSharingSupported: Bool = {
         if #available(macOS 13.0, *) {
             return true
         } else {
             return false
-        }
-    }()
-
-    static let clipboardSharingNotice: String = {
-        let guestAppInfo = "To use clipboard sync with previous versions of macOS, you can use the VirtualBuddyGuest app."
-
-        if isNativeClipboardSharingSupported {
-            return "Clipboard sync requires the virtual machine to be running macOS 13 or later. \(guestAppInfo)"
-        } else {
-            return "Clipboard sync requires macOS 13 or later. \(guestAppInfo)"
         }
     }()
 
@@ -144,8 +120,6 @@ public extension VBNetworkDevice {
 public extension VBDisplayDevice {
     static let automaticallyReconfiguresDisplayWarningMessage = "Automatic display configuration is only recognized by VMs running macOS 14 and later."
     
-    static let automaticallyReconfiguresDisplayUnsupportedMessage = "Automatic display configuration requires both host and VM to be on macOS 14 or later."
-    
     static var automaticallyReconfiguresDisplaySupportedByHost: Bool {
         if #available(macOS 14.0, *) {
             return true
@@ -175,6 +149,31 @@ public extension VBPointingDevice.Kind {
     }
 }
 
+public extension VBKeyboardDevice.Kind {
+    var warning: String? {
+        guard self != .generic else { return nil }
+        return "Mac keyboard is only recognized by VMs running macOS 13 and later."
+    }
+
+    var error: String? {
+        guard !isSupportedByHost else { return nil }
+        return "Mac keyboard requires macOS 14 or later on host and macOS 13 or later on VM."
+    }
+
+    var isSupportedByHost: Bool {
+        switch self {
+        case .generic:
+            return true
+        case .mac:
+            if #available(macOS 14.0, *) {
+                return true
+            } else {
+                return false
+            }
+        }
+    }
+}
+
 public extension VBGuestType {
     var isSupportedByHost: Bool {
         switch self {
@@ -195,6 +194,8 @@ public extension VBGuestType {
     }()
 
     var supportsVirtualTrackpad: Bool { self == .mac }
+
+    var supportsKeyboardCustomization: Bool { self == .mac }
 
     var supportsDisplayPPI: Bool { self == .mac }
 

@@ -35,10 +35,6 @@ struct LibraryItemView: View {
 
     var nameFieldFocus = BoolSubject()
 
-    #if ENABLE_HARDWARE_ID_CHANGE
-    @State private var isShowingDuplicateSheet = false
-    #endif
-
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
 
     var body: some View {
@@ -93,11 +89,6 @@ struct LibraryItemView: View {
             guard updatedName != vm.name else { return }
             self.name = updatedName
         }
-        #if ENABLE_HARDWARE_ID_CHANGE
-        .sheet(isPresented: $isShowingDuplicateSheet) {
-            DuplicateVMSheet(vm: vm)
-        }
-        #endif
     }
 
     private func refreshThumbnail() {
@@ -166,9 +157,6 @@ struct LibraryItemView: View {
     }
 
     private func duplicate() {
-        #if ENABLE_HARDWARE_ID_CHANGE
-        isShowingDuplicateSheet = true
-        #else
         Task {
             do {
                 try VMLibraryController.shared.duplicate(vm)
@@ -176,7 +164,6 @@ struct LibraryItemView: View {
                 NSAlert(error: error).runModal()
             }
         }
-        #endif
     }
 
 }

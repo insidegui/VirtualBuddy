@@ -15,8 +15,9 @@ struct GuestDashboard: View {
 
     @State var activated = false
 
-    #warning("FIXME: Temporary, UI will be completely redesigned")
+    #if ENABLE_USERDEFAULTS_SYNC
     @State private var showingDefaultsPopover = false
+    #endif
 
     var body: some View {
         VStack {
@@ -31,12 +32,14 @@ struct GuestDashboard: View {
             Form {
                 Toggle("Launch At Login", isOn: launchAtLoginBinding)
 
+                #if ENABLE_USERDEFAULTS_SYNC
                 Button("Defaults Import…") {
                     showingDefaultsPopover.toggle()
                 }
                 .popover(isPresented: $showingDefaultsPopover) {
                     GuestDefaultsImportView()
                 }
+                #endif
             }
 
             Spacer()

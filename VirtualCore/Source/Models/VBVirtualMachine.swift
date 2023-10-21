@@ -7,15 +7,6 @@ public typealias BoolSubject = PassthroughSubject<Bool, Never>
 
 public struct VBVirtualMachine: Identifiable {
 
-    #if ENABLE_HARDWARE_ID_CHANGE
-    public enum DuplicationMethod: Int, Identifiable, CaseIterable {
-        public var id: RawValue { rawValue }
-
-        case changeID
-        case clone
-    }
-    #endif
-
     public struct Metadata: Codable {
         public static let currentVersion = 1
         public var version = Self.currentVersion
