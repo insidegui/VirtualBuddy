@@ -34,15 +34,19 @@ public final class VBDownloader: NSObject, ObservableObject {
     @Published
     public private(set) var state = State.idle
 
-    private lazy var session: URLSession = {
+    private lazy var session = makeSession()
+
+    private func makeSession() -> URLSession {
         let config = URLSessionConfiguration.default
         return URLSession(configuration: config, delegate: self, delegateQueue: .main)
-    }()
+    }
 
     private var destinationURL: URL?
 
     @MainActor
     public func startDownload(with url: URL) {
+        session = makeSession()
+
         resetProgress()
 
         state = .downloading(nil, nil)
@@ -67,6 +71,8 @@ public final class VBDownloader: NSObject, ObservableObject {
     public func cancelDownload() {
         downloadTask?.cancel()
         downloadTask = nil
+
+        session.finishTasksAndInvalidate()
     }
 
     private let minElapsedProgressForETA: Double = 0.01

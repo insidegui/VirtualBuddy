@@ -66,6 +66,9 @@ public struct VMInstallationWizard: View {
         .windowTitleHidden(true)
         .windowTitleBarTransparent(true)
         .windowTitle("New Virtual Machine")
+        .confirmBeforeClosingWindow { [weak viewModel] in
+            await viewModel?.confirmBeforeClosing() ?? true
+        }
         .onReceive(stepValidationStateChanged) { isValid in
             viewModel.disableNextButton = !isValid
         }
@@ -157,10 +160,8 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Downloading \(vmDisplayName)")
 
-            if let url = viewModel.data.downloadURL {
-                RestoreImageDownloadView(imageURL: url, cookie: viewModel.data.cookie) { fileURL in
-                    viewModel.handleDownloadCompleted(with: fileURL)
-                }
+            if let downloader = viewModel.downloader {
+                RestoreImageDownloadView(downloader: downloader)
             }
         }
     }

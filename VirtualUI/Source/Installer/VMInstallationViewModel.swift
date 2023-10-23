@@ -143,6 +143,8 @@ final class VMInstallationViewModel: ObservableObject {
         return !url.isFileURL
     }
 
+    @Published private(set) var downloader: VBDownloader?
+
     func goNext() {
         switch step {
             case .systemType:
@@ -191,6 +193,7 @@ final class VMInstallationViewModel: ObservableObject {
                 }
             case .download:
                 showNextButton = false
+                DispatchQueue.main.async { self.setupDownload() }
             case .install:
                 Task { await startInstallation() }
 
@@ -226,7 +229,34 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    @MainActor
+    private func setupDownload() {
+        guard let url = data.downloadURL else {
+            assertionFailure("Expected download URL to be available for download")
+            return
+        }
+
+        let d = VBDownloader(with: .shared, cookie: data.cookie)
+        self.downloader = d
+
+        d.$state.sink { [weak self] state in
+            guard let self = self else { return }
+            switch state {
+            case .done(let localURL):
+                self.handleDownloadCompleted(with: localURL)
+            case .failed(let message):
+                NSAlert(error: Failure(message)).runModal()
+            default:
+                break
+            }
+        }.store(in: &cancellables)
+
+        d.startDownload(with: url)
+    }
+
     func handleDownloadCompleted(with fileURL: URL) {
+        downloader = nil
+
         data.installImageURL = fileURL
 
         Task {
@@ -433,4 +463,41 @@ final class VMInstallationViewModel: ObservableObject {
         vmInstaller = nil
     }
 
+    var confirmBeforeClosing: () async -> Bool {
+        { [weak self] in
+            guard let self else { return true }
+
+            guard self.step.needsConfirmationBeforeClosing else { return true }
+
+            let confirmed = await NSAlert.runConfirmationAlert(
+                title: "Cancel Installation?",
+                message: "If you close the window now, the virtual machine will not be ready for use. You can continue the installation later.",
+                continueButtonTitle: "Cancel Installation",
+                cancelButtonTitle: "Continue"
+            )
+
+            guard confirmed else { return false }
+
+            await MainActor.run {
+                self.downloader?.cancelDownload()
+                self.downloader = nil
+                self.vmInstaller = nil
+            }
+
+            return true
+        }
+    }
+
+}
+
+private extension VMInstallationViewModel.Step {
+    var needsConfirmationBeforeClosing: Bool {
+        switch self {
+        /// These steps are destructive if interrupted, so confirm before closing the wizard.
+        case .configuration, .download, .install:
+            return true
+        default:
+            return false
+        }
+    }
 }

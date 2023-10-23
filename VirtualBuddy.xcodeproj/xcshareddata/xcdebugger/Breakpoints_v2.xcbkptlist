@@ -27,6 +27,38 @@
                   </ActionContent>
                </BreakpointActionProxy>
             </Actions>
+            <Locations>
+               <Location
+                  uuid = "9838DA8D-9686-4912-8814-C2B431B9B7FF - 78d4c86520a68ad0"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VirtualCore.VMController.canResume.getter : Swift.Bool"
+                  moduleName = "VirtualCore"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/insidegui/Developer/_projects/VirtualBuddy/VirtualCore/Source/Virtualization/VMController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "172"
+                  endingLineNumber = "172"
+                  offsetFromSymbolStart = "68">
+               </Location>
+               <Location
+                  uuid = "9838DA8D-9686-4912-8814-C2B431B9B7FF - a03d8f788562d999"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "VirtualCore.VMController.deinit"
+                  moduleName = "VirtualCore"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/insidegui/Developer/_projects/VirtualBuddy/VirtualCore/Source/Virtualization/VMController.swift"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "172"
+                  endingLineNumber = "172"
+                  offsetFromSymbolStart = "32">
+               </Location>
+            </Locations>
          </BreakpointContent>
       </BreakpointProxy>
    </Breakpoints>
