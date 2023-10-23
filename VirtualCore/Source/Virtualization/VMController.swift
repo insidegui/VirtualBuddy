@@ -12,17 +12,25 @@ import Combine
 import OSLog
 
 public struct VMSessionOptions: Hashable, Codable {
+    @DecodableDefault.False
     public var bootInRecoveryMode = false
     
     @DecodableDefault.False
     public var bootOnInstallDevice = false
-    
+
+    @DecodableDefault.False
+    public var autoBoot = false
+
     public static let `default` = VMSessionOptions()
 }
 
 @MainActor
 public final class VMController: ObservableObject {
-    
+
+    public let id: VBVirtualMachine.ID
+
+    private let library = VMLibraryController.shared
+
     private lazy var logger = Logger(for: Self.self)
     
     @Published
@@ -50,11 +58,16 @@ public final class VMController: ObservableObject {
 
     private lazy var cancellables = Set<AnyCancellable>()
     
-    public init(with vm: VBVirtualMachine) {
+    public init(with vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
+        self.id = vm.id
         self.virtualMachineModel = vm
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
-            options.bootOnInstallDevice = true
+            self.options.bootOnInstallDevice = true
+        }
+
+        if let options {
+            self.options = options
         }
 
         /// Ensure configuration is persisted whenever it changes.
@@ -69,6 +82,8 @@ public final class VMController: ObservableObject {
                 }
             }
             .store(in: &cancellables)
+
+        library.addController(self)
     }
 
     private var instance: VMInstance?
@@ -151,6 +166,10 @@ public final class VMController: ObservableObject {
         } catch {
             logger.error("Error storing screenshot: \(error)")
         }
+    }
+
+    deinit {
+        library.removeController(self)
     }
 
 }

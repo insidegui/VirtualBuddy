@@ -9,6 +9,8 @@ import SwiftUI
 import VirtualCore
 import VirtualUI
 
+let kShellAppSubsystem = "codes.rambo.VirtualBuddy"
+
 @main
 struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
@@ -19,8 +21,11 @@ struct VirtualBuddyApp: App {
     @StateObject private var library = VMLibraryController.shared
     @StateObject private var sessionManager = VirtualMachineSessionUIManager.shared
 
+    @Environment(\.openCocoaWindow)
+    private var openWindow
+
     var body: some Scene {
-        WindowGroup {
+        WindowGroup(id: "library") {
             LibraryView()
                 .onAppearOnce(perform: updateController.activate)
                 .environmentObject(library)
@@ -43,8 +48,9 @@ struct VirtualBuddyApp: App {
         }
         
         Settings {
-            PreferencesView()
+            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel)
                 .environmentObject(settingsContainer)
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
         }
     }
 }

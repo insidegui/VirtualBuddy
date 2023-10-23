@@ -8,6 +8,15 @@
         "revision" : "286edd1fa22505a9e54d170e9fd07d775ea233f2",
         "version" : "2.1.0"
       }
+    },
+    {
+      "identity" : "urlqueryitemcoder",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kylehughes/URLQueryItemCoder.git",
+      "state" : {
+        "revision" : "a828b3bb5b273adf85a3ca95d9705987cb2de7c7",
+        "version" : "1.0.0"
+      }
     }
   ],
   "version" : 2
