@@ -5,7 +5,7 @@
 //  Created by Guilherme Rambo on 07/04/22.
 //
 
-@import Virtualization;
+#import <Virtualization/Virtualization.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

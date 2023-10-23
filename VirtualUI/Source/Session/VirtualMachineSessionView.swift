@@ -12,7 +12,12 @@ import Combine
 public struct VirtualMachineSessionView: View {
     @StateObject var controller: VMController
     @StateObject var ui: VirtualMachineSessionUI
-    
+
+    public init(controller: VMController, ui: VirtualMachineSessionUI) {
+        self._controller = .init(wrappedValue: controller)
+        self._ui = .init(wrappedValue: ui)
+    }
+
     @EnvironmentObject var library: VMLibraryController
     @EnvironmentObject var sessionManager: VirtualMachineSessionUIManager
 
@@ -36,8 +41,8 @@ public struct VirtualMachineSessionView: View {
             .windowTitle(controller.virtualMachineModel.name)
             .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
             .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
-            .onWindowKeyChange { isKey in
-                sessionManager.focusedSessionChanged.send(isKey ? ui : nil)
+            .onWindowKeyChange { [weak sessionManager, weak ui] isKey in
+                sessionManager?.focusedSessionChanged.send(isKey ? ui : nil)
             }
             .onAppearOnce {
                 guard vbWindow?.hasSavedFrame == false else { return }
@@ -57,6 +62,11 @@ public struct VirtualMachineSessionView: View {
             }
             .onReceive(screenshotTaken) { data in
                 controller.storeScreenshot(with: data)
+            }
+            .task {
+                if controller.options.autoBoot {
+                    Task { await controller.startVM() }
+                }
             }
     }
     
@@ -142,26 +152,30 @@ public struct VirtualMachineSessionView: View {
         }
     }
 
-    private func confirmBeforeClosing() async -> Bool {
-        guard controller.isStarting || controller.isRunning else { return true }
+    private var confirmBeforeClosing: () async -> Bool {
+        { [weak controller] in
+            guard let controller else { return true }
 
-        let confirmed = await NSAlert.runConfirmationAlert(
-            title: "Stop Virtual Machine?",
-            message: "If you close the window now, the virtual machine will be stopped.",
-            continueButtonTitle: "Stop VM",
-            cancelButtonTitle: "Cancel"
-        )
+            guard controller.isStarting || controller.isRunning else { return true }
 
-        guard confirmed else { return false }
+            let confirmed = await NSAlert.runConfirmationAlert(
+                title: "Stop Virtual Machine?",
+                message: "If you close the window now, the virtual machine will be stopped.",
+                continueButtonTitle: "Stop VM",
+                cancelButtonTitle: "Cancel"
+            )
 
-        try? await controller.forceStop()
+            guard confirmed else { return false }
 
-        /// Workaround for cursor disappearing due to it being captured
-        /// between the alert confirmation and the VM stopping.
-        try? await Task.sleep(nanoseconds: 100_000_000)
-        NSCursor.unhide()
+            try? await controller.forceStop()
 
-        return true
+            /// Workaround for cursor disappearing due to it being captured
+            /// between the alert confirmation and the VM stopping.
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            NSCursor.unhide()
+
+            return true
+        }
     }
 
 }
