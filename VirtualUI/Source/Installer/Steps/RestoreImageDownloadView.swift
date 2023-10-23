@@ -9,17 +9,8 @@ import SwiftUI
 import VirtualCore
 
 struct RestoreImageDownloadView: View {
-    @StateObject private var downloader: VBDownloader
-    
-    var imageURL: URL
-    var onDownloadCompleted: (URL) -> Void
-    
-    init(imageURL: URL, cookie: String?, onDownloadCompleted: @escaping (URL) -> Void) {
-        self._downloader = .init(wrappedValue: VBDownloader(with: .shared, cookie: cookie))
-        self.onDownloadCompleted = onDownloadCompleted
-        self.imageURL = imageURL
-    }
-    
+    @ObservedObject var downloader: VBDownloader
+
     var body: some View {
         VStack {
             switch downloader.state {
@@ -33,14 +24,6 @@ struct RestoreImageDownloadView: View {
                 Text("The download failed: \(message)")
                     .foregroundColor(.red)
             }
-        }
-        .onChange(of: downloader.state) { newState in
-            if case .done(let localURL) = newState {
-                onDownloadCompleted(localURL)
-            }
-        }
-        .onAppearOnce {
-            downloader.startDownload(with: imageURL)
         }
     }
     

@@ -11,7 +11,7 @@ import Combine
 import Virtualization
 import VirtualCore
 
-struct VMInstallData: Hashable {
+struct VMInstallData: Hashable, Codable {
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
     var restoreImageInfo: VBRestoreImageInfo? {
@@ -22,15 +22,26 @@ struct VMInstallData: Hashable {
         }
     }
     var installImageURL: URL?
-    
+
     var downloadURL: URL? {
         installImageURL ?? restoreImageInfo?.url
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case name, restoreImageInfo, installImageURL
     }
 }
 
 final class VMInstallationViewModel: ObservableObject {
-    
-    enum Step: Int, Hashable {
+
+    struct RestorableState: Codable {
+        var method: InstallMethod
+        var systemType: VBGuestType
+        var data: VMInstallData
+        var step: Step
+    }
+
+    enum Step: Int, Hashable, Codable {
         case systemType
         case installKind
         case restoreImageInput
@@ -48,10 +59,19 @@ final class VMInstallationViewModel: ObservableObject {
         case error(_ message: String)
     }
 
+    private var restorableState: RestorableState {
+        RestorableState(
+            method: self.installMethod,
+            systemType: self.selectedSystemType,
+            data: self.data,
+            step: self.step
+        )
+    }
+
     @Published var installMethod = InstallMethod.localFile
 
     @Published var selectedSystemType: VBGuestType = .mac
-    
+
     @Published var machine: VBVirtualMachine?
 
     @Published var data = VMInstallData() {
@@ -69,6 +89,8 @@ final class VMInstallationViewModel: ObservableObject {
             guard step != oldValue else { return }
 
             performActions(for: step)
+
+            writeRestorationData()
         }
     }
 
@@ -79,15 +101,53 @@ final class VMInstallationViewModel: ObservableObject {
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
 
-    init() {
+    init(restoring restoreVM: VBVirtualMachine?) {
         /// Skip OS selection if there's only a single supported OS.
         step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
+
+        if let restoreVM {
+            restoreInstallation(with: restoreVM)
+        }
+    }
+
+    private func restoreInstallation(with vm: VBVirtualMachine) {
+        do {
+            guard let restoreData = vm.installRestoreData else {
+                throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "VM is missing install restore data"])
+            }
+
+            let restoredState = try PropertyListDecoder().decode(RestorableState.self, from: restoreData)
+            
+            self.installMethod = restoredState.method
+            self.selectedSystemType = restoredState.systemType
+            self.data = restoredState.data
+            self.machine = vm
+            self.step = restoredState.step
+        } catch {
+            assertionFailure("Couldn't restore install: \(error)")
+            NSAlert(error: error).runModal()
+        }
+    }
+
+    private func writeRestorationData() {
+        guard var machine else { return }
+
+        do {
+            let restoreData = try PropertyListEncoder().encode(restorableState)
+            machine.installRestoreData = restoreData
+            try machine.saveMetadata()
+            self.machine = machine
+        } catch {
+            assertionFailure("Failed to save install restore data: \(error)")
+        }
     }
 
     private var needsDownload: Bool {
         guard let url = data.installImageURL else { return true }
         return !url.isFileURL
     }
+
+    @Published private(set) var downloader: VBDownloader?
 
     func goNext() {
         switch step {
@@ -122,12 +182,12 @@ final class VMInstallationViewModel: ObservableObject {
                 disableNextButton = true
             case .name:
                 commitOSSelection()
-            
+
                 showNextButton = true
             case .configuration:
                 showNextButton = false
                 disableNextButton = true
-            
+
                 Task {
                     do {
                         try await prepareModel()
@@ -137,6 +197,7 @@ final class VMInstallationViewModel: ObservableObject {
                 }
             case .download:
                 showNextButton = false
+                DispatchQueue.main.async { self.setupDownload() }
             case .install:
                 Task { await startInstallation() }
 
@@ -172,7 +233,34 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    @MainActor
+    private func setupDownload() {
+        guard let url = data.downloadURL else {
+            assertionFailure("Expected download URL to be available for download")
+            return
+        }
+
+        let d = VBDownloader(with: .shared, cookie: data.cookie)
+        self.downloader = d
+
+        d.$state.sink { [weak self] state in
+            guard let self = self else { return }
+            switch state {
+            case .done(let localURL):
+                self.handleDownloadCompleted(with: localURL)
+            case .failed(let message):
+                NSAlert(error: Failure(message)).runModal()
+            default:
+                break
+            }
+        }.store(in: &cancellables)
+
+        d.startDownload(with: url)
+    }
+
     func handleDownloadCompleted(with fileURL: URL) {
+        downloader = nil
+
         data.installImageURL = fileURL
 
         Task {
@@ -192,7 +280,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     private var vmInstaller: VZMacOSInstaller?
     private var progressObservation: NSKeyValueObservation?
-    
+
     @MainActor
     private func prepareModel() throws {
         let vmURL = VMLibraryController.shared.libraryURL
@@ -203,7 +291,7 @@ final class VMInstallationViewModel: ObservableObject {
 
         switch selectedSystemType {
         case .mac:
-            model = try VBVirtualMachine(bundleURL: vmURL)
+            model = try VBVirtualMachine(bundleURL: vmURL, isNewInstall: true)
         case .linux:
             guard #available(macOS 13.0, *) else {
                 throw Failure("Linux virtual machine requires macOS 13 or later")
@@ -215,6 +303,8 @@ final class VMInstallationViewModel: ObservableObject {
         }
 
         self.machine = model
+
+        writeRestorationData()
     }
 
     @MainActor
@@ -263,7 +353,7 @@ final class VMInstallationViewModel: ObservableObject {
             } catch {
                 throw Failure("Failed to validate configuration: \(String(describing: error))")
             }
-            
+
             step = .done
         } catch {
             state = .error(error.localizedDescription)
@@ -276,7 +366,7 @@ final class VMInstallationViewModel: ObservableObject {
             state = .error("Missing restore image URL")
             return
         }
-        
+
         guard let model = machine else {
             state = .error("Missing VM model")
             return
@@ -379,4 +469,41 @@ final class VMInstallationViewModel: ObservableObject {
         vmInstaller = nil
     }
 
+    var confirmBeforeClosing: () async -> Bool {
+        { [weak self] in
+            guard let self else { return true }
+
+            guard self.step.needsConfirmationBeforeClosing else { return true }
+
+            let confirmed = await NSAlert.runConfirmationAlert(
+                title: "Cancel Installation?",
+                message: "If you close the window now, the virtual machine will not be ready for use. You can continue the installation later.",
+                continueButtonTitle: "Cancel Installation",
+                cancelButtonTitle: "Continue"
+            )
+
+            guard confirmed else { return false }
+
+            await MainActor.run {
+                self.downloader?.cancelDownload()
+                self.downloader = nil
+                self.vmInstaller = nil
+            }
+
+            return true
+        }
+    }
+
+}
+
+private extension VMInstallationViewModel.Step {
+    var needsConfirmationBeforeClosing: Bool {
+        switch self {
+        /// These steps are destructive if interrupted, so confirm before closing the wizard.
+        case .configuration, .download, .install:
+            return true
+        default:
+            return false
+        }
+    }
 }

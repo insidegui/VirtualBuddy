@@ -11,12 +11,14 @@ import Combine
 
 public struct VMInstallationWizard: View {
     @EnvironmentObject var library: VMLibraryController
-    @StateObject var viewModel = VMInstallationViewModel()
+    @StateObject var viewModel: VMInstallationViewModel
 
     @Environment(\.closeWindow) var closeWindow
-    
-    public init() { }
-    
+
+    public init(restoring restoreVM: VBVirtualMachine? = nil) {
+        self._viewModel = .init(wrappedValue: VMInstallationViewModel(restoring: restoreVM))
+    }
+
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
 
     public var body: some View {
@@ -64,6 +66,9 @@ public struct VMInstallationWizard: View {
         .windowTitleHidden(true)
         .windowTitleBarTransparent(true)
         .windowTitle("New Virtual Machine")
+        .confirmBeforeClosingWindow { [weak viewModel] in
+            await viewModel?.confirmBeforeClosing() ?? true
+        }
         .onReceive(stepValidationStateChanged) { isValid in
             viewModel.disableNextButton = !isValid
         }
@@ -155,10 +160,8 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Downloading \(vmDisplayName)")
 
-            if let url = viewModel.data.downloadURL {
-                RestoreImageDownloadView(imageURL: url, cookie: viewModel.data.cookie) { fileURL in
-                    viewModel.handleDownloadCompleted(with: fileURL)
-                }
+            if let downloader = viewModel.downloader {
+                RestoreImageDownloadView(downloader: downloader)
             }
         }
     }

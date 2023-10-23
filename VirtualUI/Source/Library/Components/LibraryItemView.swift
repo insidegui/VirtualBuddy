@@ -149,13 +149,7 @@ struct LibraryItemView: View {
         Divider()
 
         Button {
-            Task {
-                do {
-                    try await VMLibraryController.shared.moveToTrash(vm)
-                } catch {
-                    NSAlert(error: error).runModal()
-                }
-            }
+            VMLibraryController.shared.performMoveToTrash(for: vm)
         } label: {
             Text("Move to Trash")
         }
@@ -172,4 +166,16 @@ struct LibraryItemView: View {
         }
     }
 
+}
+
+extension VMLibraryController {
+    func performMoveToTrash(for vm: VBVirtualMachine) {
+        Task {
+            do {
+                try await VMLibraryController.shared.moveToTrash(vm)
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
+    }
 }
