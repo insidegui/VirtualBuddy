@@ -37,7 +37,8 @@ struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
         return [graphicsConfiguration]
     }
 
-    func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration {
+    @available(macOS 13.0, *)
+    func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration? {
         let consoleDevice = VZVirtioConsoleDeviceConfiguration()
 
         let spiceAgentPort = VZVirtioConsolePortConfiguration()
