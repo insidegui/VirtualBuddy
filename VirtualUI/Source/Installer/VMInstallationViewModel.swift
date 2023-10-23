@@ -90,16 +90,7 @@ final class VMInstallationViewModel: ObservableObject {
 
             performActions(for: step)
 
-            if var machine {
-                do {
-                    let restoreData = try PropertyListEncoder().encode(restorableState)
-                    machine.installRestoreData = restoreData
-                    try machine.saveMetadata()
-                    self.machine = machine
-                } catch {
-                    assertionFailure("Failed to save install restore data: \(error)")
-                }
-            }
+            writeRestorationData()
         }
     }
 
@@ -135,6 +126,19 @@ final class VMInstallationViewModel: ObservableObject {
         } catch {
             assertionFailure("Couldn't restore install: \(error)")
             NSAlert(error: error).runModal()
+        }
+    }
+
+    private func writeRestorationData() {
+        guard var machine else { return }
+
+        do {
+            let restoreData = try PropertyListEncoder().encode(restorableState)
+            machine.installRestoreData = restoreData
+            try machine.saveMetadata()
+            self.machine = machine
+        } catch {
+            assertionFailure("Failed to save install restore data: \(error)")
         }
     }
 
@@ -287,7 +291,7 @@ final class VMInstallationViewModel: ObservableObject {
 
         switch selectedSystemType {
         case .mac:
-            model = try VBVirtualMachine(bundleURL: vmURL)
+            model = try VBVirtualMachine(bundleURL: vmURL, isNewInstall: true)
         case .linux:
             guard #available(macOS 13.0, *) else {
                 throw Failure("Linux virtual machine requires macOS 13 or later")
@@ -299,6 +303,8 @@ final class VMInstallationViewModel: ObservableObject {
         }
 
         self.machine = model
+
+        writeRestorationData()
     }
 
     @MainActor

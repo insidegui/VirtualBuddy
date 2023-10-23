@@ -125,7 +125,7 @@ public extension UTType {
 
 public extension VBVirtualMachine {
     
-    init(bundleURL: URL) throws {
+    init(bundleURL: URL, isNewInstall: Bool = false) throws {
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
             #if DEBUG
             guard !ProcessInfo.isSwiftUIPreview else {
@@ -149,7 +149,7 @@ public extension VBVirtualMachine {
             self.metadata = metadata
         } else {
             /// Migration from previous versions that didn't have a metadata file.
-            self.metadata = Metadata(installFinished: true, firstBootDate: .now, lastBootDate: .now)
+            self.metadata = Metadata(installFinished: !isNewInstall, firstBootDate: .now, lastBootDate: .now)
         }
 
         self.installRestoreData = installRestore
