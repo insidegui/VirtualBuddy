@@ -17,6 +17,8 @@ protocol VirtualMachineConfigurationHelper {
     func createKeyboardConfiguration() -> VZKeyboardConfiguration
     func createGraphicsDevices() -> [VZGraphicsDeviceConfiguration]
     func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration]
+    @available(macOS 13.0, *)
+    func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration?
 }
 
 extension VirtualMachineConfigurationHelper {
@@ -51,6 +53,9 @@ extension VirtualMachineConfigurationHelper {
     }
 
     func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration] { [] }
+
+    @available(macOS 13.0, *)
+    func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration? { nil }
 
 }
 
