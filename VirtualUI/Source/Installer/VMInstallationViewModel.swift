@@ -134,6 +134,7 @@ final class VMInstallationViewModel: ObservableObject {
             self.step = restoredState.step
         } catch {
             assertionFailure("Couldn't restore install: \(error)")
+            NSAlert(error: error).runModal()
         }
     }
 
