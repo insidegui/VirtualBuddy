@@ -33,7 +33,15 @@ public struct VirtualMachineSessionView: View {
     }
 
     public var body: some View {
-        controllerStateView
+        ZStack {
+            controllerStateView
+        }
+            .toolbar {
+                if #available(macOS 14.0, *) {
+                    VirtualMachineControls<VMController>()
+                        .environmentObject(controller)
+                }
+            }
             .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
             .background(backgroundView)
@@ -65,7 +73,7 @@ public struct VirtualMachineSessionView: View {
             }
             .task {
                 if controller.options.autoBoot {
-                    Task { await controller.startVM() }
+                    Task { try? await controller.start() }
                 }
             }
     }
@@ -131,10 +139,10 @@ public struct VirtualMachineSessionView: View {
     private var circularStartButton: some View {
         Button {
             if controller.canStart {
-                Task { await controller.startVM() }
+                Task { try? await controller.start() }
             } else if controller.canResume {
                 Task {
-                    try await controller.resume()
+                    try? await controller.resume()
                 }
             }
         } label: {
