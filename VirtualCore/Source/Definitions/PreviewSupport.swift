@@ -1,6 +1,7 @@
 #if DEBUG
 
 import Foundation
+import Virtualization
 
 public extension ProcessInfo {
     
@@ -67,6 +68,20 @@ public extension VBMacConfiguration {
         return mSelf
     }
     
+}
+
+public extension VZVirtualMachine {
+    /// A dummy `VZVirtualMachine` instance for previews where an instance is needed but nothing  is actually done with it.
+    static let preview: VZVirtualMachine = {
+        let config = VZVirtualMachineConfiguration()
+        /// Sneaky little swizzle to get around validation exception.
+        /// This is fine® because it's just for previews.
+        if let method = class_getInstanceMethod(VZVirtualMachineConfiguration.self, #selector(VZVirtualMachineConfiguration.validate)) {
+            let impBlock: @convention(block) () -> Bool = { return true }
+            method_setImplementation(method, imp_implementationWithBlock(impBlock))
+        }
+        return VZVirtualMachine(configuration: config)
+    }()
 }
 
 #endif

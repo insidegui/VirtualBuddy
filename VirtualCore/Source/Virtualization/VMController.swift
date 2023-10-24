@@ -24,6 +24,14 @@ public struct VMSessionOptions: Hashable, Codable {
     public static let `default` = VMSessionOptions()
 }
 
+public enum VMState: Equatable {
+    case idle
+    case starting
+    case running(VZVirtualMachine)
+    case paused(VZVirtualMachine)
+    case stopped(Error?)
+}
+
 @MainActor
 public final class VMController: ObservableObject {
 
@@ -40,13 +48,7 @@ public final class VMController: ObservableObject {
         }
     }
     
-    public enum State {
-        case idle
-        case starting
-        case running(VZVirtualMachine)
-        case paused(VZVirtualMachine)
-        case stopped(Error?)
-    }
+    public typealias State = VMState
     
     @Published
     public private(set) var state = State.idle
@@ -98,57 +100,72 @@ public final class VMController: ObservableObject {
         return newInstance
     }
 
-    public func startVM() async {
+    public func start() async throws {
         state = .starting
         
-        do {
+        try await updatingState {
             let newInstance = try createInstance()
             self.instance = newInstance
 
             try await newInstance.startVM()
             let vm = try newInstance.virtualMachine
-            
+
             state = .running(vm)
             virtualMachineModel.metadata.installFinished = true
-        } catch {
-            state = .stopped(error)
         }
     }
     
     public func pause() async throws {
-        let instance = try ensureInstance()
-        
-        try await instance.pause()
-        let vm = try instance.virtualMachine
-        
-        state = .paused(vm)
+        try await updatingState {
+            let instance = try ensureInstance()
+
+            try await instance.pause()
+            let vm = try instance.virtualMachine
+
+            state = .paused(vm)
+        }
     }
     
     public func resume() async throws {
-        let instance = try ensureInstance()
-        
-        try await instance.resume()
-        let vm = try instance.virtualMachine
-        
-        state = .running(vm)
+        try await updatingState {
+            let instance = try ensureInstance()
+
+            try await instance.resume()
+            let vm = try instance.virtualMachine
+
+            state = .running(vm)
+        }
     }
     
     public func stop() async throws {
-        let instance = try ensureInstance()
-        
-        try await instance.stop()
-        
-        state = .stopped(nil)
+        try await updatingState {
+            let instance = try ensureInstance()
+
+            try await instance.stop()
+
+            state = .stopped(nil)
+        }
     }
     
     public func forceStop() async throws {
-        let instance = try ensureInstance()
-        
-        try await instance.forceStop()
-        
-        state = .stopped(nil)
+        try await updatingState {
+            let instance = try ensureInstance()
+
+            try await instance.forceStop()
+
+            state = .stopped(nil)
+        }
     }
-    
+
+    private func updatingState(perform block: () async throws -> Void) async throws {
+        do {
+            try await block()
+        } catch {
+            state = .stopped(error)
+            throw error
+        }
+    }
+
     private func ensureInstance() throws -> VMInstance {
         guard let instance = instance else {
             throw CocoaError(.validationMissingMandatoryProperty)
@@ -174,33 +191,78 @@ public final class VMController: ObservableObject {
 
 }
 
-public extension VMController {
-    
+public extension VMState {
+
+    static func ==(lhs: VMState, rhs: VMState) -> Bool {
+        switch lhs {
+        case .idle: return rhs.isIdle
+        case .starting: return rhs.isStarting
+        case .running: return rhs.isRunning
+        case .paused: return rhs.isPaused
+        case .stopped: return rhs.isStopped
+        }
+    }
+
+    var isIdle: Bool {
+        guard case .idle = self else { return false }
+        return true
+    }
+
+    var isStarting: Bool {
+        guard case .starting = self else { return false }
+        return true
+    }
+
+    var isRunning: Bool {
+        guard case .running = self else { return false }
+        return true
+    }
+
+    var isPaused: Bool {
+        guard case .paused = self else { return false }
+        return true
+    }
+
+    var isStopped: Bool {
+        guard case .stopped = self else { return false }
+        return true
+    }
+
     var canStart: Bool {
-        switch state {
+        switch self {
         case .idle, .stopped:
             return true
         default:
             return false
         }
     }
-    
+
     var canResume: Bool {
-        switch state {
+        switch self {
         case .paused:
             return true
         default:
             return false
         }
     }
-    
+
     var canPause: Bool {
-        switch state {
+        switch self {
         case .running:
             return true
         default:
             return false
         }
     }
+
+}
+
+public extension VMController {
     
+    var canStart: Bool { state.canStart }
+
+    var canResume: Bool { state.canResume }
+
+    var canPause: Bool { state.canPause }
+
 }
