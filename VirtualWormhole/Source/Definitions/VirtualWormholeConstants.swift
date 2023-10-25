@@ -18,6 +18,10 @@ struct VirtualWormholeConstants {
         return false
         #endif
     }()
+
+    static let payloadPropagationEnabled: Bool = {
+        !UserDefaults.standard.bool(forKey: "WHDisablePayloadPropagation")
+    }()
 }
 
 extension Logger {

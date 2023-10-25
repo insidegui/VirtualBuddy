@@ -207,14 +207,37 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
 
             let cancellable = self.packetSubject
                 .filter { $0.packet.payloadType == typeName }
-                .sink { peerID, packet in
+                .sink { [weak self] peerID, packet in
+                    guard let self = self else { return }
+
                     guard let decodedPayload = try? JSONDecoder().decode(payloadType, from: packet.payload) else { return }
+
+                    self.propagateIfNeeded(packet, type: payloadType, from: peerID)
 
                     continuation.yield((peerID, decodedPayload))
                 }
 
             continuation.onTermination = { @Sendable _ in
                 cancellable.cancel()
+            }
+        }
+    }
+
+    private func propagateIfNeeded<P: WHPayload>(_ packet: WormholePacket, type: P.Type, from senderID: WHPeerID) {
+        guard type.propagateBetweenGuests, VirtualWormholeConstants.payloadPropagationEnabled else { return }
+
+        let propagationChannels = self.peers.filter({ $0.key != senderID })
+        
+        Task {
+            for (id, channel) in propagationChannels {
+                do {
+                    if VirtualWormholeConstants.verboseLoggingEnabled {
+                        logger.debug("⬆️ PROPAGATE \(packet.payloadType, privacy: .public) from \(senderID, privacy: .public) to \(id, privacy: .public)")
+                    }
+                    try await channel.send(packet)
+                } catch {
+                    logger.error("Packet propagation to \(id, privacy: .public) failed: \(error, privacy: .public)")
+                }
             }
         }
     }
@@ -460,7 +483,11 @@ actor WormholeChannel: ObservableObject {
                 logger.debug("🏓 Received ping")
             }
 
-            try? await send(WormholePacket(WHPong()))
+            do {
+                try await send(.pong)
+            } catch {
+                logger.error("🏓 Pong send failure: \(error, privacy: .public)")
+            }
         } else {
             if VirtualWormholeConstants.verboseLoggingEnabled {
                 logger.debug("🏓 Received pong")

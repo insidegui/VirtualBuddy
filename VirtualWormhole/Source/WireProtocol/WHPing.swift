@@ -19,3 +19,12 @@ extension WormholePacket {
     var isPing: Bool { payloadType == String(describing: WHPing.self) }
     var isPong: Bool { payloadType == String(describing: WHPong.self) }
 }
+
+extension WormholePacket {
+    static var ping: WormholePacket {
+        get throws { try WormholePacket(WHPing()) }
+    }
+    static var pong: WormholePacket {
+        get throws { try WormholePacket(WHPong()) }
+    }
+}

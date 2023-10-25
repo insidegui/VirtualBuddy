@@ -60,6 +60,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-WHDisablePayloadPropagation YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-WHVerbosePacketLogging YES"
             isEnabled = "YES">
          </CommandLineArgument>

@@ -16,6 +16,8 @@ struct ClipboardData: Codable, Hashable {
 struct ClipboardMessage: WHPayload, Hashable {
     var timestamp: Date
     var data: [ClipboardData]
+
+    static let propagateBetweenGuests = true
 }
 
 final class WHSharedClipboardService: WormholeService {
