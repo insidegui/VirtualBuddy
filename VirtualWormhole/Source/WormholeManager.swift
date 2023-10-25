@@ -210,7 +210,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
                 .sink { [weak self] token, packet in
                     guard let self = self else { return }
 
-                    guard let decodedPayload = try? JSONDecoder().decode(payloadType, from: packet.payload) else { return }
+                    guard let decodedPayload = try? JSONDecoder.wormhole.decode(payloadType, from: packet.payload) else { return }
 
                     self.propagateIfNeeded(packet, type: payloadType, from: token.peerID)
 

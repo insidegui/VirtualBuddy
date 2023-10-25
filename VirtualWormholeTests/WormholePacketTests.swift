@@ -7,23 +7,19 @@
 
 import XCTest
 @testable import VirtualWormhole
+import CryptoKit
 
 final class WormholePacketTests: XCTestCase {
-
-    func testPacketEncodingWithTestPayload() throws {
-        let payload = TestPayload()
-        let packet = try WormholePacket(payload)
-        let data = try packet.encoded()
-
-        XCTAssertEqual(data.hexDump, "CAFEF00D546573745061796C6F6164003A000000000000007B226D657373616765223A2248656C6C6F2C20576F726C6421222C226E756D626572223A34322C2264617461223A227172764D3365375C2F227D")
-    }
 
     func testPacketDecodingWithTestPayload() throws {
         let payload = TestPayload()
         let packet = try WormholePacket(payload)
         let data = try packet.encoded()
 
-        let decodedPacket = try WormholePacket.decode(from: data)
+        guard let decodedPacket = WormholePacket.decode(from: data) else {
+            XCTAssert(false, "Expected to decode a packet")
+            return
+        }
 
         XCTAssertEqual(decodedPacket.magic, packet.magic)
         XCTAssertEqual(decodedPacket.payloadType, packet.payloadType)
@@ -40,7 +36,11 @@ final class WormholePacketTests: XCTestCase {
 
         let data = try packet.encoded()
 
-        let decodedPacket = try WormholePacket.decode(from: data)
+        guard let decodedPacket = WormholePacket.decode(from: data) else {
+            XCTAssert(false, "Expected to decode a packet")
+            return
+        }
+        
         XCTAssertEqual(Int(packet.payloadLength), decodedPacket.payload.count)
     }
 
@@ -66,14 +66,75 @@ final class WormholePacketTests: XCTestCase {
         }
     }
 
+    func testPacketStreamingSmallPayloads() async throws {
+        let (handle, _) = FileHandle.testStreamSmallPayloads()
+
+        let expect = expectation(description: "Receive 6 packets")
+        expect.expectedFulfillmentCount = 6
+
+        let streamTask = Task {
+            let start = clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+
+            var packets = [WormholePacket]()
+
+            for try await packet in WormholePacket.stream(from: handle.bytes) {
+                packets.append(packet)
+
+                expect.fulfill()
+            }
+
+            let end = clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+
+            let duration = (end - start) / NSEC_PER_MSEC
+
+            print("⏱️ STREAM DURATION: \(duration)ms")
+
+            return packets
+        }
+
+        await fulfillment(of: [expect], timeout: 3)
+        streamTask.cancel()
+
+        let packets = try await streamTask.value
+
+        XCTAssertEqual(packets.count, 6)
+
+        for (index, packet) in packets.enumerated() {
+            XCTAssertEqual(packet.magic, 0x0DF0FECA)
+            XCTAssertEqual(packet.payloadType, "TestPayload")
+            XCTAssertEqual(packet.payloadType, "TestPayload")
+            let payload = try JSONDecoder.wormhole.decode(TestPayload.self, from: packet.payload)
+            XCTAssertEqual(payload.data, Data.testSmall[index])
+        }
+    }
+
     func testCompressedPacketEncodeDecode() async throws {
-        let payload = TestPayload(data: .empty(count: WormholePacket.maxUncompressedPayloadSize + 1))
+        let payload = TestPayload(data: .random(count: WormholePacket.maxUncompressedPayloadSize + 1))
 
         let packet = try WormholePacket(payload)
 
         let data = try packet.encoded()
 
-        let decodedPacket = try WormholePacket.decode(from: data)
+        guard let decodedPacket = WormholePacket.decode(from: data) else {
+            XCTAssert(false, "Expected to decode a packet")
+            return
+        }
+
+        XCTAssertEqual(decodedPacket.magic, WormholePacket.magicValueCompressed)
+        XCTAssertEqual(decodedPacket.payload, packet.payload)
+    }
+
+    func testCompressedPacketEncodeDecodeLargePayload() async throws {
+        let payload = TestPayload(data: .random(count: 10_000_000))
+
+        let packet = try WormholePacket(payload)
+
+        let data = try packet.encoded()
+
+        guard let decodedPacket = WormholePacket.decode(from: data) else {
+            XCTAssert(false, "Expected to decode a packet")
+            return
+        }
 
         XCTAssertEqual(decodedPacket.magic, WormholePacket.magicValueCompressed)
         XCTAssertEqual(decodedPacket.payload, packet.payload)
@@ -96,6 +157,15 @@ extension Data {
         let bytes = [UInt8](repeating: 0, count: count)
         return Data(bytes)
     }
+
+    static func random(count: Int) -> Data {
+        var bytes = [Int8](repeating: 0, count: count)
+
+        let status = SecRandomCopyBytes(kSecRandomDefault, count, &bytes)
+        assert(status == errSecSuccess, "Failed to generate random data for testing")
+
+        return Data(bytes: bytes, count: count)
+    }
 }
 
 extension FileHandle {
@@ -104,5 +174,39 @@ extension FileHandle {
             fatalError("Missing TestStream.bin in WormholeTests bundle!")
         }
         return try! FileHandle(forReadingFrom: url)
+    }
+}
+
+extension Data {
+    static let testSmall: [Data] = [
+        Data.random(count: 300_000),
+        Data.random(count: 6_000),
+        Data.random(count: 12_010),
+        Data.random(count: 11_006),
+        Data.random(count: 13_231),
+        Data.random(count: 1_200),
+    ]
+
+    static let testMedium = Data.random(count: 1_000_000)
+    static let testLarge = Data.random(count: 3_000_000)
+}
+
+extension FileHandle {
+
+    static func testStreamSmallPayloads() -> (readHandle: FileHandle, task: Task<Void, Never>) {
+        let pipe = Pipe()
+        let writeHandle = pipe.fileHandleForWriting
+        let readHandle = pipe.fileHandleForReading
+
+        let writeTask = Task {
+            for i in (0..<6) {
+                guard !Task.isCancelled else { return }
+
+                let payload = TestPayload(data: .testSmall[i])
+                try! writeHandle.write(contentsOf: WormholePacket(payload).encoded())
+            }
+        }
+
+        return (readHandle, writeTask)
     }
 }

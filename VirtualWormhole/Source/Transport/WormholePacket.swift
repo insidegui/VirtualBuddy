@@ -21,6 +21,8 @@ extension WormholePacket {
     static let maxUncompressedPayloadSize = 1000000
     static let compressionAlgorithm = NSData.CompressionAlgorithm.lzma
 
+    static let magicValueBytes: [UInt8] = [0xCA, 0xFE, 0xF0, 0x0D]
+
     /// The absolute minimum size an entire packet could be.
     /// Any packet that's not at least this size has something wrong with it.
     static let minimumSize: Int = {
@@ -66,14 +68,11 @@ extension WormholePacket {
 
 extension WormholePacket {
 
-    static func decode(from data: Data) throws -> WormholePacket {
-        guard data.count >= Self.minimumSize else {
-            throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "Packet data with length \(data.count) is smaller than the minimum packet length"])
-        }
-
-        return try data.withUnsafeBytes { buffer in
+    static func decode(from data: Data) -> WormholePacket? {
+        data.withUnsafeBytes { buffer in
             guard let pointer = buffer.baseAddress else {
-                throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Couldn't get buffer base address"])
+                assertionFailure("Couldn't get buffer base address")
+                return nil
             }
 
             var byteOffset = 0
@@ -94,24 +93,19 @@ extension WormholePacket {
 
             byteOffset += MemoryLayout<UInt64>.size
 
-            guard UInt64(data.count) > payloadLength else {
-                throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet payload length \(payloadLength) is out of bounds"])
-            }
+            guard UInt64(data.count) > payloadLength else { return nil }
 
             let upperBound = Int(byteOffset)+Int(truncatingIfNeeded: payloadLength)
 
-            guard data.count >= upperBound else {
-                throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet payload length \(payloadLength) is out of bounds"])
-            }
+            guard data.count >= upperBound else { return nil }
 
             var payload = Data(data[byteOffset..<upperBound])
 
-            guard payload.count == Int(payloadLength) else {
-                throw CocoaError(.coderReadCorrupt, userInfo: [NSLocalizedDescriptionKey: "Packet specified payload length \(payloadLength), but payload has length \(payload.count)"])
-            }
+            guard payload.count == Int(payloadLength) else { return nil }
 
             if magic == Self.magicValueCompressed {
-                payload = try (payload as NSData).decompressed(using: Self.compressionAlgorithm) as Data
+                guard let uncompressed = try? (payload as NSData).decompressed(using: Self.compressionAlgorithm) as Data else { return nil }
+                payload = uncompressed
                 payloadLength = UInt64(payload.count)
             }
 
@@ -143,17 +137,19 @@ extension WormholePacket {
                     var buffer = Data(capacity: WormholePacket.minimumSize)
 
                     for try await byte in bytes {
-                        guard !Task.isCancelled else { break }
+                        autoreleasepool {
+                            guard !Task.isCancelled else { return }
 
-//                        Self.logger.debug("RECV: \(buffer.map({ String(format: "%02X", $0) }).joined())")
+    //                        Self.logger.debug("RECV: \(buffer.map({ String(format: "%02X", $0) }).joined())")
 
-                        buffer.append(byte)
+                            buffer.append(byte)
 
-                        guard buffer.count >= WormholePacket.minimumSize else { continue }
+                            guard buffer.count >= WormholePacket.minimumSize else { return }
 
-                        if let packet = try? WormholePacket.decode(from: buffer) {
-                            continuation.yield(packet)
-                            buffer = Data(capacity: WormholePacket.minimumSize)
+                            if let packet = WormholePacket.decode(from: buffer) {
+                                continuation.yield(packet)
+                                buffer = Data(capacity: WormholePacket.minimumSize)
+                            }
                         }
                     }
 
