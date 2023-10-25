@@ -36,7 +36,7 @@ extension WormholePacket {
 extension WormholePacket {
 
     init<T: Codable>(_ payload: T) throws {
-        let data = try JSONEncoder().encode(payload)
+        let data = try JSONEncoder.wormhole.encode(payload)
         let typeName = String(describing: type(of: payload))
 
         self.init(payloadType: typeName, payloadLength: UInt64(data.count), payload: data)
@@ -171,4 +171,12 @@ extension WormholePacket {
         }
     }
 
+}
+
+extension JSONDecoder {
+    static let wormhole = JSONDecoder()
+}
+
+extension JSONEncoder {
+    static let wormhole = JSONEncoder()
 }

@@ -100,7 +100,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         #endif
 
         Timer
-            .publish(every: 3, tolerance: 1.5, on: .main, in: .common)
+            .publish(every: VirtualWormholeConstants.pingIntervalInSeconds, tolerance: VirtualWormholeConstants.pingIntervalInSeconds * 0.5, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -150,7 +150,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         peers[peerID] = nil
     }
 
-    public func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async {
+    public func send<T: WHPayload>(_ payload: T, to peerID: WHPeerID?) async {
         guard !peers.isEmpty else { return }
         
         if side == .guest {
@@ -170,19 +170,33 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
                     return
                 }
 
-                try await channel.send(packet)
+                /// Message will be repeated if other side disconnects and reconnects.
+                if T.resendOnReconnect {
+                    await channel.connected {
+                        do {
+                            /// Make sure there's a fresh packet every time the message is sent.
+                            let newPacket = try WormholePacket(payload)
+
+                            try await $0.send(newPacket)
+                        } catch {
+                            assertionFailure("Failed to send packet: \(error)")
+                        }
+                    }
+                } else {
+                    try await channel.send(packet)
+                }
             } else {
                 for channel in peers.values {
                     try await channel.send(packet)
                 }
             }
         } catch {
-            logger.fault("Failed to encode packet: \(error, privacy: .public)")
-            assertionFailure("Failed to encode packet: \(error)")
+            logger.fault("Failed to send packet: \(error, privacy: .public)")
+            assertionFailure("Failed to send packet: \(error)")
         }
     }
 
-    public func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
+    public func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
         AsyncThrowingStream { [weak self] continuation in
             guard let self = self else {
                 continuation.finish()
@@ -193,14 +207,37 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
 
             let cancellable = self.packetSubject
                 .filter { $0.packet.payloadType == typeName }
-                .sink { peerID, packet in
+                .sink { [weak self] peerID, packet in
+                    guard let self = self else { return }
+
                     guard let decodedPayload = try? JSONDecoder().decode(payloadType, from: packet.payload) else { return }
+
+                    self.propagateIfNeeded(packet, type: payloadType, from: peerID)
 
                     continuation.yield((peerID, decodedPayload))
                 }
 
             continuation.onTermination = { @Sendable _ in
                 cancellable.cancel()
+            }
+        }
+    }
+
+    private func propagateIfNeeded<P: WHPayload>(_ packet: WormholePacket, type: P.Type, from senderID: WHPeerID) {
+        guard type.propagateBetweenGuests, VirtualWormholeConstants.payloadPropagationEnabled else { return }
+
+        let propagationChannels = self.peers.filter({ $0.key != senderID })
+        
+        Task {
+            for (id, channel) in propagationChannels {
+                do {
+                    if VirtualWormholeConstants.verboseLoggingEnabled {
+                        logger.debug("⬆️ PROPAGATE \(packet.payloadType, privacy: .public) from \(senderID, privacy: .public) to \(id, privacy: .public)")
+                    }
+                    try await channel.send(packet)
+                } catch {
+                    logger.error("Packet propagation to \(id, privacy: .public) failed: \(error, privacy: .public)")
+                }
             }
         }
     }
@@ -222,6 +259,17 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         }
     }
 
+    /// Performs the specified asynchronous closure whenever the connection state for the peer changes
+    /// from not connected to connected. Also runs the closure if peer is already connected at the time of calling.
+    private func connected(to peerID: WHPeerID, perform block: @escaping (WormholeChannel) async -> Void) async {
+        guard let channel = peers[peerID] else {
+            logger.error("Can't wait for peer \(peerID) for which a channel doesn't exist")
+            return
+        }
+
+        await channel.connected(perform: block)
+    }
+
     // MARK: - Service Interfaces
 
     private func service<T: WormholeService>(_ serviceType: T.Type) -> T? {
@@ -236,27 +284,18 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
             throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Darwin notifications service not available"])
         }
 
-        await wait(for: peerID)
-
         try Task.checkCancellation()
 
         for name in names {
             await send(DarwinNotificationMessage.subscribe(name), to: peerID)
         }
 
-        try Task.checkCancellation()
+        var iterator = notificationService.onPeerNotificationReceived.values
+            .filter { $0.peerID == peerID }
+            .map(\.name)
+            .makeAsyncIterator()
 
-        return AsyncStream { continuation in
-            let cancellable = notificationService.onPeerNotificationReceived
-                .filter { $0.peerID == peerID }
-                .sink { name, _ in
-                    continuation.yield(name)
-                }
-
-            continuation.onTermination = { @Sendable _ in
-                cancellable.cancel()
-            }
-        }
+        return AsyncStream { await iterator.next() }
     }
 
     // MARK: - Guest Mode
@@ -374,29 +413,40 @@ actor WormholeChannel: ObservableObject {
 
         logger.debug(#function)
 
-        streamingTask?.cancel()
+        cancellables.removeAll()
+
+        timeoutTask?.cancel()
+
+        internalTasks.forEach { $0.cancel() }
+        internalTasks.removeAll()
     }
 
     func send(_ packet: WormholePacket) async throws {
         let data = try packet.encoded()
 
         if VirtualWormholeConstants.verboseLoggingEnabled {
-            logger.debug("\(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
+            if !packet.isPing, !packet.isPong {
+                logger.debug("⬆️ SEND \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
+                logger.debug("⏫ \(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
+            }
         }
 
         try output.write(contentsOf: data)
     }
 
-    private var streamingTask: Task<Void, Never>?
+    private var internalTasks = [Task<Void, Never>]()
 
     private func stream() {
         logger.debug(#function)
 
-        streamingTask = Task {
+        let streamingTask = Task {
             do {
                 for try await packet in WormholePacket.stream(from: input.bytes) {
                     if VirtualWormholeConstants.verboseLoggingEnabled {
-                        logger.debug("Got packet: \(String(describing: packet), privacy: .public)")
+                        if !packet.isPing, !packet.isPong {
+                            logger.debug("⬇️ RECEIVE \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
+                            logger.debug("⏬ \(packet.payload.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
+                        }
                     }
                     
                     guard !Task.isCancelled else { break }
@@ -409,9 +459,9 @@ actor WormholeChannel: ObservableObject {
                     packetSubject.send(packet)
                 }
 
-                logger.debug("Packet streaming cancelled")
+                logger.debug("⬇️ Packet streaming cancelled")
             } catch {
-                logger.error("Serial read failure: \(error, privacy: .public)")
+                logger.error("⬇️ Serial read failure: \(error, privacy: .public)")
 
                 try? await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
 
@@ -420,6 +470,7 @@ actor WormholeChannel: ObservableObject {
                 stream()
             }
         }
+        internalTasks.append(streamingTask)
     }
 
     private var timeoutTask: Task<Void, Never>?
@@ -429,27 +480,44 @@ actor WormholeChannel: ObservableObject {
 
         if packet.isPing {
             if VirtualWormholeConstants.verboseLoggingEnabled {
-                logger.debug("Received ping")
+                logger.debug("🏓 Received ping")
             }
 
-            try? await send(WormholePacket(WHPong()))
+            do {
+                try await send(.pong)
+            } catch {
+                logger.error("🏓 Pong send failure: \(error, privacy: .public)")
+            }
         } else {
             if VirtualWormholeConstants.verboseLoggingEnabled {
-                logger.debug("Received pong")
+                logger.debug("🏓 Received pong")
             }
         }
 
         timeoutTask?.cancel()
 
         timeoutTask = Task {
-            try? await Task.sleep(nanoseconds: 5 * NSEC_PER_SEC)
+            try? await Task.sleep(nanoseconds: VirtualWormholeConstants.connectionTimeoutInNanoseconds)
 
             guard !Task.isCancelled else { return }
 
-            logger.warning("Connection timed out")
+            logger.warning("🏓 Connection timed out")
 
             self.isConnected = false
         }
+    }
+
+    func connected(perform block: @escaping (WormholeChannel) async -> Void) {
+        let task = Task { [weak self] in
+            guard let self = self else { return }
+
+            for await state in await self.$isConnected.removeDuplicates().values {
+                if state {
+                    await block(self)
+                }
+            }
+        }
+        internalTasks.append(task)
     }
 
 }

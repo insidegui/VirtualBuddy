@@ -13,9 +13,11 @@ struct ClipboardData: Codable, Hashable {
     var value: Data
 }
 
-struct ClipboardMessage: Codable, Hashable {
+struct ClipboardMessage: WHPayload, Hashable {
     var timestamp: Date
     var data: [ClipboardData]
+
+    static let propagateBetweenGuests = true
 }
 
 final class WHSharedClipboardService: WormholeService {
@@ -101,7 +103,15 @@ private extension ClipboardData {
     ]
 
     static var current: [ClipboardData] {
+        guard let availableTypes = NSPasteboard.general.types else { return [] }
+
         return supportedTypes.compactMap { type in
+            /// PNG and TIFF data are often present at the same time.
+            /// Ignore TIFF data and preserve only the PNG data when that's the case,
+            /// since TIFF data is usually much larger and unused.
+            if type == .tiff {
+                guard !availableTypes.contains(.png) else { return nil }
+            }
             guard let data = NSPasteboard.general.data(forType: type) else {
                 return nil
             }
