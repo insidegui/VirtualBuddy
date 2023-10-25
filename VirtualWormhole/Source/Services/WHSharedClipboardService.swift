@@ -18,9 +18,13 @@ struct ClipboardMessage: WHPayload, Hashable {
     var data: [ClipboardData]
 
     static let propagateBetweenGuests = true
+
+    static let serviceType = WHSharedClipboardService.self
 }
 
 final class WHSharedClipboardService: WormholeService {
+
+    public static let port = WHServicePort.clipboard
 
     static let id = "clipboard"
     

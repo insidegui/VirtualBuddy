@@ -11,12 +11,15 @@ import Combine
 
 enum DarwinNotificationMessage: WHPayload {
     static let resendOnReconnect = true
-    
+    static let serviceType = WHDarwinNotificationsService.self
+
     case post(String)
     case subscribe(String)
 }
 
 final class WHDarwinNotificationsService: WormholeService {
+
+    public static let port = WHServicePort.darwinNotifications
 
     static let id = "darwinNotifications"
 

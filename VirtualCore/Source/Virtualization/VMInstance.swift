@@ -135,7 +135,7 @@ public final class VMInstance: NSObject, ObservableObject {
         
         return c
     }
-    
+
     private func createVirtualMachine() async throws {
         let installImage: URL?
         if options.bootOnInstallDevice, #available(macOS 13.0, *) {
@@ -155,7 +155,11 @@ public final class VMInstance: NSObject, ObservableObject {
             throw Failure("Failed to validate configuration: \(String(describing: error))")
         }
 
-        _virtualMachine = VZVirtualMachine(configuration: config)
+        let vm = VZVirtualMachine(configuration: config)
+
+        await activateWormhole(with: vm)
+
+        _virtualMachine = vm
     }
 
     private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
@@ -163,28 +167,12 @@ public final class VMInstance: NSObject, ObservableObject {
 
         wormhole.activate()
 
-        let guestPort = VZVirtioConsoleDeviceSerialPortConfiguration()
+        let socket = VZVirtioSocketDeviceConfiguration()
+        config.socketDevices = [socket]
+    }
 
-        let inputPipe = Pipe()
-        let outputPipe = Pipe()
-
-        let inputHandle = inputPipe.fileHandleForWriting
-        let outputHandle = outputPipe.fileHandleForReading
-
-        guestPort.attachment = VZFileHandleSerialPortAttachment(
-            fileHandleForReading: outputHandle,
-            fileHandleForWriting: inputHandle
-        )
-
-        config.serialPorts = [guestPort]
-
-        await wormhole.register(
-            input: inputPipe.fileHandleForReading,
-            output: outputPipe.fileHandleForWriting,
-            for: virtualMachineModel.wormholeID
-        )
-
-        streamGuestNotifications()
+    private func activateWormhole(with vm: VZVirtualMachine) async {
+        await wormhole.addServiceListeners(to: vm, peerID: virtualMachineModel.wormholeID)
     }
 
     private lazy var guestIOTasks = [Task<Void, Never>]()
@@ -284,7 +272,11 @@ public final class VMInstance: NSObject, ObservableObject {
         
         return vm
     }
-    
+
+    private var testTask: Task<Void, Never>?
+    private var connection: VZVirtioSocketConnection?
+    private var socketHandle: FileHandle?
+
 }
 
 // MARK: - VZVirtualMachineDelegate

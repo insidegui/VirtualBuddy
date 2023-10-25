@@ -9,10 +9,14 @@ import Foundation
 
 struct WHPing: WHPayload {
     var date = Date.now
+
+    static let serviceType = WHControlService.self
 }
 
 struct WHPong: WHPayload {
     var date = Date.now
+
+    static let serviceType = WHControlService.self
 }
 
 extension WormholePacket {

@@ -16,6 +16,8 @@ enum DefaultsImportMessage: WHPayload {
     case success(domainID: String, plist: Data)
     /// Host responding to guest request with domain ID and error message.
     case failure(domainID: String, error: String)
+
+    static let serviceType = WHDefaultsImportService.self
 }
 
 extension DefaultsImportMessage {
@@ -28,6 +30,8 @@ extension DefaultsImportMessage {
 }
 
 public final class WHDefaultsImportService: WormholeService {
+
+    public static let port = WHServicePort.defaultsImport
 
     public static let id = "defaultsImport"
 

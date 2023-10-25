@@ -20,6 +20,8 @@ public protocol WormholeMultiplexer: AnyObject {
 
 public protocol WormholeService: AnyObject {
 
+    static var port: WHServicePort { get }
+
     static var id: String { get }
     
     init(with connection: WormholeMultiplexer)

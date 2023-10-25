@@ -9,12 +9,17 @@ import Foundation
 
 /// Protocol adopted by types that can be sent over the guest <> host connection.
 public protocol WHPayload: Codable {
+    associatedtype Service: WormholeService
+
     /// When `true`, the payload will be sent again if connection gets interrupted and re-established.
     static var resendOnReconnect: Bool { get }
 
     /// When `true`, the host will distribute the payload to all booted guests
     /// upon receiving the payload from one of the guests.
     static var propagateBetweenGuests: Bool { get }
+
+    /// The type of service that is the sender/receiver of this payload type.
+    static var serviceType: Service.Type { get }
 }
 
 public extension WHPayload {

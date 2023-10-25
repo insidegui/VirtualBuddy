@@ -28,6 +28,18 @@ struct VirtualWormholeConstants {
     static let pingIntervalInSeconds: TimeInterval = 5.0
 }
 
+public typealias WHServicePort = UInt32
+
+/// Each service has its dedicated port and socket connection between guest and host.
+/// Default service ports are declared here so that they're easy to manage, but each service
+/// declares its port via the ``WormholeService`` protocol.
+public extension WHServicePort {
+    static let control: WHServicePort = 9000
+    static let clipboard: WHServicePort = 9001
+    static let darwinNotifications: WHServicePort = 9002
+    static let defaultsImport: WHServicePort = 9003
+}
+
 extension Logger {
     init<T>(for type: T.Type) {
         self.init(subsystem: VirtualWormholeConstants.subsystemName, category: String(describing: type))
