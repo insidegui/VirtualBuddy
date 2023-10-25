@@ -61,7 +61,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-WHVerbosePacketLogging YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

@@ -124,6 +124,8 @@ public final class VMController: ObservableObject {
 
             state = .paused(vm)
         }
+
+        unhideCursor()
     }
     
     public func resume() async throws {
@@ -135,6 +137,8 @@ public final class VMController: ObservableObject {
 
             state = .running(vm)
         }
+
+        unhideCursor()
     }
     
     public func stop() async throws {
@@ -145,6 +149,8 @@ public final class VMController: ObservableObject {
 
             state = .stopped(nil)
         }
+
+        unhideCursor()
     }
     
     public func forceStop() async throws {
@@ -155,6 +161,8 @@ public final class VMController: ObservableObject {
 
             state = .stopped(nil)
         }
+
+        unhideCursor()
     }
 
     private func updatingState(perform block: () async throws -> Void) async throws {
@@ -185,7 +193,14 @@ public final class VMController: ObservableObject {
         }
     }
 
+    public func invalidate() {
+        library.removeController(self)
+    }
+
     deinit {
+        #if DEBUG
+        print("\(id) Bye bye 👋")
+        #endif
         library.removeController(self)
     }
 
@@ -265,4 +280,15 @@ public extension VMController {
 
     var canPause: Bool { state.canPause }
 
+}
+
+public extension VMController {
+    /// Workaround for cursor disappearing due to it being captured
+    /// by Virtualization during state transitions.
+    func unhideCursor() {
+        Task {
+            try? await Task.sleep(nanoseconds: 100_000_000)
+            NSCursor.unhide()
+        }
+    }
 }

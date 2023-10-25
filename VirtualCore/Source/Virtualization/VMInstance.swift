@@ -187,6 +187,8 @@ public final class VMInstance: NSObject, ObservableObject {
         streamGuestNotifications()
     }
 
+    private lazy var guestIOTasks = [Task<Void, Never>]()
+
     public func streamGuestNotifications() {
         logger.debug(#function)
         
@@ -195,7 +197,7 @@ public final class VMInstance: NSObject, ObservableObject {
             "com.apple.shieldWindowLowered"
         ]
 
-        Task {
+        let task = Task {
             do {
                 for await notification in try await wormhole.darwinNotifications(matching: notificationNames, from: virtualMachineModel.wormholeID) {
                     if notification == "com.apple.shieldWindowRaised" {
@@ -208,6 +210,7 @@ public final class VMInstance: NSObject, ObservableObject {
                 logger.error("Error subscribing to Darwin notifications: \(error, privacy: .public)")
             }
         }
+        guestIOTasks.append(task)
     }
     
     func startVM() async throws {
@@ -301,6 +304,9 @@ extension VMInstance: VZVirtualMachineDelegate {
     }
 
     private func handleGuestStopped(with error: Error?) {
+        guestIOTasks.forEach { $0.cancel() }
+        guestIOTasks.removeAll()
+
         if let error {
             logger.error("Guest stopped with error: \(String(describing: error), privacy: .public)")
         } else {

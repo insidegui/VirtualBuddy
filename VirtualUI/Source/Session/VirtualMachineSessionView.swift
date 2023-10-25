@@ -177,11 +177,6 @@ public struct VirtualMachineSessionView: View {
 
             try? await controller.forceStop()
 
-            /// Workaround for cursor disappearing due to it being captured
-            /// between the alert confirmation and the VM stopping.
-            try? await Task.sleep(nanoseconds: 100_000_000)
-            NSCursor.unhide()
-
             return true
         }
     }
