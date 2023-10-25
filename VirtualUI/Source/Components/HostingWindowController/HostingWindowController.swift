@@ -131,6 +131,16 @@ fileprivate final class HostingWindow: VBRestorableWindow {
     override var acceptsFirstResponder: Bool { true }
 
     var confirmBeforeClosingCallback: () async -> Bool = { true }
+    
+    override func performClose(_ sender: Any?) {
+        /// This addresses a weird issue introduced after #257 where for some reason `VMController`
+        /// was being retained by a SwiftUI button when closing a VM window using Command+W
+        /// after opening multiple VM windows.
+        /// The button that was retaining the controller though a closure context was one of
+        /// the toolbar buttons, and for some reason not going directly through our `close()`
+        /// implementation here was triggering the leak :(
+        close()
+    }
 
     override func close() {
         Task {
