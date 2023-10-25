@@ -103,7 +103,15 @@ private extension ClipboardData {
     ]
 
     static var current: [ClipboardData] {
+        guard let availableTypes = NSPasteboard.general.types else { return [] }
+
         return supportedTypes.compactMap { type in
+            /// PNG and TIFF data are often present at the same time.
+            /// Ignore TIFF data and preserve only the PNG data when that's the case,
+            /// since TIFF data is usually much larger and unused.
+            if type == .tiff {
+                guard !availableTypes.contains(.png) else { return nil }
+            }
             guard let data = NSPasteboard.general.data(forType: type) else {
                 return nil
             }
