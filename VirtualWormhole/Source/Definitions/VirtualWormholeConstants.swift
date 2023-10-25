@@ -22,6 +22,10 @@ struct VirtualWormholeConstants {
     static let payloadPropagationEnabled: Bool = {
         !UserDefaults.standard.bool(forKey: "WHDisablePayloadPropagation")
     }()
+
+    static let connectionTimeoutInNanoseconds: UInt64 = 15 * NSEC_PER_SEC
+
+    static let pingIntervalInSeconds: TimeInterval = 5.0
 }
 
 extension Logger {

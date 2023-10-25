@@ -100,7 +100,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         #endif
 
         Timer
-            .publish(every: 3, tolerance: 1.5, on: .main, in: .common)
+            .publish(every: VirtualWormholeConstants.pingIntervalInSeconds, tolerance: VirtualWormholeConstants.pingIntervalInSeconds * 0.5, on: .main, in: .common)
             .autoconnect()
             .sink { [weak self] _ in
                 guard let self = self else { return }
@@ -497,7 +497,7 @@ actor WormholeChannel: ObservableObject {
         timeoutTask?.cancel()
 
         timeoutTask = Task {
-            try? await Task.sleep(nanoseconds: 5 * NSEC_PER_SEC)
+            try? await Task.sleep(nanoseconds: VirtualWormholeConstants.connectionTimeoutInNanoseconds)
 
             guard !Task.isCancelled else { return }
 
