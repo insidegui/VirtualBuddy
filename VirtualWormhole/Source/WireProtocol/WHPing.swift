@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct WHPing: Codable {
+struct WHPing: WHPayload {
     var date = Date.now
 }
 
-struct WHPong: Codable {
+struct WHPong: WHPayload {
     var date = Date.now
 }
 

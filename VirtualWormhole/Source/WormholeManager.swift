@@ -150,7 +150,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         peers[peerID] = nil
     }
 
-    public func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async {
+    public func send<T: WHPayload>(_ payload: T, to peerID: WHPeerID?) async {
         guard !peers.isEmpty else { return }
         
         if side == .guest {
@@ -170,19 +170,36 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
                     return
                 }
 
-                try await channel.send(packet)
+                /// Message will be repeated if other side disconnects and reconnects.
+                if T.resendOnReconnect {
+                    Task {
+                        await connected(to: peerID) {
+                            do {
+                                /// Make sure there's a fresh packet every time the message is sent.
+                                let newPacket = try WormholePacket(payload)
+
+                                try await channel.send(newPacket)
+                            } catch {
+                                logger.fault("Failed to send packet: \(error, privacy: .public)")
+                                assertionFailure("Failed to send packet: \(error)")
+                            }
+                        }
+                    }
+                } else {
+                    try await channel.send(packet)
+                }
             } else {
                 for channel in peers.values {
                     try await channel.send(packet)
                 }
             }
         } catch {
-            logger.fault("Failed to encode packet: \(error, privacy: .public)")
-            assertionFailure("Failed to encode packet: \(error)")
+            logger.fault("Failed to send packet: \(error, privacy: .public)")
+            assertionFailure("Failed to send packet: \(error)")
         }
     }
 
-    public func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
+    public func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error> {
         AsyncThrowingStream { [weak self] continuation in
             guard let self = self else {
                 continuation.finish()
@@ -222,6 +239,21 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         }
     }
 
+    /// Performs the specified asynchronous closure whenever the connection state for the peer changes
+    /// from not connected to connected. Also runs the closure if peer is already connected at the time of calling.
+    private func connected(to peerID: WHPeerID, perform block: () async -> Void) async {
+        guard let channel = peers[peerID] else {
+            logger.error("Can't wait for peer \(peerID) for which a channel doesn't exist")
+            return
+        }
+
+        for await state in await channel.$isConnected.removeDuplicates().values {
+            if state {
+                await block()
+            }
+        }
+    }
+
     // MARK: - Service Interfaces
 
     private func service<T: WormholeService>(_ serviceType: T.Type) -> T? {
@@ -236,15 +268,11 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
             throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Darwin notifications service not available"])
         }
 
-        await wait(for: peerID)
-
         try Task.checkCancellation()
 
         for name in names {
             await send(DarwinNotificationMessage.subscribe(name), to: peerID)
         }
-
-        try Task.checkCancellation()
 
         return AsyncStream { continuation in
             let cancellable = notificationService.onPeerNotificationReceived

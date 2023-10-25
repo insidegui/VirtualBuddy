@@ -9,7 +9,9 @@ import Cocoa
 import OSLog
 import Combine
 
-enum DarwinNotificationMessage: Codable {
+enum DarwinNotificationMessage: WHPayload {
+    static let resendOnReconnect = true
+    
     case post(String)
     case subscribe(String)
 }

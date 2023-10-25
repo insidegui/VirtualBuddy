@@ -13,7 +13,7 @@ struct ClipboardData: Codable, Hashable {
     var value: Data
 }
 
-struct ClipboardMessage: Codable, Hashable {
+struct ClipboardMessage: WHPayload, Hashable {
     var timestamp: Date
     var data: [ClipboardData]
 }

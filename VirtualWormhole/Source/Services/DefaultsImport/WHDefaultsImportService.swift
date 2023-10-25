@@ -9,7 +9,7 @@ import Cocoa
 import OSLog
 import Combine
 
-enum DefaultsImportMessage: Codable {
+enum DefaultsImportMessage: WHPayload {
     /// Guest requesting domain export from host.
     case request(domainID: String)
     /// Host responding to guest request with domain ID and associated plist.

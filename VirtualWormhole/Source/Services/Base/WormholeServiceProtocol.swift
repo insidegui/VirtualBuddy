@@ -12,9 +12,9 @@ public protocol WormholeMultiplexer: AnyObject {
 
     var side: WHConnectionSide { get }
     
-    func send<T: Codable>(_ payload: T, to peerID: WHPeerID?) async
+    func send<T: WHPayload>(_ payload: T, to peerID: WHPeerID?) async
 
-    func stream<T: Codable>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error>
+    func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncThrowingStream<(senderID: WHPeerID, payload: T), Error>
     
 }
 

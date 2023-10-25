@@ -60,6 +60,9 @@
 		F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */; };
 		F42258802885E71D009420AE /* PropertyControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422587F2885E71D009420AE /* PropertyControl.swift */; };
 		F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */; };
+		F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
+		F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F42862372AE947C90052F029 /* WHPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862362AE947C90052F029 /* WHPayload.swift */; };
 		F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01492888C2F800EB15CD /* InstallationConsole.swift */; };
 		F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014B2888C34B00EB15CD /* LogConsole.swift */; };
 		F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */; };
@@ -226,6 +229,13 @@
 			remoteGlobalIDString = F41369AA29918576002CE8D3;
 			remoteInfo = VirtualBuddyGuestHelper;
 		};
+		F42862302AE87D7E0052F029 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F43B01142AD858FE00164CD1;
+			remoteInfo = DeepLinkSecurity;
+		};
 		F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
@@ -322,6 +332,7 @@
 			files = (
 				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 				F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */,
+				F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
@@ -382,6 +393,7 @@
 		F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareConfigurationView.swift; sourceTree = "<group>"; };
 		F422587F2885E71D009420AE /* PropertyControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyControl.swift; sourceTree = "<group>"; };
 		F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineControls.swift; sourceTree = "<group>"; };
+		F42862362AE947C90052F029 /* WHPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPayload.swift; sourceTree = "<group>"; };
 		F42C01492888C2F800EB15CD /* InstallationConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationConsole.swift; sourceTree = "<group>"; };
 		F42C014B2888C34B00EB15CD /* LogConsole.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogConsole.swift; sourceTree = "<group>"; };
 		F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallProgressStepView.swift; sourceTree = "<group>"; };
@@ -586,6 +598,7 @@
 			files = (
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
 				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
+				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1329,6 +1342,7 @@
 			children = (
 				F4D3059629B8D9D30006E748 /* WormholePacket.swift */,
 				F4D305B129B907A10006E748 /* WHPing.swift */,
+				F42862362AE947C90052F029 /* WHPayload.swift */,
 			);
 			path = WireProtocol;
 			sourceTree = "<group>";
@@ -1574,6 +1588,7 @@
 				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
 				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
 				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
+				F42862312AE87D7E0052F029 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddyGuest;
 			productName = VirtualBuddyGuest;
@@ -1938,6 +1953,7 @@
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
 				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
 				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
+				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
 				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,
 				F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */,
 				F4D305B229B907A10006E748 /* WHPing.swift in Sources */,
@@ -1990,6 +2006,11 @@
 			isa = PBXTargetDependency;
 			target = F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */;
 			targetProxy = F41369BC29918617002CE8D3 /* PBXContainerItemProxy */;
+		};
+		F42862312AE87D7E0052F029 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
+			targetProxy = F42862302AE87D7E0052F029 /* PBXContainerItemProxy */;
 		};
 		F4510A7A2AE2B3AB00E24DD9 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
