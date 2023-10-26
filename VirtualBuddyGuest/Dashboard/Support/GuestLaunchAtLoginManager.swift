@@ -19,6 +19,11 @@ final class GuestLaunchAtLoginManager: ObservableObject {
     }
 
     func setLaunchAtLoginEnabled(_ enabled: Bool) async throws {
+        guard GuestAppInstaller.installEnabled else {
+            logger.debug("Not setting launch at login because install is disabled")
+            return
+        }
+        
         logger.debug("Set launch at login enabled: \(enabled, privacy: .public)")
 
         if #available(macOS 13.0, *) {
@@ -45,6 +50,8 @@ final class GuestLaunchAtLoginManager: ObservableObject {
     }
 
     func autoEnableIfNeeded() {
+        guard GuestAppInstaller.installEnabled else { return }
+        
         guard !hasAutoEnabled else { return }
         hasAutoEnabled = true
 

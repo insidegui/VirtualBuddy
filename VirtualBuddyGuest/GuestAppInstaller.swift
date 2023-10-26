@@ -52,8 +52,10 @@ final class GuestAppInstaller {
         }
     }
 
+    static var installEnabled: Bool { !UserDefaults.standard.bool(forKey: "DisableInstall") }
+    
     var needsInstall: Bool {
-        guard !UserDefaults.standard.bool(forKey: "DisableInstall") else { return false }
+        guard Self.installEnabled else { return false }
         return !isRunningFromApplicationsDirectory
     }
 
@@ -72,6 +74,8 @@ final class GuestAppInstaller {
     /// 1 - The guest in the volume has a different `VBGuestBuildID` from this process
     /// 2 - The guest in the volume has a `CFBundleVersion` that's **greater than or equal to** the `CFBundleVersion` of this process
     private var mountedGuestImageNeedsInstall: Bool {
+        guard Self.installEnabled else { return false }
+        
         guard FileManager.default.fileExists(atPath: "/Volumes/Guest") else { return false }
 
         logger.debug("Guest volume is mounted, checking app version")
