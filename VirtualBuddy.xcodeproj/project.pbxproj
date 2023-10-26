@@ -197,7 +197,6 @@
 		F4D305AA29B8E7120006E748 /* TestStream.bin in Resources */ = {isa = PBXBuildFile; fileRef = F4D305A929B8E7120006E748 /* TestStream.bin */; };
 		F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305AB29B8FEE90006E748 /* WHDarwinNotificationsService.swift */; };
 		F4D305B029B900860006E748 /* SystemNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305AF29B900860006E748 /* SystemNotification.swift */; };
-		F4D305B229B907A10006E748 /* WHPing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305B129B907A10006E748 /* WHPing.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
@@ -534,7 +533,6 @@
 		F4D305A929B8E7120006E748 /* TestStream.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = TestStream.bin; sourceTree = "<group>"; };
 		F4D305AB29B8FEE90006E748 /* WHDarwinNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDarwinNotificationsService.swift; sourceTree = "<group>"; };
 		F4D305AF29B900860006E748 /* SystemNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotification.swift; sourceTree = "<group>"; };
-		F4D305B129B907A10006E748 /* WHPing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPing.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
@@ -1350,7 +1348,6 @@
 			isa = PBXGroup;
 			children = (
 				F4D3059629B8D9D30006E748 /* WormholePacket.swift */,
-				F4D305B129B907A10006E748 /* WHPing.swift */,
 				F42862362AE947C90052F029 /* WHPayload.swift */,
 				F428624B2AE9AA830052F029 /* WHSocket.swift */,
 				F428624F2AE9B3190052F029 /* SockAddrVM.h */,
@@ -1970,7 +1967,6 @@
 				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
 				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,
 				F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */,
-				F4D305B229B907A10006E748 /* WHPing.swift in Sources */,
 				F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */,
 				F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */,
 				F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */,

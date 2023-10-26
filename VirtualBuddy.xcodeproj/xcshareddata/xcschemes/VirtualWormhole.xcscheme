@@ -45,6 +45,9 @@
                   Identifier = "WormholePacketTests/testCompressedPacketEncodeDecodeLargePayload()">
                </Test>
                <Test
+                  Identifier = "WormholePacketTests/testHeartbeatEncodeDecode()">
+               </Test>
+               <Test
                   Identifier = "WormholePacketTests/testPacketDecodingRespectsLength()">
                </Test>
                <Test

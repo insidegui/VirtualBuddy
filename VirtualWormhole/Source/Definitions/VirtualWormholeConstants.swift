@@ -19,6 +19,14 @@ struct VirtualWormholeConstants {
         #endif
     }()
 
+    static let verboseLoggingEnabledHeartbeat: Bool = {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "WHVerbosePacketLoggingIncludeHeartbeat")
+        #else
+        return false
+        #endif
+    }()
+
     static let payloadPropagationEnabled: Bool = {
         !UserDefaults.standard.bool(forKey: "WHDisablePayloadPropagation")
     }()

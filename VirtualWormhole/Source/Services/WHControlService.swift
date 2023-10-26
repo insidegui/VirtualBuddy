@@ -28,18 +28,6 @@ final class WHControlService: WormholeService {
 
     func activate() {
         logger.debug(#function)
-
-        Timer
-            .publish(every: VirtualWormholeConstants.pingIntervalInSeconds, tolerance: VirtualWormholeConstants.pingIntervalInSeconds * 0.5, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-
-                Task {
-                    await self.connection.send(WHPing(), to: nil)
-                }
-            }
-            .store(in: &cancellables)
     }
 
 }

@@ -68,6 +68,10 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-WHVerbosePacketLoggingIncludeHeartbeat YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-VBDisableGuestDiskImage YES"
             isEnabled = "YES">
          </CommandLineArgument>
