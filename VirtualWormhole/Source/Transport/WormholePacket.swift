@@ -19,9 +19,7 @@ extension WormholePacket {
     static let magicValue: UInt32 = 0x0DF0FECA
     static let magicValueCompressed: UInt32 = 0x01F0FECA
     static let maxUncompressedPayloadSize = 1000000
-    static let compressionAlgorithm = NSData.CompressionAlgorithm.lzma
-
-    static let magicValueBytes: [UInt8] = [0xCA, 0xFE, 0xF0, 0x0D]
+    static let compressionAlgorithm = WHCompressionAlgorithm.lzfse
 
     /// The absolute minimum size an entire packet could be.
     /// Any packet that's not at least this size has something wrong with it.
@@ -51,7 +49,7 @@ extension WormholePacket {
 
         if payload.count >= Self.maxUncompressedPayloadSize {
             encodedMagic = Self.magicValueCompressed
-            let compressedPayload = try (payload as NSData).compressed(using: Self.compressionAlgorithm)
+            let compressedPayload = try payload.compressed(using: Self.compressionAlgorithm)
             encodedPayloadLength = UInt64(compressedPayload.count)
             encodedPayload = compressedPayload as Data
         }
@@ -104,7 +102,7 @@ extension WormholePacket {
             guard payload.count == Int(payloadLength) else { return nil }
 
             if magic == Self.magicValueCompressed {
-                guard let uncompressed = try? (payload as NSData).decompressed(using: Self.compressionAlgorithm) as Data else { return nil }
+                guard let uncompressed = try? payload.decompressed(from: Self.compressionAlgorithm) else { return nil }
                 payload = uncompressed
                 payloadLength = UInt64(payload.count)
             }
@@ -130,7 +128,7 @@ extension WormholePacket {
 
     static func stream(from bytes: FileHandle.AsyncBytes) -> AsyncThrowingStream<WormholePacket, Error> {
         AsyncThrowingStream { continuation in
-            Self.logger.debug("Activating stream")
+            Self.logger.debug("⬇️ Activating stream")
 
             let task = Task {
                 do {
@@ -144,6 +142,13 @@ extension WormholePacket {
 
                             buffer.append(byte)
 
+                            #if DEBUG
+                            if VirtualWormholeConstants.verboseLoggingEnabled {
+                                Self.logger.debug("🔥 Buffer size: \(buffer.count, privacy: .public)")
+                                Self.logger.debug("🔥 \(buffer.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
+                            }
+                            #endif
+
                             guard buffer.count >= WormholePacket.minimumSize else { return }
 
                             if let packet = WormholePacket.decode(from: buffer) {
@@ -153,9 +158,9 @@ extension WormholePacket {
                         }
                     }
 
-                    Self.logger.debug("Stream ended/cancelled")
+                    Self.logger.debug("⬇️ Stream ended/cancelled")
                 } catch {
-                    Self.logger.error("Stream failed: \(error, privacy: .public)")
+                    Self.logger.error("⬇️ Stream failed: \(error, privacy: .public)")
 
                     continuation.finish(throwing: error)
                 }

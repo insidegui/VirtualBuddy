@@ -66,6 +66,7 @@
 		F428624C2AE9AA830052F029 /* WHSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428624B2AE9AA830052F029 /* WHSocket.swift */; };
 		F428624E2AE9AF290052F029 /* WHControlService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428624D2AE9AF290052F029 /* WHControlService.swift */; };
 		F42862502AE9B3250052F029 /* SockAddrVM.h in Headers */ = {isa = PBXBuildFile; fileRef = F428624F2AE9B3190052F029 /* SockAddrVM.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862682AE9E6550052F029 /* Data+Compression.swift */; };
 		F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01492888C2F800EB15CD /* InstallationConsole.swift */; };
 		F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014B2888C34B00EB15CD /* LogConsole.swift */; };
 		F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */; };
@@ -400,6 +401,7 @@
 		F428624B2AE9AA830052F029 /* WHSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHSocket.swift; sourceTree = "<group>"; };
 		F428624D2AE9AF290052F029 /* WHControlService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHControlService.swift; sourceTree = "<group>"; };
 		F428624F2AE9B3190052F029 /* SockAddrVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SockAddrVM.h; sourceTree = "<group>"; };
+		F42862682AE9E6550052F029 /* Data+Compression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Compression.swift"; sourceTree = "<group>"; };
 		F42C01492888C2F800EB15CD /* InstallationConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationConsole.swift; sourceTree = "<group>"; };
 		F42C014B2888C34B00EB15CD /* LogConsole.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogConsole.swift; sourceTree = "<group>"; };
 		F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallProgressStepView.swift; sourceTree = "<group>"; };
@@ -1352,6 +1354,7 @@
 				F42862362AE947C90052F029 /* WHPayload.swift */,
 				F428624B2AE9AA830052F029 /* WHSocket.swift */,
 				F428624F2AE9B3190052F029 /* SockAddrVM.h */,
+				F42862682AE9E6550052F029 /* Data+Compression.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -1962,6 +1965,7 @@
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
 				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
+				F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */,
 				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
 				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
 				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,

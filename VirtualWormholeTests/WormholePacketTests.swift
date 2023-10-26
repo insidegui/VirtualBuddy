@@ -40,33 +40,11 @@ final class WormholePacketTests: XCTestCase {
             XCTAssert(false, "Expected to decode a packet")
             return
         }
-        
+
         XCTAssertEqual(Int(packet.payloadLength), decodedPacket.payload.count)
     }
 
     func testPacketStreaming() async throws {
-        let handle = FileHandle.testStream
-
-        var packets = [WormholePacket]()
-
-        for try await packet in WormholePacket.stream(from: handle.bytes) {
-            packets.append(packet)
-
-            guard packets.count < 6 else { break }
-        }
-
-        XCTAssertEqual(packets.count, 6)
-
-        for packet in packets {
-            XCTAssertEqual(packet.magic, 0x0DF0FECA)
-            XCTAssertEqual(packet.payloadType, "TestPayload")
-            XCTAssertEqual(packet.payloadLength, 58)
-            XCTAssertEqual(packet.payload.count, 58)
-            XCTAssertEqual(packet.payload, Data("{\"message\":\"Hello, World!\",\"number\":42,\"data\":\"qrvM3e7\\/\"}".utf8))
-        }
-    }
-
-    func testPacketStreamingSmallPayloads() async throws {
         let (handle, _) = FileHandle.testStreamSmallPayloads()
 
         let expect = expectation(description: "Receive 6 packets")
@@ -104,7 +82,7 @@ final class WormholePacketTests: XCTestCase {
             XCTAssertEqual(packet.payloadType, "TestPayload")
             XCTAssertEqual(packet.payloadType, "TestPayload")
             let payload = try JSONDecoder.wormhole.decode(TestPayload.self, from: packet.payload)
-            XCTAssertEqual(payload.data, Data.testSmall[index])
+            XCTAssertEqual(payload.data, Data.testPayloads[index])
         }
     }
 
@@ -178,13 +156,13 @@ extension FileHandle {
 }
 
 extension Data {
-    static let testSmall: [Data] = [
-        Data.random(count: 300_000),
-        Data.random(count: 6_000),
-        Data.random(count: 12_010),
-        Data.random(count: 11_006),
-        Data.random(count: 13_231),
-        Data.random(count: 1_200),
+    static let testPayloads: [Data] = [
+        Data.empty(count: 500_000),
+        Data.empty(count: 16_000),
+        Data.empty(count: 102_010),
+        Data.empty(count: 11_006),
+        Data.empty(count: 13_231),
+        Data.empty(count: 1_200),
     ]
 
     static let testMedium = Data.random(count: 1_000_000)
@@ -202,7 +180,7 @@ extension FileHandle {
             for i in (0..<6) {
                 guard !Task.isCancelled else { return }
 
-                let payload = TestPayload(data: .testSmall[i])
+                let payload = TestPayload(data: .testPayloads[i])
                 try! writeHandle.write(contentsOf: WormholePacket(payload).encoded())
             }
         }

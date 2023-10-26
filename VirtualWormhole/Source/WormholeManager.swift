@@ -451,7 +451,7 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
 
                 logger.debug("⬇️ Packet streaming cancelled")
             } catch {
-                logger.error("⬇️ Serial read failure: \(error, privacy: .public)")
+                logger.error("⬇️ Read failure: \(error, privacy: .public)")
 
                 try? await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
 
