@@ -443,11 +443,13 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
         self.isConnected = true
         self.socket = socket
 
+        startHeartbeatIfNeeded()
+
         let streamingTask = Task {
             do {
                 for try await packet in WormholePacket.stream(from: socket.bytes) {
                     if packet.isHeartbeat, VirtualWormholeConstants.verboseLoggingEnabledHeartbeat {
-                        logger.debug("💓 SEND HEARTBEAT")
+                        logger.debug("💓 RECEIVED HEARTBEAT")
                     } else {
                         logger.debug("⬇️ RECEIVE \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
                         logger.debug("⏬ \(packet.payload.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
@@ -505,10 +507,6 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
 
     private func handleHeartbeat(_ packet: WormholePacket) async {
         self.isConnected = true
-
-        if VirtualWormholeConstants.verboseLoggingEnabledHeartbeat {
-            logger.debug("💓 RECEIVED HEARTBEAT")
-        }
 
         timeoutTask?.cancel()
 
