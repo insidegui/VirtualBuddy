@@ -426,8 +426,8 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
     private func stream(_ socket: WHSocket) {
         logger.debug(#function)
 
-        self.isConnected = true
         self.socket = socket
+        self.isConnected = true
 
         let streamingTask = Task {
             do {
@@ -442,8 +442,12 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
                     packetSubject.send(packet)
                 }
 
+                self.isConnected = false
+                
                 logger.debug("⬇️ Packet streaming cancelled")
             } catch {
+                self.isConnected = false
+
                 logger.error("⬇️ Read failure: \(error, privacy: .public)")
 
                 try? await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
