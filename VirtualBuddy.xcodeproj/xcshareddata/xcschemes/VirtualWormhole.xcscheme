@@ -37,23 +37,6 @@
                BlueprintName = "VirtualWormholeTests"
                ReferencedContainer = "container:VirtualBuddy.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "WormholePacketTests/testCompressedPacketEncodeDecode()">
-               </Test>
-               <Test
-                  Identifier = "WormholePacketTests/testCompressedPacketEncodeDecodeLargePayload()">
-               </Test>
-               <Test
-                  Identifier = "WormholePacketTests/testHeartbeatEncodeDecode()">
-               </Test>
-               <Test
-                  Identifier = "WormholePacketTests/testPacketDecodingRespectsLength()">
-               </Test>
-               <Test
-                  Identifier = "WormholePacketTests/testPacketDecodingWithTestPayload()">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

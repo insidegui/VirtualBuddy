@@ -53,7 +53,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
 
     let serviceTypes: [WormholeService.Type] = [
         WHControlService.self,
-//        WHSharedClipboardService.self,
+        WHSharedClipboardService.self,
 //        WHDarwinNotificationsService.self,
 //        WHDefaultsImportService.self
     ]
@@ -442,8 +442,6 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
 
         self.isConnected = true
         self.socket = socket
-
-        startHeartbeatIfNeeded()
 
         let streamingTask = Task {
             do {
