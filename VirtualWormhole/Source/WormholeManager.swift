@@ -364,8 +364,6 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
 
     private let packetSubject = PassthroughSubject<WormholePacket, Never>()
 
-    private var heartbeatCancellable: AnyCancellable?
-
     private lazy var cancellables = Set<AnyCancellable>()
 
     @discardableResult
@@ -401,12 +399,6 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
 
         cancellables.removeAll()
 
-        timeoutTask?.cancel()
-        timeoutTask = nil
-
-        heartbeatCancellable?.cancel()
-        heartbeatCancellable = nil
-
         internalTasks.forEach { $0.cancel() }
         internalTasks.removeAll()
     }
@@ -418,20 +410,14 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
         let data = try packet.encoded()
 
         if VirtualWormholeConstants.verboseLoggingEnabled {
-            if packet.isHeartbeat, VirtualWormholeConstants.verboseLoggingEnabledHeartbeat {
-                logger.debug("💓 SEND HEARTBEAT")
-            } else {
-                logger.debug("⬆️ SEND \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
-                logger.debug("⏫ \(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
-            }
+            logger.debug("⬆️ SEND \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
+            logger.debug("⏫ \(data.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
         }
 
         try socket.write(data)
 
         if VirtualWormholeConstants.verboseLoggingEnabled {
-            if !packet.isHeartbeat {
-                logger.debug("⬆️✅ SENT \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
-            }
+            logger.debug("⬆️✅ SENT \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
         }
     }
 
@@ -446,19 +432,12 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
         let streamingTask = Task {
             do {
                 for try await packet in WormholePacket.stream(from: socket.bytes) {
-                    if packet.isHeartbeat, VirtualWormholeConstants.verboseLoggingEnabledHeartbeat {
-                        logger.debug("💓 RECEIVED HEARTBEAT")
-                    } else {
+                    if VirtualWormholeConstants.verboseLoggingEnabled {
                         logger.debug("⬇️ RECEIVE \(packet.payloadType, privacy: .public) (\(packet.payload.count) bytes)")
                         logger.debug("⏬ \(packet.payload.map({ String(format: "%02X", $0) }).joined(), privacy: .public)")
                     }
-                    
-                    guard !Task.isCancelled else { break }
 
-                    guard !packet.isHeartbeat else {
-                        await handleHeartbeat(packet)
-                        continue
-                    }
+                    guard !Task.isCancelled else { break }
 
                     packetSubject.send(packet)
                 }
@@ -475,48 +454,6 @@ actor WormholeChannel: NSObject, ObservableObject, VZVirtioSocketListenerDelegat
             }
         }
         internalTasks.append(streamingTask)
-    }
-
-    private func startHeartbeatIfNeeded() {
-        guard socket != nil else {
-            self.logger.warning("Skipping heartbeat start: socket not available yet")
-            return
-        }
-
-        guard heartbeatCancellable == nil else { return }
-
-        heartbeatCancellable = Timer
-            .publish(every: VirtualWormholeConstants.pingIntervalInSeconds, tolerance: VirtualWormholeConstants.pingIntervalInSeconds * 0.5, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                guard let self = self else { return }
-
-                Task {
-                    do {
-                        try await self.send(.heartbeat)
-                    } catch {
-                        self.logger.warning("Failed to send heartbeat: \(error, privacy: .public)")
-                    }
-                }
-            }
-    }
-
-    private var timeoutTask: Task<Void, Never>?
-
-    private func handleHeartbeat(_ packet: WormholePacket) async {
-        self.isConnected = true
-
-        timeoutTask?.cancel()
-
-        timeoutTask = Task {
-            try? await Task.sleep(nanoseconds: VirtualWormholeConstants.connectionTimeoutInNanoseconds)
-
-            guard !Task.isCancelled else { return }
-
-            logger.debug("💓 Connection timeout")
-
-            self.isConnected = false
-        }
     }
 
     func connected(perform block: @escaping (WormholeChannel) async -> Void) {

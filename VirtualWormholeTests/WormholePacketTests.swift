@@ -77,21 +77,6 @@ final class WormholePacketTests: XCTestCase {
         XCTAssertEqual(decodedPacket.payload, packet.payload)
     }
 
-    func testHeartbeatEncodeDecode() async throws {
-        let packet = WormholePacket.heartbeat
-
-        var data = try packet.encoded()
-
-        guard let decodedPacket = WormholePacket.decode(from: &data) else {
-            XCTAssert(false, "Expected to decode a packet")
-            return
-        }
-
-        XCTAssertEqual(decodedPacket.magic, WormholePacket.magicValueHeartbeat)
-        XCTAssertTrue(decodedPacket.payload.isEmpty)
-        XCTAssertTrue(decodedPacket.isHeartbeat)
-    }
-
     func testPacketStreaming() async throws {
         let (handle, _) = FileHandle.testStreamSmallPayloads()
 
@@ -132,34 +117,6 @@ final class WormholePacketTests: XCTestCase {
             let payload = try JSONDecoder.wormhole.decode(TestPayload.self, from: packet.payload)
             XCTAssertEqual(payload.data, Data.testPayloads[index])
         }
-    }
-
-    func testHeartbeatStream() async throws {
-        let count = 12
-        let (handle, _) = FileHandle.testStreamHeartbeats(count)
-
-        let expect = expectation(description: "Stream heartbeats")
-        expect.expectedFulfillmentCount = count
-
-        let streamTask = Task {
-            var packets = [WormholePacket]()
-
-            for try await packet in WormholePacket.stream(from: handle.bytes) {
-                packets.append(packet)
-
-                expect.fulfill()                
-            }
-
-            return packets
-        }
-
-        await fulfillment(of: [expect], timeout: 10)
-        streamTask.cancel()
-
-        let packets = try await streamTask.value
-
-        XCTAssertEqual(packets.count, count, "All heartbeat packets should have been streamed")
-        XCTAssertTrue(packets.reduce(false, { $0 || $1.isHeartbeat }), "All packets should have been identified as heartbeats")
     }
 
 }
@@ -226,21 +183,6 @@ extension FileHandle {
 
                 let payload = TestPayload(data: .testPayloads[i])
                 try! writeHandle.write(contentsOf: WormholePacket(payload).encoded())
-            }
-        }
-
-        return (readHandle, writeTask)
-    }
-
-    static func testStreamHeartbeats(_ count: Int) -> (readHandle: FileHandle, task: Task<Void, Never>) {
-        let pipe = Pipe()
-        let writeHandle = pipe.fileHandleForWriting
-        let readHandle = pipe.fileHandleForReading
-
-        let writeTask = Task {
-            for _ in (0..<count) {
-                let packet = WormholePacket.heartbeat
-                try! writeHandle.write(contentsOf: packet.encoded())
             }
         }
 

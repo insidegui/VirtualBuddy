@@ -18,7 +18,6 @@ extension WormholePacket {
 
     static let magicValue: UInt32 = 0x0DF0FECA
     static let magicValueCompressed: UInt32 = 0x01F0FECA
-    static let magicValueHeartbeat: UInt32 = 0xA7BE0D60
     static let maxUncompressedPayloadSize = 1_000_000
     static let compressionAlgorithm = WHCompressionAlgorithm.lzfse
     static let maxBufferCapacity = 10_000_000
@@ -31,23 +30,6 @@ extension WormholePacket {
         + MemoryLayout<UInt64>.size // payloadLength
     }()
 
-    static let heartbeatSize: Int = {
-        Self.minimumSize
-    }()
-
-}
-
-extension WormholePacket {
-    static let heartbeat: WormholePacket = {
-        WormholePacket(
-            magic: Self.magicValueHeartbeat,
-            payloadType: "B",
-            payloadLength: 0,
-            payload: Data()
-        )
-    }()
-
-    var isHeartbeat: Bool { magic == Self.magicValueHeartbeat }
 }
 
 // MARK: - Encoding
