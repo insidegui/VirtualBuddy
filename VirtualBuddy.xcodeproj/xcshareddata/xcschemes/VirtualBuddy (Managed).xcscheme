@@ -67,6 +67,10 @@
             argument = "-WHVerbosePacketLogging YES"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBDisableGuestDiskImage YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

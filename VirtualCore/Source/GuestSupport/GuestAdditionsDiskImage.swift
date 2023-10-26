@@ -17,8 +17,15 @@ public final class GuestAdditionsDiskImage {
 
     public static let current = GuestAdditionsDiskImage()
 
+    static var isEnabled: Bool { !UserDefaults.standard.bool(forKey: "VBDisableGuestDiskImage") }
+
     public func installIfNeeded() async throws {
         logger.debug(#function)
+
+        guard Self.isEnabled else {
+            logger.notice("Skipping guest additions disk image generation (VBDisableGuestDiskImage)")
+            return
+        }
 
         let embeddedDigest = try computeEmbeddedGuestDigest()
 
@@ -192,6 +199,8 @@ extension VZVirtioBlockDeviceConfiguration {
 
     static var guestAdditionsDisk: VZVirtioBlockDeviceConfiguration? {
         get throws {
+            guard GuestAdditionsDiskImage.isEnabled else { return nil }
+            
             let guestImageURL = GuestAdditionsDiskImage.current.installedImageURL
 
             guard FileManager.default.fileExists(atPath: guestImageURL.path) else { return nil }
