@@ -79,6 +79,10 @@ extension WormholePacket {
                 do {
                     var buffer = Data(capacity: WormholePacket.minimumSize)
 
+                    #if DEBUG
+                    var start = clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+                    #endif
+
                     for try await byte in bytes {
                         let readPacket = autoreleasepool {
                             guard !Task.isCancelled else {
@@ -92,6 +96,14 @@ extension WormholePacket {
                             guard buffer.count >= WormholePacket.minimumSize else { return false }
 
                             if let packet = WormholePacket.decode(from: &buffer) {
+                                #if DEBUG
+                                if VirtualWormholeConstants.verboseLoggingEnabled {
+                                    let duration = clock_gettime_nsec_np(CLOCK_UPTIME_RAW) - start
+                                    start = clock_gettime_nsec_np(CLOCK_UPTIME_RAW)
+                                    Self.logger.debug("⏱️ Took \(duration / NSEC_PER_MSEC)ms to stream packet of type \(packet.payloadType) (size: \(ByteCountFormatter.packetSize(packet.payloadLength)))")
+                                }
+                                #endif
+
                                 continuation.yield(packet)
 
                                 return true
@@ -203,3 +215,17 @@ extension JSONDecoder {
 extension JSONEncoder {
     static let wormhole = JSONEncoder()
 }
+
+#if DEBUG
+private extension ByteCountFormatter {
+    static let packetLengthFormatter: ByteCountFormatter = {
+        let f = ByteCountFormatter()
+        f.countStyle = .file
+        f.allowedUnits = [.useBytes, .useKB, .useMB, .useGB]
+        return f
+    }()
+    static func packetSize(_ size: UInt64) -> String {
+        Self.packetLengthFormatter.string(fromByteCount: Int64(size))
+    }
+}
+#endif
