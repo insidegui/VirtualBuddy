@@ -180,25 +180,25 @@ public final class VMInstance: NSObject, ObservableObject {
     public func streamGuestNotifications() {
         logger.debug(#function)
         
-        let notificationNames: Set<String> = [
-            "com.apple.shieldWindowRaised",
-            "com.apple.shieldWindowLowered"
-        ]
-
-        let task = Task {
-            do {
-                for await notification in try await wormhole.darwinNotifications(matching: notificationNames, from: virtualMachineModel.wormholeID) {
-                    if notification == "com.apple.shieldWindowRaised" {
-                        logger.debug("🔒 Guest locked")
-                    } else if notification == "com.apple.shieldWindowLowered" {
-                        logger.debug("🔓 Guest unlocked")
-                    }
-                }
-            } catch {
-                logger.error("Error subscribing to Darwin notifications: \(error, privacy: .public)")
-            }
-        }
-        guestIOTasks.append(task)
+//        let notificationNames: Set<String> = [
+//            "com.apple.shieldWindowRaised",
+//            "com.apple.shieldWindowLowered"
+//        ]
+//
+//        let task = Task {
+//            do {
+//                for await notification in try await wormhole.darwinNotifications(matching: notificationNames, from: virtualMachineModel.wormholeID) {
+//                    if notification == "com.apple.shieldWindowRaised" {
+//                        logger.debug("🔒 Guest locked")
+//                    } else if notification == "com.apple.shieldWindowLowered" {
+//                        logger.debug("🔓 Guest unlocked")
+//                    }
+//                }
+//            } catch {
+//                logger.error("Error subscribing to Darwin notifications: \(error, privacy: .public)")
+//            }
+//        }
+//        guestIOTasks.append(task)
     }
     
     func startVM() async throws {

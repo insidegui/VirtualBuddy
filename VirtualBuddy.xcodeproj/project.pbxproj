@@ -149,6 +149,7 @@
 		F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
+		F4AD33872AEC697F00F83475 /* WHServiceListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33862AEC697F00F83475 /* WHServiceListener.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
 		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
@@ -478,6 +479,7 @@
 		F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBRestorableWindow+Resizing.swift"; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
+		F4AD33862AEC697F00F83475 /* WHServiceListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceListener.swift; sourceTree = "<group>"; };
 		F4B068B428882EB7003743BF /* VirtualBuddy_Managed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy_Managed.entitlements; sourceTree = "<group>"; };
 		F4B068B528882F5D003743BF /* AppEntitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppEntitlements.xcconfig; sourceTree = "<group>"; };
 		F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFoldersManagementView.swift; sourceTree = "<group>"; };
@@ -1352,6 +1354,7 @@
 				F428624B2AE9AA830052F029 /* WHSocket.swift */,
 				F428624F2AE9B3190052F029 /* SockAddrVM.h */,
 				F42862682AE9E6550052F029 /* Data+Compression.swift */,
+				F4AD33862AEC697F00F83475 /* WHServiceListener.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -1958,6 +1961,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4AD33872AEC697F00F83475 /* WHServiceListener.swift in Sources */,
 				F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */,
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,

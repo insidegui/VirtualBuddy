@@ -53,7 +53,7 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
 
     let serviceTypes: [WormholeService.Type] = [
         WHControlService.self,
-        WHSharedClipboardService.self,
+//        WHSharedClipboardService.self,
 //        WHDarwinNotificationsService.self,
 //        WHDefaultsImportService.self
     ]
@@ -279,46 +279,59 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
     private func service<T: WormholeService>(_ serviceType: T.Type) -> T? {
         activeServices.first(where: { type(of: $0).id == serviceType.id }) as? T
     }
-
-    public func darwinNotifications(matching names: Set<String>, from peerID: WHPeerID) async throws -> AsyncStream<String> {
-        let token = ChannelToken(peerID: peerID, serviceID: WHDarwinNotificationsService.id)
-
-        guard channels[token] != nil else {
-            throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Peer \(peerID) is not registered"])
-        }
-        guard let notificationService = service(WHDarwinNotificationsService.self) else {
-            throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Darwin notifications service not available"])
-        }
-
-        try Task.checkCancellation()
-
-        for name in names {
-            await send(DarwinNotificationMessage.subscribe(name), to: peerID)
-        }
-
-        var iterator = notificationService.onPeerNotificationReceived.values
-            .filter { $0.peerID == peerID }
-            .map(\.name)
-            .makeAsyncIterator()
-
-        return AsyncStream { await iterator.next() }
-    }
+//
+//    public func darwinNotifications(matching names: Set<String>, from peerID: WHPeerID) async throws -> AsyncStream<String> {
+//        let token = ChannelToken(peerID: peerID, serviceID: WHDarwinNotificationsService.id)
+//
+//        guard channels[token] != nil else {
+//            throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Peer \(peerID) is not registered"])
+//        }
+//        guard let notificationService = service(WHDarwinNotificationsService.self) else {
+//            throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Darwin notifications service not available"])
+//        }
+//
+//        try Task.checkCancellation()
+//
+//        for name in names {
+//            await send(DarwinNotificationMessage.subscribe(name), to: peerID)
+//        }
+//
+//        var iterator = notificationService.onPeerNotificationReceived.values
+//            .filter { $0.peerID == peerID }
+//            .map(\.name)
+//            .makeAsyncIterator()
+//
+//        return AsyncStream { await iterator.next() }
+//    }
 
     // MARK: - Guest Mode
+
+    private var testListener: Any!
 
     private func activateGuestIfNeeded() async throws {
         guard side == .guest else { return }
 
         logger.debug("Running in guest mode, registering host peer")
 
-        for serviceType in serviceTypes {
-            do {
-                let socket = try WHSocket(hostPort: serviceType.port)
-                await createChannel(with: .socket(socket), forServiceType: serviceType, peerID: .host)
-            } catch {
-                logger.error("Channel registration failed for \(serviceType, privacy: .public): \(error, privacy: .public)")
-            }
+        guard #available(macOS 13.0, *) else { return }
+
+        do {
+            let l = try WHServiceListener(port: 8123)
+            self.testListener = l
+            l.activate()
+        } catch {
+            logger.fault("Failed to activate service listener: \(error, privacy: .public)")
         }
+
+
+//        for serviceType in serviceTypes {
+//            do {
+//                let socket = try WHSocket(hostPort: serviceType.port)
+//                await createChannel(with: .socket(socket), forServiceType: serviceType, peerID: .host)
+//            } catch {
+//                logger.error("Channel registration failed for \(serviceType, privacy: .public): \(error, privacy: .public)")
+//            }
+//        }
     }
 
 }
@@ -497,14 +510,38 @@ extension WormholeManager: VZVirtioSocketListenerDelegate {
             return
         }
 
-        for serviceType in self.serviceTypes {
-            let listener = await MainActor.run {
-                let listener = VZVirtioSocketListener()
-                socketDevice.setSocketListener(listener, forPort: serviceType.port)
-                return listener
+        guard #available(macOS 13.0, *) else { return }
+
+        var connected = false
+
+        while(!connected) {
+            do {
+                let connection = try await socketDevice.connect(toPort: 8123)
+
+                connected = true
+
+                logger.notice("Connected, sending 256 0xFF")
+
+                let handle = FileHandle(fileDescriptor: connection.fileDescriptor)
+
+                try handle.write(contentsOf: Data(repeating: 0xFF, count: 256))
+
+                logger.notice("Sent 256 0xFF")
+            } catch {
+                logger.error("Connection to guest listener failed, will retry in a bit. Error: \(error, privacy: .public)")
+
+                try? await Task.sleep(for: .seconds(1))
             }
-            await createChannel(with: .listener(listener), forServiceType: serviceType, peerID: peerID)
         }
+
+//        for serviceType in self.serviceTypes {
+//            let listener = await MainActor.run {
+//                let listener = VZVirtioSocketListener()
+//                socketDevice.setSocketListener(listener, forPort: serviceType.port)
+//                return listener
+//            }
+//            await createChannel(with: .listener(listener), forServiceType: serviceType, peerID: peerID)
+//        }
     }
 
 }
