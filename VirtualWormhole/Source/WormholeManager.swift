@@ -515,8 +515,12 @@ extension WormholeManager: VZVirtioSocketListenerDelegate {
         var connected = false
 
         while(!connected) {
+            await Task.yield()
+
+            try? await Task.sleep(for: .seconds(15))
+
             do {
-                let connection = try await socketDevice.connect(toPort: 8123)
+                let connection = try await Task { @MainActor in try await socketDevice.connect(toPort: 8123) }.value
 
                 connected = true
 
@@ -529,8 +533,6 @@ extension WormholeManager: VZVirtioSocketListenerDelegate {
                 logger.notice("Sent 256 0xFF")
             } catch {
                 logger.error("Connection to guest listener failed, will retry in a bit. Error: \(error, privacy: .public)")
-
-                try? await Task.sleep(for: .seconds(1))
             }
         }
 

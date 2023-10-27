@@ -157,8 +157,6 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = VZVirtualMachine(configuration: config)
 
-        await activateWormhole(with: vm)
-
         _virtualMachine = vm
     }
 
@@ -217,6 +215,11 @@ public final class VMInstance: NSObject, ObservableObject {
         }
 
         VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
+
+        Task.detached { [weak self] in
+            guard let self = self else { return }
+            await activateWormhole(with: vm)
+        }
     }
     
     @available(macOS 13, *)
