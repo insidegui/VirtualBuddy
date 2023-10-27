@@ -82,16 +82,27 @@ final class WHServiceListener {
     }
 
     private func connectionHandler(connection: NWConnection) {
+        logger.debug("Got connection \(String(describing: connection), privacy: .public)")
+
         connection.stateUpdateHandler = { newState in
             switch newState {
             case .ready:
+                self.logger.debug("Connection ready: \(String(describing: connection), privacy: .public)")
                 self.dataRxTx(of: connection)
-            case .failed(_):
+            case .failed(let error):
+                self.logger.error("Connection failed: \(String(describing: connection), privacy: .public) \(error, privacy: .public)")
                 connection.cancel()
             case .cancelled:
-                print("\(connection) cancelled")
-            default:
-                break
+                self.logger.warning("Connection cancelled: \(String(describing: connection), privacy: .public)")
+            case .setup:
+                self.logger.debug("Connection setup: \(String(describing: connection), privacy: .public)")
+            case .waiting(let error):
+                self.logger.warning("Connection waiting: \(String(describing: connection), privacy: .public) \(error, privacy: .public)")
+            case .preparing:
+                self.logger.debug("Connection preparing: \(String(describing: connection), privacy: .public)")
+            @unknown default:
+                self.logger.fault("Unknown connection state")
+                assertionFailure("Unknown connection state: \(newState)")
             }
         }
         connection.start(queue: self.queue)

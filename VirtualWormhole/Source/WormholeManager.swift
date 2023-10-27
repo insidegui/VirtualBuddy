@@ -528,9 +528,16 @@ extension WormholeManager: VZVirtioSocketListenerDelegate {
 
                 let handle = FileHandle(fileDescriptor: connection.fileDescriptor)
 
-                try handle.write(contentsOf: Data(repeating: 0xFF, count: 256))
+                while(true) {
+                    await Task.yield()
+                    try? await Task.sleep(for: .seconds(1))
 
-                logger.notice("Sent 256 0xFF")
+                    try handle.write(contentsOf: Data(repeating: 0xFF, count: 256))
+
+                    logger.notice("Sent 256 0xFF")
+
+                    try? await Task.sleep(for: .seconds(5))
+                }
             } catch {
                 logger.error("Connection to guest listener failed, will retry in a bit. Error: \(error, privacy: .public)")
             }
