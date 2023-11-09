@@ -67,6 +67,14 @@
     },
     {
       "group": "sonoma",
+      "name": "macOS 14.1.1",
+      "build": "23B81",
+      "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-89681/55BD14DB-5535-4203-9359-E2C070E43FBE/UniversalMac_14.1.1_23B81_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14.1",
       "build": "23B74",
       "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-86430/DBE44960-58A6-4715-948B-D64F33F769BD/UniversalMac_14.1_23B74_Restore.ipsw",
