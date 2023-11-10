@@ -71,7 +71,7 @@ extension WormholePacket {
 
     static let logger = Logger(subsystem: VirtualWormholeConstants.subsystemName, category: "WormholePacket")
 
-    static func stream(from bytes: FileHandle.AsyncBytes) -> AsyncThrowingStream<WormholePacket, Error> {
+    static func stream<S: AsyncSequence>(from bytes: S) -> AsyncThrowingStream<WormholePacket, Error> where S.Element == UInt8 {
         AsyncThrowingStream { continuation in
             Self.logger.debug("⬇️ Activating stream")
 

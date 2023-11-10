@@ -63,7 +63,6 @@
 		F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F42862372AE947C90052F029 /* WHPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862362AE947C90052F029 /* WHPayload.swift */; };
-		F428624C2AE9AA830052F029 /* WHSocket.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428624B2AE9AA830052F029 /* WHSocket.swift */; };
 		F428624E2AE9AF290052F029 /* WHControlService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428624D2AE9AF290052F029 /* WHControlService.swift */; };
 		F42862502AE9B3250052F029 /* SockAddrVM.h in Headers */ = {isa = PBXBuildFile; fileRef = F428624F2AE9B3190052F029 /* SockAddrVM.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862682AE9E6550052F029 /* Data+Compression.swift */; };
@@ -149,7 +148,11 @@
 		F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
-		F4AD33872AEC697F00F83475 /* WHServiceListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33862AEC697F00F83475 /* WHServiceListener.swift */; };
+		F4AD338B2AED561A00F83475 /* SocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33892AED561A00F83475 /* SocketError.swift */; };
+		F4AD338C2AED561A00F83475 /* WHSocketListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD338A2AED561A00F83475 /* WHSocketListener.swift */; };
+		F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD338F2AED59A600F83475 /* WHServiceConnection.swift */; };
+		F4AD33922AED5AAC00F83475 /* WHTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33912AED5AAC00F83475 /* WHTypes.swift */; };
+		F4AD33942AED5E9F00F83475 /* WHServiceListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33932AED5E9F00F83475 /* WHServiceListener.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
 		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
@@ -398,7 +401,6 @@
 		F422587F2885E71D009420AE /* PropertyControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyControl.swift; sourceTree = "<group>"; };
 		F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineControls.swift; sourceTree = "<group>"; };
 		F42862362AE947C90052F029 /* WHPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPayload.swift; sourceTree = "<group>"; };
-		F428624B2AE9AA830052F029 /* WHSocket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHSocket.swift; sourceTree = "<group>"; };
 		F428624D2AE9AF290052F029 /* WHControlService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHControlService.swift; sourceTree = "<group>"; };
 		F428624F2AE9B3190052F029 /* SockAddrVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SockAddrVM.h; sourceTree = "<group>"; };
 		F42862682AE9E6550052F029 /* Data+Compression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Compression.swift"; sourceTree = "<group>"; };
@@ -479,7 +481,11 @@
 		F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBRestorableWindow+Resizing.swift"; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
-		F4AD33862AEC697F00F83475 /* WHServiceListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceListener.swift; sourceTree = "<group>"; };
+		F4AD33892AED561A00F83475 /* SocketError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketError.swift; sourceTree = "<group>"; };
+		F4AD338A2AED561A00F83475 /* WHSocketListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WHSocketListener.swift; sourceTree = "<group>"; };
+		F4AD338F2AED59A600F83475 /* WHServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceConnection.swift; sourceTree = "<group>"; };
+		F4AD33912AED5AAC00F83475 /* WHTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHTypes.swift; sourceTree = "<group>"; };
+		F4AD33932AED5E9F00F83475 /* WHServiceListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceListener.swift; sourceTree = "<group>"; };
 		F4B068B428882EB7003743BF /* VirtualBuddy_Managed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy_Managed.entitlements; sourceTree = "<group>"; };
 		F4B068B528882F5D003743BF /* AppEntitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppEntitlements.xcconfig; sourceTree = "<group>"; };
 		F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFoldersManagementView.swift; sourceTree = "<group>"; };
@@ -1117,6 +1123,16 @@
 			path = Bootstrap;
 			sourceTree = "<group>";
 		};
+		F4AD33882AED561000F83475 /* Socket */ = {
+			isa = PBXGroup;
+			children = (
+				F428624F2AE9B3190052F029 /* SockAddrVM.h */,
+				F4AD33892AED561A00F83475 /* SocketError.swift */,
+				F4AD338A2AED561A00F83475 /* WHSocketListener.swift */,
+			);
+			path = Socket;
+			sourceTree = "<group>";
+		};
 		F4B5C5D12886FA77005AA632 /* Sharing */ = {
 			isa = PBXGroup;
 			children = (
@@ -1349,12 +1365,11 @@
 		F4D3059529B8D9C70006E748 /* Transport */ = {
 			isa = PBXGroup;
 			children = (
+				F4AD33882AED561000F83475 /* Socket */,
 				F4D3059629B8D9D30006E748 /* WormholePacket.swift */,
 				F42862362AE947C90052F029 /* WHPayload.swift */,
-				F428624B2AE9AA830052F029 /* WHSocket.swift */,
-				F428624F2AE9B3190052F029 /* SockAddrVM.h */,
 				F42862682AE9E6550052F029 /* Data+Compression.swift */,
-				F4AD33862AEC697F00F83475 /* WHServiceListener.swift */,
+				F4AD33912AED5AAC00F83475 /* WHTypes.swift */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -1390,6 +1405,8 @@
 			children = (
 				F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */,
 				F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */,
+				F4AD338F2AED59A600F83475 /* WHServiceConnection.swift */,
+				F4AD33932AED5E9F00F83475 /* WHServiceListener.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -1961,10 +1978,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4AD33872AEC697F00F83475 /* WHServiceListener.swift in Sources */,
 				F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */,
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
+				F4AD338B2AED561A00F83475 /* SocketError.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
+				F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */,
 				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
 				F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */,
 				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
@@ -1975,10 +1993,12 @@
 				F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */,
 				F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */,
 				F428624E2AE9AF290052F029 /* WHControlService.swift in Sources */,
+				F4AD33942AED5E9F00F83475 /* WHServiceListener.swift in Sources */,
 				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
+				F4AD33922AED5AAC00F83475 /* WHTypes.swift in Sources */,
 				F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */,
-				F428624C2AE9AA830052F029 /* WHSocket.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
+				F4AD338C2AED561A00F83475 /* WHSocketListener.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
