@@ -69,7 +69,7 @@ public struct PreferencesView: View {
     }
 
     private func showOpenPanel() {
-        guard let newURL = NSOpenPanel.run(accepting: [.folder], directoryURL: settings.libraryURL) else {
+        guard let newURL = NSOpenPanel.run(accepting: [.folder], directoryURL: settings.libraryURL, defaultDirectoryKey: "library") else {
             return
         }
 
