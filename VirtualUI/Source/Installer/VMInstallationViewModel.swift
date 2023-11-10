@@ -449,7 +449,7 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     func selectInstallFile() {
-        guard let url = NSOpenPanel.run(accepting: selectedSystemType.supportedRestoreImageTypes) else {
+        guard let url = NSOpenPanel.run(accepting: selectedSystemType.supportedRestoreImageTypes, defaultDirectoryKey: "restoreImage") else {
             return
         }
 

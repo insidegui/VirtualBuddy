@@ -174,7 +174,7 @@ struct SharedFoldersManagementView: View {
     }
 
     private func addFolder() {
-        guard let newFolderURL = NSOpenPanel.run(accepting: [.folder]) else {
+        guard let newFolderURL = NSOpenPanel.run(accepting: [.folder], defaultDirectoryKey: "sharedFolders") else {
             return
         }
 
