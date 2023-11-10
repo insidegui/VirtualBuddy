@@ -147,7 +147,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle("Name Your Virtual Machine")
 
-            VirtualMachineNameField(name: $viewModel.data.name, onCommit: viewModel.goNext)
+            VirtualMachineNameField(name: $viewModel.data.name)
         }
     }
 
