@@ -10,13 +10,12 @@ import VirtualCore
 
 struct VirtualMachineNameField: View {
     @Binding var name: String
-    var onCommit: () -> Void
 
     @FocusState private var isFocused: Bool
 
     var body: some View {
         HStack {
-            TextField("Virtual Mac Name", text: $name, onCommit: onCommit)
+            TextField("Virtual Mac Name", text: $name)
                 .textFieldStyle(.roundedBorder)
                 .controlSize(.large)
                 .focused($isFocused)
