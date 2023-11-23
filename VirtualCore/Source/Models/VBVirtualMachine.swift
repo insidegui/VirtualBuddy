@@ -172,10 +172,13 @@ public extension VBVirtualMachine {
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
         
-        let configData = try PropertyListEncoder().encode(configuration)
+        let plistEncoder = PropertyListEncoder()
+        plistEncoder.outputFormat = PropertyListSerialization.PropertyListFormat.xml
+        
+        let configData = try plistEncoder.encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
 
-        let metaData = try PropertyListEncoder().encode(metadata)
+        let metaData = try plistEncoder.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
 
         if let installRestoreData {
