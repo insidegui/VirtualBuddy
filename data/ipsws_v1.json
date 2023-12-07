@@ -67,6 +67,14 @@
     },
     {
       "group": "sonoma",
+      "name": "macOS 14.2 Developer Beta 4",
+      "build": "23C5055b",
+      "url": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/052-05962/A8344C85-06CE-43C7-9FF6-7B477A4DB8BA/UniversalMac_14.2_23C5055b_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14.2 Developer Beta 3",
       "build": "23C5047e",
       "url": "https://updates.cdn-apple.com/2023FallSeed/fullrestores/042-99526/0A9085CC-B36A-400A-86D8-B9FE23B1DA29/UniversalMac_14.2_23C5047e_Restore.ipsw",
