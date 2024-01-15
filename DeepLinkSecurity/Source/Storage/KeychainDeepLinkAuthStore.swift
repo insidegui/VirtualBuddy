@@ -30,7 +30,7 @@ public final actor KeychainDeepLinkAuthStore: DeepLinkAuthStore {
                 let response = try decoder.decode(KeychainAuthorizationResponse.self, from: authData)
 
                 do {
-                    /// The mere existance of the response in the keychain doesn't automatically mean the decision should be honored.
+                    /// The mere existence of the response in the keychain doesn't automatically mean the decision should be honored.
                     /// When written to the keychain, responses are signed with a private key.
                     /// When read from the keychain, the app verifies the stored signature against the corresponding public key,
                     /// ensuring that this response was written by an app that has permission to access this app's private key item from the keychain.
