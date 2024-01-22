@@ -59,10 +59,10 @@
   "restoreImages": [
     {
       "group": "sonoma",
-      "name": "macOS 14.3 RC",
+      "name": "macOS 14.3",
       "build": "23D56",
       "url": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/042-78241/B45074EB-2891-4C05-BCA4-7463F3AC0982/UniversalMac_14.3_23D56_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
