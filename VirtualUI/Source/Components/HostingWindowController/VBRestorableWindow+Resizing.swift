@@ -46,6 +46,11 @@ extension VBRestorableWindow {
             }
 
             targetSize = CGSize(width: windowWidth, height: windowHeight)
+		case .headlessScreen:
+			targetSize = CGSize(
+				width: 400,
+				height: 400
+			)
         }
 
         let targetRect = NSRect(

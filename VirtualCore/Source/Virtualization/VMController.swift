@@ -17,6 +17,9 @@ public struct VMSessionOptions: Hashable, Codable {
     
     @DecodableDefault.False
     public var bootOnInstallDevice = false
+	
+	@DecodableDefault.False
+	public var bootHeadless = false
 
     @DecodableDefault.False
     public var autoBoot = false
@@ -30,6 +33,23 @@ public enum VMState: Equatable {
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
     case stopped(Error?)
+}
+
+extension VMState: CustomStringConvertible {
+	public var description: String {
+		switch self {
+			case .idle:
+				return "Idle"
+			case .starting:
+				return "Starting"
+			case .running(_):
+				return "Running"
+			case .paused(_):
+				return "Paused"
+			case .stopped(_):
+				return "Stopped"
+		}
+	}
 }
 
 @MainActor

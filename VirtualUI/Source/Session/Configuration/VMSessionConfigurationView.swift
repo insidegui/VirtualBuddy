@@ -12,7 +12,7 @@ struct VMSessionConfigurationView: View {
     @EnvironmentObject var controller: VMController
 
     @State private var isShowingVMSettings = false
-
+	@State private var isShowingHeadlessHelp = false
     private var vm: VBVirtualMachine { controller.virtualMachineModel }
 
     var body: some View {
@@ -34,6 +34,21 @@ struct VMSessionConfigurationView: View {
                     Text("Capture system keyboard shortcuts")
                     Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
                 }
+				HStack {
+					Text("Boot in headless mode")
+					Button(action: {
+						isShowingHeadlessHelp.toggle()
+					}, label: {
+						Image(systemName: "questionmark.circle")
+					})
+					.buttonStyle(.borderless)
+					.popover(isPresented: $isShowingHeadlessHelp, content: {
+						Text("In headless mode, the virtual machine starts without displaying the GUI window. This can be useful when accessing the virtual machine via screen sharing.")
+							.frame(width: 200)
+							.padding()
+					})
+					Toggle("Boot in headless mode", isOn: $controller.options.bootHeadless)
+				}
             }
             .labelsHidden()
             .controlSize(.mini)

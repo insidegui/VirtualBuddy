@@ -24,6 +24,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
         case pointAccurate
         case pixelAccurate
         case fitScreen
+		case headlessScreen
     }
 
     @Published public var lockProportions = false

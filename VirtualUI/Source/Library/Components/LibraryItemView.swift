@@ -179,3 +179,11 @@ extension VMLibraryController {
         }
     }
 }
+
+#Preview {
+	LibraryItemView(
+		vm: VBVirtualMachine.preview,
+		name: "Preview machine"
+	)
+	.environmentObject(VMLibraryController.shared)
+}

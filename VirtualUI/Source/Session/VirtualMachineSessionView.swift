@@ -98,13 +98,35 @@ public struct VirtualMachineSessionView: View {
 
     @ViewBuilder
     private func vmView(with vm: VZVirtualMachine) -> some View {
-        SwiftUIVMView(
-            controllerState: .constant(.running(vm)),
-            captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
-            automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
-            screenshotSubject: screenshotTaken
-        )
+		if controller.options.bootHeadless {
+			headlessView
+		} else {
+			SwiftUIVMView(
+				controllerState: .constant(.running(vm)),
+				captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
+				automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
+				screenshotSubject: screenshotTaken
+			)
+		}
     }
+	
+	private var headlessView: some View {
+		VStack {
+			Image(systemName: "tv.slash")
+				.resizable()
+				.aspectRatio(contentMode: .fit)
+				.frame(width: 100)
+			
+			Text("Headless mode")
+				.font(.title)
+			
+			Text("\(controller.state.description)")
+		}
+		.foregroundStyle(.secondary)
+		.onAppear {
+			ui.resizeWindow.send(.headlessScreen)
+		}
+	}
     
     @ViewBuilder
     private func pausedView(with vm: VZVirtualMachine) -> some View {
