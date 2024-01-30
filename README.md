@@ -33,6 +33,7 @@ VirtualBuddy is free and open-source. If you'd like to support its development, 
 - [x] Networking and file sharing support
 - [x] Clipboard sharing
 - [x] Customize virtual machine hardware configuration
+- [x] Headless mode
 - [ ] Edit NVRAM variables
 
 ### Tips and Tricks
