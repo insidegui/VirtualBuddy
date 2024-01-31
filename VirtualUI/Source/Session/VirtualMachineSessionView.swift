@@ -40,6 +40,7 @@ public struct VirtualMachineSessionView: View {
                 if #available(macOS 14.0, *) {
                     VirtualMachineControls<VMController>()
                         .environmentObject(controller)
+                        .environmentObject(ui)
                 }
             }
             .edgesIgnoringSafeArea(.all)
@@ -98,12 +99,25 @@ public struct VirtualMachineSessionView: View {
 
     @ViewBuilder
     private func vmView(with vm: VZVirtualMachine) -> some View {
-        SwiftUIVMView(
-            controllerState: .constant(.running(vm)),
-            captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
-            automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
-            screenshotSubject: screenshotTaken
-        )
+        if ui.isScreenEnabled {
+            SwiftUIVMView(
+                controllerState: .constant(.running(vm)),
+                captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
+                automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
+                screenshotSubject: screenshotTaken
+            )
+        } else {
+            VStack {
+                Text("Screen Disabled")
+                    .font(.headline)
+
+                Button("Enable") {
+                    ui.isScreenEnabled = true
+                }
+                .controlSize(.large)
+            }
+            .foregroundStyle(Color.white)
+        }
     }
     
     @ViewBuilder

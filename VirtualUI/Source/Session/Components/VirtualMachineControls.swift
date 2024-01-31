@@ -22,6 +22,7 @@ extension VMController: VirtualMachineStateController { }
 @available(macOS 14.0, *)
 struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
     @EnvironmentObject private var controller: Controller
+    @EnvironmentObject private var ui: VirtualMachineSessionUI
 
     @State private var actionTask: Task<Void, Never>?
 
@@ -32,6 +33,10 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
 
     var body: some View {
         Group {
+            Toggle(isOn: $ui.isScreenEnabled) {
+                Image(systemName: "display")
+            }
+            
             switch controller.state {
             case .idle, .paused, .stopped:
                 Button {

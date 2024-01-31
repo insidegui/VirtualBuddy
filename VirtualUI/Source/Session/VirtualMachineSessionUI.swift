@@ -28,6 +28,8 @@ public final class VirtualMachineSessionUI: ObservableObject {
 
     @Published public var lockProportions = false
 
+    @Published public var isScreenEnabled = true
+
     let setWindowAspectRatio = PassthroughSubject<CGSize?, Never>()
 
     let resizeWindow = PassthroughSubject<WindowSize, Never>()
