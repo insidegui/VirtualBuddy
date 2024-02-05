@@ -31,7 +31,7 @@ struct LibraryItemView: View {
     @State var name: String
     var isPressed = false
 
-    @State private var thumbnail: Image?
+    @State private var thumbnail = Image(nsImage: .thumbnailPlaceholder)
 
     var nameFieldFocus = BoolSubject()
 
@@ -62,12 +62,10 @@ struct LibraryItemView: View {
         .padding(.bottom, 12)
         .background(Material.thin, in: backgroundShape)
         .background {
-            if let thumbnail {
-                thumbnail
-                    .resizable()
-                    .blur(radius: 22)
-                    .opacity(isPressed ? 0.1 : 0.4)
-            }
+            thumbnail
+                .resizable()
+                .blur(radius: 22)
+                .opacity(isPressed ? 0.1 : 0.4)
         }
         .clipShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
@@ -105,24 +103,12 @@ struct LibraryItemView: View {
 
     @ViewBuilder
     private var thumbnailView: some View {
-        if let image = thumbnail {
-            image
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom)
-                .clipped()
-                .aspectRatio(16/9, contentMode: .fit)
-        } else {
-            ZStack {
-                Image(systemName: "photo.fill")
-                    .font(.title)
-                    .opacity(0.6)
-
-                Rectangle()
-                    .foregroundColor(.secondary)
-            }
-            .frame(minHeight: 140)
-        }
+        thumbnail
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom)
+            .clipped()
+            .aspectRatio(16/9, contentMode: .fit)
     }
 
     @ViewBuilder
