@@ -97,7 +97,7 @@ final class VMScreenshotter {
 
         guard let cgImage = bitmapRep.cgImage else { return nil }
 
-        guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 350_000) else { return nil }
+        guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 0) else { return nil }
         guard let destination = CGImageDestinationCreateWithData(cfData, AVFileType.heic.rawValue as CFString, 1, nil) else { return nil }
 
         CGImageDestinationAddImage(destination, cgImage, imageOptions as CFDictionary)

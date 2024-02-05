@@ -62,8 +62,8 @@ struct LibraryItemView: View {
         .padding(.bottom, 12)
         .background(Material.thin, in: backgroundShape)
         .background {
-            if let image = vm.thumbnailImage() {
-                Image(nsImage: image)
+            if let thumbnail {
+                thumbnail
                     .resizable()
                     .blur(radius: 22)
                     .opacity(isPressed ? 0.1 : 0.4)
@@ -94,6 +94,8 @@ struct LibraryItemView: View {
     private func refreshThumbnail() {
         if let nsImage = vm.thumbnailImage() {
             thumbnail = Image(nsImage: nsImage)
+        } else {
+            thumbnail = Image(nsImage: .thumbnailPlaceholder)
         }
     }
 
