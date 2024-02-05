@@ -35,10 +35,16 @@ public extension VBVirtualMachine {
         try FileManager.default.removeItem(at: fileURL)
     }
 
-    func metadataContents(_ fileName: String) -> Data? {
+    func metadataFileURL(_ fileName: String) -> URL? {
         guard let baseURL = try? metadataDirectoryCreatingIfNeeded() else { return nil }
 
         let fileURL = baseURL.appendingPathComponent(fileName)
+
+        return fileURL
+    }
+
+    func metadataContents(_ fileName: String) -> Data? {
+        guard let fileURL = metadataFileURL(fileName) else { return nil }
 
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
 

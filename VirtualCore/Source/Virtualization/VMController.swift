@@ -187,7 +187,7 @@ public final class VMController: ObservableObject {
     public func storeScreenshot(with data: Data) {
         do {
             try virtualMachineModel.write(data, forMetadataFileNamed: VBVirtualMachine.screenshotFileName)
-            try virtualMachineModel.invalidateThumbnail()
+            try virtualMachineModel.invalidateThumbnail()            
         } catch {
             logger.error("Error storing screenshot: \(error)")
         }
