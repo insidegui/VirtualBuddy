@@ -59,6 +59,14 @@
   "restoreImages": [
     {
       "group": "sonoma",
+      "name": "macOS 14.4 Developer Beta 2",
+      "build": "23E5191e",
+      "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-45324/985FEED9-1A9E-49EB-A904-467E5E7EEE9C/UniversalMac_14.4_23E5191e_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14.4 Developer Beta 1",
       "build": "23E5180j",
       "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-42583/F09F735D-D3C3-4AF7-9BEC-F9C5D3B84363/UniversalMac_14.4_23E5180j_Restore.ipsw",
