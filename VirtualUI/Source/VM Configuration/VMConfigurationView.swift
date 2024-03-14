@@ -49,6 +49,8 @@ struct VMConfigurationView: View {
 
     private var showDisplayPPISelection: Bool { systemType.supportsDisplayPPI }
     
+    private var showRosettaMountSelection: Bool { systemType.supportsRosettaMount }
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if showBootDiskSection {

@@ -54,6 +54,10 @@ struct SharingConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         _ConfigurationSectionPreview { SharingConfigurationView(configuration: $0) }
 
+        _ConfigurationSectionPreview(.preview.linuxVirtualMachine) {
+            SharingConfigurationView(configuration: $0) }
+            .previewDisplayName("Linux Sharing Configuration View")
+
         _ConfigurationSectionPreview(.preview.removingSharedFolders) { SharingConfigurationView(configuration: $0) }
             .previewDisplayName("Empty")
     }
