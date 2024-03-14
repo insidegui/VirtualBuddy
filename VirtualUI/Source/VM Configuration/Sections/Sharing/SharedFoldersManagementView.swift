@@ -74,7 +74,7 @@ struct SharedFoldersManagementView: View {
                     .disabled(!VBMacConfiguration.rosettaSupported)
 
                 if let rosettaSharingNotice = VBMacConfiguration.rosettaSharingNotice() {
-                    Text(rosettaSharingNotice)
+                    Text(try! AttributedString(markdown: rosettaSharingNotice))
                         .font(.caption)
                         .foregroundColor(.yellow)
                 }
