@@ -7,6 +7,7 @@
 
 import Cocoa
 import UniformTypeIdentifiers
+import Virtualization
 
 public extension VBMacConfiguration {
     
@@ -64,6 +65,22 @@ public extension VBMacConfiguration {
         }
     }()
 
+    static let rosettaSupported: Bool = {
+        if #available(macOS 13.0, *) {
+            return VZLinuxRosettaDirectoryShare.availability != VZLinuxRosettaAvailability.notSupported
+        } else {
+            return false
+        }
+    }()
+
+    static func rosettaInstalled() -> Bool {
+        if #available(macOS 13.0, *) {
+            return VZLinuxRosettaDirectoryShare.availability == VZLinuxRosettaAvailability.installed
+        } else {
+            return false
+        }
+    }
+
     static let fileSharingNotice: String = {
         let tip = "For previous OS versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
 
@@ -73,6 +90,18 @@ public extension VBMacConfiguration {
             return "File sharing requires both the host Mac and the virtual machine to be running macOS 13 or later. \(tip)"
         }
     }()
+
+    static func rosettaSharingNotice() -> String? {
+        if rosettaSupported {
+            if rosettaInstalled() {
+                return nil
+            } else {
+                return "Rosetta is not installed. Run `softwareupdate --install-rosetta` to install Rosetta."
+            }
+        } else {
+            return "Rosetta for Linux requires the host Mac to be running macOS 13 or later."
+        }
+    }
 }
 
 public extension VBMacConfiguration.SupportState {
@@ -198,6 +227,8 @@ public extension VBGuestType {
     var supportsKeyboardCustomization: Bool { self == .mac }
 
     var supportsDisplayPPI: Bool { self == .mac }
+
+    var supportsRosettaMount: Bool { self == .linux }
 
     var supportedRestoreImageTypes: Set<UTType> {
         switch self {

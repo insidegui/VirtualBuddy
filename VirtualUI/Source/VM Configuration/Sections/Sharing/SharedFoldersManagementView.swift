@@ -63,6 +63,22 @@ struct SharedFoldersManagementView: View {
             Text(VBMacConfiguration.fileSharingNotice)
                 .font(.caption)
                 .foregroundColor(.yellow)
+
+            if configuration.systemType == .linux {
+                let rosettaToggleBind = if VBMacConfiguration.rosettaSupported {
+                    $configuration.rosettaSharingEnabled
+                } else {
+                    Binding.constant(false)
+                }
+                Toggle("Share Rosetta for Linux", isOn: rosettaToggleBind)
+                    .disabled(!VBMacConfiguration.rosettaSupported)
+
+                if let rosettaSharingNotice = VBMacConfiguration.rosettaSharingNotice() {
+                    Text(try! AttributedString(markdown: rosettaSharingNotice))
+                        .font(.caption)
+                        .foregroundColor(.yellow)
+                }
+            }
         }
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didMountNotification)) { note in
             availabilityProvider.refreshAvailabilityIfNeeded(with: note)
@@ -137,16 +153,57 @@ struct SharedFoldersManagementView: View {
     
     @ViewBuilder
     private var mountTip: some View {
-        Text("""
+        let tooltipCommon = """
         To make your shared folders available in the virtual machine,
         run the following command in Terminal (Applications > Utilities > Terminal):
-        
+
         ```
         mkdir -p ~/Desktop/VirtualBuddyShared && mount -t virtiofs VirtualBuddyShared ~/Desktop/VirtualBuddyShared
         ```
-        
+
         A folder named "VirtualBuddyShared" will show up on the Desktop.
-        """)
+        """
+
+        let rosettaVm = VBMacConfiguration.rosettaSupported && configuration.systemType == .linux
+
+        let tooltipRosetta = if rosettaVm {
+            """
+
+
+            To make Rosetta binaries available in the Linux virtual machine,
+            run the following command in the Linux guest's Terminal:
+
+            ```
+            mount -t virtiofs Rosetta /mnt
+            ```
+
+            The Rosetta binaries will be ready in `/mnt`. Follow [this instruction](https://developer.apple.com/documentation/virtualization/running_intel_binaries_in_linux_vms_with_rosetta#3978489) to allow x86-64 binaries to be run on the Linux guest.
+            """
+        } else {
+            ""
+        }
+        let tooltipRosettaInstall = if rosettaVm && !VBMacConfiguration.rosettaInstalled() {
+                """
+
+
+                Rosetta cannot be used unless installed on the host.
+                To install Rosetta, run the following command in host's Terminal:
+
+                ```
+                softwareupdate --install-rosetta
+                ```
+                """
+        } else {
+            ""
+        }
+
+        let tooltipTexts = [tooltipCommon, tooltipRosetta, tooltipRosettaInstall].joined()
+
+        let tooltipAttributedText = try! AttributedString(
+            markdown: tooltipTexts,
+            options: AttributedString.MarkdownParsingOptions(interpretedSyntax:.inlineOnlyPreservingWhitespace)
+        )
+        Text(tooltipAttributedText)
         .textSelection(.enabled)
         .foregroundColor(.white)
         .padding()

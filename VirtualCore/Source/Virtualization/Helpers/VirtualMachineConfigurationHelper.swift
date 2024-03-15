@@ -188,16 +188,33 @@ extension VBMacConfiguration {
                 
                 directories[folder.effectiveMountPointName] = dir
             }
-            
+
+            var devices: [VZDirectorySharingDeviceConfiguration] = []
+
+            // standard directory share
             try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.virtualBuddyShareName)
-            
-            let share = VZMultipleDirectoryShare(directories: directories)
-            let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.virtualBuddyShareName)
-            device.share = share
-            return [device]
+            do {
+                let share = VZMultipleDirectoryShare(directories: directories)
+                let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.virtualBuddyShareName)
+                device.share = share
+                devices.append(device)
+            }
+
+            if self.systemType == .linux && self.rosettaSharingEnabled {
+                guard #available(macOS 13.0, *) else {
+                    throw Failure("Rosetta requires macOS 13")
+                }
+                // Rosetta directory share for Linux VMs
+                try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.rosettaShareName)
+                let share = try VZLinuxRosettaDirectoryShare()
+                let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.rosettaShareName)
+                device.share = share
+                devices.append(device)
+            }
+
+            return devices
         }
     }
-    
 }
 
 extension VBSharedFolder {

@@ -68,6 +68,12 @@ public extension VBMacConfiguration {
         return mSelf
     }
     
+    var linuxVirtualMachine: Self {
+        var mSelf = self
+        mSelf.systemType = .linux
+        return mSelf
+    }
+    
 }
 
 public extension VZVirtualMachine {
