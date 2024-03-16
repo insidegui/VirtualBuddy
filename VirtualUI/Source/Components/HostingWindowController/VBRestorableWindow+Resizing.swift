@@ -22,9 +22,8 @@ extension VBRestorableWindow {
 
         switch size {
         case .pointAccurate:
-            let referencePpi = screen.backingScaleFactor * 72.0
-            targetWidth = CGFloat(display.width) * referencePpi / CGFloat(display.pixelsPerInch)
-            targetHeight = CGFloat(display.height) * referencePpi / CGFloat(display.pixelsPerInch)
+            targetWidth = CGFloat(display.width)
+            targetHeight = CGFloat(display.height)
         case .pixelAccurate:
             targetWidth = CGFloat(display.width) / screen.backingScaleFactor
             targetHeight = CGFloat(display.height) / screen.backingScaleFactor
