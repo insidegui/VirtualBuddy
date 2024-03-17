@@ -259,8 +259,6 @@ public final class VMInstance: NSObject, ObservableObject {
         let vm = try ensureVM()
         
         try vm.requestStop()
-
-        library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
     
     func forceStop() async throws {
