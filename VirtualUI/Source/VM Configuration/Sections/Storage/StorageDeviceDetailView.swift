@@ -99,12 +99,25 @@ struct StorageDeviceDetailView: View {
             HStack {
                 device.iconView
 
-                EphemeralTextField(.constant(device.displayName), alignment: .leading) { name in
+                let nameBinding: Binding<String> = switch device.backing {
+                case .managedImage(var image):
+                    Binding<String>(
+                        get: {image.filename},
+                        set: {
+                            image.filename = $0
+                            updateImage(with: image, type: .name)
+                        }
+                    )
+                default:
+                    .constant(device.displayName)
+                }
+
+                EphemeralTextField(nameBinding, alignment: .leading) { name in
                     Text(name)
                 } editableContent: { binding in
                     TextField("", text: binding)
                 }
-                .disabled(!canEditName)
+                .disabled(!(canEditName && !device.diskImageExists(for: viewModel.vm)))
             }
             
             diskImageDetail
@@ -156,7 +169,12 @@ struct StorageDeviceDetailView: View {
             }
         }
     }
-    
+
+    private enum ImageUpdateType {
+        case name
+        case size
+    }
+
     @ViewBuilder
     private var imageTypePicker: some View {
         VStack(alignment: .leading) {
@@ -202,7 +220,7 @@ struct StorageDeviceDetailView: View {
                     image: image,
                     isExistingDiskImage: device.diskImageExists(for: viewModel.vm),
                     isForBootVolume: device.isBootVolume,
-                    onSave: updateImage
+                    onSave: { (image) in updateImage(with: image, type: .size) }
                 )
             case .customImage(let url):
                 customDiskImageURLView(with: url)
@@ -235,9 +253,21 @@ struct StorageDeviceDetailView: View {
         device.backing = .customImage(url)
         imageType = .custom
     }
-    
-    private func updateImage(with newImage: VBManagedDiskImage) {
-        device.backing = .managedImage(newImage)
+
+    private func updateImage(with imgParam: VBManagedDiskImage, type: ImageUpdateType) {
+        var newImage: VBManagedDiskImage
+        if device.managedImage == nil {
+            device.backing = .managedImage(imgParam)
+        } else {
+            newImage = device.managedImage!
+            switch type {
+            case .name:
+                newImage.filename = imgParam.filename
+            case .size:
+                newImage.size = imgParam.size
+            }
+            device.backing = .managedImage(newImage)
+        }
     }
 
 }
