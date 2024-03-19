@@ -59,7 +59,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                         try await controller.stop()
                     }
                 } label: {
-                    Image(systemName: "stop")
+                    Image(systemName: "power")
                 }
             }
         }
