@@ -18,7 +18,8 @@ extension VBRestorableWindow {
         let targetHeight: CGFloat
         let displaySize = CGSize(width: display.width, height: display.height)
         let toolbarHeight: CGFloat = frameRect(forContentRect: NSRect()).height
-        let availableHeight: CGFloat = screen.visibleFrame.height - screen.visibleFrame.origin.y / 2 - toolbarHeight
+        // screen.visibleFrame.height is a "net" value after taking into account menu bar, dock, etc.
+        let availableHeight: CGFloat = screen.visibleFrame.height - toolbarHeight
 
         switch size {
         case .pointAccurate:
