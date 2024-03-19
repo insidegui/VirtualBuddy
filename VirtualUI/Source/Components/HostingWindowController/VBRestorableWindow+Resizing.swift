@@ -14,39 +14,39 @@ extension VBRestorableWindow {
     func resize(to size: VirtualMachineSessionUI.WindowSize, for display: VBDisplayDevice) {
         guard let screen else { return }
 
-        let targetSize: CGSize
+        let targetWidth: CGFloat
+        let targetHeight: CGFloat
         let displaySize = CGSize(width: display.width, height: display.height)
-        let availableHeight: CGFloat = screen.visibleFrame.height - screen.visibleFrame.origin.y / 2
+        let toolbarHeight: CGFloat = frameRect(forContentRect: NSRect()).height
+        // screen.visibleFrame.height is a "net" value after taking into account menu bar, dock, etc.
+        let availableHeight: CGFloat = screen.visibleFrame.height - toolbarHeight
 
         switch size {
         case .pointAccurate:
-            targetSize = CGSize(
-                width: CGFloat(display.width) * 72.0 / CGFloat(display.pixelsPerInch),
-                height: CGFloat(display.height) * 72.0 / CGFloat(display.pixelsPerInch)
-            )
+            targetWidth = CGFloat(display.width)
+            targetHeight = CGFloat(display.height)
         case .pixelAccurate:
-            targetSize = CGSize(
-                width: CGFloat(display.width) * screen.dpi.width / CGFloat(display.pixelsPerInch),
-                height: CGFloat(display.height) * screen.dpi.height / CGFloat(display.pixelsPerInch)
-            )
+            targetWidth = CGFloat(display.width) / screen.backingScaleFactor
+            targetHeight = CGFloat(display.height) / screen.backingScaleFactor
         case .fitScreen:
             let windowAspectRatio = displaySize.width / displaySize.height
             let containerAspectRatio = screen.visibleFrame.width / availableHeight
             let widthFirst = windowAspectRatio > containerAspectRatio
 
-            let windowWidth: CGFloat
-            let windowHeight: CGFloat
-
             if widthFirst {
-                windowWidth = screen.visibleFrame.width
-                windowHeight = windowWidth / windowAspectRatio
+                targetWidth = screen.visibleFrame.width
+                targetHeight = targetWidth / windowAspectRatio
             } else {
-                windowHeight = availableHeight
-                windowWidth = windowHeight * windowAspectRatio
+                targetHeight = availableHeight
+                targetWidth = availableHeight * windowAspectRatio
             }
-
-            targetSize = CGSize(width: windowWidth, height: windowHeight)
         }
+
+        // clamped targetSize to the available screen's real estate
+        let targetSize = CGSize(
+            width: min(targetWidth, screen.visibleFrame.width),
+            height: min(targetHeight, availableHeight)
+        )
 
         let targetRect = NSRect(
             x: screen.visibleFrame.origin.x + screen.visibleFrame.width / 2 - targetSize.width / 2,
