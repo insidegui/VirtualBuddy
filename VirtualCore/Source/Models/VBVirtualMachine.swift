@@ -114,7 +114,8 @@ extension VBVirtualMachine {
     }
 
     public var needsInstall: Bool {
-        !metadata.installFinished || !FileManager.default.fileExists(atPath: hardwareModelURL.path)
+        guard configuration.systemType == .mac else { return false }
+        return !metadata.installFinished || !FileManager.default.fileExists(atPath: hardwareModelURL.path)
     }
 
 }

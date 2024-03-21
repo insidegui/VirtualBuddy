@@ -228,7 +228,7 @@ struct StorageDeviceDetailView: View {
     }
     
     private func selectCustomImage() {
-        guard let url = NSOpenPanel.run(accepting: [.diskImage]) else {
+        guard let url = NSOpenPanel.run(accepting: [.diskImage], defaultDirectoryKey: "storageCustomImage") else {
             return
         }
         

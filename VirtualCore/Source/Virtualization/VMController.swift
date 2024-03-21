@@ -146,8 +146,6 @@ public final class VMController: ObservableObject {
             let instance = try ensureInstance()
 
             try await instance.stop()
-
-            state = .stopped(nil)
         }
 
         unhideCursor()

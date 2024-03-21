@@ -6,7 +6,7 @@ private let logger = Logger(subsystem: VirtualUIConstants.subsystemName, categor
 
 public extension NSOpenPanel {
 
-    static func run(accepting contentTypes: Set<UTType>, directoryURL: URL? = nil) -> URL? {
+    static func run(accepting contentTypes: Set<UTType>, directoryURL: URL? = nil, defaultDirectoryKey: String? = nil) -> URL? {
         let panel = NSOpenPanel()
 
         if contentTypes == [.folder] || contentTypes == [.directory] {
@@ -17,9 +17,23 @@ public extension NSOpenPanel {
         }
 
         panel.treatsFilePackagesAsDirectories = true
-        panel.directoryURL = directoryURL
+
+        let defaultsKey = defaultDirectoryKey.flatMap { "defaultDirectory-\($0)" }
+
+        if let defaultsKey, let defaultDirectoryPath = UserDefaults.standard.string(forKey: defaultsKey) {
+            panel.directoryURL = URL(fileURLWithPath: defaultDirectoryPath)
+        } else if let directoryURL {
+            panel.directoryURL = directoryURL
+        }
 
         guard panel.runModal() == .OK, let url = panel.url else { return nil }
+
+        if let defaultsKey {
+            /// If user is choosing a folder, then just store the path to the folder itself.
+            /// If user is choosing files, then remove the last path component to save the path to the file's directory instead.
+            let effectiveURL = contentTypes.contains(.folder) ? url : url.deletingLastPathComponent()
+            UserDefaults.standard.set(effectiveURL.path, forKey: defaultsKey)
+        }
 
         return url
     }

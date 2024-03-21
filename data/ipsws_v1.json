@@ -59,6 +59,158 @@
   "restoreImages": [
     {
       "group": "sonoma",
+      "name": "macOS 14.4",
+      "build": "23E214",
+      "url": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/052-61990/47F0DD06-1106-4F2E-9CD6-AE6B361A0EC6/UniversalMac_14.4_23E214_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.4 Developer Beta 5",
+      "build": "23E5211a",
+      "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-59970/42D9D34A-DD6E-40D5-AA2B-EEB8E65EE64E/UniversalMac_14.4_23E5211a_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.4 Developer Beta 4",
+      "build": "23E5205c",
+      "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-58286/18DAC58E-4161-45D4-BE02-AE47B12B87B8/UniversalMac_14.4_23E5205c_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.4 Developer Beta 3",
+      "build": "23E5196e",
+      "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-51632/C6A7A58A-3CB1-4271-9CED-1D5DAE9078CF/UniversalMac_14.4_23E5196e_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.4 Developer Beta 2",
+      "build": "23E5191e",
+      "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-45324/985FEED9-1A9E-49EB-A904-467E5E7EEE9C/UniversalMac_14.4_23E5191e_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.4 Developer Beta 1",
+      "build": "23E5180j",
+      "url": "https://updates.cdn-apple.com/2024WinterSeed/fullrestores/052-42583/F09F735D-D3C3-4AF7-9BEC-F9C5D3B84363/UniversalMac_14.4_23E5180j_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.3",
+      "build": "23D56",
+      "url": "https://updates.cdn-apple.com/2024WinterFCS/fullrestores/042-78241/B45074EB-2891-4C05-BCA4-7463F3AC0982/UniversalMac_14.3_23D56_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.3 Developer Beta 3",
+      "build": "23D5051b",
+      "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/052-27952/6B395980-45C8-4E7C-9252-9F4CE35C7EDB/UniversalMac_14.3_23D5051b_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.3 Developer Beta 2",
+      "build": "23D5043d",
+      "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/052-23267/60655998-DD9A-40BF-BFAB-6D2A4442DE83/UniversalMac_14.3_23D5043d_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.3 Developer Beta 1",
+      "build": "23D5033f",
+      "url": "https://updates.cdn-apple.com/2023WinterSeed/fullrestores/052-04657/4126C431-B3EA-42C2-BC36-ED83715B8700/UniversalMac_14.3_23D5033f_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2.1",
+      "build": "23C71",
+      "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/052-22662/ECE59A41-DACC-4CA5-AB23-FDED1A4567DE/UniversalMac_14.2.1_23C71_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2",
+      "build": "23C64",
+      "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/052-15117/DC2EE605-ABF3-41AE-9652-D137A8AA5907/UniversalMac_14.2_23C64_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2 RC",
+      "build": "23C63",
+      "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/052-14744/7215DBB4-BEAD-4A9C-9202-276ABA6832D5/UniversalMac_14.2_23C63_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2 Developer Beta 4",
+      "build": "23C5055b",
+      "url": "https://updates.cdn-apple.com/2023WinterFCS/fullrestores/052-05962/A8344C85-06CE-43C7-9FF6-7B477A4DB8BA/UniversalMac_14.2_23C5055b_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2 Developer Beta 3",
+      "build": "23C5047e",
+      "url": "https://updates.cdn-apple.com/2023FallSeed/fullrestores/042-99526/0A9085CC-B36A-400A-86D8-B9FE23B1DA29/UniversalMac_14.2_23C5047e_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2 Developer Beta 2",
+      "build": "23C5041e",
+      "url": "https://updates.cdn-apple.com/2023FallSeed/fullrestores/042-92143/F642F928-DEE0-4C3F-A416-85745C778855/UniversalMac_14.2_23C5041e_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.2 Developer Beta 1",
+      "build": "23C5030f",
+      "url": "https://updates.cdn-apple.com/2023FallSeed/fullrestores/042-71093/ECEFE157-E28B-40B4-9F21-CFD075129029/UniversalMac_14.2_23C5030f_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.1.1",
+      "build": "23B81",
+      "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-89681/55BD14DB-5535-4203-9359-E2C070E43FBE/UniversalMac_14.1.1_23B81_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.1",
+      "build": "23B74",
+      "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-86430/DBE44960-58A6-4715-948B-D64F33F769BD/UniversalMac_14.1_23B74_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14.1 RC",
       "build": "23B73",
       "url": "https://updates.cdn-apple.com/2023FallFCS/fullrestores/042-10900/347B734E-BC0B-41FA-9671-8000FCB5B0BB/UniversalMac_14.1_23B73_Restore.ipsw",
