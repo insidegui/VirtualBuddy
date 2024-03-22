@@ -33,7 +33,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
     
-    let wormhole: WormholeManager = .sharedHost
+//    let wormhole: WormholeManager = .sharedHost
     
     private var isLoadingNVRAM = false
     
@@ -163,14 +163,27 @@ public final class VMInstance: NSObject, ObservableObject {
     private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
         guard virtualMachineModel.configuration.systemType == .mac else { return }
 
-        wormhole.activate()
+//        wormhole.activate()
 
         let socket = VZVirtioSocketDeviceConfiguration()
         config.socketDevices = [socket]
     }
 
-    private func activateWormhole(with vm: VZVirtualMachine) async {
-        await wormhole.addServiceListeners(to: vm, peerID: virtualMachineModel.wormholeID)
+    private var guestClient: Any?
+
+    private func activateWormhole(with vm: VZVirtualMachine) {
+//        await wormhole.addServiceListeners(to: vm, peerID: virtualMachineModel.wormholeID)
+        guard let socketDevice = vm.socketDevices.first as? VZVirtioSocketDevice else {
+            assertionFailure("Expected socket device")
+            return
+        }
+
+        guard #available(macOS 13.0, *) else { return }
+
+        let client = WHGuestClient(device: socketDevice, port: 6789, remote: true)
+        self.guestClient = client
+
+        client.activate()
     }
 
     private lazy var guestIOTasks = [Task<Void, Never>]()
@@ -216,10 +229,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
 
-        Task.detached { [weak self] in
-            guard let self = self else { return }
-            await activateWormhole(with: vm)
-        }
+        activateWormhole(with: vm)
     }
     
     @available(macOS 13, *)
@@ -310,7 +320,7 @@ extension VMInstance: VZVirtualMachineDelegate {
             library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
 
             Task {
-                await wormhole.unregister(virtualMachineModel.wormholeID)
+//                await wormhole.unregister(virtualMachineModel.wormholeID)
             }
 
             onVMStop(error)
@@ -346,3 +356,108 @@ private extension VBVirtualMachine {
         return cleanID.removingPercentEncoding ?? cleanID
     }
 }
+//
+//private final class TestSocketConnection {
+//
+//    let device: VZVirtioSocketDevice
+//
+//    init(device: VZVirtioSocketDevice) {
+//        self.device = device
+//    }
+//
+//    private var internalTask: Task<Void, Never>?
+//
+//    func activate() {
+//        guard internalTask == nil else { return }
+//        
+//        print("-> Activate for \(device)")
+//
+//        internalTask = Task {
+//            await _activate()
+//        }
+//    }
+//
+//    private var isConnected = false
+//    private var connection: VZVirtioSocketConnection!
+//
+//    private func _activate() async {
+//        while !isConnected {
+//            guard !Task.isCancelled else { return }
+//
+//            do {
+//                let connection = try await Task { @MainActor in try await device.connect(toPort: 6789) }.value
+//
+//                self.connection = connection
+//
+//                var addr = sockaddr_vm()
+//
+//                let addrPtr = withUnsafeMutableBytes(of: &addr) { ptr in
+//                    ptr.assumingMemoryBound(to: sockaddr.self).baseAddress!
+//                }
+//                var len = socklen_t(MemoryLayout<sockaddr_vm>.size)
+//
+//                let res = getpeername(connection.fileDescriptor, addrPtr, &len)
+//                if res < 0 {
+//                    print("-> getpeername failed with errno \(errno)")
+//                }
+//
+//                print("-> SOCKET CONNECTED (destinationPort: \(connection.destinationPort), sourcePort: \(connection.sourcePort), fileDescriptor: \(connection.fileDescriptor), svm_port: \(addr.svm_port), svm_cid: \(addr.svm_cid))")
+//
+//                isConnected = true
+//            } catch {
+//                print("-> Socket connection failed: \(error)")
+//
+//                await Task.yield()
+//                try? await Task.sleep(nanoseconds: 5_000_000_000)
+//            }
+//        }
+//
+//        if let connection { await _communicate(on: connection) }
+//    }
+//
+//    private var counter: UInt8 = 0
+//
+//    private func _communicate(on connection: VZVirtioSocketConnection) async {
+//        let handle = FileHandle(fileDescriptor: connection.fileDescriptor)
+//
+//        while isConnected {
+//            try? await Task.sleep(nanoseconds: 2_000_000_000)
+//
+//            guard !Task.isCancelled else { return }
+//
+//            print("-> Sending stuff on socket")
+//
+//            do {
+//                try handle.write(contentsOf: Data([counter]))
+//
+//                counter += 1
+//
+//                if counter >= UInt8.max {
+//                    counter = 0
+//                }
+//            } catch {
+//                print("-> Socket write failed: \(error)")
+//                isConnected = false
+//
+//                await reset()
+//            }
+//        }
+//    }
+//
+//    private func reset() async {
+//        print("-> Reset")
+//
+//        await MainActor.run { connection?.close() }
+//
+//        self.connection = nil
+//        self.isConnected = false
+//        self.internalTask?.cancel()
+//        self.internalTask = nil
+//        self.counter = 0
+//
+//        try? await Task.sleep(nanoseconds: 500_000_000)
+//
+//        activate()
+//    }
+//
+//}

@@ -101,6 +101,8 @@
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
 		F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
+		F44F10502BACBBC60085AD05 /* NIOWebSocket in Frameworks */ = {isa = PBXBuildFile; productRef = F44F104F2BACBBC60085AD05 /* NIOWebSocket */; };
+		F44F10522BACBC5C0085AD05 /* WHGuestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44F10512BACBC5C0085AD05 /* WHGuestClient.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
@@ -436,6 +438,7 @@
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
+		F44F10512BACBC5C0085AD05 /* WHGuestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHGuestClient.swift; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
@@ -603,6 +606,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F44F10502BACBBC60085AD05 /* NIOWebSocket in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1287,6 +1291,7 @@
 				F4C189F82848F6F700335EC7 /* Definitions */,
 				F4C189FB2848F8E800335EC7 /* Services */,
 				F4C189ED2848F5B500335EC7 /* WormholeManager.swift */,
+				F44F10512BACBC5C0085AD05 /* WHGuestClient.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1595,6 +1600,7 @@
 			);
 			name = VirtualWormhole;
 			packageProductDependencies = (
+				F44F104F2BACBBC60085AD05 /* NIOWebSocket */,
 			);
 			productName = VirtualWormhole;
 			productReference = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */;
@@ -1697,6 +1703,7 @@
 			packageReferences = (
 				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */,
+				F44F104E2BACBBC60085AD05 /* XCRemoteSwiftPackageReference "swift-nio" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -1984,6 +1991,7 @@
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
 				F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */,
 				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
+				F44F10522BACBC5C0085AD05 /* WHGuestClient.swift in Sources */,
 				F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */,
 				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
 				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
@@ -3416,6 +3424,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		F44F104E2BACBBC60085AD05 /* XCRemoteSwiftPackageReference "swift-nio" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-nio.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.64.0;
+			};
+		};
 		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -3431,6 +3447,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
+		};
+		F44F104F2BACBBC60085AD05 /* NIOWebSocket */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F44F104E2BACBBC60085AD05 /* XCRemoteSwiftPackageReference "swift-nio" */;
+			productName = NIOWebSocket;
 		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;

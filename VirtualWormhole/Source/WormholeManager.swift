@@ -1,17 +1,33 @@
-////
-////  WormholeManager.swift
-////  VirtualWormhole
-////
-////  Created by Guilherme Rambo on 02/06/22.
-////
 //
-//import Foundation
-//import Virtualization
-//import OSLog
-//import Combine
+//  WormholeManager.swift
+//  VirtualWormhole
+//
+//  Created by Guilherme Rambo on 02/06/22.
 //
 
+import Foundation
+import Virtualization
+import OSLog
+import Combine
 
+public final class WormholeManager: NSObject, ObservableObject {
+    public var isConnected = false
+
+    /// Singleton manager used by the VirtualBuddy app to talk
+    /// to VirtualBuddyGuest running in virtual machines.
+    public static let sharedHost = WormholeManager()
+
+    /// Singleton manager used by the VirtualBuddyGuest app in a virtual machine
+    /// to talk to VirtualBuddy running in the host.
+    public static let sharedGuest = WormholeManager()
+
+    public func activate() { }
+
+}
+
+//
+//
+//
 //public final class WormholeManager: NSObject, ObservableObject, WormholeMultiplexer {
 //
 //    struct ChannelToken: Hashable {
