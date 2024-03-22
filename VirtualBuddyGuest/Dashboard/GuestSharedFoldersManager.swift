@@ -11,9 +11,6 @@ final class GuestSharedFoldersManager: ObservableObject {
     @Published private(set) var error: Error?
 
     func mount() async throws {
-        /// Virtualization's shared folders feature requires macOS 13.0.
-        guard #available(macOS 13.0, *) else { return }
-
         logger.notice("Mount shared folders")
 
         let alreadyMounted = await checkAlreadyMounted()

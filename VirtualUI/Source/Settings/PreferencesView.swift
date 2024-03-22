@@ -29,12 +29,8 @@ public struct PreferencesView: View {
 
     public var body: some View {
         Group {
-            if #available(macOS 13.0, *) {
-                ModernSettingsView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
-                    .environmentObject(deepLinkSentinel())
-            } else {
-                LegacyPreferencesView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
-            }
+            ModernSettingsView(libraryPathText: $libraryPathText, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
+                .environmentObject(deepLinkSentinel())
         }
         .alert("Error", isPresented: $isShowingErrorAlert, actions: {
             Button("OK") { isShowingErrorAlert = false }
@@ -147,81 +143,6 @@ private struct ModernSettingsView: View {
         DeepLinkAuthManagementUI(sentinel: sentinel)
     }
 
-    
-}
-
-
-
-
-
-
-
-
-
-
-
-// MARK: - Previews
-
-#if DEBUG
-private extension VBSettingsContainer {
-    static let preview: VBSettingsContainer = {
-        VBSettingsContainer(with: UserDefaults())
-    }()
-}
-
-@available(macOS 14.0, *)
-#Preview("Settings") {
-    PreferencesView(deepLinkSentinel: .preview)
-        .environmentObject(VBSettingsContainer.preview)
-}
-#endif
-
-
-
-
-
-
-
-
-
-
-
-// MARK: - Legacy Preferences UI (macOS Monterey)
-
-/// Settings view for macOS Monterey.
-/// Should not be getting any new features since Monterey support is in maintenance mode.
-private struct LegacyPreferencesView: View {
-
-    @EnvironmentObject var container: VBSettingsContainer
-
-    private var settings: VBSettings {
-        get { container.settings }
-        nonmutating set { container.settings = newValue }
-    }
-
-    @Binding var libraryPathText: String
-    var setLibraryPath: (String) -> Void
-    var showOpenPanel: () -> Void
-
-    var body: some View {
-        DecentFormView {
-            DecentFormControl {
-                VStack(alignment: .leading, spacing: 8) {
-                    TextField("Library Path:", text: $libraryPathText)
-                        .onSubmit {
-                            setLibraryPath(libraryPathText)
-                        }
-                        .frame(minWidth: 200, maxWidth: 300)
-
-                    Button("Choose…", action: showOpenPanel)
-                }
-            } label: {
-                Text("Library Path:")
-            }
-        }
-        .padding()
-    }
-
 }
 
 extension URL {
@@ -248,3 +169,28 @@ struct LibraryPathError: LocalizedError {
 
     init(_ msg: String) { self.errorDescription = msg }
 }
+
+
+
+
+
+
+
+
+
+
+// MARK: - Previews
+
+#if DEBUG
+private extension VBSettingsContainer {
+    static let preview: VBSettingsContainer = {
+        VBSettingsContainer(with: UserDefaults())
+    }()
+}
+
+@available(macOS 14.0, *)
+#Preview("Settings") {
+    PreferencesView(deepLinkSentinel: .preview)
+        .environmentObject(VBSettingsContainer.preview)
+}
+#endif

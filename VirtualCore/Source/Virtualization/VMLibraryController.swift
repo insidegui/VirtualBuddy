@@ -321,3 +321,5 @@ public extension VMLibraryController {
     }
 
 }
+
+extension NSWorkspace: @unchecked Sendable { }

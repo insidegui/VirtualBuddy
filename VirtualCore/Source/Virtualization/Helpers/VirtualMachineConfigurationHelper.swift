@@ -142,9 +142,6 @@ extension VBPointingDevice {
             case .mouse:
                 return [VZUSBScreenCoordinatePointingDeviceConfiguration()]
             case .trackpad:
-                guard #available(macOS 13.0, *) else {
-                    throw Failure("The trackpad pointing device is only available on macOS 13 and later")
-                }
                 return [
                     VZMacTrackpadConfiguration(),
                     VZUSBScreenCoordinatePointingDeviceConfiguration()
@@ -201,9 +198,6 @@ extension VBMacConfiguration {
             }
 
             if self.systemType == .linux && self.rosettaSharingEnabled {
-                guard #available(macOS 13.0, *) else {
-                    throw Failure("Rosetta requires macOS 13")
-                }
                 // Rosetta directory share for Linux VMs
                 try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.rosettaShareName)
                 let share = try VZLinuxRosettaDirectoryShare()

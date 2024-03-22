@@ -293,9 +293,6 @@ final class VMInstallationViewModel: ObservableObject {
         case .mac:
             model = try VBVirtualMachine(bundleURL: vmURL, isNewInstall: true)
         case .linux:
-            guard #available(macOS 13.0, *) else {
-                throw Failure("Linux virtual machine requires macOS 13 or later")
-            }
             guard let url = data.installImageURL else {
                 throw Failure("Installing a Linux virtual machine requires an install image URL")
             }
@@ -323,10 +320,6 @@ final class VMInstallationViewModel: ObservableObject {
         case .mac:
             await startMacInstallation()
         case .linux:
-            guard #available(macOS 13, *) else {
-                state = .error("This configuration requires macOS 13")
-                break
-            }
             await startLinuxInstallation()
         case .none:
             state = .error("Missing VM model or system type")
