@@ -43,7 +43,9 @@ struct StorageDeviceDetailView: View {
     @Environment(\.dismiss)
     private var dismiss
     
-    private var canEditName: Bool { device.usesManagedDiskImage }
+    private var canEditName: Bool {
+        device.usesManagedDiskImage && !device.diskImageExists(for: viewModel.vm)
+    }
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -99,7 +101,7 @@ struct StorageDeviceDetailView: View {
             HStack {
                 device.iconView
 
-                EphemeralTextField(.constant(device.displayName), alignment: .leading) { name in
+                EphemeralTextField($device.nameBinding, alignment: .leading) { name in
                     Text(name)
                 } editableContent: { binding in
                     TextField("", text: binding)
@@ -202,14 +204,14 @@ struct StorageDeviceDetailView: View {
                     image: image,
                     isExistingDiskImage: device.diskImageExists(for: viewModel.vm),
                     isForBootVolume: device.isBootVolume,
-                    onSave: updateImage
+                    onSave: { device.update(with: $0, type: .size) }
                 )
             case .customImage(let url):
                 customDiskImageURLView(with: url)
             }
         }
     }
-    
+
     @ViewBuilder
     private func customDiskImageURLView(with url: URL) -> some View {
         PropertyControl("Custom Disk Image File:", spacing: 8) {
@@ -258,6 +260,45 @@ extension VBStorageDevice {
     var customImageURL: URL? {
         guard case .customImage(let url) = backing else { return nil }
         return url
+    }
+}
+
+extension Binding where Value == VBStorageDevice {
+    var nameBinding: Binding<String> {
+        switch wrappedValue.backing {
+        case .customImage:
+            return .constant(wrappedValue.displayName)
+        case .managedImage:
+            return .init {
+                wrappedValue.managedImage?.filename ?? ""
+            } set: { newValue in
+                guard var image = wrappedValue.managedImage else { return }
+                image.filename = newValue
+                wrappedValue.backing = .managedImage(image)
+            }
+        }
+    }
+}
+
+enum VBStorageImageUpdate {
+    case name
+    case size
+}
+
+extension VBStorageDevice {
+    mutating func update(with image: VBManagedDiskImage, type: VBStorageImageUpdate) {
+        guard var managedImage else {
+            backing = .managedImage(image)
+            return
+        }
+
+        switch type {
+        case .name:
+            managedImage.filename = image.filename
+        case .size:
+            managedImage.size = image.size
+        }
+        backing = .managedImage(managedImage)
     }
 }
 
