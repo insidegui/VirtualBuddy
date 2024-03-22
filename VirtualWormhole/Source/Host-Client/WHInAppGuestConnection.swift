@@ -16,6 +16,19 @@ final class WHInAppGuestConnection: WHGuestConnection {
 
     private var invalidationHandler: ((WHInAppGuestConnection) -> Void)?
 
+    var packets: AnyPublisher<WormholePacket, Never> { inboundPacketSubject.eraseToAnyPublisher() }
+    private let inboundPacketSubject = PassthroughSubject<WormholePacket, Never>()
+
+    private let outboundPacketSubject = PassthroughSubject<Data, Never>()
+
+    func send(_ packet: WormholePacket) async throws {
+        logger.debug("SEND \(packet.payloadType)")
+
+        let data = try packet.encoded()
+
+        outboundPacketSubject.send(data)
+    }
+
     func connect(using fileDescriptor: Int32, invalidationHandler: @escaping (WHInAppGuestConnection) -> Void) async throws {
         self.invalidationHandler = invalidationHandler
 
@@ -96,32 +109,64 @@ final class WHInAppGuestConnection: WHGuestConnection {
     }
 
     private func handleWebsocketChannel(_ channel: NIOAsyncChannel<WebSocketFrame, WebSocketFrame>) async throws {
-        // We are sending a ping frame and then
-        // start to handle all inbound frames.
-
         let pingFrame = WebSocketFrame(fin: true, opcode: .ping, data: ByteBuffer(string: "Hello!"))
-        try await channel.executeThenClose { inbound, outbound in
+        
+        try await channel.executeThenClose { [weak self] inbound, outbound in
+            guard let self else { return }
+
             try await outbound.write(pingFrame)
 
-            for try await frame in inbound {
-                switch frame.opcode {
-                case .pong:
-                    logger.info("Received pong: \(String(buffer: frame.data))")
+            try await withThrowingTaskGroup(of: Void.self) { group in
+                group.addTask {
+                    for await packet in self.outboundPacketSubject.values {
+                        self.logger.log("PACKET!")
 
-                case .text:
-                    logger.info("Received: \(String(buffer: frame.data))")
+                        do {
+                            let buffer = channel.channel.allocator.buffer(bytes: packet)
+                            let frame = WebSocketFrame(fin: true, opcode: .binary, data: buffer)
 
-                case .connectionClose:
-                    // Handle a received close frame. We're just going to close by returning from this method.
-                    logger.info("Received Close instruction from server")
-                    return
-                case .binary, .continuation, .ping:
-                    // We ignore these frames.
-                    break
-                default:
-                    // Unknown frames are errors.
-                    return
+                            try await outbound.write(frame)
+                        } catch {
+                            self.logger.error("Outbound write failed: \(error, privacy: .public)")
+                        }
+                    }
                 }
+                
+                group.addTask {
+                    for try await frame in inbound {
+                        switch frame.opcode {
+                        case .pong:
+                            self.logger.info("Received pong: \(String(buffer: frame.data))")
+
+                        case .text:
+                            self.logger.info("Received: \(String(buffer: frame.data))")
+
+                        case .connectionClose:
+                            // Handle a received close frame. We're just going to close by returning from this method.
+                            self.logger.info("Received Close instruction from server")
+                            return
+                        case .binary:
+                            let data = Data(buffer: frame.unmaskedData)
+
+                            do {
+                                let packet = try WormholePacket.decode(from: data)
+
+                                self.inboundPacketSubject.send(packet)
+                            } catch {
+                                self.logger.warning("Packet decoding failed: \(error, privacy: .public)")
+                            }
+                        case .continuation, .ping:
+                            // We ignore these frames.
+                            break
+                        default:
+                            // Unknown frames are errors.
+                            return
+                        }
+                    }
+                }
+                
+                try await group.next()
+                group.cancelAll()
             }
         }
     }

@@ -1,10 +1,3 @@
-//
-//  WormholeServiceProtocol.swift
-//  VirtualWormhole
-//
-//  Created by Guilherme Rambo on 02/06/22.
-//
-
 import Foundation
 import Virtualization
 import OSLog
@@ -13,14 +6,11 @@ import OSLog
 /// Provides facilities for `WormholeService` to transmit packets between the local host and multiple peers.
 public protocol WormholeConnectionProvider: AnyObject {
 
-    /// Sends payload to all connected peers.
-    func broadcast<T: WHPayload>(_ payload: T) async
-
-    /// Sends payload to the specified peer.
-    func send<T: WHPayload>(_ payload: T, to peerID: WHPeerID) async
+    /// Sends payload to peer.
+    func send<T: WHPayload>(_ payload: T) async
 
     /// Streams payloads of the specified type sent from remote peers to the local host.
-    func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncStream<(packet: T, sender: WHPeerID)>
+    func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncStream<T>
 
 }
 

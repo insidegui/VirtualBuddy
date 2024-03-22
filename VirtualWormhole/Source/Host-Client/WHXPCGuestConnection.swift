@@ -10,6 +10,14 @@ import NIOWebSocket
 /// This allows for faster iteration since it's possible to develop new features without
 /// having to constantly shut down VMs and restart the VirtualBuddy app itself.
 final class WHXPCGuestConnection: WHGuestConnection {
+
+    /// Currently a noop with XPC connection.
+    var packets: AnyPublisher<WormholePacket, Never> { placeholderPacketsSubject.eraseToAnyPublisher() }
+    private let placeholderPacketsSubject = PassthroughSubject<WormholePacket, Never>()
+
+    /// Currently a noop with XPC connection.
+    func send(_ packet: WormholePacket) async throws { }
+
     private let logger = Logger(for: WHXPCGuestConnection.self)
 
     private var xpcConnection: xpc_connection_t?

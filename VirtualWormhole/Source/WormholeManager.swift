@@ -1,15 +1,33 @@
-//
-//  WormholeManager.swift
-//  VirtualWormhole
-//
-//  Created by Guilherme Rambo on 02/06/22.
-//
-
 import Foundation
 import Virtualization
 import OSLog
 import Combine
 
+/// Manages the host side of the Wormhole API connection for a specific virtual machine.
+public final class WormholeManagerHost: ObservableObject {
+    @MainActor
+    @Published public var isConnected = false
+
+    private let device: VZVirtioSocketDevice
+
+    public init(device: VZVirtioSocketDevice) {
+        self.device = device
+    }
+
+    private var client: WHServiceClient?
+
+    @MainActor
+    public func activate() {
+        let newClient = WHServiceClient(serviceType: WHDarwinNotificationsService.self, device: device)
+
+        client = newClient
+
+        newClient.activate()
+    }
+
+}
+
+/// Manages the guest side of the Wormhole API connection for the current guest VM.
 public final class WormholeManager: NSObject, ObservableObject {
     @MainActor
     @Published public var isConnected = false

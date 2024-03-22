@@ -101,7 +101,7 @@
 		F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F44F10502BACBBC60085AD05 /* NIOWebSocket in Frameworks */ = {isa = PBXBuildFile; productRef = F44F104F2BACBBC60085AD05 /* NIOWebSocket */; };
-		F44F10522BACBC5C0085AD05 /* WHGuestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44F10512BACBC5C0085AD05 /* WHGuestClient.swift */; };
+		F44F10522BACBC5C0085AD05 /* WHServiceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44F10512BACBC5C0085AD05 /* WHServiceClient.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
@@ -116,6 +116,7 @@
 		F457DB822BADE862000755DA /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
 		F457DB832BADE862000755DA /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F457DB892BADE8B4000755DA /* WHXPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB882BADE8B4000755DA /* WHXPCService.swift */; };
+		F457DB8C2BAE0C95000755DA /* WHGuestClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB8B2BAE0C95000755DA /* WHGuestClient.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -218,7 +219,6 @@
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
-		F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */; };
 		F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */; };
 		F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */; };
 /* End PBXBuildFile section */
@@ -461,7 +461,7 @@
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
-		F44F10512BACBC5C0085AD05 /* WHGuestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHGuestClient.swift; sourceTree = "<group>"; };
+		F44F10512BACBC5C0085AD05 /* WHServiceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceClient.swift; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
@@ -478,6 +478,7 @@
 		F457DB872BADE877000755DA /* WHRemoteClientDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WHRemoteClientDebug.entitlements; sourceTree = "<group>"; };
 		F457DB882BADE8B4000755DA /* WHXPCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHXPCService.swift; sourceTree = "<group>"; };
 		F457DB8A2BADEC2D000755DA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F457DB8B2BAE0C95000755DA /* WHGuestClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHGuestClient.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -586,7 +587,6 @@
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
-		F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceClient.swift; sourceTree = "<group>"; };
 		F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDefaultsImportClient.swift; sourceTree = "<group>"; };
 		F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestDefaultsImportView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -987,6 +987,7 @@
 				F457DB662BADE3EA000755DA /* WHGuestConnection.swift */,
 				F457DB682BADE3F2000755DA /* WHInAppGuestConnection.swift */,
 				F457DB6A2BADE3FB000755DA /* WHXPCGuestConnection.swift */,
+				F457DB8B2BAE0C95000755DA /* WHGuestClient.swift */,
 			);
 			path = "Host-Client";
 			sourceTree = "<group>";
@@ -1367,7 +1368,6 @@
 				F4C189F82848F6F700335EC7 /* Definitions */,
 				F4C189FB2848F8E800335EC7 /* Services */,
 				F4C189ED2848F5B500335EC7 /* WormholeManager.swift */,
-				F44F10512BACBC5C0085AD05 /* WHGuestClient.swift */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1484,9 +1484,9 @@
 			isa = PBXGroup;
 			children = (
 				F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */,
-				F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */,
 				F4AD338F2AED59A600F83475 /* WHServiceConnection.swift */,
 				F4AD33932AED5E9F00F83475 /* WHServiceListener.swift */,
+				F44F10512BACBC5C0085AD05 /* WHServiceClient.swift */,
 			);
 			path = Base;
 			sourceTree = "<group>";
@@ -2110,9 +2110,10 @@
 				F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */,
 				F457DB692BADE3F2000755DA /* WHInAppGuestConnection.swift in Sources */,
 				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
-				F44F10522BACBC5C0085AD05 /* WHGuestClient.swift in Sources */,
+				F44F10522BACBC5C0085AD05 /* WHServiceClient.swift in Sources */,
 				F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */,
 				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
+				F457DB8C2BAE0C95000755DA /* WHGuestClient.swift in Sources */,
 				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
 				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,
 				F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */,
@@ -2123,7 +2124,6 @@
 				F4AD33942AED5E9F00F83475 /* WHServiceListener.swift in Sources */,
 				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
 				F4AD33922AED5AAC00F83475 /* WHTypes.swift in Sources */,
-				F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2235,10 +2235,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2268,10 +2268,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2301,10 +2301,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2333,10 +2333,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2794,11 +2794,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -3009,11 +3009,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -3429,11 +3429,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -3464,11 +3464,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
-				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = "";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

@@ -10,7 +10,6 @@ typealias HTTPChannel = NIOAsyncChannel<HTTPServerRequestPart, HTTPPart<HTTPResp
 typealias WebSocketChannel = NIOAsyncChannel<WebSocketFrame, WebSocketFrame>
 
 /// Handles the underlying WebSocket server for VirtualBuddyGuest.
-/// Service implementations use an instance of `WHGuestServer` in order to publish the service to the host.
 final class WHGuestServer {
     let id: String
     private let port: VsockAddress.Port

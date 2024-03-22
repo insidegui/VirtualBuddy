@@ -53,7 +53,7 @@ final class WHControlService: WormholeService {
             self.logger.debug("Sending test payload")
 
             Task {
-                await self.provider.broadcast(WHTestPayload())
+                await self.provider.send(WHTestPayload())
             }
         }
     }

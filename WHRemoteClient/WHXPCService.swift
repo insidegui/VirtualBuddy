@@ -102,27 +102,61 @@ final class WHXPCServiceConnection {
         xpc_connection_activate(xpcConnection)
     }
 
+    private var client: WHServiceClient?
+
     private func setupGuestConnection(with fileDescriptor: Int32) {
         logger.debug("Setting up guest connection with \(fileDescriptor)")
 
-        let newConnection = WHInAppGuestConnection()
-        self.guestConnection = newConnection
+        let newClient = WHServiceClient(serviceType: WHDarwinNotificationsService.self, fileDescriptor: fileDescriptor) { [weak self] in
+            guard let self else { return }
+
+            logger.log("Guest connection invalidated")
+
+            invalidate()
+        }
+
+        self.client = newClient
+
+        newClient.activate()
 
         Task {
-            do {
-                try await newConnection.connect(using: fileDescriptor) { [weak self] _ in
-                    guard let self else { return }
-
-                    logger.log("Guest connection invalidated")
-
-                    invalidate()
+            for await message in newClient.stream(for: DarwinNotificationMessage.self) {
+                switch message {
+                case .post(let name):
+                    logger.debug("Received Darwin notification message for name \"\(name)\"")
+                case .subscribe(let name):
+                    logger.error("Unexpected: received Darwin notification subscribe message for name \"\(name)\". Client should not receive subscribe messages")
                 }
-            } catch {
-                logger.error("Guest connection failed: \(error, privacy: .public)")
-
-                invalidate()
             }
         }
+
+        Task {
+            try? await Task.sleep(nanoseconds: 1_000_000_000)
+
+            logger.debug("Sending subscribe messages")
+
+            await newClient.send(DarwinNotificationMessage.subscribe("com.apple.shieldWindowLowered"))
+            await newClient.send(DarwinNotificationMessage.subscribe("com.apple.shieldWindowRaised"))
+        }
+
+//        let newConnection = WHInAppGuestConnection()
+//        self.guestConnection = newConnection
+//
+//        Task {
+//            do {
+//                try await newConnection.connect(using: fileDescriptor) { [weak self] _ in
+//                    guard let self else { return }
+//
+//                    logger.log("Guest connection invalidated")
+//
+//                    invalidate()
+//                }
+//            } catch {
+//                logger.error("Guest connection failed: \(error, privacy: .public)")
+//
+//                invalidate()
+//            }
+//        }
     }
 
     private func invalidateGuestConnection() {
