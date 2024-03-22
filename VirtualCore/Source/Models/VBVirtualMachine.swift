@@ -48,8 +48,13 @@ public struct VBVirtualMachine: Identifiable {
 
 public extension VBVirtualMachine {
     static let bundleExtension = "vbvm"
-    static let screenshotFileName = "Screenshot.tiff"
-    static let thumbnailFileName = "Thumbnail.jpg"
+    static let screenshotFileName = "Screenshot.heic"
+    static let thumbnailFileName = "Thumbnail.heic"
+    
+    /// Only used for migrations.
+    static let _legacyScreenshotFileName = "Screenshot.tiff"
+    /// Only used for migrations.
+    static let _legacyThumbnailFileName = "Thumbnail.jpg"
 }
 
 extension VBVirtualMachine {
