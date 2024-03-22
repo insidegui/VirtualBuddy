@@ -1,1 +1,1 @@
-#import "GuestLoginItemHelper.h"
+#define kGuestAppLaunchAtLoginHelperBundleID GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID

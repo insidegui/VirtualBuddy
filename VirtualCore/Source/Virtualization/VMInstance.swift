@@ -100,9 +100,6 @@ public final class VMInstance: NSObject, ObservableObject {
             platform = try await Self.createMacPlatform(for: model, installImageURL: installImageURL)
             installDevice = []
         case .linux:
-            guard #available(macOS 13.0, *) else {
-                throw Failure("This configuration requires macOS 13")
-            }
             helper = LinuxVirtualMachineConfigurationHelper(vm: model)
             platform = try await Self.createGenericPlatform(for: model, installImageURL: nil)
             if let installImageURL {
@@ -124,7 +121,7 @@ public final class VMInstance: NSObject, ObservableObject {
         c.entropyDevices = helper.createEntropyDevices()
         c.audioDevices = model.configuration.vzAudioDevices
         c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
-        if #available(macOS 13.0, *), let spiceAgent = helper.createSpiceAgentConsoleDeviceConfiguration() {
+        if let spiceAgent = helper.createSpiceAgentConsoleDeviceConfiguration() {
             c.consoleDevices = [spiceAgent]
         }
 
@@ -138,7 +135,7 @@ public final class VMInstance: NSObject, ObservableObject {
     
     private func createVirtualMachine() async throws {
         let installImage: URL?
-        if options.bootOnInstallDevice, #available(macOS 13.0, *) {
+        if options.bootOnInstallDevice {
             installImage = virtualMachineModel.metadata.installImageURL
         } else {
             installImage = nil
@@ -220,13 +217,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         vm.delegate = self
 
-        if #available(macOS 13, *) {
-            try await vm.start(options: startOptions)
-        } else {
-            let opts = _VZVirtualMachineStartOptions()
-            opts.bootMacOSRecovery = options.bootInRecoveryMode
-            try await vm._start(with: opts)
-        }
+        try await vm.start(options: startOptions)
 
         VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
     }

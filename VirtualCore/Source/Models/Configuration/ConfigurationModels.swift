@@ -586,13 +586,7 @@ public extension VBStorageDevice {
         }
     }
 
-    static var hostSupportsUSBMassStorage: Bool {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return false
-        }
-    }
+    static var hostSupportsUSBMassStorage: Bool { true }
 
     func diskImageExists(for vm: VBVirtualMachine) -> Bool {
         let url = vm.diskImageURL(for: self)

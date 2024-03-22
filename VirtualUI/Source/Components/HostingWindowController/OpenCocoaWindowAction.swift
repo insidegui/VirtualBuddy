@@ -81,6 +81,7 @@ public struct OpenCocoaWindowAction {
         }
     }
     
+    @MainActor
     private var manager: OpenCocoaWindowManager { .shared }
     
     /// Opens a new Mac window with the SwiftUI content provided.

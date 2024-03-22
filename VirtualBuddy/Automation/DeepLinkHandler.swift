@@ -69,9 +69,6 @@ final class DeepLinkHandler {
     }
 
     func install() {
-        /// VirtualBuddy automation requires macOS 13 or later.
-        guard #available(macOS 13.0, *) else { return }
-
         sentinel.installAppleEventHandler()
 
         Task {
@@ -98,10 +95,6 @@ final class DeepLinkHandler {
 
         func run(_ action: DeepLinkAction) async {
             do {
-                guard #available(macOS 13.0, *) else {
-                    throw Failure("VirtualBuddy automation requires macOS Ventura or later.")
-                }
-
                 switch action {
                 case .open(let params):
                     try openVM(named: params.name, options: nil)

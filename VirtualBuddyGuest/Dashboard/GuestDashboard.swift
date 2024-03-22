@@ -23,9 +23,7 @@ struct GuestDashboard: View {
         VStack {
             connectionState
 
-            if #available(macOS 13.0, *) {
-                sharedFoldersState
-            }
+            sharedFoldersState
 
             Spacer()
 

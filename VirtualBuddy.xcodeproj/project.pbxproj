@@ -35,7 +35,6 @@
 		F41369B229918576002CE8D3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F41369B129918576002CE8D3 /* Assets.xcassets */; };
 		F41369B529918576002CE8D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F41369B329918576002CE8D3 /* Main.storyboard */; };
 		F41369BF2991863A002CE8D3 /* VirtualBuddyGuestHelper.app in Embed Login Item */ = {isa = PBXBuildFile; fileRef = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */; };
 		F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */; };
 		F41369CC2991A68F002CE8D3 /* GuestSharedFoldersManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369CB2991A68F002CE8D3 /* GuestSharedFoldersManager.swift */; };
 		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
@@ -367,8 +366,6 @@
 		F41369B429918576002CE8D3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		F41369B629918576002CE8D3 /* VirtualBuddyGuestHelper.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuestHelper.entitlements; sourceTree = "<group>"; };
 		F41369C5299187E1002CE8D3 /* VirtualBuddyGuest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VirtualBuddyGuest-Bridging-Header.h"; sourceTree = "<group>"; };
-		F41369C6299187E2002CE8D3 /* GuestLoginItemHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GuestLoginItemHelper.h; sourceTree = "<group>"; };
-		F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GuestLoginItemHelper.m; sourceTree = "<group>"; };
 		F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostConnectionStateProvider.swift; sourceTree = "<group>"; };
 		F41369CB2991A68F002CE8D3 /* GuestSharedFoldersManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestSharedFoldersManager.swift; sourceTree = "<group>"; };
 		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
@@ -687,8 +684,6 @@
 			isa = PBXGroup;
 			children = (
 				F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */,
-				F41369C6299187E2002CE8D3 /* GuestLoginItemHelper.h */,
-				F41369C7299187E2002CE8D3 /* GuestLoginItemHelper.m */,
 				F41369C5299187E1002CE8D3 /* VirtualBuddyGuest-Bridging-Header.h */,
 			);
 			path = Support;
@@ -1621,7 +1616,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
 						CreatedOnToolsVersion = 14.2;
@@ -1970,7 +1965,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F41369C8299187E2002CE8D3 /* GuestLoginItemHelper.m in Sources */,
 				F4959F3C2992A284001DF4CB /* GuestAppInstaller.swift in Sources */,
 				F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */,
 				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
@@ -2208,7 +2202,6 @@
 					"@loader_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
@@ -2248,7 +2241,6 @@
 					"@loader_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
@@ -2288,7 +2280,6 @@
 					"@loader_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
@@ -2327,7 +2318,6 @@
 					"@loader_path/Frameworks",
 				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
@@ -2456,7 +2446,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2673,7 +2662,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -2890,7 +2878,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2948,7 +2935,6 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 12.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = macosx;
@@ -3211,7 +3197,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8C7439RJLG;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3228,7 +3213,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8C7439RJLG;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3245,7 +3229,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8C7439RJLG;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -3262,7 +3245,6 @@
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8C7439RJLG;
 				GENERATE_INFOPLIST_FILE = YES;
-				MACOSX_DEPLOYMENT_TARGET = 13.1;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
