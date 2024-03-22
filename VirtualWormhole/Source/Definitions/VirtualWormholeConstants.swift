@@ -26,6 +26,8 @@ struct VirtualWormholeConstants {
     static let connectionTimeoutInNanoseconds: UInt64 = 15 * NSEC_PER_SEC
 
     static let pingIntervalInSeconds: TimeInterval = 5.0
+
+    static let whRemoteXPCServiceName = "codes.rambo.VirtualBuddy.WHRemoteClient"
 }
 
 public typealias WHServicePort = UInt32

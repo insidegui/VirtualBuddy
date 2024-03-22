@@ -106,6 +106,16 @@
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
+		F457DB672BADE3EA000755DA /* WHGuestConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB662BADE3EA000755DA /* WHGuestConnection.swift */; };
+		F457DB692BADE3F2000755DA /* WHInAppGuestConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB682BADE3F2000755DA /* WHInAppGuestConnection.swift */; };
+		F457DB6B2BADE3FB000755DA /* WHXPCGuestConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB6A2BADE3FB000755DA /* WHXPCGuestConnection.swift */; };
+		F457DB732BADE6A8000755DA /* WHRemoteClientApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB722BADE6A8000755DA /* WHRemoteClientApp.swift */; };
+		F457DB752BADE6A8000755DA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB742BADE6A8000755DA /* ContentView.swift */; };
+		F457DB772BADE6A9000755DA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F457DB762BADE6A9000755DA /* Assets.xcassets */; };
+		F457DB7A2BADE6A9000755DA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F457DB792BADE6A9000755DA /* Preview Assets.xcassets */; };
+		F457DB822BADE862000755DA /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
+		F457DB832BADE862000755DA /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F457DB892BADE8B4000755DA /* WHXPCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F457DB882BADE8B4000755DA /* WHXPCService.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -251,6 +261,13 @@
 			remoteGlobalIDString = F43B01142AD858FE00164CD1;
 			remoteInfo = DeepLinkSecurity;
 		};
+		F457DB842BADE862000755DA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
+			remoteInfo = VirtualWormhole;
+		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
@@ -316,6 +333,17 @@
 				F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */,
 			);
 			name = "Embed Guest App";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F457DB862BADE862000755DA /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				F457DB832BADE862000755DA /* VirtualWormhole.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F4BE9C7027FF053A00B648F8 /* Embed Frameworks */ = {
@@ -439,6 +467,19 @@
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
+		F457DB662BADE3EA000755DA /* WHGuestConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHGuestConnection.swift; sourceTree = "<group>"; };
+		F457DB682BADE3F2000755DA /* WHInAppGuestConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHInAppGuestConnection.swift; sourceTree = "<group>"; };
+		F457DB6A2BADE3FB000755DA /* WHXPCGuestConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHXPCGuestConnection.swift; sourceTree = "<group>"; };
+		F457DB702BADE6A8000755DA /* WHRemoteClient.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WHRemoteClient.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F457DB722BADE6A8000755DA /* WHRemoteClientApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHRemoteClientApp.swift; sourceTree = "<group>"; };
+		F457DB742BADE6A8000755DA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		F457DB762BADE6A9000755DA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F457DB792BADE6A9000755DA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
+		F457DB7B2BADE6A9000755DA /* WHRemoteClient.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WHRemoteClient.entitlements; sourceTree = "<group>"; };
+		F457DB812BADE6B6000755DA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F457DB872BADE877000755DA /* WHRemoteClientDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WHRemoteClientDebug.entitlements; sourceTree = "<group>"; };
+		F457DB882BADE8B4000755DA /* WHXPCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHXPCService.swift; sourceTree = "<group>"; };
+		F457DB8A2BADEC2D000755DA /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -566,6 +607,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F457DB6D2BADE6A8000755DA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F457DB822BADE862000755DA /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -928,6 +977,39 @@
 			path = GuestSupport;
 			sourceTree = "<group>";
 		};
+		F457DB652BADE3E2000755DA /* Connection */ = {
+			isa = PBXGroup;
+			children = (
+				F457DB662BADE3EA000755DA /* WHGuestConnection.swift */,
+				F457DB682BADE3F2000755DA /* WHInAppGuestConnection.swift */,
+				F457DB6A2BADE3FB000755DA /* WHXPCGuestConnection.swift */,
+			);
+			path = Connection;
+			sourceTree = "<group>";
+		};
+		F457DB712BADE6A8000755DA /* WHRemoteClient */ = {
+			isa = PBXGroup;
+			children = (
+				F457DB882BADE8B4000755DA /* WHXPCService.swift */,
+				F457DB872BADE877000755DA /* WHRemoteClientDebug.entitlements */,
+				F457DB812BADE6B6000755DA /* README.md */,
+				F457DB722BADE6A8000755DA /* WHRemoteClientApp.swift */,
+				F457DB742BADE6A8000755DA /* ContentView.swift */,
+				F457DB762BADE6A9000755DA /* Assets.xcassets */,
+				F457DB7B2BADE6A9000755DA /* WHRemoteClient.entitlements */,
+				F457DB782BADE6A9000755DA /* Preview Content */,
+			);
+			path = WHRemoteClient;
+			sourceTree = "<group>";
+		};
+		F457DB782BADE6A9000755DA /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				F457DB792BADE6A9000755DA /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -1168,6 +1250,7 @@
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
 				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
+				F457DB712BADE6A8000755DA /* WHRemoteClient */,
 				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
@@ -1188,6 +1271,7 @@
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
 				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
 				F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */,
+				F457DB702BADE6A8000755DA /* WHRemoteClient.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1275,6 +1359,7 @@
 			children = (
 				F4C189EC2848F5A300335EC7 /* Source */,
 				F4C189E22848F59F00335EC7 /* VirtualWormhole.h */,
+				F457DB8A2BADEC2D000755DA /* README.md */,
 			);
 			path = VirtualWormhole;
 			sourceTree = "<group>";
@@ -1282,6 +1367,7 @@
 		F4C189EC2848F5A300335EC7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F457DB652BADE3E2000755DA /* Connection */,
 				F4D3059529B8D9C70006E748 /* Transport */,
 				F4C189F82848F6F700335EC7 /* Definitions */,
 				F4C189FB2848F8E800335EC7 /* Services */,
@@ -1516,6 +1602,25 @@
 			productReference = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		F457DB6F2BADE6A8000755DA /* WHRemoteClient */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F457DB7C2BADE6A9000755DA /* Build configuration list for PBXNativeTarget "WHRemoteClient" */;
+			buildPhases = (
+				F457DB6C2BADE6A8000755DA /* Sources */,
+				F457DB6D2BADE6A8000755DA /* Frameworks */,
+				F457DB6E2BADE6A8000755DA /* Resources */,
+				F457DB862BADE862000755DA /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F457DB852BADE862000755DA /* PBXTargetDependency */,
+			);
+			name = WHRemoteClient;
+			productName = WHRemoteClient;
+			productReference = F457DB702BADE6A8000755DA /* WHRemoteClient.app */;
+			productType = "com.apple.product-type.application";
+		};
 		F498ACFD2884BF13006F1C00 /* VirtualUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */;
@@ -1651,7 +1756,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
+				LastSwiftUpdateCheck = 1530;
 				LastUpgradeCheck = 1530;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
@@ -1660,6 +1765,9 @@
 					};
 					F43B01142AD858FE00164CD1 = {
 						CreatedOnToolsVersion = 15.1;
+					};
+					F457DB6F2BADE6A8000755DA = {
+						CreatedOnToolsVersion = 15.3;
 					};
 					F498ACFD2884BF13006F1C00 = {
 						CreatedOnToolsVersion = 14.0;
@@ -1712,6 +1820,7 @@
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
+				F457DB6F2BADE6A8000755DA /* WHRemoteClient */,
 			);
 		};
 /* End PBXProject section */
@@ -1730,6 +1839,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F457DB6E2BADE6A8000755DA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F457DB7A2BADE6A9000755DA /* Preview Assets.xcassets in Resources */,
+				F457DB772BADE6A9000755DA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1838,6 +1956,16 @@
 				F43B01382AD8590F00164CD1 /* DeepLinkClientDescriptor.swift in Sources */,
 				F43B01412AD8590F00164CD1 /* DeepLinkSecurityDefines.swift in Sources */,
 				F43B013B2AD8590F00164CD1 /* DeepLinkClient.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F457DB6C2BADE6A8000755DA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F457DB752BADE6A8000755DA /* ContentView.swift in Sources */,
+				F457DB732BADE6A8000755DA /* WHRemoteClientApp.swift in Sources */,
+				F457DB892BADE8B4000755DA /* WHXPCService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1981,10 +2109,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */,
+				F457DB672BADE3EA000755DA /* WHGuestConnection.swift in Sources */,
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
+				F457DB6B2BADE3FB000755DA /* WHXPCGuestConnection.swift in Sources */,
 				F4AD338B2AED561A00F83475 /* SocketError.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
 				F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */,
+				F457DB692BADE3F2000755DA /* WHInAppGuestConnection.swift in Sources */,
 				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
 				F44F10522BACBC5C0085AD05 /* WHGuestClient.swift in Sources */,
 				F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */,
@@ -2054,6 +2185,11 @@
 			isa = PBXTargetDependency;
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
 			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
+		};
+		F457DB852BADE862000755DA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
+			targetProxy = F457DB842BADE862000755DA /* PBXContainerItemProxy */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2376,6 +2512,124 @@
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 				VERSION_INFO_PREFIX = "";
+			};
+			name = Release_Managed;
+		};
+		F457DB7D2BADE6A9000755DA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = WHRemoteClient/WHRemoteClient.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"WHRemoteClient/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.WHRemoteClient;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F457DB7E2BADE6A9000755DA /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = WHRemoteClient/WHRemoteClient.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"WHRemoteClient/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.WHRemoteClient;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug_Managed;
+		};
+		F457DB7F2BADE6A9000755DA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = WHRemoteClient/WHRemoteClient.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"WHRemoteClient/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.WHRemoteClient;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F457DB802BADE6A9000755DA /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_ENTITLEMENTS = WHRemoteClient/WHRemoteClient.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_ASSET_PATHS = "\"WHRemoteClient/Preview Content\"";
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.WHRemoteClient;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 			};
 			name = Release_Managed;
 		};
@@ -3322,6 +3576,17 @@
 				F43B011E2AD858FE00164CD1 /* Debug_Managed */,
 				F43B011F2AD858FE00164CD1 /* Release */,
 				F43B01202AD858FE00164CD1 /* Release_Managed */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F457DB7C2BADE6A9000755DA /* Build configuration list for PBXNativeTarget "WHRemoteClient" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F457DB7D2BADE6A9000755DA /* Debug */,
+				F457DB7E2BADE6A9000755DA /* Debug_Managed */,
+				F457DB7F2BADE6A9000755DA /* Release */,
+				F457DB802BADE6A9000755DA /* Release_Managed */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

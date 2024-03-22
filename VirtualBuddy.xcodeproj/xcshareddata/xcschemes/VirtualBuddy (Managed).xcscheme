@@ -60,6 +60,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-WHUseXPC YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-WHVerbosePacketLogging YES"
             isEnabled = "YES">
          </CommandLineArgument>

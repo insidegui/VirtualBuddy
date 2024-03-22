@@ -177,7 +177,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         guard #available(macOS 13.0, *) else { return }
 
-        let client = WHGuestClient(device: socketDevice, port: 6789, remote: true)
+        let client = WHGuestClient(device: socketDevice, port: 6789)
         self.guestClient = client
 
         client.activate()
