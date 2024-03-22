@@ -57,28 +57,14 @@ public extension VBMacConfiguration {
         return SupportState(errors: errors, warnings: warnings)
     }
 
-    static let isFileSharingSupported: Bool = {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return false
-        }
-    }()
+    static let isFileSharingSupported = true
 
     static let rosettaSupported: Bool = {
-        if #available(macOS 13.0, *) {
-            return VZLinuxRosettaDirectoryShare.availability != VZLinuxRosettaAvailability.notSupported
-        } else {
-            return false
-        }
+        VZLinuxRosettaDirectoryShare.availability != VZLinuxRosettaAvailability.notSupported
     }()
 
     static func rosettaInstalled() -> Bool {
-        if #available(macOS 13.0, *) {
-            return VZLinuxRosettaDirectoryShare.availability == VZLinuxRosettaAvailability.installed
-        } else {
-            return false
-        }
+        VZLinuxRosettaDirectoryShare.availability == VZLinuxRosettaAvailability.installed
     }
 
     static let fileSharingNotice: String = {
@@ -169,13 +155,7 @@ public extension VBPointingDevice.Kind {
         return "Trackpad requires both host and VM to be on macOS 13 or later."
     }
 
-    var isSupportedByHost: Bool {
-        if #available(macOS 13.0, *) {
-            return true
-        } else {
-            return self == .mouse
-        }
-    }
+    var isSupportedByHost: Bool { true }
 }
 
 public extension VBKeyboardDevice.Kind {
@@ -204,19 +184,7 @@ public extension VBKeyboardDevice.Kind {
 }
 
 public extension VBGuestType {
-    var isSupportedByHost: Bool {
-        switch self {
-        case .mac:
-            return true
-        case .linux:
-            guard #available(macOS 13.0, *) else { return false }
-            #if DEBUG
-            return !UserDefaults.standard.bool(forKey: "VBSimulateLinuxGuestNotSupported")
-            #else
-            return true
-            #endif
-        }
-    }
+    var isSupportedByHost: Bool { true }
 
     static let supportedByHost: [VBGuestType] = {
         allCases.filter(\.isSupportedByHost)

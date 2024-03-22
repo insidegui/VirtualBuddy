@@ -11,46 +11,30 @@ import AVFoundation
 public extension VBVirtualMachine {
 
     var screenshot: NSImage? {
-        guard let imageData = metadataContents(VBVirtualMachine.screenshotFileName) else { return nil }
+        guard let imageData = metadataContents(VBVirtualMachine.screenshotFileName) ?? metadataContents(VBVirtualMachine._legacyScreenshotFileName) else { return nil }
         return NSImage(data: imageData)
     }
 
-    func thumbnailImage(maxSize: CGSize = .init(width: 640, height: 480)) -> NSImage? {
-        if let existingData = metadataContents(Self.thumbnailFileName),
-           let existingImage = NSImage(data: existingData)
-        {
+    static let thumbnailProperties = [
+        kCGImageDestinationLossyCompressionQuality: 0.7,
+        kCGImageDestinationImageMaxPixelSize: 640
+    ] as CFDictionary
+
+    func thumbnailImage() -> NSImage? {
+        guard let thumbnailURL = metadataFileURL(Self.thumbnailFileName) else { return nil }
+
+        if let existingImage = NSImage(contentsOf: thumbnailURL) {
             return existingImage
         }
         
-        guard let image = screenshot else { return nil }
+        guard let cgImage = screenshot?.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
 
-        let rect = AVMakeRect(aspectRatio: image.size, insideRect: CGRect(origin: .zero, size: maxSize))
+        guard let destination = CGImageDestinationCreateWithURL(thumbnailURL as CFURL, AVFileType.heic as CFString, 1, nil) else { return nil }
 
-        let resizedImage = NSImage(size: rect.size, flipped: true) { rect in
-            image.draw(in: rect)
-            return true
-        }
+        CGImageDestinationAddImage(destination, cgImage, Self.thumbnailProperties)
+        CGImageDestinationFinalize(destination)
 
-        guard let data = resizedImage.tiffRepresentation else { return nil }
-
-        guard let imageRep = NSBitmapImageRep(data: data) else {
-            assertionFailure("Couldn't create NSBitmapImageRep from screenshot data")
-            return nil
-        }
-
-        guard let jpegData = imageRep.representation(using: .jpeg, properties: [:]) else {
-            assertionFailure("Couldn't generate JPEG data from screenshot")
-            return nil
-        }
-
-        do {
-            try write(jpegData, forMetadataFileNamed: Self.thumbnailFileName)
-        } catch {
-            assertionFailure("Couldn't write thumbnail: \(error)")
-            return nil
-        }
-
-        return NSImage(data: jpegData)
+        return NSImage(contentsOf: thumbnailURL)
     }
 
     func invalidateThumbnail() throws {

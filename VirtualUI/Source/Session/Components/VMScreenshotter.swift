@@ -2,6 +2,7 @@ import Cocoa
 import Combine
 import OSLog
 import CoreImage
+import AVFoundation
 
 final class VMScreenshotter {
 
@@ -57,18 +58,16 @@ final class VMScreenshotter {
         pendingCapture = Task.detached(priority: .utility) { [weak self] in
             guard let self = self else { return }
 
-            let shot = await MainActor.run {
+            let data = await MainActor.run {
                 self.takeScreenshot()
             }
 
-            guard let shot else { return }
+            guard let data else { return }
 
             try Task.checkCancellation()
-            
-            guard let data = shot.tiffRepresentation(using: .ccittfax4, factor: 0.8) else { return }
-            
+
             self.previousScreenshotData = data
-            
+
             try Task.checkCancellation()
             
             await MainActor.run {
@@ -79,35 +78,32 @@ final class VMScreenshotter {
 
     private lazy var context = CIContext()
 
+    private let imageOptions: [CFString: Any] = [
+        kCGImageDestinationLossyCompressionQuality: 0.8,
+        kCGImageDestinationImageMaxPixelSize: 2000
+    ]
+
     @MainActor
-    private func takeScreenshot() -> NSImage? {
-        guard let view, let rootLayer = view.layer else {
-            logger.fault("Couldn't get view and/or root layer for screenshot")
-            return nil
-        }
+    private func takeScreenshot() -> Data? {
+        guard let view else { return nil }
         
-//        This caused flickering in the view:
-//        if let surface = rootLayer.sublayers?.first?.sublayers?.first?.contents as? IOSurface {
-//            let ciImage = CIImage(ioSurface: surface)
-//            let rect = CGRect(x: 0, y: 0, width: surface.width, height: surface.height)
-//            guard let cgImage = context.createCGImage(ciImage, from: rect) else {
-//                logger.error("Failed to create CG image from IOSurface")
-//                return nil
-//            }
-//            let result = NSImage(cgImage: cgImage, size: rect.size)
-//            return result
-//        } else {
-//            logger.warning("Couldn't get IOSurface for screenshot, falling back to root layer")
+        let bounds = view.bounds
 
-            return NSImage(size: view.bounds.size, flipped: false) { [weak rootLayer] rect in
-                guard let rootLayer else { return false }
-                guard let ctx = NSGraphicsContext.current?.cgContext else { return false }
+        guard bounds.width > 0, bounds.height > 0 else { return nil }
 
-                rootLayer.render(in: ctx)
+        guard let bitmapRep = view.bitmapImageRepForCachingDisplay(in: bounds) else { return nil }
 
-                return true
-            }
-//        }
+        view.cacheDisplay(in: bounds, to: bitmapRep)
+
+        guard let cgImage = bitmapRep.cgImage else { return nil }
+
+        guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 0) else { return nil }
+        guard let destination = CGImageDestinationCreateWithData(cfData, AVFileType.heic.rawValue as CFString, 1, nil) else { return nil }
+
+        CGImageDestinationAddImage(destination, cgImage, imageOptions as CFDictionary)
+        CGImageDestinationFinalize(destination)
+
+        return cfData as Data
     }
 
 }

@@ -103,7 +103,6 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
     }
 
     private var screenTopInset: CGFloat {
-        guard #available(macOS 12.0, *) else { return 0 }
         guard let screen = panel?.screen ?? NSScreen.main else { return 0 }
         return screen.safeAreaInsets.top
     }

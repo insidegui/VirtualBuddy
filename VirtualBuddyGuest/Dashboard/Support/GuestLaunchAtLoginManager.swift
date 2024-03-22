@@ -6,17 +6,7 @@ final class GuestLaunchAtLoginManager: ObservableObject {
 
     private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: Self.self))
 
-    var isLaunchAtLoginEnabled: Bool {
-        if #available(macOS 13.0, *) {
-            return SMAppService.guestHelper.status == .enabled
-        } else {
-            guard let jobDictsPtr = GuestLoginItemHelper.fetchAllLoginItems() else { return false }
-
-            guard let dicts = jobDictsPtr.takeUnretainedValue() as? [[String: Any]] else { return false }
-
-            return dicts.contains(where: { $0["Label"] as? String == kGuestAppLaunchAtLoginHelperBundleID })
-        }
-    }
+    var isLaunchAtLoginEnabled: Bool { SMAppService.guestHelper.status == .enabled }
 
     func setLaunchAtLoginEnabled(_ enabled: Bool) async throws {
         guard GuestAppInstaller.installEnabled else {
@@ -26,16 +16,10 @@ final class GuestLaunchAtLoginManager: ObservableObject {
         
         logger.debug("Set launch at login enabled: \(enabled, privacy: .public)")
 
-        if #available(macOS 13.0, *) {
-            if enabled {
-                try SMAppService.guestHelper.register()
-            } else {
-                try await SMAppService.guestHelper.unregister()
-            }
+        if enabled {
+            try SMAppService.guestHelper.register()
         } else {
-            if !SMLoginItemSetEnabled(kGuestAppLaunchAtLoginHelperBundleID as CFString, enabled) {
-                throw CocoaError(.xpcConnectionInvalid, userInfo: [NSLocalizedFailureReasonErrorKey: "Error enabling launch at login helper via SMLoginItemSetEnabled."])
-            }
+            try await SMAppService.guestHelper.unregister()
         }
 
         await MainActor.run { objectWillChange.send() }
