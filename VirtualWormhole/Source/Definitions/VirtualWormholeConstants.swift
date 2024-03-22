@@ -38,7 +38,7 @@ public typealias WHServicePort = UInt32
 public extension WHServicePort {
     static let control: WHServicePort = 9000
     static let clipboard: WHServicePort = 9001
-    static let darwinNotifications: WHServicePort = 9002
+    static let darwinNotifications: WHServicePort = 6789
     static let defaultsImport: WHServicePort = 9003
 }
 
@@ -54,3 +54,13 @@ public extension Bundle {
     static let virtualWormhole = Bundle(for: _VirtualWormholeStub.self)
 }
 
+struct WHError: LocalizedError, CustomStringConvertible {
+    var errorDescription: String? { message }
+    let message: String
+    
+    init(_ message: String) {
+        self.message = message
+    }
+    
+    var description: String { message }
+}

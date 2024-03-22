@@ -40,15 +40,11 @@ final class WHControlService: WormholeService {
         logger.debug(#function)
 
         streamTask = Task {
-            do {
-                for try await payload in provider.stream(for: WHTestPayload.self) {
-                    logger.debug("Received test payload: \(String(describing: payload), privacy: .public)")
-                }
-
-                logger.debug("Test payload stream ended")
-            } catch {
-                logger.warning("Test payload stream interrupted: \(error, privacy: .public)")
+            for await payload in provider.stream(for: WHTestPayload.self) {
+                logger.debug("Received test payload: \(String(describing: payload), privacy: .public)")
             }
+
+            logger.debug("Test payload stream ended")
         }
 
         sendTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: true) { [weak self] _ in

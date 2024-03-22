@@ -1,24 +1,31 @@
 import Foundation
 import OSLog
+import NIOPosix
 
-extension WormholeService {
-    /// Creates an instance of the service that's configured as a server on the guest.
-    static func guestServer() -> Self {
-        Self.init(provider: WHServiceListener(serviceType: Self.self))
-    }
-}
-
-/// Connection provider used for services on the guest, which only use a single connection: the host.
 final class WHServiceListener: WormholeConnectionProvider {
-    private let socket: WHSocket
+    private let server: WHGuestServer
     private let logger: Logger
+    private var service: WormholeService!
 
     init<S: WormholeService>(serviceType: S.Type) {
-        self.socket = WHSocket(port: serviceType.port)
+        self.server = WHGuestServer(id: serviceType.id, port: VsockAddress.Port(rawValue: serviceType.port))
         self.logger = Logger(subsystem: VirtualWormholeConstants.subsystemName, category: "Listener-\(String(describing: serviceType))")
+        self.service = S(provider: self)
     }
-
-    private var connection: WHServiceConnection?
+    
+    func activate() {
+        service.activate()
+        
+        server.activate { [weak self] _ in
+            guard let self else { return }
+            
+            logger.info("Connected")
+        } onDisconnect: { [weak self] _ in
+            guard let self else { return }
+            
+            logger.info("Disconnected")
+        }
+    }
 
     func broadcast<T>(_ payload: T) async where T : WHPayload {
         await send(payload, to: .host)
@@ -26,60 +33,41 @@ final class WHServiceListener: WormholeConnectionProvider {
     
     func send<T>(_ payload: T, to peerID: WHPeerID) async where T : WHPayload {
         do {
-            guard let connection else {
-                throw WHError("Connection not available.")
-            }
-
-            await connection.send(payload)
+            try await server.send(payload)
         } catch {
-            logger.warning("Broadcast failed: \(error, privacy: .public)")
+            logger.warning("Send failed: \(error, privacy: .public)")
         }
     }
     
-    func stream<T>(for payloadType: T.Type) -> AsyncThrowingStream<(packet: T, sender: WHPeerID), Error> where T : WHPayload {
-        AsyncThrowingStream { continuation in
-            let task = Task.detached { [weak self] in
-                guard let self = self else {
-                    continuation.finish()
-                    return
-                }
-
+    func stream<T>(for payloadType: T.Type) -> AsyncStream<(packet: T, sender: WHPeerID)> where T : WHPayload {
+        let typeName = String(describing: payloadType)
+        
+        return AsyncStream { continuation in
+            let cancellable = server.packets
+                .filter { $0.payloadType == typeName }
+                .sink
+            { [weak self] packet in
+                guard let self else { return }
+                
                 do {
-                    for try await event in socket.activate() {
-                        switch event {
-                        case .activated:
-                            self.logger.debug("Socket activated")
-                        case .invalidated:
-                            self.logger.debug("Socket invalidated")
-
-                            continuation.finish()
-                        case .connected(let client):
-                            let connection = WHServiceConnection(side: .guest, remotePeerID: .host, connection: client)
-                            self.connection = connection
-
-                            Task {
-                                do {
-                                    for try await payload in connection.stream(for: payloadType) {
-                                        continuation.yield((payload, .host))
-                                    }
-
-                                    self.logger.debug("Connection stream ended")
-                                } catch {
-                                    self.logger.warning("Connection stream interrupted: \(error, privacy: .public)")
-                                }
-                            }
-                        case .disconnected:
-                            self.logger.debug("Socket disconnected")
-                        }
-                    }
+                    let payload = try PropertyListDecoder.wormhole.decode(payloadType, from: packet.payload)
+                    
+                    continuation.yield((payload, .host))
                 } catch {
-                    continuation.finish(throwing: error)
+                    self.logger.warning("Payload decoding failed for \(typeName, privacy: .public): \(error, privacy: .public)")
                 }
             }
-
+            
             continuation.onTermination = { @Sendable _ in
-                task.cancel()
+                cancellable.cancel()
             }
         }
+    }
+}
+
+extension WHGuestServer {
+    func send<T>(_ payload: T) async throws where T : WHPayload {
+        let packet = try WormholePacket(payload)
+        try await send(packet)
     }
 }

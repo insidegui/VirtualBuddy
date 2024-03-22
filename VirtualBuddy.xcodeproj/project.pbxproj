@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
 		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
+		7FB251052BADF4B70024ACDC /* WHGuestServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FB251042BADF4B70024ACDC /* WHGuestServer.swift */; };
 		F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695129916F6E002CE8D3 /* StatusItemButton.swift */; };
 		F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */; };
 		F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */; };
@@ -63,7 +64,6 @@
 		F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F42862372AE947C90052F029 /* WHPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862362AE947C90052F029 /* WHPayload.swift */; };
 		F428624E2AE9AF290052F029 /* WHControlService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428624D2AE9AF290052F029 /* WHControlService.swift */; };
-		F42862502AE9B3250052F029 /* SockAddrVM.h in Headers */ = {isa = PBXBuildFile; fileRef = F428624F2AE9B3190052F029 /* SockAddrVM.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F42862692AE9E6550052F029 /* Data+Compression.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862682AE9E6550052F029 /* Data+Compression.swift */; };
 		F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01492888C2F800EB15CD /* InstallationConsole.swift */; };
 		F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014B2888C34B00EB15CD /* LogConsole.swift */; };
@@ -159,8 +159,6 @@
 		F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
-		F4AD338B2AED561A00F83475 /* SocketError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33892AED561A00F83475 /* SocketError.swift */; };
-		F4AD338C2AED561A00F83475 /* WHSocketListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD338A2AED561A00F83475 /* WHSocketListener.swift */; };
 		F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD338F2AED59A600F83475 /* WHServiceConnection.swift */; };
 		F4AD33922AED5AAC00F83475 /* WHTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33912AED5AAC00F83475 /* WHTypes.swift */; };
 		F4AD33942AED5E9F00F83475 /* WHServiceListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AD33932AED5E9F00F83475 /* WHServiceListener.swift */; };
@@ -379,6 +377,7 @@
 /* Begin PBXFileReference section */
 		0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinuxVirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
 		4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
+		7FB251042BADF4B70024ACDC /* WHGuestServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHGuestServer.swift; sourceTree = "<group>"; };
 		F413695129916F6E002CE8D3 /* StatusItemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemButton.swift; sourceTree = "<group>"; };
 		F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarPanelChrome.swift; sourceTree = "<group>"; };
 		F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemProviderProtocol.swift; sourceTree = "<group>"; };
@@ -429,7 +428,6 @@
 		F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineControls.swift; sourceTree = "<group>"; };
 		F42862362AE947C90052F029 /* WHPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPayload.swift; sourceTree = "<group>"; };
 		F428624D2AE9AF290052F029 /* WHControlService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHControlService.swift; sourceTree = "<group>"; };
-		F428624F2AE9B3190052F029 /* SockAddrVM.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SockAddrVM.h; sourceTree = "<group>"; };
 		F42862682AE9E6550052F029 /* Data+Compression.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Compression.swift"; sourceTree = "<group>"; };
 		F42C01492888C2F800EB15CD /* InstallationConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationConsole.swift; sourceTree = "<group>"; };
 		F42C014B2888C34B00EB15CD /* LogConsole.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogConsole.swift; sourceTree = "<group>"; };
@@ -522,8 +520,6 @@
 		F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBRestorableWindow+Resizing.swift"; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
-		F4AD33892AED561A00F83475 /* SocketError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocketError.swift; sourceTree = "<group>"; };
-		F4AD338A2AED561A00F83475 /* WHSocketListener.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WHSocketListener.swift; sourceTree = "<group>"; };
 		F4AD338F2AED59A600F83475 /* WHServiceConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceConnection.swift; sourceTree = "<group>"; };
 		F4AD33912AED5AAC00F83475 /* WHTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHTypes.swift; sourceTree = "<group>"; };
 		F4AD33932AED5E9F00F83475 /* WHServiceListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHServiceListener.swift; sourceTree = "<group>"; };
@@ -678,6 +674,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		7FB251032BADF4A00024ACDC /* Guest-Server */ = {
+			isa = PBXGroup;
+			children = (
+				7FB251042BADF4B70024ACDC /* WHGuestServer.swift */,
+			);
+			path = "Guest-Server";
+			sourceTree = "<group>";
+		};
 		F413694F29916F6E002CE8D3 /* SwiftUI Status Item */ = {
 			isa = PBXGroup;
 			children = (
@@ -977,14 +981,14 @@
 			path = GuestSupport;
 			sourceTree = "<group>";
 		};
-		F457DB652BADE3E2000755DA /* Connection */ = {
+		F457DB652BADE3E2000755DA /* Host-Client */ = {
 			isa = PBXGroup;
 			children = (
 				F457DB662BADE3EA000755DA /* WHGuestConnection.swift */,
 				F457DB682BADE3F2000755DA /* WHInAppGuestConnection.swift */,
 				F457DB6A2BADE3FB000755DA /* WHXPCGuestConnection.swift */,
 			);
-			path = Connection;
+			path = "Host-Client";
 			sourceTree = "<group>";
 		};
 		F457DB712BADE6A8000755DA /* WHRemoteClient */ = {
@@ -1204,16 +1208,6 @@
 			path = Bootstrap;
 			sourceTree = "<group>";
 		};
-		F4AD33882AED561000F83475 /* Socket */ = {
-			isa = PBXGroup;
-			children = (
-				F428624F2AE9B3190052F029 /* SockAddrVM.h */,
-				F4AD33892AED561A00F83475 /* SocketError.swift */,
-				F4AD338A2AED561A00F83475 /* WHSocketListener.swift */,
-			);
-			path = Socket;
-			sourceTree = "<group>";
-		};
 		F4B5C5D12886FA77005AA632 /* Sharing */ = {
 			isa = PBXGroup;
 			children = (
@@ -1367,7 +1361,8 @@
 		F4C189EC2848F5A300335EC7 /* Source */ = {
 			isa = PBXGroup;
 			children = (
-				F457DB652BADE3E2000755DA /* Connection */,
+				7FB251032BADF4A00024ACDC /* Guest-Server */,
+				F457DB652BADE3E2000755DA /* Host-Client */,
 				F4D3059529B8D9C70006E748 /* Transport */,
 				F4C189F82848F6F700335EC7 /* Definitions */,
 				F4C189FB2848F8E800335EC7 /* Services */,
@@ -1451,7 +1446,6 @@
 		F4D3059529B8D9C70006E748 /* Transport */ = {
 			isa = PBXGroup;
 			children = (
-				F4AD33882AED561000F83475 /* Socket */,
 				F4D3059629B8D9D30006E748 /* WormholePacket.swift */,
 				F42862362AE947C90052F029 /* WHPayload.swift */,
 				F42862682AE9E6550052F029 /* Data+Compression.swift */,
@@ -1559,7 +1553,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F42862502AE9B3250052F029 /* SockAddrVM.h in Headers */,
 				F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2110,9 +2103,9 @@
 			files = (
 				F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */,
 				F457DB672BADE3EA000755DA /* WHGuestConnection.swift in Sources */,
+				7FB251052BADF4B70024ACDC /* WHGuestServer.swift in Sources */,
 				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
 				F457DB6B2BADE3FB000755DA /* WHXPCGuestConnection.swift in Sources */,
-				F4AD338B2AED561A00F83475 /* SocketError.swift in Sources */,
 				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
 				F4AD33902AED59A600F83475 /* WHServiceConnection.swift in Sources */,
 				F457DB692BADE3F2000755DA /* WHInAppGuestConnection.swift in Sources */,
@@ -2132,7 +2125,6 @@
 				F4AD33922AED5AAC00F83475 /* WHTypes.swift in Sources */,
 				F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
-				F4AD338C2AED561A00F83475 /* WHSocketListener.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2243,9 +2235,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2275,9 +2268,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2307,9 +2301,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2338,9 +2333,10 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuestHelper/VirtualBuddyGuestHelper.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
@@ -2370,7 +2366,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2409,7 +2405,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2448,7 +2444,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2486,7 +2482,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
@@ -2798,10 +2794,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -3012,10 +3009,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -3431,10 +3429,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -3465,10 +3464,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = VirtualBuddyGuest/VirtualBuddyGuest.entitlements;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "-";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEVELOPMENT_ASSET_PATHS = "\"VirtualBuddyGuest/Preview Content\"";
-				DEVELOPMENT_TEAM = 8C7439RJLG;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

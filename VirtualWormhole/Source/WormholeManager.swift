@@ -11,17 +11,22 @@ import OSLog
 import Combine
 
 public final class WormholeManager: NSObject, ObservableObject {
-    public var isConnected = false
+    @MainActor
+    @Published public var isConnected = false
 
-    /// Singleton manager used by the VirtualBuddy app to talk
-    /// to VirtualBuddyGuest running in virtual machines.
-    public static let sharedHost = WormholeManager()
+    public static let shared = WormholeManager()
+    
+    private var listener: WHServiceListener?
+    private var darwinService: WHDarwinNotificationsService?
 
-    /// Singleton manager used by the VirtualBuddyGuest app in a virtual machine
-    /// to talk to VirtualBuddy running in the host.
-    public static let sharedGuest = WormholeManager()
+    @MainActor
+    public func activate() {
+        let newListener = WHServiceListener(serviceType: WHDarwinNotificationsService.self)
 
-    public func activate() { }
+        listener = newListener
+        
+        newListener.activate()
+    }
 
 }
 

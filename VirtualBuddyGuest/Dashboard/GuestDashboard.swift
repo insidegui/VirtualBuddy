@@ -104,7 +104,7 @@ struct GuestDashboard_Previews: PreviewProvider {
     static var previews: some View {
         GuestDashboard()
             .environmentObject(GuestLaunchAtLoginManager())
-            .environmentObject(WormholeManager.sharedGuest)
+            .environmentObject(WormholeManager.shared)
             .environmentObject(GuestSharedFoldersManager())
     }
 }

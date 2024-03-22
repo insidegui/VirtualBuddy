@@ -20,7 +20,7 @@ public protocol WormholeConnectionProvider: AnyObject {
     func send<T: WHPayload>(_ payload: T, to peerID: WHPeerID) async
 
     /// Streams payloads of the specified type sent from remote peers to the local host.
-    func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncThrowingStream<(packet: T, sender: WHPeerID), Error>
+    func stream<T: WHPayload>(for payloadType: T.Type) -> AsyncStream<(packet: T, sender: WHPeerID)>
 
 }
 
