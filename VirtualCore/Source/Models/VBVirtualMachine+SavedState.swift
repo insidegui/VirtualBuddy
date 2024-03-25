@@ -15,6 +15,7 @@ public struct VBSavedStateMetadata: Identifiable, Hashable, Codable {
 
 public extension VBVirtualMachine {
 
+    #error("TODO: Saved state should be saved to library in _SavedState directory, VMs will need a uuid so that saved states can be associated with a VM without breaking when VMs are renamed")
     func savedStateDirectoryCreatingIfNeeded() throws -> URL {
         try savedStateDirectoryURL.creatingDirectoryIfNeeded()
     }
