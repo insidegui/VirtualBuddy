@@ -14,6 +14,8 @@ public struct VBVirtualMachine: Identifiable {
         public var firstBootDate: Date? = nil
         public var lastBootDate: Date? = nil
         public var installImageURL: URL? = nil
+        @DecodableDefault.EmptyPlaceholder
+        public var uuid = UUID()
     }
 
     public var id: String { bundleURL.absoluteString }
@@ -262,4 +264,8 @@ public extension PropertyListEncoder {
 
 public extension PropertyListDecoder {
     static let virtualBuddy = PropertyListDecoder()
+}
+
+extension UUID: ProvidesEmptyPlaceholder {
+    public static var empty: UUID { UUID() }
 }
