@@ -211,17 +211,23 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     func startVM() async throws {
+        try await bootstrap()
+
+        let vm = try ensureVM()
+
+        try await vm.start(options: startOptions)
+    }
+
+    private func bootstrap() async throws {
         try await createVirtualMachine()
-        
+
         let vm = try ensureVM()
 
         vm.delegate = self
 
-        try await vm.start(options: startOptions)
-
         VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
     }
-    
+
     @available(macOS 13, *)
     private var startOptions: VZVirtualMachineStartOptions {
         switch virtualMachineModel.configuration.systemType {
@@ -259,11 +265,69 @@ public final class VMInstance: NSObject, ObservableObject {
 
         library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
-    
+
+    @available(macOS 14.0, *)
+    func saveState() async throws {
+        logger.debug("Pausing to save state")
+
+        try await pause()
+
+        logger.debug("VM paused, requesting state save")
+        
+        let vm = try ensureVM()
+
+        let metadata = VBSavedStateMetadata(id: UUID().uuidString, date: .now)
+
+        let packageURL = try virtualMachineModel.createSavedStatePackageURL()
+        let stateFileURL = virtualMachineModel.savedStateDataFileURL(in: packageURL)
+        let metadataFileURL = virtualMachineModel.savedStateMetadataFileURL(in: packageURL)
+
+        logger.debug("VM state package will be written to \(packageURL.path)")
+
+        do {
+            try await vm.saveMachineStateTo(url: stateFileURL)
+
+            logger.log("VM state saved to \(stateFileURL.path)")
+
+            let encodedMetadata = try PropertyListEncoder.virtualBuddy.encode(metadata)
+
+            try encodedMetadata.write(to: metadataFileURL)
+        } catch {
+            try? FileManager.default.removeItem(at: packageURL)
+
+            logger.error("VM state save failed: \(error, privacy: .public)")
+
+            throw error
+        }
+    }
+
+    @available(macOS 14.0, *)
+    func restoreState(from fileURL: URL) async throws {
+        if _virtualMachine == nil {
+            try await bootstrap()
+        }
+
+        let vm = try ensureVM()
+
+        logger.debug("Restoring state from \(fileURL.path)")
+
+        do {
+            try await vm.restoreMachineStateFrom(url: fileURL)
+
+            logger.log("Successfully restored state from \(fileURL.path), resuming VM")
+
+            try await resume()
+        } catch {
+            logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(fileURL.path)")
+
+            throw error
+        }
+    }
+
     private func ensureVM() throws -> VZVirtualMachine {
         guard let vm = _virtualMachine else {
-            let e = CocoaError(.executableLoad)
-            
+            let e = Failure("The virtual machine instance is not available.")
+
             DispatchQueue.main.async {
                 self.onVMStop(e)
             }

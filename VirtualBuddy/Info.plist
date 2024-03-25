@@ -22,6 +22,24 @@
 			<key>LSTypeIsPackage</key>
 			<true/>
 		</dict>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>vbst</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>VirtualBuddy Saved State</string>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>LSHandlerRank</key>
+			<string>Owner</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>codes.rambo.VirtualBuddy.SavedState</string>
+			</array>
+			<key>LSTypeIsPackage</key>
+			<true/>
+		</dict>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -64,6 +82,26 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>vbvm</string>
+				</array>
+			</dict>
+		</dict>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.composite-content</string>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>VirtualBuddy Saved State</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>codes.rambo.VirtualBuddy.SavedState</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>vbst</string>
 				</array>
 			</dict>
 		</dict>

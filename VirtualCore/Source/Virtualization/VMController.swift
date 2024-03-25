@@ -21,7 +21,17 @@ public struct VMSessionOptions: Hashable, Codable {
     @DecodableDefault.False
     public var autoBoot = false
 
+    /// Used when restoring from a previously-saved state.
+    public var stateRestorationPackageURL: URL?
+
     public static let `default` = VMSessionOptions()
+
+    public init(bootInRecoveryMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackageURL: URL? = nil) {
+        self.bootInRecoveryMode = bootInRecoveryMode
+        self.bootOnInstallDevice = bootOnInstallDevice
+        self.autoBoot = autoBoot
+        self.stateRestorationPackageURL = stateRestorationPackageURL
+    }
 }
 
 public enum VMState: Equatable {
@@ -107,7 +117,13 @@ public final class VMController: ObservableObject {
             let newInstance = try createInstance()
             self.instance = newInstance
 
-            try await newInstance.startVM()
+            if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
+                let stateURL = virtualMachineModel.savedStateDataFileURL(in: restorePackageURL)
+                try await newInstance.restoreState(from: stateURL)
+            } else {
+                try await newInstance.startVM()
+            }
+
             let vm = try newInstance.virtualMachine
 
             state = .running(vm)
@@ -158,6 +174,20 @@ public final class VMController: ObservableObject {
             try await instance.forceStop()
 
             state = .stopped(nil)
+        }
+
+        unhideCursor()
+    }
+
+    @available(macOS 14.0, *)
+    public func saveState() async throws {
+        try await updatingState {
+            let instance = try ensureInstance()
+
+            try await instance.saveState()
+            let vm = try instance.virtualMachine
+
+            state = .paused(vm)
         }
 
         unhideCursor()

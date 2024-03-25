@@ -10,11 +10,7 @@ import Cocoa
 public extension VBVirtualMachine {
 
     func metadataDirectoryCreatingIfNeeded() throws -> URL {
-        let baseURL = metadataDirectoryURL
-        if !FileManager.default.fileExists(atPath: baseURL.path) {
-            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: false)
-        }
-        return baseURL
+        try metadataDirectoryURL.creatingDirectoryIfNeeded()
     }
 
     func write(_ data: Data, forMetadataFileNamed name: String) throws {
@@ -53,3 +49,11 @@ public extension VBVirtualMachine {
 
 }
 
+extension URL {
+    func creatingDirectoryIfNeeded() throws -> Self {
+        if !FileManager.default.fileExists(atPath: path) {
+            try FileManager.default.createDirectory(at: self, withIntermediateDirectories: false)
+        }
+        return self
+    }
+}

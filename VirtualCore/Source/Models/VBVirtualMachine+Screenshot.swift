@@ -22,7 +22,7 @@ public extension VBVirtualMachine {
 
     func thumbnailImage() -> NSImage? {
         guard let thumbnailURL = try? metadataFileURL(Self.thumbnailFileName) else { return nil }
-
+        
         if let existingImage = NSImage(contentsOf: thumbnailURL) {
             return existingImage
         }

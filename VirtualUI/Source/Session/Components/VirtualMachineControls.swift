@@ -15,6 +15,9 @@ protocol VirtualMachineStateController: ObservableObject {
     func stop() async throws
     func pause() async throws
     func resume() async throws
+    
+    @available(macOS 14.0, *)
+    func saveState() async throws
 }
 
 extension VMController: VirtualMachineStateController { }
@@ -60,6 +63,17 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                     }
                 } label: {
                     Image(systemName: "power")
+                }
+
+                if #available(macOS 14.0, *) {
+                    Button {
+                        runToolbarAction {
+                            try await controller.saveState()
+                        }
+                    } label: {
+                        Image(systemName: "archivebox")
+                    }
+                    .help("Save current state")
                 }
             }
         }
@@ -111,6 +125,12 @@ private final class PreviewVirtualMachineStateController: VirtualMachineStateCon
     @MainActor
     func resume() async throws {
         state = .running(.preview)
+    }
+
+    @available(macOS 14.0, *)
+    @MainActor
+    func saveState() async throws {
+        state = .paused(.preview)
     }
 
 }

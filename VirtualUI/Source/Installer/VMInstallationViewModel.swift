@@ -116,7 +116,7 @@ final class VMInstallationViewModel: ObservableObject {
                 throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "VM is missing install restore data"])
             }
 
-            let restoredState = try PropertyListDecoder().decode(RestorableState.self, from: restoreData)
+            let restoredState = try PropertyListDecoder.virtualBuddy.decode(RestorableState.self, from: restoreData)
             
             self.installMethod = restoredState.method
             self.selectedSystemType = restoredState.systemType
@@ -133,7 +133,7 @@ final class VMInstallationViewModel: ObservableObject {
         guard var machine else { return }
 
         do {
-            let restoreData = try PropertyListEncoder().encode(restorableState)
+            let restoreData = try PropertyListEncoder.virtualBuddy.encode(restorableState)
             machine.installRestoreData = restoreData
             try machine.saveMetadata()
             self.machine = machine

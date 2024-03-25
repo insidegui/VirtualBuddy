@@ -118,6 +118,12 @@ extension VBVirtualMachine {
         bundleURL.appendingPathComponent(".vbdata")
     }
 
+    var savedStateDirectoryURL: URL { Self.savedStateDirectoryURL(for: bundleURL) }
+
+    static func savedStateDirectoryURL(for bundleURL: URL) -> URL {
+        bundleURL.appendingPathComponent("SavedState")
+    }
+
     public var needsInstall: Bool {
         guard configuration.systemType == .mac else { return false }
         return !metadata.installFinished || !FileManager.default.fileExists(atPath: hardwareModelURL.path)
@@ -178,10 +184,10 @@ public extension VBVirtualMachine {
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
         
-        let configData = try PropertyListEncoder().encode(configuration)
+        let configData = try PropertyListEncoder.virtualBuddy.encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
 
-        let metaData = try PropertyListEncoder().encode(metadata)
+        let metaData = try PropertyListEncoder.virtualBuddy.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
 
         if let installRestoreData {
@@ -201,14 +207,14 @@ public extension VBVirtualMachine {
         let installRestore: Data?
 
         if let data = metadataContents(Self.configurationFilename) {
-            config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
+            config = try PropertyListDecoder.virtualBuddy.decode(VBMacConfiguration.self, from: data)
         } else {
             /// Linux guests don't go through this code path, so it should be safe to assume Mac here (famous last words).
             config = .default.guestType(.mac)
         }
 
         if let data = metadataContents(Self.metadataFilename) {
-            metadata = try PropertyListDecoder().decode(Metadata.self, from: data)
+            metadata = try PropertyListDecoder.virtualBuddy.decode(Metadata.self, from: data)
         } else {
             metadata = nil
         }
@@ -248,4 +254,12 @@ extension URL {
             try? setResourceValues(values)
         }
     }
+}
+
+public extension PropertyListEncoder {
+    static let virtualBuddy = PropertyListEncoder()
+}
+
+public extension PropertyListDecoder {
+    static let virtualBuddy = PropertyListDecoder()
 }
