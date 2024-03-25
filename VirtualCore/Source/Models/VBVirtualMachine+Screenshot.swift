@@ -21,7 +21,7 @@ public extension VBVirtualMachine {
     ] as CFDictionary
 
     func thumbnailImage() -> NSImage? {
-        guard let thumbnailURL = metadataFileURL(Self.thumbnailFileName) else { return nil }
+        guard let thumbnailURL = try? metadataFileURL(Self.thumbnailFileName) else { return nil }
 
         if let existingImage = NSImage(contentsOf: thumbnailURL) {
             return existingImage
