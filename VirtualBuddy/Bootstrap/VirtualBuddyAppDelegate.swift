@@ -18,11 +18,7 @@ import DeepLinkSecurity
 @objc final class VirtualBuddyAppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationWillFinishLaunching(_ notification: Notification) {
-        Task {
-            await MainActor.run {
-                DeepLinkHandler.bootstrap()
-            }
-        }
+        DeepLinkHandler.bootstrap()
 
         NSApp?.appearance = NSAppearance(named: .darkAqua)
     }
