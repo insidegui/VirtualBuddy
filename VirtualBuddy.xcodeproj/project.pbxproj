@@ -217,6 +217,9 @@
 		F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */; };
 		F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */; };
 		F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */; };
+		F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */; };
+		F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */; };
+		F4FC983D2BB386DD00E511C9 /* VMProgressOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -561,6 +564,9 @@
 		F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceClient.swift; sourceTree = "<group>"; };
 		F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDefaultsImportClient.swift; sourceTree = "<group>"; };
 		F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestDefaultsImportView.swift; sourceTree = "<group>"; };
+		F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousProgressIndicator.swift; sourceTree = "<group>"; };
+		F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskProgressView.swift; sourceTree = "<group>"; };
+		F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMProgressOverlay.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -820,6 +826,9 @@
 				F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */,
 				F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */,
 				F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */,
+				F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */,
+				F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */,
+				F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1871,6 +1880,7 @@
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
+				F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
@@ -1893,6 +1903,7 @@
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
 				F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
+				F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */,
 				F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */,
 				F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */,
 				F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */,
@@ -1918,6 +1929,7 @@
 				F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */,
 				F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */,
 				F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */,
+				F4FC983D2BB386DD00E511C9 /* VMProgressOverlay.swift in Sources */,
 				F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,

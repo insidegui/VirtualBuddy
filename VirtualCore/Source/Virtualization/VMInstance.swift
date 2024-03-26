@@ -288,7 +288,8 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     @available(macOS 14.0, *)
-    func saveState() async throws {
+    @discardableResult
+    func saveState() async throws -> VBSavedStatePackage {
         logger.debug(#function)
 
         let vm = try ensureVM()
@@ -320,6 +321,8 @@ public final class VMInstance: NSObject, ObservableObject {
             try await vm.saveMachineStateTo(url: package.dataFileURL)
 
             logger.log("VM state saved to \(package.dataFileURL.path)")
+
+            return package
         } catch {
             try? FileManager.default.removeItem(at: package.url)
 
@@ -330,7 +333,7 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     @available(macOS 14.0, *)
-    func restoreState(from packageURL: URL) async throws {
+    func restoreState(from packageURL: URL, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
         logger.debug("Restore state requested with package \(packageURL.path)")
 
         let package = try VBSavedStatePackage(url: packageURL)
@@ -344,6 +347,8 @@ public final class VMInstance: NSObject, ObservableObject {
         }
 
         let vm = try ensureVM()
+
+        await updateHandler(vm, package)
 
         logger.debug("Restoring state from \(package.dataFileURL.path)")
 

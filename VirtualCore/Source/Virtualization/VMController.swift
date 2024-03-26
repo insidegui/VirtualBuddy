@@ -39,6 +39,9 @@ public enum VMState: Equatable {
     case starting
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
+    case savingState(VZVirtualMachine)
+    case stateSaveCompleted(VZVirtualMachine, VBSavedStatePackage)
+    case restoringState(VZVirtualMachine, VBSavedStatePackage)
     case stopped(Error?)
 }
 
@@ -120,7 +123,11 @@ public final class VMController: ObservableObject {
             self.instance = newInstance
 
             if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
-                try await newInstance.restoreState(from: restorePackageURL)
+                try await newInstance.restoreState(from: restorePackageURL) { vm, package in
+                    try? await updatingState {
+                        state = .restoringState(vm, package)
+                    }
+                }
             } else {
                 try await newInstance.startVM()
             }
@@ -184,11 +191,17 @@ public final class VMController: ObservableObject {
     public func saveState() async throws {
         try await updatingState {
             let instance = try ensureInstance()
-
-            try await instance.saveState()
             let vm = try instance.virtualMachine
 
-            state = .paused(vm)
+            state = .savingState(vm)
+
+            let package = try await instance.saveState()
+
+            state = .stateSaveCompleted(vm, package)
+
+            try await Task.sleep(for: .seconds(1.5))
+
+            try await resume()
         }
 
         unhideCursor()
@@ -244,6 +257,9 @@ public extension VMState {
         case .running: return rhs.isRunning
         case .paused: return rhs.isPaused
         case .stopped: return rhs.isStopped
+        case .savingState: return rhs.isSavingState
+        case .restoringState: return rhs.isRestoringState
+        case .stateSaveCompleted: return rhs.isStateSaveCompleted
         }
     }
 
@@ -269,6 +285,21 @@ public extension VMState {
 
     var isStopped: Bool {
         guard case .stopped = self else { return false }
+        return true
+    }
+
+    var isSavingState: Bool {
+        guard case .savingState = self else { return false }
+        return true
+    }
+
+    var isRestoringState: Bool {
+        guard case .restoringState = self else { return false }
+        return true
+    }
+
+    var isStateSaveCompleted: Bool {
+        guard case .stateSaveCompleted = self else { return false }
         return true
     }
 

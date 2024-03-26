@@ -28,15 +28,10 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
 
     @State private var actionTask: Task<Void, Never>?
 
-    private enum LoadingAction: Hashable {
-        case startOrResume
-        case stop
-    }
-
     var body: some View {
         Group {
             switch controller.state {
-            case .idle, .paused, .stopped:
+            case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted:
                 Button {
                     runToolbarAction {
                         if controller.state.canResume {
@@ -48,6 +43,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "play")
                 }
+                .disabled(controller.state.isSavingState || controller.state.isRestoringState)
             case .starting, .running:
                 Button {
                     runToolbarAction {

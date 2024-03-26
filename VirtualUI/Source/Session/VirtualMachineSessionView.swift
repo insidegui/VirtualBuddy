@@ -89,7 +89,7 @@ public struct VirtualMachineSessionView: View {
             ProgressView()
         case .running(let vm):
             vmView(with: vm)
-        case .paused(let vm):
+        case .paused(let vm), .savingState(let vm), .restoringState(let vm, _), .stateSaveCompleted(let vm, _):
             pausedView(with: vm)
         }
     }
@@ -110,11 +110,32 @@ public struct VirtualMachineSessionView: View {
     private func pausedView(with vm: VZVirtualMachine) -> some View {
         ZStack {
             vmView(with: vm)
-            
+
+            if case .restoringState(_, let package) = controller.state, let screenshot = package.screenshot {
+                Image(nsImage: screenshot)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+
             Rectangle()
                 .foregroundStyle(Material.regular)
-            
-            circularStartButton
+
+            ZStack {
+                switch controller.state {
+                case .paused:
+                    circularStartButton
+                case .savingState, .stateSaveCompleted:
+                    VMProgressOverlay(
+                        message: controller.state.isStateSaveCompleted ? "State Saved!" : "Saving Virtual Machine State",
+                        duration: controller.state.isStateSaveCompleted ? 0 : 14
+                    )
+                case .restoringState:
+                    VMProgressOverlay(message: "Restoring Virtual Machine State", duration: 14)
+                default:
+                    EmptyView()
+                }
+            }
+            .animation(.bouncy, value: controller.state)
         }
     }
     
