@@ -109,7 +109,9 @@
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
-		F485B91B2BB22D2D004B3C2B /* VBVirtualMachine+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBVirtualMachine+SavedState.swift */; };
+		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
+		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
+		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
 		F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */; };
 		F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0628885E140080DDFA /* PreviewSupport.swift */; };
 		F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
@@ -436,7 +438,9 @@
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
-		F485B91A2BB22D2D004B3C2B /* VBVirtualMachine+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+SavedState.swift"; sourceTree = "<group>"; };
+		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
+		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
+		F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Version.swift"; sourceTree = "<group>"; };
 		F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedDiskImageEditor.swift; sourceTree = "<group>"; };
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
 		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
@@ -1064,9 +1068,9 @@
 				F49A68DF2884917400A17582 /* Configuration */,
 				F4A21BF328033102001072B8 /* VBError.swift */,
 				F4BE9C7327FF055100B648F8 /* VBVirtualMachine.swift */,
+				F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */,
 				F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */,
 				F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */,
-				F485B91A2BB22D2D004B3C2B /* VBVirtualMachine+SavedState.swift */,
 				F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */,
 			);
 			path = Models;
@@ -1331,6 +1335,8 @@
 				F4C2374F2888AF67001FF286 /* LogStreamer.swift */,
 				F4C2374C2888A462001FF286 /* VolumeUtils.swift */,
 				F4510A772AE2A16F00E24DD9 /* WeakReference.swift */,
+				F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */,
+				F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1921,10 +1927,12 @@
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
 				F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */,
-				F485B91B2BB22D2D004B3C2B /* VBVirtualMachine+SavedState.swift in Sources */,
+				F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */,
 				F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
+				F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
+				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,

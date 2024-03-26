@@ -120,12 +120,6 @@ extension VBVirtualMachine {
         bundleURL.appendingPathComponent(".vbdata")
     }
 
-    var savedStateDirectoryURL: URL { Self.savedStateDirectoryURL(for: bundleURL) }
-
-    static func savedStateDirectoryURL(for bundleURL: URL) -> URL {
-        bundleURL.appendingPathComponent("SavedState")
-    }
-
     public var needsInstall: Bool {
         guard configuration.systemType == .mac else { return false }
         return !metadata.installFinished || !FileManager.default.fileExists(atPath: hardwareModelURL.path)

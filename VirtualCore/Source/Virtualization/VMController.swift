@@ -118,7 +118,7 @@ public final class VMController: ObservableObject {
             self.instance = newInstance
 
             if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
-                let stateURL = virtualMachineModel.savedStateDataFileURL(in: restorePackageURL)
+                let stateURL = VMLibraryController.savedStateDataFileURL(in: restorePackageURL)
                 try await newInstance.restoreState(from: stateURL)
             } else {
                 try await newInstance.startVM()

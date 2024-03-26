@@ -276,11 +276,11 @@ public final class VMInstance: NSObject, ObservableObject {
         
         let vm = try ensureVM()
 
-        let metadata = VBSavedStateMetadata(id: UUID().uuidString, date: .now)
+        let metadata = VBSavedStateMetadata(model: virtualMachineModel)
 
-        let packageURL = try virtualMachineModel.createSavedStatePackageURL()
+        let packageURL = try virtualMachineModel.createSavedStatePackage(in: library)
         let stateFileURL = virtualMachineModel.savedStateDataFileURL(in: packageURL)
-        let metadataFileURL = virtualMachineModel.savedStateMetadataFileURL(in: packageURL)
+        let metadataFileURL = virtualMachineModel.savedStateInfoFileURL(in: packageURL)
 
         logger.debug("VM state package will be written to \(packageURL.path)")
 

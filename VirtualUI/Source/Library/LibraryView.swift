@@ -196,9 +196,15 @@ private extension LibraryView {
             return
         }
 
-        let vmURL = VBVirtualMachine.virtualMachineURL(forSavedStatePackageURL: url)
+        do {
+            let model = try library.virtualMachine(forSavedStatePackageURL: url)
 
-        handleOpenVirtualMachineFile(vmURL, options: .init(stateRestorationPackageURL: url))
+            let options = VMSessionOptions(stateRestorationPackageURL: url)
+
+            launch(model, options: options)
+        } catch {
+            NSAlert(error: error).runModal()
+        }
     }
 
 }
