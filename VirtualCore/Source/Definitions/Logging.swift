@@ -12,7 +12,7 @@ extension Error {
     var log: String { String(describing: self) }
 }
 
-extension Logger {
+public extension Logger {
     init<T>(for type: T.Type) {
         self.init(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: type))
     }

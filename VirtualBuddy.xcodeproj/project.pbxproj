@@ -201,6 +201,7 @@
 		F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */; };
 		F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4E7DF8B2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */; };
+		F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */; };
 		F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
@@ -536,6 +537,7 @@
 		F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+VMScreenshot.swift"; sourceTree = "<group>"; };
 		F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VZGraphicsDisplay+Screenshot.h"; sourceTree = "<group>"; };
 		F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "VZGraphicsDisplay+Screenshot.m"; sourceTree = "<group>"; };
+		F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUIManager.swift; sourceTree = "<group>"; };
 		F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareVersion.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
@@ -781,6 +783,7 @@
 			children = (
 				F42C01562888FC0C00EB15CD /* Components */,
 				F42C01532888FC0C00EB15CD /* Configuration */,
+				F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */,
 				F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */,
 				F42C01552888FC0C00EB15CD /* VirtualMachineSessionView.swift */,
 			);
@@ -1837,6 +1840,7 @@
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
+				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
 				F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */,
 				F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */,

@@ -1,22 +1,7 @@
-//
-//  VirtualMachineSessionUI.swift
-//  VirtualUI
-//
-//  Created by Guilherme Rambo on 09/03/23.
-//
-
 import SwiftUI
 import VirtualCore
 import Combine
 import AVFoundation
-
-public final class VirtualMachineSessionUIManager: ObservableObject {
-    public let focusedSessionChanged = PassthroughSubject<VirtualMachineSessionUI?, Never>()
-
-    public static let shared = VirtualMachineSessionUIManager()
-
-    private init() { }
-}
 
 public final class VirtualMachineSessionUI: ObservableObject {
 
