@@ -72,7 +72,7 @@ public struct LibraryView: View {
             LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
                 ForEach(vms) { vm in
                     Button(vm.name) {
-                        sessionManager.launch(vm, library: library)
+                        sessionManager.launch(vm, library: library, options: nil)
                     }
                     .buttonStyle(VirtualMachineButtonStyle(vm: vm))
                     .environmentObject(library)
@@ -107,64 +107,4 @@ fileprivate extension URL {
     var collapsedHomePath: String {
         path.replacingOccurrences(of: NSHomeDirectory(), with: "~")
     }
-}
-
-// MARK: - File Opening
-
-private extension LibraryView {
-
-    @MainActor
-    func handleOpenURL(_ url: URL) {
-        guard let values = try? url.resourceValues(forKeys: [.contentTypeKey]) else { return }
-
-        switch values.contentType {
-        case .none:
-            return
-        case .virtualBuddyVM:
-            handleOpenVirtualMachineFile(url, options: nil)
-        case .virtualBuddySavedState:
-            handleOpenSavedStateFile(url)
-        default:
-            break
-        }
-    }
-
-    @MainActor
-    func handleOpenVirtualMachineFile(_ url: URL, options: VMSessionOptions?) {
-        if let loadedVM = library.virtualMachines.first(where: { $0.bundleURL.path == url.path }) {
-            launch(loadedVM, options: options)
-        } else {
-            do {
-                let vm = try VBVirtualMachine(bundleURL: url)
-
-                launch(vm, options: options)
-            } catch {
-                let alert = NSAlert(error: error)
-                alert.runModal()
-            }
-        }
-    }
-
-    @MainActor
-    func handleOpenSavedStateFile(_ url: URL) {
-        guard #available(macOS 14.0, *) else {
-            let alert = NSAlert()
-            alert.messageText = "State Restoration Not Supported"
-            alert.informativeText = "Virtual machine state restoration requires macOS 14 or later."
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
-            return
-        }
-
-        do {
-            let model = try library.virtualMachine(forSavedStatePackageURL: url)
-
-            let options = VMSessionOptions(stateRestorationPackageURL: url)
-
-            launch(model, options: options)
-        } catch {
-            NSAlert(error: error).runModal()
-        }
-    }
-
 }

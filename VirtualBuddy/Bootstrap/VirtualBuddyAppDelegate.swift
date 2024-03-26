@@ -57,7 +57,7 @@ import OSLog
     func application(_ application: NSApplication, open urls: [URL]) {
         updatingWindows {
             for url in urls {
-                sessionManager.openVirtualMachine(at: url, library: library)
+                sessionManager.open(fileURL: url, library: library)
             }
         }
     }
