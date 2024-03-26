@@ -134,6 +134,14 @@ struct LibraryItemView: View {
         }
         .disabled(isVMBooted)
 
+        #if DEBUG
+        Button {
+            NSWorkspace.shared.open(vm.metadataDirectoryURL)
+        } label: {
+            Text("Open Data Folder…")
+        }
+        #endif
+
         Divider()
 
         Button {
