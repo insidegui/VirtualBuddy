@@ -22,6 +22,11 @@ public struct VBVirtualMachine: Identifiable {
     public internal(set) var bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
 
+    public internal(set) var uuid: UUID {
+        get { metadata.uuid }
+        set { metadata.uuid = newValue }
+    }
+
     private var _configuration: VBMacConfiguration?
     private var _metadata: Metadata?
     private var _installRestoreData: Data?

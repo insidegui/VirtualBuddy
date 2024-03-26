@@ -205,6 +205,9 @@ public extension VMLibraryController {
         var newVM = try VBVirtualMachine(bundleURL: copyURL)
 
         newVM.bundleURL.creationDate = .now
+        newVM.uuid = UUID()
+
+        try newVM.saveMetadata()
 
         reload()
 
