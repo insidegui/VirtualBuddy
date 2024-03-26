@@ -112,6 +112,8 @@
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
+		F485B9222BB306AF004B3C2B /* VBDebugUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = F485B9202BB306AF004B3C2B /* VBDebugUtil.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = F485B9212BB306AF004B3C2B /* VBDebugUtil.m */; };
 		F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */; };
 		F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0628885E140080DDFA /* PreviewSupport.swift */; };
 		F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
@@ -441,6 +443,8 @@
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
 		F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bundle+Version.swift"; sourceTree = "<group>"; };
+		F485B9202BB306AF004B3C2B /* VBDebugUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VBDebugUtil.h; sourceTree = "<group>"; };
+		F485B9212BB306AF004B3C2B /* VBDebugUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VBDebugUtil.m; sourceTree = "<group>"; };
 		F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedDiskImageEditor.swift; sourceTree = "<group>"; };
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
 		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
@@ -1097,6 +1101,8 @@
 				F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */,
 				F417257028877121004FF8A7 /* DiskImageGenerator.swift */,
 				F41725752887758A004FF8A7 /* RandomNameGenerator.swift */,
+				F485B9202BB306AF004B3C2B /* VBDebugUtil.h */,
+				F485B9212BB306AF004B3C2B /* VBDebugUtil.m */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -1440,6 +1446,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4BE9C6827FF053A00B648F8 /* VirtualCore.h in Headers */,
+				F485B9222BB306AF004B3C2B /* VBDebugUtil.h in Headers */,
 				F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1644,7 +1651,7 @@
 					};
 					F4BE9C6427FF053A00B648F8 = {
 						CreatedOnToolsVersion = 13.3;
-						LastSwiftMigration = 1330;
+						LastSwiftMigration = 1530;
 					};
 					F4C189DF2848F59F00335EC7 = {
 						CreatedOnToolsVersion = 13.4;
@@ -1941,6 +1948,7 @@
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
+				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,

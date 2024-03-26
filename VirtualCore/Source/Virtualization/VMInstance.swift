@@ -221,6 +221,10 @@ public final class VMInstance: NSObject, ObservableObject {
         let vm = try ensureVM()
 
         try await vm.start(options: startOptions)
+
+        #if DEBUG
+        VBDebugUtil.debugVirtualMachine(afterStart: vm)
+        #endif
     }
 
     private func bootstrap() async throws {
@@ -231,6 +235,10 @@ public final class VMInstance: NSObject, ObservableObject {
         vm.delegate = self
 
         VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
+
+        #if DEBUG
+        VBDebugUtil.debugVirtualMachine(beforeStart: vm)
+        #endif
     }
 
     @available(macOS 13, *)
@@ -350,6 +358,10 @@ public final class VMInstance: NSObject, ObservableObject {
             logger.log("Successfully restored state from \(fileURL.path), resuming VM")
 
             try await resume()
+
+            #if DEBUG
+            VBDebugUtil.debugVirtualMachine(afterStart: vm)
+            #endif
         } catch {
             logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(fileURL.path)")
 
