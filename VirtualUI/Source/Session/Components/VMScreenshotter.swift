@@ -2,7 +2,6 @@ import Cocoa
 import Combine
 import OSLog
 import CoreImage
-import AVFoundation
 import VirtualCore
 
 final class VMScreenshotter {
@@ -64,21 +63,15 @@ final class VMScreenshotter {
 
     private lazy var context = CIContext()
 
-    private let imageOptions: [CFString: Any] = [
+    private let imageOptions = [
         kCGImageDestinationLossyCompressionQuality: 1,
         kCGImageDestinationImageMaxPixelSize: 4096
-    ]
+    ] as CFDictionary
 
     private func takeScreenshot() async -> Data? {
         guard let cgImage = await takeScreenshotCGImage() else { return nil }
 
-        guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 0) else { return nil }
-        guard let destination = CGImageDestinationCreateWithData(cfData, AVFileType.heic.rawValue as CFString, 1, nil) else { return nil }
-
-        CGImageDestinationAddImage(destination, cgImage, imageOptions as CFDictionary)
-        CGImageDestinationFinalize(destination)
-
-        return cfData as Data
+        return try? cgImage.vb_heicEncodedData(options: imageOptions)
     }
 
 }

@@ -206,6 +206,9 @@
 		F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */; };
 		F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F4E7DF8B2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */; };
+		F4E7DF922BB3338900C459FC /* NSImage+HEIC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */; };
+		F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */; };
+		F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */; };
 		F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
@@ -546,6 +549,9 @@
 		F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+VMScreenshot.swift"; sourceTree = "<group>"; };
 		F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VZGraphicsDisplay+Screenshot.h"; sourceTree = "<group>"; };
 		F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "VZGraphicsDisplay+Screenshot.m"; sourceTree = "<group>"; };
+		F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+HEIC.swift"; sourceTree = "<group>"; };
+		F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStatePackage.swift; sourceTree = "<group>"; };
+		F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMLibraryController+SavedState.swift"; sourceTree = "<group>"; };
 		F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareVersion.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
@@ -1078,9 +1084,9 @@
 			isa = PBXGroup;
 			children = (
 				F49A68DF2884917400A17582 /* Configuration */,
+				F4E7DF932BB336E000C459FC /* SavedState */,
 				F4A21BF328033102001072B8 /* VBError.swift */,
 				F4BE9C7327FF055100B648F8 /* VBVirtualMachine.swift */,
-				F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */,
 				F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */,
 				F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */,
 				F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */,
@@ -1414,10 +1420,21 @@
 			children = (
 				F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */,
 				F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */,
+				F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */,
 				F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */,
 				F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */,
 			);
 			path = Screenshot;
+			sourceTree = "<group>";
+		};
+		F4E7DF932BB336E000C459FC /* SavedState */ = {
+			isa = PBXGroup;
+			children = (
+				F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */,
+				F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */,
+				F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */,
+			);
+			path = SavedState;
 			sourceTree = "<group>";
 		};
 		F4F9B414284CE0DC00F21737 /* Settings */ = {
@@ -1938,11 +1955,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4E7DF922BB3338900C459FC /* NSImage+HEIC.swift in Sources */,
 				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
+				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
 				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
@@ -1977,6 +1996,7 @@
 				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
+				F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,
 				F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */,

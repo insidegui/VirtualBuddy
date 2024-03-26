@@ -289,32 +289,39 @@ public final class VMInstance: NSObject, ObservableObject {
 
     @available(macOS 14.0, *)
     func saveState() async throws {
+        logger.debug(#function)
+
+        let vm = try ensureVM()
+
+        logger.debug("Collecting screenshot for saved state")
+
+        let screenshot: NSImage?
+        do {
+            screenshot = try await NSImage.screenshot(from: vm)
+        } catch {
+            screenshot = nil
+
+            logger.warning("Error collecting screenshot for saved state: \(error, privacy: .public)")
+        }
+
         logger.debug("Pausing to save state")
 
         try await pause()
 
         logger.debug("VM paused, requesting state save")
-        
-        let vm = try ensureVM()
 
-        let metadata = VBSavedStateMetadata(model: virtualMachineModel)
+        let package = try virtualMachineModel.createSavedStatePackage(in: library)
 
-        let packageURL = try virtualMachineModel.createSavedStatePackage(in: library)
-        let stateFileURL = virtualMachineModel.savedStateDataFileURL(in: packageURL)
-        let metadataFileURL = virtualMachineModel.savedStateInfoFileURL(in: packageURL)
+        logger.debug("VM state package will be written to \(package.url.path)")
 
-        logger.debug("VM state package will be written to \(packageURL.path)")
+        package.screenshot = screenshot
 
         do {
-            try await vm.saveMachineStateTo(url: stateFileURL)
+            try await vm.saveMachineStateTo(url: package.dataFileURL)
 
-            logger.log("VM state saved to \(stateFileURL.path)")
-
-            let encodedMetadata = try PropertyListEncoder.virtualBuddy.encode(metadata)
-
-            try encodedMetadata.write(to: metadataFileURL)
+            logger.log("VM state saved to \(package.dataFileURL.path)")
         } catch {
-            try? FileManager.default.removeItem(at: packageURL)
+            try? FileManager.default.removeItem(at: package.url)
 
             logger.error("VM state save failed: \(error, privacy: .public)")
 
@@ -326,21 +333,9 @@ public final class VMInstance: NSObject, ObservableObject {
     func restoreState(from packageURL: URL) async throws {
         logger.debug("Restore state requested with package \(packageURL.path)")
 
-        let metadata = try VBSavedStateMetadata(packageURL: packageURL)
+        let package = try VBSavedStatePackage(url: packageURL)
 
-        if let stateHostECID = metadata.hostECID,
-           let currentHostECID = ProcessInfo.processInfo.machineECID
-        {
-            guard stateHostECID == currentHostECID else {
-                throw Failure("This saved state is not for the current host. Saved states are paired to the host machine and can't be restored on a different host.")
-            }
-        }
-
-        guard metadata.vmUUID == virtualMachineModel.metadata.uuid else {
-            throw Failure("This saved state is not for this virtual machine. Saved states can only be restored on the virtual machine that saved the state.")
-        }
-
-        let fileURL = virtualMachineModel.savedStateDataFileURL(in: packageURL)
+        try package.validate(for: virtualMachineModel)
 
         if _virtualMachine == nil {
             logger.debug("Bootstrapping VM for state restoration")
@@ -350,12 +345,12 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = try ensureVM()
 
-        logger.debug("Restoring state from \(fileURL.path)")
+        logger.debug("Restoring state from \(package.dataFileURL.path)")
 
         do {
-            try await vm.restoreMachineStateFrom(url: fileURL)
+            try await vm.restoreMachineStateFrom(url: package.dataFileURL)
 
-            logger.log("Successfully restored state from \(fileURL.path), resuming VM")
+            logger.log("Successfully restored state from \(package.dataFileURL.path), resuming VM")
 
             try await resume()
 
@@ -363,7 +358,7 @@ public final class VMInstance: NSObject, ObservableObject {
             VBDebugUtil.debugVirtualMachine(afterStart: vm)
             #endif
         } catch {
-            logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(fileURL.path)")
+            logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(package.dataFileURL.path)")
 
             throw error
         }

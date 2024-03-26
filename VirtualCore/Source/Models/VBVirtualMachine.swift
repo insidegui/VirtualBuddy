@@ -119,7 +119,7 @@ extension VBVirtualMachine {
         bundleURL.appendingPathComponent("HardwareModel")
     }
 
-    var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
+    public var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
 
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
         bundleURL.appendingPathComponent(".vbdata")
