@@ -4,6 +4,8 @@ import VirtualUI
 import OSLog
 import DeepLinkSecurity
 
+typealias WindowUpdatingClosure = (_ perform: () -> Void) -> Void
+
 final class DeepLinkHandler {
 
     private let settingsContainer: VBSettingsContainer
@@ -23,13 +25,13 @@ final class DeepLinkHandler {
     private static var _shared: DeepLinkHandler!
 
     @MainActor
-    static func bootstrap() {
-        DeepLinkHandler._shared = DeepLinkHandler()
+    static func bootstrap(updatingWindows: @escaping WindowUpdatingClosure) {
+        DeepLinkHandler._shared = DeepLinkHandler(updatingWindows: updatingWindows)
         DeepLinkHandler.shared.install()
     }
 
     @MainActor
-    private init() {
+    private init(updatingWindows: @escaping WindowUpdatingClosure) {
         self.settingsContainer = VBSettingsContainer.current
         self.updateController = SoftwareUpdateController.shared
         self.library = VMLibraryController.shared
@@ -38,7 +40,8 @@ final class DeepLinkHandler {
             settingsContainer: settingsContainer,
             updateController: updateController,
             library: library,
-            sessionManager: sessionManager
+            sessionManager: sessionManager,
+            updatingWindows: updatingWindows
         )
     }
 
@@ -85,12 +88,19 @@ final class DeepLinkHandler {
         private let library: VMLibraryController
         private let sessionManager: VirtualMachineSessionUIManager
         private let openWindow = OpenCocoaWindowAction.default
+        private let updatingWindows: WindowUpdatingClosure
 
-        init(settingsContainer: VBSettingsContainer, updateController: SoftwareUpdateController, library: VMLibraryController, sessionManager: VirtualMachineSessionUIManager) {
+        init(settingsContainer: VBSettingsContainer,
+             updateController: SoftwareUpdateController,
+             library: VMLibraryController,
+             sessionManager: VirtualMachineSessionUIManager,
+             updatingWindows: @escaping WindowUpdatingClosure)
+        {
             self.settingsContainer = settingsContainer
             self.updateController = updateController
             self.library = library
             self.sessionManager = sessionManager
+            self.updatingWindows = updatingWindows
         }
 
         func run(_ action: DeepLinkAction) async {
@@ -114,10 +124,12 @@ final class DeepLinkHandler {
         func openVM(named name: String, options: VMSessionOptions?) throws {
             let vm = try getVM(named: name)
 
-            openWindow(id: vm.id) {
-                VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
-                    .environmentObject(self.library)
-                    .environmentObject(self.sessionManager)
+            updatingWindows {
+                openWindow(id: vm.id) {
+                    VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
+                        .environmentObject(self.library)
+                        .environmentObject(self.sessionManager)
+                }
             }
         }
 

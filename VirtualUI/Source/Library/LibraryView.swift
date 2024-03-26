@@ -8,6 +8,10 @@
 import SwiftUI
 import VirtualCore
 
+public extension String {
+    static let vb_libraryWindowID = "library"
+}
+
 public struct LibraryView: View {
     @EnvironmentObject private var library: VMLibraryController
     @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
@@ -18,7 +22,6 @@ public struct LibraryView: View {
         libraryContents
             .frame(minWidth: 600, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .toolbar(content: { toolbarContents })
-            .onOpenURL { handleOpenURL($0) }
     }
 
     private var gridSpacing: CGFloat { 16 }
@@ -54,7 +57,7 @@ public struct LibraryView: View {
                 .foregroundColor(.secondary)
 
             Button("Create Your First VM") {
-                launchInstallWizard()
+                sessionManager.launchInstallWizard(library: library)
             }
             .controlSize(.large)
             .keyboardShortcut(.defaultAction)
@@ -69,7 +72,7 @@ public struct LibraryView: View {
             LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
                 ForEach(vms) { vm in
                     Button(vm.name) {
-                        launch(vm)
+                        sessionManager.launch(vm, library: library)
                     }
                     .buttonStyle(VirtualMachineButtonStyle(vm: vm))
                     .environmentObject(library)
@@ -84,54 +87,11 @@ public struct LibraryView: View {
     private var toolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             Button {
-                launchInstallWizard()
+                sessionManager.launchInstallWizard(library: library)
             } label: {
                 Image(systemName: "plus")
             }
             .help("Install new VM")
-        }
-    }
-    
-    @Environment(\.openCocoaWindow) private var openWindow
-    
-    private func launch(_ vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
-        guard !vm.needsInstall else {
-            recoverInstallation(for: vm)
-            return
-        }
-
-        openWindow(id: vm.id) {
-            VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
-                .environmentObject(library)
-                .environmentObject(sessionManager)
-        }
-    }
-
-    private func recoverInstallation(for vm: VBVirtualMachine) {
-        let alert = NSAlert()
-        alert.messageText = "Finish Installation"
-        alert.informativeText = "In order to start this virtual machine, its operating system needs to be installed. Would you like to install it now?"
-        alert.addButton(withTitle: "Install")
-        let deleteButton = alert.addButton(withTitle: "Delete")
-        deleteButton.hasDestructiveAction = true
-        alert.addButton(withTitle: "Cancel")
-
-        let choice = alert.runModal()
-
-        switch choice {
-        case .alertFirstButtonReturn:
-            launchInstallWizard(restoring: vm)
-        case .alertSecondButtonReturn:
-            library.performMoveToTrash(for: vm)
-        default:
-            break
-        }
-    }
-
-    private func launchInstallWizard(restoring restoreVM: VBVirtualMachine? = nil) {
-        openWindow {
-            VMInstallationWizard(restoring: restoreVM)
-                .environmentObject(library)
         }
     }
     
