@@ -202,6 +202,10 @@
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
+		F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */; };
+		F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */; };
+		F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F4E7DF8B2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */; };
 		F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
@@ -538,6 +542,10 @@
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F4E7680E29B655DD0075A897 /* InstallMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethod.swift; sourceTree = "<group>"; };
+		F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMScreenshotTimingController.swift; sourceTree = "<group>"; };
+		F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+VMScreenshot.swift"; sourceTree = "<group>"; };
+		F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VZGraphicsDisplay+Screenshot.h"; sourceTree = "<group>"; };
+		F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "VZGraphicsDisplay+Screenshot.m"; sourceTree = "<group>"; };
 		F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareVersion.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
@@ -1083,6 +1091,7 @@
 		F4A21BEF28032FB0001072B8 /* Virtualization */ = {
 			isa = PBXGroup;
 			children = (
+				F4E7DF832BB30D8200C459FC /* Screenshot */,
 				F4A21BF028032FBD001072B8 /* Helpers */,
 				F4A21BF128032FD8001072B8 /* VMLibraryController.swift */,
 				F46FFBAB28059FF600D61023 /* VMInstance.swift */,
@@ -1400,6 +1409,17 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		F4E7DF832BB30D8200C459FC /* Screenshot */ = {
+			isa = PBXGroup;
+			children = (
+				F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */,
+				F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */,
+				F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */,
+				F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */,
+			);
+			path = Screenshot;
+			sourceTree = "<group>";
+		};
 		F4F9B414284CE0DC00F21737 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
@@ -1448,6 +1468,7 @@
 				F4BE9C6827FF053A00B648F8 /* VirtualCore.h in Headers */,
 				F485B9222BB306AF004B3C2B /* VBDebugUtil.h in Headers */,
 				F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */,
+				F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1922,6 +1943,7 @@
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
+				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
@@ -1940,6 +1962,7 @@
 				F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
+				F4E7DF8B2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
@@ -1951,6 +1974,7 @@
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
+				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,

@@ -109,7 +109,7 @@ final class VMViewController: NSViewController {
         
         window.makeFirstResponder(vmView)
         
-        screenshotter.activate(with: view)
+        screenshotter.activate(with: view, vm: vmView.virtualMachine)
     }
 
     override func viewWillDisappear() {

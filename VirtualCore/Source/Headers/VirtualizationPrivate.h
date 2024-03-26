@@ -107,4 +107,10 @@ __attribute__((weak_import))
 
 @end
 
+@interface VZGraphicsDisplay (Private)
+
+- (void)_takeScreenshotWithCompletionHandler:(void(^__nonnull)(id __nullable image, id __nullable error))completion NS_SWIFT_UI_ACTOR API_AVAILABLE(macos(14.0));
+
+@end
+
 NS_ASSUME_NONNULL_END

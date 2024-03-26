@@ -17,3 +17,4 @@ FOUNDATION_EXPORT const unsigned char VirtualCoreVersionString[];
 
 #import <VirtualCore/VirtualizationPrivate.h>
 #import <VirtualCore/VBDebugUtil.h>
+#import <VirtualCore/VZGraphicsDisplay+Screenshot.h>
