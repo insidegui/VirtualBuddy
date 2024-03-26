@@ -16,16 +16,16 @@ struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
     var appDelegate: VirtualBuddyAppDelegate
 
-    @StateObject private var settingsContainer = VBSettingsContainer.current
-    @StateObject private var updateController = SoftwareUpdateController.shared
-    @StateObject private var library = VMLibraryController.shared
-    @StateObject private var sessionManager = VirtualMachineSessionUIManager.shared
+    private var settingsContainer: VBSettingsContainer { appDelegate.settingsContainer }
+    private var updateController: SoftwareUpdateController { appDelegate.updateController }
+    private var library: VMLibraryController { appDelegate.library }
+    private var sessionManager: VirtualMachineSessionUIManager { appDelegate.sessionManager }
 
-    @Environment(\.openCocoaWindow)
+    @Environment(\.openWindow)
     private var openWindow
 
     var body: some Scene {
-        WindowGroup(id: "library") {
+        Window(Text("VirtualBuddy"), id: .vb_libraryWindowID) {
             LibraryView()
                 .onAppearOnce(perform: updateController.activate)
                 .environmentObject(library)
@@ -44,6 +44,12 @@ struct VirtualBuddyApp: App {
             CommandGroup(before: .windowSize) {
                 VirtualMachineWindowCommands()
                     .environmentObject(sessionManager)
+            }
+
+            CommandGroup(after: .windowArrangement) {
+                Button("Library") {
+                    openWindow(id: .vb_libraryWindowID)
+                }
             }
         }
         
