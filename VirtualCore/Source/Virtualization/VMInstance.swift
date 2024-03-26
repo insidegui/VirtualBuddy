@@ -17,8 +17,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
     private let library = VMLibraryController.shared
     
-    private lazy var logger = Logger(for: Self.self)
-    
+    private let logger: Logger
+
     var options = VMSessionOptions.default
 
     private var _virtualMachine: VZVirtualMachine?
@@ -48,6 +48,7 @@ public final class VMInstance: NSObject, ObservableObject {
     init(with vm: VBVirtualMachine, onVMStop: @escaping (Error?) -> Void) {
         self.virtualMachineModel = vm
         self.onVMStop = onVMStop
+        self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VMInstance(\(vm.name))")
     }
     
     // MARK: Create the Mac Platform Configuration
@@ -134,6 +135,8 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     private func createVirtualMachine() async throws {
+        logger.debug(#function)
+
         let installImage: URL?
         if options.bootOnInstallDevice {
             installImage = virtualMachineModel.metadata.installImageURL
@@ -146,6 +149,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
         do {
             try config.validate()
+
+            logger.info("Configuration validated")
         } catch {
             logger.fault("Invalid configuration: \(String(describing: error))")
             
@@ -241,24 +246,32 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     func pause() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try await vm.pause()
     }
     
     func resume() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try await vm.resume()
     }
     
     func stop() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try vm.requestStop()
     }
     
     func forceStop() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try await vm.stop()
@@ -302,8 +315,28 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     @available(macOS 14.0, *)
-    func restoreState(from fileURL: URL) async throws {
+    func restoreState(from packageURL: URL) async throws {
+        logger.debug("Restore state requested with package \(packageURL.path)")
+
+        let metadata = try VBSavedStateMetadata(packageURL: packageURL)
+
+        if let stateHostECID = metadata.hostECID,
+           let currentHostECID = ProcessInfo.processInfo.machineECID
+        {
+            guard stateHostECID == currentHostECID else {
+                throw Failure("This saved state is not for the current host. Saved states are paired to the host machine and can't be restored on a different host.")
+            }
+        }
+
+        guard metadata.vmUUID == virtualMachineModel.metadata.uuid else {
+            throw Failure("This saved state is not for this virtual machine. Saved states can only be restored on the virtual machine that saved the state.")
+        }
+
+        let fileURL = virtualMachineModel.savedStateDataFileURL(in: packageURL)
+
         if _virtualMachine == nil {
+            logger.debug("Bootstrapping VM for state restoration")
+
             try await bootstrap()
         }
 

@@ -46,6 +46,7 @@ public enum VMState: Equatable {
 public final class VMController: ObservableObject {
 
     public let id: VBVirtualMachine.ID
+    private let name: String
 
     private let library = VMLibraryController.shared
 
@@ -72,6 +73,7 @@ public final class VMController: ObservableObject {
     
     public init(with vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
         self.id = vm.id
+        self.name = vm.name
         self.virtualMachineModel = vm
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
@@ -118,8 +120,7 @@ public final class VMController: ObservableObject {
             self.instance = newInstance
 
             if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
-                let stateURL = VMLibraryController.savedStateDataFileURL(in: restorePackageURL)
-                try await newInstance.restoreState(from: stateURL)
+                try await newInstance.restoreState(from: restorePackageURL)
             } else {
                 try await newInstance.startVM()
             }
@@ -227,7 +228,7 @@ public final class VMController: ObservableObject {
 
     deinit {
         #if DEBUG
-        print("\(id) Bye bye 👋")
+        print("\(name) Bye bye 👋")
         #endif
         library.removeController(self)
     }
