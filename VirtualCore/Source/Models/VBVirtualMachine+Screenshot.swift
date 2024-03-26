@@ -16,8 +16,8 @@ public extension VBVirtualMachine {
     }
 
     static let thumbnailProperties = [
-        kCGImageDestinationLossyCompressionQuality: 0.7,
-        kCGImageDestinationImageMaxPixelSize: 640
+        kCGImageDestinationLossyCompressionQuality: 0.9,
+        kCGImageDestinationImageMaxPixelSize: 1024
     ] as CFDictionary
 
     func thumbnailImage() -> NSImage? {
