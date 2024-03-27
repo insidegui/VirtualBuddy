@@ -45,6 +45,17 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 }
                 .disabled(controller.state.isSavingState || controller.state.isRestoringState)
             case .starting, .running:
+                if #available(macOS 14.0, *) {
+                    Button {
+                        runToolbarAction {
+                            try await controller.saveState()
+                        }
+                    } label: {
+                        Image(systemName: "tray.and.arrow.down")
+                    }
+                    .help("Save current state")
+                }
+
                 Button {
                     runToolbarAction {
                         try await controller.pause()
@@ -52,6 +63,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "pause")
                 }
+                .help("Pause")
 
                 Button {
                     runToolbarAction {
@@ -60,17 +72,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "power")
                 }
-
-                if #available(macOS 14.0, *) {
-                    Button {
-                        runToolbarAction {
-                            try await controller.saveState()
-                        }
-                    } label: {
-                        Image(systemName: "archivebox")
-                    }
-                    .help("Save current state")
-                }
+                .help("Shut down")
             }
         }
         .symbolVariant(.fill)
