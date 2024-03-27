@@ -178,7 +178,7 @@ public struct VirtualMachineSessionView: View {
         if controller.isRunning {
             Color.black
         } else {
-            VMScreenshotBackgroundView(vm: $controller.virtualMachineModel)
+            VMScreenshotBackgroundView(vm: $controller.virtualMachineModel, options: $controller.options)
         }
     }
 
@@ -208,7 +208,8 @@ public struct VirtualMachineSessionView: View {
 struct VMScreenshotBackgroundView: View {
     
     @Binding var vm: VBVirtualMachine
-    
+    @Binding var options: VMSessionOptions
+
     @State private var image: Image?
     
     var body: some View {
@@ -216,7 +217,7 @@ struct VMScreenshotBackgroundView: View {
             if let image {
                 image
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: .fill)
             }
             
             MaterialView()
@@ -224,13 +225,24 @@ struct VMScreenshotBackgroundView: View {
                 .materialBlendingMode(.withinWindow)
                 .materialState(.followsWindowActiveState)
         }
-        .onAppearOnce { updateImage() }
-        .onReceive(vm.didInvalidateThumbnail) { updateImage() }
+        .onAppearOnce { updateImage(options: options) }
+        .onReceive(vm.didInvalidateThumbnail) { updateImage(options: options) }
+        .onChange(of: options) { newOptions in
+            updateImage(options: newOptions)
+        }
     }
     
-    private func updateImage() {
-        guard let screenshot = vm.screenshot else { return }
-        image = Image(nsImage: screenshot)
+    private func updateImage(options: VMSessionOptions) {
+        if let restoreURL = options.stateRestorationPackageURL,
+           let package = try? VBSavedStatePackage(url: restoreURL),
+           let screenshot = package.screenshot
+        {
+            image = Image(nsImage: screenshot)
+        } else if let screenshot = vm.screenshot {
+            image = Image(nsImage: screenshot)
+        } else {
+            image = nil
+        }
     }
     
 }
