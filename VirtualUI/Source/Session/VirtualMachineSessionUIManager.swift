@@ -7,7 +7,7 @@ import OSLog
 public final class VirtualMachineSessionUIManager: ObservableObject {
     private let logger = Logger(for: VirtualMachineSessionUIManager.self)
     
-    public let focusedSessionChanged = PassthroughSubject<VirtualMachineSessionUI?, Never>()
+    public let focusedSessionChanged = PassthroughSubject<WeakReference<VirtualMachineSessionUI>?, Never>()
 
     public static let shared = VirtualMachineSessionUIManager()
 

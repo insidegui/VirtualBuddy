@@ -82,7 +82,8 @@ public final class VirtualMachineSessionUI: ObservableObject {
 public struct VirtualMachineWindowCommands: View {
     @EnvironmentObject private var manager: VirtualMachineSessionUIManager
 
-    @State private var focusedSession: VirtualMachineSessionUI?
+    @State private var focusedSessionReference: WeakReference<VirtualMachineSessionUI>?
+    private var focusedSession: VirtualMachineSessionUI? { focusedSessionReference?.object }
 
     @AppStorage("vm.window.proportions.locked")
     private var lockProportions = false
@@ -109,9 +110,9 @@ public struct VirtualMachineWindowCommands: View {
             .keyboardShortcut("3", modifiers: .command)
         }
         .disabled(focusedSession == nil)
-        .onReceive(manager.focusedSessionChanged) {
-            focusedSession = $0
-            focusedSession?.lockProportions = lockProportions
+        .onReceive(manager.focusedSessionChanged) { ref in
+            focusedSessionReference = ref
+            ref?.object?.lockProportions = lockProportions
         }
         .onChange(of: lockProportions) { [lockProportions] newValue in
             guard newValue != lockProportions else { return }

@@ -47,7 +47,8 @@ public struct VirtualMachineSessionView: View {
             .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
             .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
             .onWindowKeyChange { [weak sessionManager, weak ui] isKey in
-                sessionManager?.focusedSessionChanged.send(isKey ? ui : nil)
+                guard let sessionManager, let ui else { return }
+                sessionManager.focusedSessionChanged.send(isKey ? .init(ui) : nil)
             }
             .onAppearOnce {
                 guard vbWindow?.hasSavedFrame == false else { return }
