@@ -235,24 +235,15 @@ private struct OnWindowKeyChangedModifier: ViewModifier {
     @Environment(\.cocoaWindow)
     private var window
 
-    @State private var cancellables = Set<AnyCancellable>()
-
     func body(content: Content) -> some View {
         content
-            .onAppearOnce {
-                guard let window else { return }
-
-                callback(window.isKeyWindow)
-
-                let center = NotificationCenter.default
-
-                center.publisher(for: NSWindow.didBecomeKeyNotification, object: window).sink { _ in
-                    callback(true)
-                }.store(in: &cancellables)
-
-                center.publisher(for: NSWindow.didResignKeyNotification, object: window).sink { _ in
-                    callback(false)
-                }.store(in: &cancellables)
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification, object: window)) { notification in
+                guard notification.object as? NSWindow === window else { return }
+                callback(true)
+            }
+            .onReceive(NotificationCenter.default.publisher(for: NSWindow.didResignKeyNotification, object: window)) { notification in
+                guard notification.object as? NSWindow === window else { return }
+                callback(false)
             }
     }
 

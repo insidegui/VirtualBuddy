@@ -1,13 +1,6 @@
-//
-//  HostingWindowController.swift
-//  StatusBuddy
-//
-//  Created by Guilherme Rambo on 21/12/21.
-//  Copyright © 2021 Guilherme Rambo. All rights reserved.
-//
-
 import Cocoa
 import SwiftUI
+import VirtualCore
 
 let defaultHostingWindowStyleMask: NSWindow.StyleMask = [.titled, .closable, .fullSizeContentView]
 
@@ -151,6 +144,12 @@ fileprivate final class HostingWindow: VBRestorableWindow {
 
     private func closeWithoutConfirmation() {
         super.close()
+
+        VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(self)
+    }
+
+    deinit {
+        VBMemoryLeakDebugAssertions.vb_objectIsBeingReleased(self)
     }
 
 }
