@@ -56,6 +56,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-VBDisableMemoryLeakAssertions YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-WHDisablePayloadPropagation YES"
             isEnabled = "NO">
          </CommandLineArgument>
