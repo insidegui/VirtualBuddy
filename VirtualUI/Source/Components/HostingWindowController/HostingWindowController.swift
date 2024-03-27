@@ -6,9 +6,11 @@ let defaultHostingWindowStyleMask: NSWindow.StyleMask = [.titled, .closable, .fu
 
 public final class HostingWindowController<Content>: NSWindowController, NSWindowDelegate where Content: View {
 
+    public typealias WindowCloseBlock = ((HostingWindowController<Content>) -> Void)
+
     /// Invoked shortly before the hosting window controller's window is closed.
-    public var willClose: ((HostingWindowController<Content>) -> Void)?
-    
+    private var onWindowClose: WindowCloseBlock?
+
     private static func makeDefaultWindow() -> NSWindow {
         HostingWindow(
             contentRect: NSRect(x: 0, y: 0, width: NSView.noIntrinsicMetric, height: NSView.noIntrinsicMetric),
@@ -19,7 +21,7 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
         )
     }
 
-    public init(id: String? = nil, rootView: Content, windowFactory: (() -> NSWindow)? = nil) {
+    public init(id: String? = nil, rootView: Content, windowFactory: (() -> NSWindow)? = nil, onWindowClose: WindowCloseBlock? = nil) {
         let window = windowFactory?() ?? Self.makeDefaultWindow()
 
         if let id {
@@ -39,6 +41,8 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
         
         window.isReleasedWhenClosed = false
         window.delegate = self
+
+        self.onWindowClose = onWindowClose
     }
     
     public required init?(coder: NSCoder) {
@@ -54,7 +58,12 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
     public func windowWillClose(_ notification: Notification) {
         contentViewController = nil
         
-        willClose?(self)
+        onWindowClose?(self)
+        
+        /// Ensures references in the closure are not retained past the lifetime of the window.
+        /// Opening a new hosting window controller requires going through ``OpenCocoaWindowAction``,
+        /// which sets up the callback again if needed.
+        onWindowClose = nil
     }
     
     var viewRendersWindowChrome: Bool = false {
@@ -136,7 +145,7 @@ fileprivate final class HostingWindow: VBRestorableWindow {
     }
 
     override func close() {
-        Task {
+        Task { @MainActor in
             guard await confirmBeforeClosingCallback() else { return }
             await MainActor.run { closeWithoutConfirmation() }
         }

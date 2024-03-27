@@ -10,19 +10,16 @@ import VirtualCore
 import Combine
 
 public struct VirtualMachineSessionView: View {
-    @StateObject var controller: VMController
-    @StateObject var ui: VirtualMachineSessionUI
-
-    public init(controller: VMController, ui: VirtualMachineSessionUI) {
-        self._controller = .init(wrappedValue: controller)
-        self._ui = .init(wrappedValue: ui)
-    }
-
-    @EnvironmentObject var library: VMLibraryController
-    @EnvironmentObject var sessionManager: VirtualMachineSessionUIManager
+    @EnvironmentObject private var library: VMLibraryController
+    @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
+    @EnvironmentObject private var controller: VMController
+    @EnvironmentObject private var ui: VirtualMachineSessionUI
 
     @Environment(\.cocoaWindow)
     private var window
+
+    /// ``VirtualMachineSessionView`` should only be initialized by ``VirtualMachineSessionUIManager``.
+    internal init() { }
 
     private var vbWindow: VBRestorableWindow? {
         guard let window = window as? VBRestorableWindow else {
@@ -70,6 +67,9 @@ public struct VirtualMachineSessionView: View {
             }
             .onReceive(screenshotTaken) { data in
                 controller.storeScreenshot(with: data)
+            }
+            .onReceive(ui.makeWindowKey) {
+                window?.makeKeyAndOrderFront(nil)
             }
             .task {
                 if controller.options.autoBoot {

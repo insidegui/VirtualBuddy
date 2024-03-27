@@ -3,6 +3,7 @@ import VirtualCore
 import Combine
 import OSLog
 
+/// Controls active virtual machine sessions, managing the lifecycle of session windows, controllers, and opening VMs from files or URLs.
 public final class VirtualMachineSessionUIManager: ObservableObject {
     private let logger = Logger(for: VirtualMachineSessionUIManager.self)
     
@@ -12,7 +13,21 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
     private let openWindow = OpenCocoaWindowAction.default
 
+    private var sessions = [VBVirtualMachine.ID: VirtualMachineSessionUI]()
+
     private init() { }
+
+    @MainActor
+    private func createSession(for vm: VBVirtualMachine, options: VMSessionOptions?) -> VirtualMachineSessionUI {
+        let ui = VirtualMachineSessionUI(with: vm, options: options)
+        
+        sessions[vm.id] = ui
+
+        return ui
+    }
+
+    @MainActor
+    public func session(for vm: VBVirtualMachine) -> VirtualMachineSessionUI? { sessions[vm.id] }
 
     @MainActor
     public func launch(_ vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
@@ -21,10 +36,34 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
             return
         }
 
-        openWindow(id: vm.id) {
-            VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
+        if let existingSession = session(for: vm) {
+            existingSession.update(with: options)
+            existingSession.bringToFront()
+        } else {
+            launchNewSession(for: vm, library: library, options: options)
+        }
+    }
+
+    @MainActor
+    private func launchNewSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
+        let vmID = vm.id
+
+        let session = createSession(for: vm, options: options)
+
+        openWindow(id: vmID) {
+            VirtualMachineSessionView()
+                .environmentObject(session)
+                .environmentObject(session.controller)
                 .environmentObject(library)
                 .environmentObject(self)
+        } onClose: { [weak self] in
+            guard let self else { return }
+            guard let session = sessions[vmID] else { return }
+
+            VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session)
+            VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session.controller)
+
+            sessions[vmID] = nil
         }
     }
 
@@ -75,19 +114,7 @@ public extension VirtualMachineSessionUIManager {
             case .virtualBuddySavedState:
                 handleOpenSavedStateFile(fileURL, library: library)
             default:
-                break
-            }
-
-            guard values.contentType == .virtualBuddyVM else {
-                throw Failure("Invalid file type: \(String(describing: values.contentType))")
-            }
-
-            if let loadedVM = library.virtualMachines.first(where: { $0.bundleURL.path == fileURL.path }) {
-                launch(loadedVM, library: library, options: nil)
-            } else {
-                let vm = try VBVirtualMachine(bundleURL: fileURL)
-
-                launch(vm, library: library, options: nil)
+                throw Failure("Unsupported file type \(values.contentType?.identifier ?? "?")")
             }
         } catch {
             logger.error("Error loading virtual machine from file at \(fileURL.path, privacy: .public): \(error, privacy: .public)")

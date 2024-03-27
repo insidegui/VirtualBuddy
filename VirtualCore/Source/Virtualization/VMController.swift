@@ -244,6 +244,8 @@ public final class VMController: ObservableObject {
         print("\(name) Bye bye 👋")
         #endif
         library.removeController(self)
+
+        VBMemoryLeakDebugAssertions.vb_objectIsBeingReleased(self)
     }
 
 }

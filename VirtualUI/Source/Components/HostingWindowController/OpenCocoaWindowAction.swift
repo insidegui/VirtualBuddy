@@ -92,13 +92,13 @@ public struct OpenCocoaWindowAction {
     /// structure that you get from the Environment.
     @MainActor
     @discardableResult
-    public func callAsFunction<Content>(id: String? = nil, @ViewBuilder _ content: @escaping () -> Content) -> Token where Content: View {
+    public func callAsFunction<Content>(id: String? = nil, @ViewBuilder _ content: @escaping () -> Content, onClose: (() -> Void)? = nil) -> Token where Content: View {
         let token = Token(id: id ?? UUID().uuidString)
 
         if let existingController = manager[token] {
             existingController.showWindow(nil)
         } else {
-            let controller = HostingWindowController(id: id, rootView: content())
+            let controller = HostingWindowController(id: id, rootView: content(), onWindowClose: { _ in onClose?() })
 
             manager[token] = controller
         }
@@ -114,7 +114,17 @@ public struct OpenCocoaWindowAction {
     public func close(_ token: Token) {
         OpenCocoaWindowManager.shared[token]?.close()
     }
-    
+
+    @MainActor
+    public func close(id: String) {
+        close(Token(id: id))
+    }
+
+    @MainActor
+    public func hasWindow(for id: String) -> Bool {
+        OpenCocoaWindowManager.shared[Token(id: id)] != nil
+    }
+
 }
 
 // MARK: - Window Manager
