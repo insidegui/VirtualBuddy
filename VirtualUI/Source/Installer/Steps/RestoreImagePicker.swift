@@ -10,7 +10,9 @@ import VirtualCore
 import Combine
 
 final class RestoreImagePickerController: ObservableObject {
-    
+
+    @EnvironmentObject private var library: VMLibraryController
+
     private lazy var api = VBAPIClient()
     
     @Published private(set) var restoreImageOptions: [VBRestoreImageInfo] = []
@@ -56,7 +58,7 @@ final class RestoreImagePickerController: ObservableObject {
     @MainActor
     func restoreAdvisory(for info: VBRestoreImageInfo) -> Advisory? {
         do {
-            if let existingDownloadURL = try VMLibraryController.shared.existingLocalURL(for: info.url) {
+            if let existingDownloadURL = try library.existingLocalURL(for: info.url) {
                 return .alreadyDownloaded(info.name, existingDownloadURL)
             } else {
                 return .manualDownloadTip(info.name, info.url)
@@ -69,8 +71,9 @@ final class RestoreImagePickerController: ObservableObject {
 }
 
 struct RestoreImagePicker: View {
+    @EnvironmentObject private var library: VMLibraryController
     @StateObject var controller = RestoreImagePickerController()
-    
+
     @Binding var selection: VBRestoreImageInfo?
     var guestType: VBGuestType
     var validationChanged: PassthroughSubject<Bool, Never>
@@ -137,7 +140,7 @@ struct RestoreImagePicker: View {
                         .controlSize(.large)
                 }
             case .failure(let error):
-                Text("VirtualBuddy couldn't create its downloads directory within \(VMLibraryController.shared.libraryURL.path): \(error)")
+                Text("VirtualBuddy couldn't create its downloads directory within \(library.libraryURL.path): \(error)")
                     .foregroundColor(.red)
             }
         }

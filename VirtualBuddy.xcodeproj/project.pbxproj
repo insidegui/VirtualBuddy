@@ -96,7 +96,6 @@
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
 		F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */; };
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
-		F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
@@ -117,7 +116,6 @@
 		F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = F485B9212BB306AF004B3C2B /* VBDebugUtil.m */; };
 		F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */; };
 		F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0628885E140080DDFA /* PreviewSupport.swift */; };
-		F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
 		F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */; };
 		F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */; };
 		F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */; };
@@ -151,6 +149,15 @@
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
 		F4A7FB3B2BB5E79100E4C12A /* DirectoryObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB3A2BB5E79100E4C12A /* DirectoryObserver.swift */; };
+		F4A7FB3D2BB5E8A200E4C12A /* VMSavedStatesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB3C2BB5E8A200E4C12A /* VMSavedStatesController.swift */; };
+		F4A7FB3F2BB5EBEF00E4C12A /* SavedStatePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB3E2BB5EBEF00E4C12A /* SavedStatePicker.swift */; };
+		F4A7FB472BB5ED7E00E4C12A /* Save-2024-03-27_16;06;24.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB402BB5ED4A00E4C12A /* Save-2024-03-27_16;06;24.vbst */; };
+		F4A7FB482BB5ED7E00E4C12A /* Save-2024-03-27_16;07;04.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB412BB5ED4A00E4C12A /* Save-2024-03-27_16;07;04.vbst */; };
+		F4A7FB492BB5ED7E00E4C12A /* Save-2024-03-27_16;08;06.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB422BB5ED4A00E4C12A /* Save-2024-03-27_16;08;06.vbst */; };
+		F4A7FB4A2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;28.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */; };
+		F4A7FB4B2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;51.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */; };
+		F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
+		F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
 		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
@@ -327,6 +334,33 @@
 			name = "Embed Guest App";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = PreviewLibrary/_SavedStates;
+			dstSubfolderSpec = 7;
+			files = (
+				F4A7FB472BB5ED7E00E4C12A /* Save-2024-03-27_16;06;24.vbst in Copy Preview Saved States */,
+				F4A7FB482BB5ED7E00E4C12A /* Save-2024-03-27_16;07;04.vbst in Copy Preview Saved States */,
+				F4A7FB492BB5ED7E00E4C12A /* Save-2024-03-27_16;08;06.vbst in Copy Preview Saved States */,
+				F4A7FB4A2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;28.vbst in Copy Preview Saved States */,
+				F4A7FB4B2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;51.vbst in Copy Preview Saved States */,
+			);
+			name = "Copy Preview Saved States";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = PreviewLibrary;
+			dstSubfolderSpec = 7;
+			files = (
+				F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */,
+				F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */,
+			);
+			name = "Copy Preview Library";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4BE9C7027FF053A00B648F8 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -493,6 +527,13 @@
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
 		F4A7FB3A2BB5E79100E4C12A /* DirectoryObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryObserver.swift; sourceTree = "<group>"; };
+		F4A7FB3C2BB5E8A200E4C12A /* VMSavedStatesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMSavedStatesController.swift; sourceTree = "<group>"; };
+		F4A7FB3E2BB5EBEF00E4C12A /* SavedStatePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SavedStatePicker.swift; sourceTree = "<group>"; };
+		F4A7FB402BB5ED4A00E4C12A /* Save-2024-03-27_16;06;24.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;06;24.vbst"; sourceTree = "<group>"; };
+		F4A7FB412BB5ED4A00E4C12A /* Save-2024-03-27_16;07;04.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;07;04.vbst"; sourceTree = "<group>"; };
+		F4A7FB422BB5ED4A00E4C12A /* Save-2024-03-27_16;08;06.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;08;06.vbst"; sourceTree = "<group>"; };
+		F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;08;28.vbst"; sourceTree = "<group>"; };
+		F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;08;51.vbst"; sourceTree = "<group>"; };
 		F4B068B428882EB7003743BF /* VirtualBuddy_Managed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy_Managed.entitlements; sourceTree = "<group>"; };
 		F4B068B528882F5D003743BF /* AppEntitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppEntitlements.xcconfig; sourceTree = "<group>"; };
 		F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFoldersManagementView.swift; sourceTree = "<group>"; };
@@ -833,6 +874,7 @@
 				F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */,
 				F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */,
 				F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */,
+				F4A7FB3E2BB5EBEF00E4C12A /* SavedStatePicker.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -973,6 +1015,7 @@
 		F48E0D0828885E510080DDFA /* Preview */ = {
 			isa = PBXGroup;
 			children = (
+				F4A7FB452BB5ED4A00E4C12A /* PreviewSavedStates */,
 				F48E0D0928885E990080DDFA /* Preview.vbvm */,
 				F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */,
 			);
@@ -1116,6 +1159,7 @@
 				F4E7DF832BB30D8200C459FC /* Screenshot */,
 				F4A21BF028032FBD001072B8 /* Helpers */,
 				F4A21BF128032FD8001072B8 /* VMLibraryController.swift */,
+				F4A7FB3C2BB5E8A200E4C12A /* VMSavedStatesController.swift */,
 				F46FFBAB28059FF600D61023 /* VMInstance.swift */,
 				F4BE9C7927FF05B900B648F8 /* VMController.swift */,
 				F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */,
@@ -1147,6 +1191,18 @@
 				F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */,
 			);
 			path = Bootstrap;
+			sourceTree = "<group>";
+		};
+		F4A7FB452BB5ED4A00E4C12A /* PreviewSavedStates */ = {
+			isa = PBXGroup;
+			children = (
+				F4A7FB402BB5ED4A00E4C12A /* Save-2024-03-27_16;06;24.vbst */,
+				F4A7FB412BB5ED4A00E4C12A /* Save-2024-03-27_16;07;04.vbst */,
+				F4A7FB422BB5ED4A00E4C12A /* Save-2024-03-27_16;08;06.vbst */,
+				F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */,
+				F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */,
+			);
+			path = PreviewSavedStates;
 			sourceTree = "<group>";
 		};
 		F4B5C5D12886FA77005AA632 /* Sharing */ = {
@@ -1606,6 +1662,8 @@
 				F4BE9C6127FF053A00B648F8 /* Sources */,
 				F4BE9C6227FF053A00B648F8 /* Frameworks */,
 				F4BE9C6327FF053A00B648F8 /* Resources */,
+				F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */,
+				F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */,
 			);
 			buildRules = (
 			);
@@ -1791,8 +1849,6 @@
 			files = (
 				F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */,
 				F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */,
-				F4450CCC2ACB0FDE00092618 /* Preview-Linux.vbvm in Resources */,
-				F48E0D0A28885E990080DDFA /* Preview.vbvm in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1955,6 +2011,7 @@
 				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
+				F4A7FB3F2BB5EBEF00E4C12A /* SavedStatePicker.swift in Sources */,
 				F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */,
 				F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */,
 			);
@@ -1999,6 +2056,7 @@
 				F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */,
 				F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */,
 				F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */,
+				F4A7FB3D2BB5E8A200E4C12A /* VMSavedStatesController.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
 				F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
@@ -2618,7 +2676,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
@@ -2831,7 +2889,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
@@ -3099,7 +3157,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;
@@ -3129,7 +3187,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "VirtualCore/Source/Resources/Preview/Preview.vbvm VirtualCore/Source/Resources/Preview/Preview-Linux.vbvm";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = YES;

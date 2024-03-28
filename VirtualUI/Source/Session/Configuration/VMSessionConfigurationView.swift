@@ -15,38 +15,66 @@ struct VMSessionConfigurationView: View {
 
     private var vm: VBVirtualMachine { controller.virtualMachineModel }
 
-    var body: some View {
-        VStack(alignment: .trailing) {
-            Group {
-                if showInstallDeviceOption {
-                    HStack {
-                        Text("Boot on install drive")
-                        Toggle("Boot on install drive", isOn: $controller.options.bootOnInstallDevice)
-                    }
-                }
-                if showRecoveryModeOption {
-                    HStack {
-                        Text("Boot in recovery mode")
-                        Toggle("Boot in recovery mode", isOn: $controller.options.bootInRecoveryMode)
-                    }
-                }
-                HStack {
-                    Text("Capture system keyboard shortcuts")
-                    Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
-                }
-            }
-            .labelsHidden()
-            .controlSize(.mini)
-            .font(.system(.body))
+    @State private var selectedSaveState: VBSavedStatePackage?
 
-            Button("VM Settings…") {
+    var body: some View {
+        Form {
+            if showSavedStatePicker {
+                SavedStatePicker(selection: $selectedSaveState)
+                    .environmentObject(controller.savedStatesController)
+            }
+            
+            if showInstallDeviceOption {
+                Toggle("Boot on install drive", isOn: $controller.options.bootOnInstallDevice)
+            }
+            
+            if showRecoveryModeOption {
+                Toggle("Boot in recovery mode", isOn: $controller.options.bootInRecoveryMode)
+            }
+            
+            Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
+
+            Button("Virtual Machine Settings…") {
                 isShowingVMSettings.toggle()
             }
-            .padding(.top)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .toggleStyle(.switch)
-        .padding()
-        .controlGroup()
+        .formStyle(.grouped)
+//        VStack(alignment: .trailing) {
+//            Group {
+//                if showSavedStatePicker {
+//                    SavedStatePicker(selection: $selectedSaveState)
+//                        .environmentObject(controller.savedStatesController)
+//                }
+//                if showInstallDeviceOption {
+//                    HStack {
+//                        Text("Boot on install drive")
+//                        Toggle("Boot on install drive", isOn: $controller.options.bootOnInstallDevice)
+//                    }
+//                }
+//                if showRecoveryModeOption {
+//                    HStack {
+//                        Text("Boot in recovery mode")
+//                        Toggle("Boot in recovery mode", isOn: $controller.options.bootInRecoveryMode)
+//                    }
+//                }
+//                HStack {
+//                    Text("Capture system keyboard shortcuts")
+//                    Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
+//                }
+//            }
+//            .labelsHidden()
+//            .controlSize(.mini)
+//            .font(.system(.body))
+//
+//            Button("VM Settings…") {
+//                isShowingVMSettings.toggle()
+//            }
+//            .padding(.top)
+//        }
+//        .toggleStyle(.switch)
+//        .padding()
+//        .controlGroup()
         .sheet(isPresented: $isShowingVMSettings) {
             VMConfigurationSheet(
                 configuration: $controller.virtualMachineModel.configuration
@@ -58,6 +86,8 @@ struct VMSessionConfigurationView: View {
     private var showInstallDeviceOption: Bool { vm.configuration.systemType == .linux && vm.metadata.installImageURL != nil }
 
     private var showRecoveryModeOption: Bool { vm.configuration.systemType == .mac }
+
+    private var showSavedStatePicker: Bool { vm.configuration.systemType == .mac }
 }
 
 struct GroupBackgroundModifier: ViewModifier {
@@ -81,7 +111,7 @@ extension View {
 struct VMSessionConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         VMSessionConfigurationView()
-            .environmentObject(VMController(with: .preview))
+            .environmentObject(VMController(with: .preview, library: .preview))
             .padding()
     }
 }

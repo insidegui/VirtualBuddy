@@ -51,7 +51,7 @@ public final class VMController: ObservableObject {
     public let id: VBVirtualMachine.ID
     private let name: String
 
-    private let library = VMLibraryController.shared
+    private let library: VMLibraryController
 
     private lazy var logger = Logger(for: Self.self)
     
@@ -72,12 +72,17 @@ public final class VMController: ObservableObject {
     @Published
     public var virtualMachineModel: VBVirtualMachine
 
+    public let savedStatesController: VMSavedStatesController
+
     private lazy var cancellables = Set<AnyCancellable>()
     
-    public init(with vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
+    public init(with vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions? = nil) {
         self.id = vm.id
         self.name = vm.name
         self.virtualMachineModel = vm
+        self.library = library
+        self.savedStatesController = VMSavedStatesController(library: library, virtualMachine: vm)
+        
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
             self.options.bootOnInstallDevice = true
@@ -106,7 +111,7 @@ public final class VMController: ObservableObject {
     private var instance: VMInstance?
     
     private func createInstance() throws -> VMInstance {
-        let newInstance = VMInstance(with: virtualMachineModel, onVMStop: { [weak self] error in
+        let newInstance = VMInstance(with: virtualMachineModel, library: library, onVMStop: { [weak self] error in
             self?.state = .stopped(error)
         })
         

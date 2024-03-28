@@ -5,17 +5,26 @@ public extension VMLibraryController {
 
     nonisolated static let savedStateDirectoryName = "_SavedState"
 
-    func savedStatesLibraryURL() throws -> URL {
-        let url = self.libraryURL.appending(path: Self.savedStateDirectoryName, directoryHint: .isDirectory)
-        return try url.creatingDirectoryIfNeeded()
+    var savedStatesDirectoryURL: URL {
+        self.libraryURL.appending(path: Self.savedStateDirectoryName, directoryHint: .isDirectory)
     }
 
-    func savedStateDirectoryURL(for model: VBVirtualMachine) throws -> URL {
-        try model.savedStatesDirectoryURL(in: self)
+    func savedStatesLibraryURLCreatingIfNeeded() throws -> URL {
+        try savedStatesDirectoryURL.creatingDirectoryIfNeeded()
+    }
+
+    func savedStateDirectoryURL(for model: VBVirtualMachine) -> URL {
+        savedStatesDirectoryURL
+            .appending(path: model.metadata.uuid.uuidString, directoryHint: .isDirectory)
+    }
+
+    func savedStateDirectoryURLCreatingIfNeeded(for model: VBVirtualMachine) throws -> URL {
+        try savedStateDirectoryURL(for: model)
+            .creatingDirectoryIfNeeded()
     }
 
     func createSavedStatePackage(for model: VBVirtualMachine) throws -> VBSavedStatePackage {
-        let baseURL = try savedStateDirectoryURL(for: model)
+        let baseURL = try model.savedStatesDirectoryURLCreatingIfNeeded(in: self)
 
         return try VBSavedStatePackage(creatingPackageInDirectoryAt: baseURL, model: model)
     }

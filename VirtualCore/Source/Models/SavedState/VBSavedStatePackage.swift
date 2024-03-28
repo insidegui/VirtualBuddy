@@ -10,11 +10,14 @@ public extension UTType {
 }
 
 /// Represents a `vbst` file on disk, encapsulating all operations related to saved state packages.
-public final class VBSavedStatePackage {
+public final class VBSavedStatePackage: Identifiable, Hashable {
+    public var id: UUID { metadata.id }
+
     static let dataFilename = "State.vzvmsave"
     static let infoFilename = "Info.plist"
     static let screenshotFilename = "Screenshot.heic"
     static let thumbnailFilename = "Thumbnail.heic"
+    static let fileExtension = "vbst"
 
     public let url: URL
     public let dataFileURL: URL
@@ -111,6 +114,12 @@ public final class VBSavedStatePackage {
             assertionFailure("Error saving updated info: \(error)")
         }
     }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(metadata)
+    }
+
+    public static func ==(lhs: VBSavedStatePackage, rhs: VBSavedStatePackage) -> Bool { lhs.metadata == rhs.metadata }
 }
 
 private extension DateFormatter {

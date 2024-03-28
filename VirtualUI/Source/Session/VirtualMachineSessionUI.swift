@@ -23,8 +23,8 @@ public final class VirtualMachineSessionUI: ObservableObject {
     private lazy var cancellables = Set<AnyCancellable>()
 
     @MainActor
-    public convenience init(with virtualMachine: VBVirtualMachine, options: VMSessionOptions?) {
-        self.init(controller: VMController(with: virtualMachine, options: options))
+    public convenience init(with virtualMachine: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
+        self.init(controller: VMController(with: virtualMachine, library: library, options: options))
     }
 
     @MainActor

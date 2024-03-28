@@ -3,6 +3,8 @@
 import Foundation
 import Virtualization
 
+let previewLibraryDirName = "PreviewLibrary"
+
 public extension ProcessInfo {
     
     @objc static let isSwiftUIPreview: Bool = {
@@ -12,15 +14,43 @@ public extension ProcessInfo {
 }
 
 public extension VBVirtualMachine {
-    static let preview: VBVirtualMachine = {
-        var machine = try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: "Preview", withExtension: "vbvm")!)
-        machine.configuration = .preview
-        return machine
+    static func previewMachine(named name: String) -> VBVirtualMachine {
+        try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
+    }
+    static let preview = VBVirtualMachine.previewMachine(named: "Preview")
+    static let previewLinux = VBVirtualMachine.previewMachine(named: "Preview-Linux")
+}
+
+extension Bundle {
+    func requiredPreviewDirectoryURL(named name: String) -> URL {
+        guard let url = Bundle.virtualCore.resourceURL?.appending(path: name, directoryHint: .isDirectory) else {
+            fatalError("Couldn't get resources URL for VirtualCore bundle")
+        }
+        precondition(FileManager.default.fileExists(atPath: url.path), "Missing \(name) directory in VirtualCore resources")
+        return url
+    }
+}
+
+public extension VBSettingsContainer {
+    static let preview: VBSettingsContainer = {
+        let libraryURL = Bundle.virtualCore.requiredPreviewDirectoryURL(named: previewLibraryDirName)
+        let defaults = UserDefaults()
+        let container = VBSettingsContainer(with: defaults)
+        container.settings.libraryURL = libraryURL
+        return container
     }()
-    static let previewLinux: VBVirtualMachine = {
-        var machine = try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: "Preview-Linux", withExtension: "vbvm")!)
-        return machine
+}
+
+public extension VMLibraryController {
+    static let preview: VMLibraryController = {
+        VMLibraryController(settingsContainer: .preview)
     }()
+}
+
+public extension VMSavedStatesController {
+    static var preview: VMSavedStatesController {
+        VMSavedStatesController(directoryURL: Bundle.virtualCore.requiredPreviewDirectoryURL(named: "\(previewLibraryDirName)/_SavedStates"))
+    }
 }
 
 public extension VBMacConfiguration {

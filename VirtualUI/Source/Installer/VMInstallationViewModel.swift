@@ -101,7 +101,10 @@ final class VMInstallationViewModel: ObservableObject {
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
 
-    init(restoring restoreVM: VBVirtualMachine?) {
+    private let library: VMLibraryController
+
+    init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine?) {
+        self.library = library
         /// Skip OS selection if there's only a single supported OS.
         step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
 
@@ -283,7 +286,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     @MainActor
     private func prepareModel() throws {
-        let vmURL = VMLibraryController.shared.libraryURL
+        let vmURL = library.libraryURL
             .appendingPathComponent(data.name)
             .appendingPathExtension(VBVirtualMachine.bundleExtension)
 

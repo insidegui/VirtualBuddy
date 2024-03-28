@@ -18,9 +18,9 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     private init() { }
 
     @MainActor
-    private func createSession(for vm: VBVirtualMachine, options: VMSessionOptions?) -> VirtualMachineSessionUI {
-        let ui = VirtualMachineSessionUI(with: vm, options: options)
-        
+    private func createSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) -> VirtualMachineSessionUI {
+        let ui = VirtualMachineSessionUI(with: vm, library: library, options: options)
+
         sessions[vm.id] = ui
 
         return ui
@@ -48,7 +48,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     private func launchNewSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         let vmID = vm.id
 
-        let session = createSession(for: vm, options: options)
+        let session = createSession(for: vm, library: library, options: options)
 
         openWindow(id: vmID) {
             VirtualMachineSessionView()
@@ -92,7 +92,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     @MainActor
     public func launchInstallWizard(restoring restoreVM: VBVirtualMachine? = nil, library: VMLibraryController) {
         openWindow {
-            VMInstallationWizard(restoring: restoreVM)
+            VMInstallationWizard(library: library, restoring: restoreVM)
                 .environmentObject(library)
         }
     }

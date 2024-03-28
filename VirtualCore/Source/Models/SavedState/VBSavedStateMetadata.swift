@@ -32,12 +32,12 @@ public extension VBSavedStateMetadata {
 
 @MainActor
 public extension VBVirtualMachine {
-    func savedStatesDirectoryURL(in library: VMLibraryController) throws -> URL {
-        let baseURL = try library.savedStatesLibraryURL()
-        
-        return try baseURL
-            .appending(path: metadata.uuid.uuidString, directoryHint: .isDirectory)
-            .creatingDirectoryIfNeeded()
+    func savedStatesDirectoryURL(in library: VMLibraryController) -> URL {
+        library.savedStateDirectoryURL(for: self)
+    }
+
+    func savedStatesDirectoryURLCreatingIfNeeded(in library: VMLibraryController) throws -> URL {
+        try library.savedStateDirectoryURLCreatingIfNeeded(for: self)
     }
 
     /// Convenience for ``VMLibraryController/createSavedStatePackage(for:)``.

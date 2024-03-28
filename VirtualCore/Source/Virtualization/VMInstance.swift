@@ -15,8 +15,8 @@ import VirtualWormhole
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
 
-    private let library = VMLibraryController.shared
-    
+    private let library: VMLibraryController
+
     private let logger: Logger
 
     var options = VMSessionOptions.default
@@ -45,8 +45,9 @@ public final class VMInstance: NSObject, ObservableObject {
     
     var onVMStop: (Error?) -> Void = { _ in }
     
-    init(with vm: VBVirtualMachine, onVMStop: @escaping (Error?) -> Void) {
+    init(with vm: VBVirtualMachine, library: VMLibraryController, onVMStop: @escaping (Error?) -> Void) {
         self.virtualMachineModel = vm
+        self.library = library
         self.onVMStop = onVMStop
         self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VMInstance(\(vm.name))")
     }
@@ -234,7 +235,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         vm.delegate = self
 
-        VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
+        library.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
 
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(beforeStart: vm)
