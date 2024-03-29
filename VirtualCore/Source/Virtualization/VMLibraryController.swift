@@ -221,6 +221,8 @@ public extension VMLibraryController {
         let newURL = try urlForRenaming(vm, to: newName)
 
         try fileManager.moveItem(at: vm.bundleURL, to: newURL)
+
+        reload(animated: false)
     }
 
     @discardableResult

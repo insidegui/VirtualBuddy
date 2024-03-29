@@ -35,7 +35,7 @@ struct VBLibraryItemButtonStyle: PrimitiveButtonStyle {
             }.onEnded { _ in
                 /// If the button is not currently pressed, then don't perform the action.
                 guard isPressed else { return }
-                
+
                 configuration.trigger()
 
                 isPressed = false
@@ -73,7 +73,7 @@ struct LibraryItemView: View {
 
     @State var vm: VBVirtualMachine
     @State var name: String
-    
+
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
 
@@ -93,9 +93,10 @@ struct LibraryItemView: View {
                 Text(name)
             } editableContent: { name in
                 TextField("VM Name", text: name)
+                    .onSubmit { rename(name.wrappedValue) }
             } validate: { name in
                 do {
-                    try VMLibraryController.shared.validateNewName(name, for: vm)
+                    try library.validateNewName(name, for: vm)
                     return true
                 } catch {
                     return false
@@ -120,18 +121,16 @@ struct LibraryItemView: View {
         .onAppear { refreshThumbnail() }
         .onReceive(vm.didInvalidateThumbnail) { refreshThumbnail() }
         .contextMenu { contextMenuItems }
-        .onChange(of: name) { [name] newName in
-            guard newName != name else { return }
+        .task(id: vm.name) { self.name = vm.name }
+    }
 
-            do {
-                try VMLibraryController.shared.rename(vm, to: newName)
-            } catch {
-                NSAlert(error: error).runModal()
-            }
-        }
-        .onChange(of: vm.name) { [vm] updatedName in
-            guard updatedName != vm.name else { return }
-            self.name = updatedName
+    private func rename(_ newName: String) {
+        guard newName != vm.name else { return }
+
+        do {
+            try library.rename(vm, to: name)
+        } catch {
+            NSAlert(error: error).runModal()
         }
     }
 
