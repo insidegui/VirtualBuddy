@@ -155,8 +155,8 @@ public struct VirtualMachineSessionView: View {
             circularStartButton
             
             VMSessionConfigurationView()
+                .environment(\.backgroundMaterial, Material.thin)
                 .environmentObject(controller)
-                .background(Material.thin, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
                 .frame(maxWidth: 400)
         }
     }

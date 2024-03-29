@@ -20,6 +20,7 @@ struct SelfSizingGroupedForm<Content: View>: View {
             .introspect(.scrollView, on: .macOS(.v13, .v14)) { scrollView in
                 guard !disabled else { return }
                 guard let frame = scrollView.documentView?.frame else { return }
+                guard frame.height != contentHeight else { return }
                 guard frame.height > 0, frame.height.isFinite, !frame.height.isNaN else { return }
                 contentHeight = frame.height
             }
