@@ -198,6 +198,8 @@ public extension VBGuestType {
 
     var supportsRosettaMount: Bool { self == .linux }
 
+    var supportsStateRestoration: Bool { self == .mac }
+
     var supportedRestoreImageTypes: Set<UTType> {
         switch self {
         case .mac: return [.ipsw]
@@ -205,6 +207,10 @@ public extension VBGuestType {
         }
     }
     
+}
+
+public extension VBVirtualMachine {
+    var supportsStateRestoration: Bool { configuration.systemType.supportsStateRestoration }
 }
 
 public extension UTType {

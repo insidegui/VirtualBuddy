@@ -49,7 +49,7 @@ struct VMSessionConfigurationView: View {
 
     private var showRecoveryModeOption: Bool { vm.configuration.systemType == .mac }
 
-    private var showSavedStatePicker: Bool { vm.configuration.systemType == .mac }
+    private var showSavedStatePicker: Bool { vm.configuration.systemType.supportsStateRestoration }
 }
 
 #if DEBUG

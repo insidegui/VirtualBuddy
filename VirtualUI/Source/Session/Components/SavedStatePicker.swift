@@ -12,8 +12,10 @@ struct SavedStatePicker: View {
                 Text("No Saved States")
                     .tag(Optional<VBSavedStatePackage>.none)
             } else {
-                Text("Choose")
+                Text("Don’t Restore")
                     .tag(Optional<VBSavedStatePackage>.none)
+
+                Divider()
             }
 
             ForEach(controller.states) { state in

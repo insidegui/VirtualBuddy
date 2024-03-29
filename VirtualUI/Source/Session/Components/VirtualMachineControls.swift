@@ -18,6 +18,8 @@ protocol VirtualMachineStateController: ObservableObject {
     
     @available(macOS 14.0, *)
     func saveState() async throws
+
+    var virtualMachineModel: VBVirtualMachine { get }
 }
 
 extension VMController: VirtualMachineStateController { }
@@ -45,7 +47,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 }
                 .disabled(controller.state.isSavingState || controller.state.isRestoringState)
             case .starting, .running:
-                if #available(macOS 14.0, *) {
+                if #available(macOS 14.0, *), controller.virtualMachineModel.supportsStateRestoration {
                     Button {
                         runToolbarAction {
                             try await controller.saveState()
@@ -98,6 +100,8 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
 private final class PreviewVirtualMachineStateController: VirtualMachineStateController {
     @MainActor
     @Published var state: VMState = .idle
+
+    @Published var virtualMachineModel = VBVirtualMachine.preview
 
     @MainActor
     func start() async throws {
