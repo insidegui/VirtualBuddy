@@ -334,10 +334,8 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     @available(macOS 14.0, *)
-    func restoreState(from packageURL: URL, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
-        logger.debug("Restore state requested with package \(packageURL.path)")
-
-        let package = try VBSavedStatePackage(url: packageURL)
+    func restoreState(from package: VBSavedStatePackage, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
+        logger.debug("Restore state requested with package \(package.url.path)")
 
         try package.validate(for: virtualMachineModel)
 

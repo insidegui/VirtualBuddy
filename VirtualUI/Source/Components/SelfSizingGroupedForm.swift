@@ -22,7 +22,10 @@ struct SelfSizingGroupedForm<Content: View>: View {
                 guard let frame = scrollView.documentView?.frame else { return }
                 guard frame.height != contentHeight else { return }
                 guard frame.height > 0, frame.height.isFinite, !frame.height.isNaN else { return }
-                contentHeight = frame.height
+                /// Ugly, I know, but I reaaaaally wanted the form to look a specific way 🥺
+                DispatchQueue.main.async {
+                    contentHeight = frame.height
+                }
             }
         }
         .frame(height: max(minHeight, contentHeight))

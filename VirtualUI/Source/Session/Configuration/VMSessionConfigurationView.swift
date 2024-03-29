@@ -15,12 +15,10 @@ struct VMSessionConfigurationView: View {
 
     private var vm: VBVirtualMachine { controller.virtualMachineModel }
 
-    @State private var selectedSaveState: VBSavedStatePackage?
-
     var body: some View {
         SelfSizingGroupedForm(minHeight: 100) {
             if showSavedStatePicker {
-                SavedStatePicker(selection: $selectedSaveState)
+                SavedStatePicker(selection: $controller.options.stateRestorationPackage)
                     .environmentObject(controller.savedStatesController)
             }
             
@@ -46,7 +44,7 @@ struct VMSessionConfigurationView: View {
             .environmentObject(VMConfigurationViewModel(vm))
         }
     }
-    
+
     private var showInstallDeviceOption: Bool { vm.configuration.systemType == .linux && vm.metadata.installImageURL != nil }
 
     private var showRecoveryModeOption: Bool { vm.configuration.systemType == .mac }
