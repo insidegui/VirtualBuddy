@@ -34,8 +34,7 @@ extension Bundle {
 public extension VBSettingsContainer {
     static let preview: VBSettingsContainer = {
         let libraryURL = Bundle.virtualCore.requiredPreviewDirectoryURL(named: previewLibraryDirName)
-        let defaults = UserDefaults()
-        let container = VBSettingsContainer(with: defaults)
+        let container = VBSettingsContainer()
         container.settings.libraryURL = libraryURL
         return container
     }()
