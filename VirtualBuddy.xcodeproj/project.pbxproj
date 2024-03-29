@@ -158,6 +158,9 @@
 		F4A7FB4B2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;51.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */; };
 		F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
 		F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
+		F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */; };
+		F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */; };
+		F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB742BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
 		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
@@ -534,6 +537,8 @@
 		F4A7FB422BB5ED4A00E4C12A /* Save-2024-03-27_16;08;06.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;08;06.vbst"; sourceTree = "<group>"; };
 		F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;08;28.vbst"; sourceTree = "<group>"; };
 		F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Save-2024-03-27_16;08;51.vbst"; sourceTree = "<group>"; };
+		F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfSizingGroupedForm.swift; sourceTree = "<group>"; };
+		F4A7FB742BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PreviewSupport-VirtualUI.swift"; sourceTree = "<group>"; };
 		F4B068B428882EB7003743BF /* VirtualBuddy_Managed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddy_Managed.entitlements; sourceTree = "<group>"; };
 		F4B068B528882F5D003743BF /* AppEntitlements.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppEntitlements.xcconfig; sourceTree = "<group>"; };
 		F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFoldersManagementView.swift; sourceTree = "<group>"; };
@@ -635,6 +640,7 @@
 			files = (
 				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
+				F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -777,6 +783,7 @@
 				F41725672886E5AD004FF8A7 /* MaterialView.swift */,
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
 				F42C014B2888C34B00EB15CD /* LogConsole.swift */,
+				F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1060,6 +1067,7 @@
 			isa = PBXGroup;
 			children = (
 				F48E0D2E2888835A0080DDFA /* VirtualUIConstants.swift */,
+				F4A7FB742BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift */,
 			);
 			path = Definitions;
 			sourceTree = "<group>";
@@ -1625,6 +1633,9 @@
 				F498AD0B2884BF60006F1C00 /* PBXTargetDependency */,
 			);
 			name = VirtualUI;
+			packageProductDependencies = (
+				F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */,
+			);
 			productName = VirtualUI;
 			productReference = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */;
 			productType = "com.apple.product-type.framework";
@@ -1792,6 +1803,7 @@
 			packageReferences = (
 				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */,
+				F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -2008,7 +2020,9 @@
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
+				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
 				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
+				F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 				F4A7FB3F2BB5EBEF00E4C12A /* SavedStatePicker.swift in Sources */,
@@ -3512,6 +3526,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/siteline/swiftui-introspect.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.3;
+			};
+		};
 		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/sparkle-project/Sparkle";
@@ -3527,6 +3549,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
+		};
+		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
+			productName = "SwiftUIIntrospect-Static";
 		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;

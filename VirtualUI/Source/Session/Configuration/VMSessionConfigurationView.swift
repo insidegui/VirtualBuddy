@@ -18,7 +18,7 @@ struct VMSessionConfigurationView: View {
     @State private var selectedSaveState: VBSavedStatePackage?
 
     var body: some View {
-        Form {
+        SelfSizingGroupedForm(minHeight: 100) {
             if showSavedStatePicker {
                 SavedStatePicker(selection: $selectedSaveState)
                     .environmentObject(controller.savedStatesController)
@@ -39,42 +39,6 @@ struct VMSessionConfigurationView: View {
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .formStyle(.grouped)
-//        VStack(alignment: .trailing) {
-//            Group {
-//                if showSavedStatePicker {
-//                    SavedStatePicker(selection: $selectedSaveState)
-//                        .environmentObject(controller.savedStatesController)
-//                }
-//                if showInstallDeviceOption {
-//                    HStack {
-//                        Text("Boot on install drive")
-//                        Toggle("Boot on install drive", isOn: $controller.options.bootOnInstallDevice)
-//                    }
-//                }
-//                if showRecoveryModeOption {
-//                    HStack {
-//                        Text("Boot in recovery mode")
-//                        Toggle("Boot in recovery mode", isOn: $controller.options.bootInRecoveryMode)
-//                    }
-//                }
-//                HStack {
-//                    Text("Capture system keyboard shortcuts")
-//                    Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
-//                }
-//            }
-//            .labelsHidden()
-//            .controlSize(.mini)
-//            .font(.system(.body))
-//
-//            Button("VM Settings…") {
-//                isShowingVMSettings.toggle()
-//            }
-//            .padding(.top)
-//        }
-//        .toggleStyle(.switch)
-//        .padding()
-//        .controlGroup()
         .sheet(isPresented: $isShowingVMSettings) {
             VMConfigurationSheet(
                 configuration: $controller.virtualMachineModel.configuration
@@ -90,29 +54,11 @@ struct VMSessionConfigurationView: View {
     private var showSavedStatePicker: Bool { vm.configuration.systemType == .mac }
 }
 
-struct GroupBackgroundModifier: ViewModifier {
-    
-    let material: Material
-    
-    func body(content: Content) -> some View {
-        content
-            .background(RoundedRectangle(cornerRadius: 16, style: .continuous).foregroundStyle(material))
-    }
-    
-}
-
-extension View {
-    func groupBackground(material: Material = .ultraThin) -> some View {
-        modifier(GroupBackgroundModifier(material: material))
-    }
-}
-
 #if DEBUG
 struct VMSessionConfigurationView_Previews: PreviewProvider {
     static var previews: some View {
         VMSessionConfigurationView()
             .environmentObject(VMController(with: .preview, library: .preview))
-            .padding()
     }
 }
 #endif

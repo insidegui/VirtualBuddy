@@ -72,7 +72,7 @@ public final class VMController: ObservableObject {
     @Published
     public var virtualMachineModel: VBVirtualMachine
 
-    public let savedStatesController: VMSavedStatesController
+    public private(set) var savedStatesController: VMSavedStatesController
 
     private lazy var cancellables = Set<AnyCancellable>()
     
@@ -83,6 +83,10 @@ public final class VMController: ObservableObject {
         self.library = library
         self.savedStatesController = VMSavedStatesController(library: library, virtualMachine: vm)
         
+        #if DEBUG
+        if ProcessInfo.isSwiftUIPreview { self.savedStatesController = .preview }
+        #endif
+
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
             self.options.bootOnInstallDevice = true

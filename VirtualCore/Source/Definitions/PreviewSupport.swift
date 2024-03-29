@@ -53,6 +53,11 @@ public extension VMSavedStatesController {
     }
 }
 
+@MainActor
+public extension VMController {
+    static let preview = VMController(with: .preview, library: .preview)
+}
+
 public extension VBMacConfiguration {
     
     static let preview: VBMacConfiguration = {
@@ -119,5 +124,10 @@ public extension VZVirtualMachine {
         return VZVirtualMachine(configuration: config)
     }()
 }
+#else
+public extension ProcessInfo {
 
+    @objc static let isSwiftUIPreview: Bool = false
+
+}
 #endif

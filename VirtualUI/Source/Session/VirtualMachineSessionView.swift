@@ -22,6 +22,8 @@ public struct VirtualMachineSessionView: View {
     internal init() { }
 
     private var vbWindow: VBRestorableWindow? {
+        guard !ProcessInfo.isSwiftUIPreview else { return nil }
+        
         guard let window = window as? VBRestorableWindow else {
             assertionFailure("VM window must be a VBRestorableWindow")
             return nil
@@ -155,7 +157,7 @@ public struct VirtualMachineSessionView: View {
             VMSessionConfigurationView()
                 .environmentObject(controller)
                 .background(Material.thin, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
-                .frame(maxWidth: 400, maxHeight: 500)
+                .frame(maxWidth: 400)
         }
     }
     
@@ -278,3 +280,15 @@ extension VMController {
         return true
     }
 }
+
+#if DEBUG
+#Preview {
+    VirtualMachineSessionView()
+        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
+        .environmentObject(VMLibraryController.preview)
+        .environmentObject(VMController.preview)
+        .environmentObject(VirtualMachineSessionUI.preview)
+        .environmentObject(VirtualMachineSessionUIManager.shared)
+
+}
+#endif
