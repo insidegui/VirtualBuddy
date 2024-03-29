@@ -116,6 +116,7 @@ public struct VMInstallationWizard: View {
             InstallationWizardTitle(viewModel.selectedSystemType.restoreImagePickerPrompt)
             
             RestoreImagePicker(
+                library: library,
                 selection: $viewModel.data.restoreImageInfo,
                 guestType: viewModel.selectedSystemType,
                 validationChanged: stepValidationStateChanged,

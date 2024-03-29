@@ -243,7 +243,7 @@ final class VMInstallationViewModel: ObservableObject {
             return
         }
 
-        let d = VBDownloader(with: .shared, cookie: data.cookie)
+        let d = VBDownloader(with: library, cookie: data.cookie)
         self.downloader = d
 
         d.$state.sink { [weak self] state in

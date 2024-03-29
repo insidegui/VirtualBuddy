@@ -33,6 +33,7 @@ public final class VMLibraryController: ObservableObject {
     /// Identifiers for all VMs that are currently in a "booted" state (starting, booted, or paused).
     @Published public internal(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
 
+    @available(*, deprecated, message: "It's not safe to use VMLibraryController as a singleton; for previews, use VMLibraryController.preview")
     public static let shared = VMLibraryController()
 
     let settingsContainer: VBSettingsContainer

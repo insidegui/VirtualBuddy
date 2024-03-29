@@ -11,7 +11,11 @@ import Combine
 
 final class RestoreImagePickerController: ObservableObject {
 
-    @EnvironmentObject private var library: VMLibraryController
+    let library: VMLibraryController
+
+    init(library: VMLibraryController) {
+        self.library = library
+    }
 
     private lazy var api = VBAPIClient()
     
@@ -71,13 +75,29 @@ final class RestoreImagePickerController: ObservableObject {
 }
 
 struct RestoreImagePicker: View {
-    @EnvironmentObject private var library: VMLibraryController
-    @StateObject var controller = RestoreImagePickerController()
+    @StateObject private var controller: RestoreImagePickerController
 
+    @ObservedObject var library: VMLibraryController
     @Binding var selection: VBRestoreImageInfo?
     var guestType: VBGuestType
     var validationChanged: PassthroughSubject<Bool, Never>
     var onUseLocalFile: (URL) -> Void = { _ in }
+
+    init(library: VMLibraryController,
+         selection: Binding<VBRestoreImageInfo?>,
+         guestType: VBGuestType,
+         validationChanged: PassthroughSubject<Bool, Never>,
+         onUseLocalFile: @escaping (URL) -> Void = { _ in },
+         authRequirementFlow: VBGuestReleaseChannel.Authentication? = nil)
+    {
+        self._library = .init(initialValue: library)
+        self._controller = .init(wrappedValue: RestoreImagePickerController(library: library))
+        self._selection = selection
+        self.guestType = guestType
+        self.validationChanged = validationChanged
+        self.onUseLocalFile = onUseLocalFile
+        self.authRequirementFlow = authRequirementFlow
+    }
 
     var body: some View {
         Picker("OS Version", selection: $controller.selectedRestoreImage) {
@@ -203,7 +223,12 @@ struct RestoreImagePicker_Previews: PreviewProvider {
         @State private var image: VBRestoreImageInfo?
         
         var body: some View {
-            RestoreImagePicker(selection: $image, guestType: .mac, validationChanged: PassthroughSubject<Bool, Never>())
+            RestoreImagePicker(
+                library: .preview,
+                selection: $image,
+                guestType: .mac,
+                validationChanged: PassthroughSubject<Bool, Never>()
+            )
         }
     }
 }
