@@ -71,10 +71,12 @@ public struct LibraryView: View {
         ScrollView(.vertical) {
             LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
                 ForEach(vms) { vm in
-                    Button(vm.name) {
+                    Button {
                         sessionManager.launch(vm, library: library)
+                    } label: {
+                        LibraryItemView(vm: vm, name: vm.name)
                     }
-                    .buttonStyle(VirtualMachineButtonStyle(vm: vm))
+                    .buttonStyle(.vbLibraryItem)
                     .environmentObject(library)
                 }
             }
