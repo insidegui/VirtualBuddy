@@ -8,18 +8,62 @@
 import SwiftUI
 import VirtualCore
 
-struct VirtualMachineButtonStyle: ButtonStyle {
+/// This button style achieves a couple of things:
+/// - Gives its label a `vbLibraryButtonPressed` environment value that can be used to react to button presses
+/// - Fixes an annoying behavior common to all standard SwiftUI button styles where pressing the space bar
+/// with one of its subviews in focus would trigger the button's action instead of entering a space in a text field, for example
+struct VBLibraryItemButtonStyle: PrimitiveButtonStyle {
 
-    let vm: VBVirtualMachine
+    @State private var isPressed = false
+
+    /// The rectangle of the button's contents in the local coordinate space.
+    @State private var rect: CGRect = .zero
 
     func makeBody(configuration: Configuration) -> some View {
-        LibraryItemView(
-            vm: vm,
-            name: vm.name,
-            isPressed: configuration.isPressed
-        )
+        configuration.label
+            .environment(\.vbLibraryButtonPressed, isPressed)
+            .overlay {
+                GeometryReader { proxy in
+                    Color.clear
+                        .preference(key: VBLibraryButtonSizePreferenceKey.self, value: proxy.size)
+                }
+            }
+            .onPreferenceChange(VBLibraryButtonSizePreferenceKey.self) { rect = CGRect(origin: .zero, size: $0) }
+            .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .local).onChanged { value in
+                /// Replicate standard button behavior where dragging outside the button cancels the click.
+                isPressed = rect.contains(value.location)
+            }.onEnded { _ in
+                /// If the button is not currently pressed, then don't perform the action.
+                guard isPressed else { return }
+                
+                configuration.trigger()
+
+                isPressed = false
+            })
     }
 
+}
+
+struct VBLibraryButtonSizePreferenceKey: PreferenceKey {
+    static var defaultValue: CGSize = .zero
+
+    static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
+        value = nextValue()
+    }
+}
+
+extension PrimitiveButtonStyle where Self == VBLibraryItemButtonStyle {
+    static var vbLibraryItem: VBLibraryItemButtonStyle { VBLibraryItemButtonStyle() }
+}
+
+private struct VBLibraryItemButtonPressedEnvironmentKey: EnvironmentKey {
+    static var defaultValue = false
+}
+private extension EnvironmentValues {
+    var vbLibraryButtonPressed: VBLibraryItemButtonPressedEnvironmentKey.Value {
+        get { self[VBLibraryItemButtonPressedEnvironmentKey.self] }
+        set { self[VBLibraryItemButtonPressedEnvironmentKey.self] = newValue }
+    }
 }
 
 @MainActor
@@ -29,7 +73,9 @@ struct LibraryItemView: View {
 
     @State var vm: VBVirtualMachine
     @State var name: String
-    var isPressed = false
+    
+    @Environment(\.vbLibraryButtonPressed)
+    private var isPressed
 
     @State private var thumbnail = Image(nsImage: .thumbnailPlaceholder)
 
