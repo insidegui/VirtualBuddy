@@ -52,7 +52,7 @@ public extension VBVirtualMachine {
 extension URL {
     func creatingDirectoryIfNeeded() throws -> Self {
         if !FileManager.default.fileExists(atPath: path) {
-            try FileManager.default.createDirectory(at: self, withIntermediateDirectories: false)
+            try FileManager.default.createDirectory(at: self, withIntermediateDirectories: true)
         }
         return self
     }
