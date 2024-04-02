@@ -125,11 +125,7 @@ final class DeepLinkHandler {
             let vm = try getVM(named: name)
 
             updatingWindows {
-                openWindow(id: vm.id) {
-                    VirtualMachineSessionView(controller: VMController(with: vm, options: options), ui: VirtualMachineSessionUI(with: vm))
-                        .environmentObject(self.library)
-                        .environmentObject(self.sessionManager)
-                }
+                sessionManager.launch(vm, library: library, options: options)
             }
         }
 

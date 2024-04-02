@@ -15,6 +15,11 @@ protocol VirtualMachineStateController: ObservableObject {
     func stop() async throws
     func pause() async throws
     func resume() async throws
+    
+    @available(macOS 14.0, *)
+    func saveState() async throws
+
+    var virtualMachineModel: VBVirtualMachine { get }
 }
 
 extension VMController: VirtualMachineStateController { }
@@ -25,15 +30,10 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
 
     @State private var actionTask: Task<Void, Never>?
 
-    private enum LoadingAction: Hashable {
-        case startOrResume
-        case stop
-    }
-
     var body: some View {
         Group {
             switch controller.state {
-            case .idle, .paused, .stopped:
+            case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted:
                 Button {
                     runToolbarAction {
                         if controller.state.canResume {
@@ -45,7 +45,19 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "play")
                 }
+                .disabled(controller.state.isSavingState || controller.state.isRestoringState)
             case .starting, .running:
+                if #available(macOS 14.0, *), controller.virtualMachineModel.supportsStateRestoration {
+                    Button {
+                        runToolbarAction {
+                            try await controller.saveState()
+                        }
+                    } label: {
+                        Image(systemName: "tray.and.arrow.down")
+                    }
+                    .help("Save current state")
+                }
+
                 Button {
                     runToolbarAction {
                         try await controller.pause()
@@ -53,6 +65,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "pause")
                 }
+                .help("Pause")
 
                 Button {
                     runToolbarAction {
@@ -61,6 +74,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "power")
                 }
+                .help("Shut down")
             }
         }
         .symbolVariant(.fill)
@@ -87,6 +101,8 @@ private final class PreviewVirtualMachineStateController: VirtualMachineStateCon
     @MainActor
     @Published var state: VMState = .idle
 
+    @Published var virtualMachineModel = VBVirtualMachine.preview
+
     @MainActor
     func start() async throws {
         state = .starting
@@ -111,6 +127,12 @@ private final class PreviewVirtualMachineStateController: VirtualMachineStateCon
     @MainActor
     func resume() async throws {
         state = .running(.preview)
+    }
+
+    @available(macOS 14.0, *)
+    @MainActor
+    func saveState() async throws {
+        state = .paused(.preview)
     }
 
 }

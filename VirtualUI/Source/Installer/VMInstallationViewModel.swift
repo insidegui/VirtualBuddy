@@ -101,7 +101,10 @@ final class VMInstallationViewModel: ObservableObject {
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
 
-    init(restoring restoreVM: VBVirtualMachine?) {
+    private let library: VMLibraryController
+
+    init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine?) {
+        self.library = library
         /// Skip OS selection if there's only a single supported OS.
         step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
 
@@ -116,7 +119,7 @@ final class VMInstallationViewModel: ObservableObject {
                 throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "VM is missing install restore data"])
             }
 
-            let restoredState = try PropertyListDecoder().decode(RestorableState.self, from: restoreData)
+            let restoredState = try PropertyListDecoder.virtualBuddy.decode(RestorableState.self, from: restoreData)
             
             self.installMethod = restoredState.method
             self.selectedSystemType = restoredState.systemType
@@ -133,7 +136,7 @@ final class VMInstallationViewModel: ObservableObject {
         guard var machine else { return }
 
         do {
-            let restoreData = try PropertyListEncoder().encode(restorableState)
+            let restoreData = try PropertyListEncoder.virtualBuddy.encode(restorableState)
             machine.installRestoreData = restoreData
             try machine.saveMetadata()
             self.machine = machine
@@ -240,7 +243,7 @@ final class VMInstallationViewModel: ObservableObject {
             return
         }
 
-        let d = VBDownloader(with: .shared, cookie: data.cookie)
+        let d = VBDownloader(with: library, cookie: data.cookie)
         self.downloader = d
 
         d.$state.sink { [weak self] state in
@@ -283,7 +286,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     @MainActor
     private func prepareModel() throws {
-        let vmURL = VMLibraryController.shared.libraryURL
+        let vmURL = library.libraryURL
             .appendingPathComponent(data.name)
             .appendingPathExtension(VBVirtualMachine.bundleExtension)
 

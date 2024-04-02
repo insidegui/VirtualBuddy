@@ -14,11 +14,18 @@ public struct VBVirtualMachine: Identifiable {
         public var firstBootDate: Date? = nil
         public var lastBootDate: Date? = nil
         public var installImageURL: URL? = nil
+        @DecodableDefault.EmptyPlaceholder
+        public var uuid = UUID()
     }
 
     public var id: String { bundleURL.absoluteString }
     public internal(set) var bundleURL: URL
     public var name: String { bundleURL.deletingPathExtension().lastPathComponent }
+
+    public internal(set) var uuid: UUID {
+        get { metadata.uuid }
+        set { metadata.uuid = newValue }
+    }
 
     private var _configuration: VBMacConfiguration?
     private var _metadata: Metadata?
@@ -112,7 +119,7 @@ extension VBVirtualMachine {
         bundleURL.appendingPathComponent("HardwareModel")
     }
 
-    var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
+    public var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
 
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
         bundleURL.appendingPathComponent(".vbdata")
@@ -178,10 +185,10 @@ public extension VBVirtualMachine {
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
         
-        let configData = try PropertyListEncoder().encode(configuration)
+        let configData = try PropertyListEncoder.virtualBuddy.encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
 
-        let metaData = try PropertyListEncoder().encode(metadata)
+        let metaData = try PropertyListEncoder.virtualBuddy.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
 
         if let installRestoreData {
@@ -201,14 +208,14 @@ public extension VBVirtualMachine {
         let installRestore: Data?
 
         if let data = metadataContents(Self.configurationFilename) {
-            config = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
+            config = try PropertyListDecoder.virtualBuddy.decode(VBMacConfiguration.self, from: data)
         } else {
             /// Linux guests don't go through this code path, so it should be safe to assume Mac here (famous last words).
             config = .default.guestType(.mac)
         }
 
         if let data = metadataContents(Self.metadataFilename) {
-            metadata = try PropertyListDecoder().decode(Metadata.self, from: data)
+            metadata = try PropertyListDecoder.virtualBuddy.decode(Metadata.self, from: data)
         } else {
             metadata = nil
         }
@@ -248,4 +255,16 @@ extension URL {
             try? setResourceValues(values)
         }
     }
+}
+
+public extension PropertyListEncoder {
+    static let virtualBuddy = PropertyListEncoder()
+}
+
+public extension PropertyListDecoder {
+    static let virtualBuddy = PropertyListDecoder()
+}
+
+extension UUID: ProvidesEmptyPlaceholder {
+    public static var empty: UUID { UUID() }
 }

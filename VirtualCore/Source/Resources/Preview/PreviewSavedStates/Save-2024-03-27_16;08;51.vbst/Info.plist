@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>appBuild</key>
+	<integer>110</integer>
+	<key>appVersion</key>
+	<string>1.4.1</string>
+	<key>date</key>
+	<date>2024-03-27T19:08:51Z</date>
+	<key>hostECID</key>
+	<integer>2939957236449310</integer>
+	<key>id</key>
+	<string>F29733F1-0056-4C90-A9E5-04F42C127086</string>
+	<key>vmUUID</key>
+	<string>96830330-D195-4211-BB4B-7D898177B12C</string>
+</dict>
+</plist>

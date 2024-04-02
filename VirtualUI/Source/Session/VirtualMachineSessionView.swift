@@ -10,21 +10,20 @@ import VirtualCore
 import Combine
 
 public struct VirtualMachineSessionView: View {
-    @StateObject var controller: VMController
-    @StateObject var ui: VirtualMachineSessionUI
-
-    public init(controller: VMController, ui: VirtualMachineSessionUI) {
-        self._controller = .init(wrappedValue: controller)
-        self._ui = .init(wrappedValue: ui)
-    }
-
-    @EnvironmentObject var library: VMLibraryController
-    @EnvironmentObject var sessionManager: VirtualMachineSessionUIManager
+    @EnvironmentObject private var library: VMLibraryController
+    @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
+    @EnvironmentObject private var controller: VMController
+    @EnvironmentObject private var ui: VirtualMachineSessionUI
 
     @Environment(\.cocoaWindow)
     private var window
 
+    /// ``VirtualMachineSessionView`` should only be initialized by ``VirtualMachineSessionUIManager``.
+    internal init() { }
+
     private var vbWindow: VBRestorableWindow? {
+        guard !ProcessInfo.isSwiftUIPreview else { return nil }
+        
         guard let window = window as? VBRestorableWindow else {
             assertionFailure("VM window must be a VBRestorableWindow")
             return nil
@@ -50,7 +49,8 @@ public struct VirtualMachineSessionView: View {
             .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
             .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
             .onWindowKeyChange { [weak sessionManager, weak ui] isKey in
-                sessionManager?.focusedSessionChanged.send(isKey ? ui : nil)
+                guard let sessionManager, let ui else { return }
+                sessionManager.focusedSessionChanged.send(isKey ? .init(ui) : nil)
             }
             .onAppearOnce {
                 guard vbWindow?.hasSavedFrame == false else { return }
@@ -71,6 +71,9 @@ public struct VirtualMachineSessionView: View {
             .onReceive(screenshotTaken) { data in
                 controller.storeScreenshot(with: data)
             }
+            .onReceive(ui.makeWindowKey) {
+                window?.makeKeyAndOrderFront(nil)
+            }
             .task {
                 if controller.options.autoBoot {
                     Task { try? await controller.start() }
@@ -89,7 +92,7 @@ public struct VirtualMachineSessionView: View {
             ProgressView()
         case .running(let vm):
             vmView(with: vm)
-        case .paused(let vm):
+        case .paused(let vm), .savingState(let vm), .restoringState(let vm, _), .stateSaveCompleted(let vm, _):
             pausedView(with: vm)
         }
     }
@@ -110,11 +113,32 @@ public struct VirtualMachineSessionView: View {
     private func pausedView(with vm: VZVirtualMachine) -> some View {
         ZStack {
             vmView(with: vm)
-            
+
+            if case .restoringState(_, let package) = controller.state, let screenshot = package.screenshot {
+                Image(nsImage: screenshot)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+            }
+
             Rectangle()
                 .foregroundStyle(Material.regular)
-            
-            circularStartButton
+
+            ZStack {
+                switch controller.state {
+                case .paused:
+                    circularStartButton
+                case .savingState, .stateSaveCompleted:
+                    VMProgressOverlay(
+                        message: controller.state.isStateSaveCompleted ? "State Saved!" : "Saving Virtual Machine State",
+                        duration: controller.state.isStateSaveCompleted ? 0 : 14
+                    )
+                case .restoringState:
+                    VMProgressOverlay(message: "Restoring Virtual Machine State", duration: 14)
+                default:
+                    EmptyView()
+                }
+            }
+            .animation(.bouncy, value: controller.state)
         }
     }
     
@@ -131,7 +155,9 @@ public struct VirtualMachineSessionView: View {
             circularStartButton
             
             VMSessionConfigurationView()
+                .environment(\.backgroundMaterial, Material.thin)
                 .environmentObject(controller)
+                .frame(maxWidth: 400)
         }
     }
     
@@ -156,7 +182,7 @@ public struct VirtualMachineSessionView: View {
         if controller.isRunning {
             Color.black
         } else {
-            VMScreenshotBackgroundView(vm: $controller.virtualMachineModel)
+            VMScreenshotBackgroundView(vm: $controller.virtualMachineModel, options: $controller.options)
         }
     }
 
@@ -186,7 +212,8 @@ public struct VirtualMachineSessionView: View {
 struct VMScreenshotBackgroundView: View {
     
     @Binding var vm: VBVirtualMachine
-    
+    @Binding var options: VMSessionOptions
+
     @State private var image: Image?
     
     var body: some View {
@@ -194,7 +221,7 @@ struct VMScreenshotBackgroundView: View {
             if let image {
                 image
                     .resizable()
-                    .aspectRatio(contentMode: .fit)
+                    .aspectRatio(contentMode: .fill)
             }
             
             MaterialView()
@@ -202,13 +229,23 @@ struct VMScreenshotBackgroundView: View {
                 .materialBlendingMode(.withinWindow)
                 .materialState(.followsWindowActiveState)
         }
-        .onAppearOnce { updateImage() }
-        .onReceive(vm.didInvalidateThumbnail) { updateImage() }
+        .onAppearOnce { updateImage(options: options) }
+        .onReceive(vm.didInvalidateThumbnail) { updateImage(options: options) }
+        .onChange(of: options) { newOptions in
+            updateImage(options: newOptions)
+        }
     }
     
-    private func updateImage() {
-        guard let screenshot = vm.screenshot else { return }
-        image = Image(nsImage: screenshot)
+    private func updateImage(options: VMSessionOptions) {
+        if let restorePackage = options.stateRestorationPackage,
+           let screenshot = restorePackage.screenshot
+        {
+            image = Image(nsImage: screenshot)
+        } else if let screenshot = vm.screenshot {
+            image = Image(nsImage: screenshot)
+        } else {
+            image = nil
+        }
     }
     
 }
@@ -242,3 +279,15 @@ extension VMController {
         return true
     }
 }
+
+#if DEBUG
+#Preview {
+    VirtualMachineSessionView()
+        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
+        .environmentObject(VMLibraryController.preview)
+        .environmentObject(VMController.preview)
+        .environmentObject(VirtualMachineSessionUI.preview)
+        .environmentObject(VirtualMachineSessionUIManager.shared)
+
+}
+#endif

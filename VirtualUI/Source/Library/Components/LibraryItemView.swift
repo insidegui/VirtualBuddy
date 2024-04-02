@@ -179,10 +179,18 @@ struct LibraryItemView: View {
         }
         .disabled(isVMBooted)
 
+        #if DEBUG
+        Button {
+            NSWorkspace.shared.open(vm.metadataDirectoryURL)
+        } label: {
+            Text("Open Data Folder…")
+        }
+        #endif
+
         Divider()
 
         Button {
-            VMLibraryController.shared.performMoveToTrash(for: vm)
+            library.performMoveToTrash(for: vm)
         } label: {
             Text("Move to Trash")
         }
@@ -192,7 +200,7 @@ struct LibraryItemView: View {
     private func duplicate() {
         Task {
             do {
-                try VMLibraryController.shared.duplicate(vm)
+                try library.duplicate(vm)
             } catch {
                 NSAlert(error: error).runModal()
             }
@@ -205,7 +213,7 @@ extension VMLibraryController {
     func performMoveToTrash(for vm: VBVirtualMachine) {
         Task {
             do {
-                try await VMLibraryController.shared.moveToTrash(vm)
+                try await moveToTrash(vm)
             } catch {
                 NSAlert(error: error).runModal()
             }

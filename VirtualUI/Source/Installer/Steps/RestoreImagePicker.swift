@@ -10,7 +10,13 @@ import VirtualCore
 import Combine
 
 final class RestoreImagePickerController: ObservableObject {
-    
+
+    let library: VMLibraryController
+
+    init(library: VMLibraryController) {
+        self.library = library
+    }
+
     private lazy var api = VBAPIClient()
     
     @Published private(set) var restoreImageOptions: [VBRestoreImageInfo] = []
@@ -56,7 +62,7 @@ final class RestoreImagePickerController: ObservableObject {
     @MainActor
     func restoreAdvisory(for info: VBRestoreImageInfo) -> Advisory? {
         do {
-            if let existingDownloadURL = try VMLibraryController.shared.existingLocalURL(for: info.url) {
+            if let existingDownloadURL = try library.existingLocalURL(for: info.url) {
                 return .alreadyDownloaded(info.name, existingDownloadURL)
             } else {
                 return .manualDownloadTip(info.name, info.url)
@@ -69,12 +75,29 @@ final class RestoreImagePickerController: ObservableObject {
 }
 
 struct RestoreImagePicker: View {
-    @StateObject var controller = RestoreImagePickerController()
-    
+    @StateObject private var controller: RestoreImagePickerController
+
+    @ObservedObject var library: VMLibraryController
     @Binding var selection: VBRestoreImageInfo?
     var guestType: VBGuestType
     var validationChanged: PassthroughSubject<Bool, Never>
     var onUseLocalFile: (URL) -> Void = { _ in }
+
+    init(library: VMLibraryController,
+         selection: Binding<VBRestoreImageInfo?>,
+         guestType: VBGuestType,
+         validationChanged: PassthroughSubject<Bool, Never>,
+         onUseLocalFile: @escaping (URL) -> Void = { _ in },
+         authRequirementFlow: VBGuestReleaseChannel.Authentication? = nil)
+    {
+        self._library = .init(initialValue: library)
+        self._controller = .init(wrappedValue: RestoreImagePickerController(library: library))
+        self._selection = selection
+        self.guestType = guestType
+        self.validationChanged = validationChanged
+        self.onUseLocalFile = onUseLocalFile
+        self.authRequirementFlow = authRequirementFlow
+    }
 
     var body: some View {
         Picker("OS Version", selection: $controller.selectedRestoreImage) {
@@ -137,7 +160,7 @@ struct RestoreImagePicker: View {
                         .controlSize(.large)
                 }
             case .failure(let error):
-                Text("VirtualBuddy couldn't create its downloads directory within \(VMLibraryController.shared.libraryURL.path): \(error)")
+                Text("VirtualBuddy couldn't create its downloads directory within \(library.libraryURL.path): \(error)")
                     .foregroundColor(.red)
             }
         }
@@ -200,7 +223,12 @@ struct RestoreImagePicker_Previews: PreviewProvider {
         @State private var image: VBRestoreImageInfo?
         
         var body: some View {
-            RestoreImagePicker(selection: $image, guestType: .mac, validationChanged: PassthroughSubject<Bool, Never>())
+            RestoreImagePicker(
+                library: .preview,
+                selection: $image,
+                guestType: .mac,
+                validationChanged: PassthroughSubject<Bool, Never>()
+            )
         }
     }
 }

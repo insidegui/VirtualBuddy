@@ -21,7 +21,17 @@ public struct VMSessionOptions: Hashable, Codable {
     @DecodableDefault.False
     public var autoBoot = false
 
+    /// Used when restoring from a previously-saved state.
+    public var stateRestorationPackage: VBSavedStatePackage?
+
     public static let `default` = VMSessionOptions()
+
+    public init(bootInRecoveryMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackage: VBSavedStatePackage? = nil) {
+        self.bootInRecoveryMode = bootInRecoveryMode
+        self.bootOnInstallDevice = bootOnInstallDevice
+        self.autoBoot = autoBoot
+        self.stateRestorationPackage = stateRestorationPackage
+    }
 }
 
 public enum VMState: Equatable {
@@ -29,6 +39,9 @@ public enum VMState: Equatable {
     case starting
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
+    case savingState(VZVirtualMachine)
+    case stateSaveCompleted(VZVirtualMachine, VBSavedStatePackage)
+    case restoringState(VZVirtualMachine, VBSavedStatePackage)
     case stopped(Error?)
 }
 
@@ -36,8 +49,9 @@ public enum VMState: Equatable {
 public final class VMController: ObservableObject {
 
     public let id: VBVirtualMachine.ID
+    private let name: String
 
-    private let library = VMLibraryController.shared
+    private let library: VMLibraryController
 
     private lazy var logger = Logger(for: Self.self)
     
@@ -58,11 +72,21 @@ public final class VMController: ObservableObject {
     @Published
     public var virtualMachineModel: VBVirtualMachine
 
+    public private(set) var savedStatesController: VMSavedStatesController
+
     private lazy var cancellables = Set<AnyCancellable>()
     
-    public init(with vm: VBVirtualMachine, options: VMSessionOptions? = nil) {
+    public init(with vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions? = nil) {
         self.id = vm.id
+        self.name = vm.name
         self.virtualMachineModel = vm
+        self.library = library
+        self.savedStatesController = VMSavedStatesController(library: library, virtualMachine: vm)
+        
+        #if DEBUG
+        if ProcessInfo.isSwiftUIPreview { self.savedStatesController = .preview }
+        #endif
+
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
             self.options.bootOnInstallDevice = true
@@ -91,7 +115,7 @@ public final class VMController: ObservableObject {
     private var instance: VMInstance?
     
     private func createInstance() throws -> VMInstance {
-        let newInstance = VMInstance(with: virtualMachineModel, onVMStop: { [weak self] error in
+        let newInstance = VMInstance(with: virtualMachineModel, library: library, onVMStop: { [weak self] error in
             self?.state = .stopped(error)
         })
         
@@ -107,7 +131,16 @@ public final class VMController: ObservableObject {
             let newInstance = try createInstance()
             self.instance = newInstance
 
-            try await newInstance.startVM()
+            if #available(macOS 14.0, *), let restorePackage = options.stateRestorationPackage {
+                try await newInstance.restoreState(from: restorePackage) { vm, package in
+                    try? await updatingState {
+                        state = .restoringState(vm, package)
+                    }
+                }
+            } else {
+                try await newInstance.startVM()
+            }
+
             let vm = try newInstance.virtualMachine
 
             state = .running(vm)
@@ -163,6 +196,26 @@ public final class VMController: ObservableObject {
         unhideCursor()
     }
 
+    @available(macOS 14.0, *)
+    public func saveState() async throws {
+        try await updatingState {
+            let instance = try ensureInstance()
+            let vm = try instance.virtualMachine
+
+            state = .savingState(vm)
+
+            let package = try await instance.saveState()
+
+            state = .stateSaveCompleted(vm, package)
+
+            try await Task.sleep(for: .seconds(1.5))
+
+            try await resume()
+        }
+
+        unhideCursor()
+    }
+
     private func updatingState(perform block: () async throws -> Void) async throws {
         do {
             try await block()
@@ -197,9 +250,11 @@ public final class VMController: ObservableObject {
 
     deinit {
         #if DEBUG
-        print("\(id) Bye bye 👋")
+        print("\(name) Bye bye 👋")
         #endif
         library.removeController(self)
+
+        VBMemoryLeakDebugAssertions.vb_objectIsBeingReleased(self)
     }
 
 }
@@ -213,6 +268,9 @@ public extension VMState {
         case .running: return rhs.isRunning
         case .paused: return rhs.isPaused
         case .stopped: return rhs.isStopped
+        case .savingState: return rhs.isSavingState
+        case .restoringState: return rhs.isRestoringState
+        case .stateSaveCompleted: return rhs.isStateSaveCompleted
         }
     }
 
@@ -238,6 +296,21 @@ public extension VMState {
 
     var isStopped: Bool {
         guard case .stopped = self else { return false }
+        return true
+    }
+
+    var isSavingState: Bool {
+        guard case .savingState = self else { return false }
+        return true
+    }
+
+    var isRestoringState: Bool {
+        guard case .restoringState = self else { return false }
+        return true
+    }
+
+    var isStateSaveCompleted: Bool {
+        guard case .stateSaveCompleted = self else { return false }
         return true
     }
 

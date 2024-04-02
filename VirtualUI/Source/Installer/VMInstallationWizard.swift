@@ -10,13 +10,14 @@ import VirtualCore
 import Combine
 
 public struct VMInstallationWizard: View {
-    @EnvironmentObject var library: VMLibraryController
+    @ObservedObject var library: VMLibraryController
     @StateObject var viewModel: VMInstallationViewModel
 
     @Environment(\.closeWindow) var closeWindow
 
-    public init(restoring restoreVM: VBVirtualMachine? = nil) {
-        self._viewModel = .init(wrappedValue: VMInstallationViewModel(restoring: restoreVM))
+    public init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine? = nil) {
+        self._library = .init(initialValue: library)
+        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoring: restoreVM))
     }
 
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
@@ -115,6 +116,7 @@ public struct VMInstallationWizard: View {
             InstallationWizardTitle(viewModel.selectedSystemType.restoreImagePickerPrompt)
             
             RestoreImagePicker(
+                library: library,
                 selection: $viewModel.data.restoreImageInfo,
                 guestType: viewModel.selectedSystemType,
                 validationChanged: stepValidationStateChanged,
@@ -210,9 +212,8 @@ public struct VMInstallationWizard: View {
 
 }
 
-struct VMInstallationWizard_Previews: PreviewProvider {
-    static var previews: some View {
-        VMInstallationWizard()
-            .environmentObject(VMLibraryController.shared)
-    }
+#if DEBUG
+#Preview {
+    VMInstallationWizard(library: .preview)
 }
+#endif

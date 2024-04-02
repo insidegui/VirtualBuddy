@@ -26,7 +26,13 @@ extension VBSettings {
 
     private struct Keys {
         static let version = "version"
-        static let libraryPath = "libraryPath"
+        static let libraryPath: String = {
+            #if DEBUG
+            return ProcessInfo.isSwiftUIPreview ? "libraryPath-preview" : "libraryPath"
+            #else
+            return "libraryPath"
+            #endif
+        }()
         static let updateChannel = "updateChannel"
     }
 

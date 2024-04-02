@@ -3,28 +3,67 @@ import VirtualCore
 import Combine
 import OSLog
 
+/// Controls active virtual machine sessions, managing the lifecycle of session windows, controllers, and opening VMs from files or URLs.
 public final class VirtualMachineSessionUIManager: ObservableObject {
     private let logger = Logger(for: VirtualMachineSessionUIManager.self)
     
-    public let focusedSessionChanged = PassthroughSubject<VirtualMachineSessionUI?, Never>()
+    public let focusedSessionChanged = PassthroughSubject<WeakReference<VirtualMachineSessionUI>?, Never>()
 
     public static let shared = VirtualMachineSessionUIManager()
 
     private let openWindow = OpenCocoaWindowAction.default
 
+    private var sessions = [VBVirtualMachine.ID: VirtualMachineSessionUI]()
+
     private init() { }
 
     @MainActor
-    public func launch(_ vm: VBVirtualMachine, library: VMLibraryController) {
+    private func createSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) -> VirtualMachineSessionUI {
+        let ui = VirtualMachineSessionUI(with: vm, library: library, options: options)
+
+        sessions[vm.id] = ui
+
+        return ui
+    }
+
+    @MainActor
+    public func session(for vm: VBVirtualMachine) -> VirtualMachineSessionUI? { sessions[vm.id] }
+
+    @MainActor
+    public func launch(_ vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         guard !vm.needsInstall else {
             recoverInstallation(for: vm, library: library)
             return
         }
 
-        openWindow(id: vm.id) {
-            VirtualMachineSessionView(controller: VMController(with: vm), ui: VirtualMachineSessionUI(with: vm))
+        if let existingSession = session(for: vm) {
+            existingSession.update(with: options)
+            existingSession.bringToFront()
+        } else {
+            launchNewSession(for: vm, library: library, options: options)
+        }
+    }
+
+    @MainActor
+    private func launchNewSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
+        let vmID = vm.id
+
+        let session = createSession(for: vm, library: library, options: options)
+
+        openWindow(id: vmID) {
+            VirtualMachineSessionView()
+                .environmentObject(session)
+                .environmentObject(session.controller)
                 .environmentObject(library)
                 .environmentObject(self)
+        } onClose: { [weak self] in
+            guard let self else { return }
+            guard let session = sessions[vmID] else { return }
+
+            VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session)
+            VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session.controller)
+
+            sessions[vmID] = nil
         }
     }
 
@@ -53,30 +92,73 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     @MainActor
     public func launchInstallWizard(restoring restoreVM: VBVirtualMachine? = nil, library: VMLibraryController) {
         openWindow {
-            VMInstallationWizard(restoring: restoreVM)
+            VMInstallationWizard(library: library, restoring: restoreVM)
                 .environmentObject(library)
         }
     }
+}
 
-    @MainActor
-    public func openVirtualMachine(at url: URL, library: VMLibraryController) {
+// MARK: - File Opening
+
+@MainActor
+public extension VirtualMachineSessionUIManager {
+    func open(fileURL: URL, library: VMLibraryController) {
         do {
-            let values = try url.resourceValues(forKeys: [.contentTypeKey])
+            let values = try fileURL.resourceValues(forKeys: [.contentTypeKey])
 
-            guard values.contentType == .virtualBuddyVM else {
-                throw Failure("Invalid file type: \(String(describing: values.contentType))")
-            }
-
-            if let loadedVM = library.virtualMachines.first(where: { $0.bundleURL.path == url.path }) {
-                launch(loadedVM, library: library)
-            } else {
-                let vm = try VBVirtualMachine(bundleURL: url)
-
-                launch(vm, library: library)
+            switch values.contentType {
+            case .none:
+                return
+            case .virtualBuddyVM:
+                handleOpenVirtualMachineFile(fileURL, library: library, options: nil)
+            case .virtualBuddySavedState:
+                handleOpenSavedStateFile(fileURL, library: library)
+            default:
+                throw Failure("Unsupported file type \(values.contentType?.identifier ?? "?")")
             }
         } catch {
-            logger.error("Error loading virtual machine from file at \(url.path, privacy: .public): \(error, privacy: .public)")
+            logger.error("Error loading virtual machine from file at \(fileURL.path, privacy: .public): \(error, privacy: .public)")
+        }
+    }
+}
+
+@MainActor
+private extension VirtualMachineSessionUIManager {
+    func handleOpenVirtualMachineFile(_ url: URL, library: VMLibraryController, options: VMSessionOptions?) {
+        if let loadedVM = library.virtualMachines.first(where: { $0.bundleURL.path == url.path }) {
+            launch(loadedVM, library: library, options: options)
+        } else {
+            do {
+                let vm = try VBVirtualMachine(bundleURL: url)
+
+                launch(vm, library: library, options: options)
+            } catch {
+                let alert = NSAlert(error: error)
+                alert.runModal()
+            }
         }
     }
 
+    func handleOpenSavedStateFile(_ url: URL, library: VMLibraryController) {
+        guard #available(macOS 14.0, *) else {
+            let alert = NSAlert()
+            alert.messageText = "State Restoration Not Supported"
+            alert.informativeText = "Virtual machine state restoration requires macOS 14 or later."
+            alert.addButton(withTitle: "OK")
+            alert.runModal()
+            return
+        }
+
+        do {
+            let model = try library.virtualMachine(forSavedStatePackageURL: url)
+
+            let package = try VBSavedStatePackage(url: url)
+
+            let options = VMSessionOptions(stateRestorationPackage: package)
+
+            launch(model, library: library, options: options)
+        } catch {
+            NSAlert(error: error).runModal()
+        }
+    }
 }

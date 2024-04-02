@@ -1,12 +1,4 @@
-//
-//  VBVirtualMachine+Screenshot.swift
-//  VirtualCore
-//
-//  Created by Guilherme Rambo on 24/06/22.
-//
-
 import Cocoa
-import AVFoundation
 
 public extension VBVirtualMachine {
 
@@ -15,26 +7,14 @@ public extension VBVirtualMachine {
         return NSImage(data: imageData)
     }
 
-    static let thumbnailProperties = [
-        kCGImageDestinationLossyCompressionQuality: 0.9,
-        kCGImageDestinationImageMaxPixelSize: 1024
-    ] as CFDictionary
-
     func thumbnailImage() -> NSImage? {
-        guard let thumbnailURL = metadataFileURL(Self.thumbnailFileName) else { return nil }
-
+        guard let thumbnailURL = try? metadataFileURL(Self.thumbnailFileName) else { return nil }
+        
         if let existingImage = NSImage(contentsOf: thumbnailURL) {
             return existingImage
         }
         
-        guard let cgImage = screenshot?.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return nil }
-
-        guard let destination = CGImageDestinationCreateWithURL(thumbnailURL as CFURL, AVFileType.heic as CFString, 1, nil) else { return nil }
-
-        CGImageDestinationAddImage(destination, cgImage, Self.thumbnailProperties)
-        CGImageDestinationFinalize(destination)
-
-        return NSImage(contentsOf: thumbnailURL)
+        return try? screenshot?.vb_createThumbnail(at: thumbnailURL)
     }
 
     func invalidateThumbnail() throws {

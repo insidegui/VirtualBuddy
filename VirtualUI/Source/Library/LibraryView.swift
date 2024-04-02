@@ -72,7 +72,7 @@ public struct LibraryView: View {
             LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
                 ForEach(vms) { vm in
                     Button {
-                        sessionManager.launch(vm, library: library)
+                        sessionManager.launch(vm, library: library, options: nil)
                     } label: {
                         LibraryItemView(vm: vm, name: vm.name)
                     }

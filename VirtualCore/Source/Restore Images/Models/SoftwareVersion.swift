@@ -4,6 +4,8 @@ public struct SoftwareVersion: Hashable, CustomStringConvertible, Codable, Compa
     public let major: Int
     public let minor: Int
     public let patch: Int
+
+    public static let empty = SoftwareVersion(major: 0, minor: 0, patch: 0)
 }
 
 public extension SoftwareVersion {

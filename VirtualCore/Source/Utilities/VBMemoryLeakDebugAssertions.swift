@@ -44,7 +44,7 @@ public final class VBMemoryLeakDebugAssertions {
         }
 
         DispatchQueue.main.asyncAfter(deadline: .now() + interval) {
-            assert(_releasedObjects.contains(id), "💦 POSSIBLE LEAK: \(description) was not released after being closed (set \(_disableFlag) defaults flag to disable this)")
+            assert(_releasedObjects.contains(id), "💦 POSSIBLE LEAK: \(description) was not released when expected (set \(_disableFlag) defaults flag to disable this)")
         }
     }
 

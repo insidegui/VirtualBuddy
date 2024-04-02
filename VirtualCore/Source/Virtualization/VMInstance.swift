@@ -15,10 +15,10 @@ import VirtualWormhole
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
 
-    private let library = VMLibraryController.shared
-    
-    private lazy var logger = Logger(for: Self.self)
-    
+    private let library: VMLibraryController
+
+    private let logger: Logger
+
     var options = VMSessionOptions.default
 
     private var _virtualMachine: VZVirtualMachine?
@@ -45,9 +45,11 @@ public final class VMInstance: NSObject, ObservableObject {
     
     var onVMStop: (Error?) -> Void = { _ in }
     
-    init(with vm: VBVirtualMachine, onVMStop: @escaping (Error?) -> Void) {
+    init(with vm: VBVirtualMachine, library: VMLibraryController, onVMStop: @escaping (Error?) -> Void) {
         self.virtualMachineModel = vm
+        self.library = library
         self.onVMStop = onVMStop
+        self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VMInstance(\(vm.name))")
     }
     
     // MARK: Create the Mac Platform Configuration
@@ -134,6 +136,8 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     private func createVirtualMachine() async throws {
+        logger.debug(#function)
+
         let installImage: URL?
         if options.bootOnInstallDevice {
             installImage = virtualMachineModel.metadata.installImageURL
@@ -146,6 +150,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
         do {
             try config.validate()
+
+            logger.info("Configuration validated")
         } catch {
             logger.fault("Invalid configuration: \(String(describing: error))")
             
@@ -211,17 +217,31 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     func startVM() async throws {
+        try await bootstrap()
+
+        let vm = try ensureVM()
+
+        try await vm.start(options: startOptions)
+
+        #if DEBUG
+        VBDebugUtil.debugVirtualMachine(afterStart: vm)
+        #endif
+    }
+
+    private func bootstrap() async throws {
         try await createVirtualMachine()
-        
+
         let vm = try ensureVM()
 
         vm.delegate = self
 
-        try await vm.start(options: startOptions)
+        library.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
 
-        VMLibraryController.shared.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
+        #if DEBUG
+        VBDebugUtil.debugVirtualMachine(beforeStart: vm)
+        #endif
     }
-    
+
     @available(macOS 13, *)
     private var startOptions: VZVirtualMachineStartOptions {
         switch virtualMachineModel.configuration.systemType {
@@ -235,35 +255,123 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     func pause() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try await vm.pause()
     }
     
     func resume() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try await vm.resume()
     }
     
     func stop() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try vm.requestStop()
     }
     
     func forceStop() async throws {
+        logger.debug(#function)
+
         let vm = try ensureVM()
         
         try await vm.stop()
 
         library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
     }
-    
+
+    @available(macOS 14.0, *)
+    @discardableResult
+    func saveState() async throws -> VBSavedStatePackage {
+        logger.debug(#function)
+
+        let vm = try ensureVM()
+
+        logger.debug("Collecting screenshot for saved state")
+
+        let screenshot: NSImage?
+        do {
+            screenshot = try await NSImage.screenshot(from: vm)
+        } catch {
+            screenshot = nil
+
+            logger.warning("Error collecting screenshot for saved state: \(error, privacy: .public)")
+        }
+
+        logger.debug("Pausing to save state")
+
+        try await pause()
+
+        logger.debug("VM paused, requesting state save")
+
+        let package = try virtualMachineModel.createSavedStatePackage(in: library)
+
+        logger.debug("VM state package will be written to \(package.url.path)")
+
+        package.screenshot = screenshot
+
+        do {
+            try await vm.saveMachineStateTo(url: package.dataFileURL)
+
+            logger.log("VM state saved to \(package.dataFileURL.path)")
+
+            return package
+        } catch {
+            try? FileManager.default.removeItem(at: package.url)
+
+            logger.error("VM state save failed: \(error, privacy: .public)")
+
+            throw error
+        }
+    }
+
+    @available(macOS 14.0, *)
+    func restoreState(from package: VBSavedStatePackage, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
+        logger.debug("Restore state requested with package \(package.url.path)")
+
+        try package.validate(for: virtualMachineModel)
+
+        if _virtualMachine == nil {
+            logger.debug("Bootstrapping VM for state restoration")
+
+            try await bootstrap()
+        }
+
+        let vm = try ensureVM()
+
+        await updateHandler(vm, package)
+
+        logger.debug("Restoring state from \(package.dataFileURL.path)")
+
+        do {
+            try await vm.restoreMachineStateFrom(url: package.dataFileURL)
+
+            logger.log("Successfully restored state from \(package.dataFileURL.path), resuming VM")
+
+            try await resume()
+
+            #if DEBUG
+            VBDebugUtil.debugVirtualMachine(afterStart: vm)
+            #endif
+        } catch {
+            logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(package.dataFileURL.path)")
+
+            throw error
+        }
+    }
+
     private func ensureVM() throws -> VZVirtualMachine {
         guard let vm = _virtualMachine else {
-            let e = CocoaError(.executableLoad)
-            
+            let e = Failure("The virtual machine instance is not available.")
+
             DispatchQueue.main.async {
                 self.onVMStop(e)
             }

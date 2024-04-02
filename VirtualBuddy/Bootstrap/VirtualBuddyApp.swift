@@ -50,6 +50,7 @@ struct VirtualBuddyApp: App {
                 Button("Library") {
                     openWindow(id: .vb_libraryWindowID)
                 }
+                .keyboardShortcut(KeyEquivalent("0"), modifiers: .command)
             }
         }
         
