@@ -21,6 +21,17 @@ protocol VirtualMachineConfigurationHelper {
     func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration?
 }
 
+func createVZDiskImageStorageDeviceAttachment(url: URL, readOnly: Bool, guestType: VBGuestType) throws -> VZDiskImageStorageDeviceAttachment {
+    if guestType == .linux {
+        // Linux guest is bound to cause IO errors.
+        // Referring to https://github.com/utmapp/UTM/issues/4840, seems like setting the cachingMode to cached
+        // fixes this IO errors and disk corruption issues for Linux guest.
+        return try VZDiskImageStorageDeviceAttachment(url: url, readOnly: readOnly, cachingMode: .cached, synchronizationMode: .fsync)
+    } else {
+        return try VZDiskImageStorageDeviceAttachment(url: url, readOnly: readOnly)
+    }
+}
+
 extension VirtualMachineConfigurationHelper {
 
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration {
@@ -34,7 +45,7 @@ extension VirtualMachineConfigurationHelper {
             }
 
             let bootURL = vm.diskImageURL(for: bootDiskImage)
-            let diskImageAttachment = try VZDiskImageStorageDeviceAttachment(url: bootURL, readOnly: false)
+            let diskImageAttachment = try createVZDiskImageStorageDeviceAttachment(url: bootURL, readOnly: false, guestType: vm.configuration.systemType)
 
             let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
 
@@ -68,7 +79,7 @@ extension VBVirtualMachine {
                 guard device.isEnabled, !device.isBootVolume else { continue }
 
                 let url = diskImageURL(for: device)
-                let attachment = try VZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly)
+                let attachment = try createVZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly, guestType: configuration.systemType)
 
                 output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
             }

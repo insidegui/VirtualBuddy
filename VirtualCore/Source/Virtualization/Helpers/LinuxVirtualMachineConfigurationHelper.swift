@@ -13,7 +13,7 @@ struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     let vm: VBVirtualMachine
     
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration {
-        let attachment = try VZDiskImageStorageDeviceAttachment(url: installImageURL, readOnly: true)
+        let attachment = try VZDiskImageStorageDeviceAttachment(url: installImageURL, readOnly: true, cachingMode: .cached, synchronizationMode: .fsync)
         let usbDeviceConfiguration = VZUSBMassStorageDeviceConfiguration(attachment: attachment)
         return usbDeviceConfiguration
     }
