@@ -59,6 +59,14 @@
   "restoreImages": [
     {
       "group": "sonoma",
+      "name": "macOS 14.5 RC",
+      "build": "23F79",
+      "url": "https://updates.cdn-apple.com/2024SpringFCS/fullrestores/062-01897/C874907B-9F82-4109-87EB-6B3C9BF1507D/UniversalMac_14.5_23F79_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14.5 Developer Beta 4",
       "build": "23F5074a",
       "url": "https://updates.cdn-apple.com/2024SpringSeed/fullrestores/052-93222/8E2C4935-6FAA-4624-88D5-008966BD1A4C/UniversalMac_14.5_23F5074a_Restore.ipsw",
