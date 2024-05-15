@@ -24,8 +24,19 @@ struct VirtualBuddyApp: App {
     @Environment(\.openWindow)
     private var openWindow
 
+    private let mainWindowTitle: String = {
+        let appName = "VirtualBuddy"
+        #if BUILDING_DEV_RELEASE
+        return "\(appName) (Dev \(Bundle.main.vbShortVersionString) - \(Bundle.main.vbBuild))"
+        #elseif DEBUG
+        return "\(appName) (Debug)"
+        #else
+        return appName
+        #endif
+    }()
+
     var body: some Scene {
-        Window(Text("VirtualBuddy"), id: .vb_libraryWindowID) {
+        Window(Text(mainWindowTitle), id: .vb_libraryWindowID) {
             LibraryView()
                 .onAppearOnce(perform: updateController.activate)
                 .environmentObject(library)
