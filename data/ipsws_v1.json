@@ -38,6 +38,12 @@
   ],
   "groups": [
     {
+      "id": "sequoia",
+      "name": "macOS Sequoia",
+      "majorVersion": "15.0",
+      "minHostVersion": "13.0"
+    },
+    {
       "id": "sonoma",
       "name": "macOS Sonoma",
       "majorVersion": "14.0",
@@ -57,6 +63,14 @@
     }
   ],
   "restoreImages": [
+    {
+      "group": "sequoia",
+      "name": "macOS 15 Developer Beta 1",
+      "build": "24A5264n",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/052-49083/ED8F54D6-A7BF-488A-85E5-617E08C41383/UniversalMac_15.0_24A5264n_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
     {
       "group": "sonoma",
       "name": "macOS 14.5",
