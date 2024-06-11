@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import OSLog
+
+private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
 
 public struct VBSettings: Hashable {
 
@@ -56,9 +59,15 @@ extension VBSettings {
         }
 
         if let appUpdateChannelID = defaults.string(forKey: Keys.updateChannel) {
-            self.updateChannel = AppUpdateChannel.byID[appUpdateChannelID] ?? .release
+            logger.debug("Found channel \(appUpdateChannelID, privacy: .public) in user defaults")
+
+            self.updateChannel = AppUpdateChannel.channelsByID[appUpdateChannelID] ?? .release
         } else {
-            self.updateChannel = .release
+            let defaultChannel = AppUpdateChannel.defaultChannel(for: .current)
+
+            logger.debug("No channel set in preferences, using default channel \(defaultChannel, privacy: .public) for build type \(VBBuildType.current, privacy: .public)")
+
+            self.updateChannel = defaultChannel
         }
     }
 

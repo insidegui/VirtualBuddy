@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
 		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
+		F40A1E9D2C1873CA0033E47D /* VBBuildType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40A1E9C2C1873C60033E47D /* VBBuildType.swift */; };
 		F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695129916F6E002CE8D3 /* StatusItemButton.swift */; };
 		F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */; };
 		F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */; };
@@ -397,6 +398,7 @@
 /* Begin PBXFileReference section */
 		0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinuxVirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
 		4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
+		F40A1E9C2C1873C60033E47D /* VBBuildType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBBuildType.swift; sourceTree = "<group>"; };
 		F413695129916F6E002CE8D3 /* StatusItemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemButton.swift; sourceTree = "<group>"; };
 		F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarPanelChrome.swift; sourceTree = "<group>"; };
 		F413695329916F6E002CE8D3 /* StatusItemProviderProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemProviderProtocol.swift; sourceTree = "<group>"; };
@@ -694,6 +696,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		F40A1E9B2C1873B90033E47D /* ReleaseTrains */ = {
+			isa = PBXGroup;
+			children = (
+				F40A1E9C2C1873C60033E47D /* VBBuildType.swift */,
+				F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */,
+			);
+			path = ReleaseTrains;
+			sourceTree = "<group>";
+		};
 		F413694F29916F6E002CE8D3 /* SwiftUI Status Item */ = {
 			isa = PBXGroup;
 			children = (
@@ -1306,6 +1317,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F40A1E9B2C1873B90033E47D /* ReleaseTrains */,
 				F4C2374E2888AF5B001FF286 /* Utilities */,
 				F417257228877453004FF8A7 /* Resources */,
 				F465C3AC284F939C006E9ED4 /* Restore Images */,
@@ -1385,7 +1397,6 @@
 				F48E0D0628885E140080DDFA /* PreviewSupport.swift */,
 				F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */,
 				F4F9B419284CE37C00F21737 /* Logging.swift */,
-				F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */,
 			);
 			path = Definitions;
 			sourceTree = "<group>";
@@ -2113,6 +2124,7 @@
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
 				F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */,
+				F40A1E9D2C1873CA0033E47D /* VBBuildType.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,
 				F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */,
