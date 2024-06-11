@@ -206,7 +206,7 @@ extension EnvironmentValues {
                 effectiveNewValue.insert(.fullScreen)
             }
             
-            cocoaWindow.styleMask = effectiveNewValue
+//            cocoaWindow.styleMask = effectiveNewValue
         }
     }
     

@@ -1,22 +1,22 @@
 {
-  "originHash" : "3db5cb28d5e47e52f086d83f148bdfa87162ae2eb5954a68af6eca99ade78b37",
+  "originHash" : "5aabd6ca94084da6e618f041d74475ec3f152216f0ee77b4939a37c8bef3ee17",
   "pins" : [
     {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "286edd1fa22505a9e54d170e9fd07d775ea233f2",
-        "version" : "2.1.0"
+        "revision" : "b456fd404954a9e13f55aa0c88cd5a40b8399638",
+        "version" : "2.6.3"
       }
     },
     {
       "identity" : "swiftui-introspect",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/siteline/swiftui-introspect.git",
+      "location" : "https://github.com/insidegui/swiftui-introspect.git",
       "state" : {
-        "revision" : "0cd2a5a5895306bc21d54a2254302d24a9a571e4",
-        "version" : "1.1.3"
+        "branch" : "macOS15",
+        "revision" : "65046b6a298c469bfbf49fbb4531bd09d9b53428"
       }
     },
     {
