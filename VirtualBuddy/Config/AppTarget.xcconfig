@@ -39,6 +39,8 @@ OTHER_SWIFT_FLAGS[config=Dev_Release][sdk=*][arch=*] = -D BUILDING_DEV_RELEASE
 // Special app icon for development releases. Note that Xcode uses the first icon when sorted alphabetically, hence why the default icon has the -Default suffix.
 ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon-Default
 ASSETCATALOG_COMPILER_APPICON_NAME[config=Dev_Release][sdk=*][arch=*] = AppIcon-Dev
+ASSETCATALOG_COMPILER_APPICON_NAME[config=Beta_Debug][sdk=*][arch=*] = AppIcon-zBeta
+ASSETCATALOG_COMPILER_APPICON_NAME[config=Beta_Release][sdk=*][arch=*] = AppIcon-zBeta
 
 PRODUCT_NAME = $(TARGET_NAME)
 
