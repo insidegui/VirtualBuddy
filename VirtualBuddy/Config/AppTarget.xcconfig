@@ -11,9 +11,9 @@ CODE_SIGN_ENTITLEMENTS[config=Release_Managed][sdk=*][arch=*] = $(ENTITLEMENTS_D
 
 PROVISIONING_PROFILE_SPECIFIER[config=Debug][sdk=*][arch=*] =
 PROVISIONING_PROFILE_SPECIFIER[config=Release][sdk=*][arch=*] =
-PROVISIONING_PROFILE_SPECIFIER[config=Debug_Managed][sdk=*][arch=*] = VirtualBuddy Dev Mid 2024
-PROVISIONING_PROFILE_SPECIFIER[config=Release_Managed][sdk=*][arch=*] = VirtualBuddy Dev Mid 2024
-PROVISIONING_PROFILE_SPECIFIER[config=Dev_Release][sdk=*][arch=*] = VirtualBuddy Dev Mid 2024
+PROVISIONING_PROFILE_SPECIFIER[config=Debug_Managed][sdk=*][arch=*] = VirtualBuddy Mid 2024 B
+PROVISIONING_PROFILE_SPECIFIER[config=Release_Managed][sdk=*][arch=*] = VirtualBuddy Mid 2024 B
+PROVISIONING_PROFILE_SPECIFIER[config=Dev_Release][sdk=*][arch=*] = VirtualBuddy Mid 2024 B
 
 CODE_SIGN_STYLE[config=Debug][sdk=*][arch=*] = Automatic
 CODE_SIGN_STYLE[config=Release][sdk=*][arch=*] = Automatic
