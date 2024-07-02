@@ -206,7 +206,13 @@ extension EnvironmentValues {
                 effectiveNewValue.insert(.fullScreen)
             }
             
-            cocoaWindow.styleMask = effectiveNewValue
+            // TODO: HACK!
+            /// Setting styleMask without this dispatch results in a crash when
+            /// built with the macOS 15 SDK and running under macOS 15.
+            /// The crash is a precondition failure: `setting value during update: 360192`.
+            DispatchQueue.main.async {
+                cocoaWindow.styleMask = effectiveNewValue
+            }
         }
     }
     

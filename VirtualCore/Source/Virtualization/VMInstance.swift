@@ -126,6 +126,9 @@ public final class VMInstance: NSObject, ObservableObject {
         if let spiceAgent = helper.createSpiceAgentConsoleDeviceConfiguration() {
             c.consoleDevices = [spiceAgent]
         }
+        if #available(macOS 15.0, *) {
+            c.usbControllers = helper.createUSBControllers()
+        }
 
         let bootDevice = try await helper.createBootBlockDevice()
         let additionalBlockDevices = try await helper.createAdditionalBlockDevices()

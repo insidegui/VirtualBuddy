@@ -19,6 +19,8 @@ protocol VirtualMachineConfigurationHelper {
     func createEntropyDevices() -> [VZVirtioEntropyDeviceConfiguration]
     @available(macOS 13.0, *)
     func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration?
+    @available(macOS 15.0, *)
+    func createUSBControllers() -> [VZUSBControllerConfiguration]
 }
 
 func createVZDiskImageStorageDeviceAttachment(url: URL, readOnly: Bool, guestType: VBGuestType) throws -> VZDiskImageStorageDeviceAttachment {
@@ -67,6 +69,9 @@ extension VirtualMachineConfigurationHelper {
 
     @available(macOS 13.0, *)
     func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration? { nil }
+
+    @available(macOS 15.0, *)
+    func createUSBControllers() -> [VZUSBControllerConfiguration] { [] }
 
 }
 

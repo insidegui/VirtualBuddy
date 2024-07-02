@@ -53,6 +53,12 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     func createEntropyDevices() -> [VZEntropyDeviceConfiguration] {
         [VZVirtioEntropyDeviceConfiguration()]
     }
+
+    @available(macOS 15.0, *)
+    func createUSBControllers() -> [VZUSBControllerConfiguration] {
+        let xhci = VZXHCIControllerConfiguration()
+        return [xhci]
+    }
 }
 
 // MARK: - Configuration Models -> Virtualization
