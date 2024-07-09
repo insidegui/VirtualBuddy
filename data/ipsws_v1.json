@@ -81,6 +81,14 @@
     },
     {
       "group": "sonoma",
+      "name": "macOS 14.6 Developer Beta 3",
+      "build": "23G5066c",
+      "url": "https://updates.cdn-apple.com/2024SpringSeed/fullrestores/062-28262/A4400A1D-9F38-41F7-B1CD-B3CB782DA2A3/UniversalMac_14.6_23G5066c_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
       "name": "macOS 14.6 Developer Beta 2",
       "build": "23G5061b",
       "url": "https://updates.cdn-apple.com/2024SpringSeed/fullrestores/062-20934/B03E5DE3-1484-489F-AC53-956AC17DB7F0/UniversalMac_14.6_23G5061b_Restore.ipsw",
