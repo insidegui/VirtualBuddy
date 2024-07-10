@@ -65,6 +65,14 @@
   "restoreImages": [
     {
       "group": "sequoia",
+      "name": "macOS 15.0 Developer Beta 3",
+      "build": "24A5289g",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-33928/E22622FB-DAFC-4C64-8CC6-B7CAF89477F7/UniversalMac_15.0_24A5289g_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
       "name": "macOS 15.0 Developer Beta 2",
       "build": "24A5279h",
       "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-22022/AB066FFB-B7FE-4132-83AC-E58A323805C1/UniversalMac_15.0_24A5279h_Restore.ipsw",
