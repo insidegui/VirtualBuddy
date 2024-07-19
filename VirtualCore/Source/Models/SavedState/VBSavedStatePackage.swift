@@ -31,9 +31,8 @@ public final class VBSavedStatePackage: Identifiable, Hashable, Codable {
     }
 
     /// Creates a new package on disk for the given virtual machine, initializing the saved state package accordingly.
-    public convenience init(creatingPackageInDirectoryAt baseURL: URL, model: VBVirtualMachine) throws {
-        let suffix = DateFormatter.savedStateFileName.string(from: .now)
-        let url = baseURL.appendingPathComponent("Save-\(suffix)", conformingTo: .virtualBuddySavedState)
+    public convenience init(creatingPackageInDirectoryAt baseURL: URL, model: VBVirtualMachine, snapshotName: String) throws {
+        let url = baseURL.appendingPathComponent(snapshotName, conformingTo: .virtualBuddySavedState)
         let createdURL = try url.creatingDirectoryIfNeeded()
 
         try self.init(url: createdURL, metadata: VBSavedStateMetadata(model: model))
@@ -120,15 +119,6 @@ public final class VBSavedStatePackage: Identifiable, Hashable, Codable {
     }
 
     public static func ==(lhs: VBSavedStatePackage, rhs: VBSavedStatePackage) -> Bool { lhs.metadata == rhs.metadata }
-}
-
-private extension DateFormatter {
-    static let savedStateFileName: DateFormatter = {
-        let f = DateFormatter()
-        f.calendar = .init(identifier: .gregorian)
-        f.dateFormat = "yyyy-MM-dd_HH;mm;ss"
-        return f
-    }()
 }
 
 // MARK: - Validation

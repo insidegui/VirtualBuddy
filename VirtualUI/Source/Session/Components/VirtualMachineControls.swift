@@ -17,7 +17,7 @@ protocol VirtualMachineStateController: ObservableObject {
     func resume() async throws
     
     @available(macOS 14.0, *)
-    func saveState() async throws
+    func saveState(snapshotName: String) async throws
 
     var virtualMachineModel: VBVirtualMachine { get }
 }
@@ -29,7 +29,9 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
     @EnvironmentObject private var controller: Controller
 
     @State private var actionTask: Task<Void, Never>?
-
+    @State private var isPopoverPresented = false
+    @State private var textFieldContent = ""
+    
     var body: some View {
         Group {
             switch controller.state {
@@ -50,31 +52,63 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 if #available(macOS 14.0, *), controller.virtualMachineModel.supportsStateRestoration {
                     Button {
                         runToolbarAction {
-                            try await controller.saveState()
+                            textFieldContent = "Save-" + DateFormatter.savedStateFileName.string(from: .now)
+                            isPopoverPresented = true
                         }
                     } label: {
                         Image(systemName: "tray.and.arrow.down")
                     }
                     .help("Save current state")
-                }
+                    .popover(isPresented: $isPopoverPresented) {
+                        VStack {
+                            Text("Save current state")
+                                .font(.headline)
+                            TextField("Name current state", text: $textFieldContent)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .padding(.top, 15)
+                                .padding(.bottom, 15)
 
-                Button {
-                    runToolbarAction {
-                        try await controller.pause()
-                    }
-                } label: {
-                    Image(systemName: "pause")
-                }
-                .help("Pause")
+                            HStack {
+                                Spacer()
 
-                Button {
-                    runToolbarAction {
-                        try await controller.stop()
+                                Button("Cancel") {
+                                    isPopoverPresented = false
+                                }
+                                .padding(.trailing, 8)
+                                .keyboardShortcut(.cancelAction)
+
+                                Button("Save") {
+                                    isPopoverPresented = false
+
+                                    Task {
+                                        try await controller.saveState(snapshotName: textFieldContent)
+                                    }
+                                }
+                                .keyboardShortcut(.defaultAction)
+                            }
+                        }
+                        .frame(width: 300)
+                        .padding()
                     }
-                } label: {
-                    Image(systemName: "power")
+
+                    Button {
+                        runToolbarAction {
+                            try await controller.pause()
+                        }
+                    } label: {
+                        Image(systemName: "pause")
+                    }
+                    .help("Pause")
+
+                    Button {
+                        runToolbarAction {
+                            try await controller.stop()
+                        }
+                    } label: {
+                        Image(systemName: "power")
+                    }
+                    .help("Shut down")
                 }
-                .help("Shut down")
             }
         }
         .symbolVariant(.fill)
@@ -95,6 +129,16 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
         }
     }
 }
+
+private extension DateFormatter {
+    static let savedStateFileName: DateFormatter = {
+        let f = DateFormatter()
+        f.calendar = .init(identifier: .gregorian)
+        f.dateFormat = "yyyy-MM-dd_HH;mm;ss"
+        return f
+    }()
+}
+
 
 #if DEBUG
 private final class PreviewVirtualMachineStateController: VirtualMachineStateController {
@@ -131,7 +175,7 @@ private final class PreviewVirtualMachineStateController: VirtualMachineStateCon
 
     @available(macOS 14.0, *)
     @MainActor
-    func saveState() async throws {
+    func saveState(snapshotName: String) async throws {
         state = .paused(.preview)
     }
 

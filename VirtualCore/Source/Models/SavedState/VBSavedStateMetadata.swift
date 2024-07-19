@@ -41,7 +41,7 @@ public extension VBVirtualMachine {
     }
 
     /// Convenience for ``VMLibraryController/createSavedStatePackage(for:)``.
-    func createSavedStatePackage(in library: VMLibraryController) throws -> VBSavedStatePackage {
-        try library.createSavedStatePackage(for: self)
+    func createSavedStatePackage(in library: VMLibraryController, snapshotName name: String) throws -> VBSavedStatePackage {
+        try library.createSavedStatePackage(for: self, snapshotName: name)
     }
 }
