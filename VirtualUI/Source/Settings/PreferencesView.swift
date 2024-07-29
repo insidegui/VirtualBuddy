@@ -170,6 +170,18 @@ private struct ModernSettingsView: View {
     }
 
     private func confirmDisableBeta() {
+        if AppUpdateChannel.defaultChannel(for: .current) == .beta {
+            /// If beta is disabled while running a beta release, user needs to reinstall release build manually.
+            confirmDisableBetaNeedsReinstall()
+        } else {
+            /// If beta is disabled while running a non-beta release, no further action is needed.
+            settings.updateChannel = .release
+        }
+    }
+
+    /// Shown when user disables beta while running a beta release, which requires reinstalling a release version
+    /// in order to effectivelly get out of the beta train.
+    private func confirmDisableBetaNeedsReinstall() {
         let alert = NSAlert()
         alert.messageText = "Disable VirtualBuddy Beta"
         alert.informativeText = "In order to go back to the release version of VirtualBuddy, please download the latest release from GitHub and replace the current version you have installed."
