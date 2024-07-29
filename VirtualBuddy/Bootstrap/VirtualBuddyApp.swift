@@ -24,6 +24,8 @@ struct VirtualBuddyApp: App {
     @Environment(\.openWindow)
     private var openWindow
 
+    @StateObject private var updatesController = SoftwareUpdateController.shared
+
     private let mainWindowTitle: String = Bundle.main.vbFullVersionDescription
 
     var body: some Scene {
@@ -57,9 +59,9 @@ struct VirtualBuddyApp: App {
         }
         
         Settings {
-            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel)
+            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel, enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled)
                 .environmentObject(settingsContainer)
-                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 370, maxHeight: .infinity)
         }
     }
 }
