@@ -18,6 +18,16 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
 
     private var settings: VBSettings { VBSettingsContainer.current.settings }
 
+    @Published var automaticUpdatesEnabled = true {
+        didSet {
+            #if ENABLE_SPARKLE
+            guard automaticUpdatesEnabled != oldValue else { return }
+
+            updateController.updater.automaticallyChecksForUpdates = automaticUpdatesEnabled
+            #endif
+        }
+    }
+
     #if ENABLE_SPARKLE
     private lazy var updateController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(
@@ -31,6 +41,8 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
     func activate() {
         #if ENABLE_SPARKLE
         updateController.startUpdater()
+        automaticUpdatesEnabled = updateController.updater.automaticallyChecksForUpdates
+        registerForUpdateChannelChanges()
         #endif
     }
 
@@ -43,6 +55,23 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
         alert.informativeText = "This build doesn't include Sparkle updates."
         alert.runModal()
         #endif
+    }
+
+    private func registerForUpdateChannelChanges() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleUpdateChannelChanged),
+            name: VBSettings.updateChannelDidChangeNotification,
+            object: nil
+        )
+    }
+
+    /// Check for updates when switching from release to beta channel.
+    @objc private func handleUpdateChannelChanged(_ note: Notification) {
+        guard let channel = note.object as? AppUpdateChannel else { return }
+        guard channel != .release else { return }
+
+        checkForUpdates(nil)
     }
 
 }

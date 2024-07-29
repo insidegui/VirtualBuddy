@@ -6,14 +6,24 @@
 //
 
 import Foundation
+import OSLog
+
+private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
 
 public struct VBSettings: Hashable {
+
+    public static let updateChannelDidChangeNotification = Notification.Name("VBSettingsUpdateChannelDidChangeNotification")
 
     public static let currentVersion = 3
 
     public var version: Int = Self.currentVersion
     public var libraryURL: URL
-    public var updateChannel: AppUpdateChannel
+    public var updateChannel: AppUpdateChannel {
+        didSet {
+            guard updateChannel != oldValue else { return }
+            NotificationCenter.default.post(name: Self.updateChannelDidChangeNotification, object: updateChannel)
+        }
+    }
 
 }
 
@@ -56,9 +66,24 @@ extension VBSettings {
         }
 
         if let appUpdateChannelID = defaults.string(forKey: Keys.updateChannel) {
-            self.updateChannel = AppUpdateChannel.byID[appUpdateChannelID] ?? .release
+            logger.debug("Found channel \(appUpdateChannelID, privacy: .public) in user defaults")
+
+            let restoredChannel = AppUpdateChannel.channelsByID[appUpdateChannelID] ?? .release
+            let defaultChannel = AppUpdateChannel.defaultChannel(for: .current)
+
+            if restoredChannel == .release, defaultChannel != .release {
+                logger.debug("Settings specify release channel, but current build is for \(defaultChannel, privacy: .public), setting channel to \(defaultChannel, privacy: .public)")
+
+                self.updateChannel = defaultChannel
+            } else {
+                self.updateChannel = restoredChannel
+            }
         } else {
-            self.updateChannel = .release
+            let defaultChannel = AppUpdateChannel.defaultChannel(for: .current)
+
+            logger.debug("No channel set in preferences, using default channel \(defaultChannel, privacy: .public) for build type \(VBBuildType.current, privacy: .public)")
+
+            self.updateChannel = defaultChannel
         }
     }
 
