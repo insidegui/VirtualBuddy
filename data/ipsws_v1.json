@@ -113,10 +113,10 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14.6 RC",
+      "name": "macOS 14.6",
       "build": "23G80",
       "url": "https://updates.cdn-apple.com/2024SummerFCS/fullrestores/052-69922/F5DA2B64-25EB-4370-9E89-FA5689859796/UniversalMac_14.6_23G80_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
