@@ -197,14 +197,14 @@ public final class VMController: ObservableObject {
     }
 
     @available(macOS 14.0, *)
-    public func saveState() async throws {
+    public func saveState(snapshotName name: String) async throws {
         try await updatingState {
             let instance = try ensureInstance()
             let vm = try instance.virtualMachine
 
             state = .savingState(vm)
 
-            let package = try await instance.saveState()
+            let package = try await instance.saveState(snapshotName: name)
 
             state = .stateSaveCompleted(vm, package)
 

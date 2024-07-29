@@ -23,10 +23,10 @@ public extension VMLibraryController {
             .creatingDirectoryIfNeeded()
     }
 
-    func createSavedStatePackage(for model: VBVirtualMachine) throws -> VBSavedStatePackage {
+    func createSavedStatePackage(for model: VBVirtualMachine, snapshotName name: String) throws -> VBSavedStatePackage {
         let baseURL = try model.savedStatesDirectoryURLCreatingIfNeeded(in: self)
 
-        return try VBSavedStatePackage(creatingPackageInDirectoryAt: baseURL, model: model)
+        return try VBSavedStatePackage(creatingPackageInDirectoryAt: baseURL, model: model, snapshotName: name)
     }
 
     func virtualMachine(with uuid: UUID) throws -> VBVirtualMachine {

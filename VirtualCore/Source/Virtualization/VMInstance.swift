@@ -293,7 +293,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
     @available(macOS 14.0, *)
     @discardableResult
-    func saveState() async throws -> VBSavedStatePackage {
+    func saveState(snapshotName name: String) async throws -> VBSavedStatePackage {
         logger.debug(#function)
 
         let vm = try ensureVM()
@@ -315,7 +315,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         logger.debug("VM paused, requesting state save")
 
-        let package = try virtualMachineModel.createSavedStatePackage(in: library)
+        let package = try virtualMachineModel.createSavedStatePackage(in: library, snapshotName: name)
 
         logger.debug("VM state package will be written to \(package.url.path)")
 

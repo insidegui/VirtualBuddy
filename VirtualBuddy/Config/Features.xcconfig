@@ -1,6 +1,10 @@
 // ENABLE_SPARKLE = Enables building with Sparkle for automatic updates
 // ENABLE_USERDEFAULTS_SYNC = Enables the user defaults sync feature
-OTHER_SWIFT_FLAGS = -D ENABLE_SPARKLE
+OTHER_SWIFT_FLAGS = -D ENABLE_SPARKLE $(inherited)
+
+// The BETA flag must be present in all targets, hence why these are here instead of in AppTarget.xcconfig
+OTHER_SWIFT_FLAGS[config=Beta_Debug][sdk=*][arch=*] = -D BETA $(inherited)
+OTHER_SWIFT_FLAGS[config=Beta_Release][sdk=*][arch=*] = -D BETA $(inherited)
 
 VB_SPARKLE_PUBLIC_ED_KEY=dj8ljUPnwoLj/dLs6HyJg5Ayw+t8zWtgjQUfQsH56ww=
 VB_SPARKLE_CHECK_INTERVAL=86400

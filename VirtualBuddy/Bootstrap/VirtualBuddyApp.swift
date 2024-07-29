@@ -24,16 +24,9 @@ struct VirtualBuddyApp: App {
     @Environment(\.openWindow)
     private var openWindow
 
-    private let mainWindowTitle: String = {
-        let appName = "VirtualBuddy"
-        #if BUILDING_DEV_RELEASE
-        return "\(appName) (Dev \(Bundle.main.vbShortVersionString) - \(Bundle.main.vbBuild))"
-        #elseif DEBUG
-        return "\(appName) (Debug)"
-        #else
-        return appName
-        #endif
-    }()
+    @StateObject private var updatesController = SoftwareUpdateController.shared
+
+    private let mainWindowTitle: String = Bundle.main.vbFullVersionDescription
 
     var body: some Scene {
         Window(Text(mainWindowTitle), id: .vb_libraryWindowID) {
@@ -66,9 +59,9 @@ struct VirtualBuddyApp: App {
         }
         
         Settings {
-            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel)
+            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel, enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled)
                 .environmentObject(settingsContainer)
-                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 370, maxHeight: .infinity)
         }
     }
 }
