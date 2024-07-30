@@ -65,6 +65,14 @@
   "restoreImages": [
     {
       "group": "sequoia",
+      "name": "macOS 15.1 Developer Beta 1",
+      "build": "24B5009l",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-47125/381F8D56-0EB1-4EB6-AEF4-04D9BC5D2426/UniversalMac_15.1_24B5009l_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
       "name": "macOS 15.0 Developer Beta 4",
       "build": "24A5298h",
       "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-39288/8A58D88A-ED62-4E46-A406-13F0294EB4F5/UniversalMac_15.0_24A5298h_Restore.ipsw",
@@ -105,10 +113,10 @@
     },
     {
       "group": "sonoma",
-      "name": "macOS 14.6 RC",
+      "name": "macOS 14.6",
       "build": "23G80",
       "url": "https://updates.cdn-apple.com/2024SummerFCS/fullrestores/052-69922/F5DA2B64-25EB-4370-9E89-FA5689859796/UniversalMac_14.6_23G80_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
