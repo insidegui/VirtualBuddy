@@ -47,20 +47,31 @@ public struct VirtualizationFeature: CatalogModel {
 /// Defines an image that can be referenced by other items in the catalog.
 /// Currently used to represent macOS release groups by the corresponding default wallpaper image.
 public struct CatalogGraphic: CatalogModel {
+    public struct Thumbnail: Hashable, Codable, Sendable {
+        public var url: URL
+        public var width: Int
+        public var height: Int
+        public var blurHash: String
+
+        public init(url: URL, width: Int, height: Int, blurHash: String) {
+            self.url = url
+            self.width = width
+            self.height = height
+            self.blurHash = blurHash
+        }
+    }
+
     /// Identifies the graphic, used to reference a graphic from another catalog model.
     public var id: String
     /// URL to the graphic image file, in its highest resolution.
     public var url: URL
-    /// URL to the graphic image file, in a resolution suitable for thumbnails.
-    public var thumbnailURL: URL
-    /// BlurHash representation of the graphic that can be used until the image has been downloaded.
-    public var blurHash: String
+    /// Thumbnail representation of the image, with metadata and blur hash.
+    public var thumbnail: Thumbnail
 
-    public init(id: String, url: URL, thumbnailURL: URL, blurHash: String) {
+    public init(id: String, url: URL, thumbnail: Thumbnail) {
         self.id = id
         self.url = url
-        self.thumbnailURL = thumbnailURL
-        self.blurHash = blurHash
+        self.thumbnail = thumbnail
     }
 }
 
@@ -76,12 +87,15 @@ public struct CatalogGroup: CatalogModel {
     public var majorVersion: SoftwareVersion
     /// The image that can be used to represent this group.
     public var image: CatalogGraphic
+    /// The image that can be used to represent this group when dark mode is enabled.
+    public var darkImage: CatalogGraphic?
 
-    public init(id: String, name: String, majorVersion: SoftwareVersion, image: CatalogGraphic) {
+    public init(id: String, name: String, majorVersion: SoftwareVersion, image: CatalogGraphic, darkImage: CatalogGraphic?) {
         self.id = id
         self.name = name
         self.majorVersion = majorVersion
         self.image = image
+        self.darkImage = darkImage
     }
 }
 
@@ -195,7 +209,6 @@ public extension CatalogGraphic {
     static let placeholder = CatalogGraphic(
         id: "placeholder",
         url: URL(string: "https://example.com")!,
-        thumbnailURL: URL(string: "https://example.com")!,
-        blurHash: "TKTKTK"
+        thumbnail: Thumbnail(url: URL(string: "https://example.com")!, width: 640, height: 360, blurHash: "XXX")
     )
 }
