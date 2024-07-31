@@ -65,7 +65,9 @@ mkdir -p ~/Desktop/VirtualBuddyShared && mount -t virtiofs VirtualBuddyShared ~/
 
 ## Building
 
-**Xcode 14.1** is required.
+**Xcode 16** is required for building on `main`.
+
+If you'd like to build with a previous version of Xcode while Xcode 16 is still in beta, [check out this tag](https://github.com/insidegui/VirtualBuddy/tree/1.6).
 
 - Open the `VirtualBuddy/Config/Signing.xcconfig` file
 - Set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`
