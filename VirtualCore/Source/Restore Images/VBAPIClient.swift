@@ -7,8 +7,11 @@
 
 import Foundation
 import VirtualCatalog
+import OSLog
 
 public final class VBAPIClient {
+
+    private let logger = Logger(for: VBAPIClient.self)
 
     public struct Environment: Hashable {
         public var baseURL: URL
@@ -70,9 +73,44 @@ public final class VBAPIClient {
         return URLRequest(url: components.url!)
     }
 
+    private let decoder = JSONDecoder()
+
     @MainActor
     public func fetchRestoreImages(for guest: VBGuestType) async throws -> SoftwareCatalog {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview, !UserDefaults.standard.bool(forKey: "VBForceBuiltInSoftwareCatalog") else {
+            logger.debug("Forcing built-in catalog")
+            return try fetchBuiltInCatalog(for: guest)
+        }
+        #endif
+
+        do {
+            let remoteCatalog = try await fetchRemoteCatalog(for: guest)
+
+            logger.debug("Fetched remote catalog with \(remoteCatalog.restoreImages.count, privacy: .public) restore images")
+
+            return remoteCatalog
+        } catch {
+            logger.error("Remote catalog fetch failed: \(error, privacy: .public), using local fallback")
+
+            do {
+                let builtInCatalog = try fetchBuiltInCatalog(for: guest)
+
+                logger.debug("Fetched built-in catalog with \(builtInCatalog.restoreImages.count, privacy: .public) restore images")
+
+                return builtInCatalog
+            } catch {
+                logger.fault("Built-in catalog load failed: \(error, privacy: .public)")
+                assertionFailure("Built-in catalog load failed: \(error)")
+                throw error
+            }
+        }
+    }
+
+    func fetchRemoteCatalog(for guest: VBGuestType) async throws -> SoftwareCatalog {
         let req = request(for: guest.restoreImagesAPIPath)
+
+        logger.debug("Fetching remote catalog from \(req.url?.host() ?? "<nil>")")
 
         let (data, res) = try await URLSession.shared.data(for: req)
 
@@ -82,9 +120,26 @@ public final class VBAPIClient {
             throw Failure("HTTP \(code)")
         }
 
-        let response = try JSONDecoder().decode(SoftwareCatalog.self, from: data)
+        let response = try decoder.decode(SoftwareCatalog.self, from: data)
 
         return response
+    }
+
+    func fetchBuiltInCatalog(for guest: VBGuestType) throws -> SoftwareCatalog {
+        let fileName = switch guest {
+        case .mac:
+            "ipsws_v2"
+        case .linux:
+            "linux_v2"
+        }
+
+        guard let url = Bundle.virtualCore.url(forResource: fileName, withExtension: "json", subdirectory: "SoftwareCatalog") else {
+            throw Failure("\(fileName) not found in VirtualCore SoftwareCatalog resources")
+        }
+
+        let data = try Data(contentsOf: url)
+
+        return try decoder.decode(SoftwareCatalog.self, from: data)
     }
 
 }
