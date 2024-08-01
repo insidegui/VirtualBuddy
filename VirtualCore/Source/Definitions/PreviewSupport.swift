@@ -2,6 +2,7 @@
 
 import Foundation
 import Virtualization
+import VirtualCatalog
 
 let previewLibraryDirName = "PreviewLibrary"
 
@@ -123,6 +124,22 @@ public extension VZVirtualMachine {
         return VZVirtualMachine(configuration: config)
     }()
 }
+
+public extension SoftwareCatalog {
+    static let previewMac = try! VBAPIClient().fetchBuiltInCatalog(for: .mac)
+    static let previewLinux = try! VBAPIClient().fetchBuiltInCatalog(for: .linux)
+}
+
+public extension ResolvedCatalog {
+    static let previewMac = try! ResolvedCatalog(environment: .current.guest(platform: .mac), catalog: .previewMac)
+    static let previewLinux = try! ResolvedCatalog(environment: .current.guest(platform: .linux), catalog: .previewLinux)
+}
+
+public extension ResolvedCatalogGroup {
+    static let previewMac = ResolvedCatalog.previewMac.groups[0]
+    static let previewLinux = ResolvedCatalog.previewLinux.groups[0]
+}
+
 #else
 public extension ProcessInfo {
 

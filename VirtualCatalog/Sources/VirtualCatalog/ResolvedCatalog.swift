@@ -17,6 +17,7 @@ public struct ResolvedCatalogGroup: ResolvedCatalogModel {
     public var name: String { group.name }
     public var majorVersion: SoftwareVersion { group.majorVersion }
     public var image: CatalogGraphic { group.image }
+    public var darkImage: CatalogGraphic { group.darkImage ?? group.image }
 }
 
 public struct ResolvedRestoreImage: ResolvedCatalogModel {

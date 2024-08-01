@@ -113,6 +113,12 @@
 		F4727A972C5AB6760013C14A /* VirtualCatalog in Frameworks */ = {isa = PBXBuildFile; productRef = F4727A962C5AB6760013C14A /* VirtualCatalog */; };
 		F47BCDA12C5BE8FF00165191 /* ipsws_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F47BCDA22C5BE8FF00165191 /* linux_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCDA02C5BE8EF00165191 /* linux_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */; };
+		F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */; };
+		F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */; };
+		F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */; };
+		F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */; };
+		F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */; };
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
@@ -510,6 +516,12 @@
 		F4727A952C5AB5770013C14A /* VirtualCatalog */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = VirtualCatalog; sourceTree = "<group>"; };
 		F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ipsws_v2.json; path = data/ipsws_v2.json; sourceTree = SOURCE_ROOT; };
 		F47BCDA02C5BE8EF00165191 /* linux_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = linux_v2.json; path = data/linux_v2.json; sourceTree = SOURCE_ROOT; };
+		F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoding.swift; sourceTree = "<group>"; };
+		F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
+		F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupView.swift; sourceTree = "<group>"; };
+		F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupPicker.swift; sourceTree = "<group>"; };
+		F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
+		F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Navigation.swift"; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
@@ -805,6 +817,7 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCDC92C5C01C600165191 /* RemoteImage */,
 				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
 				F48E0D26288883150080DDFA /* HostingWindowController */,
 				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
@@ -814,6 +827,8 @@
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
 				F42C014B2888C34B00EB15CD /* LogConsole.swift */,
 				F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */,
+				F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */,
+				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1059,6 +1074,15 @@
 			name = SoftwareCatalog;
 			sourceTree = "<group>";
 		};
+		F47BCDC92C5C01C600165191 /* RemoteImage */ = {
+			isa = PBXGroup;
+			children = (
+				F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */,
+				F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */,
+			);
+			path = RemoteImage;
+			sourceTree = "<group>";
+		};
 		F48E0D0828885E510080DDFA /* Preview */ = {
 			isa = PBXGroup;
 			children = (
@@ -1087,6 +1111,8 @@
 				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
 				F42C01492888C2F800EB15CD /* InstallationConsole.swift */,
 				F4561A6728981B4100055289 /* VirtualMachineNameField.swift */,
+				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
+				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2019,6 +2045,7 @@
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
+				F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
@@ -2038,6 +2065,7 @@
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
 				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
+				F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */,
 				F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */,
@@ -2051,6 +2079,7 @@
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
 				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
+				F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
 				F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */,
 				F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */,
@@ -2063,6 +2092,7 @@
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
 				F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */,
 				F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */,
+				F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */,
 				F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */,
 				F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */,
 				F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */,
@@ -2083,8 +2113,10 @@
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
+				F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */,
 				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
 				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
+				F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */,
 				F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,

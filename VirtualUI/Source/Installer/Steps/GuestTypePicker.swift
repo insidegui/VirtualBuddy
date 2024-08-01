@@ -25,19 +25,9 @@ struct GuestTypePicker: View {
 
     @Binding var selection: VBGuestType
 
-    @FocusState private var isFocused: Bool
+    private var previousMethod: VBGuestType? { VBGuestType.allCases.previous(from: selection) }
 
-    private var selectionIndex: Int { VBGuestType.allCases.firstIndex(of: selection) ?? 0 }
-
-    private var previousMethod: VBGuestType? {
-        guard selectionIndex > 0 else { return nil }
-        return VBGuestType.allCases[selectionIndex - 1]
-    }
-
-    private var nextMethod: VBGuestType? {
-        guard selectionIndex < VBGuestType.allCases.count - 1 else { return nil }
-        return VBGuestType.allCases[selectionIndex + 1]
-    }
+    private var nextMethod: VBGuestType? { VBGuestType.allCases.next(from: selection) }
 
     var body: some View {
         HStack(spacing: 16) {
@@ -59,25 +49,14 @@ struct GuestTypePicker: View {
                 }
             } label: { }
         }
-        .overlay {
-            /// Horrible hack to hide the focus ring while still allowing for keyboard navigation.
-            Rectangle()
-                .frame(width: 0, height: 0)
-                .opacity(0)
-                .focusable(true)
-                .focused($isFocused)
-                .onMoveCommand { direction in
-                    if direction == .right {
-                        guard let nextMethod else { return }
-                        selection = nextMethod
-                    } else if direction == .left {
-                        guard let previousMethod else { return }
-                        selection = previousMethod
-                    }
-                }
-        }
-        .onAppearOnce {
-            isFocused = true
+        .keyboardNavigation { direction in
+            if direction == .right {
+                guard let nextMethod else { return }
+                selection = nextMethod
+            } else if direction == .left {
+                guard let previousMethod else { return }
+                selection = previousMethod
+            }
         }
     }
 
