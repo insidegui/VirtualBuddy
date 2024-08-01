@@ -27,8 +27,19 @@ final class RestoreImagePickerController: ObservableObject {
     func loadRestoreImageOptions(for guest: VBGuestType) {
         Task {
             do {
-                let images = try await api.fetchRestoreImages(for: guest)
-                
+                let catalog = try await api.fetchRestoreImages(for: guest)
+                let platform: CatalogGuestPlatform = guest == .linux ? .linux : .mac
+                let resolved = try ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
+
+                /// Map to legacy format while new UI is not yet implemented.
+                let images = resolved.groups.flatMap {
+                    let group = VBGuestReleaseGroup(id: $0.group.id, name: $0.group.name, majorVersion: $0.group.majorVersion, minHostVersion: .empty)
+                    return $0.restoreImages.map {
+                        let channel = VBGuestReleaseChannel(id: $0.channel.id, name: $0.channel.name, note: $0.channel.note, icon: $0.channel.icon, authentication: nil)
+                        return VBRestoreImageInfo(group: group, channel: channel, name: $0.image.name, build: $0.image.build, url: $0.image.url, needsCookie: false)
+                    }
+                }
+
                 await MainActor.run {
                     self.restoreImageOptions = images
                 }

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import VirtualCatalog
 
 public final class VBAPIClient {
 
@@ -15,18 +16,18 @@ public final class VBAPIClient {
 
         #if DEBUG
         public static let local = Environment(
-            baseURL: URL(string: "https://virtualbuddy.ngrok.io")!,
+            baseURL: URL(string: "https://virtualbuddy.ngrok.io/v2")!,
             apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
         )
 
         public static let development = Environment(
-            baseURL: URL(string: "https://virtualbuddy-api-dev.bestbuddyapps3496.workers.dev")!,
+            baseURL: URL(string: "https://virtualbuddy-api-dev.bestbuddyapps3496.workers.dev/v2")!,
             apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
         )
         #endif
 
         public static let production = Environment(
-            baseURL: URL(string: "https://api.virtualbuddy.app")!,
+            baseURL: URL(string: "https://api.virtualbuddy.app/v2")!,
             apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
         )
 
@@ -70,7 +71,7 @@ public final class VBAPIClient {
     }
 
     @MainActor
-    public func fetchRestoreImages(for guest: VBGuestType) async throws -> [VBRestoreImageInfo] {
+    public func fetchRestoreImages(for guest: VBGuestType) async throws -> SoftwareCatalog {
         let req = request(for: guest.restoreImagesAPIPath)
 
         let (data, res) = try await URLSession.shared.data(for: req)
@@ -81,9 +82,9 @@ public final class VBAPIClient {
             throw Failure("HTTP \(code)")
         }
 
-        let response = try JSONDecoder().decode(VBRestoreImagesResponse.self, from: data)
+        let response = try JSONDecoder().decode(SoftwareCatalog.self, from: data)
 
-        return response.images
+        return response
     }
 
 }
