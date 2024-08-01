@@ -43,6 +43,16 @@ public extension SoftwareVersion {
 
 }
 
+public extension SoftwareVersion {
+    /// A description that looks more like what a user would expect to see.
+    /// Ex: `14.0.0` becomes `14`, `15.1.0` becomes `15.1`.
+    var shortDescription: String {
+        guard patch == 0 else { return stringRepresentation }
+        guard minor == 0 else { return String(format: "%d.%d", major, minor) }
+        return String(format: "%d", major)
+    }
+}
+
 extension SoftwareVersion {
     public var description: String { stringRepresentation }
     private var stringRepresentation: String { String(format: "%d.%d.%d", major, minor, patch) }

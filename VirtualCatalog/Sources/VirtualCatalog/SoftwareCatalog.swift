@@ -34,13 +34,20 @@ public struct VirtualizationFeature: CatalogModel {
     public var name: String
     /// Additional information displayed when the feature is not supported by the current configuration.
     public var detail: String?
+    /// `true` if this feature is not supported due to the guest's platform (ex:  a feature that only works on Mac and not Linux).
+    public var unsupportedPlatform: Bool
 
-    public init(id: String, minVersionGuest: SoftwareVersion, minVersionHost: SoftwareVersion, name: String, detail: String? = nil) {
+    public init(id: String, minVersionGuest: SoftwareVersion, minVersionHost: SoftwareVersion, name: String, detail: String? = nil, unsupportedPlatform: Bool = false) {
         self.id = id
         self.minVersionGuest = minVersionGuest
         self.minVersionHost = minVersionHost
         self.name = name
         self.detail = detail
+        self.unsupportedPlatform = unsupportedPlatform
+    }
+
+    public enum CodingKeys: String, CodingKey {
+        case id, minVersionGuest, minVersionHost, name, detail, unsupportedPlatform
     }
 }
 
@@ -211,4 +218,18 @@ public extension CatalogGraphic {
         url: URL(string: "https://example.com")!,
         thumbnail: Thumbnail(url: URL(string: "https://example.com")!, width: 640, height: 360, blurHash: "XXX")
     )
+}
+
+// MARK: - Custom Codable Conformances
+
+public extension VirtualizationFeature {
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.minVersionGuest = try container.decode(SoftwareVersion.self, forKey: .minVersionGuest)
+        self.minVersionHost = try container.decode(SoftwareVersion.self, forKey: .minVersionHost)
+        self.name = try container.decode(String.self, forKey: .name)
+        self.detail = try container.decodeIfPresent(String.self, forKey: .detail)
+        self.unsupportedPlatform = (try? container.decodeIfPresent(Bool.self, forKey: .unsupportedPlatform)) ?? false
+    }
 }

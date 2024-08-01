@@ -9,7 +9,8 @@ struct VCTool: ParsableCommand {
         commandName: "vctool",
         abstract: "Tools for interacting with the VirtualBuddy software catalog.",
         subcommands: [
-            GroupCommand.self
+            GroupCommand.self,
+            ResolveCommand.self
         ]
     )
 }
@@ -141,6 +142,94 @@ struct GroupCommand: ParsableCommand {
             catalog.groups.insert(group, at: 0)
 
             try catalog.write(to: catalogURL)
+        }
+    }
+}
+
+// MARK: - Resolve Command
+
+struct ResolveCommand: ParsableCommand {
+    static let configuration = CommandConfiguration(
+        commandName: "resolve",
+        abstract: "Resolves a VirtualBuddy restore image catalog for the current host environment or a custom environment"
+    )
+
+    @Option(name: [.short, .long], help: "Path to the catalog JSON file")
+    var input: String
+
+    @Option(help: "Custom host version")
+    var host: SoftwareVersion?
+
+    @Option(help: "Custom MobileDevice version")
+    var mobileDevice: SoftwareVersion?
+
+    @Flag(help: "Specify guest platform")
+    var guestPlatform: CatalogGuestPlatform = .mac
+
+    @Option(help: "Show results for a specific build")
+    var build: String?
+
+    func run() throws {
+        let url = try input.resolvedURL.ensureExistingFile()
+
+        let catalog = try SoftwareCatalog(contentsOf: url)
+
+        var env = CatalogResolutionEnvironment.current
+        if let host {
+            env.hostVersion = host
+        }
+        if let mobileDevice {
+            env.mobileDeviceVersion = mobileDevice
+        }
+        env.guestPlatform = guestPlatform
+
+        let resolved = try ResolvedCatalog(environment: env, catalog: catalog)
+
+        if let build {
+            guard let targetImage = resolved.groups.flatMap(\.restoreImages).first(where: { $0.image.build == build }) else {
+                throw "Build not found: \(build)"
+            }
+            printResult(for: targetImage)
+        } else {
+            for group in resolved.groups {
+                print("## \(group.name)")
+                print()
+
+                for resolvedImage in group.restoreImages {
+                    printResult(for: resolvedImage)
+                }
+            }
+        }
+    }
+
+    func printResult(for resolvedImage: ResolvedRestoreImage) {
+        let image = resolvedImage.image
+
+        print("### \(image.name) (\(image.build))")
+        print("  - Guest: \(resolvedImage.status.cliDescription)")
+        print("  - Host: \(resolvedImage.requirements.status.cliDescription)")
+        print("  - Features:")
+        for feature in resolvedImage.features {
+            print("    - \(feature.feature.name)")
+            print("      - \(feature.status.cliDescription)")
+        }
+        print()
+    }
+}
+
+// MARK: - Utilities
+
+extension CatalogGuestPlatform: @retroactive EnumerableFlag { }
+
+extension ResolvedFeatureStatus {
+    var cliDescription: String {
+        switch self {
+        case .supported:
+            return "✅ Supported"
+        case .warning(let message):
+            return "⚠️ Warning: \(message)"
+        case .unsupported(let message):
+            return "🛑 Not Supported: \(message)"
         }
     }
 }

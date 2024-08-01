@@ -65,6 +65,38 @@ public struct ResolvedRequirementSet: ResolvedCatalogModel {
 
 // MARK: - Catalog Resolution
 
+/// Represents a guest platform such as Mac or Linux.
+/// Not an enum just in case more platforms are added in the future (iOS? 🤞🏻)
+public struct CatalogGuestPlatform: ResolvedCatalogModel, RawRepresentable, CaseIterable, CustomStringConvertible {
+    public typealias RawValue = String
+    public var rawValue: String { id }
+
+    public var id: String
+    public var name: String
+
+    public static let mac = CatalogGuestPlatform(id: "mac", name: "Mac")
+    public static let linux = CatalogGuestPlatform(id: "linux", name: "Linux")
+    public static let unknown = CatalogGuestPlatform(id: "_unknown", name: "Unknown")
+
+    public static let allCases: [CatalogGuestPlatform] = [.mac, .linux]
+
+    public init(rawValue: String) {
+        if let platform = Self.allCases.first(where: { $0.rawValue.caseInsensitiveCompare(rawValue) == .orderedSame }) {
+            self = platform
+        } else {
+            assertionFailure("Unsupported platform \"\(rawValue)\"")
+            self = .unknown
+        }
+    }
+
+    init(id: String, name: String) {
+        self.id = id
+        self.name = name
+    }
+
+    public var description: String { id }
+}
+
 /// Properties used when resolving a catalog for a given environment.
 /// These are used to assess the support status for different features/requirements.
 public struct CatalogResolutionEnvironment: Sendable {
@@ -72,6 +104,8 @@ public struct CatalogResolutionEnvironment: Sendable {
     public var hostVersion: SoftwareVersion
     /// The guest OS version.
     public var guestVersion: SoftwareVersion
+    /// The guest OS platform.
+    public var guestPlatform: CatalogGuestPlatform
     /// The version of the host app.
     public var appVersion: SoftwareVersion
     /// The version of the MobileDevice framework on the host.
@@ -85,9 +119,10 @@ public struct CatalogResolutionEnvironment: Sendable {
     /// in which case the requirement set will be considered as satistied.
     public var memorySizeMB: Int?
 
-    public init(hostVersion: SoftwareVersion, guestVersion: SoftwareVersion, appVersion: SoftwareVersion, mobileDeviceVersion: SoftwareVersion, cpuCoreCount: Int? = nil, memorySizeMB: Int? = nil) {
+    public init(hostVersion: SoftwareVersion, guestVersion: SoftwareVersion, guestPlatform: CatalogGuestPlatform, appVersion: SoftwareVersion, mobileDeviceVersion: SoftwareVersion, cpuCoreCount: Int? = nil, memorySizeMB: Int? = nil) {
         self.hostVersion = hostVersion
         self.guestVersion = guestVersion
+        self.guestPlatform = guestPlatform
         self.appVersion = appVersion
         self.mobileDeviceVersion = mobileDeviceVersion
         self.cpuCoreCount = cpuCoreCount
@@ -120,7 +155,7 @@ public extension ResolvedRestoreImage {
 
     mutating func update(with environment: CatalogResolutionEnvironment) {
         /// Adds the guest OS version to the environment so that features/requirements that depend on it get the correct status.
-        let versionedEnvironment = environment.guest(image.version)
+        let versionedEnvironment = environment.guest(version: image.version)
 
         if versionedEnvironment.mobileDeviceVersion < image.mobileDeviceMinVersion {
             self.status = .mobileDeviceOutdated
@@ -134,6 +169,11 @@ public extension ResolvedRestoreImage {
 
 public extension ResolvedVirtualizationFeature {
     mutating func update(with environment: CatalogResolutionEnvironment) {
+        guard !feature.unsupportedPlatform else {
+            self.status = .unsupportedGuestPlatform(feature, platform: environment.guestPlatform)
+            return
+        }
+
         guard environment.hostVersion >= self.feature.minVersionHost else {
             self.status = .unsupportedHost(feature)
             return
@@ -174,15 +214,19 @@ extension ResolvedFeatureStatus {
     }
 
     static func unsupportedHost(_ feature: VirtualizationFeature) -> Self {
-        .unsupported("\(feature.name) requires the host to be running macOS \(feature.minVersionHost) or later.", feature.detail)
+        .unsupported("\(feature.name) requires the host to be running macOS \(feature.minVersionHost.shortDescription) or later.", feature.detail)
     }
 
     static func unsupportedGuest(_ feature: VirtualizationFeature) -> Self {
-        .unsupported("\(feature.name) only works in virtual machines running macOS \(feature.minVersionHost) or later.", feature.detail)
+        .unsupported("\(feature.name) only works in virtual machines running macOS \(feature.minVersionHost.shortDescription) or later.", feature.detail)
+    }
+
+    static func unsupportedGuestPlatform(_ feature: VirtualizationFeature, platform: CatalogGuestPlatform) -> Self {
+        .unsupported("\(feature.name) is not available on \(platform.name) guests.", feature.detail)
     }
 
     static func unsupportedHost(_ requirements: RequirementSet) -> Self {
-        .unsupported("This version of macOS requires the host to be running macOS \(requirements.minVersionHost) or later.")
+        .unsupported("This version of macOS requires the host to be running macOS \(requirements.minVersionHost.shortDescription) or later.")
     }
 
     static var mobileDeviceOutdated: Self {
@@ -224,12 +268,26 @@ public extension CatalogResolutionEnvironment {
         CatalogResolutionEnvironment(
             hostVersion: .currentHost,
             guestVersion: .currentHost,
+            guestPlatform: .mac,
             appVersion: .init(major: 2, minor: 0, patch: 0),
             mobileDeviceVersion: MobileDeviceFramework.current?.version ?? .init(major: 0, minor: 0, patch: 0)
         )
     }()
 
-    func guest(_ version: SoftwareVersion) -> Self {
+    func guest(platform: CatalogGuestPlatform, version: SoftwareVersion) -> Self {
+        var mSelf = self
+        mSelf.guestPlatform = platform
+        mSelf.guestVersion = version
+        return mSelf
+    }
+
+    func guest(platform: CatalogGuestPlatform) -> Self {
+        var mSelf = self
+        mSelf.guestPlatform = platform
+        return mSelf
+    }
+
+    func guest(version: SoftwareVersion) -> Self {
         var mSelf = self
         mSelf.guestVersion = version
         return mSelf

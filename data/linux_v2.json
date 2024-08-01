@@ -1,0 +1,116 @@
+{
+  "requirementSets" : [
+    {
+      "minCPUCount" : 1,
+      "id" : "min_host_13",
+      "minVersionHost" : "13.0.0",
+      "minMemorySizeMB" : 1024
+    }
+  ],
+  "restoreImages" : [
+    {
+      "id" : "22.04.3 LTS",
+      "url" : "https://cdimage.ubuntu.com/jammy/daily-live/current/jammy-desktop-arm64.iso",
+      "name" : "Jammy Jellyfish Daily Build",
+      "version" : "22.04.3",
+      "group" : "ubuntu",
+      "channel" : "daily",
+      "requirements" : "min_host_13",
+      "build" : "22.04.3 LTS",
+      "mobileDeviceMinVersion" : "0.0.0"
+    }
+  ],
+  "groups" : [
+    {
+      "id" : "ubuntu",
+      "name" : "Ubuntu",
+      "majorVersion" : "22.0.0",
+      "image" : {
+        "id" : "sequoia",
+        "url" : "https://api.virtualbuddy.app/v2/images/sequoia.heic",
+        "thumbnail" : {
+          "url" : "https://api.virtualbuddy.app/v2/images/sequoia-thumbnail.heic",
+          "width" : 720,
+          "height" : 399,
+          "blurHash" : "egK9[+5Y0:}iNe-S=rI^SixW$JoIwbNfOYocn$NeWXNfShfkS5S5WX"
+        }
+      },
+      "darkImage" : {
+        "id" : "sequoia",
+        "thumbnail" : {
+          "height" : 399,
+          "width" : 720,
+          "blurHash" : "eN86q8M1Hbyya7t-g$MpnTx,b;k9X8Vgr?osbHenWEeYoGj@aNaPah",
+          "url" : "https://api.virtualbuddy.app/v2/images/sequoia-dark-thumbnail.heic"
+        },
+        "url" : "https://api.virtualbuddy.app/v2/images/sequoia-dark.heic"
+      }
+    }
+    ],
+  "minAppVersion" : "2.0.0",
+  "channels" : [
+    {
+      "icon" : "checkmark.seal",
+      "note" : "Public, stable releases.",
+      "name" : "Release",
+      "id" : "regular"
+    },
+    {
+      "id" : "daily",
+      "note" : "Daily builds meant for testing.",
+            "name" : "Daily",
+      "icon" : "wrench.and.screwdriver"
+    }
+  ],
+  "apiVersion" : 2,
+  "features" : [
+    {
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "id" : "file_sharing",
+      "name" : "File sharing",
+            "unsupportedPlatform": true
+        },
+    {
+      "id" : "guest_app",
+      "name" : "VirtualBuddyGuest app",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+            "unsupportedPlatform": true
+        },
+    {
+      "name" : "Trackpad",
+      "minVersionHost" : "0.0.0",
+      "id" : "trackpad",
+      "minVersionGuest" : "0.0.0",
+            "unsupportedPlatform": true
+        },
+    {
+      "minVersionHost" : "0.0.0",
+      "minVersionGuest" : "0.0.0",
+      "name" : "Mac keyboard",
+      "id" : "mac_keyboard",
+            "unsupportedPlatform": true
+        },
+    {
+      "minVersionGuest" : "0.0.0",
+      "id" : "state_restoration",
+      "minVersionHost" : "0.0.0",
+      "name" : "State restoration",
+            "unsupportedPlatform": true
+        },
+    {
+      "minVersionHost" : "0.0.0",
+      "id" : "display_resize",
+      "name" : "Automatic display configuration",
+      "minVersionGuest" : "0.0.0",
+            "unsupportedPlatform": true
+        },
+        {
+            "minVersionHost": "14.0.0",
+            "id": "rosetta_sharing",
+            "name": "Rosetta Sharing",
+            "minVersionGuest": "0.0.0"
+        }
+    ]
+}
