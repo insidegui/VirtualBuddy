@@ -98,14 +98,14 @@ struct GroupCommand: ParsableCommand {
             guard let thumbnailImage = NSImage(contentsOf: localThumbnailURL) else {
                 throw "Failed to load generated thumbnail image from \(localThumbnailURL.path)"
             }
-            guard let blurHash = thumbnailImage.blurHash(numberOfComponents: (5, 5)) else {
+            guard let blurHash = thumbnailImage.blurHash(numberOfComponents: (4, 4)) else {
                 throw "Failed to generate blur hash from generated thumbnail image at \(localThumbnailURL.path)"
             }
 
             guard let darkThumbnailImage = NSImage(contentsOf: localDarkThumbnailURL) else {
                 throw "Failed to load generated thumbnail dark image from \(localDarkThumbnailURL.path)"
             }
-            guard let darkBlurHash = darkThumbnailImage.blurHash(numberOfComponents: (5, 5)) else {
+            guard let darkBlurHash = darkThumbnailImage.blurHash(numberOfComponents: (4, 4)) else {
                 throw "Failed to generate blur hash from generated dark thumbnail image at \(localDarkThumbnailURL.path)"
             }
 

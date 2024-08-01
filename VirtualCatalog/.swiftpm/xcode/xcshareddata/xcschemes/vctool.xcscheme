@@ -64,7 +64,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "sequoia"
+            argument = "jammyjellyfish"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -72,7 +72,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "&quot;macOS Sequoia&quot;"
+            argument = "&quot;Ubuntu Jammy Jellyfish&quot;"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -80,7 +80,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "15"
+            argument = "22"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -88,7 +88,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "~/Downloads/sequoia.png"
+            argument = "~/Downloads/ubuntu-jammyjellyfish.heic"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -96,7 +96,7 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "~/Downloads/softwarecatalog/ipsws_v2.json"
+            argument = "~/Downloads/softwarecatalog/linux_v2.json"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
@@ -112,7 +112,11 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "~/Developer/_projects/VirtualBuddy/data/ipsws_v2.json"
+            argument = "~/Developer/_projects/VirtualBuddy/data/linux_v2.json"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--linux"
             isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
