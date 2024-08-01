@@ -113,6 +113,27 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    init(library: VMLibraryController, restoringAt restoreURL: URL?) {
+        self.library = library
+        /// Skip OS selection if there's only a single supported OS.
+        step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
+
+        if let restoreURL {
+            restoreInstallation(with: restoreURL)
+        }
+    }
+
+    private func restoreInstallation(with url: URL) {
+        do {
+            let vm = try VBVirtualMachine(bundleURL: url)
+
+            restoreInstallation(with: vm)
+        } catch {
+            assertionFailure("Couldn't restore install: \(error)")
+            NSAlert(error: error).runModal()
+        }
+    }
+
     private func restoreInstallation(with vm: VBVirtualMachine) {
         do {
             guard let restoreData = vm.installRestoreData else {
@@ -155,7 +176,7 @@ final class VMInstallationViewModel: ObservableObject {
     func goNext() {
         switch step {
             case .systemType:
-                step = .installKind
+                step = .restoreImageSelection
             case .installKind:
                 commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:

@@ -15,76 +15,84 @@ public struct VMInstallationWizard: View {
 
     @Environment(\.closeWindow) var closeWindow
 
-    public init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine? = nil) {
+    public init(library: VMLibraryController, restoringAt restoreURL: URL? = nil) {
         self._library = .init(initialValue: library)
-        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoring: restoreVM))
+        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoringAt: restoreURL))
     }
 
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
 
     public var body: some View {
-        VStack {
-            switch viewModel.step {
-                case .systemType:
-                    guestSystemTypeSelection
-                case .installKind:
-                    installKindSelection
-                case .restoreImageInput:
-                    restoreImageURLInput
-                case .restoreImageSelection:
-                    restoreImageSelection
-                case .configuration:
-                    configureVM
-                case .name:
-                    renameVM
-                case .download:
-                    downloadView
-                case .install:
-                    installProgress
-                case .done:
-                    finishingLine
-            }
+        NavigationStack {
+            VStack {
+                switch viewModel.step {
+                    case .systemType:
+                        guestSystemTypeSelection
+                            .navigationSubtitle(Text("Choose Operating System"))
+                    case .installKind:
+                        installKindSelection
+                    case .restoreImageInput:
+                        restoreImageURLInput
+                    case .restoreImageSelection:
+                        restoreImageSelection
+                            .navigationSubtitle(Text(viewModel.selectedSystemType.restoreImagePickerPrompt))
+                    case .configuration:
+                        configureVM
+                    case .name:
+                        renameVM
+                    case .download:
+                        downloadView
+                    case .install:
+                        installProgress
+                    case .done:
+                        finishingLine
+                }
 
-            if viewModel.showNextButton {
-                Spacer()
-
-                Button(viewModel.buttonTitle, action: {
-                    if viewModel.step == .done {
-                        library.loadMachines()
-                        closeWindow()
-                    } else {
-                        viewModel.goNext()
-                    }
-                })
-                    .controlSize(.large)
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(viewModel.disableNextButton)
+                if viewModel.showNextButton {
+                    Spacer()
+                }
             }
+            .padding()
+            .onReceive(stepValidationStateChanged) { isValid in
+                viewModel.disableNextButton = !isValid
+            }
+            .navigationTitle(Text("Virtual Machine Setup"))
         }
-        .padding(viewModel.step != .configuration ? 16 : 0)
-        .padding(.horizontal, viewModel.step != .configuration ? 36 : 0)
-        .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
-        .windowTitleHidden(true)
-        .windowTitleBarTransparent(true)
-        .windowTitle("New Virtual Machine")
-        .confirmBeforeClosingWindow { [weak viewModel] in
-            await viewModel?.confirmBeforeClosing() ?? true
+        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
+        .toolbar {
+            Text("").hidden()
         }
-        .onReceive(stepValidationStateChanged) { isValid in
-            viewModel.disableNextButton = !isValid
+    }
+    @ViewBuilder
+    private var bottomBar: some View {
+        HStack {
+            Spacer()
+
+            nextButton
         }
-        .edgesIgnoringSafeArea(.top)
-        .frame(minWidth: 470)
+        .padding()
+        .background(Material.bar)
+        .overlay(alignment: .top) { Divider() }
+    }
+
+    @ViewBuilder
+    private var nextButton: some View {
+        Button(viewModel.buttonTitle, action: {
+            if viewModel.step == .done {
+                library.loadMachines()
+                closeWindow()
+            } else {
+                viewModel.goNext()
+            }
+        })
+            .controlSize(.large)
+            .keyboardShortcut(.defaultAction)
+            .disabled(viewModel.disableNextButton)
     }
 
     @ViewBuilder
     private var guestSystemTypeSelection: some View {
-        VStack {
-            InstallationWizardTitle("Select an Operating System")
-
-            GuestTypePicker(selection: $viewModel.selectedSystemType)
-        }
-        .frame(minWidth: 400, minHeight: 360)
+        GuestTypePicker(selection: $viewModel.selectedSystemType)
     }
 
     @ViewBuilder
@@ -112,18 +120,14 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var restoreImageSelection: some View {
-        VStack {
-            InstallationWizardTitle(viewModel.selectedSystemType.restoreImagePickerPrompt)
-            
-            RestoreImagePicker(
-                library: library,
-                selection: $viewModel.data.restoreImageInfo,
-                guestType: viewModel.selectedSystemType,
-                validationChanged: stepValidationStateChanged,
-                onUseLocalFile: { localURL in
-                    viewModel.continueWithLocalFile(at: localURL)
-                })
-        }
+        RestoreImagePicker(
+            library: library,
+            selection: $viewModel.data.restoreImageInfo,
+            guestType: viewModel.selectedSystemType,
+            validationChanged: stepValidationStateChanged,
+            onUseLocalFile: { localURL in
+                viewModel.continueWithLocalFile(at: localURL)
+            })
     }
     
     @ViewBuilder

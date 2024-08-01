@@ -81,7 +81,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
         switch choice {
         case .alertFirstButtonReturn:
-            launchInstallWizard(restoring: vm, library: library)
+            launchInstallWizard(restoringAt: vm.bundleURL, library: library)
         case .alertSecondButtonReturn:
             library.performMoveToTrash(for: vm)
         default:
@@ -90,9 +90,9 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     }
 
     @MainActor
-    public func launchInstallWizard(restoring restoreVM: VBVirtualMachine? = nil, library: VMLibraryController) {
+    public func launchInstallWizard(restoringAt restoreURL: URL? = nil, library: VMLibraryController) {
         openWindow {
-            VMInstallationWizard(library: library, restoring: restoreVM)
+            VMInstallationWizard(library: library, restoringAt: restoreURL)
                 .environmentObject(library)
         }
     }
