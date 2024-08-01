@@ -76,7 +76,7 @@ final class VMScreenshotter {
 
 }
 
-extension NSImage: @unchecked Sendable { }
+extension NSImage: @retroactive @unchecked Sendable { }
 
 // MARK: - Screenshot Taking
 

@@ -130,4 +130,4 @@ public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore 
     private let decoder = PropertyListDecoder()
 }
 
-extension UserDefaults: @unchecked Sendable { }
+extension UserDefaults: @retroactive @unchecked Sendable { }
