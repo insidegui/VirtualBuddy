@@ -120,6 +120,7 @@
 		F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */; };
 		F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */; };
 		F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */; };
+		F47BCDD92C5D2EE300165191 /* RestoreImageBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */; };
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
@@ -524,6 +525,7 @@
 		F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
 		F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Navigation.swift"; sourceTree = "<group>"; };
 		F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogExtensions.swift; sourceTree = "<group>"; };
+		F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageBrowser.swift; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
@@ -1115,6 +1117,7 @@
 				F4561A6728981B4100055289 /* VirtualMachineNameField.swift */,
 				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
 				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
+				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2042,6 +2045,7 @@
 			files = (
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
 				F413696A29916F6E002CE8D3 /* StatusBarHighlightView.swift in Sources */,
+				F47BCDD92C5D2EE300165191 /* RestoreImageBrowser.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
