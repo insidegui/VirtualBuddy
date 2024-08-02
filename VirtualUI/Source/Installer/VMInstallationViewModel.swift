@@ -14,12 +14,15 @@ import VirtualCore
 struct VMInstallData: Hashable, Codable {
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
-    var restoreImageInfo: VBRestoreImageInfo? {
+    var restoreImageInfo: RestoreImage? {
         didSet {
             if let url = restoreImageInfo?.url {
                 installImageURL = url
             }
         }
+    }
+    var resolvedRestoreImage: ResolvedRestoreImage? {
+        didSet { restoreImageInfo = resolvedRestoreImage?.image }
     }
     var installImageURL: URL?
 
@@ -103,6 +106,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     private let library: VMLibraryController
 
+    @MainActor
     init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine?) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
@@ -113,6 +117,7 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     init(library: VMLibraryController, restoringAt restoreURL: URL?) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
@@ -123,6 +128,7 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     private func restoreInstallation(with url: URL) {
         do {
             let vm = try VBVirtualMachine(bundleURL: url)
@@ -134,14 +140,18 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    @MainActor
     private func restoreInstallation(with vm: VBVirtualMachine) {
         do {
             guard let restoreData = vm.installRestoreData else {
                 throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "VM is missing install restore data"])
             }
 
-            let restoredState = try PropertyListDecoder.virtualBuddy.decode(RestorableState.self, from: restoreData)
-            
+            var restoredState = try PropertyListDecoder.virtualBuddy.decode(RestorableState.self, from: restoreData)
+            if let restoreImage = restoredState.data.restoreImageInfo {
+                restoredState.data.resolvedRestoreImage = try vm.resolveCatalogImage(restoreImage)
+            }
+
             self.installMethod = restoredState.method
             self.selectedSystemType = restoredState.systemType
             self.data = restoredState.data
@@ -524,3 +534,4 @@ private extension VMInstallationViewModel.Step {
         }
     }
 }
+

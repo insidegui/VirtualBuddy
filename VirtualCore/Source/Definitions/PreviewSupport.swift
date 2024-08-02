@@ -126,8 +126,8 @@ public extension VZVirtualMachine {
 }
 
 public extension SoftwareCatalog {
-    static let previewMac = try! VBAPIClient().fetchBuiltInCatalog(for: .mac)
-    static let previewLinux = try! VBAPIClient().fetchBuiltInCatalog(for: .linux)
+    static let previewMac = try! VBAPIClient.fetchBuiltInCatalog(for: .mac)
+    static let previewLinux = try! VBAPIClient.fetchBuiltInCatalog(for: .linux)
 }
 
 public extension ResolvedCatalog {

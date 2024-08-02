@@ -119,6 +119,7 @@
 		F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */; };
 		F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */; };
 		F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */; };
+		F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */; };
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
@@ -522,6 +523,7 @@
 		F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupPicker.swift; sourceTree = "<group>"; };
 		F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
 		F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Navigation.swift"; sourceTree = "<group>"; };
+		F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogExtensions.swift; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
@@ -1244,6 +1246,7 @@
 		F4A21BF028032FBD001072B8 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */,
 				4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */,
 				F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */,
 				0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */,
@@ -2182,6 +2185,7 @@
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
+				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
 				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,

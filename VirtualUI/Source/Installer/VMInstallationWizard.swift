@@ -122,7 +122,7 @@ public struct VMInstallationWizard: View {
     private var restoreImageSelection: some View {
         RestoreImagePicker(
             library: library,
-            selection: $viewModel.data.restoreImageInfo,
+            selection: $viewModel.data.resolvedRestoreImage,
             guestType: viewModel.selectedSystemType,
             validationChanged: stepValidationStateChanged,
             onUseLocalFile: { localURL in

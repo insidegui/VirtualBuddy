@@ -27,6 +27,12 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel {
     public var features: [ResolvedVirtualizationFeature]
     public var requirements: ResolvedRequirementSet
     public var status: ResolvedFeatureStatus
+
+    public var name: String { image.name }
+    public var build: String { image.build }
+    public var version: SoftwareVersion { image.version }
+    public var mobileDeviceMinVersion: SoftwareVersion { image.mobileDeviceMinVersion }
+    public var url: URL { image.url }
 }
 
 /// The status of a feature or requirement set for the current environment.

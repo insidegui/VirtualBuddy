@@ -73,14 +73,23 @@ public final class VBAPIClient {
         return URLRequest(url: components.url!)
     }
 
-    private let decoder = JSONDecoder()
+    private static let decoder = JSONDecoder()
 
     @MainActor
     public func fetchRestoreImages(for guest: VBGuestType) async throws -> SoftwareCatalog {
+        let catalog = try await performCatalogFetch(for: guest)
+
+        SoftwareCatalog.setCurrent(catalog, for: guest)
+
+        return catalog
+    }
+
+    @MainActor
+    func performCatalogFetch(for guest: VBGuestType) async throws -> SoftwareCatalog {
         #if DEBUG
         guard !ProcessInfo.isSwiftUIPreview, !UserDefaults.standard.bool(forKey: "VBForceBuiltInSoftwareCatalog") else {
             logger.debug("Forcing built-in catalog")
-            return try fetchBuiltInCatalog(for: guest)
+            return try Self.fetchBuiltInCatalog(for: guest)
         }
         #endif
 
@@ -94,7 +103,7 @@ public final class VBAPIClient {
             logger.error("Remote catalog fetch failed: \(error, privacy: .public), using local fallback")
 
             do {
-                let builtInCatalog = try fetchBuiltInCatalog(for: guest)
+                let builtInCatalog = try Self.fetchBuiltInCatalog(for: guest)
 
                 logger.debug("Fetched built-in catalog with \(builtInCatalog.restoreImages.count, privacy: .public) restore images")
 
@@ -120,12 +129,12 @@ public final class VBAPIClient {
             throw Failure("HTTP \(code)")
         }
 
-        let response = try decoder.decode(SoftwareCatalog.self, from: data)
+        let response = try Self.decoder.decode(SoftwareCatalog.self, from: data)
 
         return response
     }
 
-    func fetchBuiltInCatalog(for guest: VBGuestType) throws -> SoftwareCatalog {
+    static func fetchBuiltInCatalog(for guest: VBGuestType) throws -> SoftwareCatalog {
         let fileName = switch guest {
         case .mac:
             "ipsws_v2"

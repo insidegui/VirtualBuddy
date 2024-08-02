@@ -19,11 +19,11 @@ final class RestoreImagePickerController: ObservableObject {
 
     private lazy var api = VBAPIClient()
     
-    @Published private(set) var restoreImageOptions: [VBRestoreImageInfo] = []
-    @Published var selectedRestoreImage: VBRestoreImageInfo?
+    @Published private(set) var catalog: ResolvedCatalog?
+    @Published var selectedGroup: ResolvedCatalogGroup?
+    @Published var selectedRestoreImage: ResolvedRestoreImage?
     @Published var errorMessage: String?
-    @Published var cookie: String?
-    
+
     func loadRestoreImageOptions(for guest: VBGuestType) {
         Task {
             do {
@@ -31,39 +31,19 @@ final class RestoreImagePickerController: ObservableObject {
                 let platform: CatalogGuestPlatform = guest == .linux ? .linux : .mac
                 let resolved = try ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
 
-                /// Map to legacy format while new UI is not yet implemented.
-                let images = resolved.groups.flatMap {
-                    let group = VBGuestReleaseGroup(id: $0.group.id, name: $0.group.name, majorVersion: $0.group.majorVersion, minHostVersion: .empty)
-                    return $0.restoreImages.map {
-                        let channel = VBGuestReleaseChannel(id: $0.channel.id, name: $0.channel.name, note: $0.channel.note, icon: $0.channel.icon, authentication: nil)
-                        return VBRestoreImageInfo(group: group, channel: channel, name: $0.image.name, build: $0.image.build, url: $0.image.url, needsCookie: false)
-                    }
-                }
-
                 await MainActor.run {
-                    self.restoreImageOptions = images
+                    self.selectedGroup = resolved.groups.first
+                    self.catalog = resolved
                 }
             } catch {
                 await MainActor.run {
-                    self.restoreImageOptions = []
+                    self.catalog = nil
                     self.errorMessage = error.localizedDescription
                 }
             }
         }
     }
-    
-    func validateSelectedRestoreImage() -> Bool {
-        if let info = selectedRestoreImage {
-            if info.needsCookie, cookie == nil {
-                return false
-            } else {
-                return true
-            }
-        } else {
-            return selectedRestoreImage != nil
-        }
-    }
-    
+
     enum Advisory: Hashable {
         case manualDownloadTip(_ title: String, _ url: URL)
         case alreadyDownloaded(_ title: String, _ localURL: URL)
@@ -71,12 +51,12 @@ final class RestoreImagePickerController: ObservableObject {
     }
 
     @MainActor
-    func restoreAdvisory(for info: VBRestoreImageInfo) -> Advisory? {
+    func restoreAdvisory(for image: ResolvedRestoreImage) -> Advisory? {
         do {
-            if let existingDownloadURL = try library.existingLocalURL(for: info.url) {
-                return .alreadyDownloaded(info.name, existingDownloadURL)
+            if let existingDownloadURL = try library.existingLocalURL(for: image.url) {
+                return .alreadyDownloaded(image.name, existingDownloadURL)
             } else {
-                return .manualDownloadTip(info.name, info.url)
+                return .manualDownloadTip(image.name, image.url)
             }
         } catch {
             return .failure(error.localizedDescription)
@@ -89,13 +69,13 @@ struct RestoreImagePicker: View {
     @StateObject private var controller: RestoreImagePickerController
 
     @ObservedObject var library: VMLibraryController
-    @Binding var selection: VBRestoreImageInfo?
+    @Binding var selection: ResolvedRestoreImage?
     var guestType: VBGuestType
     var validationChanged: PassthroughSubject<Bool, Never>
     var onUseLocalFile: (URL) -> Void = { _ in }
 
     init(library: VMLibraryController,
-         selection: Binding<VBRestoreImageInfo?>,
+         selection: Binding<ResolvedRestoreImage?>,
          guestType: VBGuestType,
          validationChanged: PassthroughSubject<Bool, Never>,
          onUseLocalFile: @escaping (URL) -> Void = { _ in },
@@ -111,37 +91,13 @@ struct RestoreImagePicker: View {
     }
 
     var body: some View {
-        Picker("OS Version", selection: $controller.selectedRestoreImage) {
-            if controller.restoreImageOptions.isEmpty {
-                Text("Loading…")
-                    .tag(Optional<VBRestoreImageInfo>.none)
-            } else {
-                Text("Choose")
-                    .tag(Optional<VBRestoreImageInfo>.none)
-
-                ForEach(controller.restoreImageOptions) { option in
-                    Text(option.name)
-                        .tag(Optional<VBRestoreImageInfo>.some(option))
-                }
-            }
-        }
-        .controlSize(.large)
-        .disabled(controller.restoreImageOptions.isEmpty)
-        .onChange(of: controller.selectedRestoreImage, perform: {
-            selection = $0
-            validationChanged.send(controller.validateSelectedRestoreImage())
-        })
-        .onAppearOnce { controller.loadRestoreImageOptions(for: guestType) }
+        CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
+            .task { controller.loadRestoreImageOptions(for: guestType) }
 
         if let selectedImage = controller.selectedRestoreImage,
            let advisory = controller.restoreAdvisory(for: selectedImage)
         {
             advisoryView(with: advisory)
-        }
-
-        if let authRequirement = selection?.authenticationRequirement {
-            authenticationEntryPoint(with: authRequirement)
-                .padding(.top, 36)
         }
 
         if VBAPIClient.Environment.current != .production {
@@ -182,46 +138,6 @@ struct RestoreImagePicker: View {
     
     @State private var authRequirementFlow: VBGuestReleaseChannel.Authentication?
 
-    @ViewBuilder
-    private func authenticationEntryPoint(with requirement: VBGuestReleaseChannel.Authentication) -> some View {
-        VStack(spacing: 16) {
-            Text(requirement.note)
-                .font(.system(size: 12))
-                .lineSpacing(1.2)
-                .foregroundColor(.secondary)
-
-            VStack(spacing: 16) {
-                if controller.cookie == nil {
-                    Button("Sign In…") {
-                        authRequirementFlow = requirement
-                    }
-                    .keyboardShortcut(.defaultAction)
-                } else {
-                    HStack(spacing: 4) {
-                        Image(systemName: "checkmark.seal.fill")
-                            .foregroundColor(.green)
-
-                        Text("Authenticated")
-                            .font(.system(size: 15, weight: .medium))
-                    }
-
-                    Button("Change Account…") {
-                        authRequirementFlow = requirement
-                    }
-                }
-            }
-        }
-        .controlSize(.large)
-        .multilineTextAlignment(.center)
-        .sheet(item: $authRequirementFlow, content: { requirement in
-            AuthenticatingWebView(url: requirement.url) { cookies in
-                guard let headerValue = requirement.satisfiedCookieHeaderValue(with: cookies) else { return }
-                self.controller.cookie = headerValue
-                self.authRequirementFlow = nil
-            }
-            .frame(minWidth: 500, maxWidth: .infinity, minHeight: 550, maxHeight: .infinity)
-        })
-    }
 }
 
 #if DEBUG
@@ -231,7 +147,7 @@ struct RestoreImagePicker_Previews: PreviewProvider {
     }
     
     struct _Template: View {
-        @State private var image: VBRestoreImageInfo?
+        @State private var image: ResolvedRestoreImage?
         
         var body: some View {
             RestoreImagePicker(

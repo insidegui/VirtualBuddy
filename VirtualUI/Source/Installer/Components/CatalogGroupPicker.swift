@@ -4,7 +4,7 @@ import VirtualCatalog
 
 struct CatalogGroupPicker: View {
     var groups: [ResolvedCatalogGroup]
-    @Binding var selectedGroup: ResolvedCatalogGroup
+    @Binding var selectedGroup: ResolvedCatalogGroup?
 
     @State private var scrolledGroupID: ResolvedCatalogGroup.ID?
 
@@ -66,7 +66,7 @@ struct CatalogGroupPicker: View {
                 } label: {
                     CatalogGroupView(group: group)
                 }
-                .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup.id))
+                .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup?.id))
                 .aspectRatio(320/180, contentMode: .fit)
             }
         }
@@ -94,7 +94,7 @@ private struct CatalogGroupButtonStyle: ButtonStyle {
 #if DEBUG
 @available(macOS 14.0, *)
 #Preview {
-    @Previewable @State var selectedGroup: ResolvedCatalogGroup = ResolvedCatalog.previewMac.groups[0]
+    @Previewable @State var selectedGroup: ResolvedCatalogGroup? = ResolvedCatalog.previewMac.groups[0]
 
     CatalogGroupPicker(groups: ResolvedCatalog.previewMac.groups, selectedGroup: $selectedGroup)
         .frame(maxWidth: .infinity, maxHeight: .infinity)

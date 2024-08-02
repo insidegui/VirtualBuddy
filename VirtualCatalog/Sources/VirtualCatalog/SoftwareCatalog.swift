@@ -188,6 +188,8 @@ public struct SoftwareCatalog: Codable, Sendable {
         self.features = features
         self.requirementSets = requirementSets
     }
+
+    public static let empty = SoftwareCatalog(apiVersion: 0, minAppVersion: .empty, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [])
 }
 
 public extension SoftwareCatalog {
