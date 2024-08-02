@@ -146,8 +146,10 @@ public struct RestoreImage: CatalogModel {
     public var mobileDeviceMinVersion: SoftwareVersion
     /// URL to the IPSW file for this restore image.
     public var url: URL
+    /// The size of the download in bytes.
+    public var downloadSize: UInt64?
 
-    public init(id: String, group: CatalogGroup.ID, channel: CatalogChannel.ID, requirements: RequirementSet.ID, name: String, build: String, version: SoftwareVersion, mobileDeviceMinVersion: SoftwareVersion, url: URL) {
+    public init(id: String, group: CatalogGroup.ID, channel: CatalogChannel.ID, requirements: RequirementSet.ID, name: String, build: String, version: SoftwareVersion, mobileDeviceMinVersion: SoftwareVersion, url: URL, downloadSize: UInt64?) {
         self.id = id
         self.group = group
         self.channel = channel
@@ -157,6 +159,7 @@ public struct RestoreImage: CatalogModel {
         self.version = version
         self.mobileDeviceMinVersion = mobileDeviceMinVersion
         self.url = url
+        self.downloadSize = downloadSize
     }
 }
 

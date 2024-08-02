@@ -24,8 +24,9 @@
       "build" : "22.04.4 LTS",
       "group" : "jammyjellyfish",
       "mobileDeviceMinVersion" : "0.0.0",
-      "requirements" : "min_host_13"
-    }
+      "requirements" : "min_host_13",
+            "downloadSize": 4047564800
+        }
   ],
   "requirementSets" : [
     {

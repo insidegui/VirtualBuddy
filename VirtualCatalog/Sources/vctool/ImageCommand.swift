@@ -37,6 +37,10 @@ extension CatalogCommand {
                 let ipswURL = try URL(validating: ipsw)
                 let catalogURL = try output.resolvedURL.ensureExistingFile()
 
+                fputs("Detecting download size...\n", stderr)
+
+                let contentLength = try await ipswURL.contentLength()
+
                 var catalog = try SoftwareCatalog(contentsOf: catalogURL)
 
                 fputs("Reading build manifest from remote IPSW...\n", stderr)
@@ -91,7 +95,8 @@ extension CatalogCommand {
                     build: manifest.productBuildVersion,
                     version: manifest.productVersion,
                     mobileDeviceMinVersion: identity.info.mobileDeviceMinVersion,
-                    url: ipswURL
+                    url: ipswURL,
+                    downloadSize: UInt64(contentLength)
                 )
 
                 catalog.restoreImages.insert(image, at: 0)

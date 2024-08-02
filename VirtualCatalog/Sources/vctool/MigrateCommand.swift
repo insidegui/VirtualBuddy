@@ -79,6 +79,8 @@ extension CatalogCommand {
 
             for legacyImage in legacyCatalog.images {
                 do {
+                    let contentLength = try await legacyImage.url.contentLength()
+
                     let manifest = try await BuildManifest(remoteIPSWURL: legacyImage.url, build: legacyImage.build)
 
                     /// Version 13.3 started requiring macOS 13 host, all versions higher than that require macOS 13 host, all versions below that support macOS 12 host.
@@ -97,7 +99,8 @@ extension CatalogCommand {
                         build: legacyImage.build,
                         version: manifest.productVersion,
                         mobileDeviceMinVersion: vmIdentity.info.mobileDeviceMinVersion,
-                        url: legacyImage.url
+                        url: legacyImage.url,
+                        downloadSize: UInt64(contentLength)
                     )
 
                     catalog.restoreImages.append(image)
