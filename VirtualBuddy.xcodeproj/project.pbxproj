@@ -131,7 +131,7 @@
 		F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */; };
 		F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */; };
 		F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */; };
-		F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */; };
+		F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */; };
 		F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */; };
 		F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */; };
 		F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */; };
@@ -538,7 +538,7 @@
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
 		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
 		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
-		F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImagePicker.swift; sourceTree = "<group>"; };
+		F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionStep.swift; sourceTree = "<group>"; };
 		F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
 		F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
 		F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationViewModel.swift; sourceTree = "<group>"; };
@@ -1149,7 +1149,7 @@
 				F4E7680E29B655DD0075A897 /* InstallMethod.swift */,
 				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
 				F4E7680929B64C590075A897 /* GuestTypePicker.swift */,
-				F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */,
+				F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */,
 				F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */,
 				F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */,
 				F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */,
@@ -2098,7 +2098,7 @@
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
 				F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */,
-				F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */,
+				F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */,
 				F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */,
 				F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */,
 				F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */,

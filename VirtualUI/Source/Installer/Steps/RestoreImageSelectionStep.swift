@@ -1,5 +1,5 @@
 //
-//  RestoreImagePicker.swift
+//  RestoreImageSelectionStep.swift
 //  VirtualBuddy
 //
 //  Created by Guilherme Rambo on 20/07/22.
@@ -9,7 +9,7 @@ import SwiftUI
 import VirtualCore
 import Combine
 
-final class RestoreImagePickerController: ObservableObject {
+final class RestoreImageSelectionController: ObservableObject {
 
     let library: VMLibraryController
 
@@ -65,8 +65,8 @@ final class RestoreImagePickerController: ObservableObject {
     
 }
 
-struct RestoreImagePicker: View {
-    @StateObject private var controller: RestoreImagePickerController
+struct RestoreImageSelectionStep: View {
+    @StateObject private var controller: RestoreImageSelectionController
 
     @ObservedObject var library: VMLibraryController
     @Binding var selection: ResolvedRestoreImage?
@@ -82,7 +82,7 @@ struct RestoreImagePicker: View {
          authRequirementFlow: VBGuestReleaseChannel.Authentication? = nil)
     {
         self._library = .init(initialValue: library)
-        self._controller = .init(wrappedValue: RestoreImagePickerController(library: library))
+        self._controller = .init(wrappedValue: RestoreImageSelectionController(library: library))
         self._selection = selection
         self.guestType = guestType
         self.validationChanged = validationChanged
@@ -91,9 +91,36 @@ struct RestoreImagePicker: View {
     }
 
     var body: some View {
-        CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
-            .task { controller.loadRestoreImageOptions(for: guestType) }
+        ZStack {
+            if let catalog = controller.catalog, let group = controller.selectedGroup {
+                RestoreImageBrowser(catalog: catalog, group: group, selection: $selection)
+            }
+        }
+        .safeAreaInset(edge: .top, alignment: .leading, spacing: 0) {
+            CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
+        }
+        .background { colorfulBackground }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .task { controller.loadRestoreImageOptions(for: guestType) }
+    }
 
+    @ViewBuilder
+    private var colorfulBackground: some View {
+        if let blurHash = controller.selectedGroup?.darkImage.thumbnail.blurHash {
+            Image(blurHash: blurHash, size: .init(width: 5, height: 5), punch: 1)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .blur(radius: 22, opaque: true)
+                .saturation(1.3)
+                .contrast(0.8)
+                .brightness(-0.1)
+                .drawingGroup(opaque: true)
+                .ignoresSafeArea()
+        }
+    }
+
+    @ViewBuilder
+    private var advisories: some View {
         if let selectedImage = controller.selectedRestoreImage,
            let advisory = controller.restoreAdvisory(for: selectedImage)
         {
@@ -106,9 +133,9 @@ struct RestoreImagePicker: View {
                 .foregroundColor(.yellow)
         }
     }
-    
+
     @ViewBuilder
-    private func advisoryView(with advisory: RestoreImagePickerController.Advisory) -> some View {
+    private func advisoryView(with advisory: RestoreImageSelectionController.Advisory) -> some View {
         VStack {
             switch advisory {
             case .manualDownloadTip(let title, let url):
@@ -140,23 +167,23 @@ struct RestoreImagePicker: View {
 
 }
 
-#if DEBUG
-struct RestoreImagePicker_Previews: PreviewProvider {
-    static var previews: some View {
-        _Template()
-    }
-    
-    struct _Template: View {
-        @State private var image: ResolvedRestoreImage?
-        
-        var body: some View {
-            RestoreImagePicker(
-                library: .preview,
-                selection: $image,
-                guestType: .mac,
-                validationChanged: PassthroughSubject<Bool, Never>()
-            )
-        }
-    }
-}
-#endif
+//#if DEBUG
+//struct RestoreImageSelectionStep_Previews: PreviewProvider {
+//    static var previews: some View {
+//        _Template()
+//    }
+//    
+//    struct _Template: View {
+//        @State private var image: ResolvedRestoreImage?
+//        
+//        var body: some View {
+//            RestoreImageSelectionStep(
+//                library: .preview,
+//                selection: $image,
+//                guestType: .mac,
+//                validationChanged: PassthroughSubject<Bool, Never>()
+//            )
+//        }
+//    }
+//}
+//#endif

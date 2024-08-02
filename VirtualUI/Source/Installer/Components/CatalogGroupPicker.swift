@@ -9,7 +9,7 @@ struct CatalogGroupPicker: View {
     @State private var scrolledGroupID: ResolvedCatalogGroup.ID?
 
     var minHeight: CGFloat { 80 }
-    var maxHeight: CGFloat { 300 }
+    var maxHeight: CGFloat { 160 }
     var spacing: CGFloat { 16 }
 
     var body: some View {
@@ -21,15 +21,21 @@ struct CatalogGroupPicker: View {
         }
     }
 
+    @Environment(\.containerPadding)
+    private var containerPadding
+
     @ViewBuilder
     private var container: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            if #available(macOS 14.0, *) {
-                grid
-                    .scrollTargetLayout()
-            } else {
-                grid
+            Group {
+                if #available(macOS 14.0, *) {
+                    grid
+                        .scrollTargetLayout()
+                } else {
+                    grid
+                }
             }
+            .padding([.top, .leading, .trailing], containerPadding)
         }
         .keyboardNavigation { direction in
             switch direction {

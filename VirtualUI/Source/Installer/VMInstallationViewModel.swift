@@ -35,6 +35,18 @@ struct VMInstallData: Hashable, Codable {
     }
 }
 
+public enum VMInstallationStep: Int, Hashable, Codable {
+    case systemType
+    case installKind
+    case restoreImageInput
+    case restoreImageSelection
+    case name
+    case configuration
+    case download
+    case install
+    case done
+}
+
 final class VMInstallationViewModel: ObservableObject {
 
     struct RestorableState: Codable {
@@ -44,17 +56,7 @@ final class VMInstallationViewModel: ObservableObject {
         var step: Step
     }
 
-    enum Step: Int, Hashable, Codable {
-        case systemType
-        case installKind
-        case restoreImageInput
-        case restoreImageSelection
-        case name
-        case configuration
-        case download
-        case install
-        case done
-    }
+    typealias Step = VMInstallationStep
 
     enum State: Hashable {
         case idle
@@ -118,10 +120,10 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     @MainActor
-    init(library: VMLibraryController, restoringAt restoreURL: URL?) {
+    init(library: VMLibraryController, restoringAt restoreURL: URL?, initialStep: Step? = nil) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
-        step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
+        step = initialStep ?? (VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind)
 
         if let restoreURL {
             restoreInstallation(with: restoreURL)

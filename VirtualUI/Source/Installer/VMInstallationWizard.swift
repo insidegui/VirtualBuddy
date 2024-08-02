@@ -9,15 +9,24 @@ import SwiftUI
 import VirtualCore
 import Combine
 
+extension EnvironmentValues {
+    /// Defines the padding for a container where the children must adopt the padding in their implementations.
+    /// Currently used for the `VMInstallationWizard` to allow children to apply padding in a custom way,
+    /// retaining the standard padding between all steps.
+    @Entry var containerPadding: CGFloat = 0
+}
+
 public struct VMInstallationWizard: View {
+    static var padding: CGFloat { 22 }
+
     @ObservedObject var library: VMLibraryController
     @StateObject var viewModel: VMInstallationViewModel
 
     @Environment(\.closeWindow) var closeWindow
 
-    public init(library: VMLibraryController, restoringAt restoreURL: URL? = nil) {
+    public init(library: VMLibraryController, restoringAt restoreURL: URL? = nil, initialStep: VMInstallationStep? = nil) {
         self._library = .init(initialValue: library)
-        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoringAt: restoreURL))
+        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoringAt: restoreURL, initialStep: initialStep))
     }
 
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
@@ -28,6 +37,7 @@ public struct VMInstallationWizard: View {
                 switch viewModel.step {
                     case .systemType:
                         guestSystemTypeSelection
+                            .padding(Self.padding)
                             .navigationSubtitle(Text("Choose Operating System"))
                     case .installKind:
                         installKindSelection
@@ -47,21 +57,18 @@ public struct VMInstallationWizard: View {
                     case .done:
                         finishingLine
                 }
-
-                if viewModel.showNextButton {
-                    Spacer()
-                }
             }
-            .padding()
             .onReceive(stepValidationStateChanged) { isValid in
                 viewModel.disableNextButton = !isValid
             }
             .navigationTitle(Text("Virtual Machine Setup"))
         }
-        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
         .toolbar {
             Text("").hidden()
         }
+        .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
+        .environment(\.containerPadding, Self.padding)
     }
     @ViewBuilder
     private var bottomBar: some View {
@@ -120,7 +127,7 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var restoreImageSelection: some View {
-        RestoreImagePicker(
+        RestoreImageSelectionStep(
             library: library,
             selection: $viewModel.data.resolvedRestoreImage,
             guestType: viewModel.selectedSystemType,
@@ -218,6 +225,6 @@ public struct VMInstallationWizard: View {
 
 #if DEBUG
 #Preview {
-    VMInstallationWizard(library: .preview)
+    VMInstallationWizard(library: .preview, initialStep: .restoreImageSelection)
 }
 #endif

@@ -33,6 +33,7 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel {
     public var version: SoftwareVersion { image.version }
     public var mobileDeviceMinVersion: SoftwareVersion { image.mobileDeviceMinVersion }
     public var url: URL { image.url }
+    public var downloadSize: Int64 { Int64(image.downloadSize ?? 0) }
 }
 
 /// The status of a feature or requirement set for the current environment.
