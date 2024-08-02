@@ -1,6 +1,15 @@
 {
-  "originHash" : "2607822a907132102de827352e442262a66c060062b67947a42796a20bea70b3",
+  "originHash" : "08db29b76b086e0931e501a8d9732d93a9891fc3899951f73ffc336cda29f234",
   "pins" : [
+    {
+      "identity" : "libfragmentzip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/libfragmentzip",
+      "state" : {
+        "revision" : "9f72ba6706fe4a16413d463a79eae52c374f3c29",
+        "version" : "1.0.0"
+      }
+    },
     {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",

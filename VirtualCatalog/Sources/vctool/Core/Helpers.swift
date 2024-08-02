@@ -1,4 +1,6 @@
 import Foundation
+import VirtualCatalog
+import ArgumentParser
 
 extension String: @retroactive LocalizedError {
     public var errorDescription: String? { self }
@@ -96,9 +98,63 @@ extension URL {
         }
         return dirURL
     }
+
+    static var vctoolCache: URL {
+        get throws {
+            try FileManager.default.url(for: .cachesDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+                .appending(path: "vctool", directoryHint: .isDirectory)
+        }
+    }        
 }
 
 extension String {
     var resolvedPath: String { (self as NSString).expandingTildeInPath }
     var resolvedURL: URL { URL(filePath: resolvedPath) }
+}
+
+extension CatalogGuestPlatform: @retroactive EnumerableFlag { }
+
+extension ResolvedFeatureStatus {
+    var cliDescription: String {
+        switch self {
+        case .supported:
+            return "✅ Supported"
+        case .warning(let message):
+            return "⚠️ Warning: \(message)"
+        case .unsupported(let message):
+            return "🛑 Not Supported: \(message)"
+        }
+    }
+}
+
+extension SoftwareVersion: @retroactive ExpressibleByArgument {
+    public init?(argument: String) {
+        self.init(string: argument)
+    }
+}
+
+extension RequirementSet {
+    func matches(info: BuildInfo) -> Bool {
+        guard let manifestMinVersionHost = info.virtualMachineMinHostOS else { return true }
+        guard manifestMinVersionHost == self.minVersionHost else { return false }
+
+        guard let manifestMinMemory = info.virtualMachineMinMemorySizeMB else { return true }
+        guard manifestMinMemory == self.minMemorySizeMB else { return false }
+
+        guard let manifestMinCPU = info.virtualMachineMinCPUCount else { return true }
+        return manifestMinCPU == self.minCPUCount
+    }
+}
+
+extension BuildInfo {
+    var requirementsDescription: String {
+        let minVer = virtualMachineMinHostOS?.description ?? "?"
+        let minMem = virtualMachineMinMemorySizeMB.flatMap({ String($0) }) ?? "?"
+        let minCPU = virtualMachineMinCPUCount.flatMap({ String($0) }) ?? "?"
+        return "minHostVersion: \(minVer) | minMemory: \(minMem) | minCPU: \(minCPU)"
+    }
+}
+
+extension RestoreImage: TreeStringConvertible, @retroactive CustomStringConvertible {
+    public var description: String { description(level: 0) }
 }
