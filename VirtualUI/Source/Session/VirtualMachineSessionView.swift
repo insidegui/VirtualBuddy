@@ -281,13 +281,18 @@ extension VMController {
 }
 
 #if DEBUG
-#Preview {
-    VirtualMachineSessionView()
-        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
-        .environmentObject(VMLibraryController.preview)
-        .environmentObject(VMController.preview)
-        .environmentObject(VirtualMachineSessionUI.preview)
-        .environmentObject(VirtualMachineSessionUIManager.shared)
+struct VirtualMachineSessionViewPreview: View {
+    var body: some View {
+        VirtualMachineSessionView()
+            .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
+            .environmentObject(VMLibraryController.preview)
+            .environmentObject(VMController.preview)
+            .environmentObject(VirtualMachineSessionUI.preview)
+            .environmentObject(VirtualMachineSessionUIManager.shared)
+    }
+}
 
+#Preview {
+    VirtualMachineSessionViewPreview()
 }
 #endif

@@ -13,8 +13,21 @@ import OSLog
 
 public struct VMSessionOptions: Hashable, Codable {
     @DecodableDefault.False
-    public var bootInRecoveryMode = false
-    
+    public var bootInRecoveryMode = false {
+        didSet {
+            guard bootInRecoveryMode != oldValue else { return }
+            resolveMutuallyExclusiveOptions()
+        }
+    }
+
+    @DecodableDefault.False
+    public var bootInDFUMode = false {
+        didSet {
+            guard bootInDFUMode != oldValue else { return }
+            resolveMutuallyExclusiveOptions()
+        }
+    }
+
     @DecodableDefault.False
     public var bootOnInstallDevice = false
 
@@ -26,11 +39,23 @@ public struct VMSessionOptions: Hashable, Codable {
 
     public static let `default` = VMSessionOptions()
 
-    public init(bootInRecoveryMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackage: VBSavedStatePackage? = nil) {
+    public init(bootInRecoveryMode: Bool = false, bootInDFUMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackage: VBSavedStatePackage? = nil) {
         self.bootInRecoveryMode = bootInRecoveryMode
+        self.bootInDFUMode = bootInDFUMode
         self.bootOnInstallDevice = bootOnInstallDevice
         self.autoBoot = autoBoot
         self.stateRestorationPackage = stateRestorationPackage
+
+        resolveMutuallyExclusiveOptions()
+    }
+
+    private mutating func resolveMutuallyExclusiveOptions() {
+        if bootInDFUMode {
+            bootInRecoveryMode = false
+        }
+        if bootInRecoveryMode {
+            bootInDFUMode = false
+        }
     }
 }
 
@@ -110,6 +135,11 @@ public final class VMController: ObservableObject {
             .store(in: &cancellables)
 
         library.addController(self)
+
+        /// Make sure DFU mode flag is turned off if the app build doesn't allow DFU boot.
+        if !VBMacConfiguration.appBuildAllowsDFUMode {
+            self.options.bootInDFUMode = false
+        }
     }
 
     private var instance: VMInstance?
@@ -361,5 +391,17 @@ public extension VMController {
             try? await Task.sleep(nanoseconds: 100_000_000)
             NSCursor.unhide()
         }
+    }
+}
+
+public extension VBMacConfiguration {
+    /// DFU mode option is currently shown in debug builds or when `VBShowDFUModeBootOption` is set in user defaults.
+    /// To enable in release builds: `defaults write codes.rambo.VirtualBuddy VBShowDFUModeBootOption -bool YES`
+    static var appBuildAllowsDFUMode: Bool {
+        #if DEBUG
+        return true
+        #else
+        return UserDefaults.standard.bool(forKey: "VBShowDFUModeBootOption")
+        #endif
     }
 }

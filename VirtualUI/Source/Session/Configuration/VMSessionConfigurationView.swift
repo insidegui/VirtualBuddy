@@ -28,8 +28,14 @@ struct VMSessionConfigurationView: View {
             
             if showRecoveryModeOption {
                 Toggle("Boot in recovery mode", isOn: $controller.options.bootInRecoveryMode)
+                    .disabled(controller.options.bootInDFUMode)
             }
-            
+
+            if showDFUOption {
+                Toggle("Boot in DFU mode", isOn: $controller.options.bootInDFUMode)
+                    .disabled(controller.options.bootInRecoveryMode)
+            }
+
             Toggle("Capture system keyboard shortcuts", isOn: $controller.virtualMachineModel.configuration.captureSystemKeys)
 
             Button("Virtual Machine Settings…") {
@@ -49,14 +55,13 @@ struct VMSessionConfigurationView: View {
 
     private var showRecoveryModeOption: Bool { vm.configuration.systemType == .mac }
 
+    private var showDFUOption: Bool { VBMacConfiguration.appBuildAllowsDFUMode && vm.configuration.systemType == .mac }
+
     private var showSavedStatePicker: Bool { vm.configuration.systemType.supportsStateRestoration }
 }
 
 #if DEBUG
-struct VMSessionConfigurationView_Previews: PreviewProvider {
-    static var previews: some View {
-        VMSessionConfigurationView()
-            .environmentObject(VMController(with: .preview, library: .preview))
-    }
+#Preview {
+    VirtualMachineSessionViewPreview()
 }
 #endif

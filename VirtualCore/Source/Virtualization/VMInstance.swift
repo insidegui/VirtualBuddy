@@ -249,9 +249,7 @@ public final class VMInstance: NSObject, ObservableObject {
     private var startOptions: VZVirtualMachineStartOptions {
         switch virtualMachineModel.configuration.systemType {
         case .mac:
-            let opts = VZMacOSVirtualMachineStartOptions()
-            opts.startUpFromMacOSRecovery = options.bootInRecoveryMode
-            return opts
+            return VZMacOSVirtualMachineStartOptions(options: options)
         case .linux:
             return VZVirtualMachineStartOptions()
         }
@@ -451,5 +449,21 @@ private extension VBVirtualMachine {
             .deletingPathExtension()
             .lastPathComponent
         return cleanID.removingPercentEncoding ?? cleanID
+    }
+}
+
+extension VZMacOSVirtualMachineStartOptions {
+    convenience init(options: VMSessionOptions) {
+        self.init()
+
+        startUpFromMacOSRecovery = options.bootInRecoveryMode
+
+        if options.bootInDFUMode,
+           VBMacConfiguration.appBuildAllowsDFUMode,
+           self.responds(to: NSSelectorFromString("_setForceDFU:"))
+        {
+            _forceDFU = true
+            startUpFromMacOSRecovery = false
+        }
     }
 }
