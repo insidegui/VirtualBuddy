@@ -16,11 +16,15 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     
     @Binding var controllerState: VMController.State
     let captureSystemKeys: Bool
+    var isDFUModeVM: Bool
+    var vmECID: UInt64?
     @Binding var automaticallyReconfiguresDisplay: Bool
     let screenshotSubject: VMScreenshotter.Subject
 
     func makeNSViewController(context: Context) -> VMViewController {
         let controller = VMViewController(screenshotSubject: screenshotSubject)
+        controller.vmECID = vmECID
+        controller.isDFUModeVM = isDFUModeVM
         controller.captureSystemKeys = captureSystemKeys
         controller.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
         return controller
@@ -28,6 +32,9 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     
     func updateNSViewController(_ nsViewController: VMViewController, context: Context) {
         nsViewController.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
+
+        nsViewController.vmECID = vmECID
+        nsViewController.isDFUModeVM = isDFUModeVM
 
         if case .running(let vm) = controllerState {
             nsViewController.virtualMachine = vm
@@ -39,7 +46,24 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
 }
 
 final class VMViewController: NSViewController {
-    
+
+    var isDFUModeVM: Bool = false {
+        didSet {
+            guard isDFUModeVM != oldValue, isViewLoaded else { return }
+
+            handleDFUTransition(.init(wasInDFU: oldValue, isInDFU: isDFUModeVM))
+        }
+    }
+
+    var vmECID: UInt64? {
+        didSet {
+            guard vmECID != nil, vmECID != oldValue, isDFUModeVM, isViewLoaded else { return }
+
+            /// Force update of DFU state to display the ECID.
+            handleDFUTransition(.enter)
+        }
+    }
+
     var captureSystemKeys: Bool = false {
         didSet {
             guard captureSystemKeys != oldValue, isViewLoaded else { return }
@@ -71,7 +95,15 @@ final class VMViewController: NSViewController {
             vmView.virtualMachine = virtualMachine
         }
     }
-    
+
+    private var canShowDFUView: Bool {
+        #if DEBUG
+        return ProcessInfo.isSwiftUIPreview || virtualMachine != nil
+        #else
+        return virtualMachine != nil
+        #endif
+    }
+
     private lazy var vmView: VZVirtualMachineView = {
         VZVirtualMachineView(frame: .zero)
     }()
@@ -109,6 +141,15 @@ final class VMViewController: NSViewController {
         
         window.makeFirstResponder(vmView)
         
+        activateScreenshotterIfNeeded()
+
+        if isDFUModeVM { handleDFUTransition(.enter) }
+    }
+
+    private func activateScreenshotterIfNeeded() {
+        /// Screenshotter is not useful when the VM is in DFU mode.
+        guard !isDFUModeVM, isViewLoaded else { return }
+
         screenshotter.activate(with: view, vm: vmView.virtualMachine)
     }
 
@@ -118,4 +159,105 @@ final class VMViewController: NSViewController {
         screenshotter.invalidate()
     }
 
+    enum DFUTransition: Hashable {
+        case enter
+        case exit
+        case invalid
+
+        init(wasInDFU: Bool, isInDFU: Bool) {
+            if wasInDFU, !isInDFU {
+                self = .exit
+            } else if isInDFU, !wasInDFU {
+                self = .enter
+            } else {
+                self = .invalid
+            }
+        }
+    }
+
+    private func handleDFUTransition(_ transition: DFUTransition) {
+        switch transition {
+        case .enter:
+            showDFUView()
+            screenshotter.invalidate()
+        case .exit:
+            hideDFUView()
+            activateScreenshotterIfNeeded()
+        case .invalid:
+            break
+        }
+    }
+
+    private var currentDFUView: NSView?
+
+    private func showDFUView() {
+        currentDFUView?.removeFromSuperview()
+
+        guard canShowDFUView else { return }
+
+        let dfuView = NSHostingView(rootView: DFUStatusView(ecid: vmECID))
+        dfuView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(dfuView)
+
+        NSLayoutConstraint.activate([
+            dfuView.leadingAnchor.constraint(greaterThanOrEqualTo: view.leadingAnchor, constant: 16),
+            dfuView.trailingAnchor.constraint(lessThanOrEqualTo: view.trailingAnchor, constant: -16),
+            dfuView.topAnchor.constraint(greaterThanOrEqualTo: view.topAnchor, constant: 16),
+            dfuView.bottomAnchor.constraint(lessThanOrEqualTo: view.bottomAnchor, constant: -16),
+            dfuView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            dfuView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+        ])
+    }
+
+    private func hideDFUView() {
+        currentDFUView?.removeFromSuperview()
+    }
 }
+
+struct DFUStatusView: View {
+    var ecid: UInt64?
+
+    @Environment(\.numberDisplayMode)
+    private var numberDisplayMode
+
+    var body: some View {
+        VStack(spacing: 22) {
+            VStack {
+                Image(systemName: "cpu")
+                    .imageScale(.large)
+                Text("DFU Mode Active")
+            }
+            .font(.system(.largeTitle, design: .rounded))
+
+            VStack(spacing: 8) {
+                Text("This virtual machine is running in DFU mode.")
+                    .font(.system(.title2, design: .rounded, weight: .medium))
+
+                if let ecid {
+                    HStack(spacing: 0) {
+                        Text("ECID: ")
+                            .font(.headline)
+
+                        Text("\(ecid.formatted(mode: numberDisplayMode))")
+                            .textSelection(.enabled)
+                            .font(.headline.weight(.regular).monospaced())
+                    }
+                    .foregroundStyle(.secondary)
+                }
+            }
+        }
+    }
+}
+
+#if DEBUG
+#Preview("VM View - DFU") {
+    SwiftUIVMView(
+        controllerState: .constant(.starting),
+        captureSystemKeys: false,
+        isDFUModeVM: true,
+        vmECID: 7788022887768653863,
+        automaticallyReconfiguresDisplay: .constant(false),
+        screenshotSubject: .init()
+    )
+}
+#endif
