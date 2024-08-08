@@ -192,7 +192,7 @@ public struct VirtualMachineSessionView: View {
         { [weak controller] in
             guard let controller else { return true }
 
-            guard controller.isStarting || controller.isRunning else { return true }
+            if controller.isIdle || controller.isStopped { return true }
 
             let confirmed = await NSAlert.runConfirmationAlert(
                 title: "Stop Virtual Machine?",
@@ -272,12 +272,19 @@ struct VMCircularButtonStyle: ButtonStyle {
 }
 
 extension VMController {
+    var isIdle: Bool {
+        return state == .idle
+    }
+    var isStarting: Bool {
+        guard case .starting = state else { return false }
+        return true
+    }
     var isRunning: Bool {
         guard case .running = state else { return false }
         return true
     }
-    var isStarting: Bool {
-        guard case .starting = state else { return false }
+    var isStopped: Bool {
+        guard case .stopped = state else { return false }
         return true
     }
 }
