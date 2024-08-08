@@ -104,6 +104,8 @@ public struct VirtualMachineSessionView: View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
             captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
+            isDFUModeVM: controller.options.bootInDFUMode,
+            vmECID: controller.virtualMachineModel.ECID,
             automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
             screenshotSubject: screenshotTaken
         )
@@ -281,13 +283,18 @@ extension VMController {
 }
 
 #if DEBUG
-#Preview {
-    VirtualMachineSessionView()
-        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
-        .environmentObject(VMLibraryController.preview)
-        .environmentObject(VMController.preview)
-        .environmentObject(VirtualMachineSessionUI.preview)
-        .environmentObject(VirtualMachineSessionUIManager.shared)
+struct VirtualMachineSessionViewPreview: View {
+    var body: some View {
+        VirtualMachineSessionView()
+            .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
+            .environmentObject(VMLibraryController.preview)
+            .environmentObject(VMController.preview)
+            .environmentObject(VirtualMachineSessionUI.preview)
+            .environmentObject(VirtualMachineSessionUIManager.shared)
+    }
+}
 
+#Preview {
+    VirtualMachineSessionViewPreview()
 }
 #endif

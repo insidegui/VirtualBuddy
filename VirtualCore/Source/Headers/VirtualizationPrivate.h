@@ -47,11 +47,9 @@ __attribute__((weak_import))
 
 @end
 
-@interface VZVirtualMachineStartOptions (Private)
+@interface VZMacOSVirtualMachineStartOptions (VZPrivate)
 
-@property (assign) BOOL _forceDFU;
-@property (assign) BOOL _stopInIBootStage1;
-@property (assign) BOOL _stopInIBootStage2;
+@property (assign, setter=_setForceDFU:) BOOL _forceDFU;
 
 @end
 

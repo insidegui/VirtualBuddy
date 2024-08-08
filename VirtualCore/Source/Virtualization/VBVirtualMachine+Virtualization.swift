@@ -71,19 +71,23 @@ extension VBVirtualMachine {
         return hardwareModel
     }
 
+    func fetchExistingMachineIdentifier() throws -> VZMacMachineIdentifier {
+        guard let machineIdentifierData = try? Data(contentsOf: machineIdentifierURL) else {
+            throw Failure("Failed to retrieve machine identifier data.")
+        }
+
+        guard let mid = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
+            throw Failure("Failed to create machine identifier.")
+        }
+
+        return mid
+    }
+
     func fetchOrGenerateMachineIdentifier() throws -> VZMacMachineIdentifier {
         let identifier: VZMacMachineIdentifier
 
         if FileManager.default.fileExists(atPath: machineIdentifierURL.path) {
-            guard let machineIdentifierData = try? Data(contentsOf: machineIdentifierURL) else {
-                throw Failure("Failed to retrieve machine identifier data.")
-            }
-
-            guard let mid = VZMacMachineIdentifier(dataRepresentation: machineIdentifierData) else {
-                throw Failure("Failed to create machine identifier.")
-            }
-
-            identifier = mid
+            identifier = try fetchExistingMachineIdentifier()
         } else {
             identifier = try generateNewMachineIdentifier()
         }
@@ -104,4 +108,13 @@ extension VBVirtualMachine {
         return identifier
     }
 
+}
+
+public extension VBVirtualMachine {
+    var ECID: UInt64? {
+        guard let machineIdentifier = try? self.fetchExistingMachineIdentifier() else { return nil }
+        let data = machineIdentifier.dataRepresentation
+        guard let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return nil }
+        return dict["ECID"] as? UInt64
+    }
 }
