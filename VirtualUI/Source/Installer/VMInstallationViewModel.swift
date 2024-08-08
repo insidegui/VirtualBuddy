@@ -14,12 +14,15 @@ import VirtualCore
 struct VMInstallData: Hashable, Codable {
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
-    var restoreImageInfo: VBRestoreImageInfo? {
+    var restoreImageInfo: RestoreImage? {
         didSet {
             if let url = restoreImageInfo?.url {
                 installImageURL = url
             }
         }
+    }
+    var resolvedRestoreImage: ResolvedRestoreImage? {
+        didSet { restoreImageInfo = resolvedRestoreImage?.image }
     }
     var installImageURL: URL?
 
@@ -32,6 +35,18 @@ struct VMInstallData: Hashable, Codable {
     }
 }
 
+public enum VMInstallationStep: Int, Hashable, Codable {
+    case systemType
+    case installKind
+    case restoreImageInput
+    case restoreImageSelection
+    case name
+    case configuration
+    case download
+    case install
+    case done
+}
+
 final class VMInstallationViewModel: ObservableObject {
 
     struct RestorableState: Codable {
@@ -41,17 +56,7 @@ final class VMInstallationViewModel: ObservableObject {
         var step: Step
     }
 
-    enum Step: Int, Hashable, Codable {
-        case systemType
-        case installKind
-        case restoreImageInput
-        case restoreImageSelection
-        case name
-        case configuration
-        case download
-        case install
-        case done
-    }
+    typealias Step = VMInstallationStep
 
     enum State: Hashable {
         case idle
@@ -103,6 +108,7 @@ final class VMInstallationViewModel: ObservableObject {
 
     private let library: VMLibraryController
 
+    @MainActor
     init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine?) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
@@ -113,14 +119,41 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
+    @MainActor
+    init(library: VMLibraryController, restoringAt restoreURL: URL?, initialStep: Step? = nil) {
+        self.library = library
+        /// Skip OS selection if there's only a single supported OS.
+        step = initialStep ?? (VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind)
+
+        if let restoreURL {
+            restoreInstallation(with: restoreURL)
+        }
+    }
+
+    @MainActor
+    private func restoreInstallation(with url: URL) {
+        do {
+            let vm = try VBVirtualMachine(bundleURL: url)
+
+            restoreInstallation(with: vm)
+        } catch {
+            assertionFailure("Couldn't restore install: \(error)")
+            NSAlert(error: error).runModal()
+        }
+    }
+
+    @MainActor
     private func restoreInstallation(with vm: VBVirtualMachine) {
         do {
             guard let restoreData = vm.installRestoreData else {
                 throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "VM is missing install restore data"])
             }
 
-            let restoredState = try PropertyListDecoder.virtualBuddy.decode(RestorableState.self, from: restoreData)
-            
+            var restoredState = try PropertyListDecoder.virtualBuddy.decode(RestorableState.self, from: restoreData)
+            if let restoreImage = restoredState.data.restoreImageInfo {
+                restoredState.data.resolvedRestoreImage = try vm.resolveCatalogImage(restoreImage)
+            }
+
             self.installMethod = restoredState.method
             self.selectedSystemType = restoredState.systemType
             self.data = restoredState.data
@@ -155,7 +188,7 @@ final class VMInstallationViewModel: ObservableObject {
     func goNext() {
         switch step {
             case .systemType:
-                step = .installKind
+                step = .restoreImageSelection
             case .installKind:
                 commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:
@@ -503,3 +536,4 @@ private extension VMInstallationViewModel.Step {
         }
     }
 }
+

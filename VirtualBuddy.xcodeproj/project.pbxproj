@@ -110,6 +110,17 @@
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
+		F4727A972C5AB6760013C14A /* VirtualCatalog in Frameworks */ = {isa = PBXBuildFile; productRef = F4727A962C5AB6760013C14A /* VirtualCatalog */; };
+		F47BCDA12C5BE8FF00165191 /* ipsws_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F47BCDA22C5BE8FF00165191 /* linux_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCDA02C5BE8EF00165191 /* linux_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */; };
+		F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */; };
+		F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */; };
+		F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */; };
+		F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */; };
+		F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */; };
+		F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */; };
+		F47BCDD92C5D2EE300165191 /* RestoreImageBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */; };
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
@@ -120,7 +131,7 @@
 		F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */; };
 		F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */; };
 		F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */; };
-		F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */; };
+		F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */; };
 		F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */; };
 		F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */; };
 		F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */; };
@@ -339,6 +350,18 @@
 			name = "Embed Guest App";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = SoftwareCatalog;
+			dstSubfolderSpec = 7;
+			files = (
+				F47BCDA12C5BE8FF00165191 /* ipsws_v2.json in Copy Software Catalog Feeds */,
+				F47BCDA22C5BE8FF00165191 /* linux_v2.json in Copy Software Catalog Feeds */,
+			);
+			name = "Copy Software Catalog Feeds";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -493,6 +516,17 @@
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
+		F4727A952C5AB5770013C14A /* VirtualCatalog */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = VirtualCatalog; sourceTree = "<group>"; };
+		F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ipsws_v2.json; path = data/ipsws_v2.json; sourceTree = SOURCE_ROOT; };
+		F47BCDA02C5BE8EF00165191 /* linux_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = linux_v2.json; path = data/linux_v2.json; sourceTree = SOURCE_ROOT; };
+		F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoding.swift; sourceTree = "<group>"; };
+		F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
+		F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupView.swift; sourceTree = "<group>"; };
+		F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupPicker.swift; sourceTree = "<group>"; };
+		F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
+		F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Navigation.swift"; sourceTree = "<group>"; };
+		F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogExtensions.swift; sourceTree = "<group>"; };
+		F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageBrowser.swift; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
@@ -505,7 +539,7 @@
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
 		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
 		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
-		F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImagePicker.swift; sourceTree = "<group>"; };
+		F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionStep.swift; sourceTree = "<group>"; };
 		F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
 		F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
 		F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationViewModel.swift; sourceTree = "<group>"; };
@@ -665,6 +699,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4727A972C5AB6760013C14A /* VirtualCatalog in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -788,6 +823,7 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCDC92C5C01C600165191 /* RemoteImage */,
 				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
 				F48E0D26288883150080DDFA /* HostingWindowController */,
 				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
@@ -797,6 +833,8 @@
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
 				F42C014B2888C34B00EB15CD /* LogConsole.swift */,
 				F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */,
+				F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */,
+				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -814,6 +852,7 @@
 		F417257228877453004FF8A7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCD9E2C5BE8D300165191 /* SoftwareCatalog */,
 				F48E0D0828885E510080DDFA /* Preview */,
 				F417257328877478004FF8A7 /* VirtualCore.xcassets */,
 			);
@@ -1033,6 +1072,24 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		F47BCD9E2C5BE8D300165191 /* SoftwareCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */,
+				F47BCDA02C5BE8EF00165191 /* linux_v2.json */,
+			);
+			name = SoftwareCatalog;
+			sourceTree = "<group>";
+		};
+		F47BCDC92C5C01C600165191 /* RemoteImage */ = {
+			isa = PBXGroup;
+			children = (
+				F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */,
+				F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */,
+			);
+			path = RemoteImage;
+			sourceTree = "<group>";
+		};
 		F48E0D0828885E510080DDFA /* Preview */ = {
 			isa = PBXGroup;
 			children = (
@@ -1061,6 +1118,9 @@
 				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
 				F42C01492888C2F800EB15CD /* InstallationConsole.swift */,
 				F4561A6728981B4100055289 /* VirtualMachineNameField.swift */,
+				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
+				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
+				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1092,7 +1152,7 @@
 				F4E7680E29B655DD0075A897 /* InstallMethod.swift */,
 				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
 				F4E7680929B64C590075A897 /* GuestTypePicker.swift */,
-				F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */,
+				F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */,
 				F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */,
 				F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */,
 				F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */,
@@ -1192,6 +1252,7 @@
 		F4A21BF028032FBD001072B8 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */,
 				4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */,
 				F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */,
 				0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */,
@@ -1259,6 +1320,7 @@
 		F4BE9C4527FF052100B648F8 = {
 			isa = PBXGroup;
 			children = (
+				F4727A952C5AB5770013C14A /* VirtualCatalog */,
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
@@ -1687,6 +1749,7 @@
 				F4BE9C6127FF053A00B648F8 /* Sources */,
 				F4BE9C6227FF053A00B648F8 /* Frameworks */,
 				F4BE9C6327FF053A00B648F8 /* Resources */,
+				F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */,
 				F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */,
 				F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */,
 				F4A277142BF51C480011B626 /* Strip Preview Content in Release Builds */,
@@ -1694,6 +1757,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				F4727A992C5AB67B0013C14A /* PBXTargetDependency */,
 				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
@@ -1772,7 +1836,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1530;
+				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
 						CreatedOnToolsVersion = 14.2;
@@ -1984,12 +2048,14 @@
 			files = (
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
 				F413696A29916F6E002CE8D3 /* StatusBarHighlightView.swift in Sources */,
+				F47BCDD92C5D2EE300165191 /* RestoreImageBrowser.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
+				F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
@@ -2009,6 +2075,7 @@
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
 				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
+				F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */,
 				F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */,
@@ -2022,6 +2089,7 @@
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
 				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
+				F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
 				F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */,
 				F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */,
@@ -2033,7 +2101,8 @@
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
 				F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */,
-				F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */,
+				F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */,
+				F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */,
 				F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */,
 				F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */,
 				F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */,
@@ -2055,8 +2124,10 @@
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
+				F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */,
 				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
 				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
+				F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */,
 				F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
@@ -2122,6 +2193,7 @@
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
+				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
 				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,
@@ -2206,6 +2278,10 @@
 			isa = PBXTargetDependency;
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
 			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
+		};
+		F4727A992C5AB67B0013C14A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = F4727A982C5AB67B0013C14A /* VirtualCatalog */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2318,7 +2394,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -2617,7 +2692,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -3250,7 +3324,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -3549,7 +3622,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -3761,7 +3833,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -4031,7 +4102,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -4060,7 +4130,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -4496,6 +4565,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
+		};
+		F4727A962C5AB6760013C14A /* VirtualCatalog */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VirtualCatalog;
+		};
+		F4727A982C5AB67B0013C14A /* VirtualCatalog */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VirtualCatalog;
 		};
 		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
 			isa = XCSwiftPackageProductDependency;
