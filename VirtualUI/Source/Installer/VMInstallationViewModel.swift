@@ -138,7 +138,7 @@ final class VMInstallationViewModel: ObservableObject {
         do {
             let restoreData = try PropertyListEncoder.virtualBuddy.encode(restorableState)
             machine.installRestoreData = restoreData
-            try machine.saveMetadata()
+            try machine.saveInstallData()
             self.machine = machine
         } catch {
             assertionFailure("Failed to save install restore data: \(error)")
@@ -246,7 +246,10 @@ final class VMInstallationViewModel: ObservableObject {
         let d = VBDownloader(with: library, cookie: data.cookie)
         self.downloader = d
 
-        d.$state.sink { [weak self] state in
+        d.$state
+            .receive(on: DispatchQueue.main)
+            .sink
+        { [weak self] state in
             guard let self = self else { return }
             switch state {
             case .done(let localURL):
@@ -261,21 +264,18 @@ final class VMInstallationViewModel: ObservableObject {
         d.startDownload(with: url)
     }
 
+    @MainActor
     func handleDownloadCompleted(with fileURL: URL) {
         downloader = nil
 
         data.installImageURL = fileURL
 
-        Task {
-            await MainActor.run {
-                do {
-                    try updateModelInstallerURL(with: fileURL)
+        do {
+            try updateModelInstallerURL(with: fileURL)
 
-                    goNext()
-                } catch {
-                    state = .error("Failed to update the virtual machine settings after downloading the installer. \(error)")
-                }
-            }
+            goNext()
+        } catch {
+            state = .error("Failed to update the virtual machine settings after downloading the installer. \(error)")
         }
     }
 
