@@ -81,6 +81,14 @@
     },
     {
       "group": "sequoia",
+      "name": "macOS 15.0 Developer Beta 7",
+      "build": "24A5327a",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-64520/F98C92F6-656A-46BB-A1DB-F447698DBB72/UniversalMac_15.0_24A5327a_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
       "name": "macOS 15.0 Developer Beta 6",
       "build": "24A5320a",
       "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-59123/7B77FE01-E040-4D4A-8E93-64BBF212A351/UniversalMac_15.0_24A5320a_Restore.ipsw",
