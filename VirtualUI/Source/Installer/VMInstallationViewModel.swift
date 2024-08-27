@@ -138,7 +138,7 @@ final class VMInstallationViewModel: ObservableObject {
         do {
             let restoreData = try PropertyListEncoder.virtualBuddy.encode(restorableState)
             machine.installRestoreData = restoreData
-            try machine.saveInstallData()
+            try machine.saveMetadata()
             self.machine = machine
         } catch {
             assertionFailure("Failed to save install restore data: \(error)")
