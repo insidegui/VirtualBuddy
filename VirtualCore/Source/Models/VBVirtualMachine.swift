@@ -191,6 +191,10 @@ public extension VBVirtualMachine {
         let metaData = try PropertyListEncoder.virtualBuddy.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
 
+        try saveInstallData()
+    }
+
+    func saveInstallData() throws {
         if let installRestoreData {
             try write(installRestoreData, forMetadataFileNamed: Self.installRestoreFilename)
         } else {

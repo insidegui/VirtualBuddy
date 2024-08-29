@@ -234,6 +234,7 @@
 		F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */; };
 		F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */; };
 		F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */; };
+		F4ECC6D52C63BFD5001DAC1D /* NumberDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */; };
 		F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
@@ -643,6 +644,7 @@
 		F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStatePackage.swift; sourceTree = "<group>"; };
 		F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMLibraryController+SavedState.swift"; sourceTree = "<group>"; };
 		F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUIManager.swift; sourceTree = "<group>"; };
+		F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberDisplayMode.swift; sourceTree = "<group>"; };
 		F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareVersion.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
@@ -926,6 +928,7 @@
 			isa = PBXGroup;
 			children = (
 				F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */,
+				F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */,
 				F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */,
 				F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */,
 				F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */,
@@ -2113,6 +2116,7 @@
 				F422587C2885E1CE009420AE /* NetworkConfigurationView.swift in Sources */,
 				F41369A329917FA0002CE8D3 /* ScreenChangeModifier.swift in Sources */,
 				F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */,
+				F4ECC6D52C63BFD5001DAC1D /* NumberDisplayMode.swift in Sources */,
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
 				F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,

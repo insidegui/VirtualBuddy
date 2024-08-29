@@ -65,9 +65,33 @@
   "restoreImages": [
     {
       "group": "sequoia",
-      "name": "macOS 15.1 Developer Beta 1",
-      "build": "24B5009l",
-      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-47125/381F8D56-0EB1-4EB6-AEF4-04D9BC5D2426/UniversalMac_15.1_24B5009l_Restore.ipsw",
+      "name": "macOS 15.0 Developer Beta 8",
+      "build": "24A5331b",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-71949/A67919DD-2AAC-4324-99BF-70765065DD70/UniversalMac_15.0_24A5331b_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
+      "name": "macOS 15.0 Developer Beta 7",
+      "build": "24A5327a",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-64520/F98C92F6-656A-46BB-A1DB-F447698DBB72/UniversalMac_15.0_24A5327a_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
+      "name": "macOS 15.0 Developer Beta 6",
+      "build": "24A5320a",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-59123/7B77FE01-E040-4D4A-8E93-64BBF212A351/UniversalMac_15.0_24A5320a_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
+      "name": "macOS 15.0 Developer Beta 5",
+      "build": "24A5309e",
+      "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/062-45756/5B063A0C-5ECA-434B-A462-CD1F65737105/UniversalMac_15.0_24A5309e_Restore.ipsw",
       "channel": "devbeta",
       "needsCookie": false
     },
@@ -109,6 +133,14 @@
       "build": "24A5264n",
       "url": "https://updates.cdn-apple.com/2024SummerSeed/fullrestores/052-49083/ED8F54D6-A7BF-488A-85E5-617E08C41383/UniversalMac_15.0_24A5264n_Restore.ipsw",
       "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sonoma",
+      "name": "macOS 14.6.1",
+      "build": "23G93",
+      "url": "https://updates.cdn-apple.com/2024SummerFCS/fullrestores/062-52859/932E0A8F-6644-4759-82DA-F8FA8DEA806A/UniversalMac_14.6.1_23G93_Restore.ipsw",
+      "channel": "regular",
       "needsCookie": false
     },
     {

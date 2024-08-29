@@ -104,6 +104,8 @@ public struct VirtualMachineSessionView: View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
             captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
+            isDFUModeVM: controller.options.bootInDFUMode,
+            vmECID: controller.virtualMachineModel.ECID,
             automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
             screenshotSubject: screenshotTaken
         )
@@ -190,7 +192,7 @@ public struct VirtualMachineSessionView: View {
         { [weak controller] in
             guard let controller else { return true }
 
-            guard controller.isStarting || controller.isRunning else { return true }
+            if controller.isIdle || controller.isStopped { return true }
 
             let confirmed = await NSAlert.runConfirmationAlert(
                 title: "Stop Virtual Machine?",
@@ -270,24 +272,36 @@ struct VMCircularButtonStyle: ButtonStyle {
 }
 
 extension VMController {
-    var isRunning: Bool {
-        guard case .running = state else { return false }
-        return true
+    var isIdle: Bool {
+        return state == .idle
     }
     var isStarting: Bool {
         guard case .starting = state else { return false }
         return true
     }
+    var isRunning: Bool {
+        guard case .running = state else { return false }
+        return true
+    }
+    var isStopped: Bool {
+        guard case .stopped = state else { return false }
+        return true
+    }
 }
 
 #if DEBUG
-#Preview {
-    VirtualMachineSessionView()
-        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
-        .environmentObject(VMLibraryController.preview)
-        .environmentObject(VMController.preview)
-        .environmentObject(VirtualMachineSessionUI.preview)
-        .environmentObject(VirtualMachineSessionUIManager.shared)
+struct VirtualMachineSessionViewPreview: View {
+    var body: some View {
+        VirtualMachineSessionView()
+            .frame(minWidth: 800, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
+            .environmentObject(VMLibraryController.preview)
+            .environmentObject(VMController.preview)
+            .environmentObject(VirtualMachineSessionUI.preview)
+            .environmentObject(VirtualMachineSessionUIManager.shared)
+    }
+}
 
+#Preview {
+    VirtualMachineSessionViewPreview()
 }
 #endif
