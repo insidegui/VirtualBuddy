@@ -9,6 +9,11 @@ import SwiftUI
 import VirtualCore
 import Combine
 
+enum RestoreImageSelectionFocus: Hashable {
+    case groups
+    case images
+}
+
 final class RestoreImageSelectionController: ObservableObject {
 
     let library: VMLibraryController
@@ -23,6 +28,7 @@ final class RestoreImageSelectionController: ObservableObject {
     @Published var selectedGroup: ResolvedCatalogGroup?
     @Published var selectedRestoreImage: ResolvedRestoreImage?
     @Published var errorMessage: String?
+    @Published var focusedElement = RestoreImageSelectionFocus.groups
 
     func loadRestoreImageOptions(for guest: VBGuestType) {
         Task {
@@ -90,17 +96,33 @@ struct RestoreImageSelectionStep: View {
         self.authRequirementFlow = authRequirementFlow
     }
 
+    @Environment(\.containerPadding)
+    private var containerPadding
+
+    private var browserInsetTop: CGFloat { 100 }
+
     var body: some View {
-        ZStack {
+        VStack(spacing: 0) {
+            CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
+                .zIndex(10)
+
             if let catalog = controller.catalog, let group = controller.selectedGroup {
                 RestoreImageBrowser(catalog: catalog, group: group, selection: $selection)
+                    .safeAreaInset(edge: .top, spacing: 0) {
+                        LinearGradient(colors: [.black, .clear], startPoint: .init(x: 0, y: 0.5), endPoint: .init(x: 0, y: 1))
+                            .frame(height: browserInsetTop)
+                            .blendMode(.destinationOut)
+                    }
+                    .compositingGroup()
+                    .safeAreaInset(edge: .bottom, spacing: 0) {
+                        Color.clear.frame(height: 16)
+                    }
+                    .padding(.top, -browserInsetTop + containerPadding)
             }
-        }
-        .safeAreaInset(edge: .top, alignment: .leading, spacing: 0) {
-            CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
         }
         .background { colorfulBackground }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environmentObject(controller)
         .task { controller.loadRestoreImageOptions(for: guestType) }
     }
 
@@ -166,24 +188,3 @@ struct RestoreImageSelectionStep: View {
     @State private var authRequirementFlow: VBGuestReleaseChannel.Authentication?
 
 }
-
-//#if DEBUG
-//struct RestoreImageSelectionStep_Previews: PreviewProvider {
-//    static var previews: some View {
-//        _Template()
-//    }
-//    
-//    struct _Template: View {
-//        @State private var image: ResolvedRestoreImage?
-//        
-//        var body: some View {
-//            RestoreImageSelectionStep(
-//                library: .preview,
-//                selection: $image,
-//                guestType: .mac,
-//                validationChanged: PassthroughSubject<Bool, Never>()
-//            )
-//        }
-//    }
-//}
-//#endif

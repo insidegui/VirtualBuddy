@@ -3,6 +3,9 @@ import VirtualCore
 import VirtualCatalog
 
 struct CatalogGroupPicker: View {
+    @EnvironmentObject
+    private var controller: RestoreImageSelectionController
+
     var groups: [ResolvedCatalogGroup]
     @Binding var selectedGroup: ResolvedCatalogGroup?
 
@@ -24,6 +27,8 @@ struct CatalogGroupPicker: View {
     @Environment(\.containerPadding)
     private var containerPadding
 
+    @FocusState private var focused: Bool
+
     @ViewBuilder
     private var container: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -37,18 +42,21 @@ struct CatalogGroupPicker: View {
             }
             .padding([.top, .leading, .trailing], containerPadding)
         }
-        .keyboardNavigation { direction in
+        .focusable()
+        .focused($focused)
+        .backported_focusEffectDisabled()
+        .onMoveCommand { direction in
             switch direction {
             case .left:
                 if let previous = groups.previous(from: selectedGroup) {
                     selectedGroup = previous
-                    scrolledGroupID = previous.id
                 }
             case .right:
                 if let next = groups.next(from: selectedGroup) {
                     selectedGroup = next
-                    scrolledGroupID = next.id
                 }
+            case .down:
+                controller.focusedElement = .images
             default:
                 break
             }
@@ -60,6 +68,15 @@ struct CatalogGroupPicker: View {
                         .tag(group)
                 }
             }
+        }
+        .onChange(of: selectedGroup?.id) { groupID in
+            withAnimation(.snappy) {
+                scrolledGroupID = groupID
+            }
+        }
+        .onReceive(controller.$focusedElement) { element in
+            guard element == .groups else { return }
+            self.focused = true
         }
     }
 

@@ -59,3 +59,14 @@ private struct KeyboardNavigationModifier_Legacy: ViewModifier {
             }
     }
 }
+
+extension View {
+    @ViewBuilder
+    func backported_focusEffectDisabled(_ disabled: Bool = true) -> some View {
+        if #available(macOS 14.0, *) {
+            focusEffectDisabled(disabled)
+        } else {
+            self
+        }
+    }
+}

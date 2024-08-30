@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import Combine
 
 struct ChannelGroup: Identifiable, Hashable {
     var id: CatalogChannel.ID { channel.id }
@@ -15,20 +16,28 @@ struct ChannelGroup: Identifiable, Hashable {
 }
 
 struct RestoreImageBrowser: View {
+    @EnvironmentObject
+    private var controller: RestoreImageSelectionController
+
     var catalog: ResolvedCatalog
     var group: ResolvedCatalogGroup
     var channelGroups: [ChannelGroup]
+    private var images: [ResolvedRestoreImage]
     @Binding var selection: ResolvedRestoreImage?
 
     init(catalog: ResolvedCatalog, group: ResolvedCatalogGroup, selection: Binding<ResolvedRestoreImage?>) {
         self.catalog = catalog
         self.group = group
-        self.channelGroups = ChannelGroup.groups(with: group.restoreImages)
+        let groups = ChannelGroup.groups(with: group.restoreImages)
+        self.channelGroups = groups
+        self.images = groups.flatMap(\.images)
         self._selection = selection
     }
 
     @Environment(\.containerPadding)
     private var containerPadding
+
+    @FocusState private var focused: Bool
 
     var body: some View {
         ScrollView(.vertical) {
@@ -38,7 +47,34 @@ struct RestoreImageBrowser: View {
                 }
             }
             .padding(.horizontal, containerPadding)
-            .padding(.top, containerPadding)
+        }
+        .focusable()
+        .focused($focused)
+        .backported_focusEffectDisabled()
+        .onMoveCommand { direction in
+            switch direction {
+            case .down:
+                if let previous = images.next(from: selection) {
+                    selection = previous
+                }
+            case .up:
+                if let next = images.previous(from: selection) {
+                    selection = next
+                } else {
+                    focused = false
+                }
+            default:
+                break
+            }
+        }
+        .onReceive(controller.$focusedElement) { element in
+            guard element == .images else { return }
+
+            self.focused = true
+
+            if selection == nil {
+                selection = images.first
+            }
         }
     }
 
