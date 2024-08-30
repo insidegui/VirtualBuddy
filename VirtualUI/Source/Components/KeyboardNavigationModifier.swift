@@ -1,12 +1,41 @@
 import SwiftUI
 
 extension View {
-    func keyboardNavigation(_ onMove: @escaping (_ direction: MoveCommandDirection) -> Void) -> some View {
-        modifier(KeyboardNavigationModifier(onMove: onMove))
+    @ViewBuilder
+    func keyboardNavigation(autofocus: Bool = true, onMove: @escaping (_ direction: MoveCommandDirection) -> Void) -> some View {
+        if #available(macOS 14.0, *) {
+            modifier(KeyboardNavigationModifier_Modern(autofocus: autofocus, onMove: onMove))
+        } else {
+            modifier(KeyboardNavigationModifier_Legacy(autofocus: autofocus, onMove: onMove))
+        }
     }
 }
 
-private struct KeyboardNavigationModifier: ViewModifier {
+@available(macOS 14.0, *)
+private struct KeyboardNavigationModifier_Modern: ViewModifier {
+    var autofocus: Bool
+    var onMove: (MoveCommandDirection) -> Void
+
+    @FocusState private var isFocused
+
+    func body(content: Content) -> some View {
+        content
+            .focusable(true)
+            .focused($isFocused)
+            .onMoveCommand { direction in
+                onMove(direction)
+            }
+            .focusEffectDisabled()
+            .task {
+                guard autofocus else { return }
+                isFocused = true
+            }
+    }
+
+}
+
+private struct KeyboardNavigationModifier_Legacy: ViewModifier {
+    var autofocus: Bool
     var onMove: (MoveCommandDirection) -> Void
 
     @FocusState private var isFocused
@@ -24,6 +53,9 @@ private struct KeyboardNavigationModifier: ViewModifier {
                         onMove(direction)
                     }
             }
-            .task { isFocused = true }
+            .task {
+                guard autofocus else { return }
+                isFocused = true
+            }
     }
 }
