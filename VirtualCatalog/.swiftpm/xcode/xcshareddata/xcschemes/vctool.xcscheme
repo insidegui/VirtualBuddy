@@ -172,11 +172,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "-i"
-            isEnabled = "YES">
-         </CommandLineArgument>
-         <CommandLineArgument
-            argument = "~/Downloads/softwarecatalog/ipsws_v1.json"
+            argument = "--live"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
@@ -184,7 +180,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "~/Downloads/softwarecatalog/ipsws_v2.json"
+            argument = "~/Developer/_projects/VirtualBuddy/data/ipsws_v2.json"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument

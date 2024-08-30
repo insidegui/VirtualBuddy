@@ -12,19 +12,33 @@ extension CatalogCommand {
         )
 
         @Option(name: [.short, .long], help: "Path to version 1 catalog.")
-        var inputPath: String
+        var inputPath: String?
+
+        @Flag(help: "Migrate from live API catalog instead of a local file.")
+        var live = false
 
         @Option(name: [.short, .long], help: "Path where to save the migrated version 2 catalog. If a catalog already exists at this path, all restore images will be removed from it and replaced by the migrated ones from the version 1 catalog, but groups and channels will be retained.")
         var outputPath: String
+
+        private func fetchLegacyCatalog() async throws -> LegacyCatalog {
+            if let inputPath {
+                return try LegacyCatalog(contentsOf: inputPath.resolvedURL.ensureExistingFile())
+            } else {
+                fputs("Downloading live v1 catalog...\n", stderr)
+
+                let (data, _) = try await URLSession.shared.data(from: URL(string: "https://api.virtualbuddy.app/restore/mac?apiKey=15A25D48-4A34-4EE4-A293-C22B0DE1B54E")!)
+
+                return try LegacyCatalog(data: data)
+            }
+        }
 
         func run() async throws {
             /// Any channels not listed here will be excluded from the output catalog.
             let channelIdentifiers: Set<String> = ["devbeta", "regular"]
 
-            let inputURL = try inputPath.resolvedURL.ensureExistingFile()
             let outputURL = outputPath.resolvedURL
 
-            let legacyCatalog = try LegacyCatalog(contentsOf: inputURL)
+            let legacyCatalog = try await fetchLegacyCatalog()
 
             var catalog: SoftwareCatalog
 

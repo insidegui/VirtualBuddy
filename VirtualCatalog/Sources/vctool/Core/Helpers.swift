@@ -112,7 +112,7 @@ extension String {
     var resolvedURL: URL { URL(filePath: resolvedPath) }
 }
 
-extension CatalogGuestPlatform: @retroactive EnumerableFlag { }
+extension CatalogGuestPlatform: EnumerableFlag { }
 
 extension ResolvedFeatureStatus {
     var cliDescription: String {
@@ -127,7 +127,7 @@ extension ResolvedFeatureStatus {
     }
 }
 
-extension SoftwareVersion: @retroactive ExpressibleByArgument {
+extension SoftwareVersion: ExpressibleByArgument {
     public init?(argument: String) {
         self.init(string: argument)
     }
@@ -155,6 +155,6 @@ extension BuildInfo {
     }
 }
 
-extension RestoreImage: TreeStringConvertible, @retroactive CustomStringConvertible {
+extension RestoreImage: TreeStringConvertible, CustomStringConvertible {
     public var description: String { description(level: 0) }
 }
