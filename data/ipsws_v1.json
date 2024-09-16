@@ -73,7 +73,7 @@
     },
     {
       "group": "sequoia",
-      "name": "macOS 15.0 RC",
+      "name": "macOS 15.0",
       "build": "24A335",
       "url": "https://updates.cdn-apple.com/2024FallFCS/fullrestores/062-78489/BDA44327-C79E-4608-A7E0-455A7E91911F/UniversalMac_15.0_24A335_Restore.ipsw",
       "channel": "regular",
