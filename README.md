@@ -1,4 +1,4 @@
-<img src=”./assets/VirtualBuddyIcon.png” width=”128” />
+<img src="./assets/VirtualBuddyIcon.png" width="128" />
 
 # VirtualBuddy
 
@@ -45,6 +45,7 @@ If you’d just like to download the latest version, [go to GitHub releases](htt
 - [x] Networking and file sharing support
 - [x] Clipboard sharing
 - [x] Customize virtual machine hardware configuration
+- [x] Save and restore macOS virtual machine state
 
 ### Tips and Tricks
 
