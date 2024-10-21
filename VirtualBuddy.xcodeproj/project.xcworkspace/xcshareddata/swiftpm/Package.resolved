@@ -1,13 +1,58 @@
 {
-  "originHash" : "5aabd6ca94084da6e618f041d74475ec3f152216f0ee77b4939a37c8bef3ee17",
+  "originHash" : "841e8999bef9aded40328ced4a27e7ce08ffda5fba83e0c3dbdd21fc329c4b50",
   "pins" : [
     {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/sparkle-project/Sparkle",
       "state" : {
-        "revision" : "b456fd404954a9e13f55aa0c88cd5a40b8399638",
-        "version" : "2.6.3"
+        "revision" : "0ef1ee0220239b3776f433314515fd849025673f",
+        "version" : "2.6.4"
+      }
+    },
+    {
+      "identity" : "swift-atomics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-atomics.git",
+      "state" : {
+        "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
+      }
+    },
+    {
+      "identity" : "swift-nio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio.git",
+      "state" : {
+        "revision" : "f7dc3f527576c398709b017584392fb58592e7f5",
+        "version" : "2.75.0"
+      }
+    },
+    {
+      "identity" : "swift-nio-ssl",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio-ssl.git",
+      "state" : {
+        "revision" : "d7ceaf0e4d8001cd35cdc12e42cdd281e9e564e8",
+        "version" : "2.28.0"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "c8a44d836fe7913603e246acab7c528c2e780168",
+        "version" : "1.4.0"
       }
     },
     {
@@ -26,6 +71,15 @@
       "state" : {
         "revision" : "a828b3bb5b273adf85a3ca95d9705987cb2de7c7",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "websocket.swift",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/WebSocket.swift.git",
+      "state" : {
+        "branch" : "vsock",
+        "revision" : "48e48f1a16c44f5ccf240b31fedc0f24691cf9a2"
       }
     }
   ],
