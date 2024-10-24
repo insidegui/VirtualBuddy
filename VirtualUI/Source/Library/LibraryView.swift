@@ -10,11 +10,15 @@ import VirtualCore
 
 public extension String {
     static let vb_libraryWindowID = "library"
+    static let vb_setupWindowID = "setup"
 }
 
 public struct LibraryView: View {
     @EnvironmentObject private var library: VMLibraryController
     @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
+
+    @Environment(\.openWindow)
+    private var openWindow
 
     public init() { }
 
@@ -89,11 +93,11 @@ public struct LibraryView: View {
     private var toolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             Button {
-                sessionManager.launchInstallWizard(library: library)
+                openWindow(id: .vb_setupWindowID)
             } label: {
                 Image(systemName: "plus")
             }
-            .help("Install new VM")
+            .help("New virtual machine")
         }
     }
     
