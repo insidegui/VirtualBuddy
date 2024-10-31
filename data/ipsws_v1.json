@@ -63,12 +63,20 @@
     }
   ],
   "restoreImages": [
+        {
+            "group": "sequoia",
+            "name": "macOS 15.1 (24B2083)",
+            "build": "24B2083",
+            "url": "https://updates.cdn-apple.com/2024FallFCS/fullrestores/072-12302/3786987A-AD94-4BFB-81B8-56D3841CA81B/UniversalMac_15.1_24B2083_Restore.ipsw",
+            "channel": "regular",
+            "needsCookie": false
+        },
     {
       "group": "sequoia",
-      "name": "macOS 15.1 RC 2",
+      "name": "macOS 15.1",
       "build": "24B83",
       "url": "https://updates.cdn-apple.com/2024FallFCS/fullrestores/072-12340/78D28AC4-CCFC-45D2-BD27-1E5D915E43F9/UniversalMac_15.1_24B83_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
