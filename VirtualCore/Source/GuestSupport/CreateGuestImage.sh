@@ -13,6 +13,7 @@ so that it can be automatically updated whenever something changes in the Guest 
 GUEST_APP_PATH="$1"
 GUEST_APP_DIGEST="$2"
 GUEST_DMG_SUFFIX="$3"
+GUEST_DISK_SIZE=50M
 
 if [ -z "$GUEST_APP_PATH" ]; then
     echo "Shell script invocation error: missing GUEST_APP_PATH value as first argument" 1>&2
@@ -52,7 +53,7 @@ rm "$GUEST_TEMP_DMG_PATH" 2>/dev/null || echo ""
 
 # Create blank disk image
 
-hdiutil create -layout MBRSPUD -size 20M -fs HFS+ -volname Guest "$GUEST_TEMP_DMG_PATH" || \
+hdiutil create -layout MBRSPUD -size $GUEST_DISK_SIZE -fs HFS+ -volname Guest "$GUEST_TEMP_DMG_PATH" || \
     { echo "Failed to create VirtualBuddyGuest disk image: hdiutil exit code $?" 1>&2; exit 1; }
 
 # Mount image at staging location
