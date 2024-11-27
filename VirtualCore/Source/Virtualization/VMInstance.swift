@@ -7,11 +7,10 @@
 
 import Cocoa
 import Foundation
-import Virtualization
+@preconcurrency import Virtualization
 import Combine
 import OSLog
 import VirtualWormhole
-import WebSocket
 
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
@@ -492,8 +491,7 @@ final class GuestSocketConnection {
 
     private var connectionTask: Task<Void, Never>?
     private var connection: VZVirtioSocketConnection?
-    private var socket: WebSocket?
-    private var testLoop: WebSocketTestLoop?
+//    private var socket: WebSocket?
 
     private var connectionAttempt = 0
 
@@ -525,8 +523,8 @@ final class GuestSocketConnection {
 
     @MainActor
     func invalidate() {
-        socket?.disconnect()
-        socket = nil
+//        socket?.disconnect()
+//        socket = nil
 
         connection?.close()
         connection = nil
@@ -555,83 +553,83 @@ final class GuestSocketConnection {
     }
 
     private func connect() async throws {
-        guard let vm else {
-            throw Failure("VM not available.")
-        }
-
-        guard vm.state == .running else {
-            throw Failure("VM not running.")
-        }
-
-        guard let socketDevice = vm.socketDevices.first as? VZVirtioSocketDevice else {
-            throw Failure("Virtio socket device not available.")
-        }
-
-        logger.debug("Performing socket device connection...")
-
-        let newConnection = try await createConnection(with: socketDevice)
-
-        logger.debug("Socket connected")
-
-        self.connection = newConnection
-
-        let newSocket = WebSocket()
-
-        newSocket.onConnected = { [weak self] ws in
-            guard let self else { return }
-
-            logger.notice("Connected to server.")
-
-            testLoop = WebSocketTestLoop { [weak ws] text in
-                guard let ws else { return }
-                try await ws.send(text)
-            }
-            testLoop?.activate()
-        }
-
-        newSocket.onDisconnected = { [weak self] code, _ in
-            guard let self else { return }
-
-            logger.error("Server disconnected: \(String(describing: code), privacy: .public)")
-
-            testLoop?.invalidate()
-            testLoop = nil
-
-            DispatchQueue.main.async {
-                self.activate()
-            }
-        }
-
-        newSocket.onError = { [weak self] error, _ in
-            guard let self else { return }
-
-            logger.error("Socket error: \(error)")
-
-            testLoop?.invalidate()
-            testLoop = nil
-
-            DispatchQueue.main.async {
-                self.activate()
-            }
-        }
-
-        newSocket.onData = { [weak self] data, ws in
-            guard let self else { return }
-
-            if let binary = data.binary {
-                logger.debug("Received binary:\n\(binary.count) bytes")
-            } else if let text = data.text {
-                logger.debug("Received text: \"\(text)\"")
-            } else {
-                logger.error("Unexpected: data from server has no binary nor text")
-            }
-        }
-
-        self.socket = newSocket
-
-        newSocket.connect(address: .fileDescriptor(newConnection.fileDescriptor, requestPath: "/"))
-
-        logger.debug("Created connection socket")
+//        guard let vm else {
+//            throw Failure("VM not available.")
+//        }
+//
+//        guard vm.state == .running else {
+//            throw Failure("VM not running.")
+//        }
+//
+//        guard let socketDevice = vm.socketDevices.first as? VZVirtioSocketDevice else {
+//            throw Failure("Virtio socket device not available.")
+//        }
+//
+//        logger.debug("Performing socket device connection...")
+//
+//        let newConnection = try await createConnection(with: socketDevice)
+//
+//        logger.debug("Socket connected")
+//
+//        self.connection = newConnection
+//
+//        let newSocket = WebSocket()
+//
+//        newSocket.onConnected = { [weak self] ws in
+//            guard let self else { return }
+//
+//            logger.notice("Connected to server.")
+//
+//            testLoop = WebSocketTestLoop { [weak ws] text in
+//                guard let ws else { return }
+//                try await ws.send(text)
+//            }
+//            testLoop?.activate()
+//        }
+//
+//        newSocket.onDisconnected = { [weak self] code, _ in
+//            guard let self else { return }
+//
+//            logger.error("Server disconnected: \(String(describing: code), privacy: .public)")
+//
+//            testLoop?.invalidate()
+//            testLoop = nil
+//
+//            DispatchQueue.main.async {
+//                self.activate()
+//            }
+//        }
+//
+//        newSocket.onError = { [weak self] error, _ in
+//            guard let self else { return }
+//
+//            logger.error("Socket error: \(error)")
+//
+//            testLoop?.invalidate()
+//            testLoop = nil
+//
+//            DispatchQueue.main.async {
+//                self.activate()
+//            }
+//        }
+//
+//        newSocket.onData = { [weak self] data, ws in
+//            guard let self else { return }
+//
+//            if let binary = data.binary {
+//                logger.debug("Received binary:\n\(binary.count) bytes")
+//            } else if let text = data.text {
+//                logger.debug("Received text: \"\(text)\"")
+//            } else {
+//                logger.error("Unexpected: data from server has no binary nor text")
+//            }
+//        }
+//
+//        self.socket = newSocket
+//
+//        newSocket.connect(address: .fileDescriptor(newConnection.fileDescriptor, requestPath: "/"))
+//
+//        logger.debug("Created connection socket")
     }
 
     private func createConnection(with socketDevice: VZVirtioSocketDevice, port: UInt32 = 1024) async throws -> VZVirtioSocketConnection {
@@ -645,90 +643,25 @@ final class GuestSocketConnection {
     }
 
     private func sendTestData() async {
-        do {
-            guard let socket else {
-                throw Failure("Can't activate stream without a socket.")
-            }
-
-            do {
-                let testValue = UUID().uuidString
-
-                logger.debug("Doing test write with value \"\(testValue)\"")
-
-                try await socket.send(testValue)
-
-                logger.debug("Sent test data!")
-            } catch {
-                logger.error("Test write failed: \(error, privacy: .public)")
-            }
-        } catch {
-            logger.error("Guest send failure: \(error, privacy: .public)")
-        }
+//        do {
+//            guard let socket else {
+//                throw Failure("Can't activate stream without a socket.")
+//            }
+//
+//            do {
+//                let testValue = UUID().uuidString
+//
+//                logger.debug("Doing test write with value \"\(testValue)\"")
+//
+//                try await socket.send(testValue)
+//
+//                logger.debug("Sent test data!")
+//            } catch {
+//                logger.error("Test write failed: \(error, privacy: .public)")
+//            }
+//        } catch {
+//            logger.error("Guest send failure: \(error, privacy: .public)")
+//        }
     }
 
-}
-
-extension WebSocket {
-    func send(_ text: String) async throws {
-        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> () in
-            self.send(text) { error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else {
-                    continuation.resume()
-                }
-            }
-        }
-    }
-}
-
-/// Implementation-agnostic way to implement a loop that sends a message every N seconds.
-final class WebSocketTestLoop {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "WebSocketTestLoop")
-
-    let intervalInSeconds: Int
-    let sendText: (String) async throws -> ()
-
-    init(intervalInSeconds: Int = 5, sendText: @escaping (String) async throws -> ()) {
-        self.intervalInSeconds = intervalInSeconds
-        self.sendText = sendText
-    }
-
-    private var sendTask: Task<Void, Never>?
-
-    func activate() {
-        logger.debug("Will send a test message every \(self.intervalInSeconds) seconds...")
-
-        runTestSendLoop()
-    }
-
-    func invalidate() {
-        sendTask?.cancel()
-        sendTask = nil
-    }
-
-    private func runTestSendLoop() {
-        sendTask = Task.detached { [weak self] in
-            guard let self else { return }
-
-            do {
-                try await Task.sleep(for: .seconds(intervalInSeconds))
-
-                guard !Task.isCancelled else { return }
-
-                let testString = UUID().uuidString
-
-                logger.debug("Sending test message: \"\(testString)\". Expecting to receive it back...")
-
-                try await sendText(testString)
-
-                await Task.yield()
-
-                runTestSendLoop()
-            } catch is CancellationError {
-            } catch {
-                logger.debug("Send failed: \(error)")
-            }
-        }
-    }
 }
