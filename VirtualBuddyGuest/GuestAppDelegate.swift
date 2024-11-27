@@ -1,10 +1,15 @@
 import Cocoa
 import SwiftUI
 import VirtualUI
-import VirtualWormhole
+import VirtualCore
+import OSLog
 
 @NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
+
+    private let logger = Logger(subsystem: "codes.rambo.VirtualBuddyGuest", category: "GuestAppDelegate")
+
+    private let testServer = VirtualMessagingChannel(type: .server, address: .vsock(cid: nil, port: 1024))
 
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
@@ -14,9 +19,9 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         StatusItemManager(
             configuration: .default.id("dashboard"),
             statusItem: .button(label: { Image("StatusItem") }),
-            content: GuestDashboard()
+            content: GuestDashboard<VirtualMessagingChannel>()
                 .environmentObject(self.launchAtLoginManager)
-                .environmentObject(WormholeManager.sharedGuest)
+                .environmentObject(self.testServer)
                 .environmentObject(self.sharedFolders)
         )
     }()
@@ -41,12 +46,40 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        #if DEBUG
+        UserDefaults.standard.set(true, forKey: kVerboseLoggingFlag)
+        #endif
+
         /// Skip regular app activation if installation is needed (i.e. running from disk image).
         guard !installer.needsInstall else { return }
 
         launchAtLoginManager.autoEnableIfNeeded()
 
-        WormholeManager.sharedGuest.activate()
+        Task {
+            do {
+                try await testServer.activate()
+
+                logger.notice("Test server activated")
+
+                for await message in testServer.messages {
+                    logger.notice("Server received: \(message, privacy: .public)")
+                }
+            } catch {
+                logger.error("Test server activation failed. \(error, privacy: .public)")
+            }
+        }
+
+        Task {
+            while true {
+                try await Task.sleep(for: .seconds(3))
+
+                logger.info("Sending test message...")
+
+                try await testServer.broadcast(TestVMPayload())
+
+                await Task.yield()
+            }
+        }
 
         Task {
             try? await sharedFolders.mount()

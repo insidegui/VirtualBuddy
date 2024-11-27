@@ -1,8 +1,10 @@
 import Foundation
-import VirtualWormhole
+import VirtualCore
 
 protocol HostConnectionStateProvider: ObservableObject {
-    var isConnected: Bool { get }
+    @MainActor var hasConnection: Bool { get }
 }
 
-extension WormholeManager: HostConnectionStateProvider { }
+extension VirtualMessagingChannel: HostConnectionStateProvider {
+
+}

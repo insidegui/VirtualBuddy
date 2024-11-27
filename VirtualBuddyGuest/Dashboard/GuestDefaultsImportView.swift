@@ -2,7 +2,6 @@
 import SwiftUI
 import VirtualCore
 import VirtualUI
-import VirtualWormhole
 import Combine
 
 final class DefaultsImportViewModel: ObservableObject {

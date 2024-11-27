@@ -167,6 +167,9 @@
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
 		F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */; };
 		F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5DA28873628005AA632 /* GroupedList.swift */; };
+		F4BBD27B2CF7A9ED00289F43 /* VirtualMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F4BBD27A2CF7A9ED00289F43 /* VirtualMessaging */; };
+		F4BBD27C2CF7AF2B00289F43 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
+		F4BBD27D2CF7AF2B00289F43 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4BE580E29BA6C8D00C5525C /* DefaultsDomains.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */; };
 		F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */; };
 		F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */; };
@@ -196,8 +199,6 @@
 		F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4628491B8500335EC7 /* GuestDashboard.swift */; };
 		F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4828491B8500335EC7 /* Assets.xcassets */; };
 		F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4B28491B8500335EC7 /* Preview Assets.xcassets */; };
-		F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
-		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4C2374D2888A462001FF286 /* VolumeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374C2888A462001FF286 /* VolumeUtils.swift */; };
 		F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374F2888AF67001FF286 /* LogStreamer.swift */; };
 		F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */; };
@@ -286,14 +287,14 @@
 			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
 			remoteInfo = VirtualCore;
 		};
-		F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */ = {
+		F4BBD27E2CF7AF2B00289F43 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
 			remoteInfo = VirtualWormhole;
 		};
-		F4C18A5428491B9D00335EC7 /* PBXContainerItemProxy */ = {
+		F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
@@ -386,8 +387,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 				F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */,
+				F4BBD27D2CF7AF2B00289F43 /* VirtualWormhole.framework in Embed Frameworks */,
 				F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
@@ -549,6 +550,7 @@
 		F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Validation.swift"; sourceTree = "<group>"; };
 		F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Summary.swift"; sourceTree = "<group>"; };
 		F4B5C5DA28873628005AA632 /* GroupedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedList.swift; sourceTree = "<group>"; };
+		F4BBD2792CF7A9DA00289F43 /* VirtualMessaging */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = VirtualMessaging; path = ../VirtualMessaging; sourceTree = SOURCE_ROOT; };
 		F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = DefaultsDomains.plist; sourceTree = "<group>"; };
 		F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsImportController.swift; sourceTree = "<group>"; };
 		F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsDomainDescriptor.swift; sourceTree = "<group>"; };
@@ -666,6 +668,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
+				F4BBD27B2CF7A9ED00289F43 /* VirtualMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -680,8 +683,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
 				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
+				F4BBD27C2CF7AF2B00289F43 /* VirtualWormhole.framework in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
@@ -1240,6 +1243,7 @@
 		F4BBD2782CF7A8F100289F43 /* Packages */ = {
 			isa = PBXGroup;
 			children = (
+				F4BBD2792CF7A9DA00289F43 /* VirtualMessaging */,
 			);
 			name = Packages;
 			sourceTree = "<group>";
@@ -1744,10 +1748,10 @@
 			);
 			dependencies = (
 				F41369BD29918617002CE8D3 /* PBXTargetDependency */,
-				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
 				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
 				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
 				F42862312AE87D7E0052F029 /* PBXTargetDependency */,
+				F4BBD27F2CF7AF2B00289F43 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddyGuest;
 			productName = VirtualBuddyGuest;
@@ -2225,15 +2229,15 @@
 			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
 			targetProxy = F498AD0A2884BF60006F1C00 /* PBXContainerItemProxy */;
 		};
+		F4BBD27F2CF7AF2B00289F43 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
+			targetProxy = F4BBD27E2CF7AF2B00289F43 /* PBXContainerItemProxy */;
+		};
 		F4C189F02848F5F100335EC7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
 			targetProxy = F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */;
-		};
-		F4C18A5528491B9D00335EC7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
-			targetProxy = F4C18A5428491B9D00335EC7 /* PBXContainerItemProxy */;
 		};
 		F4C18A5828491C0D00335EC7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -4502,6 +4506,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
 			productName = "SwiftUIIntrospect-Static";
+		};
+		F4BBD27A2CF7A9ED00289F43 /* VirtualMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VirtualMessaging;
 		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;

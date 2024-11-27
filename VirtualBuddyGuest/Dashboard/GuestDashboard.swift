@@ -6,11 +6,10 @@
 //
 
 import SwiftUI
-import VirtualWormhole
 
-struct GuestDashboard: View {
+struct GuestDashboard<HostConnection: HostConnectionStateProvider>: View {
     @EnvironmentObject private var launchAtLoginManager: GuestLaunchAtLoginManager
-    @EnvironmentObject private var hostConnection: WormholeManager
+    @EnvironmentObject private var hostConnection: HostConnection
     @EnvironmentObject private var sharedFolders: GuestSharedFoldersManager
 
     @State var activated = false
@@ -50,10 +49,10 @@ struct GuestDashboard: View {
     private var connectionState: some View {
         HStack(spacing: 4) {
             Circle()
-                .foregroundColor(hostConnection.isConnected ? Color.green : Color.red)
+                .foregroundColor(hostConnection.hasConnection ? Color.green : Color.red)
                 .frame(width: 6)
 
-            if hostConnection.isConnected {
+            if hostConnection.hasConnection {
                 Text("Connected to VirtualBuddy")
             } else {
                 Text("Not Connected")
@@ -102,14 +101,14 @@ struct GuestDashboard: View {
 #if DEBUG
 struct GuestDashboard_Previews: PreviewProvider {
     static var previews: some View {
-        GuestDashboard()
+        GuestDashboard<MockHostConnectionStateProvider>()
             .environmentObject(GuestLaunchAtLoginManager())
-            .environmentObject(WormholeManager.sharedGuest)
+            .environmentObject(MockHostConnectionStateProvider())
             .environmentObject(GuestSharedFoldersManager())
     }
 }
 
 final class MockHostConnectionStateProvider: HostConnectionStateProvider {
-    var isConnected: Bool = false
+    var hasConnection: Bool = false
 }
 #endif

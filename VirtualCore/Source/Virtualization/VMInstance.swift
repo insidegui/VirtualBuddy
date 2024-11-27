@@ -11,6 +11,8 @@ import Foundation
 import Combine
 import OSLog
 import VirtualWormhole
+@_exported import VirtualMessaging
+@_exported import MessageRouter
 
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
@@ -491,7 +493,7 @@ final class GuestSocketConnection {
 
     private var connectionTask: Task<Void, Never>?
     private var connection: VZVirtioSocketConnection?
-//    private var socket: WebSocket?
+    private var channel: VirtualMessagingChannel?
 
     private var connectionAttempt = 0
 
@@ -523,8 +525,8 @@ final class GuestSocketConnection {
 
     @MainActor
     func invalidate() {
-//        socket?.disconnect()
-//        socket = nil
+        try? channel?.invalidate()
+        channel = nil
 
         connection?.close()
         connection = nil
@@ -553,83 +555,60 @@ final class GuestSocketConnection {
     }
 
     private func connect() async throws {
-//        guard let vm else {
-//            throw Failure("VM not available.")
-//        }
-//
-//        guard vm.state == .running else {
-//            throw Failure("VM not running.")
-//        }
-//
-//        guard let socketDevice = vm.socketDevices.first as? VZVirtioSocketDevice else {
-//            throw Failure("Virtio socket device not available.")
-//        }
-//
-//        logger.debug("Performing socket device connection...")
-//
-//        let newConnection = try await createConnection(with: socketDevice)
-//
-//        logger.debug("Socket connected")
-//
-//        self.connection = newConnection
-//
-//        let newSocket = WebSocket()
-//
-//        newSocket.onConnected = { [weak self] ws in
-//            guard let self else { return }
-//
-//            logger.notice("Connected to server.")
-//
-//            testLoop = WebSocketTestLoop { [weak ws] text in
-//                guard let ws else { return }
-//                try await ws.send(text)
-//            }
-//            testLoop?.activate()
-//        }
-//
-//        newSocket.onDisconnected = { [weak self] code, _ in
-//            guard let self else { return }
-//
-//            logger.error("Server disconnected: \(String(describing: code), privacy: .public)")
-//
-//            testLoop?.invalidate()
-//            testLoop = nil
-//
-//            DispatchQueue.main.async {
-//                self.activate()
-//            }
-//        }
-//
-//        newSocket.onError = { [weak self] error, _ in
-//            guard let self else { return }
-//
-//            logger.error("Socket error: \(error)")
-//
-//            testLoop?.invalidate()
-//            testLoop = nil
-//
-//            DispatchQueue.main.async {
-//                self.activate()
-//            }
-//        }
-//
-//        newSocket.onData = { [weak self] data, ws in
-//            guard let self else { return }
-//
-//            if let binary = data.binary {
-//                logger.debug("Received binary:\n\(binary.count) bytes")
-//            } else if let text = data.text {
-//                logger.debug("Received text: \"\(text)\"")
-//            } else {
-//                logger.error("Unexpected: data from server has no binary nor text")
-//            }
-//        }
-//
-//        self.socket = newSocket
-//
-//        newSocket.connect(address: .fileDescriptor(newConnection.fileDescriptor, requestPath: "/"))
-//
-//        logger.debug("Created connection socket")
+        guard let vm else {
+            throw Failure("VM not available.")
+        }
+
+        guard vm.state == .running else {
+            throw Failure("VM not running.")
+        }
+
+        guard let socketDevice = vm.socketDevices.first as? VZVirtioSocketDevice else {
+            throw Failure("Virtio socket device not available.")
+        }
+
+        logger.debug("Performing socket device connection...")
+
+        let newConnection = try await createConnection(with: socketDevice)
+
+        logger.debug("Socket connected")
+
+        self.connection = newConnection
+
+        let newChannel = VirtualMessagingChannel(type: .client, address: .fileDescriptor(newConnection.fileDescriptor))
+        self.channel = newChannel
+
+        let eventTask = Task {
+            for await event in newChannel.events {
+                switch event {
+                case .connected:
+                    logger.info("Channel connected")
+                case .disconnected:
+                    logger.info("Channel disconnected")
+                    return
+                }
+            }
+        }
+
+        Task {
+            for await message in newChannel.messages {
+                logger.log("Received message: \(message, privacy: .public)")
+            }
+        }
+
+        try await newChannel.activate()
+
+        try await Task.sleep(for: .milliseconds(200))
+
+        guard await newChannel.hasConnection else {
+            throw "Connection failed."
+        }
+
+        logger.notice("Channel created")
+
+        await eventTask.value
+
+        throw "Disconnected"
     }
 
     private func createConnection(with socketDevice: VZVirtioSocketDevice, port: UInt32 = 1024) async throws -> VZVirtioSocketConnection {
@@ -642,26 +621,13 @@ final class GuestSocketConnection {
         }
     }
 
-    private func sendTestData() async {
-//        do {
-//            guard let socket else {
-//                throw Failure("Can't activate stream without a socket.")
-//            }
-//
-//            do {
-//                let testValue = UUID().uuidString
-//
-//                logger.debug("Doing test write with value \"\(testValue)\"")
-//
-//                try await socket.send(testValue)
-//
-//                logger.debug("Sent test data!")
-//            } catch {
-//                logger.error("Test write failed: \(error, privacy: .public)")
-//            }
-//        } catch {
-//            logger.error("Guest send failure: \(error, privacy: .public)")
-//        }
-    }
+}
 
+public struct TestVMPayload: RoutableMessagePayload {
+    public var id = UUID()
+    public var timestamp = Date.now.timeIntervalSinceReferenceDate
+    public init(id: UUID = UUID(), timestamp: TimeInterval = Date.now.timeIntervalSinceReferenceDate) {
+        self.id = id
+        self.timestamp = timestamp
+    }
 }

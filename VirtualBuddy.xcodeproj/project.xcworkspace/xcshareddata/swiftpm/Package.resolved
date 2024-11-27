@@ -1,6 +1,24 @@
 {
-  "originHash" : "5aabd6ca94084da6e618f041d74475ec3f152216f0ee77b4939a37c8bef3ee17",
+  "originHash" : "2f7566634cf8a420de546c7a78c08e2dbe3466dca2cf0aa99492c2a0b813f022",
   "pins" : [
+    {
+      "identity" : "buddykit",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:insidegui/BuddyKit.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "80d8bebc2025f316295a944ab3709bdc9b688865"
+      }
+    },
+    {
+      "identity" : "messagerouter",
+      "kind" : "remoteSourceControl",
+      "location" : "git@github.com:insidegui/MessageRouter.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "16738ef1192a3dab76872aef2e426e807910808d"
+      }
+    },
     {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
@@ -8,6 +26,42 @@
       "state" : {
         "revision" : "0ef1ee0220239b3776f433314515fd849025673f",
         "version" : "2.6.4"
+      }
+    },
+    {
+      "identity" : "swift-atomics",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-atomics.git",
+      "state" : {
+        "revision" : "cd142fd2f64be2100422d658e7411e39489da985",
+        "version" : "1.2.0"
+      }
+    },
+    {
+      "identity" : "swift-collections",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-collections.git",
+      "state" : {
+        "revision" : "671108c96644956dddcd89dd59c203dcdb36cec7",
+        "version" : "1.1.4"
+      }
+    },
+    {
+      "identity" : "swift-nio",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-nio.git",
+      "state" : {
+        "revision" : "dca6594f65308c761a9c409e09fbf35f48d50d34",
+        "version" : "2.77.0"
+      }
+    },
+    {
+      "identity" : "swift-system",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-system.git",
+      "state" : {
+        "revision" : "c8a44d836fe7913603e246acab7c528c2e780168",
+        "version" : "1.4.0"
       }
     },
     {
