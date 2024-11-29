@@ -140,8 +140,8 @@ final class GuestServiceInstance: Sendable {
         self.service = service
     }
 
-    func activate(channelProvider: VMChannelProvider) async throws {
-        let connection = VMServiceConnection(id: id, isListener: true)
+    func activate(channelProvider: VMChannelProvider, isListener: Bool) async throws {
+        let connection = VMServiceConnection(id: id, isListener: isListener)
 
         try await connection.activate(with: channelProvider) { [weak self] peer in
             guard let self else { return }

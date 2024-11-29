@@ -110,6 +110,8 @@
 		F45B06FB2CFA4F680052152F /* GuestAppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FA2CFA4F650052152F /* GuestAppServices.swift */; };
 		F45B06FD2CFA53C10052152F /* GuestEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */; };
 		F45B06FF2CFA55600052152F /* GuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FE2CFA555F0052152F /* GuestApp.swift */; };
+		F45B07022CFA57F10052152F /* GuestSimulatorScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B07012CFA57EB0052152F /* GuestSimulatorScreen.swift */; };
+		F45B07042CFA58450052152F /* HostAppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B07032CFA583C0052152F /* HostAppServices.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -453,6 +455,8 @@
 		F45B06FA2CFA4F650052152F /* GuestAppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAppServices.swift; sourceTree = "<group>"; };
 		F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestEnvironment.swift; sourceTree = "<group>"; };
 		F45B06FE2CFA555F0052152F /* GuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestApp.swift; sourceTree = "<group>"; };
+		F45B07012CFA57EB0052152F /* GuestSimulatorScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestSimulatorScreen.swift; sourceTree = "<group>"; };
+		F45B07032CFA583C0052152F /* HostAppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostAppServices.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -952,6 +956,7 @@
 				F45B06F02CFA3F190052152F /* GuestService.swift */,
 				F45B06EE2CFA3B560052152F /* GuestServicesCoordinator.swift */,
 				F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */,
+				F45B07032CFA583C0052152F /* HostAppServices.swift */,
 			);
 			path = GuestMessaging;
 			sourceTree = "<group>";
@@ -972,6 +977,14 @@
 				F45B06F82CFA4E3B0052152F /* GuestPingClient.swift */,
 			);
 			path = Ping;
+			sourceTree = "<group>";
+		};
+		F45B07002CFA57E20052152F /* Debug */ = {
+			isa = PBXGroup;
+			children = (
+				F45B07012CFA57EB0052152F /* GuestSimulatorScreen.swift */,
+			);
+			path = Debug;
 			sourceTree = "<group>";
 		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
@@ -1082,6 +1095,7 @@
 				F41725642886DF4A004FF8A7 /* Components */,
 				F498AD102884C35F006F1C00 /* VM Configuration */,
 				F498AD0F2884C35A006F1C00 /* Building Blocks */,
+				F45B07002CFA57E20052152F /* Debug */,
 			);
 			path = Source;
 			sourceTree = "<group>";
@@ -1824,6 +1838,7 @@
 				F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
+				F45B07022CFA57F10052152F /* GuestSimulatorScreen.swift in Sources */,
 				F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */,
 				F498AD1A2884C5FF006F1C00 /* SliderConversion.swift in Sources */,
 				F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */,
@@ -1909,6 +1924,7 @@
 				F45B06F92CFA4E3E0052152F /* GuestPingClient.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
+				F45B07042CFA58450052152F /* HostAppServices.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,

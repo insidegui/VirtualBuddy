@@ -8,18 +8,14 @@ public final class GuestServicesCoordinator: Sendable {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestServerCoordinator")
 
     /// Server for virtualized guest, which is used when VirtualBuddyGuest is running in a virtual machine.
-    private static let guestServer = GuestServicesCoordinator(addressProvider: VSockVMServiceAddressProvider())
-
-    #warning("TODO: This address provider will have to be changed for the host side, and will likely require allowing asynchronous address providers")
-    /// Client for virtualized guest, which is used when VirtualBuddy is running on the host with guest simulation disabled.
-    private static let hostClient = GuestServicesCoordinator(addressProvider: VSockVMServiceAddressProvider())
+    private static let guestServer = GuestServicesCoordinator(addressProvider: VSockVMServiceAddressProvider(), isListener: true)
 
     #if DEBUG
     /// [DEBUG ONLY] Server for simulated guest, which is used when VirtualBuddyGuest is running on the host for testing.
-    private static let simulatedGuestServer = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: true))
+    private static let simulatedGuestServer = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: true), isListener: true)
 
     /// [DEBUG ONLY] Host-side client for simulated guest-side server, which is used when VirtualBuddy is running with guest simulation enabled.
-    private static let simulatedHostClient = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: false))
+    internal static let simulatedHostClient = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: false), isListener: false)
     #endif
 
     /// The global services coordinator instance, which is automatically set up depending on the environment.
@@ -39,10 +35,10 @@ public final class GuestServicesCoordinator: Sendable {
             if UserDefaults.isGuestSimulationEnabled {
                 return .simulatedHostClient
             } else {
-                return .hostClient
+                fatalError("GuestServicesCoordinator.current singleton can't be used on the host unless guest simulation is enabled")
             }
             #else
-            return .hostClient
+            fatalError("GuestServicesCoordinator.current singleton can't be used on the host unless guest simulation is enabled")
             #endif
         }
     }()
@@ -50,9 +46,11 @@ public final class GuestServicesCoordinator: Sendable {
     private let addressProvider: VMServiceAddressProvider
     private let coordinator: VMServiceCoordinator
 
-    internal init(addressProvider: VMServiceAddressProvider) {
+    /// On the host side, this initializer will be used, since each VM instance will need its own services coordinator.
+    /// The guest always uses the ``current`` singleton, as there can only be a single guest app per VM.
+    public init(addressProvider: VMServiceAddressProvider, isListener: Bool) {
         self.addressProvider = addressProvider
-        self.coordinator = VMServiceCoordinator(isListener: true, addressProvider: addressProvider)
+        self.coordinator = VMServiceCoordinator(isListener: isListener, addressProvider: addressProvider)
     }
 
     private let bootstrappedServices = NSMapTable<NSString, GuestServiceInstance>(keyOptions: .objectPersonality, valueOptions: .strongMemory)
@@ -88,7 +86,7 @@ public final class GuestServicesCoordinator: Sendable {
 
         bootstrappedServices.setObject(instance, forKey: service.id as NSString)
 
-        try await instance.activate(channelProvider: coordinator)
+        try await instance.activate(channelProvider: coordinator, isListener: coordinator.isListener)
     }
 }
 

@@ -10,6 +10,9 @@ import VirtualCore
 
 public extension String {
     static let vb_libraryWindowID = "library"
+    #if DEBUG
+    static let vb_simulatorWindowID = "guestSimulator"
+    #endif
 }
 
 public struct LibraryView: View {
@@ -18,10 +21,20 @@ public struct LibraryView: View {
 
     public init() { }
 
+    @Environment(\.openWindow)
+    private var openWindow
+
     public var body: some View {
         libraryContents
             .frame(minWidth: 600, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .toolbar(content: { toolbarContents })
+            .task {
+                #if DEBUG
+                if UserDefaults.isGuestSimulationEnabled {
+                    openWindow(id: .vb_simulatorWindowID)
+                }
+                #endif
+            }
     }
 
     private var gridSpacing: CGFloat { 16 }

@@ -11,6 +11,22 @@ import CryptoKit
 import UniformTypeIdentifiers
 import OSLog
 
+public extension URL {
+    static var embeddedGuestAppURL: URL {
+        get throws {
+            guard let url = Bundle.main.sharedSupportURL?.appendingPathComponent("VirtualBuddyGuest.app") else {
+                throw Failure("Couldn't get VirtualBuddyGuest.app URL within main app bundle")
+            }
+
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                throw Failure("VirtualBuddyGuest.app doesn't exist at \(url.path)")
+            }
+
+            return url
+        }
+    }
+}
+
 public final class GuestAdditionsDiskImage {
 
     private lazy var logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: Self.self))
@@ -19,6 +35,13 @@ public final class GuestAdditionsDiskImage {
 
     public func installIfNeeded() async throws {
         logger.debug(#function)
+
+        #if DEBUG
+        guard !UserDefaults.isGuestSimulationEnabled else {
+            logger.notice("Skipping install: guest simulation enabled")
+            return
+        }
+        #endif
 
         let embeddedDigest = try computeEmbeddedGuestDigest()
 
@@ -43,17 +66,7 @@ public final class GuestAdditionsDiskImage {
     // MARK: File Paths
 
     private var embeddedGuestAppURL: URL {
-        get throws {
-            guard let url = Bundle.main.sharedSupportURL?.appendingPathComponent("VirtualBuddyGuest.app") else {
-                throw Failure("Couldn't get VirtualBuddyGuest.app URL within main app bundle")
-            }
-
-            guard FileManager.default.fileExists(atPath: url.path) else {
-                throw Failure("VirtualBuddyGuest.app doesn't exist at \(url.path)")
-            }
-
-            return url
-        }
+        get throws { try URL.embeddedGuestAppURL }
     }
 
     private var generatorScriptURL: URL {

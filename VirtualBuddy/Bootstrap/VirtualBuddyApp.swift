@@ -68,5 +68,11 @@ struct VirtualBuddyApp: App {
                 .environmentObject(settingsContainer)
                 .frame(minWidth: 420, maxWidth: .infinity, minHeight: 370, maxHeight: .infinity)
         }
+
+        #if DEBUG
+        Window(Text("Guest Simulator"), id: .vb_simulatorWindowID) {
+            GuestSimulatorScreen()
+        }
+        #endif // debug
     }
 }
