@@ -4,10 +4,12 @@ import VirtualUI
 import VirtualCore
 import OSLog
 
+let kGuestAppSubsystem = "codes.rambo.VirtualBuddyGuest"
+
 @NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
-    private let logger = Logger(subsystem: "codes.rambo.VirtualBuddyGuest", category: "GuestAppDelegate")
+    private let logger = Logger(subsystem: kGuestAppSubsystem, category: "GuestAppDelegate")
 
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
@@ -38,6 +40,8 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
     func applicationWillFinishLaunching(_ notification: Notification) {
         do {
             try installer.installIfNeeded()
+
+            GuestAppServices.shared.activate()
         } catch {
             let alert = NSAlert(error: error)
             alert.runModal()
