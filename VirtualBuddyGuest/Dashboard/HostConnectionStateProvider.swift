@@ -5,6 +5,6 @@ protocol HostConnectionStateProvider: ObservableObject {
     @MainActor var hasConnection: Bool { get }
 }
 
-extension VirtualMessagingChannel: HostConnectionStateProvider {
+extension VMChannel: HostConnectionStateProvider {
 
 }

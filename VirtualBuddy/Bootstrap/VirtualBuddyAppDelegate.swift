@@ -8,7 +8,6 @@
 import Cocoa
 @_exported import VirtualCore
 @_exported import VirtualUI
-import VirtualWormhole
 import DeepLinkSecurity
 import OSLog
 

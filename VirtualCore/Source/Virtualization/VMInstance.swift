@@ -10,8 +10,8 @@ import Foundation
 @preconcurrency import Virtualization
 import Combine
 import OSLog
-import VirtualWormhole
-@_exported import VirtualMessaging
+@_exported import VirtualMessagingTransport
+@_exported import VirtualMessagingService
 @_exported import MessageRouter
 
 @MainActor
@@ -34,8 +34,6 @@ public final class VMInstance: NSObject, ObservableObject {
             return vm
         }
     }
-    
-    let wormhole: WormholeManager = .sharedHost
     
     private var isLoadingNVRAM = false
     
@@ -154,8 +152,6 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage) // add install iso here for linux (hack)
 
-        await setupWormhole(for: config)
-
         do {
             try config.validate()
 
@@ -169,63 +165,6 @@ public final class VMInstance: NSObject, ObservableObject {
         _virtualMachine = VZVirtualMachine(configuration: config)
     }
 
-    private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
-        guard virtualMachineModel.configuration.systemType == .mac else { return }
-
-        wormhole.activate()
-
-        let guestPort = VZVirtioConsoleDeviceSerialPortConfiguration()
-
-        let inputPipe = Pipe()
-        let outputPipe = Pipe()
-
-        let inputHandle = inputPipe.fileHandleForWriting
-        let outputHandle = outputPipe.fileHandleForReading
-
-        guestPort.attachment = VZFileHandleSerialPortAttachment(
-            fileHandleForReading: outputHandle,
-            fileHandleForWriting: inputHandle
-        )
-
-        config.serialPorts = [guestPort]
-
-        await wormhole.register(
-            input: inputPipe.fileHandleForReading,
-            output: outputPipe.fileHandleForWriting,
-            for: virtualMachineModel.wormholeID
-        )
-
-        streamGuestNotifications()
-    }
-
-    private lazy var guestIOTasks = [Task<Void, Never>]()
-
-    public func streamGuestNotifications() {
-        logger.debug(#function)
-        
-        let notificationNames: Set<String> = [
-            "com.apple.shieldWindowRaised",
-            "com.apple.shieldWindowLowered"
-        ]
-
-        let task = Task {
-            do {
-                for await notification in try await wormhole.darwinNotifications(matching: notificationNames, from: virtualMachineModel.wormholeID) {
-                    if notification == "com.apple.shieldWindowRaised" {
-                        logger.debug("🔒 Guest locked")
-                    } else if notification == "com.apple.shieldWindowLowered" {
-                        logger.debug("🔓 Guest unlocked")
-                    }
-                }
-            } catch {
-                logger.error("Error subscribing to Darwin notifications: \(error, privacy: .public)")
-            }
-        }
-        guestIOTasks.append(task)
-    }
-
-    private var socket: GuestSocketConnection?
-
     func startVM() async throws {
         try await bootstrap()
 
@@ -233,10 +172,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         try await vm.start(options: startOptions)
 
-        socket = GuestSocketConnection(vm: vm)
-        socket?.activate()
-
-        #if DEBUG
+#if DEBUG
         VBDebugUtil.debugVirtualMachine(afterStart: vm)
         #endif
     }
@@ -399,25 +335,23 @@ public final class VMInstance: NSObject, ObservableObject {
 
 extension VMInstance: VZVirtualMachineDelegate {
     
-    public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
-        handleGuestStopped(with: error)
+    public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
+        DispatchQueue.main.async { [self] in
+            handleGuestStopped(with: error)
+        }
     }
 
-    public func guestDidStop(_ virtualMachine: VZVirtualMachine) {
-        handleGuestStopped(with: nil)
+    public nonisolated func guestDidStop(_ virtualMachine: VZVirtualMachine) {
+        DispatchQueue.main.async { [self] in
+            handleGuestStopped(with: nil)
+        }
     }
     
-    public func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
+    public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
         
     }
 
     private func handleGuestStopped(with error: Error?) {
-        socket?.invalidate()
-        socket = nil
-
-        guestIOTasks.forEach { $0.cancel() }
-        guestIOTasks.removeAll()
-
         if let error {
             logger.error("Guest stopped with error: \(String(describing: error), privacy: .public)")
         } else {
@@ -426,10 +360,6 @@ extension VMInstance: VZVirtualMachineDelegate {
 
         DispatchQueue.main.async { [self] in
             library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
-
-            Task {
-                await wormhole.unregister(virtualMachineModel.wormholeID)
-            }
 
             onVMStop(error)
         }
@@ -454,17 +384,6 @@ extension NSApplication {
     
 }
 
-private extension VBVirtualMachine {
-    /// ``VBVirtualMachine/id`` uses the VM's filesystem URL,
-    /// but that looks ugly in logs and whatnot, so this returns a cleaned up version.
-    var wormholeID: WHPeerID {
-        let cleanID = URL(fileURLWithPath: id)
-            .deletingPathExtension()
-            .lastPathComponent
-        return cleanID.removingPercentEncoding ?? cleanID
-    }
-}
-
 extension VZMacOSVirtualMachineStartOptions {
     convenience init(options: VMSessionOptions) {
         self.init()
@@ -478,156 +397,5 @@ extension VZMacOSVirtualMachineStartOptions {
             _forceDFU = true
             startUpFromMacOSRecovery = false
         }
-    }
-}
-
-final class GuestSocketConnection {
-
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: GuestSocketConnection.self))
-
-    weak var vm: VZVirtualMachine?
-
-    init(vm: VZVirtualMachine) {
-        self.vm = vm
-    }
-
-    private var connectionTask: Task<Void, Never>?
-    private var connection: VZVirtioSocketConnection?
-    private var channel: VirtualMessagingChannel?
-
-    private var connectionAttempt = 0
-
-    @MainActor
-    func activate() {
-        logger.debug(#function)
-
-        connectionTask = Task.detached { [weak self] in
-            guard let self else { return }
-
-            if connectionAttempt == 0 {
-                logger.debug("First connection attempt, waiting a bit...")
-
-                try? await Task.sleep(for: .seconds(20))
-
-                guard !Task.isCancelled else {
-                    logger.warning("First connection attempt cancelled")
-                    return
-                }
-
-                logger.debug("First connection attempt waiting period finished.")
-            }
-
-            connectionAttempt += 1
-
-            await attemptConnection()
-        }
-    }
-
-    @MainActor
-    func invalidate() {
-        try? channel?.invalidate()
-        channel = nil
-
-        connection?.close()
-        connection = nil
-
-        connectionTask?.cancel()
-        connectionTask = nil
-    }
-
-    private func attemptConnection() async {
-        guard !Task.isCancelled else {
-            logger.debug("Connection task cancelled")
-            return
-        }
-
-        logger.debug("Attempting connection...")
-
-        do {
-            try await connect()
-        } catch {
-            logger.warning("Guest connection: \(error, privacy: .public)")
-
-            try? await Task.sleep(for: .seconds(1))
-
-            await attemptConnection()
-        }
-    }
-
-    private func connect() async throws {
-        guard let vm else {
-            throw Failure("VM not available.")
-        }
-
-        guard vm.state == .running else {
-            throw Failure("VM not running.")
-        }
-
-        guard let socketDevice = vm.socketDevices.first as? VZVirtioSocketDevice else {
-            throw Failure("Virtio socket device not available.")
-        }
-
-        logger.debug("Performing socket device connection...")
-
-        let newConnection = try await createConnection(with: socketDevice)
-
-        logger.debug("Socket connected")
-
-        self.connection = newConnection
-
-        let newChannel = VirtualMessagingChannel(type: .client, address: .fileDescriptor(newConnection.fileDescriptor))
-        self.channel = newChannel
-
-        let eventTask = Task {
-            for await event in newChannel.events {
-                switch event {
-                case .connected:
-                    logger.info("Channel connected")
-                case .disconnected:
-                    logger.info("Channel disconnected")
-                    return
-                }
-            }
-        }
-
-        Task {
-            for await message in newChannel.messages {
-                logger.log("Received message: \(message, privacy: .public)")
-            }
-        }
-
-        try await newChannel.activate()
-
-        try await Task.sleep(for: .milliseconds(200))
-
-        guard await newChannel.hasConnection else {
-            throw "Connection failed."
-        }
-
-        logger.notice("Channel created")
-
-        await eventTask.value
-
-        throw "Disconnected"
-    }
-
-    private func createConnection(with socketDevice: VZVirtioSocketDevice, port: UInt32 = 1024) async throws -> VZVirtioSocketConnection {
-        try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.main.async {
-                socketDevice.connect(toPort: port) { result in
-                    continuation.resume(with: result)
-                }
-            }
-        }
-    }
-
-}
-
-public struct TestVMPayload: RoutableMessagePayload {
-    public var id = UUID()
-    public var timestamp = Date.now.timeIntervalSinceReferenceDate
-    public init(id: UUID = UUID(), timestamp: TimeInterval = Date.now.timeIntervalSinceReferenceDate) {
-        self.id = id
-        self.timestamp = timestamp
     }
 }

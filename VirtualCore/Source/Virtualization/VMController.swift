@@ -71,7 +71,22 @@ public enum VMState: Equatable {
 }
 
 @MainActor
-public final class VMController: ObservableObject {
+public protocol VirtualMachineStateController: ObservableObject {
+    var state: VMState { get }
+
+    func start() async throws
+    func stop() async throws
+    func pause() async throws
+    func resume() async throws
+
+    @available(macOS 14.0, *)
+    func saveState(snapshotName: String) async throws
+
+    var virtualMachineModel: VBVirtualMachine { get }
+}
+
+@MainActor
+public final class VMController: VirtualMachineStateController {
 
     public let id: VBVirtualMachine.ID
     private let name: String

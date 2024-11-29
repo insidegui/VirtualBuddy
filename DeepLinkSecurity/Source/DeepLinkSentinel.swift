@@ -165,4 +165,4 @@ public final class DeepLinkSentinel: ObservableObject {
     }
 }
 
-extension NSAppleEventDescriptor: @unchecked Sendable { }
+extension NSAppleEventDescriptor: @retroactive @unchecked Sendable { }

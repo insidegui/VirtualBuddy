@@ -8,22 +8,6 @@
 import SwiftUI
 import VirtualCore
 
-protocol VirtualMachineStateController: ObservableObject {
-    var state: VMState { get }
-    
-    func start() async throws
-    func stop() async throws
-    func pause() async throws
-    func resume() async throws
-    
-    @available(macOS 14.0, *)
-    func saveState(snapshotName: String) async throws
-
-    var virtualMachineModel: VBVirtualMachine { get }
-}
-
-extension VMController: VirtualMachineStateController { }
-
 @available(macOS 14.0, *)
 struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
     @EnvironmentObject private var controller: Controller

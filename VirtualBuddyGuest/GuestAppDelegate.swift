@@ -9,19 +9,18 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private let logger = Logger(subsystem: "codes.rambo.VirtualBuddyGuest", category: "GuestAppDelegate")
 
-    private let testServer = VirtualMessagingChannel(type: .server, address: .vsock(cid: nil, port: 1024))
-
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
     private lazy var sharedFolders = GuestSharedFoldersManager()
 
+    #warning("TODO: Change to real state provider here (likely coordinator service)")
     private lazy var dashboardItem: StatusItemManager = {
         StatusItemManager(
             configuration: .default.id("dashboard"),
             statusItem: .button(label: { Image("StatusItem") }),
-            content: GuestDashboard<VirtualMessagingChannel>()
+            content: GuestDashboard<MockHostConnectionStateProvider>()
                 .environmentObject(self.launchAtLoginManager)
-                .environmentObject(self.testServer)
+                .environmentObject(MockHostConnectionStateProvider())
                 .environmentObject(self.sharedFolders)
         )
     }()
@@ -54,32 +53,6 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         guard !installer.needsInstall else { return }
 
         launchAtLoginManager.autoEnableIfNeeded()
-
-        Task {
-            do {
-                try await testServer.activate()
-
-                logger.notice("Test server activated")
-
-                for await message in testServer.messages {
-                    logger.notice("Server received: \(message, privacy: .public)")
-                }
-            } catch {
-                logger.error("Test server activation failed. \(error, privacy: .public)")
-            }
-        }
-
-        Task {
-            while true {
-                try await Task.sleep(for: .seconds(3))
-
-                logger.info("Sending test message...")
-
-                try await testServer.broadcast(TestVMPayload())
-
-                await Task.yield()
-            }
-        }
 
         Task {
             try? await sharedFolders.mount()

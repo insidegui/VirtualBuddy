@@ -32,7 +32,7 @@ struct VMInstallData: Hashable, Codable {
     }
 }
 
-final class VMInstallationViewModel: ObservableObject {
+final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     struct RestorableState: Codable {
         var method: InstallMethod
@@ -390,7 +390,7 @@ final class VMInstallationViewModel: ObservableObject {
             }
 
             progressObservation = installer.progress.observe(\.completedUnitCount) { [weak self] progress, _ in
-                guard let self = self else { return }
+                guard let self else { return }
 
                 DispatchQueue.main.async {
                     let percent = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)

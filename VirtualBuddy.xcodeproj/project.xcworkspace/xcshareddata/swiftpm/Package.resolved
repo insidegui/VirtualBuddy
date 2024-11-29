@@ -1,5 +1,5 @@
 {
-  "originHash" : "2f7566634cf8a420de546c7a78c08e2dbe3466dca2cf0aa99492c2a0b813f022",
+  "originHash" : "35eca45dcec6d41c09ae317c7c85b3e71685a2700b23f4cf56256e3b5cd24562",
   "pins" : [
     {
       "identity" : "buddykit",
@@ -16,7 +16,7 @@
       "location" : "git@github.com:insidegui/MessageRouter.git",
       "state" : {
         "branch" : "main",
-        "revision" : "16738ef1192a3dab76872aef2e426e807910808d"
+        "revision" : "9c6e419956e0c2cfa6f69047699e676b623a7ec6"
       }
     },
     {

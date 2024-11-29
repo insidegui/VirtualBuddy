@@ -62,7 +62,6 @@
 		F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */ = {isa = PBXBuildFile; fileRef = F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */; };
 		F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F42862372AE947C90052F029 /* WHPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42862362AE947C90052F029 /* WHPayload.swift */; };
 		F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01492888C2F800EB15CD /* InstallationConsole.swift */; };
 		F42C014C2888C34B00EB15CD /* LogConsole.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014B2888C34B00EB15CD /* LogConsole.swift */; };
 		F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */; };
@@ -102,6 +101,7 @@
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
+		F45B06EC2CFA38A10052152F /* VirtualMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F45B06EB2CFA38A10052152F /* VirtualMessaging */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -167,14 +167,6 @@
 		F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D628870619005AA632 /* ConfigurationModels+Validation.swift */; };
 		F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */; };
 		F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5DA28873628005AA632 /* GroupedList.swift */; };
-		F4BBD27B2CF7A9ED00289F43 /* VirtualMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = F4BBD27A2CF7A9ED00289F43 /* VirtualMessaging */; };
-		F4BBD27C2CF7AF2B00289F43 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
-		F4BBD27D2CF7AF2B00289F43 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F4BE580E29BA6C8D00C5525C /* DefaultsDomains.plist in Resources */ = {isa = PBXBuildFile; fileRef = F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */; };
-		F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */; };
-		F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */; };
-		F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */; };
-		F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */; };
 		F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */; };
 		F4BE9C5627FF052100B648F8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5527FF052100B648F8 /* Assets.xcassets */; };
 		F4BE9C5927FF052100B648F8 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4BE9C5827FF052100B648F8 /* Preview Assets.xcassets */; };
@@ -186,15 +178,7 @@
 		F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C7927FF05B900B648F8 /* VMController.swift */; };
 		F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */; };
 		F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */ = {isa = PBXBuildFile; fileRef = F4BE9C8527FF13FF00B648F8 /* VirtualizationPrivate.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */ = {isa = PBXBuildFile; fileRef = F4C189E22848F59F00335EC7 /* VirtualWormhole.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
-		F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189ED2848F5B500335EC7 /* WormholeManager.swift */; };
-		F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */; };
-		F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */; };
-		F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */; };
-		F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */; };
 		F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */; };
 		F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C18A4628491B8500335EC7 /* GuestDashboard.swift */; };
 		F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4C18A4828491B8500335EC7 /* Assets.xcassets */; };
@@ -205,13 +189,6 @@
 		F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = F4D0F71728674E4B004D5782 /* Sparkle */; };
 		F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */; };
 		F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */; };
-		F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D3059629B8D9D30006E748 /* WormholePacket.swift */; };
-		F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */; };
-		F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; };
-		F4D305AA29B8E7120006E748 /* TestStream.bin in Resources */ = {isa = PBXBuildFile; fileRef = F4D305A929B8E7120006E748 /* TestStream.bin */; };
-		F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305AB29B8FEE90006E748 /* WHDarwinNotificationsService.swift */; };
-		F4D305B029B900860006E748 /* SystemNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305AF29B900860006E748 /* SystemNotification.swift */; };
-		F4D305B229B907A10006E748 /* WHPing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305B129B907A10006E748 /* WHPing.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
@@ -229,8 +206,6 @@
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
-		F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */; };
-		F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */; };
 		F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */; };
 		F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */; };
 		F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */; };
@@ -287,33 +262,12 @@
 			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
 			remoteInfo = VirtualCore;
 		};
-		F4BBD27E2CF7AF2B00289F43 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
-			remoteInfo = VirtualWormhole;
-		};
-		F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
-			remoteInfo = VirtualWormhole;
-		};
 		F4C18A5728491C0D00335EC7 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = F4C18A4128491B8500335EC7;
 			remoteInfo = VirtualBuddyGuest;
-		};
-		F4D305A129B8DB700006E748 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
-			remoteInfo = VirtualWormhole;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -376,7 +330,6 @@
 				F4BE9C6C27FF053A00B648F8 /* VirtualCore.framework in Embed Frameworks */,
 				F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */,
 				F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */,
-				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -388,7 +341,6 @@
 			dstSubfolderSpec = 10;
 			files = (
 				F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */,
-				F4BBD27D2CF7AF2B00289F43 /* VirtualWormhole.framework in Embed Frameworks */,
 				F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
@@ -449,7 +401,6 @@
 		F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardwareConfigurationView.swift; sourceTree = "<group>"; };
 		F422587F2885E71D009420AE /* PropertyControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PropertyControl.swift; sourceTree = "<group>"; };
 		F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineControls.swift; sourceTree = "<group>"; };
-		F42862362AE947C90052F029 /* WHPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPayload.swift; sourceTree = "<group>"; };
 		F42C01492888C2F800EB15CD /* InstallationConsole.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallationConsole.swift; sourceTree = "<group>"; };
 		F42C014B2888C34B00EB15CD /* LogConsole.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogConsole.swift; sourceTree = "<group>"; };
 		F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallProgressStepView.swift; sourceTree = "<group>"; };
@@ -551,11 +502,6 @@
 		F4B5C5D828870BBF005AA632 /* ConfigurationModels+Summary.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConfigurationModels+Summary.swift"; sourceTree = "<group>"; };
 		F4B5C5DA28873628005AA632 /* GroupedList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedList.swift; sourceTree = "<group>"; };
 		F4BBD2792CF7A9DA00289F43 /* VirtualMessaging */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = VirtualMessaging; path = ../VirtualMessaging; sourceTree = SOURCE_ROOT; };
-		F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = DefaultsDomains.plist; sourceTree = "<group>"; };
-		F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsImportController.swift; sourceTree = "<group>"; };
-		F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsDomainDescriptor.swift; sourceTree = "<group>"; };
-		F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DefaultsDomain+ExportImport.swift"; sourceTree = "<group>"; };
-		F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDefaultsImportService.swift; sourceTree = "<group>"; };
 		F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyApp.swift; sourceTree = "<group>"; };
 		F4BE9C5527FF052100B648F8 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -573,14 +519,8 @@
 		F4C1224A2807156200D359E2 /* Signing.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.xcconfig; sourceTree = "<group>"; };
 		F4C1224D280715B500D359E2 /* Paths.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Paths.xcconfig; sourceTree = "<group>"; };
 		F4C1224E280715F200D359E2 /* Main.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Main.xcconfig; sourceTree = "<group>"; };
-		F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualWormhole.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F4C189E22848F59F00335EC7 /* VirtualWormhole.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = VirtualWormhole.h; sourceTree = "<group>"; };
-		F4C189ED2848F5B500335EC7 /* WormholeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeManager.swift; sourceTree = "<group>"; };
 		F4C189F32848F61E00335EC7 /* Virtualization.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Virtualization.framework; path = System/Library/Frameworks/Virtualization.framework; sourceTree = SDKROOT; };
 		F4C189F62848F6A600335EC7 /* VirtualCoreConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualCoreConstants.swift; sourceTree = "<group>"; };
-		F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualWormholeConstants.swift; sourceTree = "<group>"; };
-		F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHSharedClipboardService.swift; sourceTree = "<group>"; };
-		F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceProtocol.swift; sourceTree = "<group>"; };
 		F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VirtualBuddyGuest.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAppDelegate.swift; sourceTree = "<group>"; };
 		F4C18A4628491B8500335EC7 /* GuestDashboard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestDashboard.swift; sourceTree = "<group>"; };
@@ -593,13 +533,6 @@
 		F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareUpdateController.swift; sourceTree = "<group>"; };
 		F4D0F71B28674F24004D5782 /* Features.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Features.xcconfig; sourceTree = "<group>"; };
 		F4D0F71E2867517A004D5782 /* AppUpdateChannel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppUpdateChannel.swift; sourceTree = "<group>"; };
-		F4D3059629B8D9D30006E748 /* WormholePacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacket.swift; sourceTree = "<group>"; };
-		F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirtualWormholeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacketTests.swift; sourceTree = "<group>"; };
-		F4D305A929B8E7120006E748 /* TestStream.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = TestStream.bin; sourceTree = "<group>"; };
-		F4D305AB29B8FEE90006E748 /* WHDarwinNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDarwinNotificationsService.swift; sourceTree = "<group>"; };
-		F4D305AF29B900860006E748 /* SystemNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotification.swift; sourceTree = "<group>"; };
-		F4D305B129B907A10006E748 /* WHPing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPing.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
@@ -617,8 +550,6 @@
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
-		F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholeServiceClient.swift; sourceTree = "<group>"; };
-		F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDefaultsImportClient.swift; sourceTree = "<group>"; };
 		F4FC276B29BBB3030012CB65 /* GuestDefaultsImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestDefaultsImportView.swift; sourceTree = "<group>"; };
 		F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousProgressIndicator.swift; sourceTree = "<group>"; };
 		F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskProgressView.swift; sourceTree = "<group>"; };
@@ -659,7 +590,6 @@
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
-				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -667,15 +597,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
-				F4BBD27B2CF7A9ED00289F43 /* VirtualMessaging in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F4C189DD2848F59F00335EC7 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
+				F45B06EC2CFA38A10052152F /* VirtualMessaging in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -684,17 +606,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
-				F4BBD27C2CF7AF2B00289F43 /* VirtualWormhole.framework in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F4D3059929B8DB700006E748 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1248,35 +1161,14 @@
 			name = Packages;
 			sourceTree = "<group>";
 		};
-		F4BE580B29BA6C6300C5525C /* DefaultsImport */ = {
-			isa = PBXGroup;
-			children = (
-				F4FC276829BBAE470012CB65 /* Implementation */,
-				F4BE580C29BA6C7A00C5525C /* Resources */,
-				F4BE584129BA7BDB00C5525C /* WHDefaultsImportService.swift */,
-				F4FC276929BBAE590012CB65 /* WHDefaultsImportClient.swift */,
-			);
-			path = DefaultsImport;
-			sourceTree = "<group>";
-		};
-		F4BE580C29BA6C7A00C5525C /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				F4BE580D29BA6C8D00C5525C /* DefaultsDomains.plist */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
 		F4BE9C4527FF052100B648F8 = {
 			isa = PBXGroup;
 			children = (
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
-				F4C189E12848F59F00335EC7 /* VirtualWormhole */,
 				F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */,
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
-				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
 				F43B01162AD858FE00164CD1 /* DeepLinkSecurity */,
 				F4BBD2782CF7A8F100289F43 /* Packages */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
@@ -1289,11 +1181,9 @@
 			children = (
 				F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */,
 				F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */,
-				F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */,
 				F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */,
 				F498ACFE2884BF13006F1C00 /* VirtualUI.framework */,
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
-				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
 				F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */,
 			);
 			name = Products;
@@ -1378,26 +1268,6 @@
 			path = Entitlements;
 			sourceTree = "<group>";
 		};
-		F4C189E12848F59F00335EC7 /* VirtualWormhole */ = {
-			isa = PBXGroup;
-			children = (
-				F4C189EC2848F5A300335EC7 /* Source */,
-				F4C189E22848F59F00335EC7 /* VirtualWormhole.h */,
-			);
-			path = VirtualWormhole;
-			sourceTree = "<group>";
-		};
-		F4C189EC2848F5A300335EC7 /* Source */ = {
-			isa = PBXGroup;
-			children = (
-				F4D3059529B8D9C70006E748 /* WireProtocol */,
-				F4C189F82848F6F700335EC7 /* Definitions */,
-				F4C189FB2848F8E800335EC7 /* Services */,
-				F4C189ED2848F5B500335EC7 /* WormholeManager.swift */,
-			);
-			path = Source;
-			sourceTree = "<group>";
-		};
 		F4C189F12848F5F500335EC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -1414,25 +1284,6 @@
 				F4F9B419284CE37C00F21737 /* Logging.swift */,
 			);
 			path = Definitions;
-			sourceTree = "<group>";
-		};
-		F4C189F82848F6F700335EC7 /* Definitions */ = {
-			isa = PBXGroup;
-			children = (
-				F4C189F92848F6F700335EC7 /* VirtualWormholeConstants.swift */,
-			);
-			path = Definitions;
-			sourceTree = "<group>";
-		};
-		F4C189FB2848F8E800335EC7 /* Services */ = {
-			isa = PBXGroup;
-			children = (
-				F4D305AE29B900790006E748 /* Base */,
-				F4BE580B29BA6C6300C5525C /* DefaultsImport */,
-				F4D305AD29B9006E0006E748 /* DarwinNotifications */,
-				F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */,
-			);
-			path = Services;
 			sourceTree = "<group>";
 		};
 		F4C18A4328491B8500335EC7 /* VirtualBuddyGuest */ = {
@@ -1468,51 +1319,6 @@
 				F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */,
 			);
 			path = Utilities;
-			sourceTree = "<group>";
-		};
-		F4D3059529B8D9C70006E748 /* WireProtocol */ = {
-			isa = PBXGroup;
-			children = (
-				F4D3059629B8D9D30006E748 /* WormholePacket.swift */,
-				F4D305B129B907A10006E748 /* WHPing.swift */,
-				F42862362AE947C90052F029 /* WHPayload.swift */,
-			);
-			path = WireProtocol;
-			sourceTree = "<group>";
-		};
-		F4D3059D29B8DB700006E748 /* VirtualWormholeTests */ = {
-			isa = PBXGroup;
-			children = (
-				F4D305A829B8E70A0006E748 /* Resources */,
-				F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */,
-			);
-			path = VirtualWormholeTests;
-			sourceTree = "<group>";
-		};
-		F4D305A829B8E70A0006E748 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				F4D305A929B8E7120006E748 /* TestStream.bin */,
-			);
-			path = Resources;
-			sourceTree = "<group>";
-		};
-		F4D305AD29B9006E0006E748 /* DarwinNotifications */ = {
-			isa = PBXGroup;
-			children = (
-				F4D305AB29B8FEE90006E748 /* WHDarwinNotificationsService.swift */,
-				F4D305AF29B900860006E748 /* SystemNotification.swift */,
-			);
-			path = DarwinNotifications;
-			sourceTree = "<group>";
-		};
-		F4D305AE29B900790006E748 /* Base */ = {
-			isa = PBXGroup;
-			children = (
-				F4C189FE2848FB3F00335EC7 /* WormholeServiceProtocol.swift */,
-				F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */,
-			);
-			path = Base;
 			sourceTree = "<group>";
 		};
 		F4E7680B29B651180075A897 /* Resources */ = {
@@ -1554,16 +1360,6 @@
 			path = Settings;
 			sourceTree = "<group>";
 		};
-		F4FC276829BBAE470012CB65 /* Implementation */ = {
-			isa = PBXGroup;
-			children = (
-				F4BE581229BA6E0D00C5525C /* DefaultsDomainDescriptor.swift */,
-				F4BE583F29BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift */,
-				F4BE581029BA6DFC00C5525C /* DefaultsImportController.swift */,
-			);
-			path = Implementation;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1594,14 +1390,6 @@
 				F485B9222BB306AF004B3C2B /* VBDebugUtil.h in Headers */,
 				F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */,
 				F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F4C189DB2848F59F00335EC7 /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1706,31 +1494,10 @@
 			buildRules = (
 			);
 			dependencies = (
-				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
 			productName = VirtualCore;
 			productReference = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */;
-			productType = "com.apple.product-type.framework";
-		};
-		F4C189DF2848F59F00335EC7 /* VirtualWormhole */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F4C189EB2848F59F00335EC7 /* Build configuration list for PBXNativeTarget "VirtualWormhole" */;
-			buildPhases = (
-				F4C189DB2848F59F00335EC7 /* Headers */,
-				F4C189DC2848F59F00335EC7 /* Sources */,
-				F4C189DD2848F59F00335EC7 /* Frameworks */,
-				F4C189DE2848F59F00335EC7 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = VirtualWormhole;
-			packageProductDependencies = (
-			);
-			productName = VirtualWormhole;
-			productReference = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */;
 			productType = "com.apple.product-type.framework";
 		};
 		F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */ = {
@@ -1751,30 +1518,11 @@
 				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
 				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
 				F42862312AE87D7E0052F029 /* PBXTargetDependency */,
-				F4BBD27F2CF7AF2B00289F43 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddyGuest;
 			productName = VirtualBuddyGuest;
 			productReference = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */;
 			productType = "com.apple.product-type.application";
-		};
-		F4D3059B29B8DB700006E748 /* VirtualWormholeTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F4D305A329B8DB700006E748 /* Build configuration list for PBXNativeTarget "VirtualWormholeTests" */;
-			buildPhases = (
-				F4D3059829B8DB700006E748 /* Sources */,
-				F4D3059929B8DB700006E748 /* Frameworks */,
-				F4D3059A29B8DB700006E748 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				F4D305A229B8DB700006E748 /* PBXTargetDependency */,
-			);
-			name = VirtualWormholeTests;
-			productName = VirtualWormholeTests;
-			productReference = F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -1805,16 +1553,9 @@
 						CreatedOnToolsVersion = 13.3;
 						LastSwiftMigration = 1530;
 					};
-					F4C189DF2848F59F00335EC7 = {
-						CreatedOnToolsVersion = 13.4;
-						LastSwiftMigration = 1340;
-					};
 					F4C18A4128491B8500335EC7 = {
 						CreatedOnToolsVersion = 13.4;
 						LastSwiftMigration = 1420;
-					};
-					F4D3059B29B8DB700006E748 = {
-						CreatedOnToolsVersion = 14.2;
 					};
 				};
 			};
@@ -1842,8 +1583,6 @@
 				F43B01142AD858FE00164CD1 /* DeepLinkSecurity */,
 				F4BE9C6427FF053A00B648F8 /* VirtualCore */,
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
-				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
-				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
 			);
 		};
 /* End PBXProject section */
@@ -1891,14 +1630,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F4C189DE2848F59F00335EC7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4BE580E29BA6C8D00C5525C /* DefaultsDomains.plist in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F4C18A4028491B8500335EC7 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1906,14 +1637,6 @@
 				F4136999299179B1002CE8D3 /* Main.storyboard in Resources */,
 				F4C18A4C28491B8500335EC7 /* Preview Assets.xcassets in Resources */,
 				F4C18A4928491B8500335EC7 /* Assets.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F4D3059A29B8DB700006E748 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4D305AA29B8E7120006E748 /* TestStream.bin in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2147,28 +1870,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F4C189DC2848F59F00335EC7 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4D305AC29B8FEE90006E748 /* WHDarwinNotificationsService.swift in Sources */,
-				F4C189FF2848FB3F00335EC7 /* WormholeServiceProtocol.swift in Sources */,
-				F4C189FA2848F6F700335EC7 /* VirtualWormholeConstants.swift in Sources */,
-				F4BE584229BA7BDB00C5525C /* WHDefaultsImportService.swift in Sources */,
-				F4D305B029B900860006E748 /* SystemNotification.swift in Sources */,
-				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
-				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,
-				F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */,
-				F4D305B229B907A10006E748 /* WHPing.swift in Sources */,
-				F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */,
-				F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */,
-				F4FC276A29BBAE590012CB65 /* WHDefaultsImportClient.swift in Sources */,
-				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
-				F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */,
-				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F4C18A3E28491B8500335EC7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -2180,14 +1881,6 @@
 				F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */,
 				F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */,
 				F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F4D3059829B8DB700006E748 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2229,25 +1922,10 @@
 			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
 			targetProxy = F498AD0A2884BF60006F1C00 /* PBXContainerItemProxy */;
 		};
-		F4BBD27F2CF7AF2B00289F43 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
-			targetProxy = F4BBD27E2CF7AF2B00289F43 /* PBXContainerItemProxy */;
-		};
-		F4C189F02848F5F100335EC7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
-			targetProxy = F4C189EF2848F5F100335EC7 /* PBXContainerItemProxy */;
-		};
 		F4C18A5828491C0D00335EC7 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */;
 			targetProxy = F4C18A5728491C0D00335EC7 /* PBXContainerItemProxy */;
-		};
-		F4D305A229B8DB700006E748 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
-			targetProxy = F4D305A129B8DB700006E748 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2522,52 +2200,6 @@
 			};
 			name = Beta_Debug;
 		};
-		F40A1E8E2C1869680033E47D /* Beta_Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Beta_Debug;
-		};
-		F40A1E8F2C1869680033E47D /* Beta_Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Beta_Debug;
-		};
 		F40A1E902C18697B0033E47D /* Beta_Release */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4C1224E280715F200D359E2 /* Main.xcconfig */;
@@ -2807,51 +2439,6 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Beta_Release;
-		};
-		F40A1E972C18697B0033E47D /* Beta_Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Beta_Release;
-		};
-		F40A1E982C18697B0033E47D /* Beta_Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3446,51 +3033,6 @@
 			};
 			name = Dev_Release;
 		};
-		F4A277122BF50EA00011B626 /* Dev_Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Dev_Release;
-		};
-		F4A277132BF50EA00011B626 /* Dev_Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Dev_Release;
-		};
 		F4B068A828882E9A003743BF /* Debug_Managed */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4C1224E280715F200D359E2 /* Main.xcconfig */;
@@ -3679,36 +3221,6 @@
 			};
 			name = Debug_Managed;
 		};
-		F4B068AD28882E9A003743BF /* Debug_Managed */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug_Managed;
-		};
 		F4B068AE28882EA3003743BF /* Release_Managed */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4C1224E280715F200D359E2 /* Main.xcconfig */;
@@ -3879,35 +3391,6 @@
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release_Managed;
-		};
-		F4B068B328882EA3003743BF /* Release_Managed */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
 				SKIP_INSTALL = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4148,65 +3631,6 @@
 			};
 			name = Release;
 		};
-		F4C189E82848F59F00335EC7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		F4C189EA2848F59F00335EC7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_IDENTITY = "";
-				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DEFINES_MODULE = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
-				OTHER_LDFLAGS = "";
-				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualWormhole";
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
 		F4C18A4F28491B8500335EC7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -4273,70 +3697,6 @@
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
-		};
-		F4D305A429B8DB700006E748 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug;
-		};
-		F4D305A529B8DB700006E748 /* Debug_Managed */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Debug_Managed;
-		};
-		F4D305A629B8DB700006E748 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release;
-		};
-		F4D305A729B8DB700006E748 /* Release_Managed */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 8C7439RJLG;
-				GENERATE_INFOPLIST_FILE = YES;
-				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualWormholeTests;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_EMIT_LOC_STRINGS = NO;
-				SWIFT_VERSION = 5.0;
-			};
-			name = Release_Managed;
 		};
 /* End XCBuildConfiguration section */
 
@@ -4425,20 +3785,6 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F4C189EB2848F59F00335EC7 /* Build configuration list for PBXNativeTarget "VirtualWormhole" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F4C189E82848F59F00335EC7 /* Debug */,
-				F4B068AD28882E9A003743BF /* Debug_Managed */,
-				F40A1E8F2C1869680033E47D /* Beta_Debug */,
-				F4C189EA2848F59F00335EC7 /* Release */,
-				F4B068B328882EA3003743BF /* Release_Managed */,
-				F40A1E982C18697B0033E47D /* Beta_Release */,
-				F4A277132BF50EA00011B626 /* Dev_Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		F4C18A4E28491B8500335EC7 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuest" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -4449,20 +3795,6 @@
 				F4B068B028882EA3003743BF /* Release_Managed */,
 				F40A1E922C18697B0033E47D /* Beta_Release */,
 				F4A2770D2BF50EA00011B626 /* Dev_Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		F4D305A329B8DB700006E748 /* Build configuration list for PBXNativeTarget "VirtualWormholeTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				F4D305A429B8DB700006E748 /* Debug */,
-				F4D305A529B8DB700006E748 /* Debug_Managed */,
-				F40A1E8E2C1869680033E47D /* Beta_Debug */,
-				F4D305A629B8DB700006E748 /* Release */,
-				F4D305A729B8DB700006E748 /* Release_Managed */,
-				F40A1E972C18697B0033E47D /* Beta_Release */,
-				F4A277122BF50EA00011B626 /* Dev_Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -4502,14 +3834,14 @@
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
 		};
+		F45B06EB2CFA38A10052152F /* VirtualMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VirtualMessaging;
+		};
 		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
 			productName = "SwiftUIIntrospect-Static";
-		};
-		F4BBD27A2CF7A9ED00289F43 /* VirtualMessaging */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = VirtualMessaging;
 		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
