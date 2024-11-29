@@ -19,7 +19,7 @@ final class GuestAppServices {
 
     private init() {
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "SimulateGuest") {
+        if UserDefaults.standard.bool(forKey: "GuestSimulationEnabled") {
             logger.info("Using simulated guest coordination server")
 
             coordinator = .simulatedGuest

@@ -6,13 +6,18 @@
 //
 
 import SwiftUI
-import VirtualCore
 import VirtualUI
+@_spi(GuestEnvironment) import VirtualCore
 
 let kShellAppSubsystem = "codes.rambo.VirtualBuddy"
 
 @main
 struct VirtualBuddyApp: App {
+    init() {
+        ProcessInfo._isVirtualBuddyHost.withLock { $0 = true }
+        ProcessInfo._isVirtualBuddyGuest.withLock { $0 = false }
+    }
+
     @NSApplicationDelegateAdaptor
     var appDelegate: VirtualBuddyAppDelegate
 

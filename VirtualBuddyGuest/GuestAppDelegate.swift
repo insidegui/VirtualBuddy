@@ -6,7 +6,6 @@ import OSLog
 
 let kGuestAppSubsystem = "codes.rambo.VirtualBuddyGuest"
 
-@NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private let logger = Logger(subsystem: kGuestAppSubsystem, category: "GuestAppDelegate")

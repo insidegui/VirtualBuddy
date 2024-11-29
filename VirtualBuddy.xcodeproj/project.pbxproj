@@ -108,6 +108,8 @@
 		F45B06F72CFA4E260052152F /* GuestPingPayloadTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06F62CFA4E1E0052152F /* GuestPingPayloadTypes.swift */; };
 		F45B06F92CFA4E3E0052152F /* GuestPingClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06F82CFA4E3B0052152F /* GuestPingClient.swift */; };
 		F45B06FB2CFA4F680052152F /* GuestAppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FA2CFA4F650052152F /* GuestAppServices.swift */; };
+		F45B06FD2CFA53C10052152F /* GuestEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */; };
+		F45B06FF2CFA55600052152F /* GuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FE2CFA555F0052152F /* GuestApp.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -449,6 +451,8 @@
 		F45B06F62CFA4E1E0052152F /* GuestPingPayloadTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestPingPayloadTypes.swift; sourceTree = "<group>"; };
 		F45B06F82CFA4E3B0052152F /* GuestPingClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestPingClient.swift; sourceTree = "<group>"; };
 		F45B06FA2CFA4F650052152F /* GuestAppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAppServices.swift; sourceTree = "<group>"; };
+		F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestEnvironment.swift; sourceTree = "<group>"; };
+		F45B06FE2CFA555F0052152F /* GuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestApp.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -947,6 +951,7 @@
 				F45B06F22CFA4C7F0052152F /* Services */,
 				F45B06F02CFA3F190052152F /* GuestService.swift */,
 				F45B06EE2CFA3B560052152F /* GuestServerCoordinator.swift */,
+				F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */,
 			);
 			path = GuestMessaging;
 			sourceTree = "<group>";
@@ -1332,6 +1337,7 @@
 			children = (
 				F41369A4299183BA002CE8D3 /* Dashboard */,
 				F4C18A4428491B8500335EC7 /* GuestAppDelegate.swift */,
+				F45B06FE2CFA555F0052152F /* GuestApp.swift */,
 				F45B06FA2CFA4F650052152F /* GuestAppServices.swift */,
 				F4959F3B2992A284001DF4CB /* GuestAppInstaller.swift */,
 				F4C18A4828491B8500335EC7 /* Assets.xcassets */,
@@ -1864,6 +1870,7 @@
 				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
+				F45B06FD2CFA53C10052152F /* GuestEnvironment.swift in Sources */,
 				F45B06EF2CFA3B5A0052152F /* GuestServerCoordinator.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
@@ -1925,6 +1932,7 @@
 				F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */,
 				F4C18A4728491B8500335EC7 /* GuestDashboard.swift in Sources */,
 				F41369CC2991A68F002CE8D3 /* GuestSharedFoldersManager.swift in Sources */,
+				F45B06FF2CFA55600052152F /* GuestApp.swift in Sources */,
 				F4C18A4528491B8500335EC7 /* GuestAppDelegate.swift in Sources */,
 				F4FC276C29BBB3030012CB65 /* GuestDefaultsImportView.swift in Sources */,
 				F45B06FB2CFA4F680052152F /* GuestAppServices.swift in Sources */,
