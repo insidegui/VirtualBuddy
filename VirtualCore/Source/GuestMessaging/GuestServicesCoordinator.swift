@@ -3,17 +3,49 @@ import VirtualMessagingTransport
 import VirtualMessagingService
 import OSLog
 
-/// Guest-side services bootstrap.
-public final class GuestServerCoordinator: Sendable {
+/// Coordinates access to guest services on both sides of the connection.
+public final class GuestServicesCoordinator: Sendable {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestServerCoordinator")
 
     /// Server for virtualized guest, which is used when VirtualBuddyGuest is running in a virtual machine.
-    public static let virtualizedGuest = GuestServerCoordinator(addressProvider: VSockVMServiceAddressProvider())
+    private static let guestServer = GuestServicesCoordinator(addressProvider: VSockVMServiceAddressProvider())
+
+    #warning("TODO: This address provider will have to be changed for the host side, and will likely require allowing asynchronous address providers")
+    /// Client for virtualized guest, which is used when VirtualBuddy is running on the host with guest simulation disabled.
+    private static let hostClient = GuestServicesCoordinator(addressProvider: VSockVMServiceAddressProvider())
 
     #if DEBUG
     /// [DEBUG ONLY] Server for simulated guest, which is used when VirtualBuddyGuest is running on the host for testing.
-    public static let simulatedGuest = GuestServerCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: true))
+    private static let simulatedGuestServer = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: true))
+
+    /// [DEBUG ONLY] Host-side client for simulated guest-side server, which is used when VirtualBuddy is running with guest simulation enabled.
+    private static let simulatedHostClient = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: false))
     #endif
+
+    /// The global services coordinator instance, which is automatically set up depending on the environment.
+    public static let current: GuestServicesCoordinator = {
+        if ProcessInfo.processInfo.isVirtualBuddyGuest {
+            #if DEBUG
+            if UserDefaults.isGuestSimulationEnabled {
+                return .simulatedGuestServer
+            } else {
+                return .guestServer
+            }
+            #else
+            return .guestServer
+            #endif
+        } else {
+            #if DEBUG
+            if UserDefaults.isGuestSimulationEnabled {
+                return .simulatedHostClient
+            } else {
+                return .hostClient
+            }
+            #else
+            return .hostClient
+            #endif
+        }
+    }()
 
     private let addressProvider: VMServiceAddressProvider
     private let coordinator: VMServiceCoordinator

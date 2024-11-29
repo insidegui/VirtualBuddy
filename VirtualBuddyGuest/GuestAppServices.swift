@@ -9,7 +9,7 @@ final class GuestAppServices {
 
     static let shared = GuestAppServices()
 
-    let coordinator: GuestServerCoordinator
+    let coordinator = GuestServicesCoordinator.current
 
     let ping = GuestPingService()
 
@@ -17,19 +17,7 @@ final class GuestAppServices {
         [ping]
     }
 
-    private init() {
-        #if DEBUG
-        if UserDefaults.standard.bool(forKey: "GuestSimulationEnabled") {
-            logger.info("Using simulated guest coordination server")
-
-            coordinator = .simulatedGuest
-        } else {
-            coordinator = .virtualizedGuest
-        }
-        #else
-        coordinator = .virtualizedGuest
-        #endif
-    }
+    private init() { }
 
     func activate() {
         logger.debug(#function)

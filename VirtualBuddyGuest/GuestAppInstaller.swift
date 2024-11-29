@@ -16,7 +16,7 @@ final class GuestAppInstaller {
             }
 
             guard needsInstall else {
-                logger.debug("Install not needed: running from supported path and updated not needed. Path: \(Bundle.main.bundleURL.deletingLastPathComponent().path, privacy: .public)")
+                logger.debug("Install not needed: running from supported path and update not needed. Path: \(Bundle.main.bundleURL.deletingLastPathComponent().path, privacy: .public)")
                 return
             }
 

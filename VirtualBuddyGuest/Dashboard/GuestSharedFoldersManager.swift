@@ -11,6 +11,13 @@ final class GuestSharedFoldersManager: ObservableObject {
     @Published private(set) var error: Error?
 
     func mount() async throws {
+        #if DEBUG
+        guard !ProcessInfo.processInfo.isVirtualBuddyGuestSimulator else {
+            logger.notice("Running in simulated guest, skipping mount")
+            return
+        }
+        #endif
+
         logger.notice("Mount shared folders")
 
         let alreadyMounted = await checkAlreadyMounted()
