@@ -3,13 +3,11 @@ import SwiftUI
 import VirtualCore
 
 public struct GuestSimulatorScreen: View {
-    let services = HostAppServices.guestSimulator
+    @StateObject private var services: HostAppServices
 
-    public init() {
-
+    public init(services: HostAppServices) {
+        self._services = .init(wrappedValue: services)
     }
-
-    @State private var activated = false
 
     @State private var pingTask: Task<Void, Never>?
     @State private var pong: VMPongPayload?
@@ -20,7 +18,7 @@ public struct GuestSimulatorScreen: View {
                 Button("Activate Services") {
                     activateServices()
                 }
-                .disabled(activated)
+                .disabled(services.hasConnection)
 
                 Section("Ping") {
                     Button {
@@ -34,7 +32,7 @@ public struct GuestSimulatorScreen: View {
                         LabeledContent("Pong", value: pong.id)
                     }
                 }
-                .disabled(!activated)
+                .disabled(!services.hasConnection)
             }
             .formStyle(.grouped)
             .monospacedDigit()
@@ -49,7 +47,6 @@ public struct GuestSimulatorScreen: View {
             do {
                 try await launchGuestIfNeeded()
                 services.activate()
-                activated = true
             } catch {
                 NSAlert(error: error).runModal()
             }
@@ -84,10 +81,11 @@ public struct GuestSimulatorScreen: View {
         }
 
         let config = NSWorkspace.OpenConfiguration()
-        config.arguments = [
-            "-GuestSimulationEnabled=YES"
-        ]
+        config.environment = ["GUEST_SIMULATION_ENABLED": "1"]
         try await NSWorkspace.shared.openApplication(at: url, configuration: config)
+        try await Task.detached {
+            try await Task.sleep(for: .seconds(2))
+        }.value
     }
 }
 

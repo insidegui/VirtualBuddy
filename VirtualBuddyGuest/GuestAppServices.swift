@@ -4,7 +4,7 @@ import VirtualUI
 import VirtualCore
 import OSLog
 
-final class GuestAppServices {
+final class GuestAppServices: ObservableObject, HostConnectionStateProvider {
     private let logger = Logger(subsystem: kGuestAppSubsystem, category: "GuestAppServices")
 
     static let shared = GuestAppServices()
@@ -19,8 +19,14 @@ final class GuestAppServices {
 
     private init() { }
 
+    @MainActor
+    @Published public private(set) var hasConnection = false
+
+    @MainActor
     func activate() {
         logger.debug(#function)
+
+        coordinator.$hasConnection.assign(to: &$hasConnection)
 
         Task.detached(priority: .high) { [self] in
             do {

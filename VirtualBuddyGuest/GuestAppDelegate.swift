@@ -14,15 +14,14 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private lazy var sharedFolders = GuestSharedFoldersManager()
 
-    #warning("TODO: Change to real state provider here (likely coordinator service)")
     private lazy var dashboardItem: StatusItemManager = {
         StatusItemManager(
             configuration: .default.id("dashboard"),
             statusItem: .button(label: { Image("StatusItem") }),
-            content: GuestDashboard<MockHostConnectionStateProvider>()
+            content: GuestDashboard<GuestAppServices>()
                 .environmentObject(self.launchAtLoginManager)
-                .environmentObject(MockHostConnectionStateProvider())
                 .environmentObject(self.sharedFolders)
+                .environmentObject(GuestAppServices.shared)
         )
     }()
 

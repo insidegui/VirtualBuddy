@@ -2,7 +2,14 @@ import Foundation
 import os
 
 public extension UserDefaults {
-    static let isGuestSimulationEnabled = UserDefaults.standard.bool(forKey: "GuestSimulationEnabled")
+    static let isGuestSimulationEnabled: Bool = {
+        #if DEBUG
+        return ProcessInfo.processInfo.environment["GUEST_SIMULATION_ENABLED"] == "1"
+            || UserDefaults.standard.bool(forKey: "GuestSimulationEnabled")
+        #else
+        return false
+        #endif
+    }()
 }
 
 public extension ProcessInfo {

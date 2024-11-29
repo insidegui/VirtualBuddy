@@ -1,7 +1,7 @@
 import Foundation
 import OSLog
 
-public final class HostAppServices {
+public final class HostAppServices: ObservableObject {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "HostAppServices")
 
     let coordinator: GuestServicesCoordinator
@@ -21,8 +21,14 @@ public final class HostAppServices {
         [ping]
     }
 
+    @MainActor
+    @Published public private(set) var hasConnection = false
+
+    @MainActor
     public func activate() {
         logger.debug(#function)
+
+        coordinator.$hasConnection.assign(to: &$hasConnection)
 
         Task.detached(priority: .high) { [self] in
             do {

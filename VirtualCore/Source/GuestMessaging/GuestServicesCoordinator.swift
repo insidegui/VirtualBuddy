@@ -4,7 +4,7 @@ import VirtualMessagingService
 import OSLog
 
 /// Coordinates access to guest services on both sides of the connection.
-public final class GuestServicesCoordinator: Sendable {
+public final class GuestServicesCoordinator: @unchecked Sendable, ObservableObject {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestServerCoordinator")
 
     /// Server for virtualized guest, which is used when VirtualBuddyGuest is running in a virtual machine.
@@ -55,6 +55,9 @@ public final class GuestServicesCoordinator: Sendable {
 
     private let bootstrappedServices = NSMapTable<NSString, GuestServiceInstance>(keyOptions: .objectPersonality, valueOptions: .strongMemory)
 
+    @MainActor
+    @Published public private(set) var hasConnection = false
+
     public func activate() async throws {
         let coordinatorAddress = addressProvider.address(
             forServiceID: kVMServiceCoordinatorServiceID,
@@ -62,6 +65,18 @@ public final class GuestServicesCoordinator: Sendable {
         )
 
         logger.debug("Activate with coordinator address \(coordinatorAddress)")
+
+        Task {
+            for await hasConnection in await coordinator.isPeerConnected() {
+                await MainActor.run {
+                    self.hasConnection = hasConnection
+                }
+
+                if !hasConnection {
+                    bootstrappedServices.removeAllObjects()
+                }
+            }
+        }
 
         try await coordinator.activate(address: coordinatorAddress)
     }
