@@ -59,7 +59,7 @@ public final class GuestServicesCoordinator: @unchecked Sendable, ObservableObje
     @Published public private(set) var hasConnection = false
 
     public func activate() async throws {
-        let coordinatorAddress = addressProvider.address(
+        let coordinatorAddress = try await addressProvider.address(
             forServiceID: kVMServiceCoordinatorServiceID,
             portNumber: kVMServiceCoordinatorPortNumber
         )

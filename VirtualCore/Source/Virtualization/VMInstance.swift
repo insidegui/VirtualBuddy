@@ -42,7 +42,18 @@ public final class VMInstance: NSObject, ObservableObject {
             precondition(oldValue.id == virtualMachineModel.id, "Can't change the virtual machine identity after initializing the controller")
         }
     }
-    
+
+    private var _services: HostAppServices?
+
+    public var services: HostAppServices {
+        get throws {
+            guard let _services else {
+                throw "Guest services not available."
+            }
+            return _services
+        }
+    }
+
     var onVMStop: (Error?) -> Void = { _ in }
     
     init(with vm: VBVirtualMachine, library: VMLibraryController, onVMStop: @escaping (Error?) -> Void) {
@@ -172,7 +183,13 @@ public final class VMInstance: NSObject, ObservableObject {
 
         try await vm.start(options: startOptions)
 
-#if DEBUG
+        do {
+            try await bootstrapGuestServiceClients()
+        } catch {
+            logger.error("Guest service clients bootstrap failed. \(error, privacy: .public)")
+        }
+
+        #if DEBUG
         VBDebugUtil.debugVirtualMachine(afterStart: vm)
         #endif
     }
@@ -396,6 +413,68 @@ extension VZMacOSVirtualMachineStartOptions {
         {
             _forceDFU = true
             startUpFromMacOSRecovery = false
+        }
+    }
+}
+
+// MARK: - Guest Service Clients Bootstrap
+
+private extension VMInstance {
+    func bootstrapGuestServiceClients() async throws {
+        let vm = try ensureVM()
+        guard let device = vm.socketDevices.compactMap({ $0 as? VZVirtioSocketDevice }).first else {
+            throw "Socket device not available."
+        }
+
+        let coordinator = GuestServicesCoordinator(addressProvider: device, isListener: false)
+        _services = HostAppServices(coordinator: coordinator)
+
+        try services.activate()
+    }
+}
+
+extension VZVirtioSocketDevice: @retroactive @unchecked Sendable, @retroactive VMServiceAddressProvider {
+    public func address(forServiceID serviceID: String, portNumber: UInt32) async throws(VirtualMessagingService.VMServiceConnectionError) -> VirtualMessagingTransport.BindAddress {
+        let connection = await vbWaitForConnection(toPort: portNumber)
+        return .fileDescriptor(connection.fileDescriptor)
+    }
+}
+
+private extension VZVirtioSocketDevice {
+    static let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VZVirtioSocketDevice+Connection")
+
+    func vbConnect(toPort port: UInt32) async throws -> VZVirtioSocketConnection {
+        try await withCheckedThrowingContinuation { continuation in
+            DispatchQueue.main.async {
+                self.connect(toPort: port) { result in
+                    continuation.resume(with: result)
+                }
+            }
+        }
+    }
+
+    func vbWaitForConnection(toPort port: UInt32) async -> VZVirtioSocketConnection {
+        Self.logger.debug("Request wait for connection to \(port)")
+
+        var lastPortConnectionAttemptLogDate = Date.distantPast
+
+        while true {
+            try? await Task.sleep(for: .milliseconds(500))
+
+            do {
+                let connection = try await vbConnect(toPort: port)
+
+                Self.logger.notice("Established low-level virtual connection to port \(port)")
+
+                return connection
+            } catch {
+                if Date.now.timeIntervalSince(lastPortConnectionAttemptLogDate) >= 3 {
+                    Self.logger.warning("Port \(port) not available yet, waiting...")
+                    lastPortConnectionAttemptLogDate = .now
+                }
+            }
+
+            await Task.yield()
         }
     }
 }
