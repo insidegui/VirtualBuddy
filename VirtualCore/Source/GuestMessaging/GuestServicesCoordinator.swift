@@ -66,21 +66,25 @@ public final class GuestServicesCoordinator: @unchecked Sendable, ObservableObje
 
         logger.debug("Activate with coordinator address \(coordinatorAddress)")
 
-        Task {
-            for await hasConnection in await coordinator.isPeerConnected() {
-                await MainActor.run {
-                    self.hasConnection = hasConnection
-                }
-
-                if !hasConnection {
-                    bootstrappedServices.removeAllObjects()
-                }
+        let peerConnectedStream = await coordinator.isPeerConnected()
+        Task { [weak self] in
+            for await hasConnection in peerConnectedStream {
+                await self?.handleConnectionState(hasConnection)
             }
         }
 
         try await coordinator.activate(address: coordinatorAddress)
     }
-    
+
+    @MainActor
+    private func handleConnectionState(_ isConnected: Bool) {
+        hasConnection = isConnected
+
+        if !hasConnection {
+            bootstrappedServices.removeAllObjects()
+        }
+    }
+
     /// Bootstraps and activates a guest service.
     /// - Parameter service: The service to activate.
     ///
