@@ -48,8 +48,11 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
 
+    let name: String
+
     @Published
-    private var _services: HostAppServices?
+    var _services: HostAppServices?
+    var _addressProvider: VMInstanceServiceAddressProvider?
 
     public var services: HostAppServices {
         get throws {
@@ -62,7 +65,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
     var onVMStop: (Error?) -> Void = { _ in }
     
-    init(with vm: VBVirtualMachine, library: VMLibraryController, onVMStop: @escaping (Error?) -> Void) {
+    init(with vm: VBVirtualMachine, library: VMLibraryController, name: String, onVMStop: @escaping (Error?) -> Void) {
+        self.name = name
         self.virtualMachineModel = vm
         self.library = library
         self.onVMStop = onVMStop
@@ -197,7 +201,7 @@ public final class VMInstance: NSObject, ObservableObject {
             if UserDefaults.isGuestDebuggingEnabled {
                 logger.notice("Skipping guest service clients bootstrap: debugging enabled")
             } else {
-                try await bootstrapGuestServiceClients()
+                try bootstrapGuestServiceClients()
             }
         } catch {
             logger.error("Guest service clients bootstrap failed. \(error, privacy: .public)")
@@ -346,7 +350,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
 
-    private func ensureVM() throws -> VZVirtualMachine {
+    func ensureVM() throws -> VZVirtualMachine {
         guard let vm = _virtualMachine else {
             let e = Failure("The virtual machine instance is not available.")
 
@@ -360,6 +364,11 @@ public final class VMInstance: NSObject, ObservableObject {
         return vm
     }
     
+    deinit {
+        #if DEBUG
+        print("[INSTANCE] \(name) Bye bye 👋")
+        #endif
+    }
 }
 
 // MARK: - VZVirtualMachineDelegate
@@ -388,6 +397,10 @@ extension VMInstance: VZVirtualMachineDelegate {
         } else {
             logger.debug("Guest stopped")
         }
+
+        _addressProvider?.invalidate()
+        _addressProvider = nil
+        _services = nil
 
         #if DEBUG
         isRunning = false
@@ -431,69 +444,6 @@ extension VZMacOSVirtualMachineStartOptions {
         {
             _forceDFU = true
             startUpFromMacOSRecovery = false
-        }
-    }
-}
-
-// MARK: - Guest Service Clients Bootstrap
-
-@_spi(GuestDebug) public extension VMInstance {
-    @discardableResult
-    func bootstrapGuestServiceClients() async throws -> HostAppServices {
-        let vm = try ensureVM()
-        guard let device = vm.socketDevices.compactMap({ $0 as? VZVirtioSocketDevice }).first else {
-            throw "Socket device not available."
-        }
-
-        let coordinator = GuestServicesCoordinator(addressProvider: device, isListener: false)
-        _services = HostAppServices(coordinator: coordinator)
-
-        return try services.activate()
-    }
-}
-
-extension VZVirtioSocketDevice: @retroactive @unchecked Sendable, @retroactive VMServiceAddressProvider {
-    public func address(forServiceID serviceID: String, portNumber: UInt32) async throws(VirtualMessagingService.VMServiceConnectionError) -> VirtualMessagingTransport.BindAddress {
-        let connection = await vbWaitForConnection(toPort: portNumber)
-        return .fileDescriptor(connection.fileDescriptor)
-    }
-}
-
-private extension VZVirtioSocketDevice {
-    static let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VZVirtioSocketDevice+Connection")
-
-    func vbConnect(toPort port: UInt32) async throws -> VZVirtioSocketConnection {
-        try await withCheckedThrowingContinuation { continuation in
-            DispatchQueue.main.async {
-                self.connect(toPort: port) { result in
-                    continuation.resume(with: result)
-                }
-            }
-        }
-    }
-
-    func vbWaitForConnection(toPort port: UInt32) async -> VZVirtioSocketConnection {
-        Self.logger.debug("Request wait for connection to \(port)")
-
-        var lastPortConnectionAttemptLogDate = Date.distantPast
-
-        while true {
-            try? await Task.sleep(for: .milliseconds(500))
-
-            do {
-                let connection = try await vbConnect(toPort: port)
-
-                Self.logger.notice("Established low-level virtual connection to port \(port)")
-
-                return connection
-            } catch {
-                if Date.now.timeIntervalSince(lastPortConnectionAttemptLogDate) >= 3 {
-                    Self.logger.warning("Port \(port) not available yet, waiting...")
-                    lastPortConnectionAttemptLogDate = .now
-                }
-            }
-
-            await Task.yield()
         }
     }
 }

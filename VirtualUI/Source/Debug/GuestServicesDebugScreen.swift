@@ -62,7 +62,7 @@ private struct GuestServicesDebugBootstrapView: View {
             defer { bootstrapTask = nil }
 
             do {
-                services = try await instance.bootstrapGuestServiceClients()
+                services = try instance.bootstrapGuestServiceClients()
             } catch {
                 NSAlert(error: error).runModal()
             }

@@ -163,7 +163,7 @@ public final class VMController: VirtualMachineStateController {
     public private(set) var instance: VMInstance?
     
     private func createInstance() throws -> VMInstance {
-        let newInstance = VMInstance(with: virtualMachineModel, library: library, onVMStop: { [weak self] error in
+        let newInstance = VMInstance(with: virtualMachineModel, library: library, name: name, onVMStop: { [weak self] error in
             self?.state = .stopped(error)
         })
         
@@ -298,7 +298,7 @@ public final class VMController: VirtualMachineStateController {
 
     deinit {
         #if DEBUG
-        print("\(name) Bye bye 👋")
+        print("[CONTROLLER] \(name) Bye bye 👋")
         #endif
         library.removeController(self)
 
