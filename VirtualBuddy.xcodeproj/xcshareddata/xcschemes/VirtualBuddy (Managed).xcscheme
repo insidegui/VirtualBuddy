@@ -64,6 +64,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-GuestDebuggingEnabled YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-VerboseMessagingLogs YES"
             isEnabled = "YES">
          </CommandLineArgument>
