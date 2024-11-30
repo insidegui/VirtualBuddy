@@ -16,9 +16,10 @@ public final class HostAppServices: ObservableObject {
     #endif
 
     public let ping = GuestPingClient()
+    public let clipboard = GuestClipboardService()
 
     private var serviceClients: [GuestService] {
-        [ping]
+        [ping, clipboard]
     }
 
     @MainActor

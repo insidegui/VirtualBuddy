@@ -121,6 +121,9 @@
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
+		F478D4302CFB7EFF008157F2 /* PasteboardObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F478D42F2CFB7EFF008157F2 /* PasteboardObserver.swift */; };
+		F478D4322CFB7F12008157F2 /* ClipboardPayloadTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F478D4312CFB7F12008157F2 /* ClipboardPayloadTypes.swift */; };
+		F478D4342CFB8141008157F2 /* GuestClipboardService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F478D4332CFB8141008157F2 /* GuestClipboardService.swift */; };
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
@@ -467,6 +470,9 @@
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
+		F478D42F2CFB7EFF008157F2 /* PasteboardObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasteboardObserver.swift; sourceTree = "<group>"; };
+		F478D4312CFB7F12008157F2 /* ClipboardPayloadTypes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClipboardPayloadTypes.swift; sourceTree = "<group>"; };
+		F478D4332CFB8141008157F2 /* GuestClipboardService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestClipboardService.swift; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
@@ -966,6 +972,7 @@
 		F45B06F22CFA4C7F0052152F /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F478D42D2CFB7EF8008157F2 /* Clipboard */,
 				F45B06F52CFA4D610052152F /* Ping */,
 			);
 			path = Services;
@@ -1016,6 +1023,24 @@
 				F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		F478D42D2CFB7EF8008157F2 /* Clipboard */ = {
+			isa = PBXGroup;
+			children = (
+				F478D42E2CFB7EFC008157F2 /* Core */,
+				F478D4312CFB7F12008157F2 /* ClipboardPayloadTypes.swift */,
+				F478D4332CFB8141008157F2 /* GuestClipboardService.swift */,
+			);
+			path = Clipboard;
+			sourceTree = "<group>";
+		};
+		F478D42E2CFB7EFC008157F2 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				F478D42F2CFB7EFF008157F2 /* PasteboardObserver.swift */,
+			);
+			path = Core;
 			sourceTree = "<group>";
 		};
 		F48E0D0828885E510080DDFA /* Preview */ = {
@@ -1900,6 +1925,7 @@
 				F45B06EF2CFA3B5A0052152F /* GuestServicesCoordinator.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
+				F478D4342CFB8141008157F2 /* GuestClipboardService.swift in Sources */,
 				F45B07062CFB4AB40052152F /* VMInstanceServiceAddressProvider.swift in Sources */,
 				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
 				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
@@ -1921,6 +1947,7 @@
 				F4A7FB3D2BB5E8A200E4C12A /* VMSavedStatesController.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
 				F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */,
+				F478D4322CFB7F12008157F2 /* ClipboardPayloadTypes.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
 				F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */,
@@ -1936,6 +1963,7 @@
 				F45B06F92CFA4E3E0052152F /* GuestPingClient.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
+				F478D4302CFB7EFF008157F2 /* PasteboardObserver.swift in Sources */,
 				F45B07042CFA58450052152F /* HostAppServices.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,

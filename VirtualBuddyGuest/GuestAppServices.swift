@@ -12,9 +12,10 @@ final class GuestAppServices: ObservableObject, HostConnectionStateProvider {
     let coordinator = GuestServicesCoordinator.current
 
     let ping = GuestPingService()
+    let clipboard = GuestClipboardService()
 
     private var services: [GuestService] {
-        [ping]
+        [ping, clipboard]
     }
 
     private init() { }
