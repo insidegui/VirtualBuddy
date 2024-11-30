@@ -112,7 +112,7 @@
 		F45B06FF2CFA55600052152F /* GuestApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B06FE2CFA555F0052152F /* GuestApp.swift */; };
 		F45B07022CFA57F10052152F /* GuestServicesDebugScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B07012CFA57EB0052152F /* GuestServicesDebugScreen.swift */; };
 		F45B07042CFA58450052152F /* HostAppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B07032CFA583C0052152F /* HostAppServices.swift */; };
-		F45B07062CFB4AB40052152F /* VMInstance+GuestServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B07052CFB4AAF0052152F /* VMInstance+GuestServices.swift */; };
+		F45B07062CFB4AB40052152F /* VMInstanceServiceAddressProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45B07052CFB4AAF0052152F /* VMInstanceServiceAddressProvider.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -458,7 +458,7 @@
 		F45B06FE2CFA555F0052152F /* GuestApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestApp.swift; sourceTree = "<group>"; };
 		F45B07012CFA57EB0052152F /* GuestServicesDebugScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestServicesDebugScreen.swift; sourceTree = "<group>"; };
 		F45B07032CFA583C0052152F /* HostAppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostAppServices.swift; sourceTree = "<group>"; };
-		F45B07052CFB4AAF0052152F /* VMInstance+GuestServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMInstance+GuestServices.swift"; sourceTree = "<group>"; };
+		F45B07052CFB4AAF0052152F /* VMInstanceServiceAddressProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstanceServiceAddressProvider.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -954,11 +954,11 @@
 		F45B06ED2CFA3B450052152F /* GuestMessaging */ = {
 			isa = PBXGroup;
 			children = (
+				F45B07072CFB52B00052152F /* Host */,
 				F45B06F22CFA4C7F0052152F /* Services */,
 				F45B06F02CFA3F190052152F /* GuestService.swift */,
 				F45B06EE2CFA3B560052152F /* GuestServicesCoordinator.swift */,
 				F45B06FC2CFA53BE0052152F /* GuestEnvironment.swift */,
-				F45B07032CFA583C0052152F /* HostAppServices.swift */,
 			);
 			path = GuestMessaging;
 			sourceTree = "<group>";
@@ -987,6 +987,15 @@
 				F45B07012CFA57EB0052152F /* GuestServicesDebugScreen.swift */,
 			);
 			path = Debug;
+			sourceTree = "<group>";
+		};
+		F45B07072CFB52B00052152F /* Host */ = {
+			isa = PBXGroup;
+			children = (
+				F45B07052CFB4AAF0052152F /* VMInstanceServiceAddressProvider.swift */,
+				F45B07032CFA583C0052152F /* HostAppServices.swift */,
+			);
+			path = Host;
 			sourceTree = "<group>";
 		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
@@ -1160,7 +1169,6 @@
 				F4A21BF128032FD8001072B8 /* VMLibraryController.swift */,
 				F4A7FB3C2BB5E8A200E4C12A /* VMSavedStatesController.swift */,
 				F46FFBAB28059FF600D61023 /* VMInstance.swift */,
-				F45B07052CFB4AAF0052152F /* VMInstance+GuestServices.swift */,
 				F4BE9C7927FF05B900B648F8 /* VMController.swift */,
 				F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */,
 			);
@@ -1892,7 +1900,7 @@
 				F45B06EF2CFA3B5A0052152F /* GuestServicesCoordinator.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
-				F45B07062CFB4AB40052152F /* VMInstance+GuestServices.swift in Sources */,
+				F45B07062CFB4AB40052152F /* VMInstanceServiceAddressProvider.swift in Sources */,
 				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
 				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,

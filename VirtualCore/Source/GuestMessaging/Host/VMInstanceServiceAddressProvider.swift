@@ -32,6 +32,18 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
         set { _addressTasks.withLock { $0 = newValue } }
     }
 
+    nonisolated(unsafe) private var _connections = OSAllocatedUnfairLock(initialState: [VZVirtioSocketConnection]())
+    private var connections: [VZVirtioSocketConnection] {
+        get { _connections.withLock { $0 } }
+        set {
+            _connections.withLock {
+                $0 = newValue
+                let count = $0.count
+                logger.debug("Connections: \(count, privacy: .public)")
+            }
+        }
+    }
+
     private func runAddressTask(_ closure: @escaping @Sendable () async throws -> BindAddress) async throws(VMServiceConnectionError) -> BindAddress {
         let task = Task {
             try await closure()
@@ -56,6 +68,9 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
 
             do {
                 let connection = try await waitForConnection(toPort: portNumber)
+
+                connections.append(connection)
+
                 return .fileDescriptor(connection.fileDescriptor)
             } catch {
                 throw VMServiceConnectionError.addressLookupFailure("\(error)")
@@ -93,6 +108,8 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
     func invalidate() {
         addressTasks.values.forEach { $0.cancel() }
         addressTasks.removeAll()
+
+        connections.removeAll()
     }
 
     deinit {
