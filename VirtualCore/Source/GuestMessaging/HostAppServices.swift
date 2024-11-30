@@ -25,7 +25,8 @@ public final class HostAppServices: ObservableObject {
     @Published public private(set) var hasConnection = false
 
     @MainActor
-    public func activate() {
+    @discardableResult
+    public func activate() -> Self {
         logger.debug(#function)
 
         coordinator.$hasConnection.assign(to: &$hasConnection)
@@ -41,6 +42,8 @@ public final class HostAppServices: ObservableObject {
                 await NSAlert(error: error).runModal()
             }
         }
+
+        return self
     }
 
     private func bootstrapServiceClients() async {

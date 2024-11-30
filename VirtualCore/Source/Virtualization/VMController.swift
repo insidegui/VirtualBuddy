@@ -83,6 +83,8 @@ public protocol VirtualMachineStateController: ObservableObject {
     func saveState(snapshotName: String) async throws
 
     var virtualMachineModel: VBVirtualMachine { get }
+
+    var instance: VMInstance? { get }
 }
 
 @MainActor
@@ -157,7 +159,8 @@ public final class VMController: VirtualMachineStateController {
         }
     }
 
-    private var instance: VMInstance?
+    @Published
+    public private(set) var instance: VMInstance?
     
     private func createInstance() throws -> VMInstance {
         let newInstance = VMInstance(with: virtualMachineModel, library: library, onVMStop: { [weak self] error in

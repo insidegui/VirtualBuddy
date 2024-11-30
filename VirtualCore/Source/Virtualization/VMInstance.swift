@@ -36,13 +36,19 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     private var isLoadingNVRAM = false
-    
+
+    #if DEBUG
+    @Published
+    @_spi(GuestDebug) public private(set) var isRunning = false
+    #endif
+
     var virtualMachineModel: VBVirtualMachine {
         didSet {
             precondition(oldValue.id == virtualMachineModel.id, "Can't change the virtual machine identity after initializing the controller")
         }
     }
 
+    @Published
     private var _services: HostAppServices?
 
     public var services: HostAppServices {
@@ -183,8 +189,16 @@ public final class VMInstance: NSObject, ObservableObject {
 
         try await vm.start(options: startOptions)
 
+        #if DEBUG
+        await MainActor.run { self.isRunning = true }
+        #endif
+
         do {
-            try await bootstrapGuestServiceClients()
+            if UserDefaults.isGuestDebuggingEnabled {
+                logger.notice("Skipping guest service clients bootstrap: debugging enabled")
+            } else {
+                try await bootstrapGuestServiceClients()
+            }
         } catch {
             logger.error("Guest service clients bootstrap failed. \(error, privacy: .public)")
         }
@@ -375,6 +389,10 @@ extension VMInstance: VZVirtualMachineDelegate {
             logger.debug("Guest stopped")
         }
 
+        #if DEBUG
+        isRunning = false
+        #endif
+
         DispatchQueue.main.async { [self] in
             library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
 
@@ -419,8 +437,9 @@ extension VZMacOSVirtualMachineStartOptions {
 
 // MARK: - Guest Service Clients Bootstrap
 
-private extension VMInstance {
-    func bootstrapGuestServiceClients() async throws {
+@_spi(GuestDebug) public extension VMInstance {
+    @discardableResult
+    func bootstrapGuestServiceClients() async throws -> HostAppServices {
         let vm = try ensureVM()
         guard let device = vm.socketDevices.compactMap({ $0 as? VZVirtioSocketDevice }).first else {
             throw "Socket device not available."
@@ -429,7 +448,7 @@ private extension VMInstance {
         let coordinator = GuestServicesCoordinator(addressProvider: device, isListener: false)
         _services = HostAppServices(coordinator: coordinator)
 
-        try services.activate()
+        return try services.activate()
     }
 }
 

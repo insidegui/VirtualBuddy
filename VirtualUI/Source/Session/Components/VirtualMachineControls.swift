@@ -18,6 +18,12 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
     
     var body: some View {
         Group {
+            #if DEBUG
+            if UserDefaults.isGuestDebuggingEnabled, let instance = controller.instance {
+                servicesDebugButton(instance)
+            }
+            #endif
+
             switch controller.state {
             case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted:
                 Button {
@@ -112,6 +118,23 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
             }
         }
     }
+
+    #if DEBUG
+    @State private var showingServicesDebug = false
+
+    @ViewBuilder
+    private func servicesDebugButton(_ instance: VMInstance) -> some View {
+        Button {
+            showingServicesDebug = true
+        } label: {
+            Image(systemName: "ant")
+        }
+        .help(Text("Guest Services Debug"))
+        .popover(isPresented: $showingServicesDebug) {
+            GuestServicesDebugScreen(instance: instance)
+        }
+    }
+    #endif
 }
 
 private extension DateFormatter {
@@ -130,6 +153,8 @@ private final class PreviewVirtualMachineStateController: VirtualMachineStateCon
     @Published var state: VMState = .idle
 
     @Published var virtualMachineModel = VBVirtualMachine.preview
+
+    var instance: VMInstance? = nil
 
     @MainActor
     func start() async throws {
