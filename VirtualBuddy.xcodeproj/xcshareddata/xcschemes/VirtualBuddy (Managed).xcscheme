@@ -61,11 +61,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-GuestSimulationEnabled YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-GuestDebuggingEnabled YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VerboseMessagingLogs YES"

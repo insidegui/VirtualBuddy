@@ -133,6 +133,8 @@ private struct GuestServicesDebugControls: View {
     }
 
     private func launchGuestIfNeeded() async throws {
+        guard UserDefaults.isGuestSimulationEnabled else { return }
+        
         let url = try URL.embeddedGuestAppURL
 
         guard let bundleID = Bundle(url: url)?.bundleIdentifier else {
