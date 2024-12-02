@@ -1,5 +1,5 @@
 {
-  "originHash" : "35eca45dcec6d41c09ae317c7c85b3e71685a2700b23f4cf56256e3b5cd24562",
+  "originHash" : "1b8661fa8743515e366259e67a28610608db8408d448337ec04486ad1515501a",
   "pins" : [
     {
       "identity" : "buddykit",
@@ -8,15 +8,6 @@
       "state" : {
         "branch" : "main",
         "revision" : "80d8bebc2025f316295a944ab3709bdc9b688865"
-      }
-    },
-    {
-      "identity" : "messagerouter",
-      "kind" : "remoteSourceControl",
-      "location" : "git@github.com:insidegui/MessageRouter.git",
-      "state" : {
-        "branch" : "main",
-        "revision" : "4443618c1866dabc3cac3ddc6167c7c2bf78b205"
       }
     },
     {
