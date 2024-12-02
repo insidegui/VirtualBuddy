@@ -14,7 +14,7 @@ struct GuestApp {
         if ProcessInfo.processInfo.isVirtualMachine {
             UserDefaults.standard
                 .setVolatileDomain(
-                    [kVerboseLoggingFlag: true],
+                    [kVirtualMessagingVerboseFlag: true],
                     forName: UserDefaults.argumentDomain
                 )
         }

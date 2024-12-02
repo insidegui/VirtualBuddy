@@ -109,12 +109,12 @@ open class GuestService: @unchecked Sendable {
     /// as a response to the message it receives.
     ///
     /// - note: There's currently no timeout mechanism implemented, so if the remote peer doesn't respond with the expected message type, this method will never return.
-    public func sendWithReply<R: RoutableMessagePayload>(_ payload: some RoutableMessagePayload) async throws(VMServiceConnectionError) -> R {
+    public func sendWithReply<Request, Response>(_ payload: Request) async throws(VMServiceConnectionError) -> Response where Request: RespondableMessagePayload, Response: RespondableMessagePayload {
         let router = try self.router
 
         let responseTask = Task {
             await withCheckedContinuation { continuation in
-                router.onNext(R.self, context: VMPeerConnection.self) { response, _ in
+                router.onResponse(to: Request.self, id: payload.id, responseType: Response.self, context: VMPeerConnection.self) { response, _ in
                     continuation.resume(returning: response)
                 }
             }
@@ -135,8 +135,9 @@ final class GuestServiceInstance: Sendable {
 
     init<S: GuestService>(service: S) {
         self.id = service.id
-        self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestServiceInstance(\(id.shortServiceID))")
-        self.router = MessageRouter(label: id.shortServiceID)
+        let category = "ServiceInstance(\(id.shortServiceID))"
+        self.logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestServiceInstance(\(id.shortServiceID))")
+        self.router = MessageRouter(logger: Logger(subsystem: kVirtualMessagingSubsystem, category: "Router:" + category))
         self.service = service
     }
 
@@ -160,10 +161,6 @@ final class GuestServiceInstance: Sendable {
 
         try await service.activate(connection: connection, router: router)
     }
-}
-
-public extension String {
-    var shortServiceID: String { split(separator: ".").last.flatMap(String.init) ?? self }
 }
 
 public extension GuestService {

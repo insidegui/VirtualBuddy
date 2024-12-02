@@ -5,7 +5,7 @@ import OSLog
 
 /// Coordinates access to guest services on both sides of the connection.
 public final class GuestServicesCoordinator: @unchecked Sendable, ObservableObject {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestServerCoordinator")
+    private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestServerCoordinator")
 
     /// Server for virtualized guest, which is used when VirtualBuddyGuest is running in a virtual machine.
     private static let guestServer = GuestServicesCoordinator(addressProvider: VSockVMServiceAddressProvider(), isListener: true)

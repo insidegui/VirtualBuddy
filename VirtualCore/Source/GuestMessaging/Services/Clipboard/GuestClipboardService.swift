@@ -6,7 +6,7 @@ import OSLog
 let kGuestClipboardServiceID = "codes.rambo.VirtualBuddy.ClipboardService"
 
 public class GuestClipboardService: GuestService, @unchecked Sendable {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestClipboardService")
+    private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestClipboardService")
 
     public override var id: String { kGuestClipboardServiceID }
 
@@ -28,6 +28,13 @@ public class GuestClipboardService: GuestService, @unchecked Sendable {
 
     @MainActor
     private func activateObserver() {
+        #if DEBUG
+        guard !UserDefaults.isGuestSimulationEnabled else {
+            logger.notice("Skipping clipboard observation because guest simulation is enabled.")
+            return
+        }
+        #endif
+        
         let events = observer.events
         observerTask = Task { [weak self] in
             for await _ in events {

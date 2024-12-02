@@ -6,7 +6,7 @@ import OSLog
 let kGuestPingServiceID = "codes.rambo.VirtualBuddy.PingService"
 
 public final class GuestPingService: GuestService, @unchecked Sendable {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "GuestPingService")
+    private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestPingService")
 
     public override var id: String { kGuestPingServiceID }
 

@@ -3,12 +3,12 @@ import VirtualMessagingTransport
 import VirtualMessagingService
 import OSLog
 
-struct VMPingPayload: RoutableMessagePayload {
+struct VMPingPayload: RespondableMessagePayload {
     var id = UUID().uuidString
     var timestamp = Date.now.timeIntervalSinceReferenceDate
 }
 
-public struct VMPongPayload: RoutableMessagePayload {
+public struct VMPongPayload: RespondableMessagePayload {
     public internal(set) var id = UUID().uuidString
     public internal(set) var timestamp = Date.now.timeIntervalSinceReferenceDate
 }

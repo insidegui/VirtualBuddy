@@ -47,10 +47,6 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        #if DEBUG
-        UserDefaults.standard.set(true, forKey: kVerboseLoggingFlag)
-        #endif
-
         /// Skip regular app activation if installation is needed (i.e. running from disk image).
         guard !installer.needsInstall else { return }
 

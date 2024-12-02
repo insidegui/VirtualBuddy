@@ -1,8 +1,9 @@
 import Foundation
 import OSLog
+import VirtualMessagingService
 
 public final class HostAppServices: ObservableObject {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "HostAppServices")
+    private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "HostAppServices")
 
     let coordinator: GuestServicesCoordinator
 

@@ -14,7 +14,7 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
     init(device: VZVirtioSocketDevice, name: String) {
         self._device = device
         self.name = name
-        self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "AddressProvider(\(name))")
+        self.logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "AddressProvider(\(name))")
     }
 
     private var device: VZVirtioSocketDevice {
