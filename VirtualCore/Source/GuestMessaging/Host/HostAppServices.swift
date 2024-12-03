@@ -2,6 +2,8 @@ import Foundation
 import OSLog
 import VirtualMessagingService
 
+public typealias HostAppServiceClient = GuestService & GuestServiceClient
+
 public final class HostAppServices: ObservableObject {
     private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "HostAppServices")
 
@@ -17,9 +19,9 @@ public final class HostAppServices: ObservableObject {
     #endif
 
     public let ping = GuestPingClient()
-    public let clipboard = GuestClipboardService()
+    public let clipboard = GuestClipboardClient()
 
-    private var serviceClients: [GuestService] {
+    private var serviceClients: [HostAppServiceClient] {
         [ping, clipboard]
     }
 

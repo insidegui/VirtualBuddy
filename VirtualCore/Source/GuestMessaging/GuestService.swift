@@ -3,6 +3,12 @@ import VirtualMessagingTransport
 import VirtualMessagingService
 import OSLog
 
+/// This protocol is currently just a marker for ``HostAppServices``.
+/// The goal is to avoid accidentally having the service instance created in the host,
+/// since oftentimes the client implementation inherits from the service.
+/// This allows the compiler to point out that mistake with an error.
+public protocol GuestServiceClient { }
+
 /// Base class for guest services.
 /// - warning: The current implementation supports only a single client per service.
 open class GuestService: @unchecked Sendable {

@@ -6,13 +6,13 @@ import OSLog
 let kGuestClipboardServiceID = "codes.rambo.VirtualBuddy.ClipboardService"
 
 public class GuestClipboardService: GuestService, @unchecked Sendable {
-    private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestClipboardService")
+    let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestClipboardService")
 
     public override var id: String { kGuestClipboardServiceID }
 
     var isGuest: Bool { true }
 
-    private let observer = ClipboardObserver()
+    let observer = ClipboardObserver()
 
     private var observerTask: Task<Void, Never>?
 
@@ -27,14 +27,7 @@ public class GuestClipboardService: GuestService, @unchecked Sendable {
     }
 
     @MainActor
-    private func activateObserver() {
-        #if DEBUG
-        guard !UserDefaults.isGuestSimulationEnabled else {
-            logger.notice("Skipping clipboard observation because guest simulation is enabled.")
-            return
-        }
-        #endif
-        
+    func activateObserver() {
         let events = observer.events
         observerTask = Task { [weak self] in
             for await _ in events {
@@ -94,6 +87,20 @@ public class GuestClipboardService: GuestService, @unchecked Sendable {
     }
 }
 
-public class GuestClipboardClient: GuestClipboardService, @unchecked Sendable {
+public class GuestClipboardClient: GuestClipboardService, GuestServiceClient, @unchecked Sendable {
     override var isGuest: Bool { false }
+
+    override func activateObserver() {
+        /// In guest simulation mode, we simulate the guest sending content to the host,
+        /// so the client (host) side disables clipboard observation and everything copied
+        /// from the clipboard on the host is routed through the guest to the host client.
+        #if DEBUG
+        guard !UserDefaults.isGuestSimulationEnabled else {
+            logger.notice("Skipping clipboard observation because guest simulation is enabled.")
+            return
+        }
+        #endif
+
+        super.activateObserver()
+    }
 }

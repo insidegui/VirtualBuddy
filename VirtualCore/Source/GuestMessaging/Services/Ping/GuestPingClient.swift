@@ -3,7 +3,7 @@ import VirtualMessagingTransport
 import VirtualMessagingService
 import OSLog
 
-public final class GuestPingClient: GuestService, @unchecked Sendable {
+public final class GuestPingClient: GuestService, GuestServiceClient, @unchecked Sendable {
     private let logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "GuestPingClient")
 
     public override var id: String { kGuestPingServiceID }
