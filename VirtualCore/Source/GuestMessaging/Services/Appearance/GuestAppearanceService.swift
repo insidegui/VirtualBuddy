@@ -13,7 +13,9 @@ public final class GuestAppearanceService: GuestService, @unchecked Sendable {
     public override func bootstrapCompleted() {
         logger.debug(#function)
 
-        register(handleAppearanceChange)
+        register { [weak self] in
+            await self?.handleAppearanceChange($0, peer: $1)
+        }
     }
 
     public override func connected(_ connection: VMPeerConnection) {
@@ -31,7 +33,7 @@ public final class GuestAppearanceService: GuestService, @unchecked Sendable {
         VMSystemAppearance.current = appearance
     }
 
-    @Sendable private func handleAppearanceChange(_ payload: VMAppearanceChangePayload, peer: VMPeerConnection) async throws {
+    @Sendable private func handleAppearanceChange(_ payload: VMAppearanceChangePayload, peer: VMPeerConnection) async {
         logger.debug("Change appearance requested: \(String(describing: payload))")
 
         setAppearance(payload.appearance)

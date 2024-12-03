@@ -13,7 +13,9 @@ public final class GuestPingService: GuestService, @unchecked Sendable {
     public override func bootstrapCompleted() {
         logger.debug(#function)
 
-        register(handlePing)
+        register { [weak self] in
+            try await self?.handlePing($0, peer: $1)
+        }
     }
 
     @Sendable private func handlePing(_ ping: VMPingPayload, peer: VMPeerConnection) async throws {

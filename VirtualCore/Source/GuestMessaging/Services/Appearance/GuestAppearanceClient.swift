@@ -13,11 +13,24 @@ public final class GuestAppearanceClient: GuestService, GuestServiceClient, @unc
     public override func bootstrapCompleted() {
         logger.debug(#function)
 
+        register { [weak self] in
+            try await self?.handleAppearanceRequest($0, peer: $1)
+        }
+    }
+
+    public override func connected(_ connection: VMPeerConnection) {
+        super.connected(connection)
+
         observer = VMSystemAppearance.addObserver { [weak self] appearance in
             self?.sendAppearance(appearance)
         }
+    }
 
-        register(handleAppearanceRequest)
+    public override func disconnected(_ connection: VMPeerConnection) {
+        super.disconnected(connection)
+
+        VMSystemAppearance.removeObserver(observer)
+        observer = nil
     }
 
     private func sendAppearance(_ appearance: VMSystemAppearance) {

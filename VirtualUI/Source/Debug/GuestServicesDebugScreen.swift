@@ -1,36 +1,83 @@
 #if DEBUG
 import SwiftUI
 @_spi(GuestDebug) import VirtualCore
+import Combine
+
+@MainActor
+private final class GuestServicesDebugController: ObservableObject {
+    @Published private(set) var services: HostAppServices? {
+        didSet {
+            if services != nil { canDestroyInstance = true }
+        }
+    }
+    @Published var canDestroyInstance = false
+
+    func createInstance() {
+        assert(services == nil)
+
+        services = HostAppServices(coordinator: .current)
+    }
+
+    func destroyInstance() {
+        assert(canDestroyInstance)
+        assert(services != nil)
+
+        services = nil
+        canDestroyInstance = false
+    }
+}
 
 public struct GuestServicesDebugScreen: View {
-    private let services: HostAppServices?
     private let instance: VMInstance?
 
-    public init(services: HostAppServices) {
-        self.services = services
+    public init() {
         self.instance = nil
     }
 
     public init(instance: VMInstance) {
-        self.services = try? instance.services
         self.instance = instance
     }
+
+    @StateObject
+    private var controller = GuestServicesDebugController()
 
     public var body: some View {
         NavigationStack {
             ZStack {
-                if let services {
+                if let services = controller.services {
                     GuestServicesDebugControls(services: services)
                 } else if let instance {
                     GuestServicesDebugBootstrapView(instance: instance)
                 } else {
-                    Text("WAT").foregroundStyle(.red)
+                    servicesControlView
+                        .task { controller.canDestroyInstance = true }
                 }
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .navigationTitle(Text("Guest Services Debug"))
+            .toolbar {
+                if UserDefaults.isGuestSimulationEnabled, controller.canDestroyInstance {
+                    ToolbarItemGroup(placement: .primaryAction) {
+                        Button {
+                            controller.destroyInstance()
+                        } label: {
+                            Image(systemName: "trash")
+                        }
+                        .help("Destroy instance")
+                    }
+                }
+            }
         }
         .frame(minWidth: 460, maxWidth: .infinity, minHeight: 320, maxHeight: .infinity)
+    }
+
+    private var servicesControlView: some View {
+        /// We want to create the `HostAppServices` instance only when requested
+        /// so that its lifecycle can mimick what happens in real usage, where the `VMInstance`
+        /// owns `HostAppServices` and releases it when the VM is gone.
+        Button("Create Instance") {
+            controller.createInstance()
+        }
     }
 }
 

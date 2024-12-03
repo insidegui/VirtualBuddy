@@ -19,15 +19,31 @@ public class GuestClipboardService: GuestService, @unchecked Sendable {
     public override func bootstrapCompleted() {
         logger.debug(#function)
 
-        register(handleClipboard)
+        register { [weak self] in
+            try await self?.handleClipboard($0, peer: $1)
+        }
+    }
+
+    public override func connected(_ connection: VMPeerConnection) {
+        super.connected(connection)
 
         DispatchQueue.main.async {
             self.activateObserver()
         }
     }
 
+    public override func disconnected(_ connection: VMPeerConnection) {
+        super.disconnected(connection)
+
+        DispatchQueue.main.async {
+            self.invalidateObserver()
+        }
+    }
+
     @MainActor
     func activateObserver() {
+        logger.debug(#function)
+
         let events = observer.events
         observerTask = Task { [weak self] in
             for await _ in events {
@@ -38,6 +54,13 @@ public class GuestClipboardService: GuestService, @unchecked Sendable {
         }
 
         observer.isEnabled = true
+    }
+
+    @MainActor
+    func invalidateObserver() {
+        logger.debug(#function)
+
+        observer.isEnabled = false
     }
 
     private func clipboardChanged() async {

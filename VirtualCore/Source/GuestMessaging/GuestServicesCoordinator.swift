@@ -15,11 +15,13 @@ public final class GuestServicesCoordinator: @unchecked Sendable, ObservableObje
     private static let simulatedGuestServer = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: true), isListener: true)
 
     /// [DEBUG ONLY] Host-side client for simulated guest-side server, which is used when VirtualBuddy is running with guest simulation enabled.
-    internal static let simulatedHostClient = GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: false), isListener: false)
+    /// This is not a stored static property because we want to be able to completely destroy the coordinator instance in order to test what
+    /// happens when a real virtual machine instance is released.
+    internal static var simulatedHostClient: GuestServicesCoordinator { GuestServicesCoordinator(addressProvider: SimulatedGuestAddressProvider(shouldDeleteExistingSocket: false), isListener: false) }
     #endif
 
     /// The global services coordinator instance, which is automatically set up depending on the environment.
-    public static let current: GuestServicesCoordinator = {
+    public static var current: GuestServicesCoordinator {
         if ProcessInfo.processInfo.isVirtualBuddyGuest {
             #if DEBUG
             if UserDefaults.isGuestSimulationEnabled {
@@ -41,7 +43,7 @@ public final class GuestServicesCoordinator: @unchecked Sendable, ObservableObje
             fatalError("GuestServicesCoordinator.current singleton can't be used on the host unless guest simulation is enabled")
             #endif
         }
-    }()
+    }
 
     private let addressProvider: VMServiceAddressProvider
     private let coordinator: VMServiceCoordinator

@@ -72,7 +72,7 @@ struct VirtualBuddyApp: App {
         #if DEBUG
         Window(Text("Guest Simulator"), id: .vb_simulatorWindowID) {
             if UserDefaults.isGuestSimulationEnabled {
-                GuestServicesDebugScreen(services: HostAppServices.guestSimulator)
+                GuestServicesDebugScreen()
             }
         }
         #endif // debug

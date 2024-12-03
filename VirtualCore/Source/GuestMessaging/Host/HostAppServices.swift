@@ -15,7 +15,7 @@ public final class HostAppServices: ObservableObject {
 
     #if DEBUG
     /// [DEBUG ONLY] Shared instance for guest simulation.
-    public static let guestSimulator = HostAppServices(coordinator: .simulatedHostClient)
+    public static var guestSimulator: HostAppServices { HostAppServices(coordinator: .simulatedHostClient) }
     #endif
 
     public let ping = GuestPingClient()
@@ -63,5 +63,11 @@ public final class HostAppServices: ObservableObject {
                 }
             }
         }
+    }
+
+    deinit {
+        #if DEBUG
+        print("[SERVICES] Bye bye 👋")
+        #endif
     }
 }
