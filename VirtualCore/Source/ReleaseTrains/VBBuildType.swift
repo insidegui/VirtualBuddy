@@ -29,7 +29,11 @@ public extension VBBuildType {
     var name: String? {
         switch self {
         case .debug:
+            #if PRIVATE_BUILD
+            return "Private"
+            #else
             return "Debug"
+            #endif
         case .betaDebug:
             return "Beta Debug"
         case .release:

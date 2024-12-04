@@ -38,7 +38,6 @@ CODE_SIGN_IDENTITY[config=Debug_Private] = -
 
 OTHER_SWIFT_FLAGS[config=Release][sdk=*][arch=*] = -D BUILDING_NON_MANAGED_RELEASE
 OTHER_SWIFT_FLAGS[config=Dev_Release][sdk=*][arch=*] = -D BUILDING_DEV_RELEASE
-OTHER_SWIFT_FLAGS[config=Debug_Private][sdk=*][arch=*] = -D PRIVATE_BUILD
 
 // Release Train Settings
 
