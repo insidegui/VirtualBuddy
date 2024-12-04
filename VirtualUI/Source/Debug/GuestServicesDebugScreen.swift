@@ -124,9 +124,6 @@ private struct GuestServicesDebugControls: View {
         self._services = .init(wrappedValue: services)
     }
 
-    @State private var pingTask: Task<Void, Never>?
-    @State private var pong: VMPongPayload?
-
     public var body: some View {
         Form {
             Button("Activate Services") {
@@ -134,19 +131,9 @@ private struct GuestServicesDebugControls: View {
             }
             .disabled(services.hasConnection)
 
-            Section("Ping") {
-                Button {
-                    sendPing()
-                } label: {
-                    Text("Send Ping")
-                }
-                .disabled(pingTask != nil)
+            PingServiceDebugControls(services: services)
 
-                if let pong {
-                    LabeledContent("Pong", value: pong.id)
-                }
-            }
-            .disabled(!services.hasConnection)
+            NotificationCenterServiceDebugControls(services: services)
         }
         .formStyle(.grouped)
         .monospacedDigit()
@@ -158,21 +145,6 @@ private struct GuestServicesDebugControls: View {
             do {
                 try await launchGuestIfNeeded()
                 services.activate()
-            } catch {
-                NSAlert(error: error).runModal()
-            }
-        }
-    }
-
-    private func sendPing() {
-        pingTask = Task {
-            defer { pingTask = nil }
-
-            do {
-                print("Send ping...")
-                let reply = try await services.ping.sendPing()
-                print("Pong: \(reply)")
-                self.pong = reply
             } catch {
                 NSAlert(error: error).runModal()
             }
@@ -199,6 +171,75 @@ private struct GuestServicesDebugControls: View {
         try await Task.detached {
             try await Task.sleep(for: .seconds(2))
         }.value
+    }
+}
+
+// MARK: - Ping
+
+private struct PingServiceDebugControls: View {
+    @ObservedObject var services: HostAppServices
+
+    @State private var pingTask: Task<Void, Never>?
+    @State private var pong: VMPongPayload?
+
+    var body: some View {
+        Section("Ping") {
+            Button {
+                sendPing()
+            } label: {
+                Text("Send Ping")
+            }
+            .disabled(pingTask != nil)
+
+            if let pong {
+                LabeledContent("Pong", value: pong.id)
+            }
+        }
+        .disabled(!services.hasConnection)
+    }
+
+    private func sendPing() {
+        pingTask = Task {
+            defer { pingTask = nil }
+
+            do {
+                print("Send ping...")
+                let reply = try await services.ping.sendPing()
+                print("Pong: \(reply)")
+                self.pong = reply
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
+    }
+}
+
+// MARK: - Notification Center
+
+private struct NotificationCenterServiceDebugControls: View {
+    @ObservedObject var services: HostAppServices
+
+    var body: some View {
+        Section("Notification Center") {
+            Button {
+                subscribe()
+            } label: {
+                Text("Subscribe")
+            }
+        }
+        .disabled(!services.hasConnection)
+    }
+
+    private func subscribe() {
+        Task {
+            do {
+                try await services.notificationCenter.addObserver(for: "codes.rambo.test", type: .notify) { name in
+                    print("-> Received: \(name)")
+                }
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
     }
 }
 
