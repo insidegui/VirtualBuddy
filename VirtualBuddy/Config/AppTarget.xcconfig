@@ -14,6 +14,7 @@ CODE_SIGN_ENTITLEMENTS[config=Release_Managed][sdk=*][arch=*] = $(ENTITLEMENTS_D
 CODE_SIGN_ENTITLEMENTS[config=Dev_Release][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy_Managed.entitlements
 CODE_SIGN_ENTITLEMENTS[config=Beta_Debug][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy_Managed.entitlements
 CODE_SIGN_ENTITLEMENTS[config=Beta_Release][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy_Managed.entitlements
+CODE_SIGN_ENTITLEMENTS[config=Debug_Private][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy_Private.entitlements
 
 PROVISIONING_PROFILE_SPECIFIER[config=Debug][sdk=*][arch=*] =
 PROVISIONING_PROFILE_SPECIFIER[config=Release][sdk=*][arch=*] =
@@ -22,6 +23,7 @@ PROVISIONING_PROFILE_SPECIFIER[config=Release_Managed][sdk=*][arch=*] = $(MANAGE
 PROVISIONING_PROFILE_SPECIFIER[config=Dev_Release][sdk=*][arch=*] = $(MANAGED_PROFILE)
 PROVISIONING_PROFILE_SPECIFIER[config=Beta_Debug][sdk=*][arch=*] = $(MANAGED_PROFILE)
 PROVISIONING_PROFILE_SPECIFIER[config=Beta_Release][sdk=*][arch=*] = $(MANAGED_PROFILE)
+PROVISIONING_PROFILE_SPECIFIER[config=Debug_Private][sdk=*][arch=*] =
 
 CODE_SIGN_STYLE[config=Debug][sdk=*][arch=*] = Automatic
 CODE_SIGN_STYLE[config=Release][sdk=*][arch=*] = Automatic
@@ -30,9 +32,13 @@ CODE_SIGN_STYLE[config=Release_Managed][sdk=*][arch=*] = Manual
 CODE_SIGN_STYLE[config=Dev_Release][sdk=*][arch=*] = Manual
 CODE_SIGN_STYLE[config=Beta_Debug][sdk=*][arch=*] = Manual
 CODE_SIGN_STYLE[config=Beta_Release][sdk=*][arch=*] = Manual
+CODE_SIGN_STYLE[config=Debug_Private][sdk=*][arch=*] = Manual
+
+CODE_SIGN_IDENTITY[config=Debug_Private] = -
 
 OTHER_SWIFT_FLAGS[config=Release][sdk=*][arch=*] = -D BUILDING_NON_MANAGED_RELEASE
 OTHER_SWIFT_FLAGS[config=Dev_Release][sdk=*][arch=*] = -D BUILDING_DEV_RELEASE
+OTHER_SWIFT_FLAGS[config=Debug_Private][sdk=*][arch=*] = -D PRIVATE_BUILD
 
 // Release Train Settings
 
@@ -46,4 +52,6 @@ PRODUCT_NAME = $(TARGET_NAME)
 
 // Development releases named VirtualBuddy-Dev.app
 PRODUCT_NAME[config=Dev_Release][sdk=*][arch=*] = $(TARGET_NAME)-Dev
+
+PRODUCT_NAME[config=Debug_Private][sdk=*][arch=*] = $(TARGET_NAME)-Priv
 
