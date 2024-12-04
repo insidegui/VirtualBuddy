@@ -398,8 +398,10 @@ extension VMInstance: VZVirtualMachineDelegate {
             logger.debug("Guest stopped")
         }
 
-        _addressProvider?.invalidate()
-        _addressProvider = nil
+        Task { [weak self] in
+            await self?._addressProvider?.invalidate()
+            self?._addressProvider = nil
+        }
         _services = nil
 
         #if DEBUG

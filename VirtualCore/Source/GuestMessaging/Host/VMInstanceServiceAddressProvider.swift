@@ -6,15 +6,27 @@ import VirtualMessagingTransport
 import VirtualMessagingService
 
 final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @unchecked Sendable {
+    private let queue = DispatchQueue(label: "VMInstanceServiceAddressProvider", target: .global())
+
     private let logger: Logger
-    private weak var _device: VZVirtioSocketDevice?
+    private weak var _device: VZVirtioSocketDevice? {
+        didSet {
+            #if DEBUG
+            if _device != oldValue, _device == nil {
+                logger.debug("🎯 My socket device is gone")
+            }
+            #endif
+        }
+    }
 
     let name: String
+    private let storage: Storage
 
     init(device: VZVirtioSocketDevice, name: String) {
         self._device = device
         self.name = name
         self.logger = Logger(subsystem: kVirtualMessagingSubsystem, category: "AddressProvider(\(name))")
+        self.storage = Storage(logger: logger)
     }
 
     private var device: VZVirtioSocketDevice {
@@ -26,21 +38,40 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
         }
     }
 
-    nonisolated(unsafe) private var _addressTasks = OSAllocatedUnfairLock(initialState: [UUID: Task<BindAddress, Error>]())
-    private var addressTasks: [UUID: Task<BindAddress, Error>] {
-        get { _addressTasks.withLock { $0 } }
-        set { _addressTasks.withLock { $0 = newValue } }
-    }
+    private final actor Storage {
+        let logger: Logger
 
-    nonisolated(unsafe) private var _connections = OSAllocatedUnfairLock(initialState: [VZVirtioSocketConnection]())
-    private var connections: [VZVirtioSocketConnection] {
-        get { _connections.withLock { $0 } }
-        set {
-            _connections.withLock {
-                $0 = newValue
-                let count = $0.count
-                logger.debug("Connections: \(count, privacy: .public)")
+        init(logger: Logger) {
+            self.logger = logger
+        }
+
+        private var addressTasks = [UUID: Task<BindAddress, Error>]()
+        private var connections = [VZVirtioSocketConnection]() {
+            didSet {
+                #if DEBUG
+                let count = connections.count
+                let desc = connections.map({ "\($0.fileDescriptor)" }).joined(separator: ", ")
+                logger.debug("🎯 Connections (\(count, privacy: .public)): \(desc)")
+                #endif
             }
+        }
+
+        func add(_ connection: VZVirtioSocketConnection) {
+            connections.append(connection)
+        }
+
+        func add(_ task: Task<BindAddress, Error>, id: UUID) {
+            addressTasks[id] = task
+        }
+
+        func remove(_ taskID: UUID) {
+            addressTasks[taskID] = nil
+        }
+
+        func invalidate() {
+            connections.removeAll()
+            addressTasks.values.forEach { $0.cancel() }
+            addressTasks.removeAll()
         }
     }
 
@@ -50,14 +81,21 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
         }
 
         let taskID = UUID()
-        addressTasks[taskID] = task
-        defer { addressTasks[taskID] = nil }
+        await storage.add(task, id: taskID)
 
         do {
-            return try await task.value
+            let result = try await task.value
+
+            await storage.remove(taskID)
+
+            return result
         } catch let error as VMServiceConnectionError {
+            await storage.remove(taskID)
+
             throw error
         } catch {
+            await storage.remove(taskID)
+
             throw .addressLookupFailure("\(error)")
         }
     }
@@ -69,7 +107,7 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
             do {
                 let connection = try await waitForConnection(toPort: portNumber)
 
-                connections.append(connection)
+                await storage.add(connection)
 
                 return .fileDescriptor(connection.fileDescriptor)
             } catch {
@@ -105,11 +143,8 @@ final class VMInstanceServiceAddressProvider: VMServiceAddressProvider, @uncheck
         }
     }
 
-    func invalidate() {
-        addressTasks.values.forEach { $0.cancel() }
-        addressTasks.removeAll()
-
-        connections.removeAll()
+    func invalidate() async {
+        await storage.invalidate()
     }
 
     deinit {
