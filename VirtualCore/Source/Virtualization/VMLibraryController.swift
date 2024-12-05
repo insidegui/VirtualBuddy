@@ -159,7 +159,7 @@ public final class VMLibraryController: ObservableObject {
         }
     }
 
-    private let coordinator = Coordinator()
+    nonisolated(unsafe) private let coordinator = Coordinator()
 
     public nonisolated var activeVMControllers: [WeakReference<VMController>] { Array(coordinator.activeVMControllers.values) }
 
@@ -278,4 +278,4 @@ public extension VMLibraryController {
 
 }
 
-extension NSWorkspace: @unchecked Sendable { }
+extension NSWorkspace: @retroactive @unchecked Sendable { }

@@ -526,7 +526,7 @@ extension NSEvent {
     
 }
 
-extension NSWindow.OcclusionState: CustomStringConvertible {
+extension NSWindow.OcclusionState: @retroactive CustomStringConvertible {
     public var description: String {
         return isVisible ? "\(rawValue) (Visible)" : "\(rawValue) (Hidden)"
     }
