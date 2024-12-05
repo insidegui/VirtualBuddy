@@ -1,5 +1,6 @@
 import Foundation
 import notify
+import MessageRouter
 
 /// Describes a type of notification delivery system.
 public enum NotificationCenterType: String, Codable {
@@ -44,8 +45,7 @@ final class NotificationCenterObserver: @unchecked Sendable {
         var name: String
     }
 
-    @MainActor
-    private var observers = [Key: Any]()
+    @Serial private var observers = [Key: Any]()
 
     @MainActor
     @discardableResult
@@ -88,7 +88,6 @@ final class NotificationCenterObserver: @unchecked Sendable {
         invalidate(key, observer: observer)
     }
 
-    @MainActor
     private func invalidate(_ key: Key, observer: Any) {
         switch key.type {
         case .distributed:
@@ -98,13 +97,13 @@ final class NotificationCenterObserver: @unchecked Sendable {
                 _ = notify_cancel(token)
             }
         }
+
+        observers[key] = nil
     }
 
-    nonisolated func invalidate() {
-        DispatchQueue.main.async {
-            self.observers.forEach {
-                self.invalidate($0.key, observer: $0.value)
-            }
+    func invalidate() {
+        self.observers.forEach {
+            self.invalidate($0.key, observer: $0.value)
         }
     }
 
