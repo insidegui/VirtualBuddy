@@ -65,6 +65,14 @@
   "restoreImages": [
     {
       "group": "sequoia",
+      "name": "macOS 15.2",
+      "build": "24C101",
+      "url": "https://updates.cdn-apple.com/2024FallFCS/fullrestores/072-44245/E811A1B0-28A9-4FCD-AE32-322E796F0EB8/UniversalMac_15.2_24C101_Restore.ipsw",
+      "channel": "regular",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
       "name": "macOS 15.2 RC 2",
       "build": "24C100",
       "url": "https://updates.cdn-apple.com/2024FallFCS/fullrestores/072-39903/D467F0BB-9D59-4DCF-A355-DD200CE808A8/UniversalMac_15.2_24C100_Restore.ipsw",
