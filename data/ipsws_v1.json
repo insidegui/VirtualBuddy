@@ -63,6 +63,14 @@
     }
   ],
   "restoreImages": [
+        {
+            "group": "sequoia",
+            "name": "macOS 15.3 Developer Beta 1",
+            "build": "24D5034f",
+            "url": "https://updates.cdn-apple.com/2024FallSeed/fullrestores/072-29298/D5353B95-E6B5-42DA-8DC3-664A28FFB1B9/UniversalMac_15.3_24D5034f_Restore.ipsw",
+            "channel": "devbeta",
+            "needsCookie": false
+        },
     {
       "group": "sequoia",
       "name": "macOS 15.2",
