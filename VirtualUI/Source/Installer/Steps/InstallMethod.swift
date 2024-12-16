@@ -56,7 +56,7 @@ extension VBGuestType {
     }
 
     var restoreImagePickerPrompt: String {
-        "Pick a \(name) Version to Download"
+        "Pick a \(name) Version to Install"
     }
 
     var installFinishedMessage: String {
