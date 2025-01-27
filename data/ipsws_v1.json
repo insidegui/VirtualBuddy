@@ -65,10 +65,10 @@
   "restoreImages": [
     {
       "group": "sequoia",
-      "name": "macOS 15.3 RC",
+      "name": "macOS 15.3",
       "build": "24D60",
       "url": "https://updates.cdn-apple.com/2025WinterFCS/fullrestores/072-08269/7CAAB9F7-E970-428D-8764-4CD7BCD105CD/UniversalMac_15.3_24D60_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
