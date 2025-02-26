@@ -63,5 +63,9 @@ struct VirtualBuddyApp: App {
                 .environmentObject(settingsContainer)
                 .frame(minWidth: 420, maxWidth: .infinity, minHeight: 370, maxHeight: .infinity)
         }
+
+        WindowGroup(id: .vb_setupWindowID, for: URL.self) { urlBinding in
+            VMInstallationWizard(library: library, restoringAt: urlBinding.wrappedValue)
+        }
     }
 }
