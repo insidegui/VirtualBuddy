@@ -291,10 +291,19 @@ public final class VMInstance: NSObject, ObservableObject {
 
     @available(macOS 14.0, *)
     @discardableResult
-    func saveState(snapshotName name: String) async throws -> VBSavedStatePackage {
+    func saveState(snapshotName name: String, onStart: () -> ()) async throws -> VBSavedStatePackage {
         logger.debug(#function)
 
         let vm = try ensureVM()
+
+        guard confirmSaveStateIfNeeded() else {
+            logger.info("State save denied by user.")
+            throw CancellationError()
+        }
+
+        /// Callback so that caller may update UI to indicate that saving has actually started,
+        /// but only after the user has performed pre-save confirmation steps.
+        onStart()
 
         logger.debug("Collecting screenshot for saved state")
 
@@ -332,6 +341,34 @@ public final class VMInstance: NSObject, ObservableObject {
 
             throw error
         }
+    }
+
+    /// Asks user for confirmation before saving state if the volume where the VirtualBuddy library
+    /// resides is not an APFS volume, meaning that cloning is not available.
+    private func confirmSaveStateIfNeeded() -> Bool {
+        guard !library.isInAPFSVolume else { return true }
+
+        let suppressionKey = "SuppressConfirmSaveStateNonAPFSVolumeAlert"
+        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
+
+        let alert = NSAlert()
+        alert.messageText = "Disk Space Warning"
+        alert.informativeText = """
+        It seems like your virtual machine data can’t be cloned because your library isn’t in an APFS volume.
+        Creating this snapshot might take up several gigabytes of storage space.
+        Would you like to continue?
+        """
+        alert.addButton(withTitle: "Create Snapshot")
+        alert.addButton(withTitle: "Cancel")
+        alert.showsSuppressionButton = true
+
+        guard alert.runModal() == .alertFirstButtonReturn else { return false }
+
+        if alert.suppressionButton?.state == .on {
+            UserDefaults.standard.set(true, forKey: suppressionKey)
+        }
+
+        return true
     }
 
     @available(macOS 14.0, *)

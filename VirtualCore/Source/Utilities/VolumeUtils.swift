@@ -22,11 +22,20 @@ public extension VBSettingsContainer {
 
 }
 
+public extension VMLibraryController {
+    /// Whether this library is stored in an APFS volume.
+    var isInAPFSVolume: Bool { libraryURL.hasAPFSIdentifier }
+}
+
 public extension URL {
 
     /// Checks if the item at the URL contains an APFS content identifier, as a way to check for
     /// whether the containing volume is an APFS volume.
     var hasAPFSIdentifier: Bool {
+        #if DEBUG
+        guard !UserDefaults.standard.bool(forKey: "VBSimulateNonAPFSVolume") else { return false }
+        #endif
+
         guard let values = try? resourceValues(forKeys: [.fileContentIdentifierKey]),
               values.fileContentIdentifier != nil
         else {
