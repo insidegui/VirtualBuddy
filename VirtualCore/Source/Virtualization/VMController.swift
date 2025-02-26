@@ -162,11 +162,19 @@ public final class VMController: ObservableObject {
             self.instance = newInstance
 
             if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
-                let package = try VBSavedStatePackage(url: restorePackageURL)
-                try await newInstance.restoreState(from: package) { vm, package in
-                    try? await updatingState {
-                        state = .restoringState(vm, package)
+                do {
+                    let package = try VBSavedStatePackage(url: restorePackageURL)
+                    try await newInstance.restoreState(from: package) { vm, package in
+                        try? await updatingState {
+                            state = .restoringState(vm, package)
+                        }
                     }
+                } catch {
+                    guard !(error is CancellationError) else {
+                        state = .idle
+                        return
+                    }
+                    throw error
                 }
             } else {
                 try await newInstance.startVM()
