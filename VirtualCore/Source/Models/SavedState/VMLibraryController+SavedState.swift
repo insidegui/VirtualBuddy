@@ -41,8 +41,8 @@ public extension VMLibraryController {
     }
 
     func virtualMachine(forSavedStatePackageURL url: URL) throws -> VBVirtualMachine {
-        let package = try VBSavedStatePackage(url: url)
-        let model = try virtualMachine(forSavedStateMetadata: package.metadata)
+        let metadata = try VBSavedStateMetadata(packageAt: url)
+        let model = try virtualMachine(forSavedStateMetadata: metadata)
         return model
     }
 

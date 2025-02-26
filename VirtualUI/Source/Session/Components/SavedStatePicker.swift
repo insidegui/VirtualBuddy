@@ -4,23 +4,23 @@ import VirtualCore
 struct SavedStatePicker: View {
     @EnvironmentObject private var controller: VMSavedStatesController
 
-    @Binding var selection: VBSavedStatePackage?
+    @Binding var selectedStateURL: URL?
 
     var body: some View {
-        Picker("State", selection: $selection) {
+        Picker("State", selection: $selectedStateURL) {
             if controller.states.isEmpty {
                 Text("No Saved States")
-                    .tag(Optional<VBSavedStatePackage>.none)
+                    .tag(Optional<URL>.none)
             } else {
                 Text("Don’t Restore")
-                    .tag(Optional<VBSavedStatePackage>.none)
+                    .tag(Optional<URL>.none)
 
                 Divider()
             }
 
             ForEach(controller.states) { state in
                 Text(state.url.deletingPathExtension().lastPathComponent)
-                    .tag(Optional<VBSavedStatePackage>.some(state))
+                    .tag(Optional<URL>.some(state.url))
             }
         }
         .disabled(controller.states.isEmpty)
@@ -30,11 +30,11 @@ struct SavedStatePicker: View {
 #if DEBUG
 private struct _Preview: View {
     @StateObject private var controller = VMSavedStatesController.preview
-    @State private var selectedState: VBSavedStatePackage?
+    @State private var selectedStateURL: URL?
 
     var body: some View {
         Form {
-            SavedStatePicker(selection: $selectedState)
+            SavedStatePicker(selectedStateURL: $selectedStateURL)
                 .environmentObject(controller)
         }
         .formStyle(.grouped)
