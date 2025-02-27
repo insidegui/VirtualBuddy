@@ -128,7 +128,10 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
     /// The underlying storage for the device, which currently can be either a custom disk image,
     /// or a disk image managed by VirtualBuddy.
     public enum BackingStore: Hashable, Codable {
+        /// Image created and managed by VirtualBuddy.
         case managedImage(VBManagedDiskImage)
+        /// Arbitrary image provided by the user, file must exist on disk at the same location
+        /// if the image is to be used again in the future.
         case customImage(URL)
     }
     
@@ -138,6 +141,9 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
     /// Setting to `false` disables the storage device without removing it from the VM.
     @DecodableDefault.True
     public var isEnabled: Bool
+    /// `true` if this storage device represents a clone created for a virtual machine save state.
+    @DecodableDefault.False
+    public var isSavedStateClone: Bool
     /// `true` when the device can't be written to by the VM.
     public var isReadOnly: Bool
     /// `true` when the device represents an external USB mass storage device in the guest OS.
@@ -588,8 +594,8 @@ public extension VBStorageDevice {
 
     static var hostSupportsUSBMassStorage: Bool { true }
 
-    func diskImageExists(for vm: VBVirtualMachine) -> Bool {
-        let url = vm.diskImageURL(for: self)
+    func diskImageExists(for container: VBStorageDeviceContainer) -> Bool {
+        let url = container.diskImageURL(for: self)
         return FileManager.default.fileExists(atPath: url.path)
     }
 }

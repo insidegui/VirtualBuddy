@@ -10,7 +10,8 @@ import Virtualization
 
 struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper {
     let vm: VBVirtualMachine
-    
+    let savedState: VBSavedStatePackage?
+
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration {
         fatalError()
     }
@@ -28,7 +29,7 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     }
 
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
-        var devices = try vm.additionalBlockDevices
+        var devices = try storageDeviceContainer.additionalBlockDevices(guestType: vm.configuration.systemType)
 
         if vm.configuration.guestAdditionsEnabled, let disk = try? VZVirtioBlockDeviceConfiguration.guestAdditionsDisk {
             devices.append(disk)

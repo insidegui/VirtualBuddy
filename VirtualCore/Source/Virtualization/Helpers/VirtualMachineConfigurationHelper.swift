@@ -10,6 +10,7 @@ import Virtualization
 
 protocol VirtualMachineConfigurationHelper {
     var vm: VBVirtualMachine { get }
+    var savedState: VBSavedStatePackage? { get }
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration
     func createBootLoader() throws -> VZBootLoader
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration
@@ -36,17 +37,23 @@ func createVZDiskImageStorageDeviceAttachment(url: URL, readOnly: Bool, guestTyp
 
 extension VirtualMachineConfigurationHelper {
 
+    var storageDeviceContainer: VBStorageDeviceContainer { savedState ?? vm }
+
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration {
         do {
-            let bootDevice = try vm.bootDevice
-            let bootDiskImage = try vm.bootDiskImage
+            let bootDevice = try storageDeviceContainer.bootDevice
+            let bootDiskImage = try storageDeviceContainer.bootDiskImage
             
-            if !bootDevice.diskImageExists(for: vm) {
+            if !bootDevice.diskImageExists(for: storageDeviceContainer) {
+                guard storageDeviceContainer.allowDiskImageCreation else {
+                    throw Failure("Boot disk image does not exist.")
+                }
+
                 let settings = DiskImageGenerator.ImageSettings(for: bootDiskImage, in: vm)
                 try await DiskImageGenerator.generateImage(with: settings)
             }
 
-            let bootURL = vm.diskImageURL(for: bootDiskImage)
+            let bootURL = storageDeviceContainer.diskImageURL(for: bootDiskImage)
             let diskImageAttachment = try createVZDiskImageStorageDeviceAttachment(url: bootURL, readOnly: false, guestType: vm.configuration.systemType)
 
             let disk = VZVirtioBlockDeviceConfiguration(attachment: diskImageAttachment)
@@ -58,7 +65,7 @@ extension VirtualMachineConfigurationHelper {
     }
     
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
-        try vm.additionalBlockDevices
+        try storageDeviceContainer.additionalBlockDevices(guestType: vm.configuration.systemType)
     }
 
     func createKeyboardConfiguration() -> VZKeyboardConfiguration {
@@ -75,22 +82,20 @@ extension VirtualMachineConfigurationHelper {
 
 }
 
-extension VBVirtualMachine {
-    var additionalBlockDevices: [VZVirtioBlockDeviceConfiguration] {
-        get throws {
-            var output = [VZVirtioBlockDeviceConfiguration]()
+extension VBStorageDeviceContainer {
+    func additionalBlockDevices(guestType: VBGuestType) throws -> [VZVirtioBlockDeviceConfiguration] {
+        var output = [VZVirtioBlockDeviceConfiguration]()
 
-            for device in configuration.hardware.storageDevices {
-                guard device.isEnabled, !device.isBootVolume else { continue }
+        for device in storageDevices {
+            guard device.isEnabled, !device.isBootVolume else { continue }
 
-                let url = diskImageURL(for: device)
-                let attachment = try createVZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly, guestType: configuration.systemType)
+            let url = diskImageURL(for: device)
+            let attachment = try createVZDiskImageStorageDeviceAttachment(url: url, readOnly: device.isReadOnly, guestType: guestType)
 
-                output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
-            }
-
-            return output
+            output.append(VZVirtioBlockDeviceConfiguration(attachment: attachment))
         }
+
+        return output
     }
 }
 

@@ -239,8 +239,9 @@ struct VMScreenshotBackgroundView: View {
     }
     
     private func updateImage(options: VMSessionOptions) {
-        if let restorePackage = options.stateRestorationPackage,
-           let screenshot = restorePackage.screenshot
+        if let packageURL = options.stateRestorationPackageURL,
+           let package = try? VBSavedStatePackage(url: packageURL),
+           let screenshot = package.screenshot
         {
             image = Image(nsImage: screenshot)
         } else if let screenshot = vm.screenshot {

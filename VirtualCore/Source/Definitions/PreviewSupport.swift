@@ -48,7 +48,8 @@ public extension VMLibraryController {
 
 public extension VMSavedStatesController {
     static var preview: VMSavedStatesController {
-        VMSavedStatesController(directoryURL: Bundle.virtualCore.requiredPreviewDirectoryURL(named: "\(previewLibraryDirName)/_SavedStates"))
+        fatalError("VMSavedStatesController.preview needs to be reimplemented with new VMSavedStatesController requirements")
+//        VMSavedStatesController(directoryURL: Bundle.virtualCore.requiredPreviewDirectoryURL(named: "\(previewLibraryDirName)/_SavedStates"))
     }
 }
 
