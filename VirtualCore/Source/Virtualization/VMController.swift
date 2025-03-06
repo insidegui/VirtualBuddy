@@ -166,12 +166,6 @@ public final class VMController: ObservableObject {
                     try? await updatingState {
                         state = .restoringState(vm, package)
                     }
-                } catch {
-                    guard !(error is CancellationError) else {
-                        state = .idle
-                        return
-                    }
-                    throw error
                 }
             } else {
                 try await newInstance.startVM()

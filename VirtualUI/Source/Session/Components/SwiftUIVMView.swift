@@ -150,6 +150,9 @@ final class VMViewController: NSViewController {
         /// Screenshotter is not useful when the VM is in DFU mode.
         guard !isDFUModeVM, isViewLoaded else { return }
 
+        /// Taking screenshots causes VM crash on macOS 15.4 beta.
+        guard #unavailable(macOS 15.4) else { return }
+
         screenshotter.activate(with: view, vm: vmView.virtualMachine)
     }
 
