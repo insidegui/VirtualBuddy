@@ -55,10 +55,6 @@
             argument = "-VBAPIEnvironment development"
             isEnabled = "NO">
          </CommandLineArgument>
-         <CommandLineArgument
-            argument = "-VBSimulateNonAPFSVolume YES"
-            isEnabled = "NO">
-         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

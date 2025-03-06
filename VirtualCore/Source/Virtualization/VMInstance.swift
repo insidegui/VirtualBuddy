@@ -291,19 +291,10 @@ public final class VMInstance: NSObject, ObservableObject {
 
     @available(macOS 14.0, *)
     @discardableResult
-    func saveState(snapshotName name: String, onStart: () -> ()) async throws -> VBSavedStatePackage {
+    func saveState(snapshotName name: String) async throws -> VBSavedStatePackage {
         logger.debug(#function)
 
         let vm = try ensureVM()
-
-        guard confirmSaveStateIfNotOnAPFSVolume() else {
-            logger.info("State save denied by user.")
-            throw CancellationError()
-        }
-
-        /// Callback so that caller may update UI to indicate that saving has actually started,
-        /// but only after the user has performed pre-save confirmation steps.
-        onStart()
 
         logger.debug("Collecting screenshot for saved state")
 
@@ -343,42 +334,9 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
 
-    /// Asks user for confirmation before saving state if the volume where the VirtualBuddy library
-    /// resides is not an APFS volume, meaning that cloning is not available.
-    @available(macOS 14.0, *)
-    private func confirmSaveStateIfNotOnAPFSVolume() -> Bool {
-        guard !library.isInAPFSVolume else { return true }
-
-        let suppressionKey = "SuppressConfirmSaveStateNonAPFSVolumeAlert"
-        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
-
-        let alert = NSAlert()
-        alert.messageText = "Disk Space Warning"
-        alert.informativeText = """
-        It seems like your virtual machine data can’t be cloned because your library isn’t in an APFS volume.
-        
-        Creating this snapshot might take up several gigabytes of storage space.
-        
-        Would you like to continue?
-        """
-        alert.addButton(withTitle: "Create Snapshot")
-        alert.addButton(withTitle: "Cancel")
-        alert.showsSuppressionButton = true
-
-        guard alert.runModal() == .alertFirstButtonReturn else { return false }
-
-        if alert.suppressionButton?.state == .on {
-            UserDefaults.standard.set(true, forKey: suppressionKey)
-        }
-
-        return true
-    }
-
     @available(macOS 14.0, *)
     func restoreState(from package: VBSavedStatePackage, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
         logger.debug("Restore state requested with package \(package.url.path)")
-
-        try await runSavedStateMigrationIfNeeded(for: package)
 
         try package.validate(for: virtualMachineModel)
 
@@ -409,48 +367,6 @@ public final class VMInstance: NSObject, ObservableObject {
 
             throw error
         }
-    }
-
-    @available(macOS 14.0, *)
-    private func runSavedStateMigrationIfNeeded(for package: VBSavedStatePackage) async throws {
-        guard package.needsStorageCloneMigration else { return }
-
-        guard confirmSavedStateMigration() else {
-            throw CancellationError()
-        }
-
-        guard confirmSaveStateIfNotOnAPFSVolume() else {
-            throw CancellationError()
-        }
-
-        try await package.createStorageDeviceClones(model: virtualMachineModel)
-    }
-
-    @available(macOS 14.0, *)
-    private func confirmSavedStateMigration() -> Bool {
-        let suppressionKey = "SuppressConfirmSavedStateMigrationAlert"
-
-        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
-
-        let alert = NSAlert()
-        alert.messageText = "Migration Required"
-        alert.informativeText = """
-        The virtual machine’s state was saved in an older version of VirtualBuddy that didn’t create clones of the storage devices. \
-        This could lead to data corruption over time.
-
-        To use this saved state, we need to migrate it to include storage device clones.
-        """
-        alert.addButton(withTitle: "Migrate and Restore")
-        alert.addButton(withTitle: "Cancel")
-        alert.showsSuppressionButton = true
-
-        guard alert.runModal() == .alertFirstButtonReturn else { return false }
-
-        if alert.suppressionButton?.state == .on {
-            UserDefaults.standard.set(true, forKey: suppressionKey)
-        }
-
-        return true
     }
 
     private func ensureVM() throws -> VZVirtualMachine {

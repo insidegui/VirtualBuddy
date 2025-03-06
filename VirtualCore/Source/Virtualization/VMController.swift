@@ -238,34 +238,18 @@ public final class VMController: ObservableObject {
             let instance = try ensureInstance()
             let vm = try instance.virtualMachine
 
-            do {
-                let package = try await instance.saveState(snapshotName: name) {
-                    state = .savingState(vm)
-                }
+            state = .savingState(vm)
 
-                state = .stateSaveCompleted(vm, package)
-            } catch is CancellationError {
-                /// User cancellation is not an error, it may just be ignored here.
-                /// As of the current implementation of `VMInstance.saveState`, the VM won't be paused
-                /// because the only cancellation point is before that happens, but check for pause in here just in
-                /// case that behavior changes in the future.
-                try await resumeIfNeeded()
-            } catch {
-                throw error
-            }
+            let package = try await instance.saveState(snapshotName: name)
 
-            try await resumeIfNeeded()
+            state = .stateSaveCompleted(vm, package)
+
+            try await Task.sleep(for: .seconds(1.5))
+
+            try await resume()
         }
 
         unhideCursor()
-    }
-
-    private func resumeIfNeeded() async throws {
-        guard !state.isRunning else { return }
-
-        try await Task.sleep(for: .seconds(1.5))
-
-        try await resume()
     }
 
     private func updatingState(perform block: () async throws -> Void) async throws {
