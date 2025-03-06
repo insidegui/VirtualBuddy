@@ -152,7 +152,9 @@ private extension VirtualMachineSessionUIManager {
         do {
             let model = try library.virtualMachine(forSavedStatePackageURL: url)
 
-            let options = VMSessionOptions(stateRestorationPackageURL: url)
+            let package = try VBSavedStatePackage(url: url)
+
+            let options = VMSessionOptions(stateRestorationPackage: package)
 
             launch(model, library: library, options: options)
         } catch {
