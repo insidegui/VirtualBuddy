@@ -5,6 +5,9 @@ import Virtualization
 public extension NSImage {
     @MainActor
     static func screenshot(from virtualMachine: VZVirtualMachine) async throws -> NSImage {
+        guard #unavailable(macOS 15.4) else {
+            throw Failure("Feature disabled on macOS 15.4+")
+        }
         guard let device = virtualMachine.graphicsDevices.first else {
             throw Failure("Can't screenshot a virtual machine without a graphics device.")
         }
