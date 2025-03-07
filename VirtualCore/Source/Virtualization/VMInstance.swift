@@ -311,7 +311,7 @@ public final class VMInstance: NSObject, ObservableObject {
         do {
             screenshot = try await NSImage.screenshot(from: vm)
         } catch {
-            screenshot = nil
+            screenshot = virtualMachineModel.screenshot
 
             logger.warning("Error collecting screenshot for saved state: \(error, privacy: .public)")
         }
