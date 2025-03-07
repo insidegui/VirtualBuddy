@@ -169,6 +169,12 @@ public final class VMController: ObservableObject {
                             state = .restoringState(vm, package)
                         }
                     }
+                } catch {
+                    guard !(error is CancellationError) else {
+                        state = .idle
+                        return
+                    }
+                    throw error
                 }
             } else {
                 try await newInstance.startVM()
@@ -180,7 +186,7 @@ public final class VMController: ObservableObject {
             virtualMachineModel.metadata.installFinished = true
         }
     }
-    
+
     public func pause() async throws {
         try await updatingState {
             let instance = try ensureInstance()
