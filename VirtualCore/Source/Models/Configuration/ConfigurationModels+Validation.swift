@@ -21,7 +21,7 @@ public extension VBMacConfiguration {
 
         do {
             let config = try await VMInstance.makeConfiguration(for: tempModel)
-            
+
             try config.validate()
             
             return hostSupportState

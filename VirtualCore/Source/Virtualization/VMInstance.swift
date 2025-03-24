@@ -113,13 +113,13 @@ public final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
 
-    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil) async throws -> VZVirtualMachineConfiguration {
+    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil, savedState: VBSavedStatePackage? = nil) async throws -> VZVirtualMachineConfiguration {
         let helper: VirtualMachineConfigurationHelper
         let platform: VZPlatformConfiguration
         let installDevice: [VZStorageDeviceConfiguration]
         switch model.configuration.systemType {
         case .mac:
-            helper = MacOSVirtualMachineConfigurationHelper(vm: model)
+            helper = MacOSVirtualMachineConfigurationHelper(vm: model, savedState: savedState)
             platform = try await Self.createMacPlatform(for: model, installImageURL: installImageURL)
             installDevice = []
         case .linux:
@@ -162,7 +162,7 @@ public final class VMInstance: NSObject, ObservableObject {
         return c
     }
     
-    private func createVirtualMachine() async throws {
+    private func createVirtualMachine(savedState: VBSavedStatePackage?) async throws {
         logger.debug(#function)
 
         let installImage: URL?
@@ -171,7 +171,7 @@ public final class VMInstance: NSObject, ObservableObject {
         } else {
             installImage = nil
         }
-        let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage) // add install iso here for linux (hack)
+        let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage, savedState: savedState) // add install iso here for linux (hack)
 
         do {
             try config.validate()
@@ -212,8 +212,8 @@ public final class VMInstance: NSObject, ObservableObject {
         #endif
     }
 
-    private func bootstrap() async throws {
-        try await createVirtualMachine()
+    private func bootstrap(savedState: VBSavedStatePackage? = nil) async throws {
+        try await createVirtualMachine(savedState: savedState)
 
         let vm = try ensureVM()
 
@@ -272,10 +272,19 @@ public final class VMInstance: NSObject, ObservableObject {
 
     @available(macOS 14.0, *)
     @discardableResult
-    func saveState(snapshotName name: String) async throws -> VBSavedStatePackage {
+    func saveState(snapshotName name: String, onStart: () -> ()) async throws -> VBSavedStatePackage {
         logger.debug(#function)
 
         let vm = try ensureVM()
+
+        guard confirmSaveStateIfNotOnAPFSVolume() else {
+            logger.info("State save denied by user.")
+            throw CancellationError()
+        }
+
+        /// Callback so that caller may update UI to indicate that saving has actually started,
+        /// but only after the user has performed pre-save confirmation steps.
+        onStart()
 
         logger.debug("Collecting screenshot for saved state")
 
@@ -283,7 +292,7 @@ public final class VMInstance: NSObject, ObservableObject {
         do {
             screenshot = try await NSImage.screenshot(from: vm)
         } catch {
-            screenshot = nil
+            screenshot = virtualMachineModel.screenshot
 
             logger.warning("Error collecting screenshot for saved state: \(error, privacy: .public)")
         }
@@ -301,6 +310,8 @@ public final class VMInstance: NSObject, ObservableObject {
         package.screenshot = screenshot
 
         do {
+            try await package.createStorageDeviceClones(model: virtualMachineModel)
+
             try await vm.saveMachineStateTo(url: package.dataFileURL)
 
             logger.log("VM state saved to \(package.dataFileURL.path)")
@@ -315,16 +326,49 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
 
+    /// Asks user for confirmation before saving state if the volume where the VirtualBuddy library
+    /// resides is not an APFS volume, meaning that cloning is not available.
+    @available(macOS 14.0, *)
+    private func confirmSaveStateIfNotOnAPFSVolume() -> Bool {
+        guard !library.isInAPFSVolume else { return true }
+
+        let suppressionKey = "SuppressConfirmSaveStateNonAPFSVolumeAlert"
+        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
+
+        let alert = NSAlert()
+        alert.messageText = "Disk Space Warning"
+        alert.informativeText = """
+        It seems like your virtual machine data can’t be cloned because your library isn’t in an APFS volume.
+        
+        Creating this snapshot might take up several gigabytes of storage space.
+        
+        Would you like to continue?
+        """
+        alert.addButton(withTitle: "Create Snapshot")
+        alert.addButton(withTitle: "Cancel")
+        alert.showsSuppressionButton = true
+
+        guard alert.runModal() == .alertFirstButtonReturn else { return false }
+
+        if alert.suppressionButton?.state == .on {
+            UserDefaults.standard.set(true, forKey: suppressionKey)
+        }
+
+        return true
+    }
+
     @available(macOS 14.0, *)
     func restoreState(from package: VBSavedStatePackage, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
         logger.debug("Restore state requested with package \(package.url.path)")
+
+        try await runSavedStateMigrationIfNeeded(for: package)
 
         try package.validate(for: virtualMachineModel)
 
         if _virtualMachine == nil {
             logger.debug("Bootstrapping VM for state restoration")
 
-            try await bootstrap()
+            try await bootstrap(savedState: package)
         }
 
         let vm = try ensureVM()
@@ -348,6 +392,48 @@ public final class VMInstance: NSObject, ObservableObject {
 
             throw error
         }
+    }
+
+    @available(macOS 14.0, *)
+    private func runSavedStateMigrationIfNeeded(for package: VBSavedStatePackage) async throws {
+        guard package.needsStorageCloneMigration else { return }
+
+        guard confirmSavedStateMigration() else {
+            throw CancellationError()
+        }
+
+        guard confirmSaveStateIfNotOnAPFSVolume() else {
+            throw CancellationError()
+        }
+
+        try await package.createStorageDeviceClones(model: virtualMachineModel)
+    }
+
+    @available(macOS 14.0, *)
+    private func confirmSavedStateMigration() -> Bool {
+        let suppressionKey = "SuppressConfirmSavedStateMigrationAlert"
+
+        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
+
+        let alert = NSAlert()
+        alert.messageText = "Migration Required"
+        alert.informativeText = """
+        The virtual machine’s state was saved in an older version of VirtualBuddy that didn’t create clones of the storage devices. \
+        This could lead to data corruption over time.
+
+        To use this saved state, we need to migrate it to include storage device clones.
+        """
+        alert.addButton(withTitle: "Migrate and Restore")
+        alert.addButton(withTitle: "Cancel")
+        alert.showsSuppressionButton = true
+
+        guard alert.runModal() == .alertFirstButtonReturn else { return false }
+
+        if alert.suppressionButton?.state == .on {
+            UserDefaults.standard.set(true, forKey: suppressionKey)
+        }
+
+        return true
     }
 
     func ensureVM() throws -> VZVirtualMachine {

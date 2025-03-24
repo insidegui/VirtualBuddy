@@ -70,8 +70,8 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                                 Button("Save") {
                                     isPopoverPresented = false
 
-                                    Task {
-                                        try await controller.saveState(snapshotName: textFieldContent)
+                                    runToolbarAction {
+                                        try await saveState()
                                     }
                                 }
                                 .keyboardShortcut(.defaultAction)
@@ -135,6 +135,15 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
         }
     }
     #endif
+    
+    private func saveState() async throws {
+        do {
+            try await controller.saveState(snapshotName: textFieldContent)
+        } catch {
+            guard !(error is CancellationError) else { return }
+            throw error
+        }
+    }
 }
 
 private extension DateFormatter {

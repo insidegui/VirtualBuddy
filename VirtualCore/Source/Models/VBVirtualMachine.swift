@@ -5,7 +5,7 @@ import Combine
 public typealias VoidSubject = PassthroughSubject<(), Never>
 public typealias BoolSubject = PassthroughSubject<Bool, Never>
 
-public struct VBVirtualMachine: Identifiable {
+public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
 
     public struct Metadata: Codable {
         public static let currentVersion = 1
@@ -70,42 +70,7 @@ extension VBVirtualMachine {
     static let configurationFilename = "Config.plist"
     static let installRestoreFilename = "Install.plist"
 
-    func diskImageURL(for device: VBStorageDevice) -> URL {
-        switch device.backing {
-        case .managedImage(let image):
-            return diskImageURL(for: image)
-        case .customImage(let customURL):
-            return customURL
-        }
-    }
-    
-    func diskImageURL(for image: VBManagedDiskImage) -> URL {
-        bundleURL
-            .appendingPathComponent(image.filename)
-            .appendingPathExtension(image.format.fileExtension)
-    }
-
-    public var bootDevice: VBStorageDevice {
-        get throws {
-            guard let device = configuration.hardware.storageDevices.first(where: { $0.isBootVolume }) else {
-                throw Failure("The virtual machine doesn't have a storage device to boot from.")
-            }
-            
-            return device
-        }
-    }
-
-    var bootDiskImage: VBManagedDiskImage {
-        get throws {
-            let device = try bootDevice
-
-            guard case .managedImage(let image) = device.backing else {
-                throw Failure("The boot device must use a disk image managed by VirtualBuddy")
-            }
-            
-            return image
-        }
-    }
+    public var storageDevices: [VBStorageDevice] { configuration.hardware.storageDevices }
 
     var auxiliaryStorageURL: URL {
         bundleURL.appendingPathComponent("AuxiliaryStorage")
@@ -129,6 +94,11 @@ extension VBVirtualMachine {
         guard configuration.systemType == .mac else { return false }
         return !metadata.installFinished || !FileManager.default.fileExists(atPath: hardwareModelURL.path)
     }
+
+    /// Conforming to ``VBStorageDeviceContainer``, which defaults this to `false`.
+    /// When restoring from a saved state, disk image creation is not allowed, but when bootstrapping
+    /// a virtual machine, disk image creation is allowed.
+    public var allowDiskImageCreation: Bool { true }
 
 }
 
