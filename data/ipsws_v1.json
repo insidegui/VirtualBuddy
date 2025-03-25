@@ -65,6 +65,14 @@
   "restoreImages": [
     {
       "group": "sequoia",
+      "name": "macOS 15.4 RC",
+      "build": "24E246",
+      "url": "https://updates.cdn-apple.com/2025SpringFCS/fullrestores/082-13013/C3CAC9AF-B139-4924-BE1B-10ED6EF931A4/UniversalMac_15.4_24E246_Restore.ipsw",
+      "channel": "devbeta",
+      "needsCookie": false
+    },
+    {
+      "group": "sequoia",
       "name": "macOS 15.4 Developer Beta 4",
       "build": "24E5238a",
       "url": "https://updates.cdn-apple.com/2025WinterSeed/fullrestores/082-08323/FD7D7539-514F-4F2E-AD3B-4D6D0D248706/UniversalMac_15.4_24E5238a_Restore.ipsw",
