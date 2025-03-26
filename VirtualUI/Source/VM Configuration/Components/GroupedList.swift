@@ -13,15 +13,15 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
     var headerAccessory: () -> HeaderAccessory
     var footerAccessory: () -> FooterAccessory
     var emptyOverlay: () -> EmptyOverlay
-    var addButton: (Image) -> AddButton?
-    var removeButton: (Image) -> RemoveButton?
+    var addButton: (Label<Text, Image>) -> AddButton?
+    var removeButton: (Label<Text, Image>) -> RemoveButton?
     
     init(@ViewBuilder _ content: @escaping () -> Content,
          headerAccessory: @escaping () -> HeaderAccessory,
          footerAccessory: @escaping () -> FooterAccessory,
          emptyOverlay: @escaping () -> EmptyOverlay,
-         addButton: @escaping (Image) -> AddButton? = { _ in nil },
-         removeButton: @escaping (Image) -> RemoveButton? = { _ in nil })
+         addButton: @escaping (Label<Text, Image>) -> AddButton? = { _ in nil },
+         removeButton: @escaping (Label<Text, Image>) -> RemoveButton? = { _ in nil })
     {
         self.content = content
         self.headerAccessory = headerAccessory
@@ -71,8 +71,8 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
             .padding(.horizontal, 2)
     }
     
-    private let addLabel = Image(systemName: "plus")
-    private let removeLabel = Image(systemName: "minus")
+    private let addLabel = Label("Add", systemImage: "plus")
+    private let removeLabel = Label("Remove", systemImage: "minus")
     
     @ViewBuilder
     private var listButtons: some View {
@@ -81,17 +81,13 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
                 Group {
                     if let addButton = addButton(addLabel) {
                         addButton
-                            .frame(width: 16, height: 16)
-                            .contentShape(Rectangle())
                     }
                     
                     if let removeButton = removeButton(removeLabel) {
                         removeButton
-                            .frame(width: 16, height: 16)
-                            .contentShape(Rectangle())
                     }
                 }
-                .buttonStyle(.borderless)
+                .labelStyle(.iconOnly)
                 
                 footerAccessory()
             }
@@ -135,8 +131,8 @@ extension GroupedList where FooterAccessory == EmptyView, EmptyOverlay == EmptyV
 extension GroupedList where HeaderAccessory == EmptyView, FooterAccessory == EmptyView {
     init(@ViewBuilder _ content: @escaping () -> Content,
          emptyOverlay: @escaping () -> EmptyOverlay,
-         addButton: @escaping (Image) -> AddButton? = { _ in nil },
-         removeButton: @escaping (Image) -> RemoveButton? = { _ in nil })
+         addButton: @escaping (Label<Text, Image>) -> AddButton? = { _ in nil },
+         removeButton: @escaping (Label<Text, Image>) -> RemoveButton? = { _ in nil })
     {
         self.content = content
         self.headerAccessory = { EmptyView() }
