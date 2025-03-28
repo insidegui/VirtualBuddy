@@ -88,6 +88,7 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
                     }
                 }
                 .labelStyle(.iconOnly)
+                .applyGroupedListCommandButtonStyle()
                 
                 footerAccessory()
             }
@@ -140,5 +141,17 @@ extension GroupedList where HeaderAccessory == EmptyView, FooterAccessory == Emp
         self.emptyOverlay = emptyOverlay
         self.addButton = addButton
         self.removeButton = removeButton
+    }
+}
+
+fileprivate extension View {
+    func applyGroupedListCommandButtonStyle() -> some View {
+        // the .accessoryBarAction looks nicer, but only available on macOS Sonoma
+        // on older version of macOS, use the default style (equivalent to .bordered)
+        if #available(macOS 14.0, *) {
+            return self.buttonStyle(.accessoryBarAction)
+        } else {
+            return self
+        }
     }
 }
