@@ -92,13 +92,13 @@ public final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
 
-    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil, savedState: VBSavedStatePackage? = nil) async throws -> VZVirtualMachineConfiguration {
+    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil) async throws -> VZVirtualMachineConfiguration {
         let helper: VirtualMachineConfigurationHelper
         let platform: VZPlatformConfiguration
         let installDevice: [VZStorageDeviceConfiguration]
         switch model.configuration.systemType {
         case .mac:
-            helper = MacOSVirtualMachineConfigurationHelper(vm: model, savedState: savedState)
+            helper = MacOSVirtualMachineConfigurationHelper(vm: model)
             platform = try await Self.createMacPlatform(for: model, installImageURL: installImageURL)
             installDevice = []
         case .linux:
@@ -138,7 +138,7 @@ public final class VMInstance: NSObject, ObservableObject {
         return c
     }
     
-    private func createVirtualMachine(savedState: VBSavedStatePackage?) async throws {
+    private func createVirtualMachine() async throws {
         logger.debug(#function)
 
         let installImage: URL?
@@ -147,7 +147,7 @@ public final class VMInstance: NSObject, ObservableObject {
         } else {
             installImage = nil
         }
-        let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage, savedState: savedState) // add install iso here for linux (hack)
+        let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage) // add install iso here for linux (hack)
 
         await setupWormhole(for: config)
 
@@ -231,8 +231,8 @@ public final class VMInstance: NSObject, ObservableObject {
         #endif
     }
 
-    private func bootstrap(savedState: VBSavedStatePackage? = nil) async throws {
-        try await createVirtualMachine(savedState: savedState)
+    private func bootstrap() async throws {
+        try await createVirtualMachine()
 
         let vm = try ensureVM()
 
@@ -329,8 +329,6 @@ public final class VMInstance: NSObject, ObservableObject {
         package.screenshot = screenshot
 
         do {
-            try await package.createStorageDeviceClones(model: virtualMachineModel)
-
             try await vm.saveMachineStateTo(url: package.dataFileURL)
 
             logger.log("VM state saved to \(package.dataFileURL.path)")
@@ -382,7 +380,7 @@ public final class VMInstance: NSObject, ObservableObject {
         if _virtualMachine == nil {
             logger.debug("Bootstrapping VM for state restoration")
 
-            try await bootstrap(savedState: package)
+            try await bootstrap()
         }
 
         let vm = try ensureVM()

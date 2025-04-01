@@ -10,7 +10,7 @@ public extension UTType {
 }
 
 /// Represents a `vbst` file on disk, encapsulating all operations related to saved state packages.
-public final class VBSavedStatePackage: Identifiable, Hashable {
+public final class VBSavedStatePackage: Identifiable, Hashable, Codable {
     public var id: UUID { metadata.id }
 
     static let dataFilename = "State.vzvmsave"
@@ -95,19 +95,11 @@ public final class VBSavedStatePackage: Identifiable, Hashable {
         saveMetadata(nil)
     }
 
-    public func createStorageDeviceClones(model: VBVirtualMachine) async throws {
-        try await metadata.createStorageDeviceClones(packageURL: url, model: model)
-    }
-
     public func delete() throws {
         logger.debug(#function)
 
         try manager.removeItem(at: url)
     }
-
-    /// Whether this saved state needs to be migrated by cloning existing storage devices
-    /// because it was created in a version of VirtualBuddy that didn't do this.
-    public var needsStorageCloneMigration: Bool { metadata.storageDevices.isEmpty }
 
     private func saveMetadata(_ oldValue: VBSavedStateMetadata?) {
         guard metadata != oldValue else { return }
@@ -147,9 +139,17 @@ extension VBSavedStatePackage {
     }
 }
 
-public extension VBSavedStateMetadata {
-    init(packageAt url: URL) throws {
-        let infoURL = url.appendingPathComponent(VBSavedStatePackage.infoFilename)
-        self = try PropertyListDecoder.virtualBuddy.decode(Self.self, from: Data(contentsOf: infoURL))
+// MARK: - Codable Conformance
+
+public extension VBSavedStatePackage {
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(url.path)
+    }
+
+    convenience init(from decoder: any Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let path = try container.decode(String.self)
+        try self.init(url: URL(filePath: path))
     }
 }

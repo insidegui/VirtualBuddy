@@ -7,22 +7,6 @@ public struct VBSavedStateMetadata: Identifiable, Hashable, Codable {
     public var appVersion: SoftwareVersion
     public var appBuild: Int
     public var hostECID: UInt64?
-
-    /// Copy of ``VBMacDevice/storageDevices`` as those existed at the time the snapshot was taken.
-    /// The ``VBStorageDevice/isSavedStateClone`` property is set to `true` once the state has been saved.
-    /// Only managed disk images are cloned alongside saved states, custom user-provided images are referenced from their original locations.
-    @DecodableDefault.EmptyList
-    public var storageDevices: [VBStorageDevice]
-
-    init(id: UUID, vmUUID: UUID, date: Date, appVersion: SoftwareVersion, appBuild: Int, hostECID: UInt64? = nil, storageDevices: [VBStorageDevice]) {
-        self.id = id
-        self.vmUUID = vmUUID
-        self.date = date
-        self.appVersion = appVersion
-        self.appBuild = appBuild
-        self.hostECID = hostECID
-        self.storageDevices = storageDevices
-    }
 }
 
 // MARK: - Saved State Metadata Creation
@@ -39,8 +23,7 @@ public extension VBSavedStateMetadata {
             date: .now,
             appVersion: Bundle.main.vbVersion,
             appBuild: Bundle.main.vbBuild,
-            hostECID: ecid,
-            storageDevices: model.configuration.hardware.storageDevices // will be modified once package is saved
+            hostECID: ecid
         )
     }
 }

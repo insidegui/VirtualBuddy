@@ -18,7 +18,7 @@ struct VMSessionConfigurationView: View {
     var body: some View {
         SelfSizingGroupedForm(minHeight: 100) {
             if showSavedStatePicker {
-                SavedStatePicker(selectedStateURL: $controller.options.stateRestorationPackageURL)
+                SavedStatePicker(selection: $controller.options.stateRestorationPackage)
                     .environmentObject(controller.savedStatesController)
             }
             

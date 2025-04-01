@@ -11,13 +11,7 @@ import Virtualization
 @available(macOS 13.0, *)
 struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper {
     let vm: VBVirtualMachine
-    let savedState: VBSavedStatePackage?
-
-    init(vm: VBVirtualMachine) {
-        self.vm = vm
-        self.savedState = nil
-    }
-
+    
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration {
         let attachment = try VZDiskImageStorageDeviceAttachment(url: installImageURL, readOnly: true, cachingMode: .cached, synchronizationMode: .fsync)
         let usbDeviceConfiguration = VZUSBMassStorageDeviceConfiguration(attachment: attachment)

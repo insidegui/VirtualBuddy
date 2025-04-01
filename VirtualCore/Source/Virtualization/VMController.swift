@@ -35,16 +35,16 @@ public struct VMSessionOptions: Hashable, Codable {
     public var autoBoot = false
 
     /// Used when restoring from a previously-saved state.
-    public var stateRestorationPackageURL: URL?
+    public var stateRestorationPackage: VBSavedStatePackage?
 
     public static let `default` = VMSessionOptions()
 
-    public init(bootInRecoveryMode: Bool = false, bootInDFUMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackageURL: URL? = nil) {
+    public init(bootInRecoveryMode: Bool = false, bootInDFUMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackage: VBSavedStatePackage? = nil) {
         self.bootInRecoveryMode = bootInRecoveryMode
         self.bootInDFUMode = bootInDFUMode
         self.bootOnInstallDevice = bootOnInstallDevice
         self.autoBoot = autoBoot
-        self.stateRestorationPackageURL = stateRestorationPackageURL
+        self.stateRestorationPackage = stateRestorationPackage
 
         resolveMutuallyExclusiveOptions()
     }
@@ -161,9 +161,8 @@ public final class VMController: ObservableObject {
             let newInstance = try createInstance()
             self.instance = newInstance
 
-            if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
-                let package = try VBSavedStatePackage(url: restorePackageURL)
-                try await newInstance.restoreState(from: package) { vm, package in
+            if #available(macOS 14.0, *), let restorePackage = options.stateRestorationPackage {
+                try await newInstance.restoreState(from: restorePackage) { vm, package in
                     try? await updatingState {
                         state = .restoringState(vm, package)
                     }
