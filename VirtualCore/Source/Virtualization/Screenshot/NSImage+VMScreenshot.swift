@@ -1,10 +1,18 @@
 import Cocoa
 import Virtualization
 
+public extension UserDefaults {
+    var virtualMachineScreenshotsDisabled: Bool { bool(forKey: #function) }
+}
+
 @available(macOS 14.0, *)
 public extension NSImage {
     @MainActor
     static func screenshot(from virtualMachine: VZVirtualMachine) async throws -> NSImage {
+        guard !UserDefaults.standard.virtualMachineScreenshotsDisabled else {
+            throw Failure("Screenshots disabled by defaults flag.")
+        }
+        
         guard #unavailable(macOS 15.4) else {
             throw Failure("Feature disabled on macOS 15.4+")
         }

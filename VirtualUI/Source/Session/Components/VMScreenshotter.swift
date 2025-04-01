@@ -46,6 +46,10 @@ final class VMScreenshotter {
     private var previousScreenshotData: Data?
 
     func capture() async throws {
+        guard !UserDefaults.standard.virtualMachineScreenshotsDisabled else {
+            return
+        }
+
         let data = await takeScreenshot()
 
         guard let data else { return }
