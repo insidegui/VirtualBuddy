@@ -65,10 +65,10 @@
   "restoreImages": [
     {
       "group": "sequoia",
-      "name": "macOS 15.5 RC",
+      "name": "macOS 15.5",
       "build": "24F74",
       "url": "https://updates.cdn-apple.com/2025SpringFCS/fullrestores/082-44534/CE6C1054-99A3-4F67-A823-3EE9E6510CDE/UniversalMac_15.5_24F74_Restore.ipsw",
-      "channel": "devbeta",
+      "channel": "regular",
       "needsCookie": false
     },
     {
