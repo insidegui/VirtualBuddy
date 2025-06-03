@@ -38,14 +38,16 @@ struct RestoreImageBrowser: View {
     @FocusState
     private var focus: RestoreImageSelectionFocus?
 
+    @State private var scrolledImageID: ResolvedRestoreImage.ID?
+
     var body: some View {
-        ScrollView(.vertical, showsIndicators: false) {
-            LazyVStack(alignment: .leading, spacing: 8, pinnedViews: .sectionHeaders) {
-                ForEach(controller.channelGroups) { group in
-                    section(for: group)
-                }
+        Group {
+            if #available(macOS 14.0, *) {
+                scrollView
+                    .scrollPosition(id: $scrolledImageID, anchor: .center)
+            } else {
+                scrollView
             }
-            .padding(.horizontal, containerPadding)
         }
         .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: containerPadding) }
         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: containerPadding) }
@@ -57,14 +59,10 @@ struct RestoreImageBrowser: View {
             case .down:
                 if let previous = controller.images.next(from: controller.selectedRestoreImage) {
                     controller.selectedRestoreImage = previous
-                } else {
-                    controller.selectedRestoreImage = controller.images.first
                 }
             case .up:
                 if let next = controller.images.previous(from: controller.selectedRestoreImage) {
                     controller.selectedRestoreImage = next
-                } else {
-                    controller.selectedRestoreImage = controller.images.last
                 }
             case .left:
                 controller.focusedElement = .groups
@@ -72,12 +70,37 @@ struct RestoreImageBrowser: View {
                 break
             }
         }
+        .onChange(of: selection?.id) { id in
+            scrolledImageID = id
+        }
         .onReceive(controller.$focusedElement) { focus = $0 }
         .onReceive(controller.$selectedRestoreImage.removeDuplicates()) {
             guard let newSelection = $0 else { return }
             guard newSelection.image.group == group.id else { return }
             selection = $0
         }
+    }
+
+    @ViewBuilder
+    private var scrollView: some View {
+        ScrollView(.vertical, showsIndicators: false) {
+            if #available(macOS 14.0, *) {
+                stack.scrollTargetLayout()
+            } else {
+                stack
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var stack: some View {
+        LazyVStack(alignment: .leading, spacing: 8, pinnedViews: .sectionHeaders) {
+            ForEach(controller.channelGroups) { group in
+                section(for: group)
+            }
+        }
+        .padding(.trailing, containerPadding)
+        .padding(.leading, containerPadding * 0.5)
     }
 
     @ViewBuilder
@@ -137,24 +160,31 @@ private struct RestoreImageButton: View {
 
 struct RestoreImageButtonStyle: ButtonStyle {
     var isSelected = false
+    var cornerRadius: CGFloat = 14
+
+    @Environment(\.isFocused)
+    private var isFocused
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .padding(.vertical, 12)
             .padding(.horizontal, 16)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Material.ultraThin, in: shape)
+            .background(Material.thin, in: shape)
             .background(Color.black.opacity(0.14).blendMode(.plusDarker), in: shape)
+            .chromeBorder(radius: cornerRadius, highlightEnabled: !isSelected, shadowEnabled: false, highlightIntensity: 0.4)
             .overlay {
                 if isSelected {
                     shape
                         .strokeBorder(Color.white, lineWidth: 2)
+                        .blendMode(.plusLighter)
+                        .opacity(isFocused ? 0.8 : 0.4)
                 }
             }
     }
 
     private var shape: some InsettableShape {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
     }
 }
 

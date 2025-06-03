@@ -42,6 +42,7 @@ struct CatalogGroupPicker: View {
                 }
             }
             .padding([.top, .leading, .bottom], containerPadding)
+            .padding(.trailing, containerPadding * 0.5)
         }
         .focusable()
         .focused($focus, equals: RestoreImageSelectionFocus.groups)
@@ -99,16 +100,24 @@ struct CatalogGroupPicker: View {
 private struct CatalogGroupButtonStyle: ButtonStyle {
     var isSelected: Bool
 
+    @Environment(\.isFocused)
+    private var isFocused
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
+            .chromeBorder(radius: CatalogGroupView.cornerRadius, highlightEnabled: !isSelected)
             .overlay {
                 if isSelected {
-                    RoundedRectangle(cornerRadius: CatalogGroupView.cornerRadius, style: .continuous)
+                    shape
                         .strokeBorder(Color.white, lineWidth: 2)
-                        .opacity(0.7)
                         .blendMode(.plusLighter)
+                        .opacity(isFocused ? 0.8 : 0.4)
                 }
             }
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
+    }
+
+    private var shape: some InsettableShape {
+        RoundedRectangle(cornerRadius: CatalogGroupView.cornerRadius, style: .continuous)
     }
 }

@@ -223,6 +223,7 @@
 		F4D305B029B900860006E748 /* SystemNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305AF29B900860006E748 /* SystemNotification.swift */; };
 		F4D305B229B907A10006E748 /* WHPing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305B129B907A10006E748 /* WHPing.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
+		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
@@ -633,6 +634,7 @@
 		F4D305AF29B900860006E748 /* SystemNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotification.swift; sourceTree = "<group>"; };
 		F4D305B129B907A10006E748 /* WHPing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPing.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
+		F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeBorderModifier.swift; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F4E7680E29B655DD0075A897 /* InstallMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethod.swift; sourceTree = "<group>"; };
@@ -1193,6 +1195,7 @@
 				F498AD132884C36A006F1C00 /* ControlGroupChrome.swift */,
 				F498AD192884C5FF006F1C00 /* SliderConversion.swift */,
 				F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */,
+				F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */,
 			);
 			path = "Building Blocks";
 			sourceTree = "<group>";
@@ -2108,6 +2111,7 @@
 				F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */,
 				F4FC983D2BB386DD00E511C9 /* VMProgressOverlay.swift in Sources */,
 				F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */,
+				F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
 				F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */,
