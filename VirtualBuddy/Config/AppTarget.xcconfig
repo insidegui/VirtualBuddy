@@ -5,7 +5,7 @@
 // Entitlement Settings
 
 // Name of the provisioning profile used for all managed builds (debug, beta, release, dev release).
-MANAGED_PROFILE = VirtualBuddy Mid 2024 B
+MANAGED_PROFILE = VirtualBuddy Dev Mid 2025
 
 CODE_SIGN_ENTITLEMENTS[config=Debug][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy.entitlements
 CODE_SIGN_ENTITLEMENTS[config=Release][sdk=*][arch=*] = $(ENTITLEMENTS_DIR)/VirtualBuddy.entitlements
