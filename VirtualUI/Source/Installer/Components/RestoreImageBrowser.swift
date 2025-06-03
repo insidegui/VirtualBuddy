@@ -21,16 +21,11 @@ struct RestoreImageBrowser: View {
 
     var catalog: ResolvedCatalog
     var group: ResolvedCatalogGroup
-    var channelGroups: [ChannelGroup]
-    private var images: [ResolvedRestoreImage]
     @Binding var selection: ResolvedRestoreImage?
 
     init(catalog: ResolvedCatalog, group: ResolvedCatalogGroup, selection: Binding<ResolvedRestoreImage?>) {
         self.catalog = catalog
         self.group = group
-        let groups = ChannelGroup.groups(with: group.restoreImages)
-        self.channelGroups = groups
-        self.images = groups.flatMap(\.images)
         self._selection = selection
     }
 
@@ -40,47 +35,48 @@ struct RestoreImageBrowser: View {
     @Environment(\.installationWizardMaxContentWidth)
     private var maxContentWidth
 
-    @FocusState private var focused: Bool
+    @FocusState
+    private var focus: RestoreImageSelectionFocus?
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: 8, pinnedViews: .sectionHeaders) {
-                ForEach(channelGroups) { group in
+                ForEach(controller.channelGroups) { group in
                     section(for: group)
                 }
             }
-            .frame(maxWidth: maxContentWidth)
             .padding(.horizontal, containerPadding)
         }
         .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: containerPadding) }
         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: containerPadding) }
         .focusable()
-        .focused($focused)
+        .focused($focus, equals: RestoreImageSelectionFocus.images)
         .backported_focusEffectDisabled()
         .onMoveCommand { direction in
             switch direction {
             case .down:
-                if let previous = images.next(from: selection) {
-                    selection = previous
+                if let previous = controller.images.next(from: controller.selectedRestoreImage) {
+                    controller.selectedRestoreImage = previous
+                } else {
+                    controller.selectedRestoreImage = controller.images.first
                 }
             case .up:
-                if let next = images.previous(from: selection) {
-                    selection = next
+                if let next = controller.images.previous(from: controller.selectedRestoreImage) {
+                    controller.selectedRestoreImage = next
                 } else {
-                    focused = false
+                    controller.selectedRestoreImage = controller.images.last
                 }
+            case .left:
+                controller.focusedElement = .groups
             default:
                 break
             }
         }
-        .onReceive(controller.$focusedElement) { element in
-            guard element == .images else { return }
-
-            self.focused = true
-
-            if selection == nil {
-                selection = images.first
-            }
+        .onReceive(controller.$focusedElement) { focus = $0 }
+        .onReceive(controller.$selectedRestoreImage.removeDuplicates()) {
+            guard let newSelection = $0 else { return }
+            guard newSelection.image.group == group.id else { return }
+            selection = $0
         }
     }
 
@@ -165,24 +161,6 @@ struct RestoreImageButtonStyle: ButtonStyle {
 extension ResolvedRestoreImage {
     var formattedDownloadSize: String {
         ByteCountFormatter.string(fromByteCount: downloadSize, countStyle: .file)
-    }
-}
-
-private extension ChannelGroup {
-    static func groups(with restoreImages: [ResolvedRestoreImage]) -> [ChannelGroup] {
-        var groupsByChannel = [CatalogChannel: ChannelGroup]()
-
-        let sortedImages = restoreImages.sorted(by: { $0.build > $1.build })
-
-        for image in sortedImages {
-            groupsByChannel[image.channel, default: ChannelGroup(channel: image.channel, images: [])]
-                .images.append(image)
-        }
-
-        /// Place regular releases above developer betas.
-        return groupsByChannel.values.sorted {
-            $0.id == "regular" && $1.id == "devbeta"
-        }
     }
 }
 

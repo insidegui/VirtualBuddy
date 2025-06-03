@@ -20,11 +20,29 @@ final class RestoreImageSelectionController: ObservableObject {
 
     init(library: VMLibraryController) {
         self.library = library
+
+        $selectedGroup.removeDuplicates().sink { [weak self] group in
+            guard let self else { return }
+            guard let group else { return }
+
+            guard selectedRestoreImage?.image.group != group.id else { return }
+
+            /// Selected group has changed, update available channel groups, images, and selected image.
+            let updatedChannelGroups = ChannelGroup.groups(with: group.restoreImages)
+            channelGroups = updatedChannelGroups
+            images = updatedChannelGroups.flatMap(\.images)
+            selectedRestoreImage = updatedChannelGroups.first?.images.first
+        }
+        .store(in: &cancellables)
     }
 
     private lazy var api = VBAPIClient()
-    
+
+    private var cancellables = Set<AnyCancellable>()
+
     @Published private(set) var catalog: ResolvedCatalog?
+    @Published private(set) var channelGroups: [ChannelGroup] = []
+    @Published private(set) var images: [ResolvedRestoreImage] = []
     @Published var selectedGroup: ResolvedCatalogGroup?
     @Published var selectedRestoreImage: ResolvedRestoreImage?
     @Published var errorMessage: String?
@@ -71,6 +89,25 @@ final class RestoreImageSelectionController: ObservableObject {
     
 }
 
+extension ChannelGroup {
+    static func groups(with restoreImages: [ResolvedRestoreImage]) -> [ChannelGroup] {
+        var groupsByChannel = [CatalogChannel: ChannelGroup]()
+
+        let sortedImages = restoreImages.sorted(by: { $0.build > $1.build })
+
+        for image in sortedImages {
+            groupsByChannel[image.channel, default: ChannelGroup(channel: image.channel, images: [])]
+                .images.append(image)
+        }
+
+        /// Place regular releases above developer betas.
+        return groupsByChannel.values.sorted {
+            $0.id == "regular" && $1.id == "devbeta"
+        }
+    }
+}
+
+
 extension EnvironmentValues {
     @Entry var installationWizardMaxContentWidth: CGFloat = 720
 }
@@ -103,6 +140,9 @@ struct RestoreImageSelectionStep: View {
     @Environment(\.containerPadding)
     private var containerPadding
 
+    @Environment(\.installationWizardMaxContentWidth)
+    private var maxContentWidth
+
     private var browserInsetTop: CGFloat { 100 }
 
     var body: some View {
@@ -113,6 +153,8 @@ struct RestoreImageSelectionStep: View {
                 RestoreImageBrowser(catalog: catalog, group: group, selection: $selection)
             }
         }
+        .frame(maxWidth: maxContentWidth)
+        .frame(maxWidth: .infinity)
         .background { colorfulBackground }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(controller)

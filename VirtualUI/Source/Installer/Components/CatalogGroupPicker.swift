@@ -12,7 +12,7 @@ struct CatalogGroupPicker: View {
     @State private var scrolledGroupID: ResolvedCatalogGroup.ID?
 
     var minWidth: CGFloat { 80 }
-    var maxWidth: CGFloat { 160 }
+    var maxWidth: CGFloat { 180 }
     var spacing: CGFloat { containerPadding }
 
     var body: some View {
@@ -27,7 +27,8 @@ struct CatalogGroupPicker: View {
     @Environment(\.containerPadding)
     private var containerPadding
 
-    @FocusState private var focused: Bool
+    @FocusState
+    private var focus: RestoreImageSelectionFocus?
 
     @ViewBuilder
     private var container: some View {
@@ -43,19 +44,19 @@ struct CatalogGroupPicker: View {
             .padding([.top, .leading, .bottom], containerPadding)
         }
         .focusable()
-        .focused($focused)
+        .focused($focus, equals: RestoreImageSelectionFocus.groups)
         .backported_focusEffectDisabled()
         .onMoveCommand { direction in
             switch direction {
-            case .left:
+            case .up:
                 if let previous = groups.previous(from: selectedGroup) {
                     selectedGroup = previous
                 }
-            case .right:
+            case .down:
                 if let next = groups.next(from: selectedGroup) {
                     selectedGroup = next
                 }
-            case .down:
+            case .right:
                 controller.focusedElement = .images
             default:
                 break
@@ -74,10 +75,7 @@ struct CatalogGroupPicker: View {
                 scrolledGroupID = groupID
             }
         }
-        .onReceive(controller.$focusedElement) { element in
-            guard element == .groups else { return }
-            self.focused = true
-        }
+        .onReceive(controller.$focusedElement) { focus = $0 }
     }
 
     @ViewBuilder
