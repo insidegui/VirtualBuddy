@@ -11,9 +11,9 @@ struct CatalogGroupPicker: View {
 
     @State private var scrolledGroupID: ResolvedCatalogGroup.ID?
 
-    var minHeight: CGFloat { 80 }
-    var maxHeight: CGFloat { 160 }
-    var spacing: CGFloat { 16 }
+    var minWidth: CGFloat { 80 }
+    var maxWidth: CGFloat { 160 }
+    var spacing: CGFloat { containerPadding }
 
     var body: some View {
         if #available(macOS 14.0, *) {
@@ -31,16 +31,16 @@ struct CatalogGroupPicker: View {
 
     @ViewBuilder
     private var container: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
+        ScrollView(.vertical, showsIndicators: false) {
             Group {
                 if #available(macOS 14.0, *) {
-                    grid
+                    list
                         .scrollTargetLayout()
                 } else {
-                    grid
+                    list
                 }
             }
-            .padding([.top, .leading, .trailing], containerPadding)
+            .padding([.top, .leading, .bottom], containerPadding)
         }
         .focusable()
         .focused($focused)
@@ -81,8 +81,8 @@ struct CatalogGroupPicker: View {
     }
 
     @ViewBuilder
-    private var grid: some View {
-        LazyHGrid(rows: [.init(.flexible(minimum: minHeight, maximum: maxHeight), spacing: spacing, alignment: .center)], alignment: .center, spacing: spacing) {
+    private var list: some View {
+        VStack(alignment: .center, spacing: spacing) {
             ForEach(groups) { group in
                 Button {
                     selectedGroup = group
@@ -91,9 +91,10 @@ struct CatalogGroupPicker: View {
                 }
                 .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup?.id))
                 .aspectRatio(320/180, contentMode: .fit)
+                .frame(minWidth: minWidth, maxWidth: maxWidth)
             }
         }
-        .frame(minHeight: minHeight, maxHeight: maxHeight)
+        .frame(minWidth: minWidth, maxWidth: maxWidth)
     }
 }
 
@@ -113,14 +114,3 @@ private struct CatalogGroupButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.98 : 1)
     }
 }
-
-#if DEBUG
-@available(macOS 14.0, *)
-#Preview {
-    @Previewable @State var selectedGroup: ResolvedCatalogGroup? = ResolvedCatalog.previewMac.groups[0]
-
-    CatalogGroupPicker(groups: ResolvedCatalog.previewMac.groups, selectedGroup: $selectedGroup)
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .frame(height: 200)
-}
-#endif

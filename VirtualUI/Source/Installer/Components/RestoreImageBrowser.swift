@@ -37,17 +37,23 @@ struct RestoreImageBrowser: View {
     @Environment(\.containerPadding)
     private var containerPadding
 
+    @Environment(\.installationWizardMaxContentWidth)
+    private var maxContentWidth
+
     @FocusState private var focused: Bool
 
     var body: some View {
-        ScrollView(.vertical) {
+        ScrollView(.vertical, showsIndicators: false) {
             LazyVStack(alignment: .leading, spacing: 8, pinnedViews: .sectionHeaders) {
                 ForEach(channelGroups) { group in
                     section(for: group)
                 }
             }
+            .frame(maxWidth: maxContentWidth)
             .padding(.horizontal, containerPadding)
         }
+        .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: containerPadding) }
+        .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: containerPadding) }
         .focusable()
         .focused($focused)
         .backported_focusEffectDisabled()

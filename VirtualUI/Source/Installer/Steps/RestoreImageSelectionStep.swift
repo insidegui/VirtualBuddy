@@ -71,6 +71,10 @@ final class RestoreImageSelectionController: ObservableObject {
     
 }
 
+extension EnvironmentValues {
+    @Entry var installationWizardMaxContentWidth: CGFloat = 720
+}
+
 struct RestoreImageSelectionStep: View {
     @StateObject private var controller: RestoreImageSelectionController
 
@@ -102,22 +106,11 @@ struct RestoreImageSelectionStep: View {
     private var browserInsetTop: CGFloat { 100 }
 
     var body: some View {
-        VStack(spacing: 0) {
+        HStack(spacing: 0) {
             CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
-                .zIndex(10)
 
             if let catalog = controller.catalog, let group = controller.selectedGroup {
                 RestoreImageBrowser(catalog: catalog, group: group, selection: $selection)
-                    .safeAreaInset(edge: .top, spacing: 0) {
-                        LinearGradient(colors: [.black, .clear], startPoint: .init(x: 0, y: 0.5), endPoint: .init(x: 0, y: 1))
-                            .frame(height: browserInsetTop)
-                            .blendMode(.destinationOut)
-                    }
-                    .compositingGroup()
-                    .safeAreaInset(edge: .bottom, spacing: 0) {
-                        Color.clear.frame(height: 16)
-                    }
-                    .padding(.top, -browserInsetTop + containerPadding)
             }
         }
         .background { colorfulBackground }

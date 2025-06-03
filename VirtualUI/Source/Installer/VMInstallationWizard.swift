@@ -13,7 +13,7 @@ extension EnvironmentValues {
     /// Defines the padding for a container where the children must adopt the padding in their implementations.
     /// Currently used for the `VMInstallationWizard` to allow children to apply padding in a custom way,
     /// retaining the standard padding between all steps.
-    @Entry var containerPadding: CGFloat = 0
+    @Entry var containerPadding: CGFloat = 16
 }
 
 public struct VMInstallationWizard: View {
@@ -226,5 +226,6 @@ public struct VMInstallationWizard: View {
 #if DEBUG
 #Preview {
     VMInstallationWizard(library: .preview, initialStep: .restoreImageSelection)
+        .frame(width: 900)
 }
 #endif

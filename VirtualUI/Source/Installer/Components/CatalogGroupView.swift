@@ -25,6 +25,7 @@ struct CatalogGroupView: View {
                 .padding(.horizontal, 22)
         }
         .clipShape(shape)
+        .contentShape(shape)
     }
 
     private var shape: some InsettableShape {
