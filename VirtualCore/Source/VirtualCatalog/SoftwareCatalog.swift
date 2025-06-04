@@ -200,7 +200,7 @@ public extension SoftwareCatalog {
     private static let decoder = JSONDecoder()
     private static let encoder: JSONEncoder = {
         let e = JSONEncoder()
-        e.outputFormatting = [.prettyPrinted]
+        e.outputFormatting = [.prettyPrinted, .sortedKeys]
         return e
     }()
 
