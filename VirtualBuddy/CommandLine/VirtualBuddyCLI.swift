@@ -17,10 +17,16 @@ struct VirtualBuddyCLI {
             return
         }
 
+        /// Remove any arguments injected by Xcode (such as `-NSDocumentRevisionsDebugMode`).
+        /// Also remove first argument, which is the name of the command itself.
+        let sanitizedArguments: [String] = CommandLine.arguments
+            .suffix(from: 1)
+            .filter { !$0.hasPrefix("-NS") && $0 != "YES" && $0 != "NO" }
+
         if let asyncCommand = command as? AsyncParsableCommand.Type {
-            await asyncCommand.main()
+            await asyncCommand.main(sanitizedArguments)
         } else {
-            command.main()
+            command.main(sanitizedArguments)
         }
 
         /**

@@ -7,8 +7,7 @@ struct MobileDeviceCommand: AsyncParsableCommand {
         abstract: "Interacts with the MobileDevice framework on the host.",
         subcommands: [
             VersionCommand.self
-        ],
-        defaultSubcommand: VersionCommand.self
+        ]
     )
 
     struct VersionCommand: AsyncParsableCommand {

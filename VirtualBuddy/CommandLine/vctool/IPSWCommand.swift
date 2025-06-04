@@ -9,8 +9,7 @@ struct IPSWCommand: AsyncParsableCommand {
         subcommands: [
             InspectCommand.self,
             ManifestCommand.self
-        ],
-        defaultSubcommand: InspectCommand.self
+        ]
     )
 
     struct ManifestOptions: ParsableArguments {

@@ -10,7 +10,6 @@ struct VCTool: AsyncParsableCommand {
             CatalogCommand.self,
             IPSWCommand.self,
             MobileDeviceCommand.self
-        ],
-        defaultSubcommand: CatalogCommand.self
+        ]
     )
 }
