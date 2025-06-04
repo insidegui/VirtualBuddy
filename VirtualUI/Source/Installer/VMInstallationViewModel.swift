@@ -273,6 +273,15 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
+    func back() {
+        switch step {
+        case .restoreImageInput:
+            setInstallMethod(.remoteOptions)
+        default:
+            break
+        }
+    }
+
     private func performActions(for step: Step) {
         defer { validate() }
 

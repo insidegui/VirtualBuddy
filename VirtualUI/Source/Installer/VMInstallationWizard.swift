@@ -70,24 +70,31 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var bottomBar: some View {
         HStack {
-            switch viewModel.step {
-            case .restoreImageSelection:
-                HStack(spacing: 12) {
-                    Button("Local File") {
-                        viewModel.setInstallMethod(.localFile)
-                    }
+            Group {
+                switch viewModel.step {
+                case .restoreImageSelection:
+                    HStack(spacing: 12) {
+                        Button("Local File") {
+                            viewModel.setInstallMethod(.localFile)
+                        }
 
-                    Divider()
-                        .frame(height: 22)
+                        Divider()
+                            .frame(height: 22)
 
-                    Button("Custom Link") {
-                        viewModel.setInstallMethod(.remoteManual)
+                        Button("Custom Link") {
+                            viewModel.setInstallMethod(.remoteManual)
+                        }
                     }
+                case .restoreImageInput:
+                    /// Allow going back to remote options selection after going to custom file/url.
+                    Button("Back") {
+                        viewModel.back()
+                    }
+                default:
+                    EmptyView()
                 }
-                .buttonStyle(.link)
-            default:
-                EmptyView()
             }
+            .buttonStyle(.link)
 
             Spacer()
 
