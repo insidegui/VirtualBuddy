@@ -22,17 +22,38 @@
 
 import SwiftUI
 
-extension Image {
-    init(blurHash: String, width: Int, height: Int, punch: Float = 1) {
-        self.init(blurHash: blurHash, size: .init(width: width, height: height), punch: punch)
-    }
+public extension Int {
+    /// The size of blur hash used by VirtualBuddy.
+    static let vbBlurHashSize = 4
+}
 
-    init(blurHash: String, size: CGSize, punch: Float = 1) {
+public extension CGSize {
+    /// The size of blur hash used by VirtualBuddy.
+    ///
+    /// - warning: This can't be changed without updating the server-side catalog groups with updated blur hashes matching this size!
+    static let vbBlurHashSize = CGSize(width: Int.vbBlurHashSize, height: Int.vbBlurHashSize)
+}
+
+public extension Float {
+    /// Default `punch` value used for blur hashes in VirtualBuddy.
+    static let vbBlurHashPunch: Float = 1
+}
+
+public extension Image {
+    init(blurHash: String, size: CGSize = .vbBlurHashSize, punch: Float = .vbBlurHashPunch) {
         if let decodedImage = NSImage(blurHash: blurHash, size: size, punch: punch) {
             self.init(nsImage: decodedImage)
         } else {
             self.init(nsImage: .blurHashPlaceholder(size: size))
         }
+    }
+
+    init(blurHash: BlurHashToken, punch: Float = .vbBlurHashPunch) {
+        self.init(
+            blurHash: blurHash.value,
+            size: CGSize(width: blurHash.size, height: blurHash.size),
+            punch: punch
+        )
     }
 }
 

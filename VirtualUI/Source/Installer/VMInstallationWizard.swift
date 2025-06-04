@@ -14,10 +14,14 @@ extension EnvironmentValues {
     /// Currently used for the `VMInstallationWizard` to allow children to apply padding in a custom way,
     /// retaining the standard padding between all steps.
     @Entry var containerPadding: CGFloat = 16
+
+    /// The maximum width for the content area in the current context.
+    @Entry var maxContentWidth: CGFloat? = nil
 }
 
 public struct VMInstallationWizard: View {
     static var padding: CGFloat { 22 }
+    static var maxContentWidth: CGFloat { 720 }
 
     @ObservedObject var library: VMLibraryController
     @StateObject var viewModel: VMInstallationViewModel
@@ -30,6 +34,22 @@ public struct VMInstallationWizard: View {
     }
 
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
+
+    /// Some step views can't have the default padding applied because they need
+    /// to handle padding in a specific way. Those may read `containerPadding` from the environment.
+    private var effectivePadding: CGFloat {
+        switch viewModel.step {
+        case .restoreImageSelection, .configuration: 0
+        default: Self.padding
+        }
+    }
+
+    private var effectiveMaxContentWidth: CGFloat {
+        switch viewModel.step {
+        case .configuration: VMConfigurationSheet.minWidth
+        default: Self.maxContentWidth
+        }
+    }
 
     public var body: some View {
         NavigationStack {
@@ -58,14 +78,18 @@ public struct VMInstallationWizard: View {
             }
             .navigationTitle(Text("Virtual Machine Setup"))
             .navigationSubtitle(Text(viewModel.step.subtitle))
-            .padding(Self.padding)
+            .padding(effectivePadding)
         }
         .toolbar {
             Text("").hidden()
         }
+        .background {
+            BlurHashFullBleedBackground(viewModel.data.backgroundHash)
+        }
         .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
         .environment(\.containerPadding, Self.padding)
+        .environment(\.maxContentWidth, effectiveMaxContentWidth)
     }
     @ViewBuilder
     private var bottomBar: some View {

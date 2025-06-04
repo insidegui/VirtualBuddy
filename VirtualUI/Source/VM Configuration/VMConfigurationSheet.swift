@@ -9,7 +9,9 @@ import SwiftUI
 import VirtualCore
 
 public struct VMConfigurationSheet: View {
-    
+
+    public static let minWidth: CGFloat = 520
+
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
     /// The VM configuration as it existed when the user opened the configuration UI.
@@ -40,26 +42,33 @@ public struct VMConfigurationSheet: View {
     
     @Environment(\.dismiss) private var dismiss
 
+    @Environment(\.containerPadding) private var containerPadding
+    @Environment(\.maxContentWidth) private var maxContentWidth
+
+    private var isInstall: Bool { viewModel.context == .preInstall }
+
     public var body: some View {
         ScrollView(.vertical) {
             VMConfigurationView(initialConfiguration: initialConfiguration)
                 .environmentObject(viewModel)
-                .padding()
+                .frame(maxWidth: isInstall ? maxContentWidth : nil)
+                .padding(containerPadding)
+                .frame(maxWidth: .infinity)
         }
-        .safeAreaInset(edge: .bottom) {
-            buttons
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !isInstall { buttons }
         }
-        .frame(minWidth: Self.defaultWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity, alignment: .top)
+        .resizableSheet(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
-    
-    public static let defaultWidth: CGFloat = 370
-    
+
     @ViewBuilder
     private var buttons: some View {
         VStack(alignment: .leading, spacing: 16) {
             if showValidationErrors {
                 validationErrors
             }
+
             HStack {
                 if showsCancelButton {
                     Button("Cancel") {

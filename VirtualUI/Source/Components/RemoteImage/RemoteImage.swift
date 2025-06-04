@@ -3,20 +3,13 @@ import CryptoKit
 import VirtualCore
 import OSLog
 
-public extension CGSize {
-    /// The size of blur hash used by VirtualBuddy.
-    ///
-    /// - warning: This can't be changed without updating the server-side catalog groups with updated blur hashes matching this size!
-    static let virtualBuddyBlurHash = CGSize(width: 4, height: 4)
-}
-
 struct RemoteImage: View {
     var url: URL
     var blurHash: String?
     var blurHashSize: CGSize
     var loader: RemoteImageLoader
 
-    init(url: URL, blurHash: String? = nil, blurHashSize: CGSize = .virtualBuddyBlurHash, loader: RemoteImageLoader = .default) {
+    init(url: URL, blurHash: String? = nil, blurHashSize: CGSize = .vbBlurHashSize, loader: RemoteImageLoader = .default) {
         self.url = url
         self.blurHash = blurHash
         self.blurHashSize = blurHashSize

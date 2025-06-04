@@ -144,6 +144,7 @@
 		F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C45A2DF0C4BE007EAD5F /* BuddyKit */; };
 		F453C45D2DF0D28A007EAD5F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F453C45C2DF0D286007EAD5F /* README.md */; };
 		F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4622DF0E609007EAD5F /* BuddyKit */; };
+		F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -583,6 +584,7 @@
 		F453C44B2DF0B835007EAD5F /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
 		F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyCLI.swift; sourceTree = "<group>"; };
 		F453C45C2DF0D286007EAD5F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -908,6 +910,7 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F453C4642DF0F7F4007EAD5F /* BlurHash */,
 				F47BCDC92C5C01C600165191 /* RemoteImage */,
 				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
 				F48E0D26288883150080DDFA /* HostingWindowController */,
@@ -1195,6 +1198,15 @@
 			path = vctool;
 			sourceTree = "<group>";
 		};
+		F453C4642DF0F7F4007EAD5F /* BlurHash */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */,
+				F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */,
+			);
+			path = BlurHash;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -1226,7 +1238,6 @@
 		F47BCDC92C5C01C600165191 /* RemoteImage */ = {
 			isa = PBXGroup;
 			children = (
-				F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */,
 				F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */,
 			);
 			path = RemoteImage;
@@ -2274,6 +2285,7 @@
 				F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */,
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
 				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
+				F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */,
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
 				F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */,
 				F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */,

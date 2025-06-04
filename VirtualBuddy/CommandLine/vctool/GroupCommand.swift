@@ -83,7 +83,7 @@ extension CatalogCommand {
                 try darkImageURL.vctool_encodeHEIC(to: localDarkImageURL, maxSize: 2048, quality: 0.9)
                 try darkImageURL.vctool_encodeHEIC(to: localDarkThumbnailURL, maxSize: 720, quality: 0.8)
 
-                let blurHashComponents: (Int, Int) = (Int(CGSize.virtualBuddyBlurHash.width), Int(CGSize.virtualBuddyBlurHash.height))
+                let blurHashComponents: (Int, Int) = (Int(CGSize.vbBlurHashSize.width), Int(CGSize.vbBlurHashSize.height))
 
                 guard let thumbnailImage = NSImage(contentsOf: localThumbnailURL) else {
                     throw "Failed to load generated thumbnail image from \(localThumbnailURL.path)"

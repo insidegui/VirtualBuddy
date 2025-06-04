@@ -18,6 +18,8 @@ struct VMInstallData: Hashable, Codable {
     @DecodableDefault.EmptyPlaceholder
     var installMethod: InstallMethod = .empty
 
+    var backgroundHash: BlurHashToken? = nil
+
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
     var restoreImageInfo: RestoreImage? {

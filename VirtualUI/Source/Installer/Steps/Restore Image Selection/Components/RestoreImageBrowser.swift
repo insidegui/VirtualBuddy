@@ -33,7 +33,7 @@ struct RestoreImageBrowser: View {
     @Environment(\.containerPadding)
     private var containerPadding
 
-    @Environment(\.installationWizardMaxContentWidth)
+    @Environment(\.maxContentWidth)
     private var maxContentWidth
 
     @FocusState

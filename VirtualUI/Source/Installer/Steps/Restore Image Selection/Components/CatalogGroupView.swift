@@ -13,7 +13,7 @@ struct CatalogGroupView: View {
             RemoteImage(
                 url: thumbnail.url,
                 blurHash: thumbnail.blurHash,
-                blurHashSize: .virtualBuddyBlurHash
+                blurHashSize: .vbBlurHashSize
             )
 
             Text(group.name)

@@ -9,10 +9,6 @@ import SwiftUI
 import VirtualCore
 import Combine
 
-extension EnvironmentValues {
-    @Entry var installationWizardMaxContentWidth: CGFloat = 720
-}
-
 struct RestoreImageSelectionStep: View {
     @StateObject private var controller = RestoreImageSelectionController()
     @EnvironmentObject private var viewModel: VMInstallationViewModel
@@ -20,7 +16,7 @@ struct RestoreImageSelectionStep: View {
     @Environment(\.containerPadding)
     private var containerPadding
 
-    @Environment(\.installationWizardMaxContentWidth)
+    @Environment(\.maxContentWidth)
     private var maxContentWidth
 
     private var browserInsetTop: CGFloat { 100 }
@@ -35,19 +31,36 @@ struct RestoreImageSelectionStep: View {
         }
         .frame(maxWidth: maxContentWidth)
         .frame(maxWidth: .infinity)
-        .background { colorfulBackground }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(controller)
-        .padding(-containerPadding)
         .task(id: viewModel.data.systemType) {
             controller.loadRestoreImageOptions(for: viewModel.data.systemType)
         }
+        .task(id: controller.selectedGroup) {
+            if let group = controller.selectedGroup {
+                viewModel.data.backgroundHash = BlurHashToken(value: group.darkImage.thumbnail.blurHash)
+            } else {
+                viewModel.data.backgroundHash = nil
+            }
+        }
     }
 
-    @ViewBuilder
-    private var colorfulBackground: some View {
-        if let thumbnail = controller.selectedGroup?.darkImage.thumbnail {
-            Image(blurHash: thumbnail.blurHash, size: .virtualBuddyBlurHash, punch: 1)
+}
+
+struct BlurHashFullBleedBackground: View {
+    var blurHash: BlurHashToken?
+
+    init(_ blurHash: BlurHashToken?) {
+        self.blurHash = blurHash
+    }
+
+    init(_ blurHashValue: String?) {
+        self.blurHash = blurHashValue.flatMap { BlurHashToken(value: $0) }
+    }
+
+    var body: some View {
+        if let blurHash {
+            Image(blurHash: blurHash)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .blur(radius: 22, opaque: true)
@@ -56,10 +69,10 @@ struct RestoreImageSelectionStep: View {
                 .brightness(-0.1)
                 .drawingGroup(opaque: true)
                 .ignoresSafeArea()
-                .animation(.default, value: controller.selectedGroup?.id)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .animation(.default, value: blurHash)
         }
     }
-
 }
 
 #if DEBUG
