@@ -134,11 +134,11 @@ public struct VMConfigurationSheet: View {
 #if DEBUG
 struct VMConfigurationSheet_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(vm: .preview, context: .postInstall)
-            .previewDisplayName("Post Install")
-
         _Template(vm: .preview, context: .preInstall)
             .previewDisplayName("Pre Install")
+
+        _Template(vm: .preview, context: .postInstall)
+            .previewDisplayName("Post Install")
 
         _Template(vm: .previewLinux, context: .postInstall)
             .previewDisplayName("Linux - Post")
@@ -156,12 +156,13 @@ struct VMConfigurationSheet_Previews: PreviewProvider {
                 PreviewSheet {
                     VMConfigurationSheet(configuration: $vm.configuration)
                         .environmentObject(VMConfigurationViewModel(vm, context: context))
-                        .frame(width: 360, height: 600, alignment: .top)
+                        .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
                 }
             } else {
                 VMConfigurationSheet(configuration: $vm.configuration)
                     .environmentObject(VMConfigurationViewModel(vm, context: context))
-                    .frame(width: 360, height: 600, alignment: .top)
+                    .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
+                    .background(BlurHashFullBleedBackground(.virtualBuddyBackground))
             }
         }
     }
@@ -177,7 +178,8 @@ struct PreviewSheet<Content: View>: View {
 
     var body: some View {
         ZStack {}
-        .frame(width: 500, height: 700)
+        .frame(width: VMConfigurationSheet.minWidth, height: 700)
+        .padding()
         .background(Color.black.opacity(0.5))
         .overlay {
             content()
