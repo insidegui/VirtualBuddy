@@ -37,15 +37,10 @@ public struct VMInstallationWizard: View {
                 switch viewModel.step {
                     case .systemType:
                         guestSystemTypeSelection
-                            .padding(Self.padding)
-                            .navigationSubtitle(Text("Choose Operating System"))
-                    case .installKind:
-                        installKindSelection
                     case .restoreImageInput:
                         restoreImageURLInput
                     case .restoreImageSelection:
                         restoreImageSelection
-                        .navigationSubtitle(Text(viewModel.data.systemType.restoreImagePickerPrompt))
                     case .configuration:
                         configureVM
                     case .name:
@@ -62,6 +57,8 @@ public struct VMInstallationWizard: View {
                 viewModel.disableNextButton = !isValid
             }
             .navigationTitle(Text("Virtual Machine Setup"))
+            .navigationSubtitle(Text(viewModel.step.subtitle))
+            .padding(Self.padding)
         }
         .toolbar {
             Text("").hidden()
@@ -77,14 +74,14 @@ public struct VMInstallationWizard: View {
             case .restoreImageSelection:
                 HStack(spacing: 12) {
                     Button("Local File") {
-
+                        viewModel.setInstallMethod(.localFile)
                     }
 
                     Divider()
                         .frame(height: 22)
 
                     Button("Custom Link") {
-
+                        viewModel.setInstallMethod(.remoteManual)
                     }
                 }
                 .buttonStyle(.link)
@@ -122,26 +119,10 @@ public struct VMInstallationWizard: View {
     }
 
     @ViewBuilder
-    private var installKindSelection: some View {
-        VStack {
-            InstallationWizardTitle("How Would You Like to Install \(viewModel.data.systemType.name)?")
-
-            InstallMethodPicker(
-                guestType: viewModel.data.systemType,
-                selection: $viewModel.data.installMethod
-            )
-        }
-    }
-
-    @ViewBuilder
     private var restoreImageURLInput: some View {
-        VStack {
-            InstallationWizardTitle(viewModel.data.systemType.customURLPrompt)
-
-            TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
-                .textFieldStyle(.roundedBorder)
-                .controlSize(.large)
-        }
+        TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
+            .textFieldStyle(.roundedBorder)
+            .controlSize(.large)
     }
 
     @ViewBuilder
@@ -158,29 +139,27 @@ public struct VMInstallationWizard: View {
     
     @ViewBuilder
     private var configureVM: some View {
-        VStack {
-            InstallationWizardTitle("Configure Your Virtual Machine")
+        if let machine = viewModel.machine {
+            InstallConfigurationStepView(vm: machine) { configuredModel in
+                viewModel.machine = configuredModel
+                try? viewModel.machine?.saveMetadata()
 
-            if let machine = viewModel.machine {
-                InstallConfigurationStepView(vm: machine) { configuredModel in
-                    viewModel.machine = configuredModel
-                    try? viewModel.machine?.saveMetadata()
-
-                    viewModel.goNext()
-                }
-            } else {
-                Text("Preparing…")
+                viewModel.goNext()
             }
+        } else {
+            preparingStatus
         }
     }
 
     @ViewBuilder
-    private var renameVM: some View {
-        VStack {
-            InstallationWizardTitle("Name Your Virtual Machine")
+    private var preparingStatus: some View {
+        Text("Preparing…")
+            .foregroundStyle(.tertiary)
+    }
 
-            VirtualMachineNameField(name: $viewModel.data.name)
-        }
+    @ViewBuilder
+    private var renameVM: some View {
+        VirtualMachineNameField(name: $viewModel.data.name)
     }
 
     private var vmDisplayName: String {
@@ -189,23 +168,17 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var downloadView: some View {
-        VStack {
-            InstallationWizardTitle("Downloading \(vmDisplayName)")
-
-            if let downloader = viewModel.downloader {
-                RestoreImageDownloadView(downloader: downloader)
-            }
+        if let downloader = viewModel.downloader {
+            RestoreImageDownloadView(downloader: downloader)
+        } else {
+            preparingStatus
         }
     }
 
     @ViewBuilder
     private var installProgress: some View {
-        VStack {
-            InstallationWizardTitle("Installing \(vmDisplayName)")
-
-            InstallProgressStepView()
-                .environmentObject(viewModel)
-        }
+        InstallProgressStepView()
+            .environmentObject(viewModel)
     }
 
     @ViewBuilder

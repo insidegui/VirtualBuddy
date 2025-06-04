@@ -60,6 +60,7 @@ struct RestoreImageSelectionStep: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(controller)
         .task { controller.loadRestoreImageOptions(for: guestType) }
+        .padding(-containerPadding)
     }
 
     @ViewBuilder

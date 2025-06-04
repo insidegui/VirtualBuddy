@@ -46,7 +46,7 @@ struct VMInstallData: Hashable, Codable {
 extension VMInstallData {
     func canContinue(from step: VMInstallationStep) -> Bool {
         switch step {
-        case .systemType, .installKind: true
+        case .systemType: true
         case .restoreImageInput:
             true // TODO: Implement
         case .restoreImageSelection: resolvedRestoreImage != nil
@@ -102,7 +102,6 @@ extension VMInstallData {
 
 public enum VMInstallationStep: Int, Hashable, Codable {
     case systemType
-    case installKind
     case restoreImageInput
     case restoreImageSelection
     case name
@@ -110,6 +109,21 @@ public enum VMInstallationStep: Int, Hashable, Codable {
     case download
     case install
     case done
+}
+
+extension VMInstallationStep {
+    var subtitle: String {
+        switch self {
+        case .systemType: "Choose Operating System"
+        case .restoreImageInput: "Select Custom Restore Image"
+        case .restoreImageSelection: "Choose Version"
+        case .name: "Name Your Virtual Machine"
+        case .configuration: "Configure Your Virtual Machine"
+        case .download: "Downloading"
+        case .install: "Installing"
+        case .done: "Finished"
+        }
+    }
 }
 
 final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
@@ -165,7 +179,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine?) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
-        step = VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind
+        step = VBGuestType.supportedByHost.count > 1 ? .systemType : .restoreImageSelection
 
         if let restoreVM {
             restoreInstallation(with: restoreVM)
@@ -176,7 +190,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     init(library: VMLibraryController, restoringAt restoreURL: URL?, initialStep: Step? = nil) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
-        step = initialStep ?? (VBGuestType.supportedByHost.count > 1 ? .systemType : .installKind)
+        step = initialStep ?? (VBGuestType.supportedByHost.count > 1 ? .systemType : .restoreImageSelection)
 
         if let restoreURL {
             restoreInstallation(with: restoreURL)
@@ -243,9 +257,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     func goNext() {
         switch step {
             case .systemType:
-                step = .installKind
-            case .installKind:
-                commitInstallMethod()
+                step = .restoreImageSelection
             case .restoreImageInput, .restoreImageSelection:
                 step = .name
             case .name:
@@ -265,7 +277,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         defer { validate() }
 
         switch step {
-            case .systemType, .installKind:
+            case .systemType:
                 showNextButton = true
             case .restoreImageInput:
                 showNextButton = true
@@ -299,6 +311,12 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
                 cleanupInstallerArtifacts()
         }
+    }
+
+    func setInstallMethod(_ method: InstallMethod) {
+        data.installMethod = method
+
+        commitInstallMethod()
     }
 
     private func commitInstallMethod() {
