@@ -8,12 +8,14 @@
 import Foundation
 import VirtualCore
 
-enum InstallMethod: String, Identifiable, CaseIterable, Codable {
+enum InstallMethod: String, Identifiable, CaseIterable, Codable, ProvidesEmptyPlaceholder {
     var id: RawValue { rawValue }
 
-    case localFile
     case remoteOptions
+    case localFile
     case remoteManual
+
+    static var empty: InstallMethod { .remoteOptions }
 }
 
 extension InstallMethod {

@@ -76,7 +76,9 @@ struct RestoreImageBrowser: View {
         .onReceive(controller.$focusedElement) { focus = $0 }
         .onReceive(controller.$selectedRestoreImage.removeDuplicates()) {
             guard let newSelection = $0 else { return }
+            guard newSelection.id != selection?.id else { return }
             guard newSelection.image.group == group.id else { return }
+
             selection = $0
         }
     }

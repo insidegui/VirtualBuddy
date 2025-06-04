@@ -12,6 +12,12 @@ import Virtualization
 import VirtualCore
 
 struct VMInstallData: Hashable, Codable {
+    @DecodableDefault.EmptyPlaceholder
+    var systemType: VBGuestType = .empty
+
+    @DecodableDefault.EmptyPlaceholder
+    var installMethod: InstallMethod = .empty
+
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
     var restoreImageInfo: RestoreImage? {
@@ -24,14 +30,73 @@ struct VMInstallData: Hashable, Codable {
     var resolvedRestoreImage: ResolvedRestoreImage? {
         didSet { restoreImageInfo = resolvedRestoreImage?.image }
     }
+
+    @DecodableDefault.EmptyString
+    var inputInstallImageURL: String = ""
+
     var installImageURL: URL?
 
-    var downloadURL: URL? {
-        installImageURL ?? restoreImageInfo?.url
-    }
+    var downloadURL: URL? { installImageURL ?? restoreImageInfo?.url }
 
     enum CodingKeys: String, CodingKey {
-        case name, restoreImageInfo, installImageURL
+        case name, restoreImageInfo, installImageURL, systemType, installMethod
+    }
+}
+
+extension VMInstallData {
+    func canContinue(from step: VMInstallationStep) -> Bool {
+        switch step {
+        case .systemType, .installKind: true
+        case .restoreImageInput:
+            true // TODO: Implement
+        case .restoreImageSelection: resolvedRestoreImage != nil
+        case .name: !name.isEmpty
+        case .configuration:
+            true // TODO: Implement
+        case .download:
+            true // TODO: Implement
+        case .install:
+            true // TODO: Implement
+        case .done:
+            true // TODO: Implement
+        }
+    }
+}
+
+extension VMInstallData {
+    private static let allowedCustomDownloadSchemes: Set<String> = [
+        "http",
+        "https",
+        "ftp"
+    ]
+
+    func validateCustomRestoreImageURL(_ input: String) -> Bool {
+        guard !input.isEmpty else {
+            return false
+        }
+        guard let url = URL(string: input) else {
+            return false
+        }
+
+        guard let scheme = url.scheme else {
+            return false
+        }
+
+        guard Self.allowedCustomDownloadSchemes.contains(scheme.lowercased()) else {
+            return false
+        }
+
+        return true
+    }
+
+    mutating func commitCustomRestoreImageURL() throws {
+        guard installMethod == .remoteManual else { return }
+        
+        guard let url = URL(string: inputInstallImageURL) else {
+            throw Failure("Not a valid URL: \"\(inputInstallImageURL)\".")
+        }
+
+        self.installImageURL = url
     }
 }
 
@@ -50,8 +115,6 @@ public enum VMInstallationStep: Int, Hashable, Codable {
 final class VMInstallationViewModel: ObservableObject {
 
     struct RestorableState: Codable {
-        var method: InstallMethod
-        var systemType: VBGuestType
         var data: VMInstallData
         var step: Step
     }
@@ -66,24 +129,17 @@ final class VMInstallationViewModel: ObservableObject {
 
     private var restorableState: RestorableState {
         RestorableState(
-            method: self.installMethod,
-            systemType: self.selectedSystemType,
             data: self.data,
             step: self.step
         )
     }
 
-    @Published var installMethod = InstallMethod.localFile
-
-    @Published var selectedSystemType: VBGuestType = .mac
-
     @Published var machine: VBVirtualMachine?
 
     @Published var data = VMInstallData() {
         didSet {
-            if step == .name {
-                disableNextButton = data.name.isEmpty
-            }
+            guard data != oldValue else { return }
+            validate()
         }
     }
 
@@ -98,9 +154,6 @@ final class VMInstallationViewModel: ObservableObject {
             writeRestorationData()
         }
     }
-
-    @Published
-    private(set) var restoreImageOptions = [VBRestoreImageInfo]()
 
     @Published private(set) var buttonTitle = "Continue"
     @Published private(set) var showNextButton = true
@@ -154,8 +207,6 @@ final class VMInstallationViewModel: ObservableObject {
                 restoredState.data.resolvedRestoreImage = try vm.resolveCatalogImage(restoreImage)
             }
 
-            self.installMethod = restoredState.method
-            self.selectedSystemType = restoredState.systemType
             self.data = restoredState.data
             self.machine = vm
             self.step = restoredState.step
@@ -185,10 +236,14 @@ final class VMInstallationViewModel: ObservableObject {
 
     @Published private(set) var downloader: VBDownloader?
 
+    private func validate() {
+        disableNextButton = !data.canContinue(from: step)
+    }
+
     func goNext() {
         switch step {
             case .systemType:
-                step = .restoreImageSelection
+                step = .installKind
             case .installKind:
                 commitInstallMethod()
             case .restoreImageInput, .restoreImageSelection:
@@ -207,6 +262,8 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     private func performActions(for step: Step) {
+        defer { validate() }
+
         switch step {
             case .systemType, .installKind:
                 showNextButton = true
@@ -215,14 +272,12 @@ final class VMInstallationViewModel: ObservableObject {
                 validateCustomURL()
             case .restoreImageSelection:
                 showNextButton = true
-                disableNextButton = true
             case .name:
-                commitOSSelection()
+                commitCustomRestoreImageURL()
 
                 showNextButton = true
             case .configuration:
                 showNextButton = false
-                disableNextButton = true
 
                 Task {
                     do {
@@ -240,7 +295,6 @@ final class VMInstallationViewModel: ObservableObject {
                 showNextButton = false
             case .done:
                 showNextButton = true
-                disableNextButton = false
                 buttonTitle = "Back to Library"
 
                 cleanupInstallerArtifacts()
@@ -248,7 +302,7 @@ final class VMInstallationViewModel: ObservableObject {
     }
 
     private func commitInstallMethod() {
-        switch installMethod {
+        switch data.installMethod {
         case .localFile:
             selectInstallFile()
         case .remoteOptions:
@@ -258,14 +312,11 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
-    private func commitOSSelection() {
-        if !provisionalRestoreImageURL.isEmpty {
-            guard let url = URL(string: provisionalRestoreImageURL) else {
-                state = .error("Invalid URL: \(provisionalRestoreImageURL)")
-                return
-            }
-
-            self.data.installImageURL = url
+    private func commitCustomRestoreImageURL() {
+        do {
+            try data.commitCustomRestoreImageURL()
+        } catch {
+            state = .error("\(error)")
         }
     }
 
@@ -325,7 +376,7 @@ final class VMInstallationViewModel: ObservableObject {
 
         let model: VBVirtualMachine
 
-        switch selectedSystemType {
+        switch data.systemType {
         case .mac:
             model = try VBVirtualMachine(bundleURL: vmURL, isNewInstall: true)
         case .linux:
@@ -435,9 +486,6 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
-    private func cleanup() {
-
-    }
 
     @Published var provisionalRestoreImageURL = "" {
         didSet {
@@ -447,38 +495,13 @@ final class VMInstallationViewModel: ObservableObject {
         }
     }
 
-    private let allowedCustomDownloadSchemes: Set<String> = [
-        "http",
-        "https",
-        "ftp"
-    ]
-
     private func validateCustomURL() {
-        let isValid = isCustomURLValid()
+        let isValid = data.validateCustomRestoreImageURL(provisionalRestoreImageURL)
         disableNextButton = !isValid
     }
 
-    private func isCustomURLValid() -> Bool {
-        guard !provisionalRestoreImageURL.isEmpty else {
-            return false
-        }
-        guard let url = URL(string: provisionalRestoreImageURL) else {
-            return false
-        }
-
-        guard let scheme = url.scheme else {
-            return false
-        }
-
-        guard allowedCustomDownloadSchemes.contains(scheme.lowercased()) else {
-            return false
-        }
-
-        return true
-    }
-
     func selectInstallFile() {
-        guard let url = NSOpenPanel.run(accepting: selectedSystemType.supportedRestoreImageTypes, defaultDirectoryKey: "restoreImage") else {
+        guard let url = NSOpenPanel.run(accepting: data.systemType.supportedRestoreImageTypes, defaultDirectoryKey: "restoreImage") else {
             return
         }
 

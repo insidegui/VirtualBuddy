@@ -19,11 +19,13 @@ import SystemConfiguration
  the `@DecodableDefault` property wrapper can be used.
  */
 
-public enum VBGuestType: String, Identifiable, Codable, CaseIterable {
+public enum VBGuestType: String, Identifiable, Codable, CaseIterable, ProvidesEmptyPlaceholder {
     public var id: RawValue { rawValue }
     
     case mac
     case linux
+
+    public static var empty: VBGuestType { .mac }
 }
 
 public struct VBMacConfiguration: Hashable, Codable {

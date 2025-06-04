@@ -45,7 +45,7 @@ public struct VMInstallationWizard: View {
                         restoreImageURLInput
                     case .restoreImageSelection:
                         restoreImageSelection
-                            .navigationSubtitle(Text(viewModel.selectedSystemType.restoreImagePickerPrompt))
+                        .navigationSubtitle(Text(viewModel.data.systemType.restoreImagePickerPrompt))
                     case .configuration:
                         configureVM
                     case .name:
@@ -99,17 +99,17 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var guestSystemTypeSelection: some View {
-        GuestTypePicker(selection: $viewModel.selectedSystemType)
+        GuestTypePicker(selection: $viewModel.data.systemType)
     }
 
     @ViewBuilder
     private var installKindSelection: some View {
         VStack {
-            InstallationWizardTitle("How Would You Like to Install \(viewModel.selectedSystemType.name)?")
+            InstallationWizardTitle("How Would You Like to Install \(viewModel.data.systemType.name)?")
 
             InstallMethodPicker(
-                guestType: viewModel.selectedSystemType,
-                selection: $viewModel.installMethod
+                guestType: viewModel.data.systemType,
+                selection: $viewModel.data.installMethod
             )
         }
     }
@@ -117,7 +117,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var restoreImageURLInput: some View {
         VStack {
-            InstallationWizardTitle(viewModel.selectedSystemType.customURLPrompt)
+            InstallationWizardTitle(viewModel.data.systemType.customURLPrompt)
 
             TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
                 .textFieldStyle(.roundedBorder)
@@ -130,7 +130,7 @@ public struct VMInstallationWizard: View {
         RestoreImageSelectionStep(
             library: library,
             selection: $viewModel.data.resolvedRestoreImage,
-            guestType: viewModel.selectedSystemType,
+            guestType: viewModel.data.systemType,
             validationChanged: stepValidationStateChanged,
             onUseLocalFile: { localURL in
                 viewModel.continueWithLocalFile(at: localURL)
@@ -165,7 +165,7 @@ public struct VMInstallationWizard: View {
     }
 
     private var vmDisplayName: String {
-        viewModel.data.name.isEmpty ? viewModel.selectedSystemType.name : viewModel.data.name
+        viewModel.data.name.isEmpty ? viewModel.data.systemType.name : viewModel.data.name
     }
 
     @ViewBuilder
@@ -194,7 +194,7 @@ public struct VMInstallationWizard: View {
         VStack {
             InstallationWizardTitle(vmDisplayName)
 
-            Text(viewModel.selectedSystemType.installFinishedMessage)
+            Text(viewModel.data.systemType.installFinishedMessage)
         }
     }
 
