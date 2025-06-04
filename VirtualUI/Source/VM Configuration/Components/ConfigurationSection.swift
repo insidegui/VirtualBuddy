@@ -68,14 +68,21 @@ struct ConfigurationSection<Header: View, Content: View>: View {
         }
             .font(.system(size: 14, weight: .medium, design: .rounded))
             .padding(.horizontal)
-            .padding(.vertical, 8)
+            .padding(.vertical, 12)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Material.ultraThick, in: Rectangle())
+            .background {
+                if isCollapsed {
+                    ContainerRelativeShape().inset(by: 2).foregroundStyle(Material.ultraThin)
+                }
+            }
             .overlay(alignment: .bottom) {
                 Rectangle()
                     .frame(maxWidth: .infinity, maxHeight: 0.5)
-                    .foregroundColor(.black.opacity(isCollapsed ? 0 : 0.5))
+                    .foregroundColor(.white.opacity(isCollapsed ? 0 : 0.1))
+                    .padding(.horizontal, 1)
+                    .blendMode(.plusLighter)
             }
+            .contentShape(ContainerRelativeShape())
             .onTapGesture {
                 guard !collapsingDisabled else { return }
                 
