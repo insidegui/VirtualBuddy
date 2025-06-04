@@ -73,10 +73,30 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var bottomBar: some View {
         HStack {
+            switch viewModel.step {
+            case .restoreImageSelection:
+                HStack(spacing: 12) {
+                    Button("Local File") {
+
+                    }
+
+                    Divider()
+                        .frame(height: 22)
+
+                    Button("Custom Link") {
+
+                    }
+                }
+                .buttonStyle(.link)
+            default:
+                EmptyView()
+            }
+
             Spacer()
 
             nextButton
         }
+        .controlSize(.large)
         .padding()
         .background(Material.bar)
         .overlay(alignment: .top) { Divider() }
@@ -92,7 +112,6 @@ public struct VMInstallationWizard: View {
                 viewModel.goNext()
             }
         })
-            .controlSize(.large)
             .keyboardShortcut(.defaultAction)
             .disabled(viewModel.disableNextButton)
     }
