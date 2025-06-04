@@ -46,6 +46,10 @@ final class VMScreenshotter {
     private var previousScreenshotData: Data?
 
     func capture() async throws {
+        guard !UserDefaults.standard.virtualMachineScreenshotsDisabled else {
+            return
+        }
+
         let data = await takeScreenshot()
 
         guard let data else { return }
@@ -98,31 +102,9 @@ private extension VMScreenshotter {
         return cgImage
     }
 
-    /// Uses new SPI in Virtualization on macOS 14 to take the screenshot from the `VZVirtualMachine` instance.
-    /// Currently only takes a screenshot from a single display.
-    @available(macOS 14.0, *)
-    func takeScreenshotUsingVirtualizationSPI() async -> CGImage? {
-        do {
-            guard let vm else {
-                throw Failure("VM not available")
-            }
-
-            let image = try await NSImage.screenshot(from: vm)
-
-            return image.cgImage(forProposedRect: nil, context: nil, hints: nil)
-        } catch {
-            logger.error("SPI screenshot failed, falling back to view snapshot. Error: \(error, privacy: .public)")
-            return await takeScreenshotUsingView()
-        }
-    }
-
     /// Returns a `CGImage` with a screenshot of the VM in its current state,
     /// using the best available screenshotting method.
     func takeScreenshotCGImage() async -> CGImage? {
-        if #available(macOS 14.0, *) {
-            return await takeScreenshotUsingVirtualizationSPI()
-        } else {
-            return await takeScreenshotUsingView()
-        }
+        await takeScreenshotUsingView()
     }
 }

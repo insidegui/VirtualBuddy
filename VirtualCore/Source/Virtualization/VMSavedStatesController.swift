@@ -12,13 +12,11 @@ public final class VMSavedStatesController: ObservableObject {
     private let filePresenter: DirectoryObserver
     private let updateSignal = PassthroughSubject<URL, Never>()
     private let directoryURL: URL
+    private let virtualMachine: VBVirtualMachine
 
-    public convenience init(library: VMLibraryController, virtualMachine: VBVirtualMachine) {
-        self.init(directoryURL: virtualMachine.savedStatesDirectoryURL(in: library))
-    }
-
-    public init(directoryURL: URL) {
-        self.directoryURL = directoryURL
+    public init(library: VMLibraryController, virtualMachine: VBVirtualMachine) {
+        self.virtualMachine = virtualMachine
+        self.directoryURL = library.savedStateDirectoryURL(for: virtualMachine)
         self.filePresenter = DirectoryObserver(
             presentedItemURL: directoryURL,
             fileExtensions: [VBSavedStatePackage.fileExtension],
