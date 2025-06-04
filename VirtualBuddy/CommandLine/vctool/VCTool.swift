@@ -9,7 +9,8 @@ struct VCTool: AsyncParsableCommand {
         subcommands: [
             CatalogCommand.self,
             IPSWCommand.self,
-            MobileDeviceCommand.self
+            MobileDeviceCommand.self,
+            BlurHashCommand.self,
         ]
     )
 }
