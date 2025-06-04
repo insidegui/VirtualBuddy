@@ -14,3 +14,11 @@ public struct BlurHashToken: Hashable, Codable, Sendable {
         self.size = size
     }
 }
+
+public extension BlurHashToken {
+    /// Hardcoded VirtualBuddy orange background blur hash.
+    static let virtualBuddyBackground = BlurHashToken(
+        value: "U4H09BEfIY$%U7ocVcM$8%R*M}f~zwIXcArd",
+        size: 4
+    )
+}

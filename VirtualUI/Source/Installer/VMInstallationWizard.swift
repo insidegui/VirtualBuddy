@@ -81,7 +81,14 @@ public struct VMInstallationWizard: View {
             .padding(effectivePadding)
         }
         .toolbar {
-            Text("").hidden()
+            ToolbarItemGroup(placement: .navigation) {
+                Button {
+                    viewModel.back()
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .disabled(!viewModel.canGoBack)
+            }
         }
         .background {
             BlurHashFullBleedBackground(viewModel.data.backgroundHash)
@@ -109,11 +116,6 @@ public struct VMInstallationWizard: View {
                             viewModel.setInstallMethod(.remoteManual)
                         }
                     }
-                case .restoreImageInput:
-                    /// Allow going back to remote options selection after going to custom file/url.
-                    Button("Back") {
-                        viewModel.back()
-                    }
                 default:
                     EmptyView()
                 }
@@ -137,7 +139,7 @@ public struct VMInstallationWizard: View {
                 library.loadMachines()
                 closeWindow()
             } else {
-                viewModel.goNext()
+                viewModel.next()
             }
         })
             .keyboardShortcut(.defaultAction)
@@ -151,7 +153,7 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var restoreImageURLInput: some View {
-        TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
+        TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.next)
             .textFieldStyle(.roundedBorder)
             .controlSize(.large)
     }
@@ -169,7 +171,7 @@ public struct VMInstallationWizard: View {
                 viewModel.machine = configuredModel
                 try? viewModel.machine?.saveMetadata()
 
-                viewModel.goNext()
+                viewModel.next()
             }
         } else {
             preparingStatus
@@ -180,6 +182,7 @@ public struct VMInstallationWizard: View {
     private var preparingStatus: some View {
         Text("Preparing…")
             .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder

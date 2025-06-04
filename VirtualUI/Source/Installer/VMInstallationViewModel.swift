@@ -18,7 +18,7 @@ struct VMInstallData: Hashable, Codable {
     @DecodableDefault.EmptyPlaceholder
     var installMethod: InstallMethod = .empty
 
-    var backgroundHash: BlurHashToken? = nil
+    var backgroundHash: BlurHashToken = .virtualBuddyBackground
 
     var name = RandomNameGenerator.shared.newName()
     var cookie: String?
@@ -171,6 +171,15 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
+    var canGoBack: Bool {
+        switch step {
+        case .systemType, .configuration, .download, .install, .done:
+            false
+        case .restoreImageInput, .restoreImageSelection, .name:
+            true
+        }
+    }
+
     @Published private(set) var buttonTitle = "Continue"
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
@@ -256,7 +265,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         disableNextButton = !data.canContinue(from: step)
     }
 
-    func goNext() {
+    func next() {
         switch step {
             case .systemType:
                 step = .restoreImageSelection
@@ -276,11 +285,18 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     func back() {
+        guard canGoBack else { return }
+
         switch step {
+        case .systemType, .configuration, .download, .install, .done:
+            break
         case .restoreImageInput:
             setInstallMethod(.remoteOptions)
-        default:
-            break
+        case .restoreImageSelection:
+            data.backgroundHash = .virtualBuddyBackground
+            step = .systemType
+        case .name:
+            setInstallMethod(data.installMethod)
         }
     }
 
@@ -386,7 +402,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         do {
             try updateModelInstallerURL(with: fileURL)
 
-            goNext()
+            next()
         } catch {
             state = .error("Failed to update the virtual machine settings after downloading the installer. \(error)")
         }
@@ -531,6 +547,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     func selectInstallFile() {
         guard let url = NSOpenPanel.run(accepting: data.systemType.supportedRestoreImageTypes, defaultDirectoryKey: "restoreImage") else {
+            setInstallMethod(.remoteOptions)
             return
         }
 

@@ -40,7 +40,7 @@ struct RestoreImageSelectionStep: View {
             if let group = controller.selectedGroup {
                 viewModel.data.backgroundHash = BlurHashToken(value: group.darkImage.thumbnail.blurHash)
             } else {
-                viewModel.data.backgroundHash = nil
+                viewModel.data.backgroundHash = .virtualBuddyBackground
             }
         }
     }
