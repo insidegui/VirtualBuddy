@@ -141,6 +141,7 @@
 		F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4492DF0B7F6007EAD5F /* FragmentZip */; };
 		F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C44B2DF0B835007EAD5F /* libcurl.tbd */; };
 		F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */; };
+		F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C45A2DF0C4BE007EAD5F /* BuddyKit */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -796,6 +797,7 @@
 			files = (
 				F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */,
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
+				F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
@@ -4738,6 +4740,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */;
 			productName = FragmentZip;
+		};
+		F453C45A2DF0C4BE007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
 		};
 		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
 			isa = XCSwiftPackageProductDependency;
