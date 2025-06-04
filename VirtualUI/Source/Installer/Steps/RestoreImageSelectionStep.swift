@@ -223,3 +223,9 @@ struct RestoreImageSelectionStep: View {
     @State private var authRequirementFlow: VBGuestReleaseChannel.Authentication?
 
 }
+
+#if DEBUG
+#Preview {
+    VMInstallationWizard.preview
+}
+#endif

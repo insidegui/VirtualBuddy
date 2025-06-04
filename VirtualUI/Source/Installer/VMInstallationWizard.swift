@@ -224,8 +224,15 @@ public struct VMInstallationWizard: View {
 }
 
 #if DEBUG
+extension VMInstallationWizard {
+    @ViewBuilder
+    static var preview: some View {
+        VMInstallationWizard(library: .preview, initialStep: .restoreImageSelection)
+            .frame(width: 900)
+    }
+}
+
 #Preview {
-    VMInstallationWizard(library: .preview, initialStep: .restoreImageSelection)
-        .frame(width: 900)
+    VMInstallationWizard.preview
 }
 #endif
