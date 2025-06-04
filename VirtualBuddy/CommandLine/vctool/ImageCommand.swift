@@ -33,6 +33,9 @@ extension CatalogCommand {
             @Option(name: [.short, .long], help: "Path to the software catalog JSON file that will be updated.")
             var output: String
 
+            @Flag(name: .shortAndLong, help: "Replace existing build if it already exists in the catalog.")
+            var force = false
+
             func run() async throws {
                 let ipswURL = try URL(validating: ipsw)
                 let catalogURL = try output.resolvedURL.ensureExistingFile()
@@ -99,9 +102,21 @@ extension CatalogCommand {
                     downloadSize: UInt64(contentLength)
                 )
 
-                catalog.restoreImages.insert(image, at: 0)
+                let index = catalog.restoreImages.firstIndex(where: { $0.id == image.id })
 
-                fputs("Added image to catalog:\n\n", stderr)
+                if let index {
+                    guard force else {
+                        fputs("\n❌ Build \(image.id) already exists in the catalog. Use --force flag to update it.\n\n", stderr)
+                        Darwin.exit(1)
+                    }
+
+                    catalog.restoreImages.remove(at: index)
+                }
+
+                catalog.restoreImages.insert(image, at: index ?? 0)
+
+                let successMessage = index == nil ? "Added image to catalog" : "Updated image in catalog"
+                fputs("✅ \(successMessage):\n\n", stderr)
 
                 fputs("\(image)\n\n", stderr)
 
