@@ -1,4 +1,5 @@
 import Foundation
+import BuddyFoundation
 
 public struct LegacyCatalog: Decodable {
     public let channels: [LegacyCatalogChannel]

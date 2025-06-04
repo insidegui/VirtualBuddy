@@ -1,4 +1,5 @@
 import Foundation
+import BuddyFoundation
 
 public protocol ResolvedCatalogModel: Identifiable, Hashable, Sendable { }
 

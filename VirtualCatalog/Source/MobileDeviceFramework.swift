@@ -1,4 +1,5 @@
 import Foundation
+import BuddyFoundation
 
 /// A representation of the MobileDevice framework and its properties.
 public struct MobileDeviceFramework: Sendable {

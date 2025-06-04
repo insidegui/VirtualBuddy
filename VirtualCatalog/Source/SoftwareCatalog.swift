@@ -1,4 +1,5 @@
 import Foundation
+import BuddyFoundation
 
 /// Adopted by all models present in a VirtualBuddy software catalog.
 public protocol CatalogModel: Identifiable, Hashable, Codable, Sendable { }

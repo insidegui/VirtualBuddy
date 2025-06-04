@@ -101,6 +101,15 @@
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
+		F453C3CB2DF0A319007EAD5F /* VirtualCatalog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */; };
+		F453C3CC2DF0A319007EAD5F /* VirtualCatalog.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F453C3DC2DF0A435007EAD5F /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F453C3DB2DF0A435007EAD5F /* BuddyFoundation */; };
+		F453C3E42DF0A45B007EAD5F /* SoftwareCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3E12DF0A45B007EAD5F /* SoftwareCatalog.swift */; };
+		F453C3E52DF0A45B007EAD5F /* LegacyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3DE2DF0A45B007EAD5F /* LegacyCatalog.swift */; };
+		F453C3E62DF0A45B007EAD5F /* ResolvedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3E02DF0A45B007EAD5F /* ResolvedCatalog.swift */; };
+		F453C3E72DF0A45B007EAD5F /* MobileDeviceFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3DF2DF0A45B007EAD5F /* MobileDeviceFramework.swift */; };
+		F453C3E82DF0A45B007EAD5F /* BlurHashEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3E22DF0A45B007EAD5F /* BlurHashEncode.swift */; };
+		F453C3EB2DF0A4C1007EAD5F /* VirtualCatalog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -110,7 +119,6 @@
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
-		F4727A972C5AB6760013C14A /* VirtualCatalog in Frameworks */ = {isa = PBXBuildFile; productRef = F4727A962C5AB6760013C14A /* VirtualCatalog */; };
 		F47BCDA12C5BE8FF00165191 /* ipsws_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F47BCDA22C5BE8FF00165191 /* linux_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCDA02C5BE8EF00165191 /* linux_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */; };
@@ -228,6 +236,7 @@
 		F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */; };
 		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
 		F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */; };
+		F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
@@ -240,7 +249,6 @@
 		F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */; };
 		F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */; };
 		F4ECC6D52C63BFD5001DAC1D /* NumberDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */; };
-		F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
@@ -287,6 +295,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = F43B01142AD858FE00164CD1;
 			remoteInfo = DeepLinkSecurity;
+		};
+		F453C3C92DF0A319007EAD5F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F453C3C42DF0A319007EAD5F;
+			remoteInfo = VirtualCatalog;
+		};
+		F453C3E92DF0A4B8007EAD5F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F453C3C42DF0A319007EAD5F;
+			remoteInfo = VirtualCatalog;
 		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -404,6 +426,7 @@
 				F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */,
 				F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
+				F453C3CC2DF0A319007EAD5F /* VirtualCatalog.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -512,6 +535,12 @@
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
+		F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualCatalog.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F453C3DE2DF0A45B007EAD5F /* LegacyCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCatalog.swift; sourceTree = "<group>"; };
+		F453C3DF2DF0A45B007EAD5F /* MobileDeviceFramework.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDeviceFramework.swift; sourceTree = "<group>"; };
+		F453C3E02DF0A45B007EAD5F /* ResolvedCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolvedCatalog.swift; sourceTree = "<group>"; };
+		F453C3E12DF0A45B007EAD5F /* SoftwareCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareCatalog.swift; sourceTree = "<group>"; };
+		F453C3E22DF0A45B007EAD5F /* BlurHashEncode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashEncode.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -521,7 +550,6 @@
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
-		F4727A952C5AB5770013C14A /* VirtualCatalog */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = VirtualCatalog; sourceTree = "<group>"; };
 		F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ipsws_v2.json; path = data/ipsws_v2.json; sourceTree = SOURCE_ROOT; };
 		F47BCDA02C5BE8EF00165191 /* linux_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = linux_v2.json; path = data/linux_v2.json; sourceTree = SOURCE_ROOT; };
 		F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoding.swift; sourceTree = "<group>"; };
@@ -655,7 +683,6 @@
 		F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMLibraryController+SavedState.swift"; sourceTree = "<group>"; };
 		F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUIManager.swift; sourceTree = "<group>"; };
 		F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberDisplayMode.swift; sourceTree = "<group>"; };
-		F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareVersion.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
@@ -682,6 +709,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F453C3C22DF0A319007EAD5F /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F453C3DC2DF0A435007EAD5F /* BuddyFoundation in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACFB2884BF13006F1C00 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -701,6 +736,7 @@
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
+				F453C3CB2DF0A319007EAD5F /* VirtualCatalog.framework in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -709,8 +745,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F4727A972C5AB6760013C14A /* VirtualCatalog in Frameworks */,
+				F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
+				F453C3EB2DF0A4C1007EAD5F /* VirtualCatalog.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1062,6 +1099,34 @@
 			path = GuestSupport;
 			sourceTree = "<group>";
 		};
+		F453C3D62DF0A31D007EAD5F /* VirtualCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				F453C3DD2DF0A44C007EAD5F /* Source */,
+			);
+			path = VirtualCatalog;
+			sourceTree = "<group>";
+		};
+		F453C3DD2DF0A44C007EAD5F /* Source */ = {
+			isa = PBXGroup;
+			children = (
+				F453C3E32DF0A45B007EAD5F /* Utilities */,
+				F453C3DE2DF0A45B007EAD5F /* LegacyCatalog.swift */,
+				F453C3DF2DF0A45B007EAD5F /* MobileDeviceFramework.swift */,
+				F453C3E02DF0A45B007EAD5F /* ResolvedCatalog.swift */,
+				F453C3E12DF0A45B007EAD5F /* SoftwareCatalog.swift */,
+			);
+			path = Source;
+			sourceTree = "<group>";
+		};
+		F453C3E32DF0A45B007EAD5F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F453C3E22DF0A45B007EAD5F /* BlurHashEncode.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -1077,7 +1142,6 @@
 			children = (
 				F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */,
 				F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */,
-				F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -1329,7 +1393,6 @@
 		F4BE9C4527FF052100B648F8 = {
 			isa = PBXGroup;
 			children = (
-				F4727A952C5AB5770013C14A /* VirtualCatalog */,
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
@@ -1338,6 +1401,7 @@
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
 				F43B01162AD858FE00164CD1 /* DeepLinkSecurity */,
+				F453C3D62DF0A31D007EAD5F /* VirtualCatalog */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -1354,6 +1418,7 @@
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
 				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
 				F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */,
+				F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1656,6 +1721,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F453C3C02DF0A319007EAD5F /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F498ACF92884BF13006F1C00 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1724,6 +1796,27 @@
 			productReference = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */;
 			productType = "com.apple.product-type.framework";
 		};
+		F453C3C42DF0A319007EAD5F /* VirtualCatalog */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F453C3CD2DF0A319007EAD5F /* Build configuration list for PBXNativeTarget "VirtualCatalog" */;
+			buildPhases = (
+				F453C3C02DF0A319007EAD5F /* Headers */,
+				F453C3C12DF0A319007EAD5F /* Sources */,
+				F453C3C22DF0A319007EAD5F /* Frameworks */,
+				F453C3C32DF0A319007EAD5F /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = VirtualCatalog;
+			packageProductDependencies = (
+				F453C3DB2DF0A435007EAD5F /* BuddyFoundation */,
+			);
+			productName = VirtualCatalog;
+			productReference = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */;
+			productType = "com.apple.product-type.framework";
+		};
 		F498ACFD2884BF13006F1C00 /* VirtualUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */;
@@ -1762,6 +1855,7 @@
 			dependencies = (
 				F498AD032884BF13006F1C00 /* PBXTargetDependency */,
 				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
+				F453C3CA2DF0A319007EAD5F /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
@@ -1788,7 +1882,8 @@
 			buildRules = (
 			);
 			dependencies = (
-				F4727A992C5AB67B0013C14A /* PBXTargetDependency */,
+				F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */,
+				F453C3EA2DF0A4B8007EAD5F /* PBXTargetDependency */,
 				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
@@ -1866,8 +1961,8 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1600;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
 						CreatedOnToolsVersion = 14.2;
@@ -1875,6 +1970,9 @@
 					};
 					F43B01142AD858FE00164CD1 = {
 						CreatedOnToolsVersion = 15.1;
+					};
+					F453C3C42DF0A319007EAD5F = {
+						CreatedOnToolsVersion = 16.4;
 					};
 					F498ACFD2884BF13006F1C00 = {
 						CreatedOnToolsVersion = 14.0;
@@ -1914,6 +2012,7 @@
 				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */,
 				F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -1927,6 +2026,7 @@
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
+				F453C3C42DF0A319007EAD5F /* VirtualCatalog */,
 			);
 		};
 /* End PBXProject section */
@@ -1942,6 +2042,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F43B01132AD858FE00164CD1 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F453C3C32DF0A319007EAD5F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2070,6 +2177,18 @@
 				F43B01382AD8590F00164CD1 /* DeepLinkClientDescriptor.swift in Sources */,
 				F43B01412AD8590F00164CD1 /* DeepLinkSecurityDefines.swift in Sources */,
 				F43B013B2AD8590F00164CD1 /* DeepLinkClient.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F453C3C12DF0A319007EAD5F /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F453C3E42DF0A45B007EAD5F /* SoftwareCatalog.swift in Sources */,
+				F453C3E52DF0A45B007EAD5F /* LegacyCatalog.swift in Sources */,
+				F453C3E62DF0A45B007EAD5F /* ResolvedCatalog.swift in Sources */,
+				F453C3E72DF0A45B007EAD5F /* MobileDeviceFramework.swift in Sources */,
+				F453C3E82DF0A45B007EAD5F /* BlurHashEncode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2230,7 +2349,6 @@
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
 				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
-				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
 				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */,
@@ -2315,9 +2433,19 @@
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
 			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
 		};
-		F4727A992C5AB67B0013C14A /* PBXTargetDependency */ = {
+		F453C3CA2DF0A319007EAD5F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			productRef = F4727A982C5AB67B0013C14A /* VirtualCatalog */;
+			target = F453C3C42DF0A319007EAD5F /* VirtualCatalog */;
+			targetProxy = F453C3C92DF0A319007EAD5F /* PBXContainerItemProxy */;
+		};
+		F453C3EA2DF0A4B8007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F453C3C42DF0A319007EAD5F /* VirtualCatalog */;
+			targetProxy = F453C3E92DF0A4B8007EAD5F /* PBXContainerItemProxy */;
+		};
+		F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = F453C3EC2DF0A4D1007EAD5F /* BuddyKit */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -3238,6 +3366,225 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release_Managed;
+		};
+		F453C3CE2DF0A319007EAD5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		F453C3CF2DF0A319007EAD5F /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug_Managed;
+		};
+		F453C3D02DF0A319007EAD5F /* Beta_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Beta_Debug;
+		};
+		F453C3D12DF0A319007EAD5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		F453C3D22DF0A319007EAD5F /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release_Managed;
+		};
+		F453C3D32DF0A319007EAD5F /* Beta_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Beta_Release;
+		};
+		F453C3D42DF0A319007EAD5F /* Dev_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_INSTALL_MODULE = YES;
+				SWIFT_INSTALL_OBJC_HEADER = NO;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Dev_Release;
 		};
 		F498AD062884BF13006F1C00 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -4469,6 +4816,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		F453C3CD2DF0A319007EAD5F /* Build configuration list for PBXNativeTarget "VirtualCatalog" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F453C3CE2DF0A319007EAD5F /* Debug */,
+				F453C3CF2DF0A319007EAD5F /* Debug_Managed */,
+				F453C3D02DF0A319007EAD5F /* Beta_Debug */,
+				F453C3D12DF0A319007EAD5F /* Release */,
+				F453C3D22DF0A319007EAD5F /* Release_Managed */,
+				F453C3D32DF0A319007EAD5F /* Beta_Release */,
+				F453C3D42DF0A319007EAD5F /* Dev_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -4578,6 +4939,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/BuddyKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.1;
+			};
+		};
 		F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/insidegui/swiftui-introspect.git";
@@ -4594,6 +4963,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		F4E4F7242DF0A1CB00B3B8BA /* XCRemoteSwiftPackageReference "BuddyKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/BuddyKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -4602,13 +4979,15 @@
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
 		};
-		F4727A962C5AB6760013C14A /* VirtualCatalog */ = {
+		F453C3DB2DF0A435007EAD5F /* BuddyFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = VirtualCatalog;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyFoundation;
 		};
-		F4727A982C5AB67B0013C14A /* VirtualCatalog */ = {
+		F453C3EC2DF0A4D1007EAD5F /* BuddyKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = VirtualCatalog;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
 		};
 		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4619,6 +4998,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4E4F7242DF0A1CB00B3B8BA /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
