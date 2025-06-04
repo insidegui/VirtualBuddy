@@ -112,7 +112,7 @@ public enum VMInstallationStep: Int, Hashable, Codable {
     case done
 }
 
-final class VMInstallationViewModel: ObservableObject {
+final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     struct RestorableState: Codable {
         var data: VMInstallData

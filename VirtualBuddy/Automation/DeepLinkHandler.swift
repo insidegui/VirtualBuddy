@@ -25,16 +25,16 @@ final class DeepLinkHandler {
     private static var _shared: DeepLinkHandler!
 
     @MainActor
-    static func bootstrap(updatingWindows: @escaping WindowUpdatingClosure) {
-        DeepLinkHandler._shared = DeepLinkHandler(updatingWindows: updatingWindows)
+    static func bootstrap(library: VMLibraryController, updatingWindows: @escaping WindowUpdatingClosure) {
+        DeepLinkHandler._shared = DeepLinkHandler(library: library, updatingWindows: updatingWindows)
         DeepLinkHandler.shared.install()
     }
 
     @MainActor
-    private init(updatingWindows: @escaping WindowUpdatingClosure) {
+    private init(library: VMLibraryController, updatingWindows: @escaping WindowUpdatingClosure) {
         self.settingsContainer = VBSettingsContainer.current
         self.updateController = SoftwareUpdateController.shared
-        self.library = VMLibraryController.shared
+        self.library = library
         self.sessionManager = VirtualMachineSessionUIManager.shared
         self.runner = ActionRunner(
             settingsContainer: settingsContainer,

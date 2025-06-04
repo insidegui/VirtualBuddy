@@ -23,11 +23,11 @@ import OSLog
 
     let settingsContainer = VBSettingsContainer.current
     let updateController = SoftwareUpdateController.shared
-    let library = VMLibraryController.shared
+    let library = VMLibraryController()
     let sessionManager = VirtualMachineSessionUIManager.shared
 
     func applicationWillFinishLaunching(_ notification: Notification) {
-        DeepLinkHandler.bootstrap(updatingWindows: self.updatingWindows(perform:))
+        DeepLinkHandler.bootstrap(library: library, updatingWindows: self.updatingWindows(perform:))
 
         NSApp?.appearance = NSAppearance(named: .darkAqua)
     }

@@ -8,7 +8,7 @@
 import Foundation
 import Virtualization
 import OSLog
-import Combine
+@preconcurrency import Combine
 
 public typealias WHPeerID = String
 

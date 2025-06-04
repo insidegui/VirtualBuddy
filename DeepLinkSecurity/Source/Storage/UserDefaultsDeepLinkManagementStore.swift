@@ -3,7 +3,7 @@ import OSLog
 
 /// A management store that persists client descriptors in `UserDefaults`.
 public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore {
-    nonisolated private lazy var logger = Logger.deepLinkLogger(for: Self.self)
+    private let logger = Logger.deepLinkLogger(for: UserDefaultsDeepLinkManagementStore.self)
 
     private let defaults: UserDefaults
     private let storageKey: String
