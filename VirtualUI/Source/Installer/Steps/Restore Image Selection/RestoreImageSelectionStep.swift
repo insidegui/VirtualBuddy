@@ -14,29 +14,8 @@ extension EnvironmentValues {
 }
 
 struct RestoreImageSelectionStep: View {
-    @StateObject private var controller: RestoreImageSelectionController
-
-    @ObservedObject var library: VMLibraryController
-    @Binding var selection: ResolvedRestoreImage?
-    var guestType: VBGuestType
-    var validationChanged: PassthroughSubject<Bool, Never>
-    var onUseLocalFile: (URL) -> Void = { _ in }
-
-    init(library: VMLibraryController,
-         selection: Binding<ResolvedRestoreImage?>,
-         guestType: VBGuestType,
-         validationChanged: PassthroughSubject<Bool, Never>,
-         onUseLocalFile: @escaping (URL) -> Void = { _ in },
-         authRequirementFlow: VBGuestReleaseChannel.Authentication? = nil)
-    {
-        self._library = .init(initialValue: library)
-        self._controller = .init(wrappedValue: RestoreImageSelectionController(library: library))
-        self._selection = selection
-        self.guestType = guestType
-        self.validationChanged = validationChanged
-        self.onUseLocalFile = onUseLocalFile
-        self.authRequirementFlow = authRequirementFlow
-    }
+    @StateObject private var controller = RestoreImageSelectionController()
+    @EnvironmentObject private var viewModel: VMInstallationViewModel
 
     @Environment(\.containerPadding)
     private var containerPadding
@@ -51,7 +30,7 @@ struct RestoreImageSelectionStep: View {
             CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
 
             if let catalog = controller.catalog, let group = controller.selectedGroup {
-                RestoreImageBrowser(catalog: catalog, group: group, selection: $selection)
+                RestoreImageBrowser(catalog: catalog, group: group, selection: $viewModel.data.resolvedRestoreImage)
             }
         }
         .frame(maxWidth: maxContentWidth)
@@ -59,8 +38,10 @@ struct RestoreImageSelectionStep: View {
         .background { colorfulBackground }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(controller)
-        .task { controller.loadRestoreImageOptions(for: guestType) }
         .padding(-containerPadding)
+        .task(id: viewModel.data.systemType) {
+            controller.loadRestoreImageOptions(for: viewModel.data.systemType)
+        }
     }
 
     @ViewBuilder
@@ -78,8 +59,6 @@ struct RestoreImageSelectionStep: View {
                 .animation(.default, value: controller.selectedGroup?.id)
         }
     }
-
-    @State private var authRequirementFlow: VBGuestReleaseChannel.Authentication?
 
 }
 

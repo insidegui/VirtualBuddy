@@ -127,14 +127,8 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var restoreImageSelection: some View {
-        RestoreImageSelectionStep(
-            library: library,
-            selection: $viewModel.data.resolvedRestoreImage,
-            guestType: viewModel.data.systemType,
-            validationChanged: stepValidationStateChanged,
-            onUseLocalFile: { localURL in
-                viewModel.continueWithLocalFile(at: localURL)
-            })
+        RestoreImageSelectionStep()
+            .environmentObject(viewModel)
     }
     
     @ViewBuilder

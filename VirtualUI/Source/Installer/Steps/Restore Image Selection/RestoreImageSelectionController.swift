@@ -9,11 +9,7 @@ enum RestoreImageSelectionFocus: Hashable {
 
 final class RestoreImageSelectionController: ObservableObject {
 
-    let library: VMLibraryController
-
-    init(library: VMLibraryController) {
-        self.library = library
-
+    init() {
         $selectedGroup.removeDuplicates().sink { [weak self] group in
             guard let self else { return }
             guard let group else { return }
