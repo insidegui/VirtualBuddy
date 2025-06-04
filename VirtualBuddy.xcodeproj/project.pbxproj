@@ -223,10 +223,11 @@
 		F4D305B029B900860006E748 /* SystemNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305AF29B900860006E748 /* SystemNotification.swift */; };
 		F4D305B229B907A10006E748 /* WHPing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D305B129B907A10006E748 /* WHPing.swift */; };
 		F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */; };
-		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
 		F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0A2D6F54E000603527 /* VBSavedStateMetadata+Clone.swift */; };
 		F4DE1C0F2D6F603300603527 /* VBSavedStatePackage+VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */; };
 		F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */; };
+		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
+		F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
@@ -637,10 +638,11 @@
 		F4D305AF29B900860006E748 /* SystemNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotification.swift; sourceTree = "<group>"; };
 		F4D305B129B907A10006E748 /* WHPing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHPing.swift; sourceTree = "<group>"; };
 		F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Metadata.swift"; sourceTree = "<group>"; };
-		F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeBorderModifier.swift; sourceTree = "<group>"; };
 		F4DE1C0A2D6F54E000603527 /* VBSavedStateMetadata+Clone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSavedStateMetadata+Clone.swift"; sourceTree = "<group>"; };
 		F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSavedStatePackage+VM.swift"; sourceTree = "<group>"; };
 		F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBStorageDeviceContainer.swift; sourceTree = "<group>"; };
+		F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeBorderModifier.swift; sourceTree = "<group>"; };
+		F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionController.swift; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F4E7680E29B655DD0075A897 /* InstallMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethod.swift; sourceTree = "<group>"; };
@@ -1126,9 +1128,6 @@
 				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
 				F42C01492888C2F800EB15CD /* InstallationConsole.swift */,
 				F4561A6728981B4100055289 /* VirtualMachineNameField.swift */,
-				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
-				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
-				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1157,10 +1156,10 @@
 		F48E0D30288884780080DDFA /* Steps */ = {
 			isa = PBXGroup;
 			children = (
+				F4E4F71D2DF080D200B3B8BA /* Restore Image Selection */,
 				F4E7680E29B655DD0075A897 /* InstallMethod.swift */,
 				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
 				F4E7680929B64C590075A897 /* GuestTypePicker.swift */,
-				F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */,
 				F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */,
 				F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */,
 				F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */,
@@ -1573,6 +1572,26 @@
 				F4FC276629BBAE350012CB65 /* WormholeServiceClient.swift */,
 			);
 			path = Base;
+			sourceTree = "<group>";
+		};
+		F4E4F71D2DF080D200B3B8BA /* Restore Image Selection */ = {
+			isa = PBXGroup;
+			children = (
+				F4E4F71E2DF080DF00B3B8BA /* Components */,
+				F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */,
+				F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */,
+			);
+			path = "Restore Image Selection";
+			sourceTree = "<group>";
+		};
+		F4E4F71E2DF080DF00B3B8BA /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
+				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
+				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
+			);
+			path = Components;
 			sourceTree = "<group>";
 		};
 		F4E7680B29B651180075A897 /* Resources */ = {
@@ -2066,6 +2085,7 @@
 				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
 				F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */,
+				F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
 				F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
