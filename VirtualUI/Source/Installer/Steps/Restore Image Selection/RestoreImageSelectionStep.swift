@@ -46,8 +46,8 @@ struct RestoreImageSelectionStep: View {
 
     @ViewBuilder
     private var colorfulBackground: some View {
-        if let blurHash = controller.selectedGroup?.darkImage.thumbnail.blurHash {
-            Image(blurHash: blurHash, size: .init(width: 5, height: 5), punch: 1)
+        if let thumbnail = controller.selectedGroup?.darkImage.thumbnail {
+            Image(blurHash: thumbnail.blurHash, size: .virtualBuddyBlurHash, punch: 1)
                 .resizable()
                 .aspectRatio(contentMode: .fill)
                 .blur(radius: 22, opaque: true)

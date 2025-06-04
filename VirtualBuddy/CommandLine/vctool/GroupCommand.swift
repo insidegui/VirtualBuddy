@@ -2,6 +2,7 @@ import Foundation
 import ArgumentParser
 import AppKit
 import BuddyFoundation
+import VirtualUI
 
 extension CatalogCommand {
     struct GroupCommand: AsyncParsableCommand {
@@ -82,17 +83,19 @@ extension CatalogCommand {
                 try darkImageURL.vctool_encodeHEIC(to: localDarkImageURL, maxSize: 2048, quality: 0.9)
                 try darkImageURL.vctool_encodeHEIC(to: localDarkThumbnailURL, maxSize: 720, quality: 0.8)
 
+                let blurHashComponents: (Int, Int) = (Int(CGSize.virtualBuddyBlurHash.width), Int(CGSize.virtualBuddyBlurHash.height))
+
                 guard let thumbnailImage = NSImage(contentsOf: localThumbnailURL) else {
                     throw "Failed to load generated thumbnail image from \(localThumbnailURL.path)"
                 }
-                guard let blurHash = thumbnailImage.blurHash(numberOfComponents: (4, 4)) else {
+                guard let blurHash = thumbnailImage.blurHash(numberOfComponents: blurHashComponents) else {
                     throw "Failed to generate blur hash from generated thumbnail image at \(localThumbnailURL.path)"
                 }
 
                 guard let darkThumbnailImage = NSImage(contentsOf: localDarkThumbnailURL) else {
                     throw "Failed to load generated thumbnail dark image from \(localDarkThumbnailURL.path)"
                 }
-                guard let darkBlurHash = darkThumbnailImage.blurHash(numberOfComponents: (4, 4)) else {
+                guard let darkBlurHash = darkThumbnailImage.blurHash(numberOfComponents: blurHashComponents) else {
                     throw "Failed to generate blur hash from generated dark thumbnail image at \(localDarkThumbnailURL.path)"
                 }
 
