@@ -70,8 +70,14 @@ struct RestoreImageBrowser: View {
                 break
             }
         }
-        .onChange(of: selection?.id) { id in
-            scrolledImageID = id
+        .onChange(of: selection) { image in
+            guard let image else { return }
+
+            scrolledImageID = image.id
+
+            guard image.id != controller.selectedRestoreImage?.id else { return }
+
+            controller.selectedRestoreImage = image
         }
         .onReceive(controller.$focusedElement) { focus = $0 }
         .onReceive(controller.$selectedRestoreImage.removeDuplicates()) {
@@ -199,7 +205,6 @@ extension ResolvedRestoreImage {
 #if DEBUG
 @available(macOS 14.0, *)
 #Preview {
-    @Previewable @State var selection: ResolvedRestoreImage?
-    RestoreImageBrowser(catalog: .previewMac, group: ResolvedCatalog.previewMac.groups[0], selection: $selection)
+    VMInstallationWizard.preview
 }
 #endif
