@@ -74,6 +74,7 @@ struct RestoreImageSelectionStep: View {
                 .brightness(-0.1)
                 .drawingGroup(opaque: true)
                 .ignoresSafeArea()
+                .animation(.default, value: controller.selectedGroup?.id)
         }
     }
 

@@ -33,9 +33,17 @@ struct CatalogGroupView: View {
 }
 
 #if DEBUG
+@available(macOS 14.0, *)
 #Preview {
-    CatalogGroupView(group: ResolvedCatalog.previewMac.groups[0])
-        .frame(width: 320, height: 180)
-        .padding(64)
+    @Previewable @State var isSelected = false
+    Button {
+        isSelected.toggle()
+    } label: {
+        CatalogGroupView(group: ResolvedCatalog.previewMac.groups[0])
+    }
+    .buttonStyle(CatalogGroupButtonStyle(isSelected: isSelected))
+    .aspectRatio(320/180, contentMode: .fit)
+    .frame(width: 320, height: 180)
+    .padding(64)
 }
 #endif

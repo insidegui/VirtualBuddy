@@ -10,8 +10,7 @@ struct CatalogGroupPicker: View {
 
     @State private var scrolledGroupID: ResolvedCatalogGroup.ID?
 
-    var minWidth: CGFloat { 80 }
-    var maxWidth: CGFloat { 180 }
+    var width: CGFloat { 220 }
     var spacing: CGFloat { containerPadding }
 
     var body: some View {
@@ -32,14 +31,14 @@ struct CatalogGroupPicker: View {
     @ViewBuilder
     private var container: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            Group {
+            LazyVStack(alignment: .center, spacing: spacing) {
                 if #available(macOS 14.0, *) {
-                    list
-                        .scrollTargetLayout()
+                    list.scrollTargetLayout()
                 } else {
                     list
                 }
             }
+            .frame(width: width)
             .padding([.top, .leading, .bottom], containerPadding)
             .padding(.trailing, containerPadding * 0.5)
         }
@@ -80,23 +79,19 @@ struct CatalogGroupPicker: View {
 
     @ViewBuilder
     private var list: some View {
-        VStack(alignment: .center, spacing: spacing) {
-            ForEach(groups) { group in
-                Button {
-                    selectedGroup = group
-                } label: {
-                    CatalogGroupView(group: group)
-                }
-                .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup?.id))
-                .aspectRatio(320/180, contentMode: .fit)
-                .frame(minWidth: minWidth, maxWidth: maxWidth)
+        ForEach(groups) { group in
+            Button {
+                selectedGroup = group
+            } label: {
+                CatalogGroupView(group: group)
             }
+            .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup?.id))
+            .aspectRatio(320/180, contentMode: .fit)
         }
-        .frame(minWidth: minWidth, maxWidth: maxWidth)
     }
 }
 
-private struct CatalogGroupButtonStyle: ButtonStyle {
+struct CatalogGroupButtonStyle: ButtonStyle {
     var isSelected: Bool
 
     @Environment(\.isFocused)
@@ -120,3 +115,9 @@ private struct CatalogGroupButtonStyle: ButtonStyle {
         RoundedRectangle(cornerRadius: CatalogGroupView.cornerRadius, style: .continuous)
     }
 }
+
+#if DEBUG
+#Preview {
+    VMInstallationWizard.preview
+}
+#endif

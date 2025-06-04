@@ -8,6 +8,7 @@
 import SwiftUI
 import VirtualCore
 import Combine
+import BuddyKit
 
 struct ChannelGroup: Identifiable, Hashable {
     var id: CatalogChannel.ID { channel.id }
@@ -144,10 +145,14 @@ private struct RestoreImageButton: View {
             HStack {
                 Image(systemName: image.channel.icon)
                     .foregroundStyle(.secondary)
-                
+                    .help(image.channel.name)
+
                 Text(image.name)
+                    .minimumScaleFactor(0.8)
+                    .lineLimit(1)
+                    .help(image.name)
             }
-                .font(.headline)
+            .font(.headline)
 
             Spacer()
 
@@ -163,6 +168,15 @@ private struct RestoreImageButton: View {
             .multilineTextAlignment(.trailing)
         }
         .monospacedDigit()
+        .contextMenu {
+            Button("Copy Download Link") {
+                Pasteboard.general.string = image.url.absoluteString
+            }
+
+            Button("Copy Build Number") {
+                Pasteboard.general.string = image.build
+            }
+        }
     }
 }
 
