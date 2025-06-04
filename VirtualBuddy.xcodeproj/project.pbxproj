@@ -143,6 +143,7 @@
 		F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */; };
 		F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C45A2DF0C4BE007EAD5F /* BuddyKit */; };
 		F453C45D2DF0D28A007EAD5F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F453C45C2DF0D286007EAD5F /* README.md */; };
+		F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4622DF0E609007EAD5F /* BuddyKit */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -754,6 +755,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */,
 				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
 				F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */,
@@ -1875,6 +1877,7 @@
 			name = VirtualUI;
 			packageProductDependencies = (
 				F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */,
+				F453C4622DF0E609007EAD5F /* BuddyKit */,
 			);
 			productName = VirtualUI;
 			productReference = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */;
@@ -4746,6 +4749,11 @@
 			productName = FragmentZip;
 		};
 		F453C45A2DF0C4BE007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
+		};
+		F453C4622DF0E609007EAD5F /* BuddyKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
 			productName = BuddyKit;
