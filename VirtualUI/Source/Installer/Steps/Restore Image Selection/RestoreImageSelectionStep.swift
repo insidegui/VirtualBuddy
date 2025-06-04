@@ -78,50 +78,6 @@ struct RestoreImageSelectionStep: View {
         }
     }
 
-    @ViewBuilder
-    private var advisories: some View {
-        if let selectedImage = controller.selectedRestoreImage,
-           let advisory = controller.restoreAdvisory(for: selectedImage)
-        {
-            advisoryView(with: advisory)
-        }
-
-        if VBAPIClient.Environment.current != .production {
-            Text("Notice: API environment override from defaults/arguments. Using API URL: \(VBAPIClient.Environment.current.baseURL)")
-                .font(.caption)
-                .foregroundColor(.yellow)
-        }
-    }
-
-    @ViewBuilder
-    private func advisoryView(with advisory: RestoreImageSelectionController.Advisory) -> some View {
-        VStack {
-            switch advisory {
-            case .manualDownloadTip(let title, let url):
-                Text("""
-                     If you prefer to use a download manager, you may download \(title) from the following URL:
-
-                     \(url)
-                     """)
-                .foregroundColor(.secondary)
-            case .alreadyDownloaded(let title, let localURL):
-                VStack {
-                    Text("\(title) is already downloaded. Click \"Continue\" below to re-download it or proceed with the installation right now by using the previously downloaded image.")
-                        .foregroundColor(.green)
-
-                    Button("Install Now") { onUseLocalFile(localURL) }
-                        .controlSize(.large)
-                }
-            case .failure(let error):
-                Text("VirtualBuddy couldn't create its downloads directory within \(library.libraryURL.path): \(error)")
-                    .foregroundColor(.red)
-            }
-        }
-        .multilineTextAlignment(.center)
-        .textSelection(.enabled)
-        .padding(.top)
-    }
-    
     @State private var authRequirementFlow: VBGuestReleaseChannel.Authentication?
 
 }

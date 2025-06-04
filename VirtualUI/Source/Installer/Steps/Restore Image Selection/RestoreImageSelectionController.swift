@@ -60,26 +60,6 @@ final class RestoreImageSelectionController: ObservableObject {
             }
         }
     }
-
-    enum Advisory: Hashable {
-        case manualDownloadTip(_ title: String, _ url: URL)
-        case alreadyDownloaded(_ title: String, _ localURL: URL)
-        case failure(_ message: String)
-    }
-
-    @MainActor
-    func restoreAdvisory(for image: ResolvedRestoreImage) -> Advisory? {
-        do {
-            if let existingDownloadURL = try library.existingLocalURL(for: image.url) {
-                return .alreadyDownloaded(image.name, existingDownloadURL)
-            } else {
-                return .manualDownloadTip(image.name, image.url)
-            }
-        } catch {
-            return .failure(error.localizedDescription)
-        }
-    }
-    
 }
 
 extension ChannelGroup {
