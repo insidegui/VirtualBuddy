@@ -2,7 +2,6 @@
 
 import Foundation
 import Virtualization
-import VirtualCatalog
 
 let previewLibraryDirName = "PreviewLibrary"
 

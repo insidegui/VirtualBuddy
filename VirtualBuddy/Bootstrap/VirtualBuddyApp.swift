@@ -11,7 +11,6 @@ import VirtualUI
 
 let kShellAppSubsystem = "codes.rambo.VirtualBuddy"
 
-@main
 struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
     var appDelegate: VirtualBuddyAppDelegate

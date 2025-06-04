@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import BuddyFoundation
 
 public struct VBGuestReleaseChannel: Hashable, Identifiable, Codable {
     public struct Authentication: Hashable, Identifiable, Codable {

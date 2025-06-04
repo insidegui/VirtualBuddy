@@ -1,6 +1,5 @@
 import SwiftUI
 import VirtualCore
-import VirtualCatalog
 
 struct CatalogGroupPicker: View {
     @EnvironmentObject

@@ -6,6 +6,22 @@
 	objectVersion = 55;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		F453C44F2DF0BCE3007EAD5F /* vctool */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F453C4502DF0BCE3007EAD5F /* Build configuration list for PBXAggregateTarget "vctool" */;
+			buildPhases = (
+			);
+			dependencies = (
+				F453C4592DF0BCEB007EAD5F /* PBXTargetDependency */,
+			);
+			name = vctool;
+			packageProductDependencies = (
+			);
+			productName = vctool;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
 		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
@@ -28,8 +44,6 @@
 		F4136999299179B1002CE8D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4136998299179B1002CE8D3 /* Main.storyboard */; };
 		F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
 		F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
-		F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F41369A329917FA0002CE8D3 /* ScreenChangeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */; };
 		F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */; };
 		F41369AE29918576002CE8D3 /* GuestHelperAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369AD29918576002CE8D3 /* GuestHelperAppDelegate.swift */; };
@@ -101,15 +115,32 @@
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
-		F453C3CB2DF0A319007EAD5F /* VirtualCatalog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */; };
-		F453C3CC2DF0A319007EAD5F /* VirtualCatalog.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F453C3DC2DF0A435007EAD5F /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = F453C3DB2DF0A435007EAD5F /* BuddyFoundation */; };
-		F453C3E42DF0A45B007EAD5F /* SoftwareCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3E12DF0A45B007EAD5F /* SoftwareCatalog.swift */; };
-		F453C3E52DF0A45B007EAD5F /* LegacyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3DE2DF0A45B007EAD5F /* LegacyCatalog.swift */; };
-		F453C3E62DF0A45B007EAD5F /* ResolvedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3E02DF0A45B007EAD5F /* ResolvedCatalog.swift */; };
-		F453C3E72DF0A45B007EAD5F /* MobileDeviceFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3DF2DF0A45B007EAD5F /* MobileDeviceFramework.swift */; };
-		F453C3E82DF0A45B007EAD5F /* BlurHashEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C3E22DF0A45B007EAD5F /* BlurHashEncode.swift */; };
-		F453C3EB2DF0A4C1007EAD5F /* VirtualCatalog.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */; };
+		F453C4122DF0B1ED007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4112DF0B1ED007EAD5F /* BuddyKit */; };
+		F453C41D2DF0B43D007EAD5F /* ResolvedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */; };
+		F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */; };
+		F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */; };
+		F453C4202DF0B43D007EAD5F /* SoftwareCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */; };
+		F453C4212DF0B43D007EAD5F /* MobileDeviceFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */; };
+		F453C4232DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4222DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift */; };
+		F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
+		F453C4252DF0B602007EAD5F /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F453C42B2DF0B792007EAD5F /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = F453C42A2DF0B792007EAD5F /* ArgumentParser */; };
+		F453C43B2DF0B7A5007EAD5F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42E2DF0B7A5007EAD5F /* Helpers.swift */; };
+		F453C43C2DF0B7A5007EAD5F /* VCTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4392DF0B7A5007EAD5F /* VCTool.swift */; };
+		F453C43D2DF0B7A5007EAD5F /* URL+ContentLength.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4302DF0B7A5007EAD5F /* URL+ContentLength.swift */; };
+		F453C43E2DF0B7A5007EAD5F /* IPSWCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */; };
+		F453C43F2DF0B7A5007EAD5F /* ImageCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */; };
+		F453C4402DF0B7A5007EAD5F /* BuildManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42C2DF0B7A5007EAD5F /* BuildManifest.swift */; };
+		F453C4412DF0B7A5007EAD5F /* GroupCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */; };
+		F453C4422DF0B7A5007EAD5F /* MobileDeviceCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4372DF0B7A5007EAD5F /* MobileDeviceCommand.swift */; };
+		F453C4432DF0B7A5007EAD5F /* BuildManifest+Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42D2DF0B7A5007EAD5F /* BuildManifest+Fetch.swift */; };
+		F453C4442DF0B7A5007EAD5F /* TreeStringConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42F2DF0B7A5007EAD5F /* TreeStringConvertible.swift */; };
+		F453C4452DF0B7A5007EAD5F /* MigrateCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */; };
+		F453C4462DF0B7A5007EAD5F /* ResolveCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4382DF0B7A5007EAD5F /* ResolveCommand.swift */; };
+		F453C4472DF0B7A5007EAD5F /* CatalogCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */; };
+		F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4492DF0B7F6007EAD5F /* FragmentZip */; };
+		F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C44B2DF0B835007EAD5F /* libcurl.tbd */; };
+		F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -268,13 +299,6 @@
 			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
 			remoteInfo = VirtualCore;
 		};
-		F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
-			remoteInfo = VirtualUI;
-		};
 		F41369BC29918617002CE8D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
@@ -296,19 +320,19 @@
 			remoteGlobalIDString = F43B01142AD858FE00164CD1;
 			remoteInfo = DeepLinkSecurity;
 		};
-		F453C3C92DF0A319007EAD5F /* PBXContainerItemProxy */ = {
+		F453C4262DF0B602007EAD5F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = F453C3C42DF0A319007EAD5F;
-			remoteInfo = VirtualCatalog;
+			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
+			remoteInfo = VirtualUI;
 		};
-		F453C3E92DF0A4B8007EAD5F /* PBXContainerItemProxy */ = {
+		F453C4582DF0BCEB007EAD5F /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = F453C3C42DF0A319007EAD5F;
-			remoteInfo = VirtualCatalog;
+			remoteGlobalIDString = F4BE9C4D27FF052100B648F8;
+			remoteInfo = VirtualBuddy;
 		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -426,7 +450,6 @@
 				F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */,
 				F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
-				F453C3CC2DF0A319007EAD5F /* VirtualCatalog.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -437,8 +460,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				F453C4252DF0B602007EAD5F /* VirtualUI.framework in Embed Frameworks */,
 				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
-				F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */,
 				F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
@@ -535,12 +558,27 @@
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
-		F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualCatalog.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		F453C3DE2DF0A45B007EAD5F /* LegacyCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCatalog.swift; sourceTree = "<group>"; };
-		F453C3DF2DF0A45B007EAD5F /* MobileDeviceFramework.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDeviceFramework.swift; sourceTree = "<group>"; };
-		F453C3E02DF0A45B007EAD5F /* ResolvedCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolvedCatalog.swift; sourceTree = "<group>"; };
-		F453C3E12DF0A45B007EAD5F /* SoftwareCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareCatalog.swift; sourceTree = "<group>"; };
-		F453C3E22DF0A45B007EAD5F /* BlurHashEncode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashEncode.swift; sourceTree = "<group>"; };
+		F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashEncode.swift; sourceTree = "<group>"; };
+		F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCatalog.swift; sourceTree = "<group>"; };
+		F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDeviceFramework.swift; sourceTree = "<group>"; };
+		F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolvedCatalog.swift; sourceTree = "<group>"; };
+		F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareCatalog.swift; sourceTree = "<group>"; };
+		F453C4222DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyEntryPoint.swift; sourceTree = "<group>"; };
+		F453C42C2DF0B7A5007EAD5F /* BuildManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildManifest.swift; sourceTree = "<group>"; };
+		F453C42D2DF0B7A5007EAD5F /* BuildManifest+Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BuildManifest+Fetch.swift"; sourceTree = "<group>"; };
+		F453C42E2DF0B7A5007EAD5F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		F453C42F2DF0B7A5007EAD5F /* TreeStringConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeStringConvertible.swift; sourceTree = "<group>"; };
+		F453C4302DF0B7A5007EAD5F /* URL+ContentLength.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ContentLength.swift"; sourceTree = "<group>"; };
+		F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogCommand.swift; sourceTree = "<group>"; };
+		F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCommand.swift; sourceTree = "<group>"; };
+		F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommand.swift; sourceTree = "<group>"; };
+		F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPSWCommand.swift; sourceTree = "<group>"; };
+		F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateCommand.swift; sourceTree = "<group>"; };
+		F453C4372DF0B7A5007EAD5F /* MobileDeviceCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDeviceCommand.swift; sourceTree = "<group>"; };
+		F453C4382DF0B7A5007EAD5F /* ResolveCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolveCommand.swift; sourceTree = "<group>"; };
+		F453C4392DF0B7A5007EAD5F /* VCTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCTool.swift; sourceTree = "<group>"; };
+		F453C44B2DF0B835007EAD5F /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
+		F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyCLI.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -709,14 +747,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F453C3C22DF0A319007EAD5F /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F453C3DC2DF0A435007EAD5F /* BuddyFoundation in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F498ACFB2884BF13006F1C00 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -731,12 +761,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */,
+				F453C4122DF0B1ED007EAD5F /* BuddyKit in Frameworks */,
 				F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */,
 				F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */,
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
+				F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
-				F453C3CB2DF0A319007EAD5F /* VirtualCatalog.framework in Frameworks */,
+				F453C42B2DF0B792007EAD5F /* ArgumentParser in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -747,7 +780,6 @@
 			files = (
 				F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
-				F453C3EB2DF0A4C1007EAD5F /* VirtualCatalog.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -762,8 +794,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */,
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
-				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
@@ -1099,32 +1131,61 @@
 			path = GuestSupport;
 			sourceTree = "<group>";
 		};
-		F453C3D62DF0A31D007EAD5F /* VirtualCatalog */ = {
+		F453C4172DF0B43D007EAD5F /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
-				F453C3DD2DF0A44C007EAD5F /* Source */,
+				F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		F453C41C2DF0B43D007EAD5F /* VirtualCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4172DF0B43D007EAD5F /* Utilities */,
+				F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */,
+				F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */,
+				F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */,
+				F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */,
 			);
 			path = VirtualCatalog;
 			sourceTree = "<group>";
 		};
-		F453C3DD2DF0A44C007EAD5F /* Source */ = {
+		F453C4292DF0B785007EAD5F /* CommandLine */ = {
 			isa = PBXGroup;
 			children = (
-				F453C3E32DF0A45B007EAD5F /* Utilities */,
-				F453C3DE2DF0A45B007EAD5F /* LegacyCatalog.swift */,
-				F453C3DF2DF0A45B007EAD5F /* MobileDeviceFramework.swift */,
-				F453C3E02DF0A45B007EAD5F /* ResolvedCatalog.swift */,
-				F453C3E12DF0A45B007EAD5F /* SoftwareCatalog.swift */,
+				F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */,
+				F453C43A2DF0B7A5007EAD5F /* vctool */,
 			);
-			path = Source;
+			path = CommandLine;
 			sourceTree = "<group>";
 		};
-		F453C3E32DF0A45B007EAD5F /* Utilities */ = {
+		F453C4312DF0B7A5007EAD5F /* Core */ = {
 			isa = PBXGroup;
 			children = (
-				F453C3E22DF0A45B007EAD5F /* BlurHashEncode.swift */,
+				F453C42C2DF0B7A5007EAD5F /* BuildManifest.swift */,
+				F453C42D2DF0B7A5007EAD5F /* BuildManifest+Fetch.swift */,
+				F453C42E2DF0B7A5007EAD5F /* Helpers.swift */,
+				F453C42F2DF0B7A5007EAD5F /* TreeStringConvertible.swift */,
+				F453C4302DF0B7A5007EAD5F /* URL+ContentLength.swift */,
 			);
-			path = Utilities;
+			path = Core;
+			sourceTree = "<group>";
+		};
+		F453C43A2DF0B7A5007EAD5F /* vctool */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4312DF0B7A5007EAD5F /* Core */,
+				F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */,
+				F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */,
+				F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */,
+				F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */,
+				F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */,
+				F453C4372DF0B7A5007EAD5F /* MobileDeviceCommand.swift */,
+				F453C4382DF0B7A5007EAD5F /* ResolveCommand.swift */,
+				F453C4392DF0B7A5007EAD5F /* VCTool.swift */,
+			);
+			path = vctool;
 			sourceTree = "<group>";
 		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
@@ -1342,8 +1403,9 @@
 		F4A21BFB28033968001072B8 /* Bootstrap */ = {
 			isa = PBXGroup;
 			children = (
-				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
+				F453C4222DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift */,
 				F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */,
+				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
 				F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */,
 			);
 			path = Bootstrap;
@@ -1401,7 +1463,6 @@
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
 				F43B01162AD858FE00164CD1 /* DeepLinkSecurity */,
-				F453C3D62DF0A31D007EAD5F /* VirtualCatalog */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -1418,7 +1479,6 @@
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
 				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
 				F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */,
-				F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1426,6 +1486,7 @@
 		F4BE9C5027FF052100B648F8 /* VirtualBuddy */ = {
 			isa = PBXGroup;
 			children = (
+				F453C4292DF0B785007EAD5F /* CommandLine */,
 				F4C122472807145600D359E2 /* Config */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
 				F43B01422AD85A5200164CD1 /* Automation */,
@@ -1456,6 +1517,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F453C41C2DF0B43D007EAD5F /* VirtualCatalog */,
 				F40A1E9B2C1873B90033E47D /* ReleaseTrains */,
 				F4C2374E2888AF5B001FF286 /* Utilities */,
 				F417257228877453004FF8A7 /* Resources */,
@@ -1525,6 +1587,7 @@
 		F4C189F12848F5F500335EC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F453C44B2DF0B835007EAD5F /* libcurl.tbd */,
 				F4C189F32848F61E00335EC7 /* Virtualization.framework */,
 			);
 			name = Frameworks;
@@ -1721,13 +1784,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F453C3C02DF0A319007EAD5F /* Headers */ = {
-			isa = PBXHeadersBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F498ACF92884BF13006F1C00 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -1796,27 +1852,6 @@
 			productReference = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */;
 			productType = "com.apple.product-type.framework";
 		};
-		F453C3C42DF0A319007EAD5F /* VirtualCatalog */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = F453C3CD2DF0A319007EAD5F /* Build configuration list for PBXNativeTarget "VirtualCatalog" */;
-			buildPhases = (
-				F453C3C02DF0A319007EAD5F /* Headers */,
-				F453C3C12DF0A319007EAD5F /* Sources */,
-				F453C3C22DF0A319007EAD5F /* Frameworks */,
-				F453C3C32DF0A319007EAD5F /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-			);
-			name = VirtualCatalog;
-			packageProductDependencies = (
-				F453C3DB2DF0A435007EAD5F /* BuddyFoundation */,
-			);
-			productName = VirtualCatalog;
-			productReference = F453C3C52DF0A319007EAD5F /* VirtualCatalog.framework */;
-			productType = "com.apple.product-type.framework";
-		};
 		F498ACFD2884BF13006F1C00 /* VirtualUI */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = F498AD082884BF13006F1C00 /* Build configuration list for PBXNativeTarget "VirtualUI" */;
@@ -1849,18 +1884,21 @@
 				F4BE9C4C27FF052100B648F8 /* Resources */,
 				F4BE9C7027FF053A00B648F8 /* Embed Frameworks */,
 				F443620B29B79A5800745B43 /* Embed Guest App */,
+				F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				F498AD032884BF13006F1C00 /* PBXTargetDependency */,
 				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
-				F453C3CA2DF0A319007EAD5F /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
 				F4D0F71728674E4B004D5782 /* Sparkle */,
 				F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */,
+				F453C4112DF0B1ED007EAD5F /* BuddyKit */,
+				F453C42A2DF0B792007EAD5F /* ArgumentParser */,
+				F453C4492DF0B7F6007EAD5F /* FragmentZip */,
 			);
 			productName = VirtualBuddy;
 			productReference = F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */;
@@ -1883,7 +1921,6 @@
 			);
 			dependencies = (
 				F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */,
-				F453C3EA2DF0A4B8007EAD5F /* PBXTargetDependency */,
 				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
@@ -1928,8 +1965,8 @@
 				F41369BD29918617002CE8D3 /* PBXTargetDependency */,
 				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
 				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
-				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
 				F42862312AE87D7E0052F029 /* PBXTargetDependency */,
+				F453C4272DF0B602007EAD5F /* PBXTargetDependency */,
 			);
 			name = VirtualBuddyGuest;
 			productName = VirtualBuddyGuest;
@@ -1971,7 +2008,7 @@
 					F43B01142AD858FE00164CD1 = {
 						CreatedOnToolsVersion = 15.1;
 					};
-					F453C3C42DF0A319007EAD5F = {
+					F453C44F2DF0BCE3007EAD5F = {
 						CreatedOnToolsVersion = 16.4;
 					};
 					F498ACFD2884BF13006F1C00 = {
@@ -2013,6 +2050,8 @@
 				F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */,
 				F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
 				F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */,
+				F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -2026,7 +2065,7 @@
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
-				F453C3C42DF0A319007EAD5F /* VirtualCatalog */,
+				F453C44F2DF0BCE3007EAD5F /* vctool */,
 			);
 		};
 /* End PBXProject section */
@@ -2042,13 +2081,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		F43B01132AD858FE00164CD1 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F453C3C32DF0A319007EAD5F /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -2110,6 +2142,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_PATH)",
+			);
+			name = "Create Command-Line Tool Symlinks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vctool",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Go into the VirtualBuddy.app/Contents/MacOS path\ncd \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/MacOS\"\n\n# Symlink VirtualBuddy as vctool for VirtualCatalog command-line tool\nln -fs $EXECUTABLE_NAME vctool\n";
+		};
 		F4552F4729BA60C7002A21D8 /* Set VBGuestBuildID in Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -2177,18 +2229,6 @@
 				F43B01382AD8590F00164CD1 /* DeepLinkClientDescriptor.swift in Sources */,
 				F43B01412AD8590F00164CD1 /* DeepLinkSecurityDefines.swift in Sources */,
 				F43B013B2AD8590F00164CD1 /* DeepLinkClient.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		F453C3C12DF0A319007EAD5F /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				F453C3E42DF0A45B007EAD5F /* SoftwareCatalog.swift in Sources */,
-				F453C3E52DF0A45B007EAD5F /* LegacyCatalog.swift in Sources */,
-				F453C3E62DF0A45B007EAD5F /* ResolvedCatalog.swift in Sources */,
-				F453C3E72DF0A45B007EAD5F /* MobileDeviceFramework.swift in Sources */,
-				F453C3E82DF0A45B007EAD5F /* BlurHashEncode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2297,8 +2337,23 @@
 				F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
+				F453C43B2DF0B7A5007EAD5F /* Helpers.swift in Sources */,
+				F453C43C2DF0B7A5007EAD5F /* VCTool.swift in Sources */,
+				F453C43D2DF0B7A5007EAD5F /* URL+ContentLength.swift in Sources */,
+				F453C43E2DF0B7A5007EAD5F /* IPSWCommand.swift in Sources */,
+				F453C43F2DF0B7A5007EAD5F /* ImageCommand.swift in Sources */,
+				F453C4402DF0B7A5007EAD5F /* BuildManifest.swift in Sources */,
+				F453C4412DF0B7A5007EAD5F /* GroupCommand.swift in Sources */,
+				F453C4422DF0B7A5007EAD5F /* MobileDeviceCommand.swift in Sources */,
+				F453C4432DF0B7A5007EAD5F /* BuildManifest+Fetch.swift in Sources */,
+				F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */,
+				F453C4442DF0B7A5007EAD5F /* TreeStringConvertible.swift in Sources */,
+				F453C4452DF0B7A5007EAD5F /* MigrateCommand.swift in Sources */,
+				F453C4462DF0B7A5007EAD5F /* ResolveCommand.swift in Sources */,
+				F453C4472DF0B7A5007EAD5F /* CatalogCommand.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
 				F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */,
+				F453C4232DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2356,6 +2411,11 @@
 				F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */,
 				F40A1E9D2C1873CA0033E47D /* VBBuildType.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,
+				F453C41D2DF0B43D007EAD5F /* ResolvedCatalog.swift in Sources */,
+				F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */,
+				F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */,
+				F453C4202DF0B43D007EAD5F /* SoftwareCatalog.swift in Sources */,
+				F453C4212DF0B43D007EAD5F /* MobileDeviceFramework.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,
 				F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */,
 			);
@@ -2413,11 +2473,6 @@
 			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
 			targetProxy = F413699C299179F8002CE8D3 /* PBXContainerItemProxy */;
 		};
-		F41369A1299179F8002CE8D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
-			targetProxy = F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */;
-		};
 		F41369BD29918617002CE8D3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */;
@@ -2433,19 +2488,19 @@
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
 			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
 		};
-		F453C3CA2DF0A319007EAD5F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F453C3C42DF0A319007EAD5F /* VirtualCatalog */;
-			targetProxy = F453C3C92DF0A319007EAD5F /* PBXContainerItemProxy */;
-		};
-		F453C3EA2DF0A4B8007EAD5F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F453C3C42DF0A319007EAD5F /* VirtualCatalog */;
-			targetProxy = F453C3E92DF0A4B8007EAD5F /* PBXContainerItemProxy */;
-		};
 		F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			productRef = F453C3EC2DF0A4D1007EAD5F /* BuddyKit */;
+		};
+		F453C4272DF0B602007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
+			targetProxy = F453C4262DF0B602007EAD5F /* PBXContainerItemProxy */;
+		};
+		F453C4592DF0BCEB007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4BE9C4D27FF052100B648F8 /* VirtualBuddy */;
+			targetProxy = F453C4582DF0BCEB007EAD5F /* PBXContainerItemProxy */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2572,10 +2627,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2604,10 +2656,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2637,10 +2686,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2669,11 +2715,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2702,11 +2744,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -2734,11 +2772,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -2779,11 +2813,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -2870,10 +2900,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2901,10 +2928,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2933,10 +2957,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2964,11 +2985,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2996,11 +3013,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -3027,11 +3040,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3071,11 +3080,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -3106,10 +3111,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3138,10 +3140,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3170,10 +3169,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3201,10 +3197,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3232,11 +3225,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3271,11 +3260,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3310,11 +3295,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3348,11 +3329,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3367,222 +3344,66 @@
 			};
 			name = Release_Managed;
 		};
-		F453C3CE2DF0A319007EAD5F /* Debug */ = {
+		F453C4512DF0BCE3007EAD5F /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
 		};
-		F453C3CF2DF0A319007EAD5F /* Debug_Managed */ = {
+		F453C4522DF0BCE3007EAD5F /* Debug_Managed */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug_Managed;
 		};
-		F453C3D02DF0A319007EAD5F /* Beta_Debug */ = {
+		F453C4532DF0BCE3007EAD5F /* Beta_Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Beta_Debug;
 		};
-		F453C3D12DF0A319007EAD5F /* Release */ = {
+		F453C4542DF0BCE3007EAD5F /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
 		};
-		F453C3D22DF0A319007EAD5F /* Release_Managed */ = {
+		F453C4552DF0BCE3007EAD5F /* Release_Managed */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release_Managed;
 		};
-		F453C3D32DF0A319007EAD5F /* Beta_Release */ = {
+		F453C4562DF0BCE3007EAD5F /* Beta_Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Beta_Release;
 		};
-		F453C3D42DF0A319007EAD5F /* Dev_Release */ = {
+		F453C4572DF0BCE3007EAD5F /* Dev_Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
 				CODE_SIGN_STYLE = Automatic;
-				COMBINE_HIDPI_IMAGES = YES;
-				DYLIB_COMPATIBILITY_VERSION = 1;
-				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				ENABLE_MODULE_VERIFIER = NO;
-				GCC_C_LANGUAGE_STANDARD = gnu17;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
-				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
-				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
-				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
-				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualCatalog;
-				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
-				SKIP_INSTALL = YES;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_INSTALL_MODULE = YES;
-				SWIFT_INSTALL_OBJC_HEADER = NO;
-				SWIFT_VERSION = 6.0;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Dev_Release;
 		};
@@ -3601,11 +3422,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3632,11 +3449,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3721,10 +3534,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3752,10 +3562,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3784,10 +3591,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3815,11 +3619,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3847,11 +3647,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -3878,11 +3674,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3922,11 +3714,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4019,10 +3807,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4051,10 +3836,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4078,11 +3860,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -4110,11 +3888,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -4139,11 +3913,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4230,10 +4000,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4261,10 +4028,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4287,11 +4051,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -4318,11 +4078,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -4346,11 +4102,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4497,10 +4249,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4525,10 +4274,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4549,11 +4295,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -4579,11 +4321,7 @@
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -4608,11 +4346,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4638,11 +4372,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4674,10 +4404,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4708,10 +4435,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4816,16 +4540,16 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		F453C3CD2DF0A319007EAD5F /* Build configuration list for PBXNativeTarget "VirtualCatalog" */ = {
+		F453C4502DF0BCE3007EAD5F /* Build configuration list for PBXAggregateTarget "vctool" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				F453C3CE2DF0A319007EAD5F /* Debug */,
-				F453C3CF2DF0A319007EAD5F /* Debug_Managed */,
-				F453C3D02DF0A319007EAD5F /* Beta_Debug */,
-				F453C3D12DF0A319007EAD5F /* Release */,
-				F453C3D22DF0A319007EAD5F /* Release_Managed */,
-				F453C3D32DF0A319007EAD5F /* Beta_Release */,
-				F453C3D42DF0A319007EAD5F /* Dev_Release */,
+				F453C4512DF0BCE3007EAD5F /* Debug */,
+				F453C4522DF0BCE3007EAD5F /* Debug_Managed */,
+				F453C4532DF0BCE3007EAD5F /* Beta_Debug */,
+				F453C4542DF0BCE3007EAD5F /* Release */,
+				F453C4552DF0BCE3007EAD5F /* Release_Managed */,
+				F453C4562DF0BCE3007EAD5F /* Beta_Release */,
+				F453C4572DF0BCE3007EAD5F /* Dev_Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -4947,6 +4671,22 @@
 				minimumVersion = 1.6.1;
 			};
 		};
+		F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.1;
+			};
+		};
+		F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/libfragmentzip.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/insidegui/swiftui-introspect.git";
@@ -4979,15 +4719,25 @@
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
 		};
-		F453C3DB2DF0A435007EAD5F /* BuddyFoundation */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
-			productName = BuddyFoundation;
-		};
 		F453C3EC2DF0A4D1007EAD5F /* BuddyKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
 			productName = BuddyKit;
+		};
+		F453C4112DF0B1ED007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
+		};
+		F453C42A2DF0B792007EAD5F /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		F453C4492DF0B7F6007EAD5F /* FragmentZip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */;
+			productName = FragmentZip;
 		};
 		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
 			isa = XCSwiftPackageProductDependency;

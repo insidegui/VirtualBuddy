@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import VirtualCatalog
 
 @MainActor
 public extension SoftwareCatalog {

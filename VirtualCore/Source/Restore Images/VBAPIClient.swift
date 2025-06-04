@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import VirtualCatalog
 import OSLog
 
 public final class VBAPIClient {

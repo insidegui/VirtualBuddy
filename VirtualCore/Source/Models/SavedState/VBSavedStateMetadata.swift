@@ -1,4 +1,5 @@
 import Foundation
+import BuddyFoundation
 
 public struct VBSavedStateMetadata: Identifiable, Hashable, Codable {
     public var id: UUID

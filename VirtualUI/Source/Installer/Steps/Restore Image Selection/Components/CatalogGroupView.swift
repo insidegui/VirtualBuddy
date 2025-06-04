@@ -1,6 +1,5 @@
 import SwiftUI
 import VirtualCore
-import VirtualCatalog
 
 struct CatalogGroupView: View {
     static var cornerRadius: CGFloat { 14 }

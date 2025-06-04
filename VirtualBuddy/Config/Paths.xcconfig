@@ -1,1 +1,5 @@
 ENTITLEMENTS_DIR=VirtualBuddy/Config/Entitlements
+
+VB_APP_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks
+VB_FRAMEWORK_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @loader_path/Frameworks
+VB_CLI_RUNPATH_SEARCH_PATHS = $(inherited) @executable_path/../Frameworks @executable_path/Frameworks @executable_path
