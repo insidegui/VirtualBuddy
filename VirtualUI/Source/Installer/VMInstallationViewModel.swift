@@ -410,7 +410,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     private lazy var cancellables = Set<AnyCancellable>()
 
-    private var vmInstaller: VZMacOSInstaller?
+    private var vmInstaller: VMInstallationBackend?
     private var progressObservation: NSKeyValueObservation?
 
     @MainActor
@@ -485,6 +485,21 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
+    private func createInstaller(for vm: VZVirtualMachine, restoreURL: URL) -> VMInstallationBackend {
+        let Backend: VMInstallationBackend.Type
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "VBSimulateInstall") {
+            Backend = SimulatedVMInstallationBackend.self
+        } else {
+            Backend = VZMacOSInstaller.self
+        }
+        #else
+        Installer = VZMacOSInstaller.self
+        #endif
+
+        return Backend.init(virtualMachine: vm, restoringFromImageAt: restoreURL)
+    }
+
     @MainActor
     private func startMacInstallation() async { // TODO: handle Linux installation
         guard let restoreURL = data.installImageURL else {
@@ -504,7 +519,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
             let vm = VZVirtualMachine(configuration: config)
 
-            let installer = VZMacOSInstaller(virtualMachine: vm, restoringFromImageAt: restoreURL)
+            let installer = createInstaller(for: vm, restoreURL: restoreURL)
             vmInstaller = installer
 
             installer.install { [weak self] result in
