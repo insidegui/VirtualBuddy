@@ -26,7 +26,7 @@ public struct VMInstallationWizard: View {
     @ObservedObject var library: VMLibraryController
     @StateObject var viewModel: VMInstallationViewModel
 
-    @Environment(\.closeWindow) var closeWindow
+    @Environment(\.dismiss) var closeWindow
 
     public init(library: VMLibraryController, restoringAt restoreURL: URL? = nil, initialStep: VMInstallationStep? = nil) {
         self._library = .init(initialValue: library)
