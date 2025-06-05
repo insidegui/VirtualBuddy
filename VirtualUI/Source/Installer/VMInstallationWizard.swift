@@ -247,8 +247,24 @@ public struct VMInstallationWizard: View {
 
             Text(viewModel.data.systemType.installFinishedMessage)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
+}
+
+extension VMInstallationStep {
+    var subtitle: String {
+        switch self {
+        case .systemType: "Choose Operating System"
+        case .restoreImageInput: "Select Custom Restore Image"
+        case .restoreImageSelection: "Choose Version"
+        case .name: "Name Your Virtual Machine"
+        case .configuration: "Configure Your Virtual Machine"
+        case .download: "Downloading"
+        case .install: "Installing"
+        case .done: "Finished"
+        }
+    }
 }
 
 #if DEBUG
