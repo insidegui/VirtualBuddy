@@ -425,7 +425,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     private lazy var cancellables = Set<AnyCancellable>()
 
-    private var vmInstaller: VMInstallationBackend?
+    private var vmInstaller: RestoreBackend?
     private var progressObservation: NSKeyValueObservation?
 
     @MainActor
@@ -500,14 +500,14 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func createInstaller(for vm: VZVirtualMachine, restoreURL: URL) -> VMInstallationBackend {
-        let Backend: VMInstallationBackend.Type
+    private func createInstaller(for vm: VZVirtualMachine, restoreURL: URL) -> RestoreBackend {
+        let Backend: RestoreBackend.Type
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "VBSimulateInstall") {
-            Backend = SimulatedVMInstallationBackend.self
+            Backend = SimulatedRestoreBackend.self
         } else if restoreURL == SimulatedDownloadBackend.localFileURL {
             UILog("⚠️ Using simulated installer because the download was also simulated.")
-            Backend = SimulatedVMInstallationBackend.self
+            Backend = SimulatedRestoreBackend.self
         } else {
             Backend = VZMacOSInstaller.self
         }

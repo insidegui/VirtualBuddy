@@ -146,9 +146,11 @@
 		F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4622DF0E609007EAD5F /* BuddyKit */; };
 		F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */; };
 		F453C4682DF10181007EAD5F /* BlurHashCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4672DF10181007EAD5F /* BlurHashCommand.swift */; };
-		F453C46B2DF1C832007EAD5F /* VMInstallationBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C46A2DF1C826007EAD5F /* VMInstallationBackend.swift */; };
 		F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */; };
 		F453C4922DF1D213007EAD5F /* FakeRestoreImage.ipsw in Resources */ = {isa = PBXBuildFile; fileRef = F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */; };
+		F453C49B2DF1D768007EAD5F /* SimulatedDownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */; };
+		F453C4A02DF1D7C0007EAD5F /* RestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */; };
+		F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -590,9 +592,11 @@
 		F453C45C2DF0D286007EAD5F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
 		F453C4672DF10181007EAD5F /* BlurHashCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashCommand.swift; sourceTree = "<group>"; };
-		F453C46A2DF1C826007EAD5F /* VMInstallationBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallationBackend.swift; sourceTree = "<group>"; };
 		F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadBackend.swift; sourceTree = "<group>"; };
 		F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */ = {isa = PBXFileReference; lastKnownFileType = file; path = FakeRestoreImage.ipsw; sourceTree = "<group>"; };
+		F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedDownloadBackend.swift; sourceTree = "<group>"; };
+		F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreBackend.swift; sourceTree = "<group>"; };
+		F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedRestoreBackend.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -1219,9 +1223,36 @@
 		F453C4692DF1C822007EAD5F /* Backend */ = {
 			isa = PBXGroup;
 			children = (
-				F453C46A2DF1C826007EAD5F /* VMInstallationBackend.swift */,
 			);
 			path = Backend;
+			sourceTree = "<group>";
+		};
+		F453C49C2DF1D788007EAD5F /* Restore */ = {
+			isa = PBXGroup;
+			children = (
+				F453C49D2DF1D79F007EAD5F /* Download */,
+				F453C49E2DF1D7A7007EAD5F /* Installation */,
+			);
+			path = Restore;
+			sourceTree = "<group>";
+		};
+		F453C49D2DF1D79F007EAD5F /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */,
+				F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */,
+				F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */,
+			);
+			path = Download;
+			sourceTree = "<group>";
+		};
+		F453C49E2DF1D7A7007EAD5F /* Installation */ = {
+			isa = PBXGroup;
+			children = (
+				F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */,
+				F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */,
+			);
+			path = Installation;
 			sourceTree = "<group>";
 		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
@@ -1229,8 +1260,6 @@
 			children = (
 				F465C3B3284F967C006E9ED4 /* Models */,
 				F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */,
-				F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */,
-				F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */,
 			);
 			path = "Restore Images";
 			sourceTree = "<group>";
@@ -1555,6 +1584,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F453C49C2DF1D788007EAD5F /* Restore */,
 				F453C41C2DF0B43D007EAD5F /* VirtualCatalog */,
 				F40A1E9B2C1873B90033E47D /* ReleaseTrains */,
 				F4C2374E2888AF5B001FF286 /* Utilities */,
@@ -2288,7 +2318,6 @@
 				F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
 				F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */,
-				F453C46B2DF1C832007EAD5F /* VMInstallationBackend.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
@@ -2416,10 +2445,12 @@
 				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
+				F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */,
 				F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */,
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
+				F453C49B2DF1D768007EAD5F /* SimulatedDownloadBackend.swift in Sources */,
 				4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */,
 				F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
@@ -2459,6 +2490,7 @@
 				F453C41D2DF0B43D007EAD5F /* ResolvedCatalog.swift in Sources */,
 				F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */,
 				F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */,
+				F453C4A02DF1D7C0007EAD5F /* RestoreBackend.swift in Sources */,
 				F453C4202DF0B43D007EAD5F /* SoftwareCatalog.swift in Sources */,
 				F453C4212DF0B43D007EAD5F /* MobileDeviceFramework.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,
