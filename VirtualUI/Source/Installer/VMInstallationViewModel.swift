@@ -368,7 +368,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private func createDownloadBackend(cookie: String?) -> DownloadBackend {
         let Backend: DownloadBackend.Type
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "VBSimulateDownload") {
+        if UserDefaults.standard.bool(forKey: "VBSimulateDownload") || ProcessInfo.isSwiftUIPreview {
             Backend = SimulatedDownloadBackend.self
         } else {
             Backend = URLSessionDownloadBackend.self
@@ -425,7 +425,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     private lazy var cancellables = Set<AnyCancellable>()
 
-    private var vmInstaller: RestoreBackend?
+    private var installer: RestoreBackend?
     private var progressObservation: NSKeyValueObservation?
 
     @MainActor
@@ -500,22 +500,23 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func createInstaller(for vm: VZVirtualMachine, restoreURL: URL) -> RestoreBackend {
+    @MainActor
+    private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL) -> RestoreBackend {
         let Backend: RestoreBackend.Type
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "VBSimulateInstall") {
+        if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
             Backend = SimulatedRestoreBackend.self
         } else if restoreURL == SimulatedDownloadBackend.localFileURL {
             UILog("⚠️ Using simulated installer because the download was also simulated.")
             Backend = SimulatedRestoreBackend.self
         } else {
-            Backend = VZMacOSInstaller.self
+            Backend = VirtualizationRestoreBackend.self
         }
         #else
-        Installer = VZMacOSInstaller.self
+        Installer = VirtualizationRestoreBackend.self
         #endif
 
-        return Backend.init(virtualMachine: vm, restoringFromImageAt: restoreURL)
+        return Backend.init(model: model, restoringFromImageAt: restoreURL)
     }
 
     @MainActor
@@ -530,40 +531,30 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             return
         }
 
+        state = .loading(nil, "Preparing Installation…\nThis may take a moment…")
+
+        let backend = createRestoreBackend(for: model, restoreURL: restoreURL)
+        installer = backend
+
+        progressObservation = backend.progress.observe(\.completedUnitCount) { [weak self] progress, _ in
+            guard let self = self else { return }
+
+            DispatchQueue.main.async {
+                let percent = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
+                self.state = .loading(percent, "Installing macOS…")
+            }
+        }
+
         do {
-            state = .loading(nil, "Preparing Installation…\nThis may take a moment…")
+            try await backend.install()
 
-            let config = try await VMInstance.makeConfiguration(for: model, installImageURL: restoreURL)
+            self.machine?.metadata.installFinished = true
 
-            let vm = VZVirtualMachine(configuration: config)
-
-            let installer = createInstaller(for: vm, restoreURL: restoreURL)
-            vmInstaller = installer
-
-            installer.install { [weak self] result in
-                guard let self = self else { return }
-                switch result {
-                    case .failure(let error):
-                        self.state = .error(error.localizedDescription)
-                    case .success:
-                        self.machine?.metadata.installFinished = true
-                        self.step = .done
-                }
-            }
-
-            progressObservation = installer.progress.observe(\.completedUnitCount) { [weak self] progress, _ in
-                guard let self = self else { return }
-
-                DispatchQueue.main.async {
-                    let percent = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
-                    self.state = .loading(percent, "Installing macOS…")
-                }
-            }
+            self.step = .done
         } catch {
-            state = .error(error.localizedDescription)
+            self.state = .error(error.localizedDescription)
         }
     }
-
 
     @Published var provisionalRestoreImageURL = "" {
         didSet {
@@ -597,7 +588,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         progressObservation?.invalidate()
         progressObservation = nil
 
-        vmInstaller = nil
+        installer = nil
     }
 
     var confirmBeforeClosing: () async -> Bool {
@@ -618,7 +609,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             await MainActor.run {
                 self.downloader?.cancelDownload()
                 self.downloader = nil
-                self.vmInstaller = nil
+                self.installer = nil
             }
 
             return true

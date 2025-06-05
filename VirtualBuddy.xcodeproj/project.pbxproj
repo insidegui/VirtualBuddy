@@ -151,6 +151,7 @@
 		F453C49B2DF1D768007EAD5F /* SimulatedDownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */; };
 		F453C4A02DF1D7C0007EAD5F /* RestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */; };
 		F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */; };
+		F453C4A42DF1D861007EAD5F /* VirtualizationRestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -597,6 +598,7 @@
 		F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedDownloadBackend.swift; sourceTree = "<group>"; };
 		F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreBackend.swift; sourceTree = "<group>"; };
 		F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedRestoreBackend.swift; sourceTree = "<group>"; };
+		F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualizationRestoreBackend.swift; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -1251,6 +1253,7 @@
 			children = (
 				F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */,
 				F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */,
+				F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */,
 			);
 			path = Installation;
 			sourceTree = "<group>";
@@ -2456,6 +2459,7 @@
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
 				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
+				F453C4A42DF1D861007EAD5F /* VirtualizationRestoreBackend.swift in Sources */,
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
 				F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */,
 				F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */,

@@ -2,10 +2,9 @@ import Foundation
 import Virtualization
 import BuddyKit
 
+@MainActor
 public protocol RestoreBackend: AnyObject {
-    init(virtualMachine: VZVirtualMachine, restoringFromImageAt restoreImageFileURL: URL)
-    func install(completionHandler: @escaping (Result<Void, any Error>) -> Void)
+    init(model: VBVirtualMachine, restoringFromImageAt restoreImageFileURL: URL)
     var progress: Progress { get }
+    func install() async throws
 }
-
-extension VZMacOSInstaller: RestoreBackend { }
