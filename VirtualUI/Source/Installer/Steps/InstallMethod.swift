@@ -18,6 +18,20 @@ enum InstallMethod: String, Identifiable, CaseIterable, Codable, ProvidesEmptyPl
     static var empty: InstallMethod { .remoteOptions }
 }
 
+enum InstallMethodSelection: Identifiable, Hashable, Codable {
+    case remoteOptions(RestoreImage)
+    case localFile(URL)
+    case remoteManual(URL)
+
+    var id: InstallMethod {
+        switch self {
+        case .remoteOptions: .remoteOptions
+        case .localFile: .localFile
+        case .remoteManual: .remoteManual
+        }
+    }
+}
+
 extension InstallMethod {
     func description(for type: VBGuestType) -> String {
         switch self {

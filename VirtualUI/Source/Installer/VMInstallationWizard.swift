@@ -51,6 +51,15 @@ public struct VMInstallationWizard: View {
         }
     }
 
+    private var hideBottomBar: Bool {
+        switch viewModel.step {
+        case .systemType, .restoreImageInput, .restoreImageSelection, .name, .configuration, .done:
+            false
+        case .download, .install:
+            true
+        }
+    }
+
     public var body: some View {
         NavigationStack {
             VStack {
@@ -94,7 +103,11 @@ public struct VMInstallationWizard: View {
             BlurHashFullBleedBackground(viewModel.data.backgroundHash)
         }
         .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
-        .safeAreaInset(edge: .bottom, spacing: 0) { bottomBar }
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !hideBottomBar {
+                bottomBar
+            }
+        }
         .environment(\.containerPadding, Self.padding)
         .environment(\.maxContentWidth, effectiveMaxContentWidth)
     }
@@ -106,14 +119,14 @@ public struct VMInstallationWizard: View {
                 case .restoreImageSelection:
                     HStack(spacing: 12) {
                         Button("Local File") {
-                            viewModel.setInstallMethod(.localFile)
+                            viewModel.selectInstallMethod(.localFile)
                         }
 
                         Divider()
                             .frame(height: 22)
 
                         Button("Custom Link") {
-                            viewModel.setInstallMethod(.remoteManual)
+                            viewModel.selectInstallMethod(.remoteManual)
                         }
                     }
                 default:
@@ -122,14 +135,34 @@ public struct VMInstallationWizard: View {
             }
             .buttonStyle(.link)
 
+            if case .error(let message) = viewModel.state {
+                Spacer()
+
+                errorView(message: message, multiline: false)
+            }
+
             Spacer()
 
-            nextButton
+            if viewModel.showNextButton {
+                nextButton
+            }
         }
         .controlSize(.large)
         .padding()
         .background(Material.bar)
         .overlay(alignment: .top) { Divider() }
+    }
+
+    @ViewBuilder
+    private func errorView(message: String, multiline: Bool) -> some View {
+        Text(message)
+            .font(.subheadline)
+            .foregroundStyle(.red)
+            .textSelection(.enabled)
+            .multilineTextAlignment(.center)
+            .lineLimit(multiline ? nil : 1)
+            .minimumScaleFactor(0.8)
+            .help(message)
     }
 
     @ViewBuilder
@@ -153,9 +186,7 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var restoreImageURLInput: some View {
-        TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.next)
-            .textFieldStyle(.roundedBorder)
-            .controlSize(.large)
+        RestoreImageURLInputView().environmentObject(viewModel)
     }
 
     @ViewBuilder
@@ -215,29 +246,6 @@ public struct VMInstallationWizard: View {
             InstallationWizardTitle(vmDisplayName)
 
             Text(viewModel.data.systemType.installFinishedMessage)
-        }
-    }
-
-    @ViewBuilder
-    private var loadingView: some View {
-        switch viewModel.state {
-            case .loading(let progress, let info):
-                VStack {
-                    ProgressView(value: progress) { }
-                        .progressViewStyle(.linear)
-                        .labelsHidden()
-
-                    if let info = info {
-                        Text(info)
-                            .font(.system(size: 12, weight: .medium).monospacedDigit())
-                            .foregroundColor(.secondary)
-                    }
-                }
-            case .error(let message):
-                Text(message)
-            case .idle:
-                Text("Starting…")
-                    .foregroundColor(.secondary)
         }
     }
 

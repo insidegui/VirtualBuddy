@@ -34,6 +34,7 @@ public final class URLSessionDownloadBackend: NSObject, ObservableObject, Downlo
 
     private func makeSession() -> URLSession {
         let config = URLSessionConfiguration.default
+        config.httpMaximumConnectionsPerHost = 16
         return URLSession(configuration: config, delegate: self, delegateQueue: .main)
     }
 
