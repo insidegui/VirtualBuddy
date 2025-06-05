@@ -136,8 +136,6 @@ public extension VBVirtualMachine {
         }
 
         self.installRestoreData = installRestore
-
-        try saveMetadata()
     }
 
     @available(macOS 13, *)
