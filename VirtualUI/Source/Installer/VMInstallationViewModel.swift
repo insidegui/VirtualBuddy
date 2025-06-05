@@ -134,6 +134,19 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
+    private var preventTerminationAssertion: PreventTerminationAssertion?
+
+    private func startPreventingAppTermination(forReason reason: String) {
+        stopPreventingAppTermination()
+
+        preventTerminationAssertion = NSApp.preventTermination(forReason: reason)
+    }
+
+    private func stopPreventingAppTermination() {
+        preventTerminationAssertion?.invalidate()
+        preventTerminationAssertion = nil
+    }
+
     private func writeRestorationData() {
         guard var machine else { return }
 
@@ -298,15 +311,22 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             .sink
         { [weak self] state in
             guard let self = self else { return }
+
             switch state {
             case .done(let localURL):
+                stopPreventingAppTermination()
+
                 self.handleDownloadCompleted(with: localURL)
             case .failed(let message):
+                stopPreventingAppTermination()
+
                 NSAlert(error: Failure(message)).runModal()
-            default:
+            case .idle, .downloading:
                 break
             }
         }.store(in: &cancellables)
+
+        startPreventingAppTermination(forReason: "downloading operating system image")
 
         backend.startDownload(with: url)
     }
@@ -446,7 +466,15 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             }
         }
 
+        defer {
+            DispatchQueue.main.async {
+                self.stopPreventingAppTermination()
+            }
+        }
+
         do {
+            startPreventingAppTermination(forReason: "restoring virtual machine")
+
             try await backend.install()
 
             self.machine?.metadata.installFinished = true
@@ -473,6 +501,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     private func cleanupInstallerArtifacts() {
+        UILog(#function)
+        
         progressObservation?.invalidate()
         progressObservation = nil
 
