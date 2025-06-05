@@ -259,7 +259,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         return !url.isFileURL
     }
 
-    @Published private(set) var downloader: VBDownloader?
+    @Published private(set) var downloader: DownloadBackend?
 
     private func validate() {
         disableNextButton = !data.canContinue(from: step)
@@ -365,6 +365,21 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
+    private func createDownloadBackend(cookie: String?) -> DownloadBackend {
+        let Backend: DownloadBackend.Type
+        #if DEBUG
+        if UserDefaults.standard.bool(forKey: "VBSimulateDownload") {
+            Backend = SimulatedDownloadBackend.self
+        } else {
+            Backend = URLSessionDownloadBackend.self
+        }
+        #else
+        Installer = URLSessionDownloadBackend.self
+        #endif
+
+        return Backend.init(library: library, cookie: cookie)
+    }
+
     @MainActor
     private func setupDownload() {
         guard let url = data.downloadURL else {
@@ -372,10 +387,10 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             return
         }
 
-        let d = VBDownloader(with: library, cookie: data.cookie)
-        self.downloader = d
+        let backend = createDownloadBackend(cookie: data.cookie)
+        self.downloader = backend
 
-        d.$state
+        backend.statePublisher
             .receive(on: DispatchQueue.main)
             .sink
         { [weak self] state in
@@ -390,7 +405,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             }
         }.store(in: &cancellables)
 
-        d.startDownload(with: url)
+        backend.startDownload(with: url)
     }
 
     @MainActor
@@ -490,6 +505,9 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "VBSimulateInstall") {
             Backend = SimulatedVMInstallationBackend.self
+        } else if restoreURL == SimulatedDownloadBackend.localFileURL {
+            UILog("⚠️ Using simulated installer because the download was also simulated.")
+            Backend = SimulatedVMInstallationBackend.self
         } else {
             Backend = VZMacOSInstaller.self
         }
@@ -501,7 +519,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     @MainActor
-    private func startMacInstallation() async { // TODO: handle Linux installation
+    private func startMacInstallation() async {
         guard let restoreURL = data.installImageURL else {
             state = .error("Missing restore image URL")
             return

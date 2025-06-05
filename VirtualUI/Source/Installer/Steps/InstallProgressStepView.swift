@@ -16,6 +16,7 @@ struct InstallProgressStepView: View {
     var body: some View {
         VStack {
             loadingView
+                .textSelection(.enabled)
 
             InstallationConsole(isExpanded: $consoleExpanded)
         }

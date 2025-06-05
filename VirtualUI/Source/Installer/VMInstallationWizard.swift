@@ -197,7 +197,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var downloadView: some View {
         if let downloader = viewModel.downloader {
-            RestoreImageDownloadView(downloader: downloader)
+            RestoreImageDownloadView(state: downloader.statePublisher)
         } else {
             preparingStatus
         }

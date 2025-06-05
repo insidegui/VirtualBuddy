@@ -7,13 +7,16 @@
 
 import SwiftUI
 import VirtualCore
+import Combine
 
 struct RestoreImageDownloadView: View {
-    @ObservedObject var downloader: VBDownloader
+    let state: AnyPublisher<DownloadState, Never>
+
+    @State private var downloadState = DownloadState.idle
 
     var body: some View {
         VStack {
-            switch downloader.state {
+            switch downloadState {
             case .idle:
                 Text("Preparing Download…")
             case .downloading(let progress, let eta):
@@ -25,6 +28,7 @@ struct RestoreImageDownloadView: View {
                     .foregroundColor(.red)
             }
         }
+        .onReceive(state) { downloadState = $0 }
     }
     
     @ViewBuilder
