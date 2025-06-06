@@ -482,6 +482,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         defer {
             DispatchQueue.main.async {
                 self.stopPreventingAppTermination()
+                self.library.loadMachines()
             }
         }
 
