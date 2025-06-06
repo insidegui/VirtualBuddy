@@ -111,6 +111,7 @@
 		F444D0CA2DF321CD0086537A /* CatalogGroupPlaceholder.heic in Resources */ = {isa = PBXBuildFile; fileRef = F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */; };
 		F444D0CC2DF322B90086537A /* SoftwareCatalog+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */; };
 		F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */; };
+		F444D0F42DF34BE80086537A /* CALayer+Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F32DF34BE40086537A /* CALayer+Asset.swift */; };
 		F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */; };
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
@@ -570,6 +571,7 @@
 		F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = CatalogGroupPlaceholder.heic; sourceTree = "<group>"; };
 		F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+Placeholder.swift"; sourceTree = "<group>"; };
 		F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashFullBleedBackground.swift; sourceTree = "<group>"; };
+		F444D0F32DF34BE40086537A /* CALayer+Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CALayer+Asset.swift"; sourceTree = "<group>"; };
 		F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBMemoryLeakDebugAssertions.swift; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
@@ -947,6 +949,7 @@
 				F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */,
 				F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */,
 				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
+				F444D0F32DF34BE40086537A /* CALayer+Asset.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2369,6 +2372,7 @@
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
 				F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */,
 				F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */,
+				F444D0F42DF34BE80086537A /* CALayer+Asset.swift in Sources */,
 				F413696829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift in Sources */,
 				F453C4B92DF21985007EAD5F /* VMInstallData.swift in Sources */,
 				F48E0D24288882E50080DDFA /* NSAlert+Confirmation.swift in Sources */,

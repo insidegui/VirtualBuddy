@@ -21,7 +21,7 @@ public final class SimulatedDownloadBackend: NSObject, DownloadBackend {
         timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { [weak self] _ in
             guard let self else { return }
 
-            progress += 0.05
+            progress += 0.01
 
             if progress >= 1.0 {
                 stateSubject.send(.done(Self.localFileURL))

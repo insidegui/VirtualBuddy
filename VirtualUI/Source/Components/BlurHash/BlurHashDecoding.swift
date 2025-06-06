@@ -68,6 +68,14 @@ private extension NSImage {
 }
 
 public extension NSImage {
+    static func blurHash(_ token: BlurHashToken) -> NSImage {
+        if let image = NSImage(blurHash: token.value, size: CGSize(width: token.size, height: token.size)) {
+            image
+        } else {
+            .blurHashPlaceholder(size: CGSize(width: token.size, height: token.size))
+        }
+    }
+
     convenience init?(blurHash: String, size: CGSize, punch: Float = 1) {
         guard blurHash.count >= 6 else { return nil }
 

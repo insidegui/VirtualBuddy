@@ -296,10 +296,26 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         return Backend.init(library: library, cookie: cookie)
     }
 
+    private var downloadURL: URL? {
+        #if DEBUG
+        guard let url = data.downloadURL else {
+            if ProcessInfo.isSwiftUIPreview {
+                return .catalogPlaceholder
+            } else {
+                assertionFailure("Expected download URL to be available for download")
+                return nil
+            }
+        }
+
+        return url
+        #else
+        return data.downloadURL
+        #endif
+    }
+
     @MainActor
     private func setupDownload() {
-        guard let url = data.downloadURL else {
-            assertionFailure("Expected download URL to be available for download")
+        guard let url = downloadURL else {
             return
         }
 
@@ -371,8 +387,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     @MainActor
     private func updateModelInstallerURL(with newURL: URL) throws {
-        assert(machine != nil, "This method requires the VM model to be available")
-        assert(newURL.isFileURL, "This method should be updating the installer URL with a local file URL, not a remote one!")
+        assert(machine != nil || ProcessInfo.isSwiftUIPreview, "This method requires the VM model to be available")
+        assert(newURL.isFileURL || ProcessInfo.isSwiftUIPreview, "This method should be updating the installer URL with a local file URL, not a remote one!")
         guard var machine else { return }
 
         data.commitLocalRestoreImageURL(newURL)

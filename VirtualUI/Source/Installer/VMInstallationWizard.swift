@@ -99,18 +99,33 @@ public struct VMInstallationWizard: View {
                 .disabled(!viewModel.canGoBack)
             }
         }
-        .background {
-            BlurHashFullBleedBackground(viewModel.data.backgroundHash)
-        }
         .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !hideBottomBar {
                 bottomBar
             }
         }
+        .background {
+            BlurHashFullBleedBackground(viewModel.data.backgroundHash)
+                .environment(\.fullBleedBackgroundDimmed, dimBackground)
+        }
         .environment(\.containerPadding, Self.padding)
         .environment(\.maxContentWidth, effectiveMaxContentWidth)
     }
+
+    private var dimBackground: Bool {
+        switch viewModel.step {
+        case .systemType: false
+        case .restoreImageInput: false
+        case .restoreImageSelection: false
+        case .name: false
+        case .configuration: true
+        case .download: true
+        case .install: true
+        case .done: false
+        }
+    }
+
     @ViewBuilder
     private var bottomBar: some View {
         HStack {
