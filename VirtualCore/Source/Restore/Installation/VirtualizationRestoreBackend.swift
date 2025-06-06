@@ -19,10 +19,19 @@ public final class VirtualizationRestoreBackend: RestoreBackend {
 
     private var _installer: VZMacOSInstaller?
 
+    private let virtualMachineSubject = PassthroughSubject<VZVirtualMachine?, Never>()
+    public var virtualMachine: AnyPublisher<VZVirtualMachine?, Never> { virtualMachineSubject.eraseToAnyPublisher() }
+
     public func install() async throws {
-        let config = try await VMInstance.makeConfiguration(for: model, installImageURL: restoreImageFileURL)
+        let installModel = model.forInstallation()
+
+        let config = try await VMInstance.makeConfiguration(for: installModel, installImageURL: restoreImageFileURL)
 
         let vm = VZVirtualMachine(configuration: config)
+
+        await MainActor.run {
+            virtualMachineSubject.send(vm)
+        }
 
         let installer = VZMacOSInstaller(virtualMachine: vm, restoringFromImageAt: restoreImageFileURL)
 
@@ -35,6 +44,7 @@ public final class VirtualizationRestoreBackend: RestoreBackend {
 
             cancellables.removeAll()
             _installer = nil
+            virtualMachineSubject.send(nil)
         }
 
         try await installer.install()
@@ -54,5 +64,17 @@ public final class VirtualizationRestoreBackend: RestoreBackend {
                 self?.progress.completedUnitCount = value
             }
             .store(in: &cancellables)
+    }
+}
+
+extension VBVirtualMachine {
+    /// Returns a copy of the model configured for use during installation.
+    func forInstallation() -> Self {
+        var mself = self
+
+        /// Use a fixed 1080p display resolution for installation.
+        mself.configuration.hardware.displayDevices = [.fullHD]
+
+        return mself
     }
 }

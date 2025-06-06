@@ -540,10 +540,14 @@ public struct VBDisplayPreset: Identifiable, Hashable {
     public var isAvailable = true
 }
 
+public extension VBDisplayDevice {
+    static let fullHD = VBDisplayDevice(name: "1920x1080@144", width: 1920, height: 1080, pixelsPerInch: 144)
+}
+
 public extension VBDisplayPreset {
     static var presets: [VBDisplayPreset] {
         [
-            VBDisplayPreset(name: "Full HD", device: .init(name: "1920x1080@144", width: 1920, height: 1080, pixelsPerInch: 144)),
+            VBDisplayPreset(name: "Full HD", device: .fullHD),
             VBDisplayPreset(name: "4.5K Retina", device: .init(name: "4480x2520", width: 4480, height: 2520, pixelsPerInch: 218)),
             // This preset is only relevant for displays with a notch.
             VBDisplayPreset(name: "Match \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .matchHost, warning: "If things look small in the VM after boot, go to System Preferences and select a HiDPI scaled reslution for the display.", isAvailable: ProcessInfo.processInfo.vb_mainDisplayHasNotch),

@@ -23,6 +23,7 @@ public enum VMInstallationStep: Int, Hashable, Codable {
     case done
 }
 
+@MainActor
 final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     struct RestorableState: Codable {
@@ -81,7 +82,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     private let library: VMLibraryController
 
-    @MainActor
     init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine?) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
@@ -92,7 +92,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    @MainActor
     init(library: VMLibraryController, restoringAt restoreURL: URL?, initialStep: Step? = nil) {
         self.library = library
         /// Skip OS selection if there's only a single supported OS.
@@ -103,7 +102,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    @MainActor
     private func restoreInstallation(with url: URL) {
         do {
             let vm = try VBVirtualMachine(bundleURL: url)
@@ -115,7 +113,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    @MainActor
     private func restoreInstallation(with model: VBVirtualMachine) {
         do {
             guard let restoreData = model.installRestoreData else {
@@ -163,6 +160,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     @Published private(set) var downloader: DownloadBackend?
+    @Published private(set) var downloadState: DownloadState = .idle
 
     private func validate() {
         disableNextButton = !data.canContinue(from: step)
@@ -226,12 +224,10 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             case .configuration:
                 showNextButton = true
 
-                Task {
-                    do {
-                        try await prepareModel()
-                    } catch {
-                        state = .error("Failed to prepare VM model: \(error.localizedDescription)")
-                    }
+                do {
+                    try prepareModel()
+                } catch {
+                    state = .error("Failed to prepare VM model: \(error.localizedDescription)")
                 }
             case .download:
                 showNextButton = false
@@ -313,13 +309,15 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         #endif
     }
 
-    @MainActor
     private func setupDownload() {
         guard let url = downloadURL else {
             return
         }
 
         let backend = createDownloadBackend(cookie: data.cookie)
+
+        backend.statePublisher.assign(to: &$downloadState)
+
         self.downloader = backend
 
         backend.statePublisher
@@ -347,7 +345,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         backend.startDownload(with: url)
     }
 
-    @MainActor
     func handleDownloadCompleted(with fileURL: URL) {
         downloader = nil
 
@@ -365,7 +362,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private var installer: RestoreBackend?
     private var progressObservation: NSKeyValueObservation?
 
-    @MainActor
     private func prepareModel() throws {
         let vmURL = library.libraryURL
             .appendingPathComponent(data.name)
@@ -385,7 +381,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         writeRestorationData()
     }
 
-    @MainActor
     private func updateModelInstallerURL(with newURL: URL) throws {
         assert(machine != nil || ProcessInfo.isSwiftUIPreview, "This method requires the VM model to be available")
         assert(newURL.isFileURL || ProcessInfo.isSwiftUIPreview, "This method should be updating the installer URL with a local file URL, not a remote one!")
@@ -398,7 +393,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         try machine.saveMetadata()
     }
 
-    @MainActor
     private func startInstallation() async {
         switch machine?.configuration.systemType {
         case .mac:
@@ -411,7 +405,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     @available(macOS 13, *)
-    @MainActor
     private func startLinuxInstallation() async {
         guard let installURL = data.localRestoreImageURL else {
             state = .error("Missing install image URL")
@@ -437,7 +430,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    @MainActor
     private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL) -> RestoreBackend {
         let Backend: RestoreBackend.Type
         #if DEBUG
@@ -456,7 +448,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         return Backend.init(model: model, restoringFromImageAt: restoreURL)
     }
 
-    @MainActor
+    @Published private(set) var virtualMachine: VZVirtualMachine? = nil
+
     private func startMacInstallation() async {
         guard let restoreURL = data.localRestoreImageURL else {
             state = .error("Missing local restore image URL")
@@ -468,17 +461,21 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             return
         }
 
-        state = .loading(nil, "Preparing Installation…\nThis may take a moment…")
+        state = .loading(nil, "Preparing Installation\nThis may take a moment")
 
         let backend = createRestoreBackend(for: model, restoreURL: restoreURL)
         installer = backend
+
+        if let realBackend = backend as? VirtualizationRestoreBackend {
+            realBackend.virtualMachine.assign(to: &$virtualMachine)
+        }
 
         progressObservation = backend.progress.observe(\.completedUnitCount) { [weak self] progress, _ in
             guard let self = self else { return }
 
             DispatchQueue.main.async {
                 let percent = Double(progress.completedUnitCount) / Double(progress.totalUnitCount)
-                self.state = .loading(percent, "Installing macOS…")
+                self.state = .loading(percent, nil)
             }
         }
 
@@ -522,6 +519,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         progressObservation?.invalidate()
         progressObservation = nil
 
+        virtualMachine = nil
         installer = nil
     }
 

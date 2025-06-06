@@ -112,6 +112,10 @@
 		F444D0CC2DF322B90086537A /* SoftwareCatalog+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */; };
 		F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */; };
 		F444D0F42DF34BE80086537A /* CALayer+Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F32DF34BE40086537A /* CALayer+Asset.swift */; };
+		F444D0F62DF37D170086537A /* VirtualBuddyMonoIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F52DF37D170086537A /* VirtualBuddyMonoIcon.swift */; };
+		F444D0F82DF37D410086537A /* VirtualDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F72DF37D410086537A /* VirtualDisplayView.swift */; };
+		F444D0FA2DF37DFB0086537A /* InstallProgressDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F92DF37DFB0086537A /* InstallProgressDisplayView.swift */; };
+		F444D0FC2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */; };
 		F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */; };
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
@@ -572,6 +576,10 @@
 		F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+Placeholder.swift"; sourceTree = "<group>"; };
 		F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashFullBleedBackground.swift; sourceTree = "<group>"; };
 		F444D0F32DF34BE40086537A /* CALayer+Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CALayer+Asset.swift"; sourceTree = "<group>"; };
+		F444D0F52DF37D170086537A /* VirtualBuddyMonoIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyMonoIcon.swift; sourceTree = "<group>"; };
+		F444D0F72DF37D410086537A /* VirtualDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDisplayView.swift; sourceTree = "<group>"; };
+		F444D0F92DF37DFB0086537A /* InstallProgressDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallProgressDisplayView.swift; sourceTree = "<group>"; };
+		F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyMonoProgressView.swift; sourceTree = "<group>"; };
 		F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBMemoryLeakDebugAssertions.swift; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
@@ -1798,6 +1806,10 @@
 				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
 				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
 				F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */,
+				F444D0F52DF37D170086537A /* VirtualBuddyMonoIcon.swift */,
+				F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */,
+				F444D0F72DF37D410086537A /* VirtualDisplayView.swift */,
+				F444D0F92DF37DFB0086537A /* InstallProgressDisplayView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2339,6 +2351,7 @@
 				F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */,
 				F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */,
 				F48E0D34288889E60080DDFA /* InstallConfigurationStepView.swift in Sources */,
+				F444D0F82DF37D410086537A /* VirtualDisplayView.swift in Sources */,
 				F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */,
 				F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */,
 				F48E0D23288882E50080DDFA /* DecentFormView.swift in Sources */,
@@ -2350,6 +2363,7 @@
 				F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */,
 				F453C4B42DF20301007EAD5F /* RestoreImageURLInputView.swift in Sources */,
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
+				F444D0FA2DF37DFB0086537A /* InstallProgressDisplayView.swift in Sources */,
 				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
 				F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */,
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
@@ -2363,6 +2377,7 @@
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
 				F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */,
+				F444D0FC2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift in Sources */,
 				F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
@@ -2407,6 +2422,7 @@
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
 				F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */,
+				F444D0F62DF37D170086537A /* VirtualBuddyMonoIcon.swift in Sources */,
 				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
 				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
 				F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */,

@@ -7,47 +7,63 @@
 
 import SwiftUI
 import VirtualCore
+import Virtualization
 
 struct InstallProgressStepView: View {
     @EnvironmentObject var viewModel: VMInstallationViewModel
 
-    @State private var consoleExpanded = false
+    private var progress: Double? {
+        switch viewModel.state {
+        case .loading(let progress, _): progress ?? 0
+        case .idle: 0
+        case .error: nil
+        }
+    }
+
+    private var status: Text? {
+        switch viewModel.state {
+            case .loading(_, let info): info.flatMap { Text($0) }
+            case .error(let message): Text(message)
+            case .idle: Text("Installing")
+        }
+    }
+
+    private var style: VirtualBuddyMonoStyle {
+        switch viewModel.state {
+        case .idle, .loading: .default
+        case .error: .failure
+        }
+    }
 
     var body: some View {
-        VStack {
-            loadingView
+        if let status {
+            VirtualBuddyMonoProgressView(progress: progress, status: status, style: style)
                 .textSelection(.enabled)
-
-            InstallationConsole(isExpanded: $consoleExpanded)
-        }
-    }
-
-    @ViewBuilder
-    private var loadingView: some View {
-        switch viewModel.state {
-            case .loading(let progress, let info):
-                VStack {
-                    ProgressView(value: progress) { }
-                        .progressViewStyle(.linear)
-                        .labelsHidden()
-
-                    if let info = info {
-                        Text(info)
-                            .font(.system(size: 12, weight: .medium).monospacedDigit())
-                            .foregroundColor(.secondary)
-                    }
-                }
-            case .error(let message):
-                Text(message)
-            case .idle:
-                Text("Starting…")
-                    .foregroundColor(.secondary)
+        } else if let virtualMachine = viewModel.virtualMachine {
+            InstallerVirtualMachineView(virtualMachine: virtualMachine)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            VirtualBuddyMonoProgressView(progress: progress, status: Text(""), style: style)
         }
     }
 }
 
-struct InstallProgressStepView_Previews: PreviewProvider {
-    static var previews: some View {
-        InstallProgressStepView()
+private struct InstallerVirtualMachineView: NSViewRepresentable {
+    typealias NSViewType = VZVirtualMachineView
+
+    let virtualMachine: VZVirtualMachine
+
+    func makeNSView(context: Context) -> VZVirtualMachineView {
+        VZVirtualMachineView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: VZVirtualMachineView, context: Context) {
+        nsView.virtualMachine = virtualMachine
     }
 }
+
+#if DEBUG
+#Preview {
+    VMInstallationWizard.preview(step: .install)
+}
+#endif

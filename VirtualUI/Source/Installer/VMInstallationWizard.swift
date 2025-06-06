@@ -53,9 +53,9 @@ public struct VMInstallationWizard: View {
 
     private var hideBottomBar: Bool {
         switch viewModel.step {
-        case .systemType, .restoreImageInput, .restoreImageSelection, .name, .configuration, .done:
+        case .systemType, .restoreImageInput, .restoreImageSelection, .name, .configuration:
             false
-        case .download, .install:
+        case .download, .install, .done:
             true
         }
     }
@@ -74,12 +74,8 @@ public struct VMInstallationWizard: View {
                         configureVM
                     case .name:
                         renameVM
-                    case .download:
-                        downloadView
-                    case .install:
-                        installProgress
-                    case .done:
-                        finishingLine
+                    case .download, .install, .done:
+                        InstallProgressDisplayView().environmentObject(viewModel)
                 }
             }
             .onReceive(stepValidationStateChanged) { isValid in
@@ -119,7 +115,7 @@ public struct VMInstallationWizard: View {
         case .restoreImageInput: false
         case .restoreImageSelection: false
         case .name: false
-        case .configuration: true
+        case .configuration: false
         case .download: true
         case .install: true
         case .done: false
@@ -236,35 +232,6 @@ public struct VMInstallationWizard: View {
         VirtualMachineNameField(name: $viewModel.data.name)
     }
 
-    private var vmDisplayName: String {
-        viewModel.data.name.isEmpty ? viewModel.data.systemType.name : viewModel.data.name
-    }
-
-    @ViewBuilder
-    private var downloadView: some View {
-        if let downloader = viewModel.downloader {
-            RestoreImageDownloadView(state: downloader.statePublisher)
-        } else {
-            preparingStatus
-        }
-    }
-
-    @ViewBuilder
-    private var installProgress: some View {
-        InstallProgressStepView()
-            .environmentObject(viewModel)
-    }
-
-    @ViewBuilder
-    private var finishingLine: some View {
-        VStack {
-            InstallationWizardTitle(vmDisplayName)
-
-            Text(viewModel.data.systemType.installFinishedMessage)
-        }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-
 }
 
 extension VMInstallationStep {
@@ -285,13 +252,18 @@ extension VMInstallationStep {
 #if DEBUG
 extension VMInstallationWizard {
     @ViewBuilder
-    static var preview: some View {
-        VMInstallationWizard(library: .preview, initialStep: .restoreImageSelection)
+    static func preview(step: VMInstallationStep) -> some View {
+        VMInstallationWizard(library: .preview, initialStep: step)
             .frame(width: 900)
+    }
+
+    @ViewBuilder
+    static var preview: some View {
+        preview(step: .restoreImageSelection)
     }
 }
 
 #Preview {
-    VMInstallationWizard.preview
+    VMInstallationWizard.preview(step: .download)
 }
-#endif
+#endif // DEBUG
