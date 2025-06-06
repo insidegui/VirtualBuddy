@@ -39,10 +39,14 @@ extension BlurHashToken {
 }
 @available(macOS 14.0, *)
 #Preview {
-    @Previewable @State var token = BlurHashToken.virtualBuddyBackground
+    @Previewable @State var token = BlurHashToken.previewSequoia
 
     BlurHashFullBleedBackground(token)
         .task {
+            let enableCycle = false
+
+            guard enableCycle else { return }
+
             func cycle() async {
                 let delay = 3
 
@@ -67,5 +71,6 @@ extension BlurHashToken {
 
             await cycle()
         }
+        .frame(width: 1024, height: 1024)
 }
 #endif
