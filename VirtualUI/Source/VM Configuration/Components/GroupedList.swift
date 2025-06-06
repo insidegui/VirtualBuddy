@@ -43,7 +43,7 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
                 listButtons
             })
             .materialBackground(.contentBackground, blendMode: .withinWindow, state: .active, in: listShape)
-            .controlGroup(cornerRadius: listRadius, level: .secondary)
+            .controlGroup(level: .secondary)
         }
     }
     

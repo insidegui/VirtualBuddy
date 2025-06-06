@@ -5,9 +5,25 @@ public enum ControlGroupLevel: Int {
     case secondary
 }
 
+public struct ControlGroupMetrics {
+    static let primaryGroupRadius: Double = 14
+    static let secondaryGroupRadius: Double = 8
+}
+
+public extension ControlGroupLevel {
+    var cornerRadius: Double {
+        switch self {
+        case .primary: ControlGroupMetrics.primaryGroupRadius
+        case .secondary: ControlGroupMetrics.secondaryGroupRadius
+        }
+    }
+}
+
 public extension View {
-    func controlGroup(cornerRadius: CGFloat = 14, level: ControlGroupLevel = .primary) -> some View {
-        modifier(ControlGroupChrome(level: level, shapeBuilder: { RoundedRectangle(cornerRadius: cornerRadius, style: .continuous) }))
+    func controlGroup(level: ControlGroupLevel = .primary) -> some View {
+        modifier(ControlGroupChrome(level: level, shapeBuilder: {
+            RoundedRectangle(cornerRadius: level.cornerRadius, style: .continuous)
+        }))
     }
 
     func controlGroup<S>(_ shape: S, level: ControlGroupLevel = .primary) -> some View where S: InsettableShape {

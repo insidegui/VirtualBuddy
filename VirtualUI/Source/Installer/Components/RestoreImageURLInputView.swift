@@ -4,17 +4,18 @@ import VirtualCore
 struct RestoreImageURLInputView: View {
     @EnvironmentObject var viewModel: VMInstallationViewModel
 
-    @FocusState
-    private var focused: Bool
-
     var body: some View {
-        TextField("URL", text: $viewModel.data.customInstallImageRemoteURL, onCommit: viewModel.next)
-            .textFieldStyle(.roundedBorder)
-            .controlSize(.large)
-            .focused($focused)
-            .onAppear { focused = true }
-            .onChange(of: viewModel.data.customInstallImageRemoteURL) { _ in
-                viewModel.validateCustomRemoteURL()
-            }
+        VirtualBuddyInstallerInputView {
+            TextField("Custom Download Link", text: $viewModel.data.customInstallImageRemoteURL, onCommit: viewModel.next)
+        }
+        .onChange(of: viewModel.data.customInstallImageRemoteURL) { _ in
+            viewModel.validateCustomRemoteURL()
+        }
     }
 }
+
+#if DEBUG
+#Preview {
+    VMInstallationWizard.preview(step: .restoreImageInput)
+}
+#endif // DEBUG
