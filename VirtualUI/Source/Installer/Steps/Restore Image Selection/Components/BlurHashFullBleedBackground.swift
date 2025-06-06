@@ -166,18 +166,22 @@ private struct BlurHashFullBleedBackgroundPreview: View {
                 let delay = 3
 
                 while true {
-                    try! await Task.sleep(for: .seconds(delay))
+                    do {
+                        try await Task.sleep(for: .seconds(delay))
 
-                    let index = tokens.firstIndex(of: token)!
+                        let index = tokens.firstIndex(of: token)!
 
-                    if index < tokens.count - 1 {
-                        token = tokens[index + 1]
-                    } else {
-                        token = tokens[0]
+                        if index < tokens.count - 1 {
+                            token = tokens[index + 1]
+                        } else {
+                            token = tokens[0]
+                        }
+                    } catch {
+                        break
                     }
                 }
             }
-            .frame(width: 1024, height: 1024)
+            .frame(width: 512, height: 512)
             .overlay(alignment: .bottom) {
                 Form {
                     Slider(value: $brightness, in: -1.0...1.0) {
