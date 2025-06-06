@@ -23,23 +23,38 @@ extension VBGuestType {
 
 struct GuestTypePicker: View {
 
+    static var buttonRadius: Double { 24 }
+    static var selectionIndicatorID = "SelectionIndicator"
+
     @Binding var selection: VBGuestType
 
     private var previousMethod: VBGuestType? { VBGuestType.allCases.previous(from: selection) }
 
     private var nextMethod: VBGuestType? { VBGuestType.allCases.next(from: selection) }
 
+    @Namespace
+    private var selectionIndicator
+
     var body: some View {
         HStack(spacing: 16) {
             ForEach(VBGuestType.supportedByHost) { type in
                 GuestTypeItemView(
                     type: type,
-                    isSelected: selection == type
+                    isSelected: selection == type,
+                    selectionIndicator: selectionIndicator
                 )
                 .onTapGesture {
                     selection = type
                 }
             }
+        }
+        .overlay {
+            RoundedRectangle(cornerRadius: Self.buttonRadius, style: .continuous)
+                .stroke(Color.accentColor, lineWidth: 2)
+                .blendMode(.plusLighter)
+                .opacity(0.6)
+                .matchedGeometryEffect(id: Self.selectionIndicatorID, in: selectionIndicator, isSource: false)
+                .animation(.snappy, value: selection)
         }
         .accessibilityRepresentation {
             Picker(selection: $selection) {
@@ -58,6 +73,7 @@ struct GuestTypePicker: View {
                 selection = previousMethod
             }
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
 }
@@ -66,51 +82,74 @@ struct GuestTypeItemView: View {
 
     let type: VBGuestType
     let isSelected: Bool
+    let selectionIndicator: Namespace.ID
+
+    init(type: VBGuestType, isSelected: Bool, selectionIndicator: Namespace.ID) {
+        self.type = type
+        self.isSelected = isSelected
+        self.selectionIndicator = selectionIndicator
+    }
 
     var lineWidth: CGFloat { isSelected ? 2 : 1 }
 
     var body: some View {
-        VStack(spacing: 24) {
+        VStack(spacing: 18) {
             type.icon
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(maxHeight: 80)
+
             Text(type.name)
         }
-        .foregroundColor(isSelected ? .accentColor : .secondary)
+        .shadow(color: .black.opacity(0.5), radius: 1, x: 0.5, y: 0.5)
         .padding()
         .multilineTextAlignment(.center)
-        .font(.system(size: 22, weight: .medium, design: .rounded))
+        .font(.system(size: 24, weight: .medium, design: .rounded))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .aspectRatio(1, contentMode: .fit)
-        .overlay(shape.stroke(borderColor, style: StrokeStyle(lineWidth: lineWidth)))
-        .materialBackground(.menu, blendMode: .withinWindow, state: isSelected ? .active : .inactive, in: shape)
-        .clipShape(shape)
-        .shadow(color: .black.opacity(0.24), radius: 8, x: 0, y: 0)
+        .frame(maxWidth: 260)
+        .background {
+            ZStack {
+//                if isSelected {
+//                    Rectangle().foregroundStyle(Material.thick)
+//
+//                    Color.accentColor
+//                        .blendMode(.plusLighter)
+//                        .opacity(0.2)
+//                } else {
+                    Rectangle().foregroundStyle(Material.thin)
+//                }
+            }
+            .clipShape(shape)
+        }
+        .chromeBorder(shape: shape, shadowEnabled: false, highlightIntensity: 0.5)
+        .overlay {
+            if isSelected {
+                Rectangle()
+                    .opacity(0)
+                    .matchedGeometryEffect(id: GuestTypePicker.selectionIndicatorID, in: selectionIndicator, isSource: true)
+            }
+        }
     }
 
     private var borderColor: Color {
         isSelected ? .accentColor : .primary.opacity(0.2)
     }
 
-    private var shape: some Shape {
-        RoundedRectangle(cornerRadius: 14, style: .continuous)
+    private var shape: some InsettableShape {
+        RoundedRectangle(cornerRadius: GuestTypePicker.buttonRadius, style: .continuous)
     }
 
 }
 
 #if DEBUG
-struct GuestTypePicker_Previews: PreviewProvider, View {
-    @State private var selection: VBGuestType = .mac
+@available(macOS 14.0, *)
+#Preview {
+    @Previewable @State var selection: VBGuestType = .mac
 
-    static var previews: some View {
-        GuestTypePicker_Previews()
-    }
-
-    var body: some View {
-        GuestTypePicker(selection: $selection)
-            .padding(22)
-            .frame(width: 600, height: 600)
-    }
+    GuestTypePicker(selection: $selection)
+        .padding(22)
+        .frame(width: VMInstallationWizard.maxContentWidth, height: 600)
+        .background(BlurHashFullBleedBackground(.virtualBuddyBackground))
 }
 #endif
