@@ -88,11 +88,24 @@ public struct VMInstallationWizard: View {
         .toolbar {
             ToolbarItemGroup(placement: .navigation) {
                 Button {
-                    viewModel.back()
+                    if viewModel.step == .done {
+                        closeWindow()
+                    } else {
+                        viewModel.back()
+                    }
                 } label: {
                     Image(systemName: "chevron.left")
                 }
                 .disabled(!viewModel.canGoBack)
+            }
+
+            ToolbarItemGroup(placement: .confirmationAction) {
+                if viewModel.step == .done {
+                    Button("Done") {
+                        closeWindow()
+                    }
+                    .keyboardShortcut(.defaultAction)
+                }
             }
         }
         .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)

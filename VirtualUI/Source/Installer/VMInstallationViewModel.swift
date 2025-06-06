@@ -69,9 +69,9 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     var canGoBack: Bool {
         switch step {
-        case .systemType, .configuration, .download, .install, .done:
+        case .systemType, .configuration, .download, .install:
             false
-        case .restoreImageInput, .restoreImageSelection, .name:
+        case .restoreImageInput, .restoreImageSelection, .name, .done:
             true
         }
     }
