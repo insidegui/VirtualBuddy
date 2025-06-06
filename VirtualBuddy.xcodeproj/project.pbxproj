@@ -108,6 +108,9 @@
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
+		F444D0CA2DF321CD0086537A /* CatalogGroupPlaceholder.heic in Resources */ = {isa = PBXBuildFile; fileRef = F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */; };
+		F444D0CC2DF322B90086537A /* SoftwareCatalog+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */; };
+		F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */; };
 		F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */; };
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
@@ -564,6 +567,9 @@
 		F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
+		F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = CatalogGroupPlaceholder.heic; sourceTree = "<group>"; };
+		F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+Placeholder.swift"; sourceTree = "<group>"; };
+		F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashFullBleedBackground.swift; sourceTree = "<group>"; };
 		F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBMemoryLeakDebugAssertions.swift; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
@@ -1784,9 +1790,11 @@
 		F4E4F71E2DF080DF00B3B8BA /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */,
 				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
 				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
 				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
+				F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1794,6 +1802,7 @@
 		F4E7680B29B651180075A897 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */,
 				F4E7680C29B651220075A897 /* VirtualUI.xcassets */,
 			);
 			path = Resources;
@@ -2161,6 +2170,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F444D0CA2DF321CD0086537A /* CatalogGroupPlaceholder.heic in Resources */,
 				F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2315,6 +2325,7 @@
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
+				F444D0CC2DF322B90086537A /* SoftwareCatalog+Placeholder.swift in Sources */,
 				F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */,
 				F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
@@ -2349,6 +2360,7 @@
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
 				F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */,
+				F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,

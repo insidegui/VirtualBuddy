@@ -168,7 +168,7 @@ public struct RestoreImage: CatalogModel {
 public struct SoftwareCatalog: Codable, Sendable {
     /// The API version implemented by this software catalog.
     public var apiVersion: Int
-    /// The minimum verson of the app that can read this catalog.
+    /// The minimum version of the app that can read this catalog.
     /// The app should reject catalogs with a higher `minAppVersion` and
     /// direct users to update the app in order to use the catalog.
     public var minAppVersion: SoftwareVersion

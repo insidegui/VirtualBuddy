@@ -55,6 +55,10 @@ final class RemoteImageLoader {
     }()
 
     func load(from remoteURL: URL) async -> NSImage? {
+        guard !remoteURL.isFileURL else {
+            return NSImage(contentsOf: remoteURL)
+        }
+        
         if let cached = cachedImage(for: remoteURL) {
             return cached
         }

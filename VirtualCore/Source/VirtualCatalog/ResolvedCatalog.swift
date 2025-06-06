@@ -19,6 +19,11 @@ public struct ResolvedCatalogGroup: ResolvedCatalogModel {
     public var majorVersion: SoftwareVersion { group.majorVersion }
     public var image: CatalogGraphic { group.image }
     public var darkImage: CatalogGraphic { group.darkImage ?? group.image }
+
+    public init(group: CatalogGroup, restoreImages: [ResolvedRestoreImage]) {
+        self.group = group
+        self.restoreImages = restoreImages
+    }
 }
 
 public struct ResolvedRestoreImage: ResolvedCatalogModel {
@@ -35,6 +40,14 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel {
     public var mobileDeviceMinVersion: SoftwareVersion { image.mobileDeviceMinVersion }
     public var url: URL { image.url }
     public var downloadSize: Int64 { Int64(image.downloadSize ?? 0) }
+
+    public init(image: RestoreImage, channel: CatalogChannel, features: [ResolvedVirtualizationFeature], requirements: ResolvedRequirementSet, status: ResolvedFeatureStatus) {
+        self.image = image
+        self.channel = channel
+        self.features = features
+        self.requirements = requirements
+        self.status = status
+    }
 }
 
 /// The status of a feature or requirement set for the current environment.
@@ -70,6 +83,11 @@ public struct ResolvedRequirementSet: ResolvedCatalogModel {
     public var id: RequirementSet.ID { requirements.id }
     public var requirements: RequirementSet
     public var status: ResolvedFeatureStatus
+
+    public init(requirements: RequirementSet, status: ResolvedFeatureStatus) {
+        self.requirements = requirements
+        self.status = status
+    }
 }
 
 // MARK: - Catalog Resolution

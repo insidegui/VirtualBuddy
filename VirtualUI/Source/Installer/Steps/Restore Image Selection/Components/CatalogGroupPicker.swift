@@ -2,10 +2,12 @@ import SwiftUI
 import VirtualCore
 
 struct CatalogGroupPicker: View {
+    static let buttonAspectRatio: Double = 320 / 180
+
     @EnvironmentObject
     private var controller: RestoreImageSelectionController
 
-    var groups: [ResolvedCatalogGroup]
+    var groups: [ResolvedCatalogGroup]?
     @Binding var selectedGroup: ResolvedCatalogGroup?
 
     @State private var scrolledGroupID: ResolvedCatalogGroup.ID?
@@ -48,11 +50,11 @@ struct CatalogGroupPicker: View {
         .onMoveCommand { direction in
             switch direction {
             case .up:
-                if let previous = groups.previous(from: selectedGroup) {
+                if let previous = groups?.previous(from: selectedGroup) {
                     selectedGroup = previous
                 }
             case .down:
-                if let next = groups.next(from: selectedGroup) {
+                if let next = groups?.next(from: selectedGroup) {
                     selectedGroup = next
                 }
             case .right:
@@ -62,10 +64,12 @@ struct CatalogGroupPicker: View {
             }
         }
         .accessibilityRepresentation {
-            Picker("Choose option", selection: $selectedGroup) {
-                ForEach(groups) { group in
-                    Text(group.name)
-                        .tag(group)
+            if let groups {
+                Picker("Choose option", selection: $selectedGroup) {
+                    ForEach(groups) { group in
+                        Text(group.name)
+                            .tag(group)
+                    }
                 }
             }
         }
@@ -79,15 +83,27 @@ struct CatalogGroupPicker: View {
 
     @ViewBuilder
     private var list: some View {
-        ForEach(groups) { group in
-            Button {
-                selectedGroup = group
-            } label: {
-                CatalogGroupView(group: group)
+        if let groups {
+            ForEach(groups) { group in
+                groupButton(for: group)
             }
-            .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup?.id))
-            .aspectRatio(320/180, contentMode: .fit)
+        } else if controller.isLoading {
+            /// Placeholders are only displayed when controller is loading to avoid jumps when loading happens quickly (or not at all).
+            ForEach(0...5, id: \.self) { _ in
+                groupButton(for: .placeholder)
+            }
         }
+    }
+
+    @ViewBuilder
+    private func groupButton(for group: ResolvedCatalogGroup) -> some View {
+        Button {
+            selectedGroup = group
+        } label: {
+            CatalogGroupView(group: group)
+        }
+        .buttonStyle(CatalogGroupButtonStyle(isSelected: group.id == selectedGroup?.id))
+        .aspectRatio(Self.buttonAspectRatio, contentMode: .fit)
     }
 }
 

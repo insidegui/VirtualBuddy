@@ -80,6 +80,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-VBSimulateSlowCatalogFetch YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-VerboseUILoggingEnabled YES"
             isEnabled = "YES">
          </CommandLineArgument>

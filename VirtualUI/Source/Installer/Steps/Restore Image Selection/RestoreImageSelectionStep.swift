@@ -23,12 +23,11 @@ struct RestoreImageSelectionStep: View {
 
     var body: some View {
         HStack(spacing: 0) {
-            CatalogGroupPicker(groups: controller.catalog?.groups ?? [], selectedGroup: $controller.selectedGroup)
+            CatalogGroupPicker(groups: controller.catalog?.groups, selectedGroup: $controller.selectedGroup)
 
-            if let catalog = controller.catalog, let group = controller.selectedGroup {
-                RestoreImageBrowser(catalog: catalog, group: group, selection: $viewModel.data.resolvedRestoreImage)
-            }
+            RestoreImageBrowser(selection: $viewModel.data.resolvedRestoreImage)
         }
+        .redacted(reason: controller.isLoading ? .placeholder : [])
         .frame(maxWidth: maxContentWidth)
         .frame(maxWidth: .infinity)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -45,34 +44,6 @@ struct RestoreImageSelectionStep: View {
         }
     }
 
-}
-
-struct BlurHashFullBleedBackground: View {
-    var blurHash: BlurHashToken?
-
-    init(_ blurHash: BlurHashToken?) {
-        self.blurHash = blurHash
-    }
-
-    init(_ blurHashValue: String?) {
-        self.blurHash = blurHashValue.flatMap { BlurHashToken(value: $0) }
-    }
-
-    var body: some View {
-        if let blurHash {
-            Image(blurHash: blurHash)
-                .resizable()
-                .aspectRatio(contentMode: .fill)
-                .blur(radius: 22, opaque: true)
-                .saturation(1.3)
-                .contrast(0.8)
-                .brightness(-0.1)
-                .drawingGroup(opaque: true)
-                .ignoresSafeArea()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .animation(.default, value: blurHash)
-        }
-    }
 }
 
 #if DEBUG

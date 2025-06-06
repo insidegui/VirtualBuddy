@@ -8,6 +8,9 @@ struct CatalogGroupView: View {
 
     var thumbnail: CatalogGraphic.Thumbnail { group.darkImage.thumbnail }
 
+    @Environment(\.redactionReasons)
+    private var redaction
+
     var body: some View {
         ZStack {
             RemoteImage(
@@ -22,6 +25,7 @@ struct CatalogGroupView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.3)
                 .padding(.horizontal, 22)
+                .opacity(redaction.isEmpty ? 1 : 0)
         }
         .clipShape(shape)
         .contentShape(shape)
@@ -30,6 +34,10 @@ struct CatalogGroupView: View {
     private var shape: some InsettableShape {
         RoundedRectangle(cornerRadius: Self.cornerRadius, style: .continuous)
     }
+}
+
+extension CatalogGroupView {
+    static let placeholder = CatalogGroupView(group: .placeholder)
 }
 
 #if DEBUG

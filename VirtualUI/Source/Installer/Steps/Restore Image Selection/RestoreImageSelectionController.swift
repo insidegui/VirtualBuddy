@@ -1,13 +1,20 @@
 import SwiftUI
 import VirtualCore
 import Combine
+import OSLog
 
 enum RestoreImageSelectionFocus: Hashable {
     case groups
     case images
 }
 
+@MainActor
 final class RestoreImageSelectionController: ObservableObject {
+
+    /// If loading takes less than this amount of time, then the controller will never even set the `isLoading` property.
+    private static let minLoadingTimeInMilliseconds = 100
+
+    private let logger = Logger(subsystem: VirtualUIConstants.subsystemName, category: String(describing: RestoreImageSelectionController.self))
 
     init() {
         $selectedGroup.removeDuplicates().sink { [weak self] group in
@@ -37,9 +44,56 @@ final class RestoreImageSelectionController: ObservableObject {
     @Published var errorMessage: String?
     @Published var focusedElement = RestoreImageSelectionFocus.groups
 
-    func loadRestoreImageOptions(for guest: VBGuestType) {
-        Task {
+    @Published private(set) var isLoading = false {
+        didSet {
+            if !isLoading {
+                deferredLoadingTask?.cancel()
+                deferredLoadingTask = nil
+            }
+        }
+    }
+
+    /// The controller will only set the`isLoading` property if loading takes a while.
+    private var deferredLoadingTask: Task<Void, Never>?
+    private func deferredStartLoading() {
+        deferredLoadingTask?.cancel()
+        deferredLoadingTask = Task { [weak self] in
+            guard let self else { return }
+
+            defer { deferredLoadingTask = nil }
+
             do {
+                try await Task.sleep(for: .milliseconds(Self.minLoadingTimeInMilliseconds))
+
+                logger.debug("Reached loading time delay, setting isLoading.")
+
+                isLoading = true
+            } catch { }
+        }
+    }
+
+    func loadRestoreImageOptions(for guest: VBGuestType) {
+        logger.debug("Loading restore image options.")
+
+        deferredStartLoading()
+
+        Task {
+            let start = ContinuousClock.now
+
+            defer {
+                logger.debug("Loading restore images took \(start.duration(to: .now).formatted(.units(allowed: [.milliseconds])), privacy: .public)")
+
+                isLoading = false
+            }
+
+            do {
+                #if DEBUG
+                if UserDefaults.standard.bool(forKey: "VBSimulateSlowCatalogFetch") {
+                    logger.notice("⚠️ Delaying restore image options load due to VBSimulateSlowCatalogFetch debug flag!")
+                    try await Task.sleep(for: .seconds(2))
+                }
+                #endif
+
                 let catalog = try await api.fetchRestoreImages(for: guest)
                 let platform: CatalogGuestPlatform = guest == .linux ? .linux : .mac
                 let resolved = try ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
@@ -49,6 +103,8 @@ final class RestoreImageSelectionController: ObservableObject {
                     self.catalog = resolved
                 }
             } catch {
+                logger.error("Loading restore images failed - \(error, privacy: .public)")
+                
                 await MainActor.run {
                     self.catalog = nil
                     self.errorMessage = error.localizedDescription

@@ -20,13 +20,9 @@ struct RestoreImageBrowser: View {
     @EnvironmentObject
     private var controller: RestoreImageSelectionController
 
-    var catalog: ResolvedCatalog
-    var group: ResolvedCatalogGroup
     @Binding var selection: ResolvedRestoreImage?
 
-    init(catalog: ResolvedCatalog, group: ResolvedCatalogGroup, selection: Binding<ResolvedRestoreImage?>) {
-        self.catalog = catalog
-        self.group = group
+    init(selection: Binding<ResolvedRestoreImage?>) {
         self._selection = selection
     }
 
@@ -84,11 +80,14 @@ struct RestoreImageBrowser: View {
         .onReceive(controller.$selectedRestoreImage.removeDuplicates()) {
             guard let newSelection = $0 else { return }
             guard newSelection.id != selection?.id else { return }
-            guard newSelection.image.group == group.id else { return }
+            guard newSelection.image.group == controller.selectedGroup?.id else { return }
 
             selection = $0
         }
     }
+
+    @Environment(\.redactionReasons)
+    private var redaction
 
     @ViewBuilder
     private var scrollView: some View {
@@ -104,8 +103,15 @@ struct RestoreImageBrowser: View {
     @ViewBuilder
     private var stack: some View {
         LazyVStack(alignment: .leading, spacing: 8, pinnedViews: .sectionHeaders) {
-            ForEach(controller.channelGroups) { group in
-                section(for: group)
+            if redaction.isEmpty {
+                ForEach(controller.channelGroups) { group in
+                    section(for: group)
+                }
+            } else if controller.isLoading {
+                /// Placeholders are only displayed when controller is loading to avoid jumps when loading happens quickly (or not at all).
+                ForEach(0...12, id: \.self) { _ in
+                    RestoreImageButton(image: .placeholder, isSelected: false, action: { })
+                }
             }
         }
         .padding(.trailing, containerPadding)
