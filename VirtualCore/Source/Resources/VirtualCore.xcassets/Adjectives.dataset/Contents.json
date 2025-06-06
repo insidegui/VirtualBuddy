@@ -2,7 +2,8 @@
   "data" : [
     {
       "filename" : "Adjectives.txt",
-      "idiom" : "universal"
+      "idiom" : "universal",
+      "universal-type-identifier" : "public.plain-text"
     }
   ],
   "info" : {
