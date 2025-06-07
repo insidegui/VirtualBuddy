@@ -1,6 +1,24 @@
 {
-  "originHash" : "5aabd6ca94084da6e618f041d74475ec3f152216f0ee77b4939a37c8bef3ee17",
+  "originHash" : "e8f8791c4443254b17d50018128b360ec3f9444cc33930415bf7151ecfd1277e",
   "pins" : [
+    {
+      "identity" : "buddykit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/BuddyKit",
+      "state" : {
+        "revision" : "34b769ec7ff1bfb7e935ed79534fad2281577096",
+        "version" : "1.6.1"
+      }
+    },
+    {
+      "identity" : "libfragmentzip",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/libfragmentzip.git",
+      "state" : {
+        "revision" : "9f72ba6706fe4a16413d463a79eae52c374f3c29",
+        "version" : "1.0.0"
+      }
+    },
     {
       "identity" : "sparkle",
       "kind" : "remoteSourceControl",
@@ -8,6 +26,15 @@
       "state" : {
         "revision" : "0ca3004e98712ea2b39dd881d28448630cce1c99",
         "version" : "2.7.0"
+      }
+    },
+    {
+      "identity" : "swift-argument-parser",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-argument-parser",
+      "state" : {
+        "revision" : "011f0c765fb46d9cac61bca19be0527e99c98c8b",
+        "version" : "1.5.1"
       }
     },
     {

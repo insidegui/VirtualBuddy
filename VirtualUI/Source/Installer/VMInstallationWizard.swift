@@ -9,211 +9,277 @@ import SwiftUI
 import VirtualCore
 import Combine
 
+extension EnvironmentValues {
+    /// Defines the padding for a container where the children must adopt the padding in their implementations.
+    /// Currently used for the `VMInstallationWizard` to allow children to apply padding in a custom way,
+    /// retaining the standard padding between all steps.
+    @Entry var containerPadding: CGFloat = 16
+
+    /// The maximum width for the content area in the current context.
+    @Entry var maxContentWidth: CGFloat? = nil
+}
+
 public struct VMInstallationWizard: View {
+    static var padding: CGFloat { 22 }
+    static var maxContentWidth: CGFloat { 720 }
+
     @ObservedObject var library: VMLibraryController
     @StateObject var viewModel: VMInstallationViewModel
 
-    @Environment(\.closeWindow) var closeWindow
+    @Environment(\.dismiss) var closeWindow
 
-    public init(library: VMLibraryController, restoring restoreVM: VBVirtualMachine? = nil) {
+    public init(library: VMLibraryController, restoringAt restoreURL: URL? = nil, initialStep: VMInstallationStep? = nil) {
         self._library = .init(initialValue: library)
-        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoring: restoreVM))
+        self._viewModel = .init(wrappedValue: VMInstallationViewModel(library: library, restoringAt: restoreURL, initialStep: initialStep))
     }
 
     private let stepValidationStateChanged = PassthroughSubject<Bool, Never>()
 
+    /// Some step views can't have the default padding applied because they need
+    /// to handle padding in a specific way. Those may read `containerPadding` from the environment.
+    private var effectivePadding: CGFloat {
+        switch viewModel.step {
+        case .restoreImageSelection, .configuration: 0
+        default: Self.padding
+        }
+    }
+
+    private var effectiveMaxContentWidth: CGFloat {
+        switch viewModel.step {
+        case .configuration: VMConfigurationSheet.minWidth
+        default: Self.maxContentWidth
+        }
+    }
+
+    private var hideBottomBar: Bool {
+        switch viewModel.step {
+        case .systemType, .restoreImageInput, .restoreImageSelection, .name, .configuration:
+            false
+        case .download, .install, .done:
+            true
+        }
+    }
+
     public var body: some View {
-        VStack {
-            switch viewModel.step {
-                case .systemType:
-                    guestSystemTypeSelection
-                case .installKind:
-                    installKindSelection
-                case .restoreImageInput:
-                    restoreImageURLInput
-                case .restoreImageSelection:
-                    restoreImageSelection
-                case .configuration:
-                    configureVM
-                case .name:
-                    renameVM
-                case .download:
-                    downloadView
-                case .install:
-                    installProgress
-                case .done:
-                    finishingLine
+        NavigationStack {
+            VStack {
+                switch viewModel.step {
+                    case .systemType:
+                        guestSystemTypeSelection
+                    case .restoreImageInput:
+                        restoreImageURLInput
+                    case .restoreImageSelection:
+                        restoreImageSelection
+                    case .configuration:
+                        configureVM
+                    case .name:
+                        renameVM
+                    case .download, .install, .done:
+                        InstallProgressDisplayView().environmentObject(viewModel)
+                }
             }
-
-            if viewModel.showNextButton {
-                Spacer()
-
-                Button(viewModel.buttonTitle, action: {
+            .onReceive(stepValidationStateChanged) { isValid in
+                viewModel.disableNextButton = !isValid
+            }
+            .navigationTitle(Text("Virtual Machine Setup"))
+            .navigationSubtitle(Text(viewModel.step.subtitle))
+            .padding(effectivePadding)
+        }
+        .toolbar {
+            ToolbarItemGroup(placement: .navigation) {
+                Button {
                     if viewModel.step == .done {
-                        library.loadMachines()
                         closeWindow()
                     } else {
-                        viewModel.goNext()
+                        viewModel.back()
                     }
-                })
-                    .controlSize(.large)
+                } label: {
+                    Image(systemName: "chevron.left")
+                }
+                .disabled(!viewModel.canGoBack)
+            }
+
+            ToolbarItemGroup(placement: .confirmationAction) {
+                if viewModel.step == .done {
+                    Button("Done") {
+                        closeWindow()
+                    }
                     .keyboardShortcut(.defaultAction)
-                    .disabled(viewModel.disableNextButton)
+                }
             }
         }
-        .padding(viewModel.step != .configuration ? 16 : 0)
-        .padding(.horizontal, viewModel.step != .configuration ? 36 : 0)
-        .windowStyleMask([.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView])
-        .windowTitleHidden(true)
-        .windowTitleBarTransparent(true)
-        .windowTitle("New Virtual Machine")
+        .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !hideBottomBar {
+                bottomBar
+            }
+        }
+        .background {
+            BlurHashFullBleedBackground(viewModel.data.backgroundHash)
+                .environment(\.fullBleedBackgroundDimmed, dimBackground)
+        }
+        .environment(\.containerPadding, Self.padding)
+        .environment(\.maxContentWidth, effectiveMaxContentWidth)
         .confirmBeforeClosingWindow { [weak viewModel] in
             await viewModel?.confirmBeforeClosing() ?? true
         }
-        .onReceive(stepValidationStateChanged) { isValid in
-            viewModel.disableNextButton = !isValid
+    }
+
+    private var dimBackground: Bool {
+        switch viewModel.step {
+        case .systemType: false
+        case .restoreImageInput: false
+        case .restoreImageSelection: false
+        case .name: false
+        case .configuration: false
+        case .download: true
+        case .install: true
+        case .done: false
         }
-        .edgesIgnoringSafeArea(.top)
-        .frame(minWidth: 470)
+    }
+
+    @ViewBuilder
+    private var bottomBar: some View {
+        HStack {
+            Group {
+                switch viewModel.step {
+                case .restoreImageSelection:
+                    HStack(spacing: 12) {
+                        Button("Local File") {
+                            viewModel.selectInstallMethod(.localFile)
+                        }
+
+                        Divider()
+                            .frame(height: 22)
+
+                        Button("Custom Link") {
+                            viewModel.selectInstallMethod(.remoteManual)
+                        }
+                    }
+                default:
+                    EmptyView()
+                }
+            }
+            .buttonStyle(.link)
+
+            if case .error(let message) = viewModel.state {
+                Spacer()
+
+                errorView(message: message, multiline: false)
+            }
+
+            Spacer()
+
+            if viewModel.showNextButton {
+                nextButton
+            }
+        }
+        .controlSize(.large)
+        .padding()
+        .background(Material.bar)
+        .overlay(alignment: .top) { Divider() }
+    }
+
+    @ViewBuilder
+    private func errorView(message: String, multiline: Bool) -> some View {
+        Text(message)
+            .font(.subheadline)
+            .foregroundStyle(.red)
+            .textSelection(.enabled)
+            .multilineTextAlignment(.center)
+            .lineLimit(multiline ? nil : 1)
+            .minimumScaleFactor(0.8)
+            .help(message)
+    }
+
+    @ViewBuilder
+    private var nextButton: some View {
+        Button(viewModel.buttonTitle, action: {
+            if viewModel.step == .done {
+                library.loadMachines()
+                closeWindow()
+            } else {
+                viewModel.next()
+            }
+        })
+            .keyboardShortcut(.defaultAction)
+            .disabled(viewModel.disableNextButton)
     }
 
     @ViewBuilder
     private var guestSystemTypeSelection: some View {
-        VStack {
-            InstallationWizardTitle("Select an Operating System")
-
-            GuestTypePicker(selection: $viewModel.selectedSystemType)
-        }
-        .frame(minWidth: 400, minHeight: 360)
-    }
-
-    @ViewBuilder
-    private var installKindSelection: some View {
-        VStack {
-            InstallationWizardTitle("How Would You Like to Install \(viewModel.selectedSystemType.name)?")
-
-            InstallMethodPicker(
-                guestType: viewModel.selectedSystemType,
-                selection: $viewModel.installMethod
-            )
-        }
+        GuestTypePicker(selection: $viewModel.data.systemType)
     }
 
     @ViewBuilder
     private var restoreImageURLInput: some View {
-        VStack {
-            InstallationWizardTitle(viewModel.selectedSystemType.customURLPrompt)
-
-            TextField("URL", text: $viewModel.provisionalRestoreImageURL, onCommit: viewModel.goNext)
-                .textFieldStyle(.roundedBorder)
-                .controlSize(.large)
-        }
+        RestoreImageURLInputView().environmentObject(viewModel)
     }
 
     @ViewBuilder
     private var restoreImageSelection: some View {
-        VStack {
-            InstallationWizardTitle(viewModel.selectedSystemType.restoreImagePickerPrompt)
-            
-            RestoreImagePicker(
-                library: library,
-                selection: $viewModel.data.restoreImageInfo,
-                guestType: viewModel.selectedSystemType,
-                validationChanged: stepValidationStateChanged,
-                onUseLocalFile: { localURL in
-                    viewModel.continueWithLocalFile(at: localURL)
-                })
-        }
+        RestoreImageSelectionStep()
+            .environmentObject(viewModel)
     }
     
     @ViewBuilder
     private var configureVM: some View {
-        VStack {
-            InstallationWizardTitle("Configure Your Virtual Machine")
+        if let machine = viewModel.machine {
+            InstallConfigurationStepView(vm: machine) { configuredModel in
+                viewModel.machine = configuredModel
+                try? viewModel.machine?.saveMetadata()
 
-            if let machine = viewModel.machine {
-                InstallConfigurationStepView(vm: machine) { configuredModel in
-                    viewModel.machine = configuredModel
-                    try? viewModel.machine?.saveMetadata()
-
-                    viewModel.goNext()
-                }
-            } else {
-                Text("Preparing…")
+                viewModel.next()
             }
+        } else {
+            preparingStatus
         }
+    }
+
+    @ViewBuilder
+    private var preparingStatus: some View {
+        Text("Preparing…")
+            .foregroundStyle(.tertiary)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 
     @ViewBuilder
     private var renameVM: some View {
-        VStack {
-            InstallationWizardTitle("Name Your Virtual Machine")
+        VirtualMachineNameInputView(name: $viewModel.data.name)
+    }
 
-            VirtualMachineNameField(name: $viewModel.data.name)
+}
+
+extension VMInstallationStep {
+    var subtitle: String {
+        switch self {
+        case .systemType: "Choose Operating System"
+        case .restoreImageInput: "Select Custom Restore Image"
+        case .restoreImageSelection: "Choose Version"
+        case .name: "Name Your Virtual Machine"
+        case .configuration: "Configure Your Virtual Machine"
+        case .download: "Downloading"
+        case .install: "Installing"
+        case .done: "Finished"
         }
     }
-
-    private var vmDisplayName: String {
-        viewModel.data.name.isEmpty ? viewModel.selectedSystemType.name : viewModel.data.name
-    }
-
-    @ViewBuilder
-    private var downloadView: some View {
-        VStack {
-            InstallationWizardTitle("Downloading \(vmDisplayName)")
-
-            if let downloader = viewModel.downloader {
-                RestoreImageDownloadView(downloader: downloader)
-            }
-        }
-    }
-
-    @ViewBuilder
-    private var installProgress: some View {
-        VStack {
-            InstallationWizardTitle("Installing \(vmDisplayName)")
-
-            InstallProgressStepView()
-                .environmentObject(viewModel)
-        }
-    }
-
-    @ViewBuilder
-    private var finishingLine: some View {
-        VStack {
-            InstallationWizardTitle(vmDisplayName)
-
-            Text(viewModel.selectedSystemType.installFinishedMessage)
-        }
-    }
-
-    @ViewBuilder
-    private var loadingView: some View {
-        switch viewModel.state {
-            case .loading(let progress, let info):
-                VStack {
-                    ProgressView(value: progress) { }
-                        .progressViewStyle(.linear)
-                        .labelsHidden()
-
-                    if let info = info {
-                        Text(info)
-                            .font(.system(size: 12, weight: .medium).monospacedDigit())
-                            .foregroundColor(.secondary)
-                    }
-                }
-            case .error(let message):
-                Text(message)
-            case .idle:
-                Text("Starting…")
-                    .foregroundColor(.secondary)
-        }
-    }
-
 }
 
 #if DEBUG
-#Preview {
-    VMInstallationWizard(library: .preview)
+extension VMInstallationWizard {
+    @ViewBuilder
+    static func preview(step: VMInstallationStep) -> some View {
+        VMInstallationWizard(library: .preview, initialStep: step)
+            .frame(width: 900)
+    }
+
+    @ViewBuilder
+    static var preview: some View {
+        preview(step: .restoreImageSelection)
+    }
 }
-#endif
+
+#Preview {
+    VMInstallationWizard.preview(step: .download)
+}
+#endif // DEBUG

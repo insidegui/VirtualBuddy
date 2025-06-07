@@ -475,16 +475,20 @@ public final class VMInstance: NSObject, ObservableObject {
 
 extension VMInstance: VZVirtualMachineDelegate {
     
-    public func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
-        handleGuestStopped(with: error)
+    public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
+        MainActor.assumeIsolated {
+            handleGuestStopped(with: error)
+        }
     }
 
-    public func guestDidStop(_ virtualMachine: VZVirtualMachine) {
-        handleGuestStopped(with: nil)
+    public nonisolated func guestDidStop(_ virtualMachine: VZVirtualMachine) {
+        MainActor.assumeIsolated {
+            handleGuestStopped(with: nil)
+        }
     }
     
-    public func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
-        
+    public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
+
     }
 
     private func handleGuestStopped(with error: Error?) {

@@ -1,0 +1,155 @@
+{
+  "apiVersion" : 2,
+  "channels" : [
+    {
+      "icon" : "checkmark.seal",
+      "id" : "regular",
+      "name" : "Release",
+      "note" : "Public, stable releases."
+    },
+    {
+      "icon" : "wrench.and.screwdriver",
+      "id" : "daily",
+      "name" : "Daily",
+      "note" : "Daily builds meant for testing."
+    }
+  ],
+  "features" : [
+    {
+      "id" : "file_sharing",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "name" : "File sharing",
+      "unsupportedPlatform" : true
+    },
+    {
+      "id" : "guest_app",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "name" : "VirtualBuddyGuest app",
+      "unsupportedPlatform" : true
+    },
+    {
+      "id" : "trackpad",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "name" : "Trackpad",
+      "unsupportedPlatform" : true
+    },
+    {
+      "id" : "mac_keyboard",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "name" : "Mac keyboard",
+      "unsupportedPlatform" : true
+    },
+    {
+      "id" : "state_restoration",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "name" : "State restoration",
+      "unsupportedPlatform" : true
+    },
+    {
+      "id" : "display_resize",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "0.0.0",
+      "name" : "Automatic display configuration",
+      "unsupportedPlatform" : true
+    },
+    {
+      "id" : "rosetta_sharing",
+      "minVersionGuest" : "0.0.0",
+      "minVersionHost" : "14.0.0",
+      "name" : "Rosetta Sharing",
+      "unsupportedPlatform" : false
+    }
+  ],
+  "groups" : [
+    {
+      "darkImage" : {
+        "id" : "fedora",
+        "thumbnail" : {
+          "blurHash" : "UQ6+b#kCMcflyGaeR4f5R4ayozj[Mbofx^a}",
+          "height" : 720,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/fedora-dark-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/fedora-dark.heic"
+      },
+      "id" : "fedora",
+      "image" : {
+        "id" : "fedora",
+        "thumbnail" : {
+          "blurHash" : "UE6.Evf5D6j[*0ahMdf8Htf*xufQD5kC%fbG",
+          "height" : 720,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/fedora-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/fedora.heic"
+      },
+      "majorVersion" : "41.0.0",
+      "name" : "Fedora"
+    },
+    {
+      "darkImage" : {
+        "id" : "jammyjellyfish",
+        "thumbnail" : {
+          "blurHash" : "UIE0281ds7Ey1a$MWYaysSjvoMjsWoWUo2jv",
+          "height" : 405,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/jammyjellyfish-dark-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/jammyjellyfish-dark.heic"
+      },
+      "id" : "ubuntu",
+      "image" : {
+        "id" : "jammyjellyfish",
+        "thumbnail" : {
+          "blurHash" : "UIE0281ds7Ey1a$MWYaysSjvoMjsWoWUo2jv",
+          "height" : 405,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/jammyjellyfish-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/jammyjellyfish.heic"
+      },
+      "majorVersion" : "22.0.0",
+      "name" : "Ubuntu"
+    }
+  ],
+  "minAppVersion" : "2.0.0",
+  "requirementSets" : [
+    {
+      "id" : "min_host_13",
+      "minCPUCount" : 1,
+      "minMemorySizeMB" : 1024,
+      "minVersionHost" : "13.0.0"
+    }
+  ],
+  "restoreImages" : [
+    {
+      "build" : "22.04.4 LTS",
+      "channel" : "daily",
+      "downloadSize" : 4047564800,
+      "group" : "ubuntu",
+      "id" : "22.04.4 LTS",
+      "mobileDeviceMinVersion" : "0.0.0",
+      "name" : "Jammy Jellyfish 22.04.4",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/cdimage.ubuntu.com\/jammy\/daily-live\/current\/jammy-desktop-arm64.iso",
+      "version" : "22.4.4"
+    },
+        {
+            "build": "42.1.1",
+            "channel": "regular",
+            "downloadSize": 1006553088,
+            "group": "fedora",
+            "id": "42.1.1",
+            "mobileDeviceMinVersion": "0.0.0",
+            "name": "Fedora 42.1.1 Net Install",
+            "requirements": "min_host_13",
+            "url": "https://download.fedoraproject.org/pub/fedora/linux/releases/42/Everything/aarch64/iso/Fedora-Everything-netinst-aarch64-42-1.1.iso",
+            "version": "42.1.1"
+        }
+  ]
+}

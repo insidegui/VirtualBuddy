@@ -2,7 +2,7 @@ import Cocoa
 import SwiftUI
 import VirtualCore
 
-let defaultHostingWindowStyleMask: NSWindow.StyleMask = [.titled, .closable, .fullSizeContentView]
+let defaultHostingWindowStyleMask: NSWindow.StyleMask = [.titled, .miniaturizable, .resizable, .closable, .fullSizeContentView]
 
 public final class HostingWindowController<Content>: NSWindowController, NSWindowDelegate where Content: View {
 

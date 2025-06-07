@@ -76,7 +76,7 @@ struct VMConfigurationView: View {
             sound
 
             sharing
-                .frame(minWidth: 0, idealWidth: VMConfigurationSheet.defaultWidth)
+                .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
         }
         .font(.system(size: 12))
     }

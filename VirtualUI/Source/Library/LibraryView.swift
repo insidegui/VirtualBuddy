@@ -16,6 +16,9 @@ public struct LibraryView: View {
     @EnvironmentObject private var library: VMLibraryController
     @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
 
+    @Environment(\.openCocoaWindow)
+    private var openCocoaWindow
+
     public init() { }
 
     public var body: some View {
@@ -89,11 +92,13 @@ public struct LibraryView: View {
     private var toolbarContents: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             Button {
-                sessionManager.launchInstallWizard(library: library)
+                openCocoaWindow {
+                    VMInstallationWizard(library: library)
+                }
             } label: {
                 Image(systemName: "plus")
             }
-            .help("Install new VM")
+            .help("New virtual machine")
         }
     }
     

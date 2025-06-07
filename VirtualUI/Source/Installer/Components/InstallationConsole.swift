@@ -35,7 +35,7 @@ struct InstallationConsole: View {
                 .buttonStyle(.link)
             }
         }
-            .controlGroup(cornerRadius: 8, level: .secondary)
+        .controlGroup(level: .secondary)
     }
 
 }

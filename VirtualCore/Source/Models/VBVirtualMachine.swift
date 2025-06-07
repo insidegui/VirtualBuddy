@@ -9,13 +9,33 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
 
     public struct Metadata: Codable {
         public static let currentVersion = 1
+        @DecodableDefault.EmptyPlaceholder
+        public var uuid = UUID()
         public var version = Self.currentVersion
         public var installFinished: Bool = false
         public var firstBootDate: Date? = nil
         public var lastBootDate: Date? = nil
-        public var installImageURL: URL? = nil
-        @DecodableDefault.EmptyPlaceholder
-        public var uuid = UUID()
+
+        /// The original remote URL that was specified for downloading the restore image (if downloaded from a remote source).
+        public private(set) var remoteInstallImageURL: URL? = nil
+
+        /// The original local file URL that was specified (or set after a successful download from ``remoteInstallImageURL``).
+        public private(set) var installImageURL: URL? = nil
+
+        /**
+         Usage of the same property for both local and remote restore image URLs has been the source of recurring bugs in the past.
+         Example: https://github.com/insidegui/VirtualBuddy/pull/395
+         
+         To keep this struct backwards-compatible and still have better safeguards against regressions, ``remoteInstallImageURL`` and ``installImageURL``
+         are only settable by the struct itself. To update the metadata, clients must use this method, which will automatically set the correct property by inspecting the URL.
+         */
+        public mutating func updateInstallImageURL(_ url: URL) {
+            if url.isFileURL {
+                installImageURL = url
+            } else {
+                remoteInstallImageURL = url
+            }
+        }
     }
 
     public var id: String { bundleURL.absoluteString }
@@ -136,17 +156,17 @@ public extension VBVirtualMachine {
         }
 
         self.installRestoreData = installRestore
-
-        try saveMetadata()
     }
 
     @available(macOS 13, *)
-    init(creatingAtURL bundleURL: URL, linuxInstallerURL: URL) throws {
+    init(creatingLinuxMachineAt bundleURL: URL) throws {
         guard !FileManager.default.fileExists(atPath: bundleURL.path) else { fatalError() }
         try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         self.bundleURL = bundleURL
         self.configuration = .init(systemType: .linux)
-        self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now, installImageURL: linuxInstallerURL)
+
+        self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now)
+
         try saveMetadata()
     }
 

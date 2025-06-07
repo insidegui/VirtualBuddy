@@ -8,12 +8,28 @@
 import Foundation
 import VirtualCore
 
-enum InstallMethod: String, Identifiable, CaseIterable, Codable {
+enum InstallMethod: String, Identifiable, CaseIterable, Codable, ProvidesEmptyPlaceholder {
     var id: RawValue { rawValue }
 
-    case localFile
     case remoteOptions
+    case localFile
     case remoteManual
+
+    static var empty: InstallMethod { .remoteOptions }
+}
+
+enum InstallMethodSelection: Identifiable, Hashable, Codable {
+    case remoteOptions(RestoreImage)
+    case localFile(URL)
+    case remoteManual(URL)
+
+    var id: InstallMethod {
+        switch self {
+        case .remoteOptions: .remoteOptions
+        case .localFile: .localFile
+        case .remoteManual: .remoteManual
+        }
+    }
 }
 
 extension InstallMethod {
@@ -56,7 +72,7 @@ extension VBGuestType {
     }
 
     var restoreImagePickerPrompt: String {
-        "Pick a \(name) Version to Download"
+        "Pick a \(name) Version to Install"
     }
 
     var installFinishedMessage: String {

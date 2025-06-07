@@ -7,6 +7,7 @@
 
 import Foundation
 import OSLog
+@_exported import BuddyKit
 
 struct VirtualCoreConstants {
     static let subsystemName = "codes.rambo.VirtualCore"

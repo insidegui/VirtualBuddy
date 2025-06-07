@@ -364,7 +364,6 @@ Far
 Fascinating
 Fashionable
 Fast
-Fat
 Fatal
 Favourable
 Favourite
@@ -407,7 +406,6 @@ Friendly
 Frightened
 Front
 Frozen
-Fucking
 Full
 Full-time
 Fun
@@ -1000,7 +998,6 @@ Striped
 Strong
 Structural
 Stuck
-Stupid
 Subjective
 Subsequent
 Substantial
@@ -1068,7 +1065,6 @@ Tropical
 Troubled
 Typical
 Ugliest
-Ugly
 Ultimate
 Unable
 Unacceptable

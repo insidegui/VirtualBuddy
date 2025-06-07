@@ -5,9 +5,25 @@ public enum ControlGroupLevel: Int {
     case secondary
 }
 
+public struct ControlGroupMetrics {
+    static let primaryGroupRadius: Double = 14
+    static let secondaryGroupRadius: Double = 8
+}
+
+public extension ControlGroupLevel {
+    var cornerRadius: Double {
+        switch self {
+        case .primary: ControlGroupMetrics.primaryGroupRadius
+        case .secondary: ControlGroupMetrics.secondaryGroupRadius
+        }
+    }
+}
+
 public extension View {
-    func controlGroup(cornerRadius: CGFloat = 10, level: ControlGroupLevel = .primary) -> some View {
-        modifier(ControlGroupChrome(level: level, shapeBuilder: { RoundedRectangle(cornerRadius: cornerRadius, style: .continuous) }))
+    func controlGroup(level: ControlGroupLevel = .primary) -> some View {
+        modifier(ControlGroupChrome(level: level, shapeBuilder: {
+            RoundedRectangle(cornerRadius: level.cornerRadius, style: .continuous)
+        }))
     }
 
     func controlGroup<S>(_ shape: S, level: ControlGroupLevel = .primary) -> some View where S: InsettableShape {
@@ -54,24 +70,21 @@ private struct ControlGroupChrome<Shape: InsettableShape>: ViewModifier {
     private var material: Material {
         switch level {
         case .primary:
-            return .ultraThin
-        case .secondary:
             return .thin
+        case .secondary:
+            return .regular
         }
     }
 
     func body(content: Content) -> some View {
         content
             .background(material, in: shape)
-            .overlay {
-                shape
-                    .stroke(Color.white.opacity(innerRimOpacity), style: .init(lineWidth: 1))
-                    .blendMode(.plusLighter)
-            }
             .clipShape(shape)
             .shadow(color: Color.black.opacity(outerRimOpacity), radius: 1, x: 0, y: 0)
             .shadow(color: Color.black.opacity(shadowOpacity), radius: dark ? 8 : 10, x: 0, y: 0)
+            .chromeBorder(shape: shape, highlightEnabled: true, rimEnabled: false, shadowEnabled: false, highlightIntensity: innerRimOpacity)
             .unfocusOnTap()
+            .containerShape(shape)
     }
 
     private var shape: Shape {

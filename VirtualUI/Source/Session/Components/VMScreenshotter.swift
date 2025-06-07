@@ -80,8 +80,6 @@ final class VMScreenshotter {
 
 }
 
-extension NSImage: @unchecked Sendable { }
-
 // MARK: - Screenshot Taking
 
 private extension VMScreenshotter {

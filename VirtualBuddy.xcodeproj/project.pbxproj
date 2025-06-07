@@ -6,6 +6,22 @@
 	objectVersion = 55;
 	objects = {
 
+/* Begin PBXAggregateTarget section */
+		F453C44F2DF0BCE3007EAD5F /* vctool */ = {
+			isa = PBXAggregateTarget;
+			buildConfigurationList = F453C4502DF0BCE3007EAD5F /* Build configuration list for PBXAggregateTarget "vctool" */;
+			buildPhases = (
+			);
+			dependencies = (
+				F453C4592DF0BCEB007EAD5F /* PBXTargetDependency */,
+			);
+			name = vctool;
+			packageProductDependencies = (
+			);
+			productName = vctool;
+		};
+/* End PBXAggregateTarget section */
+
 /* Begin PBXBuildFile section */
 		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
 		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
@@ -28,8 +44,6 @@
 		F4136999299179B1002CE8D3 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = F4136998299179B1002CE8D3 /* Main.storyboard */; };
 		F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
 		F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
-		F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F41369A329917FA0002CE8D3 /* ScreenChangeModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A229917FA0002CE8D3 /* ScreenChangeModifier.swift */; };
 		F41369A6299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369A5299183C8002CE8D3 /* GuestLaunchAtLoginManager.swift */; };
 		F41369AE29918576002CE8D3 /* GuestHelperAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369AD29918576002CE8D3 /* GuestHelperAppDelegate.swift */; };
@@ -38,7 +52,6 @@
 		F41369BF2991863A002CE8D3 /* VirtualBuddyGuestHelper.app in Embed Login Item */ = {isa = PBXBuildFile; fileRef = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F41369CA2991A492002CE8D3 /* HostConnectionStateProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */; };
 		F41369CC2991A68F002CE8D3 /* GuestSharedFoldersManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41369CB2991A68F002CE8D3 /* GuestSharedFoldersManager.swift */; };
-		F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */ = {isa = PBXBuildFile; fileRef = F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */; };
 		F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */; };
 		F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417255E28861604004FF8A7 /* DecodableDefault.swift */; };
 		F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256028861A05004FF8A7 /* SharingConfigurationView.swift */; };
@@ -95,21 +108,86 @@
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
+		F444D0CA2DF321CD0086537A /* CatalogGroupPlaceholder.heic in Resources */ = {isa = PBXBuildFile; fileRef = F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */; };
+		F444D0CC2DF322B90086537A /* SoftwareCatalog+Placeholder.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */; };
+		F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */; };
+		F444D0F42DF34BE80086537A /* CALayer+Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F32DF34BE40086537A /* CALayer+Asset.swift */; };
+		F444D0F62DF37D170086537A /* VirtualBuddyMonoIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F52DF37D170086537A /* VirtualBuddyMonoIcon.swift */; };
+		F444D0F82DF37D410086537A /* VirtualDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F72DF37D410086537A /* VirtualDisplayView.swift */; };
+		F444D0FA2DF37DFB0086537A /* InstallProgressDisplayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0F92DF37DFB0086537A /* InstallProgressDisplayView.swift */; };
+		F444D0FC2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */; };
 		F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */; };
 		F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */; };
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */; };
-		F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameField.swift */; };
+		F453C4122DF0B1ED007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4112DF0B1ED007EAD5F /* BuddyKit */; };
+		F453C41D2DF0B43D007EAD5F /* ResolvedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */; };
+		F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */; };
+		F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */; };
+		F453C4202DF0B43D007EAD5F /* SoftwareCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */; };
+		F453C4212DF0B43D007EAD5F /* MobileDeviceFramework.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */; };
+		F453C4232DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4222DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift */; };
+		F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; };
+		F453C4252DF0B602007EAD5F /* VirtualUI.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F453C42B2DF0B792007EAD5F /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = F453C42A2DF0B792007EAD5F /* ArgumentParser */; };
+		F453C43B2DF0B7A5007EAD5F /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42E2DF0B7A5007EAD5F /* Helpers.swift */; };
+		F453C43C2DF0B7A5007EAD5F /* VCTool.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4392DF0B7A5007EAD5F /* VCTool.swift */; };
+		F453C43D2DF0B7A5007EAD5F /* URL+ContentLength.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4302DF0B7A5007EAD5F /* URL+ContentLength.swift */; };
+		F453C43E2DF0B7A5007EAD5F /* IPSWCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */; };
+		F453C43F2DF0B7A5007EAD5F /* ImageCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */; };
+		F453C4402DF0B7A5007EAD5F /* BuildManifest.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42C2DF0B7A5007EAD5F /* BuildManifest.swift */; };
+		F453C4412DF0B7A5007EAD5F /* GroupCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */; };
+		F453C4422DF0B7A5007EAD5F /* MobileDeviceCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4372DF0B7A5007EAD5F /* MobileDeviceCommand.swift */; };
+		F453C4432DF0B7A5007EAD5F /* BuildManifest+Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42D2DF0B7A5007EAD5F /* BuildManifest+Fetch.swift */; };
+		F453C4442DF0B7A5007EAD5F /* TreeStringConvertible.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C42F2DF0B7A5007EAD5F /* TreeStringConvertible.swift */; };
+		F453C4452DF0B7A5007EAD5F /* MigrateCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */; };
+		F453C4462DF0B7A5007EAD5F /* ResolveCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4382DF0B7A5007EAD5F /* ResolveCommand.swift */; };
+		F453C4472DF0B7A5007EAD5F /* CatalogCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */; };
+		F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4492DF0B7F6007EAD5F /* FragmentZip */; };
+		F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C44B2DF0B835007EAD5F /* libcurl.tbd */; };
+		F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */; };
+		F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C45A2DF0C4BE007EAD5F /* BuddyKit */; };
+		F453C45D2DF0D28A007EAD5F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F453C45C2DF0D286007EAD5F /* README.md */; };
+		F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4622DF0E609007EAD5F /* BuddyKit */; };
+		F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */; };
+		F453C4682DF10181007EAD5F /* BlurHashCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4672DF10181007EAD5F /* BlurHashCommand.swift */; };
+		F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */; };
+		F453C4922DF1D213007EAD5F /* FakeRestoreImage.ipsw in Resources */ = {isa = PBXBuildFile; fileRef = F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */; };
+		F453C49B2DF1D768007EAD5F /* SimulatedDownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */; };
+		F453C4A02DF1D7C0007EAD5F /* RestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */; };
+		F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */; };
+		F453C4A42DF1D861007EAD5F /* VirtualizationRestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */; };
+		F453C4B42DF20301007EAD5F /* RestoreImageURLInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4B32DF20301007EAD5F /* RestoreImageURLInputView.swift */; };
+		F453C4B92DF21985007EAD5F /* VMInstallData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4B82DF21985007EAD5F /* VMInstallData.swift */; };
+		F453C4BB2DF231BB007EAD5F /* PreventTerminationAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */; };
+		F45502142DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45502132DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift */; };
+		F45502162DF45E53005582A4 /* VBSettings+CatalogDownload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45502152DF45E4D005582A4 /* VBSettings+CatalogDownload.swift */; };
+		F45502232DF463A1005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F45502182DF46368005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw */; };
+		F45502242DF463A1005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F45502192DF46368005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw */; };
+		F45502252DF463A1005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021A2DF46368005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw */; };
+		F45502262DF463A1005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */; };
+		F45502272DF463A1005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */; };
+		F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
-		F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B7284FA252006E9ED4 /* VBDownloader.swift */; };
+		F465C3B8284FA252006E9ED4 /* URLSessionDownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */; };
 		F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */; };
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
+		F47BCDA12C5BE8FF00165191 /* ipsws_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F47BCDA22C5BE8FF00165191 /* linux_v2.json in Copy Software Catalog Feeds */ = {isa = PBXBuildFile; fileRef = F47BCDA02C5BE8EF00165191 /* linux_v2.json */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */; };
+		F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */; };
+		F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */; };
+		F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */; };
+		F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */; };
+		F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */; };
+		F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */; };
+		F47BCDD92C5D2EE300165191 /* RestoreImageBrowser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */; };
 		F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */; };
 		F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */; };
 		F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */ = {isa = PBXBuildFile; fileRef = F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */; };
@@ -120,7 +198,7 @@
 		F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */; };
 		F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */; };
 		F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */; };
-		F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */; };
+		F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */; };
 		F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */; };
 		F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */; };
 		F48E0D1F288882BD0080DDFA /* VMInstallationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */; };
@@ -215,6 +293,9 @@
 		F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0A2D6F54E000603527 /* VBSavedStateMetadata+Clone.swift */; };
 		F4DE1C0F2D6F603300603527 /* VBSavedStatePackage+VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */; };
 		F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */; };
+		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
+		F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */; };
+		F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
@@ -227,7 +308,6 @@
 		F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */; };
 		F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */; };
 		F4ECC6D52C63BFD5001DAC1D /* NumberDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */; };
-		F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
@@ -246,13 +326,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
 			remoteInfo = VirtualCore;
-		};
-		F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
-			remoteInfo = VirtualUI;
 		};
 		F41369BC29918617002CE8D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -274,6 +347,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = F43B01142AD858FE00164CD1;
 			remoteInfo = DeepLinkSecurity;
+		};
+		F453C4262DF0B602007EAD5F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F498ACFD2884BF13006F1C00;
+			remoteInfo = VirtualUI;
+		};
+		F453C4582DF0BCEB007EAD5F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4BE9C4D27FF052100B648F8;
+			remoteInfo = VirtualBuddy;
 		};
 		F498AD022884BF13006F1C00 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -342,6 +429,33 @@
 			name = "Embed Guest App";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F45502222DF46386005582A4 /* Copy Preview Library Downloads */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = PreviewLibrary/_Downloads;
+			dstSubfolderSpec = 7;
+			files = (
+				F45502232DF463A1005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502242DF463A1005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502252DF463A1005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502262DF463A1005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502272DF463A1005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw in Copy Preview Library Downloads */,
+			);
+			name = "Copy Preview Library Downloads";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = SoftwareCatalog;
+			dstSubfolderSpec = 7;
+			files = (
+				F47BCDA12C5BE8FF00165191 /* ipsws_v2.json in Copy Software Catalog Feeds */,
+				F47BCDA22C5BE8FF00165191 /* linux_v2.json in Copy Software Catalog Feeds */,
+			);
+			name = "Copy Software Catalog Feeds";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -389,8 +503,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				F453C4252DF0B602007EAD5F /* VirtualUI.framework in Embed Frameworks */,
 				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
-				F413699F299179F8002CE8D3 /* VirtualUI.framework in Embed Frameworks */,
 				F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
@@ -429,7 +543,6 @@
 		F41369C5299187E1002CE8D3 /* VirtualBuddyGuest-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VirtualBuddyGuest-Bridging-Header.h"; sourceTree = "<group>"; };
 		F41369C92991A492002CE8D3 /* HostConnectionStateProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HostConnectionStateProvider.swift; sourceTree = "<group>"; };
 		F41369CB2991A68F002CE8D3 /* GuestSharedFoldersManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestSharedFoldersManager.swift; sourceTree = "<group>"; };
-		F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FixSwiftUIMaterialInPreviews.m; sourceTree = "<group>"; };
 		F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundConfigurationView.swift; sourceTree = "<group>"; };
 		F417255E28861604004FF8A7 /* DecodableDefault.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DecodableDefault.swift; sourceTree = "<group>"; };
 		F417256028861A05004FF8A7 /* SharingConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingConfigurationView.swift; sourceTree = "<group>"; };
@@ -481,21 +594,79 @@
 		F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
+		F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = CatalogGroupPlaceholder.heic; sourceTree = "<group>"; };
+		F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+Placeholder.swift"; sourceTree = "<group>"; };
+		F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashFullBleedBackground.swift; sourceTree = "<group>"; };
+		F444D0F32DF34BE40086537A /* CALayer+Asset.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CALayer+Asset.swift"; sourceTree = "<group>"; };
+		F444D0F52DF37D170086537A /* VirtualBuddyMonoIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyMonoIcon.swift; sourceTree = "<group>"; };
+		F444D0F72DF37D410086537A /* VirtualDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualDisplayView.swift; sourceTree = "<group>"; };
+		F444D0F92DF37DFB0086537A /* InstallProgressDisplayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallProgressDisplayView.swift; sourceTree = "<group>"; };
+		F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyMonoProgressView.swift; sourceTree = "<group>"; };
 		F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBMemoryLeakDebugAssertions.swift; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
 		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
-		F4561A6728981B4100055289 /* VirtualMachineNameField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameField.swift; sourceTree = "<group>"; };
+		F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashEncode.swift; sourceTree = "<group>"; };
+		F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyCatalog.swift; sourceTree = "<group>"; };
+		F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDeviceFramework.swift; sourceTree = "<group>"; };
+		F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolvedCatalog.swift; sourceTree = "<group>"; };
+		F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareCatalog.swift; sourceTree = "<group>"; };
+		F453C4222DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyEntryPoint.swift; sourceTree = "<group>"; };
+		F453C42C2DF0B7A5007EAD5F /* BuildManifest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BuildManifest.swift; sourceTree = "<group>"; };
+		F453C42D2DF0B7A5007EAD5F /* BuildManifest+Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BuildManifest+Fetch.swift"; sourceTree = "<group>"; };
+		F453C42E2DF0B7A5007EAD5F /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		F453C42F2DF0B7A5007EAD5F /* TreeStringConvertible.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TreeStringConvertible.swift; sourceTree = "<group>"; };
+		F453C4302DF0B7A5007EAD5F /* URL+ContentLength.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ContentLength.swift"; sourceTree = "<group>"; };
+		F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogCommand.swift; sourceTree = "<group>"; };
+		F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupCommand.swift; sourceTree = "<group>"; };
+		F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageCommand.swift; sourceTree = "<group>"; };
+		F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPSWCommand.swift; sourceTree = "<group>"; };
+		F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrateCommand.swift; sourceTree = "<group>"; };
+		F453C4372DF0B7A5007EAD5F /* MobileDeviceCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileDeviceCommand.swift; sourceTree = "<group>"; };
+		F453C4382DF0B7A5007EAD5F /* ResolveCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResolveCommand.swift; sourceTree = "<group>"; };
+		F453C4392DF0B7A5007EAD5F /* VCTool.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VCTool.swift; sourceTree = "<group>"; };
+		F453C44B2DF0B835007EAD5F /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
+		F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyCLI.swift; sourceTree = "<group>"; };
+		F453C45C2DF0D286007EAD5F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
+		F453C4672DF10181007EAD5F /* BlurHashCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashCommand.swift; sourceTree = "<group>"; };
+		F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadBackend.swift; sourceTree = "<group>"; };
+		F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */ = {isa = PBXFileReference; lastKnownFileType = file; path = FakeRestoreImage.ipsw; sourceTree = "<group>"; };
+		F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedDownloadBackend.swift; sourceTree = "<group>"; };
+		F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreBackend.swift; sourceTree = "<group>"; };
+		F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatedRestoreBackend.swift; sourceTree = "<group>"; };
+		F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualizationRestoreBackend.swift; sourceTree = "<group>"; };
+		F453C4B32DF20301007EAD5F /* RestoreImageURLInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageURLInputView.swift; sourceTree = "<group>"; };
+		F453C4B82DF21985007EAD5F /* VMInstallData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallData.swift; sourceTree = "<group>"; };
+		F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreventTerminationAssertion.swift; sourceTree = "<group>"; };
+		F45502132DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyInstallerInputView.swift; sourceTree = "<group>"; };
+		F45502152DF45E4D005582A4 /* VBSettings+CatalogDownload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSettings+CatalogDownload.swift"; sourceTree = "<group>"; };
+		F45502182DF46368005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_13.3.1_22E261_Restore.ipsw; sourceTree = "<group>"; };
+		F45502192DF46368005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_14.0_23A344_Restore.ipsw; sourceTree = "<group>"; };
+		F455021A2DF46368005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_14.5_23F79_Restore.ipsw; sourceTree = "<group>"; };
+		F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.3_24D60_Restore.ipsw; sourceTree = "<group>"; };
+		F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.5_24F74_Restore.ipsw; sourceTree = "<group>"; };
+		F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameInputView.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
-		F465C3B7284FA252006E9ED4 /* VBDownloader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDownloader.swift; sourceTree = "<group>"; };
+		F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionDownloadBackend.swift; sourceTree = "<group>"; };
 		F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMScreenshotter.swift; sourceTree = "<group>"; };
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
+		F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = ipsws_v2.json; path = data/ipsws_v2.json; sourceTree = SOURCE_ROOT; };
+		F47BCDA02C5BE8EF00165191 /* linux_v2.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = linux_v2.json; path = data/linux_v2.json; sourceTree = SOURCE_ROOT; };
+		F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecoding.swift; sourceTree = "<group>"; };
+		F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RemoteImage.swift; sourceTree = "<group>"; };
+		F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupView.swift; sourceTree = "<group>"; };
+		F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogGroupPicker.swift; sourceTree = "<group>"; };
+		F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardNavigationModifier.swift; sourceTree = "<group>"; };
+		F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Navigation.swift"; sourceTree = "<group>"; };
+		F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CatalogExtensions.swift; sourceTree = "<group>"; };
+		F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageBrowser.swift; sourceTree = "<group>"; };
 		F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = InfoPlist.xcconfig; sourceTree = "<group>"; };
 		F485B91A2BB22D2D004B3C2B /* VBSavedStateMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStateMetadata.swift; sourceTree = "<group>"; };
 		F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProcessInfo+ECID.swift"; sourceTree = "<group>"; };
@@ -508,7 +679,7 @@
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
 		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
 		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
-		F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImagePicker.swift; sourceTree = "<group>"; };
+		F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionStep.swift; sourceTree = "<group>"; };
 		F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
 		F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
 		F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationViewModel.swift; sourceTree = "<group>"; };
@@ -605,6 +776,8 @@
 		F4DE1C0A2D6F54E000603527 /* VBSavedStateMetadata+Clone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSavedStateMetadata+Clone.swift"; sourceTree = "<group>"; };
 		F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSavedStatePackage+VM.swift"; sourceTree = "<group>"; };
 		F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBStorageDeviceContainer.swift; sourceTree = "<group>"; };
+		F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeBorderModifier.swift; sourceTree = "<group>"; };
+		F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionController.swift; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F4E7680E29B655DD0075A897 /* InstallMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethod.swift; sourceTree = "<group>"; };
@@ -617,7 +790,6 @@
 		F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMLibraryController+SavedState.swift"; sourceTree = "<group>"; };
 		F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUIManager.swift; sourceTree = "<group>"; };
 		F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberDisplayMode.swift; sourceTree = "<group>"; };
-		F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoftwareVersion.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
@@ -648,6 +820,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */,
 				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
 				F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */,
@@ -658,11 +831,15 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */,
+				F453C4122DF0B1ED007EAD5F /* BuddyKit in Frameworks */,
 				F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */,
 				F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */,
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
+				F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
+				F453C42B2DF0B792007EAD5F /* ArgumentParser in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -671,6 +848,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -686,8 +864,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */,
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
-				F413699E299179F8002CE8D3 /* VirtualUI.framework in Frameworks */,
+				F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
@@ -794,6 +973,8 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F453C4642DF0F7F4007EAD5F /* BlurHash */,
+				F47BCDC92C5C01C600165191 /* RemoteImage */,
 				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
 				F48E0D26288883150080DDFA /* HostingWindowController */,
 				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
@@ -803,6 +984,9 @@
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
 				F42C014B2888C34B00EB15CD /* LogConsole.swift */,
 				F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */,
+				F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */,
+				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
+				F444D0F32DF34BE40086537A /* CALayer+Asset.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -820,6 +1004,7 @@
 		F417257228877453004FF8A7 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCD9E2C5BE8D300165191 /* SoftwareCatalog */,
 				F48E0D0828885E510080DDFA /* Preview */,
 				F417257328877478004FF8A7 /* VirtualCore.xcassets */,
 			);
@@ -1019,12 +1204,120 @@
 			path = GuestSupport;
 			sourceTree = "<group>";
 		};
+		F453C4172DF0B43D007EAD5F /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		F453C41C2DF0B43D007EAD5F /* VirtualCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				F453C45C2DF0D286007EAD5F /* README.md */,
+				F453C4172DF0B43D007EAD5F /* Utilities */,
+				F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */,
+				F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */,
+				F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */,
+				F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */,
+			);
+			path = VirtualCatalog;
+			sourceTree = "<group>";
+		};
+		F453C4292DF0B785007EAD5F /* CommandLine */ = {
+			isa = PBXGroup;
+			children = (
+				F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */,
+				F453C43A2DF0B7A5007EAD5F /* vctool */,
+			);
+			path = CommandLine;
+			sourceTree = "<group>";
+		};
+		F453C4312DF0B7A5007EAD5F /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				F453C42C2DF0B7A5007EAD5F /* BuildManifest.swift */,
+				F453C42D2DF0B7A5007EAD5F /* BuildManifest+Fetch.swift */,
+				F453C42E2DF0B7A5007EAD5F /* Helpers.swift */,
+				F453C42F2DF0B7A5007EAD5F /* TreeStringConvertible.swift */,
+				F453C4302DF0B7A5007EAD5F /* URL+ContentLength.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		F453C43A2DF0B7A5007EAD5F /* vctool */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4312DF0B7A5007EAD5F /* Core */,
+				F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */,
+				F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */,
+				F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */,
+				F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */,
+				F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */,
+				F453C4372DF0B7A5007EAD5F /* MobileDeviceCommand.swift */,
+				F453C4382DF0B7A5007EAD5F /* ResolveCommand.swift */,
+				F453C4672DF10181007EAD5F /* BlurHashCommand.swift */,
+				F453C4392DF0B7A5007EAD5F /* VCTool.swift */,
+			);
+			path = vctool;
+			sourceTree = "<group>";
+		};
+		F453C4642DF0F7F4007EAD5F /* BlurHash */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */,
+				F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */,
+			);
+			path = BlurHash;
+			sourceTree = "<group>";
+		};
+		F453C49C2DF1D788007EAD5F /* Restore */ = {
+			isa = PBXGroup;
+			children = (
+				F453C49D2DF1D79F007EAD5F /* Download */,
+				F453C49E2DF1D7A7007EAD5F /* Installation */,
+			);
+			path = Restore;
+			sourceTree = "<group>";
+		};
+		F453C49D2DF1D79F007EAD5F /* Download */ = {
+			isa = PBXGroup;
+			children = (
+				F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */,
+				F453C49A2DF1D768007EAD5F /* SimulatedDownloadBackend.swift */,
+				F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */,
+			);
+			path = Download;
+			sourceTree = "<group>";
+		};
+		F453C49E2DF1D7A7007EAD5F /* Installation */ = {
+			isa = PBXGroup;
+			children = (
+				F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */,
+				F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */,
+				F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */,
+			);
+			path = Installation;
+			sourceTree = "<group>";
+		};
+		F45502172DF4635C005582A4 /* _Downloads */ = {
+			isa = PBXGroup;
+			children = (
+				F45502182DF46368005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw */,
+				F45502192DF46368005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw */,
+				F455021A2DF46368005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw */,
+				F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */,
+				F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */,
+			);
+			path = _Downloads;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
 				F465C3B3284F967C006E9ED4 /* Models */,
 				F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */,
-				F465C3B7284FA252006E9ED4 /* VBDownloader.swift */,
 			);
 			path = "Restore Images";
 			sourceTree = "<group>";
@@ -1034,17 +1327,35 @@
 			children = (
 				F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */,
 				F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */,
-				F4F5A35F29B6324A00F5A12E /* SoftwareVersion.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		F47BCD9E2C5BE8D300165191 /* SoftwareCatalog */ = {
+			isa = PBXGroup;
+			children = (
+				F47BCD9F2C5BE8EF00165191 /* ipsws_v2.json */,
+				F47BCDA02C5BE8EF00165191 /* linux_v2.json */,
+			);
+			name = SoftwareCatalog;
+			sourceTree = "<group>";
+		};
+		F47BCDC92C5C01C600165191 /* RemoteImage */ = {
+			isa = PBXGroup;
+			children = (
+				F47BCDCC2C5C01EF00165191 /* RemoteImage.swift */,
+			);
+			path = RemoteImage;
 			sourceTree = "<group>";
 		};
 		F48E0D0828885E510080DDFA /* Preview */ = {
 			isa = PBXGroup;
 			children = (
+				F45502172DF4635C005582A4 /* _Downloads */,
 				F4A7FB452BB5ED4A00E4C12A /* PreviewSavedStates */,
 				F48E0D0928885E990080DDFA /* Preview.vbvm */,
 				F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */,
+				F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */,
 			);
 			path = Preview;
 			sourceTree = "<group>";
@@ -1055,6 +1366,7 @@
 				F48E0D13288882BD0080DDFA /* Components */,
 				F48E0D30288884780080DDFA /* Steps */,
 				F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */,
+				F453C4B82DF21985007EAD5F /* VMInstallData.swift */,
 				F48E0D19288882BD0080DDFA /* VMInstallationViewModel.swift */,
 			);
 			path = Installer;
@@ -1063,10 +1375,12 @@
 		F48E0D13288882BD0080DDFA /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F45502132DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift */,
 				F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */,
 				F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */,
 				F42C01492888C2F800EB15CD /* InstallationConsole.swift */,
-				F4561A6728981B4100055289 /* VirtualMachineNameField.swift */,
+				F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */,
+				F453C4B32DF20301007EAD5F /* RestoreImageURLInputView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1095,10 +1409,10 @@
 		F48E0D30288884780080DDFA /* Steps */ = {
 			isa = PBXGroup;
 			children = (
+				F4E4F71D2DF080D200B3B8BA /* Restore Image Selection */,
 				F4E7680E29B655DD0075A897 /* InstallMethod.swift */,
 				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
 				F4E7680929B64C590075A897 /* GuestTypePicker.swift */,
-				F48E0D16288882BD0080DDFA /* RestoreImagePicker.swift */,
 				F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */,
 				F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */,
 				F42C014D2888CBCB00EB15CD /* InstallProgressStepView.swift */,
@@ -1135,10 +1449,10 @@
 			isa = PBXGroup;
 			children = (
 				F422586E2885D518009420AE /* Configuration Controls */,
-				F417255A2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m */,
 				F498AD132884C36A006F1C00 /* ControlGroupChrome.swift */,
 				F498AD192884C5FF006F1C00 /* SliderConversion.swift */,
 				F413697829917135002CE8D3 /* CGFloat+OnePixel.swift */,
+				F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */,
 			);
 			path = "Building Blocks";
 			sourceTree = "<group>";
@@ -1199,6 +1513,7 @@
 		F4A21BF028032FBD001072B8 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				F47BCDD62C5D2B4300165191 /* CatalogExtensions.swift */,
 				4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */,
 				F4BE9C7527FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift */,
 				0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */,
@@ -1215,8 +1530,9 @@
 		F4A21BFB28033968001072B8 /* Bootstrap */ = {
 			isa = PBXGroup;
 			children = (
-				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
+				F453C4222DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift */,
 				F4BE9C5127FF052100B648F8 /* VirtualBuddyApp.swift */,
+				F4BE9C8027FF111100B648F8 /* VirtualBuddyAppDelegate.swift */,
 				F4D0F71928674E76004D5782 /* SoftwareUpdateController.swift */,
 			);
 			path = Bootstrap;
@@ -1297,6 +1613,7 @@
 		F4BE9C5027FF052100B648F8 /* VirtualBuddy */ = {
 			isa = PBXGroup;
 			children = (
+				F453C4292DF0B785007EAD5F /* CommandLine */,
 				F4C122472807145600D359E2 /* Config */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
 				F43B01422AD85A5200164CD1 /* Automation */,
@@ -1327,6 +1644,8 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F453C49C2DF1D788007EAD5F /* Restore */,
+				F453C41C2DF0B43D007EAD5F /* VirtualCatalog */,
 				F40A1E9B2C1873B90033E47D /* ReleaseTrains */,
 				F4C2374E2888AF5B001FF286 /* Utilities */,
 				F417257228877453004FF8A7 /* Resources */,
@@ -1396,6 +1715,7 @@
 		F4C189F12848F5F500335EC7 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F453C44B2DF0B835007EAD5F /* libcurl.tbd */,
 				F4C189F32848F61E00335EC7 /* Virtualization.framework */,
 			);
 			name = Frameworks;
@@ -1461,6 +1781,7 @@
 				F485B91C2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift */,
 				F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */,
 				F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */,
+				F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1510,9 +1831,36 @@
 			path = Base;
 			sourceTree = "<group>";
 		};
+		F4E4F71D2DF080D200B3B8BA /* Restore Image Selection */ = {
+			isa = PBXGroup;
+			children = (
+				F4E4F71E2DF080DF00B3B8BA /* Components */,
+				F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */,
+				F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */,
+			);
+			path = "Restore Image Selection";
+			sourceTree = "<group>";
+		};
+		F4E4F71E2DF080DF00B3B8BA /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				F444D0CB2DF322B50086537A /* SoftwareCatalog+Placeholder.swift */,
+				F47BCDD02C5C06C900165191 /* CatalogGroupPicker.swift */,
+				F47BCDD82C5D2EDB00165191 /* RestoreImageBrowser.swift */,
+				F47BCDCE2C5C023900165191 /* CatalogGroupView.swift */,
+				F444D0CD2DF32E100086537A /* BlurHashFullBleedBackground.swift */,
+				F444D0F52DF37D170086537A /* VirtualBuddyMonoIcon.swift */,
+				F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */,
+				F444D0F72DF37D410086537A /* VirtualDisplayView.swift */,
+				F444D0F92DF37DFB0086537A /* InstallProgressDisplayView.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		F4E7680B29B651180075A897 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */,
 				F4E7680C29B651220075A897 /* VirtualUI.xcassets */,
 			);
 			path = Resources;
@@ -1547,6 +1895,7 @@
 			children = (
 				F4F9B415284CE0F900F21737 /* VBSettings.swift */,
 				F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */,
+				F45502152DF45E4D005582A4 /* VBSettings+CatalogDownload.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1658,6 +2007,7 @@
 			name = VirtualUI;
 			packageProductDependencies = (
 				F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */,
+				F453C4622DF0E609007EAD5F /* BuddyKit */,
 			);
 			productName = VirtualUI;
 			productReference = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */;
@@ -1672,6 +2022,7 @@
 				F4BE9C4C27FF052100B648F8 /* Resources */,
 				F4BE9C7027FF053A00B648F8 /* Embed Frameworks */,
 				F443620B29B79A5800745B43 /* Embed Guest App */,
+				F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */,
 			);
 			buildRules = (
 			);
@@ -1683,6 +2034,9 @@
 			packageProductDependencies = (
 				F4D0F71728674E4B004D5782 /* Sparkle */,
 				F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */,
+				F453C4112DF0B1ED007EAD5F /* BuddyKit */,
+				F453C42A2DF0B792007EAD5F /* ArgumentParser */,
+				F453C4492DF0B7F6007EAD5F /* FragmentZip */,
 			);
 			productName = VirtualBuddy;
 			productReference = F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */;
@@ -1696,13 +2050,16 @@
 				F4BE9C6127FF053A00B648F8 /* Sources */,
 				F4BE9C6227FF053A00B648F8 /* Frameworks */,
 				F4BE9C6327FF053A00B648F8 /* Resources */,
+				F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */,
 				F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */,
+				F45502222DF46386005582A4 /* Copy Preview Library Downloads */,
 				F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */,
 				F4A277142BF51C480011B626 /* Strip Preview Content in Release Builds */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */,
 				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
@@ -1747,8 +2104,8 @@
 				F41369BD29918617002CE8D3 /* PBXTargetDependency */,
 				F4C18A5528491B9D00335EC7 /* PBXTargetDependency */,
 				F413699D299179F8002CE8D3 /* PBXTargetDependency */,
-				F41369A1299179F8002CE8D3 /* PBXTargetDependency */,
 				F42862312AE87D7E0052F029 /* PBXTargetDependency */,
+				F453C4272DF0B602007EAD5F /* PBXTargetDependency */,
 			);
 			name = VirtualBuddyGuest;
 			productName = VirtualBuddyGuest;
@@ -1780,8 +2137,8 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1420;
-				LastUpgradeCheck = 1530;
+				LastSwiftUpdateCheck = 1640;
+				LastUpgradeCheck = 1640;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
 						CreatedOnToolsVersion = 14.2;
@@ -1789,6 +2146,9 @@
 					};
 					F43B01142AD858FE00164CD1 = {
 						CreatedOnToolsVersion = 15.1;
+					};
+					F453C44F2DF0BCE3007EAD5F = {
+						CreatedOnToolsVersion = 16.4;
 					};
 					F498ACFD2884BF13006F1C00 = {
 						CreatedOnToolsVersion = 14.0;
@@ -1828,6 +2188,9 @@
 				F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */,
 				F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */,
 				F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */,
+				F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */,
+				F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+				F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */,
 			);
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
@@ -1841,6 +2204,7 @@
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
+				F453C44F2DF0BCE3007EAD5F /* vctool */,
 			);
 		};
 /* End PBXProject section */
@@ -1866,6 +2230,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F444D0CA2DF321CD0086537A /* CatalogGroupPlaceholder.heic in Resources */,
 				F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1883,6 +2248,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F453C4922DF1D213007EAD5F /* FakeRestoreImage.ipsw in Resources */,
+				F453C45D2DF0D28A007EAD5F /* README.md in Resources */,
 				F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */,
 				F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */,
 			);
@@ -1917,6 +2284,26 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(EXECUTABLE_PATH)",
+			);
+			name = "Create Command-Line Tool Symlinks";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vctool",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Go into the VirtualBuddy.app/Contents/MacOS path\ncd \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/MacOS\"\n\n# Symlink VirtualBuddy as vctool for VirtualCatalog command-line tool\nln -fs $EXECUTABLE_NAME vctool\n";
+		};
 		F4552F4729BA60C7002A21D8 /* Set VBGuestBuildID in Info.plist */ = {
 			isa = PBXShellScriptBuildPhase;
 			alwaysOutOfDate = 1;
@@ -1993,18 +2380,23 @@
 			files = (
 				F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */,
 				F413696A29916F6E002CE8D3 /* StatusBarHighlightView.swift in Sources */,
+				F47BCDD92C5D2EE300165191 /* RestoreImageBrowser.swift in Sources */,
 				F498AD0E2884BF9D006F1C00 /* VMConfigurationView.swift in Sources */,
 				F48E0D25288882E50080DDFA /* OnAppearOnce.swift in Sources */,
 				F413696429916F6E002CE8D3 /* StatusItemProviderProtocol.swift in Sources */,
 				F422587E2885E2ED009420AE /* HardwareConfigurationView.swift in Sources */,
+				F444D0CC2DF322B90086537A /* SoftwareCatalog+Placeholder.swift in Sources */,
 				F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */,
+				F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */,
 				F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */,
+				F47BCDCF2C5C023E00165191 /* CatalogGroupView.swift in Sources */,
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
-				F4561A6828981B4100055289 /* VirtualMachineNameField.swift in Sources */,
+				F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */,
 				F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */,
 				F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */,
 				F48E0D34288889E60080DDFA /* InstallConfigurationStepView.swift in Sources */,
+				F444D0F82DF37D410086537A /* VirtualDisplayView.swift in Sources */,
 				F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */,
 				F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */,
 				F48E0D23288882E50080DDFA /* DecentFormView.swift in Sources */,
@@ -2012,12 +2404,15 @@
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */,
 				F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */,
-				F417255B2884D79C004FF8A7 /* FixSwiftUIMaterialInPreviews.m in Sources */,
 				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
 				F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */,
+				F453C4B42DF20301007EAD5F /* RestoreImageURLInputView.swift in Sources */,
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
+				F444D0FA2DF37DFB0086537A /* InstallProgressDisplayView.swift in Sources */,
 				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
+				F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */,
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
+				F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */,
 				F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */,
 				F4B5C5DB28873628005AA632 /* GroupedList.swift in Sources */,
 				F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */,
@@ -2027,14 +2422,19 @@
 				F498AD182884C593006F1C00 /* NumericPropertyControl.swift in Sources */,
 				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
 				F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */,
+				F444D0FC2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift in Sources */,
+				F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
 				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
+				F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */,
 				F42258802885E71D009420AE /* PropertyControl.swift in Sources */,
 				F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */,
 				F42C014A2888C2F800EB15CD /* InstallationConsole.swift in Sources */,
+				F444D0F42DF34BE80086537A /* CALayer+Asset.swift in Sources */,
 				F413696829916F6E002CE8D3 /* StatusItemMenuBarExtraView.swift in Sources */,
+				F453C4B92DF21985007EAD5F /* VMInstallData.swift in Sources */,
 				F48E0D24288882E50080DDFA /* NSAlert+Confirmation.swift in Sources */,
 				F4510A7D2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift in Sources */,
 				F42258742885E10B009420AE /* VMConfigurationViewModel.swift in Sources */,
@@ -2042,12 +2442,14 @@
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
 				F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */,
-				F48E0D1C288882BD0080DDFA /* RestoreImagePicker.swift in Sources */,
+				F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */,
+				F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */,
 				F42C014E2888CBCB00EB15CD /* InstallProgressStepView.swift in Sources */,
 				F428622D2AE8726D0052F029 /* VirtualMachineControls.swift in Sources */,
 				F413696929916F6E002CE8D3 /* StatusBarContentPanel.swift in Sources */,
 				F4FC983D2BB386DD00E511C9 /* VMProgressOverlay.swift in Sources */,
 				F48E0D2A288883150080DDFA /* OpenCocoaWindowAction.swift in Sources */,
+				F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */,
 				F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */,
 				F498AD162884C36A006F1C00 /* ControlGroupChrome.swift in Sources */,
 				F48E0D2C288883150080DDFA /* WindowEnvironment.swift in Sources */,
@@ -2064,14 +2466,18 @@
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
+				F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */,
+				F444D0F62DF37D170086537A /* VirtualBuddyMonoIcon.swift in Sources */,
 				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
 				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
+				F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */,
 				F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 				F4A7FB3F2BB5EBEF00E4C12A /* SavedStatePicker.swift in Sources */,
 				F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */,
 				F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */,
+				F45502142DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2083,8 +2489,24 @@
 				F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */,
 				F4D0F71A28674E76004D5782 /* SoftwareUpdateController.swift in Sources */,
 				F4BE9C8127FF111100B648F8 /* VirtualBuddyAppDelegate.swift in Sources */,
+				F453C43B2DF0B7A5007EAD5F /* Helpers.swift in Sources */,
+				F453C43C2DF0B7A5007EAD5F /* VCTool.swift in Sources */,
+				F453C43D2DF0B7A5007EAD5F /* URL+ContentLength.swift in Sources */,
+				F453C43E2DF0B7A5007EAD5F /* IPSWCommand.swift in Sources */,
+				F453C43F2DF0B7A5007EAD5F /* ImageCommand.swift in Sources */,
+				F453C4402DF0B7A5007EAD5F /* BuildManifest.swift in Sources */,
+				F453C4412DF0B7A5007EAD5F /* GroupCommand.swift in Sources */,
+				F453C4422DF0B7A5007EAD5F /* MobileDeviceCommand.swift in Sources */,
+				F453C4432DF0B7A5007EAD5F /* BuildManifest+Fetch.swift in Sources */,
+				F453C4682DF10181007EAD5F /* BlurHashCommand.swift in Sources */,
+				F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */,
+				F453C4442DF0B7A5007EAD5F /* TreeStringConvertible.swift in Sources */,
+				F453C4452DF0B7A5007EAD5F /* MigrateCommand.swift in Sources */,
+				F453C4462DF0B7A5007EAD5F /* ResolveCommand.swift in Sources */,
+				F453C4472DF0B7A5007EAD5F /* CatalogCommand.swift in Sources */,
 				F4BE9C5227FF052100B648F8 /* VirtualBuddyApp.swift in Sources */,
 				F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */,
+				F453C4232DF0B5B1007EAD5F /* VirtualBuddyEntryPoint.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2096,25 +2518,31 @@
 				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
+				F45502162DF45E53005582A4 /* VBSettings+CatalogDownload.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
+				F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
 				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
 				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
+				F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */,
 				F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */,
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
+				F453C49B2DF1D768007EAD5F /* SimulatedDownloadBackend.swift in Sources */,
 				4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */,
 				F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */,
 				F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */,
 				F4C189F72848F6A600335EC7 /* VirtualCoreConstants.swift in Sources */,
 				F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */,
+				F453C4A42DF1D861007EAD5F /* VirtualizationRestoreBackend.swift in Sources */,
 				F4BE9C7A27FF05B900B648F8 /* VMController.swift in Sources */,
+				F453C4BB2DF231BB007EAD5F /* PreventTerminationAssertion.swift in Sources */,
 				F417255F28861604004FF8A7 /* DecodableDefault.swift in Sources */,
 				F485B91B2BB22D2D004B3C2B /* VBSavedStateMetadata.swift in Sources */,
-				F465C3B8284FA252006E9ED4 /* VBDownloader.swift in Sources */,
+				F465C3B8284FA252006E9ED4 /* URLSessionDownloadBackend.swift in Sources */,
 				F4DE1C0F2D6F603300603527 /* VBSavedStatePackage+VM.swift in Sources */,
 				F4A7FB3D2BB5E8A200E4C12A /* VMSavedStatesController.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
@@ -2133,8 +2561,8 @@
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
+				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
-				F4F5A36029B6324A00F5A12E /* SoftwareVersion.swift in Sources */,
 				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */,
@@ -2142,6 +2570,12 @@
 				F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */,
 				F40A1E9D2C1873CA0033E47D /* VBBuildType.swift in Sources */,
 				F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */,
+				F453C41D2DF0B43D007EAD5F /* ResolvedCatalog.swift in Sources */,
+				F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */,
+				F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */,
+				F453C4A02DF1D7C0007EAD5F /* RestoreBackend.swift in Sources */,
+				F453C4202DF0B43D007EAD5F /* SoftwareCatalog.swift in Sources */,
+				F453C4212DF0B43D007EAD5F /* MobileDeviceFramework.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,
 				F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */,
 			);
@@ -2199,11 +2633,6 @@
 			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
 			targetProxy = F413699C299179F8002CE8D3 /* PBXContainerItemProxy */;
 		};
-		F41369A1299179F8002CE8D3 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
-			targetProxy = F41369A0299179F8002CE8D3 /* PBXContainerItemProxy */;
-		};
 		F41369BD29918617002CE8D3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = F41369AA29918576002CE8D3 /* VirtualBuddyGuestHelper */;
@@ -2218,6 +2647,20 @@
 			isa = PBXTargetDependency;
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
 			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
+		};
+		F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			productRef = F453C3EC2DF0A4D1007EAD5F /* BuddyKit */;
+		};
+		F453C4272DF0B602007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F498ACFD2884BF13006F1C00 /* VirtualUI */;
+			targetProxy = F453C4262DF0B602007EAD5F /* PBXContainerItemProxy */;
+		};
+		F453C4592DF0BCEB007EAD5F /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4BE9C4D27FF052100B648F8 /* VirtualBuddy */;
+			targetProxy = F453C4582DF0BCEB007EAD5F /* PBXContainerItemProxy */;
 		};
 		F498AD032884BF13006F1C00 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -2330,7 +2773,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -2345,10 +2787,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2377,10 +2816,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2410,10 +2846,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2442,11 +2875,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2469,17 +2898,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -2507,11 +2932,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -2552,11 +2973,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -2629,7 +3046,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -2644,10 +3060,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -2675,10 +3088,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2707,10 +3117,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2738,11 +3145,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2764,17 +3167,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -2801,11 +3200,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -2845,11 +3240,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -2880,10 +3271,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2912,10 +3300,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2944,10 +3329,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -2975,10 +3357,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3006,11 +3385,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3045,11 +3420,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3084,11 +3455,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3122,11 +3489,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3140,6 +3503,69 @@
 				VERSION_INFO_PREFIX = "";
 			};
 			name = Release_Managed;
+		};
+		F453C4512DF0BCE3007EAD5F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		F453C4522DF0BCE3007EAD5F /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug_Managed;
+		};
+		F453C4532DF0BCE3007EAD5F /* Beta_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Beta_Debug;
+		};
+		F453C4542DF0BCE3007EAD5F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F453C4552DF0BCE3007EAD5F /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release_Managed;
+		};
+		F453C4562DF0BCE3007EAD5F /* Beta_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Beta_Release;
+		};
+		F453C4572DF0BCE3007EAD5F /* Dev_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Dev_Release;
 		};
 		F498AD062884BF13006F1C00 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -3156,11 +3582,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3187,11 +3609,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3262,7 +3680,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -3277,10 +3694,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3308,10 +3722,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3340,10 +3751,7 @@
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(GUEST_LAUNCH_AT_LOGIN_HELPER_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3371,11 +3779,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MARKETING_VERSION = 1.0;
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3397,17 +3801,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -3434,11 +3834,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3478,11 +3874,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -3561,7 +3953,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -3576,10 +3967,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3608,10 +3996,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3629,17 +4014,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -3667,11 +4048,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3696,11 +4073,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -3773,7 +4146,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Mac Developer";
@@ -3788,10 +4160,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -3819,10 +4188,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -3839,17 +4205,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -3876,11 +4238,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++20";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualUI";
@@ -3904,11 +4262,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4043,7 +4397,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -4056,10 +4409,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4072,7 +4422,6 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F4B068B528882F5D003743BF /* AppTarget.xcconfig */;
 			buildSettings = {
-				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -4085,10 +4434,7 @@
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddy";
 				SWIFT_EMIT_LOC_STRINGS = YES;
@@ -4103,17 +4449,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -4133,17 +4475,13 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "-Wl,-U,_OBJC_CLASS_$__VZVirtualMachineStartOptions";
@@ -4168,11 +4506,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4198,11 +4532,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu11 gnu++17";
 				OTHER_LDFLAGS = "";
@@ -4234,10 +4564,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4268,10 +4595,7 @@
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
+				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				PRODUCT_BUNDLE_IDENTIFIER = "$(VB_BUNDLE_ID_PREFIX)codes.rambo.VirtualBuddyGuest";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
@@ -4372,6 +4696,20 @@
 				F43B01202AD858FE00164CD1 /* Release_Managed */,
 				F40A1E942C18697B0033E47D /* Beta_Release */,
 				F4A2770F2BF50EA00011B626 /* Dev_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F453C4502DF0BCE3007EAD5F /* Build configuration list for PBXAggregateTarget "vctool" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F453C4512DF0BCE3007EAD5F /* Debug */,
+				F453C4522DF0BCE3007EAD5F /* Debug_Managed */,
+				F453C4532DF0BCE3007EAD5F /* Beta_Debug */,
+				F453C4542DF0BCE3007EAD5F /* Release */,
+				F453C4552DF0BCE3007EAD5F /* Release_Managed */,
+				F453C4562DF0BCE3007EAD5F /* Beta_Release */,
+				F453C4572DF0BCE3007EAD5F /* Dev_Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -4485,6 +4823,30 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/BuddyKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.1;
+			};
+		};
+		F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.1;
+			};
+		};
+		F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/libfragmentzip.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/insidegui/swiftui-introspect.git";
@@ -4501,6 +4863,14 @@
 				minimumVersion = 2.0.0;
 			};
 		};
+		F4E4F7242DF0A1CB00B3B8BA /* XCRemoteSwiftPackageReference "BuddyKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/BuddyKit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.1;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -4508,6 +4878,36 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
+		};
+		F453C3EC2DF0A4D1007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
+		};
+		F453C4112DF0B1ED007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
+		};
+		F453C42A2DF0B792007EAD5F /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+		F453C4492DF0B7F6007EAD5F /* FragmentZip */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */;
+			productName = FragmentZip;
+		};
+		F453C45A2DF0C4BE007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
+		};
+		F453C4622DF0E609007EAD5F /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
 		};
 		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4518,6 +4918,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F4E4F7242DF0A1CB00B3B8BA /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

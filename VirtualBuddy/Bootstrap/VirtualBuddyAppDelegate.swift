@@ -23,11 +23,11 @@ import OSLog
 
     let settingsContainer = VBSettingsContainer.current
     let updateController = SoftwareUpdateController.shared
-    let library = VMLibraryController.shared
+    let library = VMLibraryController()
     let sessionManager = VirtualMachineSessionUIManager.shared
 
     func applicationWillFinishLaunching(_ notification: Notification) {
-        DeepLinkHandler.bootstrap(updatingWindows: self.updatingWindows(perform:))
+        DeepLinkHandler.bootstrap(library: library, updatingWindows: self.updatingWindows(perform:))
 
         NSApp?.appearance = NSAppearance(named: .darkAqua)
     }
@@ -39,6 +39,43 @@ import OSLog
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        if let firstValidAssertion = sender.assertionsPreventingAppTermination.first {
+            logger.debug("Preventing app termination due to active assertions: \(sender.assertionsPreventingAppTermination.map(\.reason).formatted(.list(type: .and)), privacy: .public)")
+
+            let alert = NSAlert()
+            alert.messageText = "Quit VirtualBuddy?"
+            alert.informativeText = "VirtualBuddy is currently \(firstValidAssertion.reason). This will be cancelled if you quit the app."
+
+            let button = alert.addButton(withTitle: "Quit")
+            button.hasDestructiveAction = true
+
+            let button2 = alert.addButton(withTitle: "Quit When Done")
+            button2.keyEquivalent = "\r"
+
+            alert.addButton(withTitle: "Cancel")
+
+            let response = alert.runModal()
+
+            switch response {
+            case .alertFirstButtonReturn:
+                logger.info("User decided to terminate now despite assertions :(")
+
+                return .terminateNow
+            case .alertSecondButtonReturn:
+                logger.info("User wants app to terminate when assertions preventing termination are invalidated.")
+
+                return .terminateLater
+            default:
+                logger.info("User cancelled termination request. Good.")
+                
+                return .terminateCancel
+            }
+        } else {
+            return .terminateNow
+        }
+    }
 
     @objc func restoreDefaultWindowPosition(_ sender: Any?) {
         guard let window = NSApp?.keyWindow ?? NSApp?.mainWindow else { return }

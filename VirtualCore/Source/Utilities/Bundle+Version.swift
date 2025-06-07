@@ -1,4 +1,5 @@
 import Foundation
+import BuddyFoundation
 
 public extension Bundle {
     var vbShortVersionString: String {

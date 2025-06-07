@@ -64,17 +64,20 @@ public final class StatusItemManager: NSObject, NSWindowDelegate, StatusItemProv
     {
         self.configuration = configuration
 
-        self.statusItemViewBuilder = {
-            AnyView(Group {
-                switch statusItem {
-                case .button(let label):
-                    StatusItemButton<StatusItem, Self> {
-                        label()
-                    }
-                case .custom(let customBody):
-                    customBody()
+        /// This is implemented this way due to a Swift compiler crash 🤦🏻‍♂️
+        let group: Group<_ConditionalContent<StatusItemButton<StatusItem, StatusItemManager>, StatusItem>> = Group {
+            switch statusItem {
+            case .button(let label):
+                StatusItemButton<StatusItem, StatusItemManager> {
+                    label()
                 }
-            })
+            case .custom(let customBody):
+                customBody()
+            }
+        }
+
+        self.statusItemViewBuilder = {
+            AnyView(erasing: group)
         }
         self.contentViewBuilder = {
             AnyView(erasing: content())
@@ -526,7 +529,7 @@ extension NSEvent {
     
 }
 
-extension NSWindow.OcclusionState: CustomStringConvertible {
+extension NSWindow.OcclusionState: @retroactive CustomStringConvertible {
     public var description: String {
         return isVisible ? "\(rawValue) (Visible)" : "\(rawValue) (Hidden)"
     }

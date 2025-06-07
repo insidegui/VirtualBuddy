@@ -5,14 +5,6 @@ import Virtualization
 
 let previewLibraryDirName = "PreviewLibrary"
 
-public extension ProcessInfo {
-    
-    @objc static let isSwiftUIPreview: Bool = {
-        processInfo.environment["XCODE_RUNNING_FOR_PREVIEWS"] == "1"
-    }()
-    
-}
-
 public extension VBVirtualMachine {
     static func previewMachine(named name: String) -> VBVirtualMachine {
         try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
@@ -124,6 +116,27 @@ public extension VZVirtualMachine {
         return VZVirtualMachine(configuration: config)
     }()
 }
+
+public extension SoftwareCatalog {
+    static let previewMac = try! VBAPIClient.fetchBuiltInCatalog(for: .mac)
+    static let previewLinux = try! VBAPIClient.fetchBuiltInCatalog(for: .linux)
+}
+
+public extension ResolvedCatalog {
+    static let previewMac = ResolvedCatalog(environment: .current.guest(platform: .mac), catalog: .previewMac)
+    static let previewLinux = ResolvedCatalog(environment: .current.guest(platform: .linux), catalog: .previewLinux)
+}
+
+public extension ResolvedCatalogGroup {
+    static let previewMac = ResolvedCatalog.previewMac.groups[0]
+    static let previewLinux = ResolvedCatalog.previewLinux.groups[0]
+}
+
+public extension ResolvedRestoreImage {
+    static let previewMac = ResolvedCatalog.previewMac.groups[0].restoreImages[0]
+    static let previewLinux = ResolvedCatalog.previewLinux.groups[0].restoreImages[0]
+}
+
 #else
 public extension ProcessInfo {
 

@@ -8,6 +8,7 @@
 import SwiftUI
 import VirtualCore
 
+@MainActor
 protocol VirtualMachineStateController: ObservableObject {
     var state: VMState { get }
     

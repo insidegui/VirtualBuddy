@@ -10,7 +10,9 @@ import OSLog
 
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
 
-public struct VBSettings: Hashable {
+public struct VBSettings: Hashable, Sendable {
+
+    public static var current: VBSettings { VBSettingsContainer.current.settings }
 
     public static let updateChannelDidChangeNotification = Notification.Name("VBSettingsUpdateChannelDidChangeNotification")
 

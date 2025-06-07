@@ -1,43 +1,40 @@
 //
-//  VBDownloader.swift
+//  URLSessionDownloadBackend.swift
 //  VirtualCore
 //
 //  Created by Guilherme Rambo on 07/06/22.
 //
 
 import Foundation
+import Combine
 
-public final class VBDownloader: NSObject, ObservableObject {
+public final class URLSessionDownloadBackend: NSObject, ObservableObject, DownloadBackend {
 
     let library: VMLibraryController
     public var cookie: String?
 
-    public init(with library: VMLibraryController, cookie: String?) {
+    public init(library: VMLibraryController, cookie: String?) {
         self.library = library
         self.cookie = cookie
     }
 
     private var downloadTask: URLSessionDownloadTask?
 
-    public enum State: Hashable {
-        case idle
-        case downloading(_ progress: Double?, _ eta: Double?)
-        case failed(_ error: String)
-        case done(_ localURL: URL)
-    }
-
     private var isInFailedState: Bool {
         guard case .failed = state else { return false }
         return true
     }
 
+    public private(set) lazy var statePublisher: AnyPublisher<DownloadState, Never> = $state.eraseToAnyPublisher()
+
     @Published
-    public private(set) var state = State.idle
+    public private(set) var state = DownloadState.idle
 
     private lazy var session = makeSession()
 
     private func makeSession() -> URLSession {
         let config = URLSessionConfiguration.default
+        config.httpMaximumConnectionsPerHost = 16
         return URLSession(configuration: config, delegate: self, delegateQueue: .main)
     }
 
@@ -52,11 +49,8 @@ public final class VBDownloader: NSObject, ObservableObject {
         state = .downloading(nil, nil)
 
         let filename = url.lastPathComponent
-        guard let destURL = (try? library.getDownloadsBaseURL())?.appendingPathComponent(filename) else {
-            state = .failed("Failed to create directory for downloads at \(library.libraryURL.path)")
-            return
-        }
-        self.destinationURL = destURL
+
+        self.destinationURL = VBSettings.current.downloadsDirectoryURL.appendingPathComponent(filename)
 
         var request = URLRequest(url: url)
 
@@ -101,7 +95,7 @@ public final class VBDownloader: NSObject, ObservableObject {
 
 }
 
-extension VBDownloader: URLSessionDownloadDelegate, URLSessionDelegate {
+extension URLSessionDownloadBackend: URLSessionDownloadDelegate, URLSessionDelegate {
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
         if request.url?.absoluteString.lowercased().contains("unauthorized") == true {

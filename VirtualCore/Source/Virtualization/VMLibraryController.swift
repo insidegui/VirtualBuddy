@@ -33,15 +33,12 @@ public final class VMLibraryController: ObservableObject {
     /// Identifiers for all VMs that are currently in a "booted" state (starting, booted, or paused).
     @Published public internal(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
 
-    @available(*, deprecated, message: "It's not safe to use VMLibraryController as a singleton; for previews, use VMLibraryController.preview")
-    public static let shared = VMLibraryController()
-
     let settingsContainer: VBSettingsContainer
 
     private let filePresenter: DirectoryObserver
     private let updateSignal = PassthroughSubject<URL, Never>()
 
-    init(settingsContainer: VBSettingsContainer = .current) {
+    public init(settingsContainer: VBSettingsContainer = .current) {
         self.settingsContainer = settingsContainer
         self.settings = settingsContainer.settings
         self.libraryURL = settingsContainer.settings.libraryURL
@@ -159,7 +156,7 @@ public final class VMLibraryController: ObservableObject {
         }
     }
 
-    private let coordinator = Coordinator()
+    nonisolated(unsafe) private let coordinator = Coordinator()
 
     public nonisolated var activeVMControllers: [WeakReference<VMController>] { Array(coordinator.activeVMControllers.values) }
 
@@ -251,31 +248,4 @@ public extension VMLibraryController {
     
 }
 
-// MARK: - Download Helpers
-
-public extension VMLibraryController {
-
-    func getDownloadsBaseURL() throws -> URL {
-        let baseURL = libraryURL.appendingPathComponent("_Downloads")
-        if !FileManager.default.fileExists(atPath: baseURL.path) {
-            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
-        }
-
-        return baseURL
-    }
-
-    func existingLocalURL(for remoteURL: URL) throws -> URL? {
-        let localURL = try getDownloadsBaseURL()
-
-        let downloadedFileURL = localURL.appendingPathComponent(remoteURL.lastPathComponent)
-
-        if FileManager.default.fileExists(atPath: downloadedFileURL.path) {
-            return downloadedFileURL
-        } else {
-            return nil
-        }
-    }
-
-}
-
-extension NSWorkspace: @unchecked Sendable { }
+extension NSWorkspace: @retroactive @unchecked Sendable { }

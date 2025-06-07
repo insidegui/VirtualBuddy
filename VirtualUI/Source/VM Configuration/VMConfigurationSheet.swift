@@ -9,7 +9,9 @@ import SwiftUI
 import VirtualCore
 
 public struct VMConfigurationSheet: View {
-    
+
+    public static let minWidth: CGFloat = 520
+
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
     /// The VM configuration as it existed when the user opened the configuration UI.
@@ -40,26 +42,33 @@ public struct VMConfigurationSheet: View {
     
     @Environment(\.dismiss) private var dismiss
 
+    @Environment(\.containerPadding) private var containerPadding
+    @Environment(\.maxContentWidth) private var maxContentWidth
+
+    private var isInstall: Bool { viewModel.context == .preInstall }
+
     public var body: some View {
         ScrollView(.vertical) {
             VMConfigurationView(initialConfiguration: initialConfiguration)
                 .environmentObject(viewModel)
-                .padding()
+                .frame(maxWidth: isInstall ? maxContentWidth : nil)
+                .padding(containerPadding)
+                .frame(maxWidth: .infinity)
         }
-        .safeAreaInset(edge: .bottom) {
-            buttons
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            if !isInstall { buttons }
         }
-        .frame(minWidth: Self.defaultWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity, alignment: .top)
+        .resizableSheet(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
-    
-    public static let defaultWidth: CGFloat = 370
-    
+
     @ViewBuilder
     private var buttons: some View {
         VStack(alignment: .leading, spacing: 16) {
             if showValidationErrors {
                 validationErrors
             }
+
             HStack {
                 if showsCancelButton {
                     Button("Cancel") {
@@ -125,11 +134,11 @@ public struct VMConfigurationSheet: View {
 #if DEBUG
 struct VMConfigurationSheet_Previews: PreviewProvider {
     static var previews: some View {
-        _Template(vm: .preview, context: .postInstall)
-            .previewDisplayName("Post Install")
-
         _Template(vm: .preview, context: .preInstall)
             .previewDisplayName("Pre Install")
+
+        _Template(vm: .preview, context: .postInstall)
+            .previewDisplayName("Post Install")
 
         _Template(vm: .previewLinux, context: .postInstall)
             .previewDisplayName("Linux - Post")
@@ -147,12 +156,13 @@ struct VMConfigurationSheet_Previews: PreviewProvider {
                 PreviewSheet {
                     VMConfigurationSheet(configuration: $vm.configuration)
                         .environmentObject(VMConfigurationViewModel(vm, context: context))
-                        .frame(width: 360, height: 600, alignment: .top)
+                        .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
                 }
             } else {
                 VMConfigurationSheet(configuration: $vm.configuration)
                     .environmentObject(VMConfigurationViewModel(vm, context: context))
-                    .frame(width: 360, height: 600, alignment: .top)
+                    .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
+                    .background(BlurHashFullBleedBackground(.virtualBuddyBackground))
             }
         }
     }
@@ -168,7 +178,8 @@ struct PreviewSheet<Content: View>: View {
 
     var body: some View {
         ZStack {}
-        .frame(width: 500, height: 700)
+        .frame(width: VMConfigurationSheet.minWidth, height: 700)
+        .padding()
         .background(Color.black.opacity(0.5))
         .overlay {
             content()
