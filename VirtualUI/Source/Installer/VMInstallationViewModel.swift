@@ -239,8 +239,6 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             case .done:
                 showNextButton = true
                 buttonTitle = "Back to Library"
-
-                cleanupInstallerArtifacts()
         }
     }
 
@@ -396,7 +394,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private func startInstallation() async {
         switch machine?.configuration.systemType {
         case .mac:
-            await startMacInstallation()
+            startMacInstallation()
         case .linux:
             await startLinuxInstallation()
         case .none:
@@ -450,7 +448,13 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     @Published private(set) var virtualMachine: VZVirtualMachine? = nil
 
-    private func startMacInstallation() async {
+    private var installationTask: Task<Void, Never>?
+
+    private func startMacInstallation() {
+        installationTask = Task { await _runMacInstallation() }
+    }
+
+    private func _runMacInstallation() async {
         guard let restoreURL = data.localRestoreImageURL else {
             state = .error("Missing local restore image URL")
             return
@@ -479,23 +483,40 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             }
         }
 
-        defer {
-            DispatchQueue.main.async {
+        @Sendable func cleanup() {
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
                 self.stopPreventingAppTermination()
                 self.library.loadMachines()
+                self.installationTask = nil
+                self.cleanupInstallerArtifacts()
             }
         }
 
-        do {
-            startPreventingAppTermination(forReason: "restoring virtual machine")
+        defer { cleanup() }
 
-            try await backend.install()
+        await withTaskCancellationHandler {
+            do {
+                startPreventingAppTermination(forReason: "restoring virtual machine")
 
-            self.machine?.metadata.installFinished = true
+                try await backend.install()
 
-            self.step = .done
-        } catch {
-            self.state = .error(error.localizedDescription)
+                try Task.checkCancellation()
+
+                self.machine?.metadata.installFinished = true
+
+                self.step = .done
+
+                UILog("Installation task finished successfully")
+            } catch is CancellationError {
+            } catch {
+                UILog("Installation task finished with error \(error)")
+
+                self.state = .error(error.localizedDescription)
+            }
+        } onCancel: {
+            UILog("Installation task cancelled")
+            cleanup()
         }
     }
 
@@ -539,14 +560,19 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
             guard confirmed else { return false }
 
-            await MainActor.run {
-                self.downloader?.cancelDownload()
-                self.downloader = nil
-                self.installer = nil
-            }
+            await cancelInstallation()
 
             return true
         }
+    }
+
+    func cancelInstallation() async {
+        UILog(#function)
+
+        downloader?.cancelDownload()
+        downloader = nil
+        await installer?.cancel()
+        installationTask?.cancel()
     }
 
 }

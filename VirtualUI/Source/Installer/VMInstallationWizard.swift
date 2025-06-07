@@ -120,6 +120,9 @@ public struct VMInstallationWizard: View {
         }
         .environment(\.containerPadding, Self.padding)
         .environment(\.maxContentWidth, effectiveMaxContentWidth)
+        .confirmBeforeClosingWindow { [weak viewModel] in
+            await viewModel?.confirmBeforeClosing() ?? true
+        }
     }
 
     private var dimBackground: Bool {

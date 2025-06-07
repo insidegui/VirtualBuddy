@@ -36,5 +36,9 @@ public final class SimulatedRestoreBackend: NSObject, RestoreBackend, @unchecked
                 }
         }
     }
+
+    public func cancel() async {
+        
+    }
 }
 #endif // DEBUG

@@ -5,6 +5,8 @@ import OSLog
 import Combine
 
 public final class VirtualizationRestoreBackend: RestoreBackend {
+    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualizationRestoreBackend")
+
     public let model: VBVirtualMachine
     public let restoreImageFileURL: URL
 
@@ -40,14 +42,38 @@ public final class VirtualizationRestoreBackend: RestoreBackend {
         createInternalProgressObservations(with: installer)
 
         defer {
-            UILog("Cleaning up installation")
-
-            cancellables.removeAll()
-            _installer = nil
-            virtualMachineSubject.send(nil)
+            cleanup()
         }
 
+        try Task.checkCancellation()
+
         try await installer.install()
+    }
+
+    public func cancel() async {
+        logger.warning("Installation cancelled by client.")
+
+        if let _installer, _installer.virtualMachine.canStop {
+            do {
+                logger.info("Stopping installation VM...")
+
+                try await _installer.virtualMachine.stop()
+
+                logger.info("Installation VM stopped.")
+            } catch {
+                logger.error("Error forcing installation VM stop - \(error, privacy: .public)")
+            }
+        }
+
+        cleanup()
+    }
+
+    private func cleanup() {
+        logger.debug("Cleaning up installation.")
+
+        cancellables.removeAll()
+        _installer = nil
+        virtualMachineSubject.send(nil)
     }
 
     private func createInternalProgressObservations(with installer: VZMacOSInstaller) {
