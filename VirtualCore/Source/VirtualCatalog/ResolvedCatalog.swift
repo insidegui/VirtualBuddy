@@ -1,5 +1,8 @@
 import Foundation
 import BuddyFoundation
+import OSLog
+
+private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "ResolvedCatalog")
 
 public protocol ResolvedCatalogModel: Identifiable, Hashable, Sendable { }
 
@@ -139,11 +142,11 @@ public struct CatalogResolutionEnvironment: Sendable {
     public var mobileDeviceVersion: SoftwareVersion
     /// The number of CPU cores configured for the VM.
     /// Can be set to nil if performing resolution before configuration,
-    /// in which case the requirement set will be considered as satistied.
+    /// in which case the requirement set will be considered as satisfied.
     public var cpuCoreCount: Int?
     /// The number of CPU cores configured for the VM.
     /// Can be set to nil if performing resolution before configuration,
-    /// in which case the requirement set will be considered as satistied.
+    /// in which case the requirement set will be considered as satisfied.
     public var memorySizeMB: Int?
 
     public init(hostVersion: SoftwareVersion, guestVersion: SoftwareVersion, guestPlatform: CatalogGuestPlatform, appVersion: SoftwareVersion, mobileDeviceVersion: SoftwareVersion, cpuCoreCount: Int? = nil, memorySizeMB: Int? = nil) {
@@ -159,9 +162,20 @@ public struct CatalogResolutionEnvironment: Sendable {
 
 public extension ResolvedCatalog {
     init(environment: CatalogResolutionEnvironment, catalog: SoftwareCatalog) throws {
-        self.groups = try catalog.groups.map { group in
+        self.groups = catalog.groups.map { group in
             let images = catalog.restoreImages.filter({ $0.group == group.id })
-            let resolvedImages = try images.map { try ResolvedRestoreImage(environment: environment, catalog: catalog, image: $0) }
+
+            /// Resolve images one by one to prevent error on single image from taking down entire catalog.
+            var resolvedImages = [ResolvedRestoreImage]()
+            for image in images {
+                do {
+                    let resolvedImage = try ResolvedRestoreImage(environment: environment, catalog: catalog, image: image)
+                    resolvedImages.append(resolvedImage)
+                } catch {
+                    logger.error("Error resolving image \(image.id, privacy: .public) - \(error, privacy: .public)")
+                }
+            }
+
             return ResolvedCatalogGroup(group: group, restoreImages: resolvedImages)
         }
     }
