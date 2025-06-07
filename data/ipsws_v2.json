@@ -16,7 +16,7 @@
   ],
   "features" : [
     {
-      "detail" : "For previous OS versions, you can use the standard macOS file sharing feature in System Preferences > Sharing.",
+      "detail" : "For previous versions, you can enable file sharing in System Preferences > Sharing.",
       "id" : "file_sharing",
       "minVersionGuest" : "13.0.0",
       "minVersionHost" : "13.0.0",

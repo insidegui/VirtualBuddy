@@ -132,6 +132,11 @@ public extension ResolvedCatalogGroup {
     static let previewLinux = ResolvedCatalog.previewLinux.groups[0]
 }
 
+public extension ResolvedRestoreImage {
+    static let previewMac = ResolvedCatalog.previewMac.groups[0].restoreImages[0]
+    static let previewLinux = ResolvedCatalog.previewLinux.groups[0].restoreImages[0]
+}
+
 #else
 public extension ProcessInfo {
 

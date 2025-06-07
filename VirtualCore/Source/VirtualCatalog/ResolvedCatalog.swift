@@ -65,10 +65,6 @@ public enum ResolvedFeatureStatus: Hashable, Sendable {
     /// The feature is not supported.
     case unsupported(message: String)
 
-    var isSupported: Bool {
-        if case .supported = self { true } else { false }
-    }
-
     var message: String? {
         switch self {
         case .supported: return nil
@@ -79,9 +75,15 @@ public enum ResolvedFeatureStatus: Hashable, Sendable {
 
 /// A feature that's been resolved for the current environment, indicating whether it is supported.
 public struct ResolvedVirtualizationFeature: ResolvedCatalogModel {
-    public var id: VirtualizationFeature.ID { feature.id }
     public var feature: VirtualizationFeature
     public var status: ResolvedFeatureStatus
+    public var platform: CatalogGuestPlatform
+
+    public var id: VirtualizationFeature.ID { feature.id }
+    public var minVersionGuest: SoftwareVersion { feature.minVersionGuest }
+    public var minVersionHost: SoftwareVersion { feature.minVersionHost }
+    public var name: String { feature.name }
+    public var unsupportedPlatform: Bool { feature.unsupportedPlatform }
 }
 
 /// A requirement set that's been resolved for the current environment.
@@ -214,7 +216,7 @@ public extension ResolvedRestoreImage {
         try self.init(
             image: image,
             channel: catalog.channel(with: image.channel),
-            features: catalog.features.map { ResolvedVirtualizationFeature(feature: $0, status: .supported) },
+            features: catalog.features.map { ResolvedVirtualizationFeature(feature: $0, status: .supported, platform: environment.guestPlatform) },
             requirements: ResolvedRequirementSet(requirements: catalog.requirementSet(with: image.requirements), status: .supported),
             status: .supported,
             localFileURL: environment.downloads.localFileURL(for: image.url)
@@ -227,6 +229,7 @@ public extension ResolvedRestoreImage {
         /// Adds the guest OS version to the environment so that features/requirements that depend on it get the correct status.
         let versionedEnvironment = environment.guest(version: image.version)
 
+        /// Mobile device requirement is isolated from min host/app requirements.
         if versionedEnvironment.mobileDeviceVersion < image.mobileDeviceMinVersion {
             self.status = .mobileDeviceOutdated
         }
@@ -234,6 +237,11 @@ public extension ResolvedRestoreImage {
         features = features.map { $0.updated(with: versionedEnvironment) }
 
         requirements.update(with: versionedEnvironment)
+
+        /// Only override status if it's "more important" than the current status.
+        if requirements.status.isMoreImportant(than: status) {
+            status = requirements.status
+        }
     }
 }
 
@@ -245,13 +253,23 @@ public extension ResolvedVirtualizationFeature {
         }
 
         guard environment.hostVersion >= self.feature.minVersionHost else {
-            self.status = .unsupportedHost(feature)
+            if self.feature.minVersionGuest == self.feature.minVersionHost {
+                self.status = .unsupportedHostAndGuestAligned(feature)
+            } else {
+                self.status = .unsupportedHost(feature)
+            }
             return
         }
+
         guard environment.guestVersion >= self.feature.minVersionGuest else {
-            self.status = .unsupportedGuest(feature)
+            if self.feature.minVersionGuest == self.feature.minVersionHost {
+                self.status = .unsupportedHostAndGuestAligned(feature)
+            } else {
+                self.status = .unsupportedGuest(feature)
+            }
             return
         }
+
         self.status = .supported
     }
 
@@ -280,27 +298,42 @@ public extension ResolvedRequirementSet {
 
 extension ResolvedFeatureStatus {
     static func unsupported(_ message: String?...) -> Self {
-        .unsupported(message: message.compactMap({ $0 }).joined(separator: " "))
+        .unsupported(message: message.compactMap({ $0 }).joined(separator: "\n"))
+    }
+
+    static func unsupportedHostAndGuestAligned(_ feature: VirtualizationFeature) -> Self {
+        .unsupported("Requires macOS \(feature.minVersionHost.shortDescription) or later.", feature.detail)
     }
 
     static func unsupportedHost(_ feature: VirtualizationFeature) -> Self {
-        .unsupported("\(feature.name) requires the host to be running macOS \(feature.minVersionHost.shortDescription) or later.", feature.detail)
-    }
-
-    static func unsupportedGuest(_ feature: VirtualizationFeature) -> Self {
-        .unsupported("\(feature.name) only works in virtual machines running macOS \(feature.minVersionHost.shortDescription) or later.", feature.detail)
-    }
-
-    static func unsupportedGuestPlatform(_ feature: VirtualizationFeature, platform: CatalogGuestPlatform) -> Self {
-        .unsupported("\(feature.name) is not available on \(platform.name) guests.", feature.detail)
+        .unsupportedHost(feature.minVersionHost, detail: feature.detail)
     }
 
     static func unsupportedHost(_ requirements: RequirementSet) -> Self {
-        .unsupported("This version of macOS requires the host to be running macOS \(requirements.minVersionHost.shortDescription) or later.")
+        .unsupportedHost(requirements.minVersionHost)
     }
 
+    static func unsupportedHost(_ minVersionHost: SoftwareVersion, detail: String? = nil) -> Self {
+        .unsupported("Requires a Mac on macOS \(minVersionHost.shortDescription) or later.", detail)
+    }
+
+    static func unsupportedGuest(_ feature: VirtualizationFeature) -> Self {
+        .unsupported("Requires virtual machine running macOS \(feature.minVersionHost.shortDescription) or later.", feature.detail)
+    }
+
+    static func unsupportedGuestPlatform(_ feature: VirtualizationFeature, platform: CatalogGuestPlatform) -> Self {
+        .unsupported("Not supported for \(platform.name) guests.", feature.detail)
+    }
+
+
     static var mobileDeviceOutdated: Self {
-        .warning(message: "This version of macOS requires device support files which are not currently installed on your system.")
+        .warning(message: """
+        This version of macOS requires device support files which are not currently installed on your system.
+        
+        It's likely that this is a beta for a major macOS version and your Mac is not running the corresponding macOS beta.
+        
+        Device support files can be obtained by installing the Xcode beta, they are sometimes made available separately in the Apple Developer portal.
+        """)
     }
 }
 
@@ -344,7 +377,7 @@ public extension CatalogResolutionEnvironment {
             hostVersion: .currentHost,
             guestVersion: .currentHost,
             guestPlatform: .mac,
-            appVersion: .init(major: 2, minor: 0, patch: 0),
+            appVersion: Bundle.main.softwareVersion,
             mobileDeviceVersion: MobileDeviceFramework.current?.version ?? .init(major: 0, minor: 0, patch: 0),
             downloadsProvider: VBSettings.current
         )
@@ -372,7 +405,68 @@ public extension CatalogResolutionEnvironment {
 
 extension SoftwareVersion {
     static let currentHost: SoftwareVersion = {
+        #if DEBUG
+        if let simulatedVersionString = UserDefaults.standard.string(forKey: "VBSimulateHostVersion") {
+            return SoftwareVersion(string: simulatedVersionString)!
+        }
+        #endif
+        
         let v = ProcessInfo.processInfo.operatingSystemVersion
         return SoftwareVersion(major: v.majorVersion, minor: v.minorVersion, patch: v.patchVersion)
     }()
+}
+
+// MARK: - Resolved Feature Detail
+
+public extension ResolvedVirtualizationFeature {
+    var detail: String {
+        switch status {
+        case .supported:
+            switch platform {
+            case .mac: "Supported. Requires host on macOS \(minVersionHost.shortDescription) or later and guest on macOS \(minVersionGuest.shortDescription) or later."
+            case .linux: "Supported. Requires host on macOS \(minVersionHost.shortDescription) or later."
+            default: "Supported."
+            }
+        case .warning(let message), .unsupported(let message):
+            message
+        }
+    }
+}
+
+// MARK: - Resolved Status Merging
+
+public extension ResolvedFeatureStatus {
+    var isSupported: Bool {
+        if case .supported = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    var isWarning: Bool {
+        if case .warning = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    var isUnsupported: Bool {
+        if case .unsupported = self {
+            true
+        } else {
+            false
+        }
+    }
+
+    var level: Int {
+        switch self {
+        case .supported: 0
+        case .warning: 1
+        case .unsupported: 2
+        }
+    }
+
+    func isMoreImportant(than other: ResolvedFeatureStatus) -> Bool { level > other.level }
 }

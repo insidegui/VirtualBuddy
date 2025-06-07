@@ -84,6 +84,14 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-VBSimulateHostVersion 12.0"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateMobileDeviceVersion 1770.0.0"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-VerboseUILoggingEnabled YES"
             isEnabled = "YES">
          </CommandLineArgument>

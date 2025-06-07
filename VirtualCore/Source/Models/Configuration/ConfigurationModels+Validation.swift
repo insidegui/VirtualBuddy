@@ -68,7 +68,7 @@ public extension VBMacConfiguration {
     }
 
     static let fileSharingNotice: String = {
-        let tip = "For previous OS versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
+        let tip = "For older versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
 
         if isFileSharingSupported {
             return "File sharing requires the virtual machine to be running macOS 13 or later. \(tip)"

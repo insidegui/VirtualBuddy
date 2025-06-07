@@ -15,6 +15,13 @@ public struct MobileDeviceFramework: Sendable {
 
 private extension MobileDeviceFramework {
     init?() {
+        #if DEBUG
+        if let simulatedVersion = UserDefaults.standard.string(forKey: "VBSimulateMobileDeviceVersion") {
+            self.init(version: SoftwareVersion(string: simulatedVersion)!)
+            return
+        }
+        #endif
+        
         let path = "/System/Library/PrivateFrameworks/MobileDevice.framework"
         guard let bundle = Bundle(path: path) else {
             assertionFailure("MobileDevice.framework not found at \(path)")

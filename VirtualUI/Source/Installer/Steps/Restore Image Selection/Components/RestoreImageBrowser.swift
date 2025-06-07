@@ -148,31 +148,13 @@ private struct RestoreImageButton: View {
     @ViewBuilder
     var label: some View {
         HStack {
-            HStack {
-                Image(systemName: image.isDownloaded ? "internaldrive" : "arrow.down.circle")
-                    .frame(width: 16)
-                    .foregroundStyle(.secondary)
-                    .help(image.isDownloaded ? "This version is available from your previous downloads." : "This version needs to be downloaded.")
-
-                Text(image.name)
-                    .minimumScaleFactor(0.8)
-                    .lineLimit(1)
-                    .help(image.name)
-            }
-            .font(.headline)
+            downloadState
 
             Spacer()
 
-            HStack(spacing: 4) {
-                Text(image.build)
+            details
 
-                Text("·")
-
-                Text(image.formattedDownloadSize)
-            }
-            .font(.subheadline)
-            .foregroundStyle(.secondary)
-            .multilineTextAlignment(.trailing)
+            supportState
         }
         .monospacedDigit()
         .contextMenu {
@@ -183,6 +165,201 @@ private struct RestoreImageButton: View {
             Button("Copy Build Number") {
                 Pasteboard.general.string = image.build
             }
+        }
+    }
+
+    @ViewBuilder
+    private var downloadState: some View {
+        HStack {
+            Image(systemName: image.isDownloaded ? "internaldrive" : "arrow.down.circle")
+                .frame(width: 16)
+                .foregroundStyle(.secondary)
+                .help(image.isDownloaded ? "This version is available from your previous downloads." : "This version needs to be downloaded.")
+
+            Text(image.name)
+                .minimumScaleFactor(0.8)
+                .lineLimit(1)
+                .help(image.name)
+        }
+        .font(.headline)
+    }
+
+    @ViewBuilder
+    private var details: some View {
+        HStack(spacing: 4) {
+            Text(image.build)
+
+            Text("·")
+
+            Text(image.formattedDownloadSize)
+        }
+        .font(.subheadline)
+        .foregroundStyle(.secondary)
+        .multilineTextAlignment(.trailing)
+    }
+
+    @ViewBuilder
+    private var supportState: some View {
+        RestoreImageFeatureStatusButton(image: image)
+    }
+}
+
+struct RestoreImageFeatureStatusButton: View {
+    let image: ResolvedRestoreImage
+
+    var status: ResolvedFeatureStatus { image.status }
+
+    var helpText: String {
+        switch status {
+        case .supported: "This version is supported on your Mac. Click for details about supported features."
+        case .warning(let message): message
+        case .unsupported(let message): message
+        }
+    }
+
+    @State private var showingDetail = false
+
+    var body: some View {
+        Button {
+            showingDetail.toggle()
+        } label: {
+            FeatureStatusLabel(status: status)
+        }
+        .buttonStyle(.borderless)
+        .help(helpText)
+        .popover(isPresented: $showingDetail) {
+            RestoreImageFeatureDetailView(image: image)
+        }
+    }
+}
+
+struct FeatureStatusLabel: View {
+    var status: ResolvedFeatureStatus
+
+    var body: some View {
+        Image(systemName: status.systemImage)
+            .foregroundStyle(status.color)
+            .symbolVariant(.circle.fill)
+    }
+}
+
+struct RestoreImageFeatureDetailView: View {
+    static var padding: Double { 12 }
+
+    let image: ResolvedRestoreImage
+
+    var body: some View {
+        VStack(spacing: 16) {
+            topLevelStatus
+
+            VStack(alignment: .leading, spacing: 8) {
+                ForEach(image.features) { feature in
+                    RestoreImageFeatureDetailItem(feature: feature)
+                }
+            }
+        }
+        .frame(width: 340, alignment: .leading)
+        .padding()
+    }
+
+    @ViewBuilder
+    private var topLevelStatus: some View {
+        switch image.status {
+        case .supported:
+            EmptyView()
+        case .warning(let message), .unsupported(let message):
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    FeatureStatusLabel(status: image.status)
+
+                    Text("This Version May Not Work")
+                }
+                    .imageScale(.large)
+                    .font(.headline)
+
+                Text(message)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding()
+            .background {
+                image.status.color
+                    .blendMode(.plusDarker)
+                    .opacity(0.2)
+            }
+            .controlGroup()
+            .textSelection(.enabled)
+        }
+    }
+}
+
+struct RestoreImageFeatureDetailItem: View {
+    let feature: ResolvedVirtualizationFeature
+
+    var status: ResolvedFeatureStatus { feature.status }
+
+    var body: some View {
+        HStack(alignment: .center) {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 4) {
+                    FeatureStatusLabel(status: status)
+
+                    Text(feature.name)
+
+                    Spacer()
+
+                }
+                .font(.headline)
+
+                Text(feature.detail)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .textSelection(.enabled)
+        .padding(RestoreImageFeatureDetailView.padding)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .controlGroup(level: .secondary)
+    }
+}
+
+extension ResolvedFeatureStatus {
+    var topLevelTitle: String {
+        switch self {
+        case .supported: "This Version Should Work"
+        case .warning: "This Version May Not Work"
+        case .unsupported: "This Version Will Not Work"
+        }
+    }
+
+    var systemImage: String {
+        switch self {
+        case .supported: "checkmark"
+        case .warning: "exclamationmark.triangle"
+        case .unsupported: "xmark"
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .supported: .green
+        case .warning: .yellow
+        case .unsupported: .red
+        }
+    }
+
+    var textColor: Color {
+        switch self {
+        case .supported: .green
+        case .warning, .unsupported: .yellow
+        }
+    }
+
+    var subtitle: String {
+        switch self {
+        case .supported: "Supported"
+        case .warning: "Warning"
+        case .unsupported: "Not Supported"
         }
     }
 }
@@ -227,5 +404,9 @@ extension ResolvedRestoreImage {
 @available(macOS 14.0, *)
 #Preview {
     VMInstallationWizard.preview
+}
+
+#Preview("Feature Detail") {
+    RestoreImageFeatureDetailView(image: .previewMac)
 }
 #endif
