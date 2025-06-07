@@ -39,7 +39,7 @@ extension CatalogCommand {
             }
             env.guestPlatform = guestPlatform
 
-            let resolved = try ResolvedCatalog(environment: env, catalog: catalog)
+            let resolved = ResolvedCatalog(environment: env, catalog: catalog)
 
             if let build {
                 guard let targetImage = resolved.groups.flatMap(\.restoreImages).first(where: { $0.image.build == build }) else {

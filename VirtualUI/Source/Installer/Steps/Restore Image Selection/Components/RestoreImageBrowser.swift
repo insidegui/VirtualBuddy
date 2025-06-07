@@ -149,9 +149,10 @@ private struct RestoreImageButton: View {
     var label: some View {
         HStack {
             HStack {
-                Image(systemName: image.channel.icon)
+                Image(systemName: image.isDownloaded ? "internaldrive" : "arrow.down.circle")
+                    .frame(width: 16)
                     .foregroundStyle(.secondary)
-                    .help(image.channel.name)
+                    .help(image.isDownloaded ? "This version is available from your previous downloads." : "This version needs to be downloaded.")
 
                 Text(image.name)
                     .minimumScaleFactor(0.8)

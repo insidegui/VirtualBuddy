@@ -163,6 +163,12 @@
 		F453C4B92DF21985007EAD5F /* VMInstallData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4B82DF21985007EAD5F /* VMInstallData.swift */; };
 		F453C4BB2DF231BB007EAD5F /* PreventTerminationAssertion.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */; };
 		F45502142DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45502132DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift */; };
+		F45502162DF45E53005582A4 /* VBSettings+CatalogDownload.swift in Sources */ = {isa = PBXBuildFile; fileRef = F45502152DF45E4D005582A4 /* VBSettings+CatalogDownload.swift */; };
+		F45502232DF463A1005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F45502182DF46368005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw */; };
+		F45502242DF463A1005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F45502192DF46368005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw */; };
+		F45502252DF463A1005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021A2DF46368005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw */; };
+		F45502262DF463A1005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */; };
+		F45502272DF463A1005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
@@ -423,6 +429,21 @@
 			name = "Embed Guest App";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F45502222DF46386005582A4 /* Copy Preview Library Downloads */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = PreviewLibrary/_Downloads;
+			dstSubfolderSpec = 7;
+			files = (
+				F45502232DF463A1005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502242DF463A1005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502252DF463A1005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502262DF463A1005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw in Copy Preview Library Downloads */,
+				F45502272DF463A1005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw in Copy Preview Library Downloads */,
+			);
+			name = "Copy Preview Library Downloads";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -621,6 +642,12 @@
 		F453C4B82DF21985007EAD5F /* VMInstallData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstallData.swift; sourceTree = "<group>"; };
 		F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreventTerminationAssertion.swift; sourceTree = "<group>"; };
 		F45502132DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyInstallerInputView.swift; sourceTree = "<group>"; };
+		F45502152DF45E4D005582A4 /* VBSettings+CatalogDownload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSettings+CatalogDownload.swift"; sourceTree = "<group>"; };
+		F45502182DF46368005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_13.3.1_22E261_Restore.ipsw; sourceTree = "<group>"; };
+		F45502192DF46368005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_14.0_23A344_Restore.ipsw; sourceTree = "<group>"; };
+		F455021A2DF46368005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_14.5_23F79_Restore.ipsw; sourceTree = "<group>"; };
+		F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.3_24D60_Restore.ipsw; sourceTree = "<group>"; };
+		F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.5_24F74_Restore.ipsw; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameInputView.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
@@ -1274,6 +1301,18 @@
 			path = Installation;
 			sourceTree = "<group>";
 		};
+		F45502172DF4635C005582A4 /* _Downloads */ = {
+			isa = PBXGroup;
+			children = (
+				F45502182DF46368005582A4 /* UniversalMac_13.3.1_22E261_Restore.ipsw */,
+				F45502192DF46368005582A4 /* UniversalMac_14.0_23A344_Restore.ipsw */,
+				F455021A2DF46368005582A4 /* UniversalMac_14.5_23F79_Restore.ipsw */,
+				F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */,
+				F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */,
+			);
+			path = _Downloads;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -1312,6 +1351,7 @@
 		F48E0D0828885E510080DDFA /* Preview */ = {
 			isa = PBXGroup;
 			children = (
+				F45502172DF4635C005582A4 /* _Downloads */,
 				F4A7FB452BB5ED4A00E4C12A /* PreviewSavedStates */,
 				F48E0D0928885E990080DDFA /* Preview.vbvm */,
 				F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */,
@@ -1855,6 +1895,7 @@
 			children = (
 				F4F9B415284CE0F900F21737 /* VBSettings.swift */,
 				F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */,
+				F45502152DF45E4D005582A4 /* VBSettings+CatalogDownload.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2011,6 +2052,7 @@
 				F4BE9C6327FF053A00B648F8 /* Resources */,
 				F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */,
 				F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */,
+				F45502222DF46386005582A4 /* Copy Preview Library Downloads */,
 				F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */,
 				F4A277142BF51C480011B626 /* Strip Preview Content in Release Builds */,
 			);
@@ -2476,6 +2518,7 @@
 				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
+				F45502162DF45E53005582A4 /* VBSettings+CatalogDownload.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
@@ -2855,7 +2898,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
@@ -3124,7 +3167,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
@@ -3758,7 +3801,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
@@ -3971,7 +4014,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
@@ -4162,7 +4205,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
@@ -4406,7 +4449,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
@@ -4432,7 +4475,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
-				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_ASSET_PATHS = VirtualCore/Source/Resources/Preview;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;

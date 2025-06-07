@@ -8,9 +8,9 @@ public struct MobileDeviceFramework: Sendable {
 
     /// The MobileDevice framework in the current system, or `nil` if it couldn't be found
     /// or its properties couldn't be parsed.
-    public static let current: MobileDeviceFramework? = {
+    public static var current: MobileDeviceFramework? {
         MobileDeviceFramework()
-    }()
+    }
 }
 
 private extension MobileDeviceFramework {

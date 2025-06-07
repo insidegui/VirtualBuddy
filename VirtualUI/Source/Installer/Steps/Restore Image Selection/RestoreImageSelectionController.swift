@@ -96,7 +96,7 @@ final class RestoreImageSelectionController: ObservableObject {
 
                 let catalog = try await api.fetchRestoreImages(for: guest)
                 let platform: CatalogGuestPlatform = guest == .linux ? .linux : .mac
-                let resolved = try ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
+                let resolved = ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
 
                 await MainActor.run {
                     self.selectedGroup = resolved.groups.first

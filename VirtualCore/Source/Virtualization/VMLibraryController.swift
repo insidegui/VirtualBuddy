@@ -248,31 +248,4 @@ public extension VMLibraryController {
     
 }
 
-// MARK: - Download Helpers
-
-public extension VMLibraryController {
-
-    func getDownloadsBaseURL() throws -> URL {
-        let baseURL = libraryURL.appendingPathComponent("_Downloads")
-        if !FileManager.default.fileExists(atPath: baseURL.path) {
-            try FileManager.default.createDirectory(at: baseURL, withIntermediateDirectories: true)
-        }
-
-        return baseURL
-    }
-
-    func existingLocalURL(for remoteURL: URL) throws -> URL? {
-        let localURL = try getDownloadsBaseURL()
-
-        let downloadedFileURL = localURL.appendingPathComponent(remoteURL.lastPathComponent)
-
-        if FileManager.default.fileExists(atPath: downloadedFileURL.path) {
-            return downloadedFileURL
-        } else {
-            return nil
-        }
-    }
-
-}
-
 extension NSWorkspace: @retroactive @unchecked Sendable { }

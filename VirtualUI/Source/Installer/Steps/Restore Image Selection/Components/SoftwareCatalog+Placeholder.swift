@@ -72,5 +72,5 @@ extension SoftwareCatalog {
 }
 
 extension ResolvedRestoreImage {
-    static let placeholder = ResolvedRestoreImage(image: .placeholder, channel: .placeholder, features: [], requirements: .placeholder, status: .supported)
+    static let placeholder = ResolvedRestoreImage(image: .placeholder, channel: .placeholder, features: [], requirements: .placeholder, status: .supported, localFileURL: nil)
 }

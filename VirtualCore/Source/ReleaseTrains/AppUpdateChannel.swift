@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AppUpdateChannel: Identifiable, Hashable, CustomStringConvertible {
+public struct AppUpdateChannel: Identifiable, Hashable, CustomStringConvertible, Sendable {
     public var id: String { name.lowercased() }
     public let name: String
     public let appCastURL: URL

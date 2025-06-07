@@ -32,6 +32,7 @@ struct VMInstallData: Hashable, Codable {
     var resolvedRestoreImage: ResolvedRestoreImage? = nil {
         didSet {
             selectedRestoreImage = resolvedRestoreImage?.image
+            localRestoreImageURL = resolvedRestoreImage?.localFileURL
         }
     }
 
@@ -51,11 +52,6 @@ extension VMInstallData {
         case .localFile: nil
         case .none: nil
         }
-    }
-
-    var needsDownload: Bool {
-        UILog("[needsDownload] Method is \(installMethod), downloadURL is \(String(optional: downloadURL))")
-        return downloadURL != nil
     }
 }
 
@@ -141,6 +137,31 @@ extension VMInstallData {
         guard selectedMethod != installMethodSelection.id else { return }
         self.installMethodSelection = nil
         self.resolvedRestoreImage = nil
+    }
+
+    var needsDownload: Bool {
+        guard let downloadURL else { return false }
+
+        switch installMethodSelection {
+        case .none:
+            UILog("[\(#function)] ⚠️ Method is nil!")
+            return false
+        case .localFile:
+            UILog("[\(#function)] Method is \(installMethod), download never needed.")
+            return false
+        case .remoteManual, .remoteOptions:
+            /// `localRestoreImageURL` is set when user selects a remote URL but that file has already been downloaded to the local library.
+            /// Check that the file name matches and skip download when that's the case.
+            if let localRestoreImageURL, localRestoreImageURL.lastPathComponent == downloadURL.lastPathComponent {
+                UILog("[\(#function)] Method is \(installMethod), remote URL is \(downloadURL.absoluteString.quoted), found matching download at \(localRestoreImageURL.path.quoted).")
+
+                return false
+            } else {
+                UILog("[\(#function)] Method is \(installMethod), remote URL is \(downloadURL.absoluteString.quoted), download is needed.")
+
+                return true
+            }
+        }
     }
 }
 

@@ -123,8 +123,8 @@ public extension SoftwareCatalog {
 }
 
 public extension ResolvedCatalog {
-    static let previewMac = try! ResolvedCatalog(environment: .current.guest(platform: .mac), catalog: .previewMac)
-    static let previewLinux = try! ResolvedCatalog(environment: .current.guest(platform: .linux), catalog: .previewLinux)
+    static let previewMac = ResolvedCatalog(environment: .current.guest(platform: .mac), catalog: .previewMac)
+    static let previewLinux = ResolvedCatalog(environment: .current.guest(platform: .linux), catalog: .previewLinux)
 }
 
 public extension ResolvedCatalogGroup {

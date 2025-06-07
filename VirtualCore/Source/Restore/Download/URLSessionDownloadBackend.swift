@@ -49,11 +49,8 @@ public final class URLSessionDownloadBackend: NSObject, ObservableObject, Downlo
         state = .downloading(nil, nil)
 
         let filename = url.lastPathComponent
-        guard let destURL = (try? library.getDownloadsBaseURL())?.appendingPathComponent(filename) else {
-            state = .failed("Failed to create directory for downloads at \(library.libraryURL.path)")
-            return
-        }
-        self.destinationURL = destURL
+
+        self.destinationURL = VBSettings.current.downloadsDirectoryURL.appendingPathComponent(filename)
 
         var request = URLRequest(url: url)
 
