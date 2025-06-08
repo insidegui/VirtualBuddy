@@ -157,13 +157,16 @@ public final class VBAPIClient {
     @MainActor
     public func signingStatus(for ipswURL: URL) async -> BuildSigningStatus {
         #if DEBUG
-        var simulatedStatus: BuildSigningStatus?
-        if UserDefaults.standard.bool(forKey: "VBForceSigningStatusUnsigned") {
-            simulatedStatus = .unsigned("This version of macOS is not being signed by Apple for virtual machines, so it can’t be installed.")
+        let simulatedStatus: BuildSigningStatus? = if UserDefaults.standard.bool(forKey: "VBForceSigningStatusUnsigned") {
+            .unsigned("This version of macOS is not being signed by Apple for virtual machines, so it can’t be installed.")
         } else if UserDefaults.standard.bool(forKey: "VBForceSigningStatusSigned") {
-            simulatedStatus = .signed
+            .signed
         } else if UserDefaults.standard.bool(forKey: "VBForceSigningStatusRequestFailed") {
-            simulatedStatus = .checkFailed("Simulated request failure.")
+            .checkFailed("Simulated request failure.")
+        } else if ProcessInfo.isSwiftUIPreview {
+            .signed
+        } else {
+            nil
         }
 
         if let simulatedStatus {
