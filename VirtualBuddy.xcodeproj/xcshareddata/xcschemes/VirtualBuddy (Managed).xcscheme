@@ -77,11 +77,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateInstall YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateDownload YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateSlowCatalogFetch YES"
