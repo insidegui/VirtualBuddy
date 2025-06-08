@@ -26,14 +26,19 @@ public struct VBSettings: Hashable, Sendable {
             NotificationCenter.default.post(name: Self.updateChannelDidChangeNotification, object: updateChannel)
         }
     }
+    public var enableTSSCheck: Bool
 
 }
 
 extension VBSettings {
 
+    static let defaultUpdateChannel: AppUpdateChannel = .release
+    static let defaultEnableTSSCheck = true
+
     init() {
         self.libraryURL = .defaultVirtualBuddyLibraryURL
-        self.updateChannel = .release
+        self.updateChannel = Self.defaultUpdateChannel
+        self.enableTSSCheck = Self.defaultEnableTSSCheck
     }
 
     private struct Keys {
@@ -46,10 +51,16 @@ extension VBSettings {
             #endif
         }()
         static let updateChannel = "updateChannel"
+        static let enableTSSCheck = "enableTSSCheck"
     }
 
     init(with defaults: UserDefaults) throws {
+        defaults.register(defaults: [
+            Keys.enableTSSCheck: Self.defaultEnableTSSCheck
+        ])
+
         self.version = defaults.integer(forKey: Keys.version)
+        self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
 
         if let path = defaults.string(forKey: Keys.libraryPath) {
             self.libraryURL = URL(fileURLWithPath: path)
@@ -93,6 +104,7 @@ extension VBSettings {
         defaults.set(version, forKey: Keys.version)
         defaults.set(libraryURL.path, forKey: Keys.libraryPath)
         defaults.set(updateChannel.id, forKey: Keys.updateChannel)
+        defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
     }
 
 }

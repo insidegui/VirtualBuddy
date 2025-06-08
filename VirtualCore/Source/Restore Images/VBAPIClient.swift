@@ -59,7 +59,7 @@ public final class VBAPIClient {
         self.environment = environment
     }
 
-    private func request(for endpoint: String) -> URLRequest {
+    private func request(for endpoint: String, query: [String: String] = [:]) throws -> URLRequest {
         let url = environment.baseURL
             .appendingPathComponent(endpoint)
 
@@ -69,7 +69,11 @@ public final class VBAPIClient {
             URLQueryItem(name: "apiKey", value: environment.apiKey)
         ]
 
-        return URLRequest(url: components.url!)
+        for (key, value) in query {
+            components.queryItems?.append(URLQueryItem(name: key, value: value))
+        }
+
+        return try URLRequest(url: components.url.require("Failed to construct request URL."))
     }
 
     private static let decoder = JSONDecoder()
@@ -116,7 +120,7 @@ public final class VBAPIClient {
     }
 
     func fetchRemoteCatalog(for guest: VBGuestType) async throws -> SoftwareCatalog {
-        let req = request(for: guest.restoreImagesAPIPath)
+        let req = try request(for: guest.restoreImagesAPIPath)
 
         logger.debug("Fetching remote catalog from \(req.url?.host() ?? "<nil>")")
 
@@ -125,7 +129,7 @@ public final class VBAPIClient {
         let code = (res as! HTTPURLResponse).statusCode
 
         guard code == 200 else {
-            throw Failure("HTTP \(code)")
+            throw "HTTP \(code)"
         }
 
         let response = try Self.decoder.decode(SoftwareCatalog.self, from: data)
@@ -142,12 +146,60 @@ public final class VBAPIClient {
         }
 
         guard let url = Bundle.virtualCore.url(forResource: fileName, withExtension: "json", subdirectory: "SoftwareCatalog") else {
-            throw Failure("\(fileName) not found in VirtualCore SoftwareCatalog resources")
+            throw "\(fileName) not found in VirtualCore SoftwareCatalog resources"
         }
 
         let data = try Data(contentsOf: url)
 
         return try decoder.decode(SoftwareCatalog.self, from: data)
+    }
+
+    @MainActor
+    public func signingStatus(for ipswURL: URL) async -> BuildSigningStatus {
+        #if DEBUG
+        var simulatedStatus: BuildSigningStatus?
+        if UserDefaults.standard.bool(forKey: "VBForceSigningStatusUnsigned") {
+            simulatedStatus = .unsigned("This version of macOS is not being signed by Apple for virtual machines, so it can’t be installed.")
+        } else if UserDefaults.standard.bool(forKey: "VBForceSigningStatusSigned") {
+            simulatedStatus = .signed
+        } else if UserDefaults.standard.bool(forKey: "VBForceSigningStatusRequestFailed") {
+            simulatedStatus = .checkFailed("Simulated request failure.")
+        }
+
+        if let simulatedStatus {
+            try? await Task.sleep(for: .milliseconds(200))
+            return simulatedStatus
+        }
+        #endif // DEBUG
+
+        do {
+            let req = try request(for: "tss", query: ["ipsw": ipswURL.absoluteString])
+
+            logger.debug("Fetching signing status for \(ipswURL.absoluteString.quoted)")
+
+            let (data, res) = try await URLSession.shared.data(for: req)
+
+            let code = (res as! HTTPURLResponse).statusCode
+
+            guard code == 200 else {
+                throw "HTTP \(code)"
+            }
+
+            let response = try Self.decoder.decode(BuildSigningStatusResponse.self, from: data)
+
+            logger.info("TSS check request succeeded with response:\n\(String(decoding: data, as: UTF8.self))")
+
+            if response.isSigned {
+                return .signed
+            } else {
+                assert(response.message != nil, "Expected API to return message for unsigned TSS response.")
+                return .unsigned(response.message ?? "This build is not signed.")
+            }
+        } catch {
+            logger.error("Signing status fetch failed - \(error, privacy: .public)")
+
+            return .checkFailed(error.localizedDescription)
+        }
     }
 
 }
@@ -161,4 +213,20 @@ private extension VBGuestType {
             return "/restore/linux"
         }
     }
+}
+
+/// Vended by ``VBAPIClient/signingStatus(for:)``.
+public enum BuildSigningStatus {
+    case signed
+    case unsigned(_ message: String)
+    case checkFailed(_ error: String)
+}
+
+/// TSS signing status check result.
+private struct BuildSigningStatusResponse: Decodable {
+    /// Whether the build is signed by Apple.
+    public private(set) var isSigned: Bool
+
+    /// User-facing message when `isSigned` is `false`.
+    public private(set) var message: String?
 }
