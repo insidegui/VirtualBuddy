@@ -108,7 +108,7 @@ public struct VMInstallationWizard: View {
                 }
             }
         }
-        .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !hideBottomBar {
                 bottomBar

@@ -14,7 +14,7 @@ struct VirtualDisplayView<Content: View>: View {
             content()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .aspectRatio(16/9, contentMode: .fill)
+        .aspectRatio(16/9, contentMode: .fit)
         .background(Color(white: 0.03))
         .overlay {
             LinearGradient(colors: [.white.opacity(0.7), .white.opacity(0.1)], startPoint: .init(x: 0.2, y: 0), endPoint: .init(x: 0.3, y: 1.2))
@@ -23,8 +23,6 @@ struct VirtualDisplayView<Content: View>: View {
         }
         .clipShape(shape)
         .chromeBorder(shape: shape, highlightEnabled: false)
-        .aspectRatio(contentMode: .fit)
-        .padding(64)
     }
 
     private var shape: some InsettableShape {
