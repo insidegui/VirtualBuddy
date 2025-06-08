@@ -369,7 +369,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
                 stopPreventingAppTermination()
 
                 self.handleDownloadCompleted(with: localURL)
-            case .failed(let message):
+            case .failed:
                 stopPreventingAppTermination()
             case .idle, .preCheck, .downloading:
                 break

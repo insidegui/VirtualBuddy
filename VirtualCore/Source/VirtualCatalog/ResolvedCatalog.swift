@@ -423,7 +423,12 @@ public extension ResolvedVirtualizationFeature {
         switch status {
         case .supported:
             switch platform {
-            case .mac: "Supported. Requires host on macOS \(minVersionHost.shortDescription) or later and guest on macOS \(minVersionGuest.shortDescription) or later."
+            case .mac:
+                if minVersionHost == minVersionGuest {
+                    "Supported. Requires macOS \(minVersionHost.shortDescription) or later."
+                } else {
+                    "Supported. Requires host on macOS \(minVersionHost.shortDescription) or later and guest on macOS \(minVersionGuest.shortDescription) or later."
+                }
             case .linux: "Supported. Requires host on macOS \(minVersionHost.shortDescription) or later."
             default: "Supported."
             }

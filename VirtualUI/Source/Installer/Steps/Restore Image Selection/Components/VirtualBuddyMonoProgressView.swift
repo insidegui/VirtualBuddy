@@ -58,6 +58,7 @@ private struct RamRodProgressView: View {
             GeometryReader { proxy in
                 Color(white: 0.82)
                     .frame(width: proxy.size.width * (progress / 1.0), alignment: .leading)
+                    .animation(.linear, value: progress)
             }
         }
             .clipShape(shape)

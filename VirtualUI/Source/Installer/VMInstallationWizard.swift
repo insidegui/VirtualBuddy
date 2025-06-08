@@ -60,6 +60,8 @@ public struct VMInstallationWizard: View {
         }
     }
 
+    @State private var showingConsole = false
+
     public var body: some View {
         NavigationStack {
             VStack {
@@ -107,8 +109,26 @@ public struct VMInstallationWizard: View {
                     .keyboardShortcut(.defaultAction)
                 }
             }
+
+            ToolbarItemGroup(placement: .primaryAction) {
+                if viewModel.step == .install {
+                    Toggle(isOn: $showingConsole) {
+                        Image(systemName: "terminal")
+                    }
+                    .help("Logs")
+                }
+            }
         }
-        .frame(minWidth: 700, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+        .frame(minWidth: 800, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+        .overlay(alignment: .bottom) {
+            if showingConsole {
+                InstallationConsole()
+                    .padding(.horizontal, Self.padding * 2)
+                    .padding(.bottom, Self.padding)
+                    .transition(.move(edge: .bottom))
+            }
+        }
+        .animation(.snappy, value: showingConsole)
         .safeAreaInset(edge: .bottom, spacing: 0) {
             if !hideBottomBar {
                 bottomBar
@@ -280,6 +300,6 @@ extension VMInstallationWizard {
 }
 
 #Preview {
-    VMInstallationWizard.preview(step: .download)
+    VMInstallationWizard.preview(step: .install)
 }
 #endif // DEBUG
