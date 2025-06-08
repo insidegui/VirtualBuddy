@@ -541,6 +541,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
                 try Task.checkCancellation()
 
+                self.machine?.metadata.backgroundHash = self.data.backgroundHash
                 self.machine?.metadata.installFinished = true
 
                 self.step = .done

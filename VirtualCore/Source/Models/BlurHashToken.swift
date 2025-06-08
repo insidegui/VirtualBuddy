@@ -5,7 +5,7 @@ import Foundation
 /// This is used when a blur hash must be stored and it's possible that the number of components
 /// will change between different sources of the blur hash, ensuring that clients rendering the blur hash
 /// image always use the correct number of components.
-public struct BlurHashToken: Hashable, Codable, Sendable {
+public struct BlurHashToken: Hashable, Codable, Sendable, ProvidesEmptyPlaceholder {
     public var value: String
     public var size: Int
 
@@ -13,6 +13,13 @@ public struct BlurHashToken: Hashable, Codable, Sendable {
         self.value = value
         self.size = size
     }
+
+    public static let empty = BlurHashToken.virtualBuddyBackground
+}
+
+public extension Int {
+    /// The size of blur hash used by VirtualBuddy.
+    static let vbBlurHashSize = 4
 }
 
 public extension BlurHashToken {

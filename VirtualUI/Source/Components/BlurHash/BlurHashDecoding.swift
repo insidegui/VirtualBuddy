@@ -22,11 +22,6 @@
 
 import SwiftUI
 
-public extension Int {
-    /// The size of blur hash used by VirtualBuddy.
-    static let vbBlurHashSize = 4
-}
-
 public extension CGSize {
     /// The size of blur hash used by VirtualBuddy.
     ///

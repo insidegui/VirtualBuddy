@@ -15,6 +15,8 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         public var installFinished: Bool = false
         public var firstBootDate: Date? = nil
         public var lastBootDate: Date? = nil
+        @DecodableDefault.EmptyPlaceholder
+        public var backgroundHash: BlurHashToken = .virtualBuddyBackground
 
         /// The original remote URL that was specified for downloading the restore image (if downloaded from a remote source).
         public private(set) var remoteInstallImageURL: URL? = nil
