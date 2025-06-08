@@ -136,11 +136,4 @@ public extension ResolvedRestoreImage {
     static let previewMac = ResolvedCatalog.previewMac.groups[0].restoreImages[0]
     static let previewLinux = ResolvedCatalog.previewLinux.groups[0].restoreImages[0]
 }
-
-#else
-public extension ProcessInfo {
-
-    @objc static let isSwiftUIPreview: Bool = false
-
-}
 #endif

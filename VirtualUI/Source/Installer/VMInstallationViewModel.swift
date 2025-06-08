@@ -292,7 +292,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             Backend = URLSessionDownloadBackend.self
         }
         #else
-        Installer = URLSessionDownloadBackend.self
+        Backend = URLSessionDownloadBackend.self
         #endif
 
         return Backend.init(library: library, cookie: cookie)
@@ -478,7 +478,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             Backend = VirtualizationRestoreBackend.self
         }
         #else
-        Installer = VirtualizationRestoreBackend.self
+        Backend = VirtualizationRestoreBackend.self
         #endif
 
         return Backend.init(model: model, restoringFromImageAt: restoreURL)
