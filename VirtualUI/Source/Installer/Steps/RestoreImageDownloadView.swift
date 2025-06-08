@@ -14,7 +14,7 @@ struct RestoreImageDownloadView: View {
 
     private var progress: Double? {
         switch viewModel.downloadState {
-        case .idle: 0
+        case .idle, .preCheck: 0
         case .failed: nil
         case .downloading(let progress, _): progress ?? 0
         case .done: 1
@@ -24,15 +24,16 @@ struct RestoreImageDownloadView: View {
     private var status: Text {
         switch viewModel.downloadState {
         case .idle: Text("Preparing Download")
+        case .preCheck(let message): Text(message)
         case .downloading(_, let eta): eta.flatMap { Text(formattedETA(from: $0)) } ?? Text("Downloading")
         case .done: Text("Done!")
-        case .failed(let message): Text("Download failed: \(message)")
+        case .failed(let message): Text(message)
         }
     }
 
     private var style: VirtualBuddyMonoStyle {
         switch viewModel.downloadState {
-        case .idle, .downloading: .default
+        case .idle, .downloading, .preCheck: .default
         case .failed: .failure
         case .done: .success
         }

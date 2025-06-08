@@ -8,6 +8,10 @@ enum RestoreImageSelectionFocus: Hashable {
     case images
 }
 
+extension VBAPIClient {
+    static let shared = VBAPIClient()
+}
+
 @MainActor
 final class RestoreImageSelectionController: ObservableObject {
 
@@ -32,7 +36,7 @@ final class RestoreImageSelectionController: ObservableObject {
         .store(in: &cancellables)
     }
 
-    private lazy var api = VBAPIClient()
+    private lazy var api = VBAPIClient.shared
 
     private var cancellables = Set<AnyCancellable>()
 
