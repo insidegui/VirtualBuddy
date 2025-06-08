@@ -31,8 +31,14 @@ public struct PreferencesView: View {
 
     public var body: some View {
         Group {
-            ModernSettingsView(libraryPathText: $libraryPathText, enableAutomaticUpdates: $enableAutomaticUpdates, setLibraryPath: setLibraryPath, showOpenPanel: showOpenPanel)
-                .environmentObject(deepLinkSentinel())
+            ModernSettingsView(
+                libraryPathText: $libraryPathText,
+                enableAutomaticUpdates: $enableAutomaticUpdates,
+                enableTSSCheck: $container.settings.enableTSSCheck,
+                setLibraryPath: setLibraryPath,
+                showOpenPanel: showOpenPanel
+            )
+            .environmentObject(deepLinkSentinel())
         }
         .alert("Error", isPresented: $isShowingErrorAlert, actions: {
             Button("OK") { isShowingErrorAlert = false }
@@ -82,6 +88,7 @@ public struct PreferencesView: View {
 private struct ModernSettingsView: View {
     @Binding var libraryPathText: String
     @Binding var enableAutomaticUpdates: Bool
+    @Binding var enableTSSCheck: Bool
     var setLibraryPath: (String) -> Void
     var showOpenPanel: () -> Void
 
@@ -131,6 +138,12 @@ private struct ModernSettingsView: View {
             }
 
             Section {
+                Toggle("Check signing status before downloading macOS", isOn: $enableTSSCheck)
+            } header: {
+                Text("Services")
+            }
+
+            Section {
                 LabeledContent("Control which apps can automate VirtualBuddy") {
                     Button {
                         showingAutomationSecuritySheet = true
@@ -147,6 +160,7 @@ private struct ModernSettingsView: View {
         .sheet(isPresented: $showingAutomationSecuritySheet) {
             automationSecuritySheet
         }
+        .frame(minWidth: 440, maxWidth: 440, minHeight: 500, maxHeight: .infinity, alignment: .top)
     }
 
     @ViewBuilder
