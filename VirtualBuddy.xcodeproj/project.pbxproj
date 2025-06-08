@@ -85,6 +85,7 @@
 		F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */; };
 		F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01592888FC0C00EB15CD /* PreferencesView.swift */; };
 		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
+		F42CF4A82DF5FEC3001DE049 /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */; };
 		F43B01182AD858FE00164CD1 /* DeepLinkSecurity.h in Headers */ = {isa = PBXBuildFile; fileRef = F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -151,7 +152,6 @@
 		F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C45A2DF0C4BE007EAD5F /* BuddyKit */; };
 		F453C45D2DF0D28A007EAD5F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F453C45C2DF0D286007EAD5F /* README.md */; };
 		F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4622DF0E609007EAD5F /* BuddyKit */; };
-		F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */; };
 		F453C4682DF10181007EAD5F /* BlurHashCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4672DF10181007EAD5F /* BlurHashCommand.swift */; };
 		F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */; };
 		F453C4922DF1D213007EAD5F /* FakeRestoreImage.ipsw in Resources */ = {isa = PBXBuildFile; fileRef = F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */; };
@@ -574,6 +574,7 @@
 		F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIVMView.swift; sourceTree = "<group>"; };
 		F42C01592888FC0C00EB15CD /* PreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
+		F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
 		F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DeepLinkSecurity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeepLinkSecurity.h; sourceTree = "<group>"; };
 		F43B01242AD8590F00164CD1 /* DeepLinkAuthUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthUI.swift; sourceTree = "<group>"; };
@@ -630,7 +631,6 @@
 		F453C44B2DF0B835007EAD5F /* libcurl.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libcurl.tbd; path = usr/lib/libcurl.tbd; sourceTree = SDKROOT; };
 		F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyCLI.swift; sourceTree = "<group>"; };
 		F453C45C2DF0D286007EAD5F /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
 		F453C4672DF10181007EAD5F /* BlurHashCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashCommand.swift; sourceTree = "<group>"; };
 		F453C4882DF1CDA0007EAD5F /* DownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadBackend.swift; sourceTree = "<group>"; };
 		F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */ = {isa = PBXFileReference; lastKnownFileType = file; path = FakeRestoreImage.ipsw; sourceTree = "<group>"; };
@@ -1266,7 +1266,6 @@
 		F453C4642DF0F7F4007EAD5F /* BlurHash */ = {
 			isa = PBXGroup;
 			children = (
-				F453C4652DF0F7F8007EAD5F /* BlurHashToken.swift */,
 				F47BCDCA2C5C01CE00165191 /* BlurHashDecoding.swift */,
 			);
 			path = BlurHash;
@@ -1487,6 +1486,7 @@
 				F49A68DF2884917400A17582 /* Configuration */,
 				F4E7DF932BB336E000C459FC /* SavedState */,
 				F4A21BF328033102001072B8 /* VBError.swift */,
+				F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */,
 				F4BE9C7327FF055100B648F8 /* VBVirtualMachine.swift */,
 				F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */,
 				F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */,
@@ -2410,7 +2410,6 @@
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
 				F444D0FA2DF37DFB0086537A /* InstallProgressDisplayView.swift in Sources */,
 				F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */,
-				F453C4662DF0F7F8007EAD5F /* BlurHashToken.swift in Sources */,
 				F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */,
 				F47BCDCD2C5C01EF00165191 /* RemoteImage.swift in Sources */,
 				F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */,
@@ -2517,6 +2516,7 @@
 				F4E7DF922BB3338900C459FC /* NSImage+HEIC.swift in Sources */,
 				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
+				F42CF4A82DF5FEC3001DE049 /* BlurHashToken.swift in Sources */,
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
 				F45502162DF45E53005582A4 /* VBSettings+CatalogDownload.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
