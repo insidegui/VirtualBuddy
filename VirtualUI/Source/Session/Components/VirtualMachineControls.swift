@@ -52,6 +52,15 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
             case .starting, .running:
                 if #available(macOS 14.0, *), controller.virtualMachineModel.supportsStateRestoration {
                     Button {
+                        /**
+                         Ability to save new states has been temporarily disabled in version 2 due to issues with its implementation.
+                         This prevents users from creating bad state saves before the correct implementation is shipped.
+                         */
+                        guard UserDefaults.standard.bool(forKey: "VBForceEnableSaveStateFeature") else {
+                            NSAlert(error: "Sorry, this feature has been temporarily disabled. It will be back in a future update.").runModal()
+                            return
+                        }
+                        
                         runToolbarAction {
                             textFieldContent = "Save-" + DateFormatter.savedStateFileName.string(from: .now)
                             isPopoverPresented = true
