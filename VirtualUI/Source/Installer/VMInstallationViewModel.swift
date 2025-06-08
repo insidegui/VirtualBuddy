@@ -69,10 +69,16 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     var canGoBack: Bool {
         switch step {
-        case .systemType, .configuration, .download, .install:
+        case .systemType, .configuration, .install:
             false
         case .restoreImageInput, .restoreImageSelection, .name, .done:
             true
+        case .download:
+            if case .failed = downloadState {
+                true
+            } else {
+                false
+            }
         }
     }
 
@@ -195,13 +201,15 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         guard canGoBack else { return }
 
         switch step {
-        case .systemType, .configuration, .download, .install, .done:
+        case .systemType, .configuration, .install, .done:
             break
         case .restoreImageInput:
             selectInstallMethod(.remoteOptions)
         case .restoreImageSelection:
             data.backgroundHash = .virtualBuddyBackground
             step = .systemType
+        case .download:
+            step = .restoreImageSelection
         case .name:
             /// Re-trigger any UI prompts associated with the install method, such as entering remote URL or selecting local file.
             selectInstallMethod(data.installMethod)
@@ -312,6 +320,38 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             return
         }
 
+        /// Run TSS check before download to prevent user from spending the time/bandwidth to download a build that will not install successfully.
+        if data.systemType == .mac, VBSettings.current.enableTSSCheck {
+            UILog("Requesting TSS check before download.")
+
+            Task {
+                downloadState = .preCheck("Checking Signing Status")
+
+                let status = await VBAPIClient.shared.signingStatus(for: url)
+
+                switch status {
+                case .signed:
+                    UILog("TSS check signed, proceeding with download.")
+
+                    startDownload(with: url)
+                case .unsigned(let message):
+                    UILog("TSS check UNSIGNED, failing now.")
+
+                    downloadState = .failed(message)
+                    stopPreventingAppTermination()
+                case .checkFailed:
+                    /// Performing the check itself failed is ignored to avoid server-side issues preventing users from downloading/installing macOS.
+                    UILog("Ignoring check failed TSS status.")
+
+                    startDownload(with: url)
+                }
+            }
+        } else {
+            startDownload(with: url)
+        }
+    }
+
+    private func startDownload(with url: URL) {
         let backend = createDownloadBackend(cookie: data.cookie)
 
         backend.statePublisher.assign(to: &$downloadState)
@@ -331,9 +371,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
                 self.handleDownloadCompleted(with: localURL)
             case .failed(let message):
                 stopPreventingAppTermination()
-
-                NSAlert(error: Failure(message)).runModal()
-            case .idle, .downloading:
+            case .idle, .preCheck, .downloading:
                 break
             }
         }.store(in: &cancellables)
@@ -549,7 +587,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         { [weak self] in
             guard let self else { return true }
 
-            guard self.step.needsConfirmationBeforeClosing else { return true }
+            guard self.needsConfirmationBeforeClosing else { return true }
 
             let confirmed = await NSAlert.runConfirmationAlert(
                 title: "Cancel Installation?",
@@ -573,6 +611,19 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         downloader = nil
         await installer?.cancel()
         installationTask?.cancel()
+    }
+
+    private var needsConfirmationBeforeClosing: Bool {
+        guard step.needsConfirmationBeforeClosing else { return false }
+
+        return switch step {
+        case .download:
+            switch downloadState {
+            case .preCheck, .downloading: true
+            default: false
+            }
+        default: true
+        }
     }
 
 }

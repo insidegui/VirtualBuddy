@@ -60,7 +60,6 @@ struct VirtualBuddyApp: App {
         Settings {
             PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel, enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled)
                 .environmentObject(settingsContainer)
-                .frame(minWidth: 420, maxWidth: .infinity, minHeight: 370, maxHeight: .infinity)
         }
     }
 }
