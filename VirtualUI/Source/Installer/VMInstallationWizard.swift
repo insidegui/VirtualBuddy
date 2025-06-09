@@ -53,9 +53,9 @@ public struct VMInstallationWizard: View {
 
     private var hideBottomBar: Bool {
         switch viewModel.step {
-        case .systemType, .restoreImageInput, .restoreImageSelection, .name, .configuration:
+        case .systemType, .restoreImageInput, .restoreImageSelection, .name:
             false
-        case .download, .install, .done:
+        case .configuration, .download, .install, .done:
             true
         }
     }
@@ -194,10 +194,7 @@ public struct VMInstallationWizard: View {
                 nextButton
             }
         }
-        .controlSize(.large)
-        .padding()
-        .background(Material.bar)
-        .overlay(alignment: .top) { Divider() }
+        .virtualBuddyBottomBarStyle()
     }
 
     @ViewBuilder
@@ -282,6 +279,17 @@ extension VMInstallationStep {
         case .install: "Installing"
         case .done: "Finished"
         }
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func virtualBuddyBottomBarStyle() -> some View {
+        frame(maxWidth: .infinity)
+            .controlSize(.large)
+            .padding()
+            .background(Material.bar)
+            .overlay(alignment: .top) { Divider() }
     }
 }
 
