@@ -57,7 +57,7 @@ public struct VMConfigurationSheet: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !isInstall { buttons }
+            buttons
         }
         .resizableSheet(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
@@ -84,14 +84,9 @@ public struct VMConfigurationSheet: View {
                 }
                 .keyboardShortcut(.defaultAction)
                 .disabled(showValidationErrors)
-                .controlSize(viewModel.context == .preInstall ? .large : .regular)
             }
         }
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal)
-        .padding(.vertical, 12)
-        .background(Material.regular, in: Rectangle())
-        .overlay(alignment: .top) { Divider() }
+        .virtualBuddyBottomBarStyle()
         .onChange(of: viewModel.config) { newValue in
             guard showValidationErrors else { return }
             
