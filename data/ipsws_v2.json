@@ -69,6 +69,31 @@
   "groups" : [
     {
       "darkImage" : {
+        "id" : "tahoe",
+        "thumbnail" : {
+          "blurHash" : "UfG0bS?9S1Rn~Pr@R.ofs+S6jFt3EBIZt5oJ",
+          "height" : 720,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/tahoe-dark-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/tahoe-dark.heic"
+      },
+      "id" : "tahoe",
+      "image" : {
+        "id" : "tahoe",
+        "thumbnail" : {
+          "blurHash" : "UfG0bS?9S1Rn~Pr@R.ofs+S6jFt3EBIZt5oJ",
+          "height" : 720,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/tahoe-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/tahoe.heic"
+      },
+      "majorVersion" : "26.0.0",
+      "name" : "macOS Tahoe"
+    },
+    {
+      "darkImage" : {
         "id" : "sequoia",
         "thumbnail" : {
           "blurHash" : "eN86q8M1Hbyya7t-g$MpnTx,b;k9X8Vgr?osbHenWEeYoGj@aNaPah",
@@ -184,6 +209,18 @@
     }
   ],
   "restoreImages" : [
+    {
+      "build" : "25A5279m",
+      "channel" : "devbeta",
+      "downloadSize" : 18287329125,
+      "group" : "tahoe",
+      "id" : "25A5279m",
+      "mobileDeviceMinVersion" : "1810.0.0",
+      "name" : "macOS 16.0 Developer Beta 1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SummerSeed\/fullrestores\/082-55592\/95F6DA16-4116-491E-B332-7165C051E1C5\/UniversalMac_26.0_25A5279m_Restore.ipsw",
+      "version" : "26.0.0"
+    },
     {
       "build" : "24F74",
       "channel" : "regular",
