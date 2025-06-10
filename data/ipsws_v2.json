@@ -216,7 +216,7 @@
       "group" : "tahoe",
       "id" : "25A5279m",
       "mobileDeviceMinVersion" : "1810.0.0",
-      "name" : "macOS 16.0 Developer Beta 1",
+      "name" : "macOS 26.0 Developer Beta 1",
       "requirements" : "min_host_13",
       "url" : "https:\/\/updates.cdn-apple.com\/2025SummerSeed\/fullrestores\/082-55592\/95F6DA16-4116-491E-B332-7165C051E1C5\/UniversalMac_26.0_25A5279m_Restore.ipsw",
       "version" : "26.0.0"
