@@ -7,6 +7,7 @@ Helper that creates various configuration objects exposed in the `VZVirtualMachi
 
 import Foundation
 import Virtualization
+import BuddyFoundation
 
 protocol VirtualMachineConfigurationHelper {
     var vm: VBVirtualMachine { get }
@@ -147,12 +148,13 @@ extension VBNetworkDevice {
     }
 
     private func resolveBridge(with identifier: String) throws -> VZBridgedNetworkInterface {
-        guard let iface = VZBridgedNetworkInterface.networkInterfaces.first(where: { $0.identifier == identifier }) else {
-            throw Failure("Couldn't find the specified network interface for bridging")
+        guard identifier != VBNetworkDeviceInterface.automatic.id else {
+            return try VZBridgedNetworkInterface.networkInterfaces.first.require("There are no network interfaces available on the host for bridging.")
         }
-        return iface
-    }
 
+        return try VZBridgedNetworkInterface.networkInterfaces.first(where: { $0.identifier == identifier })
+            .require("The bridged network interface \(identifier.quoted) is not available.")
+    }
 }
 
 extension VBPointingDevice {
