@@ -1,13 +1,13 @@
 {
-  "originHash" : "e8f8791c4443254b17d50018128b360ec3f9444cc33930415bf7151ecfd1277e",
+  "originHash" : "98f40922b2644e586c8b6d539ad27ccd25d4688183ddd8f20ca08988234aa81e",
   "pins" : [
     {
       "identity" : "buddykit",
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/insidegui/BuddyKit",
       "state" : {
-        "revision" : "34b769ec7ff1bfb7e935ed79534fad2281577096",
-        "version" : "1.6.1"
+        "revision" : "27dcaaa5075068cebc4372dee76801f6d862556b",
+        "version" : "1.7.0"
       }
     },
     {

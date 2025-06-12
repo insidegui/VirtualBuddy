@@ -166,7 +166,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     @Published private(set) var downloader: DownloadBackend?
-    @Published private(set) var downloadState: DownloadState = .idle
+    @SubjectPublisher private(set) var downloadState: DownloadState = .idle
 
     private func validate() {
         disableNextButton = !data.canContinue(from: step)
@@ -354,7 +354,10 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private func startDownload(with url: URL) {
         let backend = createDownloadBackend(cookie: data.cookie)
 
-        backend.statePublisher.assign(to: &$downloadState)
+        backend.statePublisher.sink { [weak self] state in
+            self?.downloadState = state
+        }
+        .store(in: &cancellables)
 
         self.downloader = backend
 
