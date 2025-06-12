@@ -215,7 +215,10 @@ public struct VBDisplayDevice: Identifiable, Hashable, Codable {
 /// Configures a network device.
 /// **Read the note at the top of this file before modifying this**
 public struct VBNetworkDevice: Identifiable, Hashable, Codable {
-    public init(id: String = "Default", name: String = "Default", kind: VBNetworkDevice.Kind = Kind.NAT, macAddress: String = VZMACAddress.randomLocallyAdministered().string.uppercased()) {
+    public static let defaultID = "Default"
+    public static let automaticBridgeID = "Automatic Bridge"
+
+    public init(id: String = VBNetworkDevice.defaultID, name: String = "Default", kind: VBNetworkDevice.Kind = Kind.NAT, macAddress: String = VZMACAddress.randomLocallyAdministered().string.uppercased()) {
         self.id = id
         self.name = name
         self.kind = kind
@@ -236,7 +239,7 @@ public struct VBNetworkDevice: Identifiable, Hashable, Codable {
         }
     }
 
-    public var id = "Default"
+    public var id = VBNetworkDevice.defaultID
     public var name = "Default"
     public var kind = Kind.NAT
     public var macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
@@ -558,14 +561,20 @@ public extension VBDisplayPreset {
     static var availablePresets: [VBDisplayPreset] { presets.filter(\.isAvailable) }
 }
 
-public struct VBNetworkDeviceBridgeInterface: Identifiable {
+public struct VBNetworkDeviceInterface: Identifiable, Hashable {
     public var id: String
     public var name: String
-    
+}
+
+extension VBNetworkDeviceInterface {
     init(_ interface: VZBridgedNetworkInterface) {
         self.id = interface.identifier
         self.name = interface.localizedDisplayName ?? interface.identifier
     }
+}
+
+public extension VBNetworkDeviceInterface {
+    static let automatic = VBNetworkDeviceInterface(id: VBNetworkDevice.automaticBridgeID, name: "Automatic")
 }
 
 public extension VBNetworkDevice {
@@ -573,8 +582,8 @@ public extension VBNetworkDevice {
         VZBridgedNetworkInterface.networkInterfaces.first?.identifier
     }
     
-    static var bridgeInterfaces: [VBNetworkDeviceBridgeInterface] {
-        VZBridgedNetworkInterface.networkInterfaces.map(VBNetworkDeviceBridgeInterface.init)
+    static var bridgeInterfaces: [VBNetworkDeviceInterface] {
+        VZBridgedNetworkInterface.networkInterfaces.map(VBNetworkDeviceInterface.init)
     }
 }
 

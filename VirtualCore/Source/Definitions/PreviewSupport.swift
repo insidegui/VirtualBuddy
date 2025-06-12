@@ -57,7 +57,7 @@ public extension VBMacConfiguration {
         
         c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "New Device", size: VBManagedDiskImage.minimumExtraDiskImageSize))))
         c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .managedImage(VBManagedDiskImage(filename: "Fake Managed Disk", size: VBManagedDiskImage.minimumExtraDiskImageSize, format: .raw))))
-        c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .customImage(Bundle.virtualCore.url(forResource: "Fake Custom Path Disk", withExtension: "dmg", subdirectory: "Preview.vbvm")!)))
+//        c.hardware.storageDevices.append(.init(isBootVolume: false, isEnabled: true, isReadOnly: false, isUSBMassStorageDevice: false, backing: .customImage(Bundle.virtualCore.url(forResource: "Fake Custom Path Disk", withExtension: "dmg", subdirectory: "Preview.vbvm")!)))
         
         c.sharedFolders = [
             .init(id: UUID(uuidString: "821BA195-D687-4B61-8412-0C6BA6C99074")!, url: URL(fileURLWithPath: "/Users/insidegui/Desktop"), isReadOnly: true),
