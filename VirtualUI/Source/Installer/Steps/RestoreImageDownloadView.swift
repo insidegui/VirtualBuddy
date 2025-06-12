@@ -11,9 +11,10 @@ import Combine
 
 struct RestoreImageDownloadView: View {
     @EnvironmentObject var viewModel: VMInstallationViewModel
+    @State private var downloadState = DownloadState.idle
 
     private var progress: Double? {
-        switch viewModel.downloadState {
+        switch downloadState {
         case .idle, .preCheck: 0
         case .failed: nil
         case .downloading(let progress, _): progress ?? 0
@@ -22,7 +23,7 @@ struct RestoreImageDownloadView: View {
     }
 
     private var status: Text {
-        switch viewModel.downloadState {
+        switch downloadState {
         case .idle: Text("Preparing Download")
         case .preCheck(let message): Text(message)
         case .downloading(_, let eta): eta.flatMap { Text(formattedETA(from: $0)) } ?? Text("Downloading")
@@ -32,7 +33,7 @@ struct RestoreImageDownloadView: View {
     }
 
     private var style: VirtualBuddyMonoStyle {
-        switch viewModel.downloadState {
+        switch downloadState {
         case .idle, .downloading, .preCheck: .default
         case .failed: .failure
         case .done: .success
@@ -45,6 +46,7 @@ struct RestoreImageDownloadView: View {
             status: status,
             style: style
         )
+        .onReceive(viewModel.$downloadState) { downloadState = $0 }
     }
 
     private func formattedETA(from eta: Double) -> String {
