@@ -36,6 +36,10 @@ import OSLog
         Task {
             try? await GuestAdditionsDiskImage.current.installIfNeeded()
         }
+
+        #if DEBUG
+        runLaunchDebugTasks()
+        #endif
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
@@ -143,3 +147,17 @@ extension NSWindow {
     /// At least as of macOS 14.4, a SwiftUI window's `identifier` matches the `id` that's set in SwiftUI.
     var isVirtualBuddyLibraryWindow: Bool { identifier?.rawValue == .vb_libraryWindowID }
 }
+
+#if DEBUG
+// MARK: - Debugging Helpers
+
+private extension VirtualBuddyAppDelegate {
+    func runLaunchDebugTasks() {
+        RunLoop.main.perform { [self] in
+            MainActor.assumeIsolated {
+                VirtualMachineSessionUIManager.shared.testImportVMIfEnabled(library: library)
+            }
+        }
+    }
+}
+#endif

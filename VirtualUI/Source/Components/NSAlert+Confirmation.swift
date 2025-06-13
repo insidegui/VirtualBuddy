@@ -12,15 +12,21 @@ public extension NSAlert {
     static func runConfirmationAlert(title: String,
                                      message: String,
                                      continueButtonTitle: String = "Continue",
-                                     cancelButtonTitle: String = "Cancel") async -> Bool
+                                     cancelButtonTitle: String = "Cancel",
+                                     continueButtonIsDefault: Bool = false) async -> Bool
     {
         let alert = NSAlert()
 
         alert.messageText = title
         alert.informativeText = message
 
-        alert.addButton(withTitle: cancelButtonTitle)
-        alert.addButton(withTitle: continueButtonTitle)
+        if continueButtonIsDefault {
+            alert.addButton(withTitle: continueButtonTitle)
+            alert.addButton(withTitle: cancelButtonTitle)
+        } else {
+            alert.addButton(withTitle: cancelButtonTitle)
+            alert.addButton(withTitle: continueButtonTitle)
+        }
 
         let response: NSApplication.ModalResponse
 
@@ -30,7 +36,7 @@ public extension NSAlert {
             response = alert.runModal()
         }
 
-        return response == .alertSecondButtonReturn
+        return continueButtonIsDefault ? response == .alertFirstButtonReturn : response == .alertSecondButtonReturn
     }
 
 }

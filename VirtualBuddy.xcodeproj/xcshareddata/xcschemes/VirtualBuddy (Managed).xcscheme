@@ -107,6 +107,14 @@
             argument = "-VBForceSigningStatusRequestFailed YES"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBTestImport &apos;/Users/insidegui/Library/Containers/com.utmapp.UTM/Data/Documents/macOS 26.utm&apos;"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBTestImportSkipConfirmation YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

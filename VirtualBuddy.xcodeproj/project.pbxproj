@@ -225,6 +225,11 @@
 		F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */; };
 		F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */; };
 		F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */; };
+		F49FD87D2DFB68F50019D638 /* VMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87C2DFB68F20019D638 /* VMImporter.swift */; };
+		F49FD87F2DFB6B670019D638 /* VMImporterRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */; };
+		F49FD8812DFB6CDD0019D638 /* UTMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD8802DFB6CD80019D638 /* UTMImporter.swift */; };
+		F49FD8842DFB727B0019D638 /* VMImporter+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD8832DFB72790019D638 /* VMImporter+Helpers.swift */; };
+		F49FD8862DFB728A0019D638 /* UTMAppleConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD8852DFB728A0019D638 /* UTMAppleConfiguration.swift */; };
 		F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF128032FD8001072B8 /* VMLibraryController.swift */; };
 		F4A21BF428033102001072B8 /* VBError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A21BF328033102001072B8 /* VBError.swift */; };
 		F4A7FB3B2BB5E79100E4C12A /* DirectoryObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB3A2BB5E79100E4C12A /* DirectoryObserver.swift */; };
@@ -704,6 +709,11 @@
 		F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestorableWindow.swift; sourceTree = "<group>"; };
 		F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUI.swift; sourceTree = "<group>"; };
 		F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBRestorableWindow+Resizing.swift"; sourceTree = "<group>"; };
+		F49FD87C2DFB68F20019D638 /* VMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporter.swift; sourceTree = "<group>"; };
+		F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporterRegistry.swift; sourceTree = "<group>"; };
+		F49FD8802DFB6CD80019D638 /* UTMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTMImporter.swift; sourceTree = "<group>"; };
+		F49FD8832DFB72790019D638 /* VMImporter+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMImporter+Helpers.swift"; sourceTree = "<group>"; };
+		F49FD8852DFB728A0019D638 /* UTMAppleConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTMAppleConfiguration.swift; sourceTree = "<group>"; };
 		F4A21BF128032FD8001072B8 /* VMLibraryController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMLibraryController.swift; sourceTree = "<group>"; };
 		F4A21BF328033102001072B8 /* VBError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBError.swift; sourceTree = "<group>"; };
 		F4A7FB3A2BB5E79100E4C12A /* DirectoryObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DirectoryObserver.swift; sourceTree = "<group>"; };
@@ -1480,6 +1490,26 @@
 			path = Configuration;
 			sourceTree = "<group>";
 		};
+		F49FD87B2DFB68CC0019D638 /* Import */ = {
+			isa = PBXGroup;
+			children = (
+				F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */,
+				F49FD87C2DFB68F20019D638 /* VMImporter.swift */,
+				F49FD8832DFB72790019D638 /* VMImporter+Helpers.swift */,
+				F49FD8822DFB726C0019D638 /* UTM */,
+			);
+			path = Import;
+			sourceTree = "<group>";
+		};
+		F49FD8822DFB726C0019D638 /* UTM */ = {
+			isa = PBXGroup;
+			children = (
+				F49FD8802DFB6CD80019D638 /* UTMImporter.swift */,
+				F49FD8852DFB728A0019D638 /* UTMAppleConfiguration.swift */,
+			);
+			path = UTM;
+			sourceTree = "<group>";
+		};
 		F4A21BEE28032F97001072B8 /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -1644,6 +1674,7 @@
 		F4BE9C7127FF053D00B648F8 /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				F49FD87B2DFB68CC0019D638 /* Import */,
 				F453C49C2DF1D788007EAD5F /* Restore */,
 				F453C41C2DF0B43D007EAD5F /* VirtualCatalog */,
 				F40A1E9B2C1873B90033E47D /* ReleaseTrains */,
@@ -2531,6 +2562,7 @@
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
+				F49FD8842DFB727B0019D638 /* VMImporter+Helpers.swift in Sources */,
 				F453C49B2DF1D768007EAD5F /* SimulatedDownloadBackend.swift in Sources */,
 				4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */,
 				F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */,
@@ -2545,6 +2577,7 @@
 				F465C3B8284FA252006E9ED4 /* URLSessionDownloadBackend.swift in Sources */,
 				F4DE1C0F2D6F603300603527 /* VBSavedStatePackage+VM.swift in Sources */,
 				F4A7FB3D2BB5E8A200E4C12A /* VMSavedStatesController.swift in Sources */,
+				F49FD87D2DFB68F50019D638 /* VMImporter.swift in Sources */,
 				F4A21BF228032FD8001072B8 /* VMLibraryController.swift in Sources */,
 				F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
@@ -2555,10 +2588,13 @@
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
 				F4A7FB3B2BB5E79100E4C12A /* DirectoryObserver.swift in Sources */,
+				F49FD8862DFB728A0019D638 /* UTMAppleConfiguration.swift in Sources */,
 				F4B5C5D928870BBF005AA632 /* ConfigurationModels+Summary.swift in Sources */,
 				F4C2374D2888A462001FF286 /* VolumeUtils.swift in Sources */,
 				F4BE9C7627FF055100B648F8 /* VBVirtualMachine.swift in Sources */,
 				F4D0F71528667984004D5782 /* VBVirtualMachine+Screenshot.swift in Sources */,
+				F49FD87F2DFB6B670019D638 /* VMImporterRegistry.swift in Sources */,
+				F49FD8812DFB6CDD0019D638 /* UTMImporter.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
 				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
