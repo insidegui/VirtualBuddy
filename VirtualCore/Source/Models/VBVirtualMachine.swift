@@ -17,6 +17,8 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         public var lastBootDate: Date? = nil
         @DecodableDefault.EmptyPlaceholder
         public var backgroundHash: BlurHashToken = .virtualBuddyBackground
+        /// If this VM was imported from some other app, contains the name of the ``VMImporter`` that was used.
+        public var importedFromAppName: String? = nil
 
         /// The original remote URL that was specified for downloading the restore image (if downloaded from a remote source).
         public private(set) var remoteInstallImageURL: URL? = nil

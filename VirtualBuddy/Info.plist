@@ -40,6 +40,20 @@
 			<key>LSTypeIsPackage</key>
 			<true/>
 		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>UTM virtual machine</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.utmapp.utm</string>
+			</array>
+			<key>LSTypeIsPackageLSTypeIsPackage</key>
+			<true/>
+		</dict>
 	</array>
 	<key>CFBundleURLTypes</key>
 	<array>
@@ -102,6 +116,28 @@
 				<key>public.filename-extension</key>
 				<array>
 					<string>vbst</string>
+				</array>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>com.apple.package</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>UTM virtual machine</string>
+			<key>UTTypeIcons</key>
+			<dict/>
+			<key>UTTypeIdentifier</key>
+			<string>com.utmapp.utm</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>utm</string>
 				</array>
 			</dict>
 		</dict>
