@@ -481,10 +481,16 @@ public extension VBMacDevice {
 
 public extension VBPointingDevice {
     static var `default`: VBPointingDevice { .init() }
+
+    static let mouse = VBPointingDevice(kind: .mouse)
+    static let trackpad = VBPointingDevice(kind: .mouse)
 }
 
 public extension VBKeyboardDevice {
     static var `default`: VBKeyboardDevice { .empty }
+
+    static let generic = VBKeyboardDevice(kind: .generic)
+    static let mac = VBKeyboardDevice(kind: .mac)
 }
 
 public extension VBNetworkDevice {

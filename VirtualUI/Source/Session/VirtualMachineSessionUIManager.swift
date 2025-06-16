@@ -4,6 +4,7 @@ import Combine
 import OSLog
 
 /// Controls active virtual machine sessions, managing the lifecycle of session windows, controllers, and opening VMs from files or URLs.
+@MainActor
 public final class VirtualMachineSessionUIManager: ObservableObject {
     private let logger = Logger(for: VirtualMachineSessionUIManager.self)
     
@@ -17,7 +18,6 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
     private init() { }
 
-    @MainActor
     private func createSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) -> VirtualMachineSessionUI {
         let ui = VirtualMachineSessionUI(with: vm, library: library, options: options)
 
@@ -26,10 +26,8 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         return ui
     }
 
-    @MainActor
     public func session(for vm: VBVirtualMachine) -> VirtualMachineSessionUI? { sessions[vm.id] }
 
-    @MainActor
     public func launch(_ vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         guard !vm.needsInstall else {
             recoverInstallation(for: vm, library: library)
@@ -44,7 +42,6 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
-    @MainActor
     private func launchNewSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         let vmID = vm.id
 
@@ -67,7 +64,6 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
-    @MainActor
     public func recoverInstallation(for vm: VBVirtualMachine, library: VMLibraryController) {
         let alert = NSAlert()
         alert.messageText = "Finish Installation"
@@ -89,12 +85,58 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
-    @MainActor
     public func launchInstallWizard(restoringAt restoreURL: URL? = nil, library: VMLibraryController) {
         openWindow {
             VMInstallationWizard(library: library, restoringAt: restoreURL)
                 .environmentObject(library)
         }
+    }
+
+    private func importVirtualMachine(from path: FilePath, using importer: any VMImporter, library: VMLibraryController) async {
+        do {
+            guard await confirmImport(using: importer) else {
+                throw CancellationError()
+            }
+
+            logger.debug("Import authorized from \(importer.appName) - \(path)")
+
+            var model = try await importer.importVirtualMachine(from: path, into: library)
+
+            model.metadata.importedFromAppName = importer.appName
+
+            try model.saveMetadata()
+
+            library.reload()
+
+            open(fileURL: model.bundleURL, library: library)
+        } catch is CancellationError {
+            logger.notice("Import cancelled")
+        } catch {
+            NSApp.presentError(error)
+        }
+    }
+
+    private var importTask: Task<Void, Never>?
+
+    private func beginImportVirtualMachine(from path: FilePath, using importer: any VMImporter, library: VMLibraryController) {
+        importTask = Task {
+            await importVirtualMachine(from: path, using: importer, library: library)
+        }
+    }
+
+    func confirmImport(using importer: any VMImporter) async -> Bool {
+        #if DEBUG
+        guard !Self.testImportSkipConfirmation else { return true }
+        #endif
+        
+        return await NSAlert
+            .runConfirmationAlert(
+                title: "Import From \(importer.appName)?",
+                message: "VirtualBuddy will attempt to import your virtual machine from \(importer.appName). All data from this virtual machine in \(importer.appName) will be copied into your VirtualBuddy library. Would you like to proceed?",
+                continueButtonTitle: "Import",
+                cancelButtonTitle: "Cancel",
+                continueButtonIsDefault: true
+            )
     }
 }
 
@@ -114,7 +156,13 @@ public extension VirtualMachineSessionUIManager {
             case .virtualBuddySavedState:
                 handleOpenSavedStateFile(fileURL, library: library)
             default:
-                throw Failure("Unsupported file type \(values.contentType?.identifier ?? "?")")
+                let path = FilePath(fileURL)
+
+                if let importer = VMImporterRegistry.default.importer(for: path) {
+                    beginImportVirtualMachine(from: path, using: importer, library: library)
+                } else {
+                    throw Failure("Unsupported file type \(values.contentType?.identifier ?? "?")")
+                }
             }
         } catch {
             logger.error("Error loading virtual machine from file at \(fileURL.path, privacy: .public): \(error, privacy: .public)")
@@ -160,3 +208,18 @@ private extension VirtualMachineSessionUIManager {
         }
     }
 }
+
+#if DEBUG
+// MARK: - Import Testing (Debug)
+@MainActor
+extension VirtualMachineSessionUIManager {
+    static let testImportSkipConfirmation = UserDefaults.standard.bool(forKey: "VBTestImportSkipConfirmation")
+    static let testImportVMPath: FilePath? = UserDefaults.standard.string(forKey: "VBTestImport").flatMap { FilePath($0) }
+
+    public func testImportVMIfEnabled(library: VMLibraryController) {
+        guard let path = Self.testImportVMPath else { return }
+
+        open(fileURL: path.url, library: library)
+    }
+}
+#endif
