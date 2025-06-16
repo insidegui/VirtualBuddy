@@ -221,6 +221,18 @@
       "url" : "https:\/\/updates.cdn-apple.com\/2025SummerSeed\/fullrestores\/082-55592\/95F6DA16-4116-491E-B332-7165C051E1C5\/UniversalMac_26.0_25A5279m_Restore.ipsw",
       "version" : "26.0.0"
     },
+        {
+      "build" : "24G5054d",
+      "channel" : "devbeta",
+      "downloadSize" : 16877678522,
+      "group" : "sequoia",
+      "id" : "24G5054d",
+      "mobileDeviceMinVersion" : "1774.0.0",
+      "name" : "macOS 15.6 Developer Beta 1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SpringSeed\/fullrestores\/082-29051\/6E674436-7F60-4CEC-B318-C0062D336517\/UniversalMac_15.6_24G5054d_Restore.ipsw",
+      "version" : "15.6.0"
+    },
     {
       "build" : "24F74",
       "channel" : "regular",
