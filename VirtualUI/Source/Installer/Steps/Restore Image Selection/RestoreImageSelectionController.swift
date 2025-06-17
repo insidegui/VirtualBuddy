@@ -76,8 +76,13 @@ final class RestoreImageSelectionController: ObservableObject {
         }
     }
 
+    private var inputCatalog: SoftwareCatalog?
+    private var guestType = VBGuestType.mac
+
     func loadRestoreImageOptions(for guest: VBGuestType) {
         logger.debug("Loading restore image options.")
+
+        guestType = guest
 
         deferredStartLoading()
 
@@ -99,13 +104,9 @@ final class RestoreImageSelectionController: ObservableObject {
                 #endif
 
                 let catalog = try await api.fetchRestoreImages(for: guest)
-                let platform: CatalogGuestPlatform = guest == .linux ? .linux : .mac
-                let resolved = ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
+                inputCatalog = catalog
 
-                await MainActor.run {
-                    self.selectedGroup = resolved.groups.first
-                    self.catalog = resolved
-                }
+                await refreshResolvedCatalog(with: catalog)
             } catch {
                 logger.error("Loading restore images failed - \(error, privacy: .public)")
                 
@@ -114,6 +115,47 @@ final class RestoreImageSelectionController: ObservableObject {
                     self.errorMessage = error.localizedDescription
                 }
             }
+        }
+    }
+
+    private func refreshResolvedCatalog(with catalog: SoftwareCatalog) async {
+        logger.debug(#function)
+
+        let platform: CatalogGuestPlatform = guestType == .linux ? .linux : .mac
+        let resolved = ResolvedCatalog(environment: .current.guest(platform: platform), catalog: catalog)
+
+        await MainActor.run {
+            self.selectedGroup = resolved.groups.first(where: { $0.id == selectedGroup?.id }) ?? resolved.groups.first
+            self.selectedRestoreImage = selectedGroup?.restoreImages.first(where: { $0.id == self.selectedRestoreImage?.id })
+            self.catalog = resolved
+        }
+    }
+
+    func deleteLocalDownload(for image: ResolvedRestoreImage) {
+        logger.debug("Delete download requested for \(image.id)")
+
+        /// Remove selection to force refresh of image browser.
+        selectedRestoreImage = nil
+
+        do {
+            let fileURL = try image.localFileURL.require("File not found.")
+            Task {
+                do {
+                    try await NSWorkspace.shared.recycle([fileURL])
+
+                    if let inputCatalog {
+                        await refreshResolvedCatalog(with: inputCatalog)
+                    }
+                } catch {
+                    logger.error("Recycle failed for \(fileURL.path) - \(error, privacy: .public)")
+
+                    NSApp.presentError(error)
+                }
+            }
+        } catch {
+            logger.error("Delete download failed for \(image.id) - \(error, privacy: .public)")
+
+            NSApp.presentError(error)
         }
     }
 }
