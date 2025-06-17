@@ -2,6 +2,7 @@ import Foundation
 import ArgumentParser
 import FragmentZip
 import BuddyFoundation
+import VirtualCore
 
 extension CatalogCommand {
     struct ImageCommand: AsyncParsableCommand {
@@ -102,9 +103,11 @@ extension CatalogCommand {
                     downloadSize: UInt64(contentLength)
                 )
 
-                let index = catalog.restoreImages.firstIndex(where: { $0.id == image.id })
+                let index = catalog.index(forInserting: image)
+                let isUpdate = catalog.restoreImages[index].id == image.id
 
-                if let index {
+                /// Replacing an existing image requires a flag.
+                if isUpdate {
                     guard force else {
                         fputs("\n❌ Build \(image.id) already exists in the catalog. Use --force flag to update it.\n\n", stderr)
                         Darwin.exit(1)
@@ -113,9 +116,9 @@ extension CatalogCommand {
                     catalog.restoreImages.remove(at: index)
                 }
 
-                catalog.restoreImages.insert(image, at: index ?? 0)
+                catalog.restoreImages.insert(image, at: index)
 
-                let successMessage = index == nil ? "Added image to catalog" : "Updated image in catalog"
+                let successMessage = isUpdate ? "Updated image in catalog" : "Added image to catalog"
                 fputs("✅ \(successMessage):\n\n", stderr)
 
                 fputs("\(image)\n\n", stderr)
@@ -124,6 +127,18 @@ extension CatalogCommand {
 
                 fputs("✅ Done!\n\n", stderr)
             }
+        }
+    }
+}
+
+private extension SoftwareCatalog {
+    func index(forInserting image: RestoreImage) -> Int {
+        if let existingIndex = restoreImages.firstIndex(where: { $0.id == image.id }) {
+            existingIndex /// Replace image at its current index (client must delete existing one before replacing)
+        } else if let placementIndex = restoreImages.firstIndex(where: { $0.group == image.group && $0.version <= image.version }) {
+            placementIndex /// Place image before the first image of the same release group and OS version
+        } else {
+            0 /// Place image in first slot
         }
     }
 }
