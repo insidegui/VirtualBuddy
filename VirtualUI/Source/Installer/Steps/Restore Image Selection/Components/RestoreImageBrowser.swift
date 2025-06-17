@@ -110,7 +110,7 @@ struct RestoreImageBrowser: View {
             } else if controller.isLoading {
                 /// Placeholders are only displayed when controller is loading to avoid jumps when loading happens quickly (or not at all).
                 ForEach(0...12, id: \.self) { _ in
-                    RestoreImageButton(image: .placeholder, isSelected: false, action: { })
+                    RestoreImageButton(image: .placeholder, isSelected: false, action: { }, deleteDownload: { })
                 }
             }
         }
@@ -124,6 +124,8 @@ struct RestoreImageBrowser: View {
             ForEach(group.images) { image in
                 RestoreImageButton(image: image, isSelected: image.id == selection?.id) {
                     selection = image
+                } deleteDownload: {
+                    controller.deleteLocalDownload(for: image)
                 }
                 .tag(image)
             }
@@ -134,7 +136,8 @@ struct RestoreImageBrowser: View {
 private struct RestoreImageButton: View {
     var image: ResolvedRestoreImage
     var isSelected: Bool
-    var action: () -> Void
+    var action: () -> ()
+    var deleteDownload: () -> ()
 
     var body: some View {
         Button {
@@ -164,6 +167,16 @@ private struct RestoreImageButton: View {
 
             Button("Copy Build Number") {
                 Pasteboard.general.string = image.build
+            }
+
+            if image.isDownloaded {
+                Divider()
+
+                Button(role: .destructive) {
+                    deleteDownload()
+                } label: {
+                    Text("Delete Download…")
+                }
             }
         }
     }
