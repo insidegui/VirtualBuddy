@@ -78,8 +78,6 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         get { _installRestoreData }
         set { _installRestoreData = newValue }
     }
-
-    public private(set) var didInvalidateThumbnail = VoidSubject()
     
 }
 
@@ -116,8 +114,10 @@ extension VBVirtualMachine {
 
     public var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
 
+    static let metadataDirectoryName = ".vbdata"
+
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
-        bundleURL.appendingPathComponent(".vbdata")
+        bundleURL.appendingPathComponent(metadataDirectoryName)
     }
 
     public var needsInstall: Bool {
@@ -137,8 +137,19 @@ public extension UTType {
 }
 
 public extension VBVirtualMachine {
-    
-    init(bundleURL: URL, isNewInstall: Bool = false) throws {
+
+    struct BundleDirectoryMissingError: Error { }
+
+    init(bundleURL: URL, isNewInstall: Bool = false, createIfNeeded: Bool = true) throws {
+        /// If we're not allowed to create the bundle and its metadata directory doesn't exist, throw a specific error type that's caught in ``VMLibraryController``.
+        /// This is to prevent the app from creating a dummy VM bundle after a VM is deleted from the library.
+        if !createIfNeeded {
+            let metaDirectory = bundleURL.appending(path: Self.metadataDirectoryName, directoryHint: .isDirectory)
+            guard metaDirectory.isReadableDirectory else {
+                throw BundleDirectoryMissingError()
+            }
+        }
+
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
             #if DEBUG
             guard !ProcessInfo.isSwiftUIPreview else {
@@ -148,7 +159,7 @@ public extension VBVirtualMachine {
             
             try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
-        
+
         self.bundleURL = bundleURL
         var (metadata, config, installRestore) = try loadMetadata()
 

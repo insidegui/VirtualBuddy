@@ -13,7 +13,7 @@ public extension VBVirtualMachine {
     }
 
     func thumbnailImage() -> NSImage? {
-        guard let thumbnailURL = try? metadataFileURL(Self.thumbnailFileName) else { return nil }
+        let thumbnailURL = metadataFileURL(Self.thumbnailFileName)
         
         if let existingImage = NSImage(contentsOf: thumbnailURL) {
             return existingImage
@@ -24,10 +24,6 @@ public extension VBVirtualMachine {
 
     func invalidateThumbnail() throws {
         try deleteMetadataFile(named: Self.thumbnailFileName)
-
-        DispatchQueue.main.async {
-            self.didInvalidateThumbnail.send()
-        }
     }
 
 }
