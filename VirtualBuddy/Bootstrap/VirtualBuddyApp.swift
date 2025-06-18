@@ -33,6 +33,12 @@ struct VirtualBuddyApp: App {
                 .onAppearOnce(perform: updateController.activate)
                 .environmentObject(library)
                 .environmentObject(sessionManager)
+                .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
+                .onOpenURL { url in
+                    UILog("OPEN URL \(url.path(percentEncoded: false))")
+
+                    sessionManager.open(fileURL: url, library: library)
+                }
         }
         .windowToolbarStyle(.unified)
         .commands {
@@ -56,7 +62,8 @@ struct VirtualBuddyApp: App {
                 .keyboardShortcut(KeyEquivalent("0"), modifiers: .command)
             }
         }
-        
+        .handlesExternalEvents(matching: ["*"])
+
         Settings {
             PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel, enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled)
                 .environmentObject(settingsContainer)
