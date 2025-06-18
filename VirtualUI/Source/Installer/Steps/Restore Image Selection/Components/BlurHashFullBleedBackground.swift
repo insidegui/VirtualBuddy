@@ -45,7 +45,7 @@ struct BlurHashFullBleedBackground: View {
 
     static let defaultBlurRadius: Double = 22
 
-    enum Content {
+    enum Content: Hashable {
         case blurHash(BlurHashToken)
         case customImage(NSImage)
     }

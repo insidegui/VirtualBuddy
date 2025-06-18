@@ -71,7 +71,7 @@ struct LibraryItemView: View {
 
     @EnvironmentObject var library: VMLibraryController
 
-    @State var vm: VBVirtualMachine
+    var vm: VBVirtualMachine
     @State var name: String
 
     @Environment(\.vbLibraryButtonPressed)
@@ -84,6 +84,7 @@ struct LibraryItemView: View {
     var body: some View {
         VStack(spacing: 12) {
             VMArtworkView(virtualMachine: vm)
+                .id(vm.blurHashBackgroundContent)
                 .aspectRatio(contentMode: .fill)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .aspectRatio(16/9, contentMode: .fit)

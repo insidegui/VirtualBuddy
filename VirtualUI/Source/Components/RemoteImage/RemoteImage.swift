@@ -40,8 +40,6 @@ struct RemoteImage: View {
     }
 }
 
-extension NSImage: @retroactive @unchecked Sendable { }
-
 final class RemoteImageLoader {
     private let logger = Logger(subsystem: "codes.rambo.RemoteImageLoader", category: "RemoteImageLoader")
 
