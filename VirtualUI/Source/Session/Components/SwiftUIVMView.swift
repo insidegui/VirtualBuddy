@@ -19,10 +19,9 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     var isDFUModeVM: Bool
     var vmECID: UInt64?
     @Binding var automaticallyReconfiguresDisplay: Bool
-    let screenshotSubject: VMScreenshotter.Subject
 
     func makeNSViewController(context: Context) -> VMViewController {
-        let controller = VMViewController(screenshotSubject: screenshotSubject)
+        let controller = VMViewController()
         controller.vmECID = vmECID
         controller.isDFUModeVM = isDFUModeVM
         controller.captureSystemKeys = captureSystemKeys
@@ -78,18 +77,6 @@ final class VMViewController: NSViewController {
         }
     }
 
-    let screenshotSubject: VMScreenshotter.Subject
-
-    init(screenshotSubject: VMScreenshotter.Subject) {
-        self.screenshotSubject = screenshotSubject
-
-        super.init(nibName: nil, bundle: nil)
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError()
-    }
-
     var virtualMachine: VZVirtualMachine? {
         didSet {
             vmView.virtualMachine = virtualMachine
@@ -130,10 +117,6 @@ final class VMViewController: NSViewController {
         ])
     }
 
-    private lazy var screenshotter: VMScreenshotter = {
-        VMScreenshotter(interval: 15, screenshotSubject: screenshotSubject)
-    }()
-
     override func viewDidAppear() {
         super.viewDidAppear()
         
@@ -141,22 +124,7 @@ final class VMViewController: NSViewController {
         
         window.makeFirstResponder(vmView)
         
-        activateScreenshotterIfNeeded()
-
         if isDFUModeVM { handleDFUTransition(.enter) }
-    }
-
-    private func activateScreenshotterIfNeeded() {
-        /// Screenshotter is not useful when the VM is in DFU mode.
-        guard !isDFUModeVM, isViewLoaded else { return }
-
-        screenshotter.activate(with: view, vm: vmView.virtualMachine)
-    }
-
-    override func viewWillDisappear() {
-        super.viewWillDisappear()
-
-        screenshotter.invalidate()
     }
 
     enum DFUTransition: Hashable {
@@ -179,10 +147,8 @@ final class VMViewController: NSViewController {
         switch transition {
         case .enter:
             showDFUView()
-            screenshotter.invalidate()
         case .exit:
             hideDFUView()
-            activateScreenshotterIfNeeded()
         case .invalid:
             break
         }
@@ -256,8 +222,7 @@ struct DFUStatusView: View {
         captureSystemKeys: false,
         isDFUModeVM: true,
         vmECID: 7788022887768653863,
-        automaticallyReconfiguresDisplay: .constant(false),
-        screenshotSubject: .init()
+        automaticallyReconfiguresDisplay: .constant(false)
     )
 }
 #endif

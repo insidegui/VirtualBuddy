@@ -24,7 +24,7 @@ public struct VMArtworkView: View {
         ZStack {
             switch content {
             case .image(let image): image.resizable()
-            case .blurHash(let token): BlurHashFullBleedBackground(token)
+            case .blurHash(let token): BlurHashFullBleedBackground(blurHash: token)
             }
 
             if showsIcon, case .blurHash = content {

@@ -135,7 +135,7 @@ public struct VMInstallationWizard: View {
             }
         }
         .background {
-            BlurHashFullBleedBackground(viewModel.data.backgroundHash)
+            BlurHashFullBleedBackground(blurHash: viewModel.data.backgroundHash)
                 .fullBleedBackgroundDimmed(dimBackground)
         }
         .environment(\.containerPadding, Self.padding)

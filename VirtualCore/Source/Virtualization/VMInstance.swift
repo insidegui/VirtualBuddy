@@ -305,17 +305,6 @@ public final class VMInstance: NSObject, ObservableObject {
         /// but only after the user has performed pre-save confirmation steps.
         onStart()
 
-        logger.debug("Collecting screenshot for saved state")
-
-        let screenshot: NSImage?
-        do {
-            screenshot = try await NSImage.screenshot(from: vm)
-        } catch {
-            screenshot = virtualMachineModel.screenshot
-
-            logger.warning("Error collecting screenshot for saved state: \(error, privacy: .public)")
-        }
-
         logger.debug("Pausing to save state")
 
         try await pause()
@@ -325,8 +314,6 @@ public final class VMInstance: NSObject, ObservableObject {
         let package = try virtualMachineModel.createSavedStatePackage(in: library, snapshotName: name)
 
         logger.debug("VM state package will be written to \(package.url.path)")
-
-        package.screenshot = screenshot
 
         do {
             try await package.createStorageDeviceClones(model: virtualMachineModel)
