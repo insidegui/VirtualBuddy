@@ -2,9 +2,12 @@ import Cocoa
 import SwiftUI
 import VirtualUI
 import VirtualWormhole
+import OSLog
 
 @NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
+
+    private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Guest", category: "GuestAppDelegate")
 
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
@@ -40,6 +43,8 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    private var isPoweringOff = false
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         /// Skip regular app activation if installation is needed (i.e. running from disk image).
         guard !installer.needsInstall else { return }
@@ -55,6 +60,12 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         dashboardItem.install()
 
         perform(#selector(showPanelForFirstLaunchIfNeeded), with: nil, afterDelay: 0.5)
+
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willPowerOffNotification, object: nil, queue: nil) { _ in
+            self.logger.notice("Received power off notification.")
+            
+            self.isPoweringOff = true
+        }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -74,6 +85,21 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func showPanel() {
         dashboardItem.showPanel()
+    }
+
+    func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
+        logger.debug(#function)
+
+        guard isPoweringOff else { return .terminateNow }
+
+        logger.notice("Guest is powering off, delaying slightly to allow for final messages to be sent to host.")
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
+            logger.notice("Allowing guest to terminate now.")
+            NSApp.reply(toApplicationShouldTerminate: true)
+        }
+
+        return .terminateLater
     }
 
 }

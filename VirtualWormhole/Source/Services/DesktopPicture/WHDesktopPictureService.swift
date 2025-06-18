@@ -56,34 +56,50 @@ final class WHDesktopPictureService: WormholeService {
         Task {
             try? await Task.sleep(for: .seconds(2))
 
-            guard let image = NSImage.desktopPicture else {
-                logger.error("Error getting desktop picture for main screen.")
-                return
-            }
-
-            guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
-                logger.error("Error getting CGImage from desktop picture.")
-                return
-            }
-
-            guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 0) else {
-                logger.error("Failed to create CFMutableData")
-                return
-            }
-            guard let destination = CGImageDestinationCreateWithData(cfData, AVFileType.heic.rawValue as CFString, 1, nil) else {
-                logger.error("Failed to create CGImageDestination")
-                return
-            }
-
-            CGImageDestinationAddImage(destination, cgImage, Self.imageProperties)
-            CGImageDestinationFinalize(destination)
-
-            let payload = DesktopPictureMessage(type: AVFileType.heic.rawValue, content: cfData as Data)
-
-            logger.info("Sending payload with \(payload.content.count) bytes")
-
-            await connection.send(payload, to: nil)
+            await sendDesktopPicture()
         }
+
+        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willPowerOffNotification, object: nil, queue: nil) { [weak self] _ in
+            self?.handleWillPowerOffNotification()
+        }
+    }
+
+    private func handleWillPowerOffNotification() {
+        logger.notice("Workspace will power off, sending desktop picture...")
+
+        Task {
+            await sendDesktopPicture()
+        }
+    }
+
+    private func sendDesktopPicture() async {
+        guard let image = NSImage.desktopPicture else {
+            logger.error("Error getting desktop picture for main screen.")
+            return
+        }
+
+        guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+            logger.error("Error getting CGImage from desktop picture.")
+            return
+        }
+
+        guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 0) else {
+            logger.error("Failed to create CFMutableData")
+            return
+        }
+        guard let destination = CGImageDestinationCreateWithData(cfData, AVFileType.heic.rawValue as CFString, 1, nil) else {
+            logger.error("Failed to create CGImageDestination")
+            return
+        }
+
+        CGImageDestinationAddImage(destination, cgImage, Self.imageProperties)
+        CGImageDestinationFinalize(destination)
+
+        let payload = DesktopPictureMessage(type: AVFileType.heic.rawValue, content: cfData as Data)
+
+        logger.info("Sending payload with \(payload.content.count) bytes")
+
+        await connection.send(payload, to: nil)
     }
 
 }
