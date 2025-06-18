@@ -7,7 +7,7 @@ public typealias BoolSubject = PassthroughSubject<Bool, Never>
 
 public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
 
-    public struct Metadata: Codable {
+    public struct Metadata: Hashable, Codable {
         public static let currentVersion = 1
         @DecodableDefault.EmptyPlaceholder
         public var uuid = UUID()
@@ -39,6 +39,12 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
             } else {
                 remoteInstallImageURL = url
             }
+        }
+
+        /// If Linux VM is using fallback VirtualBuddy orange background hash, updates it to use the Linux-specific one.
+        fileprivate mutating func setLinuxBackgroundHashIfNeeded() {
+            guard backgroundHash == .virtualBuddyBackground else { return }
+            backgroundHash = .virtualBuddyBackgroundLinux
         }
     }
 
@@ -149,7 +155,12 @@ public extension VBVirtualMachine {
         /// Migration from previous versions that didn't have a configuration file
         /// describing the storage devices.
         config.hardware.addMissingBootDeviceIfNeeded()
-        
+
+        /// Migration from previous versions that didn't have dedicated fallback artwork for Linux.
+        if config.systemType == .linux {
+            metadata?.setLinuxBackgroundHashIfNeeded()
+        }
+
         self.configuration = config
 
         if let metadata {
@@ -170,6 +181,7 @@ public extension VBVirtualMachine {
         self.configuration = .init(systemType: .linux)
 
         self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now)
+        metadata.setLinuxBackgroundHashIfNeeded()
 
         try saveMetadata()
     }
@@ -197,10 +209,6 @@ public extension VBVirtualMachine {
     }
 
     func loadMetadata() throws -> (Metadata?, VBMacConfiguration, Data?) {
-        #if DEBUG
-        guard !ProcessInfo.isSwiftUIPreview else { return (nil, .default, nil) }
-        #endif
-
         let metadata: Metadata?
         let config: VBMacConfiguration
         let installRestore: Data?

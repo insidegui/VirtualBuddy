@@ -2,7 +2,7 @@ import SwiftUI
 import VirtualCore
 import BuddyKit
 
-extension EnvironmentValues {
+private extension EnvironmentValues {
     @Entry var fullBleedBackgroundTransitionDuration: TimeInterval = BlurHashFullBleedBackground.defaultTransitionDuration
     @Entry var fullBleedBackgroundBrightness: Double = BlurHashFullBleedBackground.defaultBrightness
     @Entry var fullBleedBackgroundSaturation: Double = BlurHashFullBleedBackground.defaultSaturation
@@ -15,6 +15,18 @@ extension EnvironmentValues {
             fullBleedBackgroundBrightness = newValue ? BlurHashFullBleedBackground.defaultBrightnessDimmed : BlurHashFullBleedBackground.defaultBrightness
             fullBleedBackgroundSaturation = newValue ? BlurHashFullBleedBackground.defaultSaturationDimmed : BlurHashFullBleedBackground.defaultSaturation
         }
+    }
+}
+
+public extension View {
+    func fullBleedBackgroundDimmed(_ dimmed: Bool = true) -> some View {
+        environment(\.fullBleedBackgroundDimmed, dimmed)
+    }
+    func fullBleedBackgroundBrightness(_ brightness: Double?) -> some View {
+        environment(\.fullBleedBackgroundBrightness, brightness ?? BlurHashFullBleedBackground.defaultBrightness)
+    }
+    func fullBleedBackgroundSaturation(_ saturation: Double?) -> some View {
+        environment(\.fullBleedBackgroundSaturation, saturation ?? BlurHashFullBleedBackground.defaultSaturation)
     }
 }
 

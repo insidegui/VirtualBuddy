@@ -7,6 +7,11 @@ public extension VBVirtualMachine {
         return NSImage(data: imageData)
     }
 
+    var thumbnail: NSImage? {
+        guard let imageData = metadataContents(VBVirtualMachine.thumbnailFileName) ?? metadataContents(VBVirtualMachine._legacyThumbnailFileName) else { return nil }
+        return NSImage(data: imageData)
+    }
+
     func thumbnailImage() -> NSImage? {
         guard let thumbnailURL = try? metadataFileURL(Self.thumbnailFileName) else { return nil }
         

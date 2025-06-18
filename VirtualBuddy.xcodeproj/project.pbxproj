@@ -225,6 +225,13 @@
 		F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */; };
 		F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */; };
 		F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */; };
+		F49B82982E02F5A900395F87 /* VMArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B82972E02F5A300395F87 /* VMArtworkView.swift */; };
+		F49B82A82E0304D400395F87 /* PreviewMac.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B829F2E02FCB100395F87 /* PreviewMac.vbvm */; };
+		F49B82A92E0304D400395F87 /* PreviewMacBlurHash.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B829D2E02FCB100395F87 /* PreviewMacBlurHash.vbvm */; };
+		F49B82AA2E0304D400395F87 /* PreviewMacNoArtwork.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B82A32E02FCF400395F87 /* PreviewMacNoArtwork.vbvm */; };
+		F49B82AB2E0304D400395F87 /* PreviewLinux.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B829E2E02FCB100395F87 /* PreviewLinux.vbvm */; };
+		F49B82AC2E0304D400395F87 /* PreviewLinuxBlurHash.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B82A52E03049C00395F87 /* PreviewLinuxBlurHash.vbvm */; };
+		F49B82AD2E0304D400395F87 /* PreviewLinuxNoArtwork.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B82A62E03049C00395F87 /* PreviewLinuxNoArtwork.vbvm */; };
 		F49FD87D2DFB68F50019D638 /* VMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87C2DFB68F20019D638 /* VMImporter.swift */; };
 		F49FD87F2DFB6B670019D638 /* VMImporterRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */; };
 		F49FD8812DFB6CDD0019D638 /* UTMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD8802DFB6CD80019D638 /* UTMImporter.swift */; };
@@ -240,8 +247,6 @@
 		F4A7FB492BB5ED7E00E4C12A /* Save-2024-03-27_16;08;06.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB422BB5ED4A00E4C12A /* Save-2024-03-27_16;08;06.vbst */; };
 		F4A7FB4A2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;28.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */; };
 		F4A7FB4B2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;51.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */; };
-		F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
-		F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */; };
 		F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */; };
 		F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB742BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift */; };
@@ -482,8 +487,12 @@
 			dstPath = PreviewLibrary;
 			dstSubfolderSpec = 7;
 			files = (
-				F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */,
-				F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */,
+				F49B82A82E0304D400395F87 /* PreviewMac.vbvm in Copy Preview Library */,
+				F49B82A92E0304D400395F87 /* PreviewMacBlurHash.vbvm in Copy Preview Library */,
+				F49B82AA2E0304D400395F87 /* PreviewMacNoArtwork.vbvm in Copy Preview Library */,
+				F49B82AB2E0304D400395F87 /* PreviewLinux.vbvm in Copy Preview Library */,
+				F49B82AC2E0304D400395F87 /* PreviewLinuxBlurHash.vbvm in Copy Preview Library */,
+				F49B82AD2E0304D400395F87 /* PreviewLinuxNoArtwork.vbvm in Copy Preview Library */,
 			);
 			name = "Copy Preview Library";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -610,7 +619,6 @@
 		F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyMonoProgressView.swift; sourceTree = "<group>"; };
 		F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBMemoryLeakDebugAssertions.swift; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
-		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
@@ -680,7 +688,6 @@
 		F485B9212BB306AF004B3C2B /* VBDebugUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VBDebugUtil.m; sourceTree = "<group>"; };
 		F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedDiskImageEditor.swift; sourceTree = "<group>"; };
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
-		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
 		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
 		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
@@ -709,6 +716,13 @@
 		F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestorableWindow.swift; sourceTree = "<group>"; };
 		F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUI.swift; sourceTree = "<group>"; };
 		F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBRestorableWindow+Resizing.swift"; sourceTree = "<group>"; };
+		F49B82972E02F5A300395F87 /* VMArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMArtworkView.swift; sourceTree = "<group>"; };
+		F49B829D2E02FCB100395F87 /* PreviewMacBlurHash.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewMacBlurHash.vbvm; sourceTree = "<group>"; };
+		F49B829E2E02FCB100395F87 /* PreviewLinux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewLinux.vbvm; sourceTree = "<group>"; };
+		F49B829F2E02FCB100395F87 /* PreviewMac.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewMac.vbvm; sourceTree = "<group>"; };
+		F49B82A32E02FCF400395F87 /* PreviewMacNoArtwork.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewMacNoArtwork.vbvm; sourceTree = "<group>"; };
+		F49B82A52E03049C00395F87 /* PreviewLinuxBlurHash.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewLinuxBlurHash.vbvm; sourceTree = "<group>"; };
+		F49B82A62E03049C00395F87 /* PreviewLinuxNoArtwork.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewLinuxNoArtwork.vbvm; sourceTree = "<group>"; };
 		F49FD87C2DFB68F20019D638 /* VMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporter.swift; sourceTree = "<group>"; };
 		F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporterRegistry.swift; sourceTree = "<group>"; };
 		F49FD8802DFB6CD80019D638 /* UTMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTMImporter.swift; sourceTree = "<group>"; };
@@ -997,6 +1011,7 @@
 				F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */,
 				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
 				F444D0F32DF34BE40086537A /* CALayer+Asset.swift */,
+				F49B82972E02F5A300395F87 /* VMArtworkView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1362,9 +1377,13 @@
 			children = (
 				F45502172DF4635C005582A4 /* _Downloads */,
 				F4A7FB452BB5ED4A00E4C12A /* PreviewSavedStates */,
-				F48E0D0928885E990080DDFA /* Preview.vbvm */,
-				F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */,
 				F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */,
+				F49B829F2E02FCB100395F87 /* PreviewMac.vbvm */,
+				F49B829D2E02FCB100395F87 /* PreviewMacBlurHash.vbvm */,
+				F49B82A32E02FCF400395F87 /* PreviewMacNoArtwork.vbvm */,
+				F49B829E2E02FCB100395F87 /* PreviewLinux.vbvm */,
+				F49B82A52E03049C00395F87 /* PreviewLinuxBlurHash.vbvm */,
+				F49B82A62E03049C00395F87 /* PreviewLinuxNoArtwork.vbvm */,
 			);
 			path = Preview;
 			sourceTree = "<group>";
@@ -2495,6 +2514,7 @@
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
+				F49B82982E02F5A900395F87 /* VMArtworkView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
 				F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */,
 				F444D0F62DF37D170086537A /* VirtualBuddyMonoIcon.swift in Sources */,
