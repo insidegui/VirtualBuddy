@@ -77,8 +77,6 @@ struct LibraryItemView: View {
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
 
-    @State private var thumbnail = Image(nsImage: .thumbnailPlaceholder)
-
     var nameFieldFocus = BoolSubject()
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
