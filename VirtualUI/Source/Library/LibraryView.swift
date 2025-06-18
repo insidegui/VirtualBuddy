@@ -13,6 +13,8 @@ public extension String {
 }
 
 public struct LibraryView: View {
+    @ObservedObject private var settingsContainer = VBSettingsContainer.current
+
     @EnvironmentObject private var library: VMLibraryController
     @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
 
@@ -86,6 +88,7 @@ public struct LibraryView: View {
             .padding()
             .padding(.top)
         }
+        .environment(\.virtualBuddyShowDesktopPictureThumbnails, settingsContainer.settings.showDesktopPictureThumbnails)
     }
 
     @ToolbarContentBuilder

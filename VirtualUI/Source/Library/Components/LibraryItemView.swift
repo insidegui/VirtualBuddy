@@ -8,6 +8,12 @@
 import SwiftUI
 import VirtualCore
 
+public extension EnvironmentValues {
+    /// This is injected by reading from ``VBSettings``.
+    /// When `true`, virtual machine thumbnails in the library show the actual desktop picture thumbnail instead of the blurred version.
+    @Entry var virtualBuddyShowDesktopPictureThumbnails = false
+}
+
 /// This button style achieves a couple of things:
 /// - Gives its label a `vbLibraryButtonPressed` environment value that can be used to react to button presses
 /// - Fixes an annoying behavior common to all standard SwiftUI button styles where pressing the space bar
@@ -77,13 +83,16 @@ struct LibraryItemView: View {
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
 
+    @Environment(\.virtualBuddyShowDesktopPictureThumbnails)
+    private var showDesktopPicture
+
     var nameFieldFocus = BoolSubject()
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
 
     var body: some View {
         VStack(spacing: 12) {
-            VMArtworkView(virtualMachine: vm)
+            VMArtworkView(virtualMachine: vm, alwaysUseBlurHash: !showDesktopPicture)
                 .id(vm.blurHashBackgroundContent)
                 .aspectRatio(contentMode: .fill)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)

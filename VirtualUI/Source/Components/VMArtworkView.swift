@@ -5,12 +5,18 @@ public struct VMArtworkView: View {
     public var virtualMachine: VBVirtualMachine
     public var showsIcon: Bool
     public var iconSize: CGFloat
+    private let alwaysUseBlurHash: Bool
 
-    public init(virtualMachine: VBVirtualMachine, showsIcon: Bool = true, iconSize: CGFloat = 44) {
+    public init(virtualMachine: VBVirtualMachine, alwaysUseBlurHash: Bool = false, showsIcon: Bool = true, iconSize: CGFloat = 44) {
         self.virtualMachine = virtualMachine
         self.showsIcon = showsIcon
         self.iconSize = iconSize
-        self._content = .init(initialValue: virtualMachine.artworkContent)
+        self.alwaysUseBlurHash = alwaysUseBlurHash
+        if alwaysUseBlurHash {
+            self._content = .init(initialValue: .blurHash(virtualMachine.metadata.backgroundHash))
+        } else {
+            self._content = .init(initialValue: virtualMachine.artworkContent)
+        }
     }
 
     enum Content {
@@ -24,7 +30,10 @@ public struct VMArtworkView: View {
         ZStack {
             switch content {
             case .image(let image): image.resizable()
-            case .blurHash(let token): BlurHashFullBleedBackground(blurHash: token)
+            case .blurHash(let token):
+                BlurHashFullBleedBackground(blurHash: token)
+                    .fullBleedBackgroundBrightness(-0.2)
+                    .fullBleedBackgroundSaturation(1.4)
             }
 
             if showsIcon, case .blurHash = content {
@@ -38,7 +47,11 @@ public struct VMArtworkView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .task(id: virtualMachine.metadata) {
             withTransaction(\.disablesAnimations, true) {
-                content = virtualMachine.artworkContent
+                if alwaysUseBlurHash {
+                    self.content = .blurHash(virtualMachine.metadata.backgroundHash)
+                } else {
+                    self.content = virtualMachine.artworkContent
+                }
             }
         }
     }

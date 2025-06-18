@@ -28,17 +28,23 @@ public struct VBSettings: Hashable, Sendable {
     }
     public var enableTSSCheck: Bool
 
+    /// Show desktop picture from guest VM in thumbnails instead of the blur hash version.
+    /// Currently not exposed in the UI.
+    public var showDesktopPictureThumbnails: Bool
+
 }
 
 extension VBSettings {
 
     static let defaultUpdateChannel: AppUpdateChannel = .release
     static let defaultEnableTSSCheck = true
+    static let defaultShowDesktopPictureThumbnails = false
 
     init() {
         self.libraryURL = .defaultVirtualBuddyLibraryURL
         self.updateChannel = Self.defaultUpdateChannel
         self.enableTSSCheck = Self.defaultEnableTSSCheck
+        self.showDesktopPictureThumbnails = Self.defaultShowDesktopPictureThumbnails
     }
 
     private struct Keys {
@@ -52,6 +58,7 @@ extension VBSettings {
         }()
         static let updateChannel = "updateChannel"
         static let enableTSSCheck = "enableTSSCheck"
+        static let showDesktopPictureThumbnails = "showDesktopPictureThumbnails"
     }
 
     init(with defaults: UserDefaults) throws {
@@ -61,6 +68,7 @@ extension VBSettings {
 
         self.version = defaults.integer(forKey: Keys.version)
         self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
+        self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
 
         if let path = defaults.string(forKey: Keys.libraryPath) {
             self.libraryURL = URL(fileURLWithPath: path)
@@ -105,6 +113,7 @@ extension VBSettings {
         defaults.set(libraryURL.path, forKey: Keys.libraryPath)
         defaults.set(updateChannel.id, forKey: Keys.updateChannel)
         defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
+        defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
     }
 
 }
