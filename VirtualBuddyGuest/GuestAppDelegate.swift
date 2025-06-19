@@ -43,8 +43,6 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
-    private var isPoweringOff = false
-
     func applicationDidFinishLaunching(_ notification: Notification) {
         /// Skip regular app activation if installation is needed (i.e. running from disk image).
         guard !installer.needsInstall else { return }
@@ -63,8 +61,6 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
         NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willPowerOffNotification, object: nil, queue: nil) { _ in
             self.logger.notice("Received power off notification.")
-            
-            self.isPoweringOff = true
         }
     }
 
@@ -87,15 +83,23 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         dashboardItem.showPanel()
     }
 
+    private var startedDesktopPictureSendBeforeTermination = false
+
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         logger.debug(#function)
 
-        guard isPoweringOff else { return .terminateNow }
+        guard !startedDesktopPictureSendBeforeTermination else { return .terminateLater }
+        startedDesktopPictureSendBeforeTermination = true
 
-        logger.notice("Guest is powering off, delaying slightly to allow for final messages to be sent to host.")
+        Task {
+            logger.notice("Requesting WH send desktop picture")
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [self] in
-            logger.notice("Allowing guest to terminate now.")
+            try? await Task.sleep(for: .milliseconds(500))
+
+            await WormholeManager.sharedGuest.sendDesktopPicture()
+
+            try? await Task.sleep(for: .seconds(500))
+
             NSApp.reply(toApplicationShouldTerminate: true)
         }
 
