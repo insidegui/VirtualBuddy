@@ -82,13 +82,13 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
         case asif
 
         /// The default format for the boot disk image in the current environment.
-        static let defaultBootDisk: Format = {
-            if #available(macOS 26, *) {
+        static var defaultBootDisk: Format {
+            if #available(macOS 26, *), VBSettings.current.bootDiskImagesUseASIF {
                 .asif
             } else {
                 .raw
             }
-        }()
+        }
 
         var fileExtension: String {
             switch self {
@@ -117,7 +117,8 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
     public var filename: String
     public var size: UInt64
     public var format: Format = .sparse
-    
+
+    // Not a stored property because Format.defaultBootDisk can change based on user preferences.
     public static var managedBootImage: VBManagedDiskImage {
         VBManagedDiskImage(
             id: "__BOOT__",
