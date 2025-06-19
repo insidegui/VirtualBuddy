@@ -234,6 +234,7 @@
 		F49B82FC2E034EAD00395F87 /* WHDesktopPictureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B82FB2E034EAD00395F87 /* WHDesktopPictureService.swift */; };
 		F49B83002E034F6800395F87 /* NSImage+DesktopPicture.m in Sources */ = {isa = PBXBuildFile; fileRef = F49B82FF2E034F6800395F87 /* NSImage+DesktopPicture.m */; };
 		F49B83012E034F6800395F87 /* NSImage+DesktopPicture.h in Headers */ = {isa = PBXBuildFile; fileRef = F49B82FE2E034F6800395F87 /* NSImage+DesktopPicture.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F49B832B2E04593A00395F87 /* NSImage+DRMProtected.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B832A2E04593100395F87 /* NSImage+DRMProtected.swift */; };
 		F49FD87D2DFB68F50019D638 /* VMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87C2DFB68F20019D638 /* VMImporter.swift */; };
 		F49FD87F2DFB6B670019D638 /* VMImporterRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */; };
 		F49FD8812DFB6CDD0019D638 /* UTMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD8802DFB6CD80019D638 /* UTMImporter.swift */; };
@@ -723,6 +724,7 @@
 		F49B82FB2E034EAD00395F87 /* WHDesktopPictureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDesktopPictureService.swift; sourceTree = "<group>"; };
 		F49B82FE2E034F6800395F87 /* NSImage+DesktopPicture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+DesktopPicture.h"; sourceTree = "<group>"; };
 		F49B82FF2E034F6800395F87 /* NSImage+DesktopPicture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+DesktopPicture.m"; sourceTree = "<group>"; };
+		F49B832A2E04593100395F87 /* NSImage+DRMProtected.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+DRMProtected.swift"; sourceTree = "<group>"; };
 		F49FD87C2DFB68F20019D638 /* VMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporter.swift; sourceTree = "<group>"; };
 		F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporterRegistry.swift; sourceTree = "<group>"; };
 		F49FD8802DFB6CD80019D638 /* UTMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTMImporter.swift; sourceTree = "<group>"; };
@@ -1926,6 +1928,7 @@
 			isa = PBXGroup;
 			children = (
 				F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */,
+				F49B832A2E04593100395F87 /* NSImage+DRMProtected.swift */,
 			);
 			path = Screenshot;
 			sourceTree = "<group>";
@@ -2574,6 +2577,7 @@
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
+				F49B832B2E04593A00395F87 /* NSImage+DRMProtected.swift in Sources */,
 				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
