@@ -228,16 +228,17 @@ public final class VMLibraryController: ObservableObject {
         #endif
     }
 
+    private static let migratedLegacyThumbnailBackgroundHashesDefaultsKey = "migratedLegacyThumbnailBackgroundHashes_2"
     private var migratedLegacyThumbnailBackgroundHashes: Bool {
         get {
             guard !alwaysAttemptLegacyThumbnailMigration else { return false }
 
-            return UserDefaults.standard.bool(forKey: #function)
+            return UserDefaults.standard.bool(forKey: Self.migratedLegacyThumbnailBackgroundHashesDefaultsKey)
         }
         set {
             guard !alwaysAttemptLegacyThumbnailMigration else { return }
 
-            UserDefaults.standard.set(newValue, forKey: #function)
+            UserDefaults.standard.set(newValue, forKey: Self.migratedLegacyThumbnailBackgroundHashesDefaultsKey)
         }
     }
 
