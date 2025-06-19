@@ -32,6 +32,9 @@ public struct VBSettings: Hashable, Sendable {
     /// Currently not exposed in the UI.
     public var showDesktopPictureThumbnails: Bool
 
+    /// Enables using the new ASIF format for boot disk images (requires macOS 26+ host).
+    public var bootDiskImagesUseASIF: Bool
+
 }
 
 extension VBSettings {
@@ -39,12 +42,20 @@ extension VBSettings {
     static let defaultUpdateChannel: AppUpdateChannel = .release
     static let defaultEnableTSSCheck = true
     static let defaultShowDesktopPictureThumbnails = false
+    static let defaultBootDiskImagesUseASIF: Bool = {
+        if #available(macOS 26, *) {
+            true
+        } else {
+            false
+        }
+    }()
 
     init() {
         self.libraryURL = .defaultVirtualBuddyLibraryURL
         self.updateChannel = Self.defaultUpdateChannel
         self.enableTSSCheck = Self.defaultEnableTSSCheck
         self.showDesktopPictureThumbnails = Self.defaultShowDesktopPictureThumbnails
+        self.bootDiskImagesUseASIF = Self.defaultBootDiskImagesUseASIF
     }
 
     private struct Keys {
@@ -59,6 +70,7 @@ extension VBSettings {
         static let updateChannel = "updateChannel"
         static let enableTSSCheck = "enableTSSCheck"
         static let showDesktopPictureThumbnails = "showDesktopPictureThumbnails"
+        static let bootDiskImagesUseASIF = "bootDiskImagesUseASIF"
     }
 
     init(with defaults: UserDefaults) throws {
@@ -69,6 +81,7 @@ extension VBSettings {
         self.version = defaults.integer(forKey: Keys.version)
         self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
         self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
+        self.bootDiskImagesUseASIF = defaults.bool(forKey: Keys.bootDiskImagesUseASIF)
 
         if let path = defaults.string(forKey: Keys.libraryPath) {
             self.libraryURL = URL(fileURLWithPath: path)
@@ -114,6 +127,7 @@ extension VBSettings {
         defaults.set(updateChannel.id, forKey: Keys.updateChannel)
         defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
         defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
+        defaults.set(bootDiskImagesUseASIF, forKey: Keys.bootDiskImagesUseASIF)
     }
 
 }

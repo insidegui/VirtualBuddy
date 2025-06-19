@@ -35,6 +35,7 @@ public struct PreferencesView: View {
                 libraryPathText: $libraryPathText,
                 enableAutomaticUpdates: $enableAutomaticUpdates,
                 enableTSSCheck: $container.settings.enableTSSCheck,
+                enableASIFDiskImages: $container.settings.bootDiskImagesUseASIF,
                 setLibraryPath: setLibraryPath,
                 showOpenPanel: showOpenPanel
             )
@@ -89,6 +90,8 @@ private struct ModernSettingsView: View {
     @Binding var libraryPathText: String
     @Binding var enableAutomaticUpdates: Bool
     @Binding var enableTSSCheck: Bool
+    @Binding var enableASIFDiskImages: Bool
+
     var setLibraryPath: (String) -> Void
     var showOpenPanel: () -> Void
 
@@ -127,6 +130,26 @@ private struct ModernSettingsView: View {
             } footer: {
                 Text("This is where VirtualBuddy will store your virtual machines and installer images downloaded within the app.")
                     .foregroundStyle(.secondary)
+            }
+
+            if #available(macOS 26, *) {
+                Section {
+                    Picker("Boot Image Format", selection: $enableASIFDiskImages) {
+                        Text("Most Efficient")
+                            .tag(true)
+                        Text("Most Compatible")
+                            .tag(false)
+                    }
+                } header: {
+                    Text("Disk Images")
+                } footer: {
+                    Text("""
+                    Choose the disk image format that will be used when creating new virtual machines.
+                    
+                    - Most Efficient: uses the new ASIF format, requires the host to be running macOS 26 or later.
+                    - Most Compatible: uses a raw image format, compatible with all versions of macOS supported by VirtualBuddy.
+                    """)
+                }
             }
 
             Section {
