@@ -53,4 +53,8 @@ public extension VBMacConfiguration {
 
     var keyboardDeviceSummary: String { hardware.keyboardDevice.kind.name }
 
+    var guestAppSummary: String {
+        guestAdditionsEnabled ? "Enabled" : "Disabled"
+    }
+
 }

@@ -39,6 +39,9 @@ struct VMConfigurationView: View {
     @AppStorage("config.sharing.collapsed")
     private var sharingCollapsed = true
 
+    @AppStorage("config.guestApp.collapsed")
+    private var guestAppCollapsed = true
+
     private var systemType: VBGuestType { viewModel.config.systemType }
 
     private var showBootDiskSection: Bool { viewModel.context == .preInstall }
@@ -47,10 +50,10 @@ struct VMConfigurationView: View {
 
     private var showKeyboardDeviceSection: Bool { systemType.supportsKeyboardCustomization }
 
-    private var showDisplayPPISelection: Bool { systemType.supportsDisplayPPI }
-    
-    private var showRosettaMountSelection: Bool { systemType.supportsRosettaMount }
-    
+    private var showDisplayPPISection: Bool { systemType.supportsDisplayPPI }
+
+    private var showGuestAppSection: Bool { systemType.supportsGuestApp }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if showBootDiskSection {
@@ -75,34 +78,14 @@ struct VMConfigurationView: View {
 
             sound
 
+            if showGuestAppSection {
+                guestApp
+            }
+
             sharing
                 .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
         }
         .font(.system(size: 12))
-    }
-
-    private func summaryHeader<Accessory: View>(_ title: String, systemImage: String, summary: String? = nil, @ViewBuilder accessory: @escaping () -> Accessory) -> some View {
-        HStack {
-            HStack {
-                Image(systemName: systemImage)
-                    .frame(width: 22)
-                Text(title)
-            }
-            accessory()
-
-            Spacer()
-
-            if let summary {
-                Text(summary)
-                    .font(.caption)
-                    .monospacedDigit()
-                    .foregroundColor(.secondary)
-            }
-        }
-    }
-
-    private func summaryHeader(_ title: String, systemImage: String, summary: String? = nil) -> some View {
-        summaryHeader(title, systemImage: systemImage, summary: summary, accessory: { EmptyView() })
     }
 
     @ViewBuilder
@@ -110,7 +93,7 @@ struct VMConfigurationView: View {
         ConfigurationSection($generalCollapsed) {
             HardwareConfigurationView(device: $viewModel.config.hardware)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "General",
                 systemImage: "memorychip",
                 summary: viewModel.config.generalSummary
@@ -130,7 +113,7 @@ struct VMConfigurationView: View {
                     .foregroundColor(.red)
             }
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "Boot Disk",
                 systemImage: "wrench.and.screwdriver"
             )
@@ -151,7 +134,7 @@ struct VMConfigurationView: View {
             StorageConfigurationView(hardware: $viewModel.config.hardware)
                 .environmentObject(viewModel)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 showBootDiskSection ? "Additional Storage" : "Storage",
                 systemImage: "externaldrive",
                 summary: storageSummary
@@ -171,14 +154,14 @@ struct VMConfigurationView: View {
             DisplayConfigurationView(
                 device: $viewModel.config.hardware.displayDevices[0],
                 selectedPreset: $viewModel.selectedDisplayPreset,
-                canChangePPI: showDisplayPPISelection
+                canChangePPI: showDisplayPPISection
             )
         } header: {
-            summaryHeader("Display", systemImage: "display", summary: viewModel.config.displaySummary) {
+            SummaryHeader("Display", systemImage: "display", summary: viewModel.config.displaySummary) {
                 DisplayConfigurationView(
                     device: $viewModel.config.hardware.displayDevices[0],
                     selectedPreset: $viewModel.selectedDisplayPreset,
-                    canChangePPI: showDisplayPPISelection
+                    canChangePPI: showDisplayPPISection
                 )
                 .presetPicker
                 .frame(width: 24)
@@ -191,7 +174,7 @@ struct VMConfigurationView: View {
         ConfigurationSection($pointingCollapsed) {
             PointingDeviceConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "Pointing Device",
                 systemImage: "cursorarrow",
                 summary: viewModel.config.pointingDeviceSummary
@@ -204,7 +187,7 @@ struct VMConfigurationView: View {
         ConfigurationSection($keyboardCollapsed) {
             KeyboardDeviceConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "Keyboard Device",
                 systemImage: "keyboard",
                 summary: viewModel.config.keyboardDeviceSummary
@@ -217,7 +200,7 @@ struct VMConfigurationView: View {
         ConfigurationSection($networkCollapsed) {
             NetworkConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "Network",
                 systemImage: "network",
                 summary: viewModel.config.networkSummary
@@ -230,7 +213,7 @@ struct VMConfigurationView: View {
         ConfigurationSection($soundCollapsed) {
             SoundConfigurationView(hardware: $viewModel.config.hardware)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "Sound",
                 systemImage: viewModel.config.hardware.soundDevices.isEmpty ? "speaker.slash" : "speaker.3",
                 summary: viewModel.config.soundSummary
@@ -243,12 +226,94 @@ struct VMConfigurationView: View {
         ConfigurationSection($sharingCollapsed) {
             SharingConfigurationView(configuration: $viewModel.config)
         } header: {
-            summaryHeader(
+            SummaryHeader(
                 "Sharing",
                 systemImage: "folder",
                 summary: viewModel.config.sharingSummary
             )
         }
+    }
+
+    @ViewBuilder
+    private var guestApp: some View {
+        ConfigurationSection($guestAppCollapsed) {
+            GuestAppConfigurationView(configuration: $viewModel.config)
+        } header: {
+            SummaryHeader(
+                "Guest App",
+                summary: viewModel.config.guestAppSummary
+            ) {
+                Image(.guestSymbol)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 15)
+            }
+        }
+    }
+}
+
+// MARK: - Section Header
+
+private struct SummaryHeader<Icon: View, Accessory: View>: View {
+    var title: String
+    var summary: String?
+    @ViewBuilder var icon: () -> Icon
+    @ViewBuilder var accessory: () -> Accessory
+
+    init(_ title: String, summary: String? = nil, @ViewBuilder icon: @escaping () -> Icon, @ViewBuilder accessory: @escaping () -> Accessory) {
+        self.title = title
+        self.summary = summary
+        self.icon = icon
+        self.accessory = accessory
+    }
+
+    var body: some View {
+        HStack {
+            HStack {
+                icon().frame(width: 22)
+
+                Text(title)
+            }
+            accessory()
+
+            Spacer()
+
+            if let summary {
+                Text(summary)
+                    .font(.caption)
+                    .monospacedDigit()
+                    .foregroundColor(.secondary)
+            }
+        }
+    }
+}
+
+private extension SummaryHeader where Icon == Image {
+    init(_ title: String, image: Image, summary: String? = nil, @ViewBuilder accessory: @escaping () -> Accessory) {
+        self.title = title
+        self.summary = summary
+        self.icon = { image }
+        self.accessory = accessory
+    }
+
+    init(_ title: String, systemImage: String, summary: String? = nil, @ViewBuilder accessory: @escaping () -> Accessory) {
+        self.init(title, image: Image(systemName: systemImage), summary: summary, accessory: accessory)
+    }
+}
+
+private extension SummaryHeader where Icon == Image, Accessory == EmptyView {
+    init(_ title: String, image: Image, summary: String? = nil) {
+        self.init(title, image: image, summary: summary, accessory: { EmptyView() })
+    }
+
+    init(_ title: String, systemImage: String, summary: String? = nil) {
+        self.init(title, systemImage: systemImage, summary: summary, accessory: { EmptyView() })
+    }
+}
+
+private extension SummaryHeader where Accessory == EmptyView {
+    init(_ title: String, summary: String? = nil, @ViewBuilder icon: @escaping () -> Icon) {
+        self.init(title, summary: summary, icon: icon, accessory: { EmptyView() })
     }
 }
 
