@@ -4917,10 +4917,10 @@
 		};
 		F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/insidegui/swiftui-introspect.git";
+			repositoryURL = "https://github.com/siteline/swiftui-introspect";
 			requirement = {
-				branch = macOS15;
-				kind = branch;
+				kind = exactVersion;
+				version = "1.4.0-beta.2";
 			};
 		};
 		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {

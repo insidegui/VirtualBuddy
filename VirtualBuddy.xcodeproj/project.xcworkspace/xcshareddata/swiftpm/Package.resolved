@@ -1,5 +1,5 @@
 {
-  "originHash" : "98f40922b2644e586c8b6d539ad27ccd25d4688183ddd8f20ca08988234aa81e",
+  "originHash" : "3fd24967a48b127010a1cab40c41fd70176878f897a946d6404561fee4decff1",
   "pins" : [
     {
       "identity" : "buddykit",
@@ -40,10 +40,10 @@
     {
       "identity" : "swiftui-introspect",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/insidegui/swiftui-introspect.git",
+      "location" : "https://github.com/siteline/swiftui-introspect",
       "state" : {
-        "branch" : "macOS15",
-        "revision" : "65046b6a298c469bfbf49fbb4531bd09d9b53428"
+        "revision" : "c2b0625d0ef385994e4c6bc36116c0e7bfa6dafa",
+        "version" : "1.4.0-beta.2"
       }
     },
     {
