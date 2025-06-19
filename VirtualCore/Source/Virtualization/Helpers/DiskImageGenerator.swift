@@ -17,6 +17,8 @@ fileprivate extension VBManagedDiskImage.Format {
             return "UDIF"
         case .sparse:
             return "SPARSE"
+        case .asif:
+            return "ASIF"
         }
     }
 }
@@ -33,11 +35,17 @@ public final class DiskImageGenerator {
     }
 
     public static func generateImage(with settings: ImageSettings) async throws {
+        guard settings.template.format.isSupported else {
+            throw "Unsupported disk image format \(settings.template.format.hdiutilType.quoted)."
+        }
+
         switch settings.template.format {
         case .raw:
             try generateRaw(with: settings)
         case .dmg, .sparse:
-            try await hdiutil(with: settings)
+            try await generateDMG(with: settings)
+        case .asif:
+            try await generateBlankASIF(with: settings)
         }
     }
 
@@ -58,10 +66,8 @@ public final class DiskImageGenerator {
         }
     }
 
-    private static func hdiutil(with settings: ImageSettings) async throws {
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
-        process.arguments = [
+    private static func generateDMG(with settings: ImageSettings) async throws {
+        try await hdiutil(arguments: [
             "create",
             "-layout",
             "GPTSPUD",
@@ -75,12 +81,41 @@ public final class DiskImageGenerator {
             settings.template.filename,
             "-nospotlight",
             settings.url.path
-        ]
-        
+        ])
+    }
+
+    private static func generateBlankASIF(with settings: ImageSettings) async throws {
+        try await diskutil(arguments: [
+            "image",
+            "create",
+            "blank",
+            "--fs",
+            "none",
+            "--format",
+            settings.template.format.hdiutilType,
+            "--size",
+            "\(settings.template.size / .storageGigabyte)G",
+            settings.url.path
+        ])
+    }
+
+    private static func hdiutil(arguments: [String]) async throws {
+        try await runCommand("/usr/bin/hdiutil", with: arguments)
+    }
+
+    private static func diskutil(arguments: [String]) async throws {
+        try await runCommand("/usr/sbin/diskutil", with: arguments)
+    }
+
+    private static func runCommand(_ path: String, with arguments: [String]) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: path)
+        process.arguments = arguments
+
         #if DEBUG
-        print("💻 hdiutil arguments: \(process.arguments!.joined(separator: " "))")
+        print("💻 \(path) arguments: \(process.arguments!.joined(separator: " "))")
         #endif
-        
+
         let err = Pipe()
         let out = Pipe()
         process.standardError = err
@@ -99,7 +134,7 @@ public final class DiskImageGenerator {
         if error.trimmingCharacters(in: .newlines).count > 0 {
             throw Failure(error)
         } else {
-            throw Failure("hdiutil failed with exit code \(process.terminationStatus)")
+            throw Failure("Command \(path) failed with exit code \(process.terminationStatus)")
         }
     }
 
