@@ -150,6 +150,6 @@ struct GuestTypeItemView: View {
     GuestTypePicker(selection: $selection)
         .padding(22)
         .frame(width: VMInstallationWizard.maxContentWidth, height: 600)
-        .background(BlurHashFullBleedBackground(.virtualBuddyBackground))
+        .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
 }
 #endif

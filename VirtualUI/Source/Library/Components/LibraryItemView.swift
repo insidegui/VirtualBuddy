@@ -8,6 +8,12 @@
 import SwiftUI
 import VirtualCore
 
+public extension EnvironmentValues {
+    /// This is injected by reading from ``VBSettings``.
+    /// When `true`, virtual machine thumbnails in the library show the actual desktop picture thumbnail instead of the blurred version.
+    @Entry var virtualBuddyShowDesktopPictureThumbnails = false
+}
+
 /// This button style achieves a couple of things:
 /// - Gives its label a `vbLibraryButtonPressed` environment value that can be used to react to button presses
 /// - Fixes an annoying behavior common to all standard SwiftUI button styles where pressing the space bar
@@ -71,13 +77,14 @@ struct LibraryItemView: View {
 
     @EnvironmentObject var library: VMLibraryController
 
-    @State var vm: VBVirtualMachine
+    var vm: VBVirtualMachine
     @State var name: String
 
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
 
-    @State private var thumbnail = Image(nsImage: .thumbnailPlaceholder)
+    @Environment(\.virtualBuddyShowDesktopPictureThumbnails)
+    private var showDesktopPicture
 
     var nameFieldFocus = BoolSubject()
 
@@ -85,8 +92,12 @@ struct LibraryItemView: View {
 
     var body: some View {
         VStack(spacing: 12) {
-            thumbnailView
-                .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
+            VMArtworkView(virtualMachine: vm, alwaysUseBlurHash: !showDesktopPicture)
+                .id(vm.blurHashBackgroundContent)
+                .aspectRatio(contentMode: .fill)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                .aspectRatio(16/9, contentMode: .fit)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                 .shadow(color: Color.black.opacity(0.4), radius: 4)
 
             EphemeralTextField($name, alignment: .leading, setFocus: nameFieldFocus) { name in
@@ -108,18 +119,10 @@ struct LibraryItemView: View {
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
         .background(Material.thin, in: backgroundShape)
-        .background {
-            thumbnail
-                .resizable()
-                .blur(radius: 22)
-                .opacity(isPressed ? 0.1 : 0.4)
-        }
         .clipShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
         .scaleEffect(isPressed ? 0.96 : 1)
-        .onAppear { refreshThumbnail() }
-        .onReceive(vm.didInvalidateThumbnail) { refreshThumbnail() }
         .contextMenu { contextMenuItems }
         .task(id: vm.name) { self.name = vm.name }
     }
@@ -134,26 +137,8 @@ struct LibraryItemView: View {
         }
     }
 
-    private func refreshThumbnail() {
-        if let nsImage = vm.thumbnailImage() {
-            thumbnail = Image(nsImage: nsImage)
-        } else {
-            thumbnail = Image(nsImage: .thumbnailPlaceholder)
-        }
-    }
-
     private var backgroundShape: some InsettableShape {
         RoundedRectangle(cornerRadius: 12, style: .continuous)
-    }
-
-    @ViewBuilder
-    private var thumbnailView: some View {
-        thumbnail
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity, alignment: .bottom)
-            .clipped()
-            .aspectRatio(16/9, contentMode: .fit)
     }
 
     @ViewBuilder
@@ -220,3 +205,11 @@ extension VMLibraryController {
         }
     }
 }
+
+#if DEBUG
+#Preview {
+    LibraryView()
+        .environmentObject(VMLibraryController.preview)
+        .environmentObject(VirtualMachineSessionUIManager.shared)
+}
+#endif

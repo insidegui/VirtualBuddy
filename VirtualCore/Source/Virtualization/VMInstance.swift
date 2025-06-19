@@ -191,6 +191,7 @@ public final class VMInstance: NSObject, ObservableObject {
         )
 
         streamGuestNotifications()
+        streamGuestDesktopPictureMessages()
     }
 
     private lazy var guestIOTasks = [Task<Void, Never>]()
@@ -218,7 +219,37 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         guestIOTasks.append(task)
     }
-    
+
+    public func streamGuestDesktopPictureMessages() {
+        logger.debug(#function)
+
+        let task = Task {
+            do {
+                for await message in try await wormhole.desktopPictureMessages(from: virtualMachineModel.wormholeID) {
+                    do {
+                        let fileURL = virtualMachineModel.metadataFileURL(VBVirtualMachine.thumbnailFileName)
+
+                        try message.content.write(to: fileURL, options: .atomic)
+
+                        if let image = NSImage(data: message.content),
+                           let blurHash = image.blurHash(numberOfComponents: (Int.vbBlurHashSize, Int.vbBlurHashSize))
+                        {
+                            virtualMachineModel.metadata.backgroundHash = BlurHashToken(value: blurHash, size: .vbBlurHashSize)
+                        }
+
+                        try virtualMachineModel.saveMetadata()
+                    } catch {
+                        logger.error("Error handling desktop picture message: \(error, privacy: .public)")
+                    }
+                }
+            } catch {
+                logger.error("Error subscribing to desktop picture messages: \(error, privacy: .public)")
+            }
+        }
+
+        guestIOTasks.append(task)
+    }
+
     func startVM() async throws {
         try await bootstrap()
 
@@ -305,17 +336,6 @@ public final class VMInstance: NSObject, ObservableObject {
         /// but only after the user has performed pre-save confirmation steps.
         onStart()
 
-        logger.debug("Collecting screenshot for saved state")
-
-        let screenshot: NSImage?
-        do {
-            screenshot = try await NSImage.screenshot(from: vm)
-        } catch {
-            screenshot = virtualMachineModel.screenshot
-
-            logger.warning("Error collecting screenshot for saved state: \(error, privacy: .public)")
-        }
-
         logger.debug("Pausing to save state")
 
         try await pause()
@@ -325,8 +345,6 @@ public final class VMInstance: NSObject, ObservableObject {
         let package = try virtualMachineModel.createSavedStatePackage(in: library, snapshotName: name)
 
         logger.debug("VM state package will be written to \(package.url.path)")
-
-        package.screenshot = screenshot
 
         do {
             try await package.createStorageDeviceClones(model: virtualMachineModel)

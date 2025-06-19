@@ -12,6 +12,7 @@ public extension NSImage {
         kCGImageDestinationImageMaxPixelSize: 4096
     ] as CFDictionary
 
+    // TODO: Adopt BuddyImageKit
     @discardableResult
     func vb_createThumbnail(at url: URL, options: CFDictionary = NSImage.defaultThumbnailProperties) throws -> NSImage {
         guard let cgImage = self.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
@@ -27,6 +28,7 @@ public extension NSImage {
         return thumbnailImage
     }
 
+    // TODO: Adopt BuddyImageKit
     func vb_heicEncodedData(options: CFDictionary = NSImage.defaultHEICProperties) throws -> Data {
         guard let cgImage = self.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             throw Failure("Failed to create a CGImage")
@@ -35,6 +37,7 @@ public extension NSImage {
         return try cgImage.vb_heicEncodedData(options: options)
     }
 
+    // TODO: Adopt BuddyImageKit
     @discardableResult
     func vb_encodeHEIC(to url: URL, options: CFDictionary = NSImage.defaultHEICProperties) throws -> URL {
         guard let cgImage = self.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
@@ -46,6 +49,7 @@ public extension NSImage {
 }
 
 public extension CGImage {
+    // TODO: Adopt BuddyImageKit
     func vb_heicEncodedData(options: CFDictionary = NSImage.defaultHEICProperties) throws -> Data {
         guard let cfData = CFDataCreateMutable(kCFAllocatorDefault, 0) else {
             throw Failure("Failed to create CFMutableData")
@@ -60,6 +64,7 @@ public extension CGImage {
         return cfData as Data
     }
 
+    // TODO: Adopt BuddyImageKit
     @discardableResult
     func vb_encodeHEIC(to url: URL, options: CFDictionary = NSImage.defaultHEICProperties) throws -> URL {
         guard let destination = CGImageDestinationCreateWithURL(url as CFURL, AVFileType.heic.rawValue as CFString, 1, nil) else {

@@ -2,10 +2,11 @@ import SwiftUI
 import VirtualCore
 import BuddyKit
 
-extension EnvironmentValues {
+private extension EnvironmentValues {
     @Entry var fullBleedBackgroundTransitionDuration: TimeInterval = BlurHashFullBleedBackground.defaultTransitionDuration
     @Entry var fullBleedBackgroundBrightness: Double = BlurHashFullBleedBackground.defaultBrightness
     @Entry var fullBleedBackgroundSaturation: Double = BlurHashFullBleedBackground.defaultSaturation
+    @Entry var fullBleedBackgroundBlurRadius: Double = BlurHashFullBleedBackground.defaultBlurRadius
 
     var fullBleedBackgroundDimmed: Bool {
         get {
@@ -18,6 +19,21 @@ extension EnvironmentValues {
     }
 }
 
+public extension View {
+    func fullBleedBackgroundDimmed(_ dimmed: Bool = true) -> some View {
+        environment(\.fullBleedBackgroundDimmed, dimmed)
+    }
+    func fullBleedBackgroundBrightness(_ brightness: Double?) -> some View {
+        environment(\.fullBleedBackgroundBrightness, brightness ?? BlurHashFullBleedBackground.defaultBrightness)
+    }
+    func fullBleedBackgroundSaturation(_ saturation: Double?) -> some View {
+        environment(\.fullBleedBackgroundSaturation, saturation ?? BlurHashFullBleedBackground.defaultSaturation)
+    }
+    func fullBleedBackgroundBlurRadius(_ radius: Double?) -> some View {
+        environment(\.fullBleedBackgroundBlurRadius, radius ?? BlurHashFullBleedBackground.defaultBlurRadius)
+    }
+}
+
 struct BlurHashFullBleedBackground: View {
     static let defaultTransitionDuration: TimeInterval = 1.0
 
@@ -27,25 +43,42 @@ struct BlurHashFullBleedBackground: View {
     static let defaultSaturation: Double = 1.3
     static let defaultSaturationDimmed: Double = 0.8
 
-    var blurHash: BlurHashToken?
+    static let defaultBlurRadius: Double = 22
 
-    init(_ blurHash: BlurHashToken?) {
-        self.blurHash = blurHash
+    enum Content: Hashable {
+        case blurHash(BlurHashToken)
+        case customImage(NSImage)
+    }
+
+    var content: Content?
+
+    init(content: Content?) {
+        self.content = content
+    }
+
+    init(blurHash: BlurHashToken?) {
+        self.content = blurHash.flatMap { .blurHash($0) }
+    }
+
+    init(image: NSImage?) {
+        self.content = image.flatMap { .customImage($0) }
     }
 
     init(_ blurHashValue: String?) {
-        self.init(blurHashValue.flatMap { BlurHashToken(value: $0) })
+        self.init(blurHash: blurHashValue.flatMap { BlurHashToken(value: $0) })
     }
 
     var body: some View {
-        _BlurHashRepresentable(token: blurHash)
+        _BlurHashRepresentable(content: content)
             .ignoresSafeArea()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
 private struct _BlurHashRepresentable: NSViewRepresentable {
-    var token: BlurHashToken?
+    typealias Content = BlurHashFullBleedBackground.Content
+
+    var content: Content?
 
     typealias NSViewType = _BlurHashNSView
 
@@ -56,9 +89,20 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
     func updateNSView(_ nsView: _BlurHashNSView, context: Context) {
         nsView.animationsDisabled = context.transaction.disablesAnimations
         nsView.transitionDuration = context.environment.fullBleedBackgroundTransitionDuration
-        nsView.blurHash = token
+
+        switch content {
+        case .blurHash(let token):
+            nsView.blurHash = token
+        case .customImage(let image):
+            nsView.customImage = image
+        case .none:
+            nsView.blurHash = nil
+            nsView.customImage = nil
+        }
+
         nsView.brightness = context.environment.fullBleedBackgroundBrightness
         nsView.saturation = context.environment.fullBleedBackgroundSaturation
+        nsView.blurRadius = context.environment.fullBleedBackgroundBlurRadius
     }
 
     final class _BlurHashNSView: NSView {
@@ -71,7 +115,27 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
             }
         }
 
+        var customImage: NSImage? {
+            didSet {
+                guard customImage != oldValue else { return }
+                guard let customImage else {
+                    image = nil
+                    return
+                }
+
+                let scale = 0.01
+                let size = CGSize(width: customImage.size.width * scale, height: customImage.size.height * scale)
+                UILog("Custom image size: \(size)")
+
+                image = NSImage(size: size, flipped: true) { rect in
+                    customImage.draw(in: rect)
+                    return true
+                }
+            }
+        }
+
         private var lastRenderedToken: BlurHashToken?
+        private var lastRenderedImage: NSImage?
 
         @Invalidating(.layout)
         private var image: NSImage? = nil
@@ -100,6 +164,15 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
             }
         }
 
+        var blurRadius: Double = BlurHashFullBleedBackground.defaultBlurRadius {
+            didSet {
+                guard blurRadius != oldValue else { return }
+                withCurrentEnvironment {
+                    assetLayer.setValue(blurRadius, forKeyPath: "filters.gaussianBlur.inputRadius")
+                }
+            }
+        }
+
         override func layout() {
             CATransaction.begin()
             CATransaction.setDisableActions(true)
@@ -112,8 +185,11 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
 
             CATransaction.commit()
 
-            guard blurHash != lastRenderedToken else { return }
-            defer { lastRenderedToken = blurHash }
+            guard blurHash != lastRenderedToken || image != lastRenderedImage else { return }
+            defer {
+                lastRenderedToken = blurHash
+                lastRenderedImage = image
+            }
 
             withCurrentEnvironment {
                 assetLayer.contents = image
@@ -156,7 +232,7 @@ private struct BlurHashFullBleedBackgroundPreview: View {
     var enableCycle = true
 
     var body: some View {
-        BlurHashFullBleedBackground(token)
+        BlurHashFullBleedBackground(blurHash: token)
         /// Swap below environment modifiers to be able to test arbitrary brightness values in preview
 //            .environment(\.fullBleedBackgroundBrightness, effectiveBrightness)
             .environment(\.fullBleedBackgroundDimmed, dimmed)
@@ -210,7 +286,15 @@ private struct BlurHashFullBleedBackgroundPreview: View {
     }
 }
 
-#Preview {
+#Preview("Blur Hash") {
     BlurHashFullBleedBackgroundPreview()
+}
+
+#Preview("Custom Image") {
+    BlurHashFullBleedBackground(image: .blurHashPreview)
+}
+
+private extension NSImage {
+    static let blurHashPreview = NSImage(contentsOfFile: "/System/Library/Desktop Pictures/Sonoma.heic")!
 }
 #endif // DEBUG

@@ -38,13 +38,19 @@ public final class VMLibraryController: ObservableObject {
     private let filePresenter: DirectoryObserver
     private let updateSignal = PassthroughSubject<URL, Never>()
 
+    private static let observedFileExtensions: Set<String> = [
+        VBVirtualMachine.bundleExtension,
+        "plist",
+        "heic"
+    ]
+
     public init(settingsContainer: VBSettingsContainer = .current) {
         self.settingsContainer = settingsContainer
         self.settings = settingsContainer.settings
         self.libraryURL = settingsContainer.settings.libraryURL
         self.filePresenter = DirectoryObserver(
             presentedItemURL: settingsContainer.settings.libraryURL,
-            fileExtensions: [VBVirtualMachine.bundleExtension],
+            fileExtensions: Self.observedFileExtensions,
             label: "Library",
             signal: updateSignal
         )
@@ -79,10 +85,31 @@ public final class VMLibraryController: ObservableObject {
 
         updateSignal
             .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
-            .sink { [weak self] _ in
-                self?.loadMachines()
+            .sink { [weak self] url in
+                guard let self else { return }
+
+                /// Ignore file change notifications in the guest additions or downloads directories.
+                guard !url.path.contains(GuestAdditionsDiskImage.imagesRootURL.path) else {
+                    return
+                }
+                guard !url.path.contains(VBSettings.current.downloadsDirectoryURL.path) else {
+                    return
+                }
+
+                guard let bundleURL = url.virtualMachineBundleParent else {
+                    self.logger.fault("Failed to determine VM bundle URL for changed file \(url.lastPathComponent)")
+                    return
+                }
+
+                self.handleBundleChanged(at: bundleURL)
             }
             .store(in: &cancellables)
+    }
+
+    private func handleBundleChanged(at bundleURL: URL) {
+        logger.debug("Bundle changed: \(bundleURL.lastPathComponent)")
+
+        loadMachines()
     }
 
     public func loadMachines() {
@@ -93,23 +120,30 @@ public final class VMLibraryController: ObservableObject {
             return
         }
         
-        var vms = [VBVirtualMachine]()
-        
+        var machines = [VBVirtualMachine]()
+
         while let url = enumerator.nextObject() as? URL {
             guard url.pathExtension == VBVirtualMachine.bundleExtension else { continue }
             
             do {
-                let machine = try VBVirtualMachine(bundleURL: url)
-                
-                vms.append(machine)
+                let machine = try VBVirtualMachine(bundleURL: url, createIfNeeded: false)
+
+                if let index = machines.firstIndex(where: { $0.id == machine.id }) {
+                    machines[index] = machine
+                } else {
+                    machines.append(machine)
+                }
+            } catch is VBVirtualMachine.BundleDirectoryMissingError {
+                /// This error can occur when the bundle is deleted in Finder.
+                logger.debug("Ignoring BundleDirectoryMissingError for \(url.lastPathComponent)")
             } catch {
                 assertionFailure("Failed to construct VM model: \(error)")
             }
         }
 
-        vms.sort(by: { $0.bundleURL.creationDate > $1.bundleURL.creationDate })
-        
-        self.state = .loaded(vms)
+        let sortedMachines = machines.sorted(by: { $0.bundleURL.creationDate > $1.bundleURL.creationDate })
+
+        self.state = .loaded(sortedMachines)
     }
 
     public func reload(animated: Bool = true) {

@@ -9,8 +9,13 @@ public extension VBVirtualMachine {
     static func previewMachine(named name: String) -> VBVirtualMachine {
         try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
     }
-    static let preview = VBVirtualMachine.previewMachine(named: "Preview")
-    static let previewLinux = VBVirtualMachine.previewMachine(named: "Preview-Linux")
+    static let preview = VBVirtualMachine.previewMachine(named: "PreviewMac")
+    static let previewBlurHash = VBVirtualMachine.previewMachine(named: "PreviewMacBlurHash")
+    static let previewNoArtwork = VBVirtualMachine.previewMachine(named: "PreviewMacNoArtwork")
+
+    static let previewLinux = VBVirtualMachine.previewMachine(named: "PreviewLinux")
+    static let previewLinuxBlurHash = VBVirtualMachine.previewMachine(named: "PreviewLinuxBlurHash")
+    static let previewLinuxNoArtwork = VBVirtualMachine.previewMachine(named: "PreviewLinuxNoArtwork")
 }
 
 extension Bundle {

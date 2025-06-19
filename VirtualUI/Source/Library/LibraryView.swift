@@ -13,6 +13,8 @@ public extension String {
 }
 
 public struct LibraryView: View {
+    @ObservedObject private var settingsContainer = VBSettingsContainer.current
+
     @EnvironmentObject private var library: VMLibraryController
     @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
 
@@ -86,6 +88,7 @@ public struct LibraryView: View {
             .padding()
             .padding(.top)
         }
+        .environment(\.virtualBuddyShowDesktopPictureThumbnails, settingsContainer.settings.showDesktopPictureThumbnails)
     }
 
     @ToolbarContentBuilder
@@ -104,14 +107,16 @@ public struct LibraryView: View {
     
 }
 
-struct LibraryView_Previews: PreviewProvider {
-    static var previews: some View {
-        LibraryView()
-    }
-}
-
 fileprivate extension URL {
     var collapsedHomePath: String {
         path.replacingOccurrences(of: NSHomeDirectory(), with: "~")
     }
 }
+
+#if DEBUG
+#Preview {
+    LibraryView()
+        .environmentObject(VMLibraryController.preview)
+        .environmentObject(VirtualMachineSessionUIManager.shared)
+}
+#endif

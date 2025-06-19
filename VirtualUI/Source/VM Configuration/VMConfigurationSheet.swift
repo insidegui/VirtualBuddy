@@ -157,7 +157,7 @@ struct VMConfigurationSheet_Previews: PreviewProvider {
                 VMConfigurationSheet(configuration: $vm.configuration)
                     .environmentObject(VMConfigurationViewModel(vm, context: context))
                     .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
-                    .background(BlurHashFullBleedBackground(.virtualBuddyBackground))
+                    .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
             }
         }
     }

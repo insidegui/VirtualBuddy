@@ -28,4 +28,10 @@ public extension BlurHashToken {
         value: "U4H09BEfIY$%U7ocVcM$8%R*M}f~zwIXcArd",
         size: 4
     )
+
+    /// Hardcoded VirtualBuddy background blur hash for Linux VMs.
+    static let virtualBuddyBackgroundLinux = BlurHashToken(
+        value: "UsLn]CG1I;t19uxAR$jJOXjEj=ayn%fkjubI",
+        size: 4
+    )
 }

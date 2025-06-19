@@ -22,25 +22,21 @@ public extension VBVirtualMachine {
     }
 
     func deleteMetadataFile(named name: String) throws {
-        let baseURL = try metadataDirectoryCreatingIfNeeded()
-
-        let fileURL = baseURL.appendingPathComponent(name)
+        let fileURL = metadataDirectoryURL.appendingPathComponent(name)
 
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
         try FileManager.default.removeItem(at: fileURL)
     }
 
-    func metadataFileURL(_ fileName: String) throws -> URL {
-        let baseURL = try metadataDirectoryCreatingIfNeeded()
-
-        let fileURL = baseURL.appendingPathComponent(fileName)
+    func metadataFileURL(_ fileName: String) -> URL {
+        let fileURL = metadataDirectoryURL.appendingPathComponent(fileName)
 
         return fileURL
     }
 
     func metadataContents(_ fileName: String) -> Data? {
-        guard let fileURL = try? metadataFileURL(fileName) else { return nil }
+        let fileURL = metadataFileURL(fileName)
 
         guard FileManager.default.fileExists(atPath: fileURL.path) else { return nil }
 
@@ -55,5 +51,21 @@ extension URL {
             try FileManager.default.createDirectory(at: self, withIntermediateDirectories: true)
         }
         return self
+    }
+}
+
+extension URL {
+    /// `true` if URL points to a file contained within a VirtualBuddy VM bundle metadata directory.
+    var isVirtualBuddyDataDirectoryFile: Bool {
+        deletingLastPathComponent().lastPathComponent == VBVirtualMachine.metadataDirectoryName
+    }
+
+    var virtualMachineBundleParent: URL? {
+        var current = self
+        while current.pathExtension != VBVirtualMachine.bundleExtension {
+            current = current.deletingLastPathComponent()
+            guard current.path != "/" else { return nil }
+        }
+        return current
     }
 }

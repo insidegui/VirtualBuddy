@@ -174,7 +174,6 @@
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
 		F465C3B8284FA252006E9ED4 /* URLSessionDownloadBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */; };
-		F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */; };
 		F46FFBA82804F07400D61023 /* VBNVRAMVariable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */; };
 		F46FFBAA2804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */; };
 		F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F46FFBAB28059FF600D61023 /* VMInstance.swift */; };
@@ -225,6 +224,16 @@
 		F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */; };
 		F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */; };
 		F49AA2C729BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */; };
+		F49B82982E02F5A900395F87 /* VMArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B82972E02F5A300395F87 /* VMArtworkView.swift */; };
+		F49B82A82E0304D400395F87 /* PreviewMac.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B829F2E02FCB100395F87 /* PreviewMac.vbvm */; };
+		F49B82A92E0304D400395F87 /* PreviewMacBlurHash.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B829D2E02FCB100395F87 /* PreviewMacBlurHash.vbvm */; };
+		F49B82AA2E0304D400395F87 /* PreviewMacNoArtwork.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B82A32E02FCF400395F87 /* PreviewMacNoArtwork.vbvm */; };
+		F49B82AB2E0304D400395F87 /* PreviewLinux.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B829E2E02FCB100395F87 /* PreviewLinux.vbvm */; };
+		F49B82AC2E0304D400395F87 /* PreviewLinuxBlurHash.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B82A52E03049C00395F87 /* PreviewLinuxBlurHash.vbvm */; };
+		F49B82AD2E0304D400395F87 /* PreviewLinuxNoArtwork.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F49B82A62E03049C00395F87 /* PreviewLinuxNoArtwork.vbvm */; };
+		F49B82FC2E034EAD00395F87 /* WHDesktopPictureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49B82FB2E034EAD00395F87 /* WHDesktopPictureService.swift */; };
+		F49B83002E034F6800395F87 /* NSImage+DesktopPicture.m in Sources */ = {isa = PBXBuildFile; fileRef = F49B82FF2E034F6800395F87 /* NSImage+DesktopPicture.m */; };
+		F49B83012E034F6800395F87 /* NSImage+DesktopPicture.h in Headers */ = {isa = PBXBuildFile; fileRef = F49B82FE2E034F6800395F87 /* NSImage+DesktopPicture.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F49FD87D2DFB68F50019D638 /* VMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87C2DFB68F20019D638 /* VMImporter.swift */; };
 		F49FD87F2DFB6B670019D638 /* VMImporterRegistry.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */; };
 		F49FD8812DFB6CDD0019D638 /* UTMImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F49FD8802DFB6CD80019D638 /* UTMImporter.swift */; };
@@ -240,8 +249,6 @@
 		F4A7FB492BB5ED7E00E4C12A /* Save-2024-03-27_16;08;06.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB422BB5ED4A00E4C12A /* Save-2024-03-27_16;08;06.vbst */; };
 		F4A7FB4A2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;28.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */; };
 		F4A7FB4B2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;51.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */; };
-		F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F48E0D0928885E990080DDFA /* Preview.vbvm */; };
-		F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */ = {isa = PBXBuildFile; fileRef = F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */; };
 		F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */; };
 		F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */; };
 		F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB742BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift */; };
@@ -304,10 +311,6 @@
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
-		F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */; };
-		F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */; };
-		F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */ = {isa = PBXBuildFile; fileRef = F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F4E7DF8B2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */; };
 		F4E7DF922BB3338900C459FC /* NSImage+HEIC.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */; };
 		F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */; };
 		F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */; };
@@ -482,8 +485,12 @@
 			dstPath = PreviewLibrary;
 			dstSubfolderSpec = 7;
 			files = (
-				F4A7FB4D2BB5F0D400E4C12A /* Preview.vbvm in Copy Preview Library */,
-				F4A7FB4E2BB5F0D400E4C12A /* Preview-Linux.vbvm in Copy Preview Library */,
+				F49B82A82E0304D400395F87 /* PreviewMac.vbvm in Copy Preview Library */,
+				F49B82A92E0304D400395F87 /* PreviewMacBlurHash.vbvm in Copy Preview Library */,
+				F49B82AA2E0304D400395F87 /* PreviewMacNoArtwork.vbvm in Copy Preview Library */,
+				F49B82AB2E0304D400395F87 /* PreviewLinux.vbvm in Copy Preview Library */,
+				F49B82AC2E0304D400395F87 /* PreviewLinuxBlurHash.vbvm in Copy Preview Library */,
+				F49B82AD2E0304D400395F87 /* PreviewLinuxNoArtwork.vbvm in Copy Preview Library */,
 			);
 			name = "Copy Preview Library";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -610,7 +617,6 @@
 		F444D0FB2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyMonoProgressView.swift; sourceTree = "<group>"; };
 		F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBMemoryLeakDebugAssertions.swift; sourceTree = "<group>"; };
 		F4450CC92ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardDeviceConfigurationView.swift; sourceTree = "<group>"; };
-		F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = "Preview-Linux.vbvm"; sourceTree = "<group>"; };
 		F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+Virtualization.swift"; sourceTree = "<group>"; };
 		F4510A772AE2A16F00E24DD9 /* WeakReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeakReference.swift; sourceTree = "<group>"; };
 		F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthManagementUI.swift; sourceTree = "<group>"; };
@@ -658,7 +664,6 @@
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
 		F465C3B7284FA252006E9ED4 /* URLSessionDownloadBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLSessionDownloadBackend.swift; sourceTree = "<group>"; };
-		F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMScreenshotter.swift; sourceTree = "<group>"; };
 		F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBNVRAMVariable.swift; sourceTree = "<group>"; };
 		F46FFBA92804F0A000D61023 /* VZVirtualMachineConfiguration+NVRAM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VZVirtualMachineConfiguration+NVRAM.swift"; sourceTree = "<group>"; };
 		F46FFBAB28059FF600D61023 /* VMInstance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMInstance.swift; sourceTree = "<group>"; };
@@ -680,7 +685,6 @@
 		F485B9212BB306AF004B3C2B /* VBDebugUtil.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = VBDebugUtil.m; sourceTree = "<group>"; };
 		F48E0D02288858DF0080DDFA /* ManagedDiskImageEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedDiskImageEditor.swift; sourceTree = "<group>"; };
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
-		F48E0D0928885E990080DDFA /* Preview.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = Preview.vbvm; sourceTree = "<group>"; };
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
 		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
 		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
@@ -709,6 +713,16 @@
 		F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestorableWindow.swift; sourceTree = "<group>"; };
 		F49AA2C429BA31CC009625F7 /* VirtualMachineSessionUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUI.swift; sourceTree = "<group>"; };
 		F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBRestorableWindow+Resizing.swift"; sourceTree = "<group>"; };
+		F49B82972E02F5A300395F87 /* VMArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMArtworkView.swift; sourceTree = "<group>"; };
+		F49B829D2E02FCB100395F87 /* PreviewMacBlurHash.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewMacBlurHash.vbvm; sourceTree = "<group>"; };
+		F49B829E2E02FCB100395F87 /* PreviewLinux.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewLinux.vbvm; sourceTree = "<group>"; };
+		F49B829F2E02FCB100395F87 /* PreviewMac.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewMac.vbvm; sourceTree = "<group>"; };
+		F49B82A32E02FCF400395F87 /* PreviewMacNoArtwork.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewMacNoArtwork.vbvm; sourceTree = "<group>"; };
+		F49B82A52E03049C00395F87 /* PreviewLinuxBlurHash.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewLinuxBlurHash.vbvm; sourceTree = "<group>"; };
+		F49B82A62E03049C00395F87 /* PreviewLinuxNoArtwork.vbvm */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = PreviewLinuxNoArtwork.vbvm; sourceTree = "<group>"; };
+		F49B82FB2E034EAD00395F87 /* WHDesktopPictureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDesktopPictureService.swift; sourceTree = "<group>"; };
+		F49B82FE2E034F6800395F87 /* NSImage+DesktopPicture.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSImage+DesktopPicture.h"; sourceTree = "<group>"; };
+		F49B82FF2E034F6800395F87 /* NSImage+DesktopPicture.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSImage+DesktopPicture.m"; sourceTree = "<group>"; };
 		F49FD87C2DFB68F20019D638 /* VMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporter.swift; sourceTree = "<group>"; };
 		F49FD87E2DFB6B630019D638 /* VMImporterRegistry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMImporterRegistry.swift; sourceTree = "<group>"; };
 		F49FD8802DFB6CD80019D638 /* UTMImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UTMImporter.swift; sourceTree = "<group>"; };
@@ -791,10 +805,6 @@
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
 		F4E7680C29B651220075A897 /* VirtualUI.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualUI.xcassets; sourceTree = "<group>"; };
 		F4E7680E29B655DD0075A897 /* InstallMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallMethod.swift; sourceTree = "<group>"; };
-		F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMScreenshotTimingController.swift; sourceTree = "<group>"; };
-		F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+VMScreenshot.swift"; sourceTree = "<group>"; };
-		F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VZGraphicsDisplay+Screenshot.h"; sourceTree = "<group>"; };
-		F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "VZGraphicsDisplay+Screenshot.m"; sourceTree = "<group>"; };
 		F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSImage+HEIC.swift"; sourceTree = "<group>"; };
 		F4E7DF942BB336F600C459FC /* VBSavedStatePackage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSavedStatePackage.swift; sourceTree = "<group>"; };
 		F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMLibraryController+SavedState.swift"; sourceTree = "<group>"; };
@@ -997,6 +1007,7 @@
 				F47BCDD22C5C0AB300165191 /* KeyboardNavigationModifier.swift */,
 				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
 				F444D0F32DF34BE40086537A /* CALayer+Asset.swift */,
+				F49B82972E02F5A300395F87 /* VMArtworkView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -1091,7 +1102,6 @@
 			children = (
 				F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */,
 				F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */,
-				F4694F572A30B9E500F5DFE1 /* VMScreenshotter.swift */,
 				F428622C2AE8726D0052F029 /* VirtualMachineControls.swift */,
 				F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */,
 				F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */,
@@ -1362,9 +1372,13 @@
 			children = (
 				F45502172DF4635C005582A4 /* _Downloads */,
 				F4A7FB452BB5ED4A00E4C12A /* PreviewSavedStates */,
-				F48E0D0928885E990080DDFA /* Preview.vbvm */,
-				F4450CCB2ACB0FDE00092618 /* Preview-Linux.vbvm */,
 				F453C4912DF1D213007EAD5F /* FakeRestoreImage.ipsw */,
+				F49B829F2E02FCB100395F87 /* PreviewMac.vbvm */,
+				F49B829D2E02FCB100395F87 /* PreviewMacBlurHash.vbvm */,
+				F49B82A32E02FCF400395F87 /* PreviewMacNoArtwork.vbvm */,
+				F49B829E2E02FCB100395F87 /* PreviewLinux.vbvm */,
+				F49B82A52E03049C00395F87 /* PreviewLinuxBlurHash.vbvm */,
+				F49B82A62E03049C00395F87 /* PreviewLinuxNoArtwork.vbvm */,
 			);
 			path = Preview;
 			sourceTree = "<group>";
@@ -1488,6 +1502,16 @@
 				F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */,
 			);
 			path = Configuration;
+			sourceTree = "<group>";
+		};
+		F49B82FD2E034F5600395F87 /* DesktopPicture */ = {
+			isa = PBXGroup;
+			children = (
+				F49B82FE2E034F6800395F87 /* NSImage+DesktopPicture.h */,
+				F49B82FF2E034F6800395F87 /* NSImage+DesktopPicture.m */,
+				F49B82FB2E034EAD00395F87 /* WHDesktopPictureService.swift */,
+			);
+			path = DesktopPicture;
 			sourceTree = "<group>";
 		};
 		F49FD87B2DFB68CC0019D638 /* Import */ = {
@@ -1776,6 +1800,7 @@
 				F4D305AE29B900790006E748 /* Base */,
 				F4BE580B29BA6C6300C5525C /* DefaultsImport */,
 				F4D305AD29B9006E0006E748 /* DarwinNotifications */,
+				F49B82FD2E034F5600395F87 /* DesktopPicture */,
 				F4C189FC2848F8F600335EC7 /* WHSharedClipboardService.swift */,
 			);
 			path = Services;
@@ -1900,11 +1925,7 @@
 		F4E7DF832BB30D8200C459FC /* Screenshot */ = {
 			isa = PBXGroup;
 			children = (
-				F4E7DF842BB30D8A00C459FC /* VMScreenshotTimingController.swift */,
-				F4E7DF862BB30E1200C459FC /* NSImage+VMScreenshot.swift */,
 				F4E7DF912BB3338900C459FC /* NSImage+HEIC.swift */,
-				F4E7DF882BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h */,
-				F4E7DF892BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m */,
 			);
 			path = Screenshot;
 			sourceTree = "<group>";
@@ -1970,7 +1991,6 @@
 				F4BE9C6827FF053A00B648F8 /* VirtualCore.h in Headers */,
 				F485B9222BB306AF004B3C2B /* VBDebugUtil.h in Headers */,
 				F4BE9C8627FF140F00B648F8 /* VirtualizationPrivate.h in Headers */,
-				F4E7DF8A2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1979,6 +1999,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4C189E32848F59F00335EC7 /* VirtualWormhole.h in Headers */,
+				F49B83012E034F6800395F87 /* NSImage+DesktopPicture.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2195,7 +2216,7 @@
 					};
 					F4C189DF2848F59F00335EC7 = {
 						CreatedOnToolsVersion = 13.4;
-						LastSwiftMigration = 1340;
+						LastSwiftMigration = 2600;
 					};
 					F4C18A4128491B8500335EC7 = {
 						CreatedOnToolsVersion = 13.4;
@@ -2495,11 +2516,11 @@
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,
 				F48E0D32288884A10080DDFA /* RestoreImageDownloadView.swift in Sources */,
 				F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */,
+				F49B82982E02F5A900395F87 /* VMArtworkView.swift in Sources */,
 				F48E0D2F2888835A0080DDFA /* VirtualUIConstants.swift in Sources */,
 				F47BCDD32C5C0AB300165191 /* KeyboardNavigationModifier.swift in Sources */,
 				F444D0F62DF37D170086537A /* VirtualBuddyMonoIcon.swift in Sources */,
 				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
-				F4694F582A30B9E500F5DFE1 /* VMScreenshotter.swift in Sources */,
 				F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */,
 				F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */,
 				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
@@ -2554,7 +2575,6 @@
 				F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
 				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
-				F4E7DF872BB30E1200C459FC /* NSImage+VMScreenshot.swift in Sources */,
 				F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */,
 				F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */,
 				F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */,
@@ -2583,7 +2603,6 @@
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
 				F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */,
-				F4E7DF8B2BB3141F00C459FC /* VZGraphicsDisplay+Screenshot.m in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
@@ -2599,7 +2618,6 @@
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
 				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
-				F4E7DF852BB30D8A00C459FC /* VMScreenshotTimingController.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
@@ -2629,6 +2647,7 @@
 				F42862372AE947C90052F029 /* WHPayload.swift in Sources */,
 				F4BE581329BA6E0D00C5525C /* DefaultsDomainDescriptor.swift in Sources */,
 				F4BE581129BA6DFC00C5525C /* DefaultsImportController.swift in Sources */,
+				F49B82FC2E034EAD00395F87 /* WHDesktopPictureService.swift in Sources */,
 				F4D305B229B907A10006E748 /* WHPing.swift in Sources */,
 				F4D3059729B8D9D30006E748 /* WormholePacket.swift in Sources */,
 				F4BE584029BA7B7A00C5525C /* DefaultsDomain+ExportImport.swift in Sources */,
@@ -2636,6 +2655,7 @@
 				F4C189FD2848F8F600335EC7 /* WHSharedClipboardService.swift in Sources */,
 				F4FC276729BBAE350012CB65 /* WormholeServiceClient.swift in Sources */,
 				F4C189EE2848F5B500335EC7 /* WormholeManager.swift in Sources */,
+				F49B83002E034F6800395F87 /* NSImage+DesktopPicture.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

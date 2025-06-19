@@ -8,7 +8,7 @@
 import Foundation
 
 /// Protocol adopted by types that can be sent over the guest <> host connection.
-public protocol WHPayload: Codable {
+public protocol WHPayload: Codable, Sendable {
     /// When `true`, the payload will be sent again if connection gets interrupted and re-established.
     static var resendOnReconnect: Bool { get }
 

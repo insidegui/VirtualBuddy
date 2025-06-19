@@ -406,7 +406,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             .appendingPathComponent(data.name)
             .appendingPathExtension(VBVirtualMachine.bundleExtension)
 
-        let model: VBVirtualMachine
+        var model: VBVirtualMachine
 
         switch data.systemType {
         case .mac:
@@ -414,6 +414,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         case .linux:
             model = try VBVirtualMachine(creatingLinuxMachineAt: vmURL)
         }
+        model.metadata.backgroundHash = data.backgroundHash
 
         self.machine = model
 

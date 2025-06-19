@@ -7,7 +7,7 @@ public typealias BoolSubject = PassthroughSubject<Bool, Never>
 
 public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
 
-    public struct Metadata: Codable {
+    public struct Metadata: Hashable, Codable {
         public static let currentVersion = 1
         @DecodableDefault.EmptyPlaceholder
         public var uuid = UUID()
@@ -39,6 +39,12 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
             } else {
                 remoteInstallImageURL = url
             }
+        }
+
+        /// If Linux VM is using fallback VirtualBuddy orange background hash, updates it to use the Linux-specific one.
+        fileprivate mutating func setLinuxBackgroundHashIfNeeded() {
+            guard backgroundHash == .virtualBuddyBackground else { return }
+            backgroundHash = .virtualBuddyBackgroundLinux
         }
     }
 
@@ -72,8 +78,6 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         get { _installRestoreData }
         set { _installRestoreData = newValue }
     }
-
-    public private(set) var didInvalidateThumbnail = VoidSubject()
     
 }
 
@@ -110,8 +114,10 @@ extension VBVirtualMachine {
 
     public var metadataDirectoryURL: URL { Self.metadataDirectoryURL(for: bundleURL) }
 
+    static let metadataDirectoryName = ".vbdata"
+
     static func metadataDirectoryURL(for bundleURL: URL) -> URL {
-        bundleURL.appendingPathComponent(".vbdata")
+        bundleURL.appendingPathComponent(metadataDirectoryName)
     }
 
     public var needsInstall: Bool {
@@ -131,8 +137,19 @@ public extension UTType {
 }
 
 public extension VBVirtualMachine {
-    
-    init(bundleURL: URL, isNewInstall: Bool = false) throws {
+
+    struct BundleDirectoryMissingError: Error { }
+
+    init(bundleURL: URL, isNewInstall: Bool = false, createIfNeeded: Bool = true) throws {
+        /// If we're not allowed to create the bundle and its metadata directory doesn't exist, throw a specific error type that's caught in ``VMLibraryController``.
+        /// This is to prevent the app from creating a dummy VM bundle after a VM is deleted from the library.
+        if !createIfNeeded {
+            let metaDirectory = bundleURL.appending(path: Self.metadataDirectoryName, directoryHint: .isDirectory)
+            guard metaDirectory.isReadableDirectory else {
+                throw BundleDirectoryMissingError()
+            }
+        }
+
         if !FileManager.default.fileExists(atPath: bundleURL.path) {
             #if DEBUG
             guard !ProcessInfo.isSwiftUIPreview else {
@@ -142,14 +159,19 @@ public extension VBVirtualMachine {
             
             try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         }
-        
+
         self.bundleURL = bundleURL
         var (metadata, config, installRestore) = try loadMetadata()
 
         /// Migration from previous versions that didn't have a configuration file
         /// describing the storage devices.
         config.hardware.addMissingBootDeviceIfNeeded()
-        
+
+        /// Migration from previous versions that didn't have dedicated fallback artwork for Linux.
+        if config.systemType == .linux {
+            metadata?.setLinuxBackgroundHashIfNeeded()
+        }
+
         self.configuration = config
 
         if let metadata {
@@ -170,6 +192,7 @@ public extension VBVirtualMachine {
         self.configuration = .init(systemType: .linux)
 
         self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now)
+        metadata.setLinuxBackgroundHashIfNeeded()
 
         try saveMetadata()
     }
@@ -197,10 +220,6 @@ public extension VBVirtualMachine {
     }
 
     func loadMetadata() throws -> (Metadata?, VBMacConfiguration, Data?) {
-        #if DEBUG
-        guard !ProcessInfo.isSwiftUIPreview else { return (nil, .default, nil) }
-        #endif
-
         let metadata: Metadata?
         let config: VBMacConfiguration
         let installRestore: Data?

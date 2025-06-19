@@ -85,7 +85,9 @@ public final class GuestAdditionsDiskImage {
         }
     }
 
-    private var imagesRootURL: URL { URL.defaultVirtualBuddyLibraryURL.appendingPathComponent("_GuestImage") }
+    static let imagesRootURL: URL = URL.defaultVirtualBuddyLibraryURL.appendingPathComponent("_GuestImage")
+
+    private var imagesRootURL: URL { Self.imagesRootURL }
 
     private var installedImageDigestURL: URL {
         imagesRootURL
