@@ -22,6 +22,10 @@ public extension VBVirtualMachine {
         return try? screenshot?.vb_createThumbnail(at: thumbnailURL)
     }
 
+    func invalidateScreenshot() throws {
+        try deleteMetadataFile(named: Self.screenshotFileName)
+    }
+
     func invalidateThumbnail() throws {
         try deleteMetadataFile(named: Self.thumbnailFileName)
     }

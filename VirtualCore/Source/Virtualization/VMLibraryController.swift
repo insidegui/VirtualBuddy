@@ -220,9 +220,25 @@ public final class VMLibraryController: ObservableObject {
 
     // MARK: - Migration
 
+    private var alwaysAttemptLegacyThumbnailMigration: Bool {
+        #if DEBUG
+        UserDefaults.standard.bool(forKey: "VBAlwaysAttemptLegacyThumbnailMigration")
+        #else
+        false
+        #endif
+    }
+
     private var migratedLegacyThumbnailBackgroundHashes: Bool {
-        get { UserDefaults.standard.bool(forKey: #function) }
-        set { UserDefaults.standard.set(newValue, forKey: #function) }
+        get {
+            guard !alwaysAttemptLegacyThumbnailMigration else { return false }
+
+            return UserDefaults.standard.bool(forKey: #function)
+        }
+        set {
+            guard !alwaysAttemptLegacyThumbnailMigration else { return }
+
+            UserDefaults.standard.set(newValue, forKey: #function)
+        }
     }
 
     private func migrateBackgroundHashesForLegacyThumbnails() {
@@ -253,6 +269,17 @@ public final class VMLibraryController: ObservableObject {
                     guard let thumbnail = machine.thumbnailImage() else {
                         logger.debug("Ignoring \(machine.name) for background hash migration because it doesn't have a thumbnail.")
                         continue
+                    }
+
+                    if #available(macOS 15.0, *) {
+                        let isDRMProtectedBug = await thumbnail.detectDRMProtectedVideoBug()
+
+                        guard !isDRMProtectedBug else {
+                            logger.notice("Invalidating thumbnail for \(machine.name): detected \"DRM Protected Video\" bug in its thumbnail.")
+                            try machine.invalidateThumbnail()
+                            try machine.invalidateScreenshot()
+                            continue
+                        }
                     }
 
                     let hash = try thumbnail.blurHash(numberOfComponents: (.vbBlurHashSize, .vbBlurHashSize))
