@@ -58,28 +58,21 @@ final class WHDesktopPictureService: WormholeService {
 
             await sendDesktopPicture()
         }
-
-        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willPowerOffNotification, object: nil, queue: nil) { [weak self] _ in
-            self?.handleWillPowerOffNotification()
-        }
     }
 
-    private func handleWillPowerOffNotification() {
-        logger.notice("Workspace will power off, sending desktop picture...")
-
-        Task {
-            await sendDesktopPicture()
-        }
-    }
-
-    private func sendDesktopPicture() async {
-        guard let image = NSImage.desktopPicture else {
+    func sendDesktopPicture() async {
+        guard let image = await MainActor.run(body: { NSImage.desktopPicture }) else {
             logger.error("Error getting desktop picture for main screen.")
             return
         }
 
         guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
             logger.error("Error getting CGImage from desktop picture.")
+            return
+        }
+
+        guard !cgImage.isFullyTransparent() else {
+            logger.warning("Skipping send desktop picture because it generated a fully transparent image.")
             return
         }
 
@@ -103,3 +96,5 @@ final class WHDesktopPictureService: WormholeService {
     }
 
 }
+
+extension NSImage: @retroactive @unchecked Sendable { }

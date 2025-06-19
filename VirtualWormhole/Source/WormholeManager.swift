@@ -315,6 +315,25 @@ public final class WormholeManager: NSObject, ObservableObject, WormholeMultiple
         return AsyncStream { await iterator.next() }
     }
 
+    /// Can be called on the guest to force-send the current desktop picture.
+    public func sendDesktopPicture() async {
+        guard side == .guest else { return }
+
+        do {
+            guard let desktopPictureService = service(WHDesktopPictureService.self) else {
+                throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Desktop picture service not available"])
+            }
+
+            logger.debug("Sending desktop picture")
+
+            await desktopPictureService.sendDesktopPicture()
+
+            logger.debug("Finished sending desktop picture")
+        } catch {
+            logger.error("Send desktop picture failed - \(error, privacy: .public)")
+        }
+    }
+
     private func ensurePeerAvailable(_ peerID: WHPeerID) throws {
         guard peers[peerID] != nil else {
             throw CocoaError(.coderValueNotFound, userInfo: [NSLocalizedDescriptionKey: "Peer \(peerID) is not registered"])
