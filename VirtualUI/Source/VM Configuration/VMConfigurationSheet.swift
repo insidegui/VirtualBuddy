@@ -128,6 +128,8 @@ public struct VMConfigurationSheet: View {
 
 #if DEBUG
 struct VMConfigurationSheet_Previews: PreviewProvider {
+    static var height: Double { 1200 }
+
     static var previews: some View {
         _Template(vm: .preview, context: .preInstall)
             .previewDisplayName("Pre Install")
@@ -151,12 +153,12 @@ struct VMConfigurationSheet_Previews: PreviewProvider {
                 PreviewSheet {
                     VMConfigurationSheet(configuration: $vm.configuration)
                         .environmentObject(VMConfigurationViewModel(vm, context: context))
-                        .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
+                        .frame(width: VMConfigurationSheet.minWidth, height: VMConfigurationSheet_Previews.height, alignment: .top)
                 }
             } else {
                 VMConfigurationSheet(configuration: $vm.configuration)
                     .environmentObject(VMConfigurationViewModel(vm, context: context))
-                    .frame(width: VMConfigurationSheet.minWidth, height: 600, alignment: .top)
+                    .frame(width: VMConfigurationSheet.minWidth, height: VMConfigurationSheet_Previews.height, alignment: .top)
                     .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
             }
         }
@@ -173,7 +175,7 @@ struct PreviewSheet<Content: View>: View {
 
     var body: some View {
         ZStack {}
-        .frame(width: VMConfigurationSheet.minWidth, height: 700)
+        .frame(width: VMConfigurationSheet.minWidth, height: VMConfigurationSheet_Previews.height)
         .padding()
         .background(Color.black.opacity(0.5))
         .overlay {

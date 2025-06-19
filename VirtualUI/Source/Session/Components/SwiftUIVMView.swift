@@ -218,7 +218,7 @@ struct DFUStatusView: View {
 #if DEBUG
 #Preview("VM View - DFU") {
     SwiftUIVMView(
-        controllerState: .constant(.starting),
+        controllerState: .constant(.starting(nil)),
         captureSystemKeys: false,
         isDFUModeVM: true,
         vmECID: 7788022887768653863,

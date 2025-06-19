@@ -10,16 +10,46 @@ import Virtualization
 import CryptoKit
 import UniformTypeIdentifiers
 import OSLog
+import Combine
 
-public final class GuestAdditionsDiskImage {
+public final class GuestAdditionsDiskImage: ObservableObject {
 
     private lazy var logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: Self.self))
 
     public static let current = GuestAdditionsDiskImage()
 
+    public enum State: CustomStringConvertible {
+        case ready
+        case installing
+        case installFailed(Error)
+
+        public var description: String {
+            switch self {
+            case .ready: "Ready"
+            case .installing: "Installing"
+            case .installFailed(let error): "Failed: \(error)"
+            }
+        }
+    }
+
+    @MainActor
+    @Published public private(set) var state = State.ready
+
     public func installIfNeeded() async throws {
+        #if DEBUG
+        if await simulateInstall() { return }
+        #endif
+
         do {
             logger.debug(#function)
+
+            func performInstall(with digest: String) async throws {
+                await MainActor.run { state = .installing }
+
+                try await writeGuestImage(with: digest)
+
+                await MainActor.run { state = .ready }
+            }
 
             let embeddedDigest = try computeEmbeddedGuestDigest()
 
@@ -28,19 +58,25 @@ public final class GuestAdditionsDiskImage {
 
                 guard embeddedDigest != currentlyInstalledGuestImageDigest else {
                     logger.debug("Guest digests match, skipping guest image generation")
+
+                    await MainActor.run { state = .ready }
+
                     return
                 }
 
                 logger.debug("Guest digests don't match, generating new guest image with embedded guest")
 
-                try await writeGuestImage(with: embeddedDigest)
+                try await performInstall(with: embeddedDigest)
             } else {
                 logger.debug("No digest for currently installed image, assuming not installed. Embedded guest app digest: \(embeddedDigest, privacy: .public)")
 
-                try await writeGuestImage(with: embeddedDigest)
+                try await performInstall(with: embeddedDigest)
             }
         } catch {
             logger.error("Guest disk image installation failed. \(error, privacy: .public)")
+
+            await MainActor.run { state = .installFailed(error) }
+
             throw error
         }
     }
@@ -296,3 +332,48 @@ extension VBBuildType {
         }
     }
 }
+
+// MARK: - Debug Simulation
+
+#if DEBUG
+private extension GuestAdditionsDiskImage {
+    func simulateInstall() async -> Bool {
+        guard UserDefaults.standard.bool(forKey: "VBSimulateGuestDiskImageGeneration") else {
+            return false
+        }
+
+        logger.debug("Guest disk image will not be generated because VBSimulateGuestDiskImageGeneration is enabled.")
+
+        await MainActor.run {
+            state = .installing
+        }
+
+        let delaySeconds = UserDefaults.standard.integer(forKey: "VBDelayGuestDiskImageGenerationBySeconds")
+        if delaySeconds > 0 {
+            logger.debug("Simulating guest disk image install with custom delay of \(delaySeconds) seconds")
+
+            try? await Task.sleep(for: .seconds(delaySeconds))
+        } else {
+            logger.debug("Simulating guest disk image install with default delay")
+
+            try? await Task.sleep(for: .seconds(3))
+        }
+
+        guard !UserDefaults.standard.bool(forKey: "VBSimulateGuestDiskImageGenerationError") else {
+            logger.debug("Simulating guest disk image install error.")
+            await MainActor.run {
+                state = .installFailed("This is a simulated error for debugging.")
+            }
+            return true
+        }
+
+        logger.debug("Simulated guest disk image install completed")
+
+        await MainActor.run {
+            state = .ready
+        }
+
+        return true
+    }
+}
+#endif

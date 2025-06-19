@@ -206,7 +206,9 @@ public extension VBGuestType {
         case .linux: return [.iso, .img]
         }
     }
-    
+
+    var supportsGuestApp: Bool { self == .mac }
+
 }
 
 public extension VBVirtualMachine {
