@@ -8,6 +8,7 @@
 import SwiftUI
 import Combine
 import OSLog
+import BuddyFoundation
 
 @MainActor
 public final class VMLibraryController: ObservableObject {
@@ -77,6 +78,8 @@ public final class VMLibraryController: ObservableObject {
     
     private lazy var fileManager = FileManager()
 
+    private var hasLoadedMachinesOnce = false
+
     private func bind() {
         settingsContainer.$settings.sink { [weak self] newSettings in
             self?.settings = newSettings
@@ -144,6 +147,12 @@ public final class VMLibraryController: ObservableObject {
         let sortedMachines = machines.sorted(by: { $0.bundleURL.creationDate > $1.bundleURL.creationDate })
 
         self.state = .loaded(sortedMachines)
+
+        if !hasLoadedMachinesOnce {
+            hasLoadedMachinesOnce = true
+
+            migrateBackgroundHashesForLegacyThumbnails()
+        }
     }
 
     public func reload(animated: Bool = true) {
@@ -207,6 +216,57 @@ public final class VMLibraryController: ObservableObject {
     /// Called when a `VMController` is dying so that we can cleanup our reference to it.
     nonisolated func removeController(_ controller: VMController) {
         coordinator.activeVMControllers[controller.id] = nil
+    }
+
+    // MARK: - Migration
+
+    private var migratedLegacyThumbnailBackgroundHashes: Bool {
+        get { UserDefaults.standard.bool(forKey: #function) }
+        set { UserDefaults.standard.set(newValue, forKey: #function) }
+    }
+
+    private func migrateBackgroundHashesForLegacyThumbnails() {
+        guard !migratedLegacyThumbnailBackgroundHashes else { return }
+
+        let machines = self.virtualMachines
+
+        /// Skip setting migration flag for empty machines in case user library has not been mounted yet.
+        guard !machines.isEmpty else { return }
+
+        defer {
+            migratedLegacyThumbnailBackgroundHashes = true
+        }
+
+        logger.debug("Generating missing background hashes for legacy thumbnails...")
+
+        Task {
+            let needingMigration = machines.filter { $0.configuration.systemType == .mac && $0.metadata.backgroundHash == .virtualBuddyBackground }
+            guard !needingMigration.isEmpty else {
+                logger.debug("Found no machines needing background hash migration.")
+                return
+            }
+
+            logger.debug("Found machines needing background hash migration: \(needingMigration.map(\.name).formatted(.list(type: .and)))")
+
+            for var machine in needingMigration {
+                do {
+                    guard let thumbnail = machine.thumbnailImage() else {
+                        logger.debug("Ignoring \(machine.name) for background hash migration because it doesn't have a thumbnail.")
+                        continue
+                    }
+
+                    let hash = try thumbnail.blurHash(numberOfComponents: (.vbBlurHashSize, .vbBlurHashSize))
+                        .require("Background hash generation failed.")
+
+                    machine.metadata.backgroundHash = BlurHashToken(value: hash)
+                    try await MainActor.run { try machine.saveMetadata() }
+
+                    logger.info("Migrated background hash for \(machine.name)")
+                } catch {
+                    logger.warning("Error migrating background hash for \(machine.name) - \(error, privacy: .public)")
+                }
+            }
+        }
     }
 
 }
