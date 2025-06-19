@@ -61,7 +61,7 @@ public struct VMSessionOptions: Hashable, Codable {
 
 public enum VMState: Equatable {
     case idle
-    case starting
+    case starting(_ message: String?)
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
     case savingState(VZVirtualMachine)
@@ -155,8 +155,10 @@ public final class VMController: ObservableObject {
     }
 
     public func start() async throws {
-        state = .starting
-        
+        state = .starting(nil)
+
+        await waitForGuestDiskImageReadyIfNeeded()
+
         try await updatingState {
             let newInstance = try createInstance()
             self.instance = newInstance
@@ -184,6 +186,86 @@ public final class VMController: ObservableObject {
 
             state = .running(vm)
             virtualMachineModel.metadata.installFinished = true
+        }
+    }
+
+    /// If the virtual machine supports the guest app and has the toggle to auto-mount the guest image enabled,
+    /// this method waits until the guest disk image is ready before returning.
+    ///
+    /// This is used to wait for the guest disk image to be ready before starting a virtual machine, which may occur
+    /// if the user launches VirtualBuddy then quickly attempts to start up a machine right after installing an app update.
+    ///
+    /// It will also alert the user in case guest disk image generation has failed so that they know there's something wrong/
+    private func waitForGuestDiskImageReadyIfNeeded() async {
+        guard virtualMachineModel.configuration.guestAdditionsEnabled,
+           virtualMachineModel.configuration.systemType.supportsGuestApp
+        else { return }
+
+        let guestDiskState = GuestAdditionsDiskImage.current.state
+
+        logger.info("Guest disk image state is \(guestDiskState, privacy: .public)")
+
+        switch guestDiskState {
+        case .ready:
+            break
+        case .installing:
+            await waitForGuestDiskImageReady()
+        case .installFailed(let error):
+            runGuestDiskImageErrorAlert(error: error)
+        }
+    }
+
+    private func waitForGuestDiskImageReady() async {
+        state = .starting("Preparing guest app disk image")
+
+        for await state in GuestAdditionsDiskImage.current.$state.values {
+            switch state {
+            case .ready:
+                logger.debug("Guest disk image is ready 🚀")
+                return
+            case .installFailed(let error):
+                logger.error("Guest disk image install failed - \(error, privacy: .public)")
+                return runGuestDiskImageErrorAlert(error: error)
+            case .installing:
+                logger.debug("Guest disk image is installing...")
+            }
+        }
+    }
+
+    private func runGuestDiskImageErrorAlert(error: Error) {
+        logger.debug(#function)
+
+        let alertSuppressionKey = "VBGuestDiskImageAlertSuppressed"
+
+        guard !UserDefaults.standard.bool(forKey: alertSuppressionKey) else {
+            logger.debug("Guest disk image error alert suppressed, ignoring error.")
+            return
+        }
+
+        let alert = NSAlert()
+        alert.messageText = "Guest App Image Error"
+        alert.informativeText =
+        """
+        An error occurred when VirtualBuddy attempted to generate the disk image for the guest app. Restarting the app might fix it.
+        
+        The virtual machine will boot normally, but the guest app disk image will not be mounted.
+        
+        If the virtual machine already has the guest app installed, it will not be updated to the latest version.
+        
+        \(error)
+        """
+
+        alert.addButton(withTitle: "Continue")
+        alert.showsSuppressionButton = true
+
+        alert.runModal()
+
+        if let suppressionButton = alert.suppressionButton,
+           suppressionButton.state == .on
+        {
+            logger.info("Guest disk image error alert will be suppressed in the future.")
+
+            UserDefaults.standard.set(true, forKey: alertSuppressionKey)
         }
     }
 

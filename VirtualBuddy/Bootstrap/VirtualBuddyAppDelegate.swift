@@ -11,6 +11,7 @@ import Cocoa
 import VirtualWormhole
 import DeepLinkSecurity
 import OSLog
+import Combine
 
 #if BUILDING_NON_MANAGED_RELEASE
 #error("Trying to build for release without using the managed scheme. This build won't include managed entitlements. This error is here for Rambo, you may safely comment it out and keep going.")
@@ -32,7 +33,21 @@ import OSLog
         NSApp?.appearance = NSAppearance(named: .darkAqua)
     }
 
+    private var cancellables = Set<AnyCancellable>()
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        GuestAdditionsDiskImage.current.$state.sink { state in
+            switch state {
+            case .ready:
+                self.logger.debug("Guest disk image ready")
+            case .installing:
+                self.logger.debug("Guest disk image installing")
+            case .installFailed(let error):
+                self.logger.debug("Guest disk image installation failed - \(error, privacy: .public)")
+            }
+        }
+        .store(in: &cancellables)
+
         Task {
             try? await GuestAdditionsDiskImage.current.installIfNeeded()
         }

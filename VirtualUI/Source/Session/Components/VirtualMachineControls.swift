@@ -168,7 +168,7 @@ private final class PreviewVirtualMachineStateController: VirtualMachineStateCon
 
     @MainActor
     func start() async throws {
-        state = .starting
+        state = .starting(nil)
 
         try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
 

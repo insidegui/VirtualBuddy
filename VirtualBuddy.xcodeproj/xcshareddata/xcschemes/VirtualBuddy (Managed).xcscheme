@@ -119,6 +119,18 @@
             argument = "-VBAlwaysAttemptLegacyThumbnailMigration YES"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateGuestDiskImageGeneration YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBDelayGuestDiskImageGenerationBySeconds 20"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateGuestDiskImageGenerationError YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
