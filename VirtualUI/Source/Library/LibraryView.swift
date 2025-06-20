@@ -21,7 +21,7 @@ public struct LibraryView: View {
     @Environment(\.openCocoaWindow)
     private var openCocoaWindow
 
-    @Environment(\.backwardsCompatibleOpenSettings)
+    @Environment(\.openVirtualBuddySettings)
     private var openSettings
 
     public init() { }
@@ -128,17 +128,5 @@ fileprivate extension URL {
     LibraryView()
         .environmentObject(VMLibraryController.preview)
         .environmentObject(VirtualMachineSessionUIManager.shared)
-}
-#endif
-
-#if DEBUG
-private extension EnvironmentValues {
-    var backwardsCompatibleOpenSettings: () -> () {
-        guard #available(macOS 14.0, *) else {
-            return { }
-        }
-
-        return openSettings.callAsFunction
-    }
 }
 #endif

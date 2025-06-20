@@ -5,14 +5,17 @@
 //  Created by Guilherme Rambo on 25/06/22.
 //
 
-import Foundation
+import SwiftUI
 import VirtualCore
+import OSLog
 
 #if ENABLE_SPARKLE
 import Sparkle
 #endif
 
 final class SoftwareUpdateController: NSObject, ObservableObject {
+
+    private let logger = Logger(subsystem: kShellAppSubsystem, category: "SoftwareUpdateController")
 
     static let shared = SoftwareUpdateController()
 
@@ -23,8 +26,18 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
             #if ENABLE_SPARKLE
             guard automaticUpdatesEnabled != oldValue else { return }
 
+            logger.debug("Setting \(#function, privacy: .public) to \(self.automaticUpdatesEnabled, privacy: .public)")
+
             updateController.updater.automaticallyChecksForUpdates = automaticUpdatesEnabled
             #endif
+        }
+    }
+
+    var automaticUpdatesBinding: Binding<Bool> {
+        Binding { [self] in
+            automaticUpdatesEnabled
+        } set: { [self] newValue in
+            automaticUpdatesEnabled = newValue
         }
     }
 
@@ -40,6 +53,8 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
 
     func activate() {
         #if ENABLE_SPARKLE
+        logger.debug(#function)
+
         updateController.startUpdater()
         automaticUpdatesEnabled = updateController.updater.automaticallyChecksForUpdates
         registerForUpdateChannelChanges()
@@ -48,6 +63,8 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
 
     @objc func checkForUpdates(_ sender: Any?) {
         #if ENABLE_SPARKLE
+        logger.debug(#function)
+        
         updateController.checkForUpdates(sender)
         #else
         let alert = NSAlert()

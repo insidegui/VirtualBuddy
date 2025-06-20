@@ -32,16 +32,17 @@ public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore 
 
     public func hasDescriptor(with id: DeepLinkClientDescriptor.ID) -> Bool { cachedDescriptors[id] != nil }
 
+    public nonisolated var currentClientDescriptors: [DeepLinkClientDescriptor] {
+        Self.descriptorsArray(from: readDescriptors())
+    }
+
     public nonisolated func clientDescriptors() -> AsyncStream<[DeepLinkClientDescriptor]> {
         let stream = AsyncStream { [weak self] continuation in
             guard let self = self else { return }
 
             Task {
                 await self.onStoreChanged { descriptorsByID in
-                    let descriptors = descriptorsByID
-                        .values
-                        .map { $0.resolved() }
-                        .sorted(by: { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending })
+                    let descriptors = Self.descriptorsArray(from: descriptorsByID)
 
                     continuation.yield(descriptors)
                 }
@@ -54,6 +55,13 @@ public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore 
         }
 
         return stream
+    }
+
+    private static func descriptorsArray(from descriptorsByID: [DeepLinkClientDescriptor.ID: DeepLinkClientDescriptor]) -> [DeepLinkClientDescriptor] {
+        descriptorsByID
+            .values
+            .map { $0.resolved() }
+            .sorted(by: { $0.displayName.localizedStandardCompare($1.displayName) == .orderedAscending })
     }
 
     public func insert(_ descriptor: DeepLinkClientDescriptor) async throws {

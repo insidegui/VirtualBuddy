@@ -133,7 +133,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBOpenSettings YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

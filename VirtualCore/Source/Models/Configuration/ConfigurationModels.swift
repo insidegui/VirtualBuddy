@@ -99,7 +99,7 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
             }
         }
 
-        var isSupported: Bool {
+        public var isSupported: Bool {
             switch self {
             case .raw, .dmg, .sparse:
                 true

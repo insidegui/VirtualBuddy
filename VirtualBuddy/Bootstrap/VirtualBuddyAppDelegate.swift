@@ -12,6 +12,7 @@ import VirtualWormhole
 import DeepLinkSecurity
 import OSLog
 import Combine
+import SwiftUI
 
 #if BUILDING_NON_MANAGED_RELEASE
 #error("Trying to build for release without using the managed scheme. This build won't include managed entitlements. This error is here for Rambo, you may safely comment it out and keep going.")
@@ -94,6 +95,38 @@ import Combine
         } else {
             return .terminateNow
         }
+    }
+
+    private var settingsWindowController: NSWindowController?
+
+    private(set) lazy var openSettingsAction = OpenVirtualBuddySettingsAction { [weak self] in
+        self?.openSettingsWindow()
+    }
+
+    private func openSettingsWindow() {
+        if let settingsWindowController {
+            logger.debug("Settings window already available, showing")
+            settingsWindowController.showWindow(nil)
+            return
+        }
+
+        let rootView = SettingsScreen(
+            enableAutomaticUpdates: updateController.automaticUpdatesBinding,
+            deepLinkSentinel: DeepLinkHandler.shared.sentinel
+        )
+        .environmentObject(settingsContainer)
+
+        let controller = HostingWindowController(id: "settings", rootView: rootView, onWindowClose: { [weak self] _ in
+            guard let self else { return }
+            self.logger.debug("Settings window closed")
+            self.settingsWindowController = nil
+        })
+
+        controller.window?.styleMask = [.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView, .unifiedTitleAndToolbar]
+
+        controller.showWindow(self)
+
+        settingsWindowController = controller
     }
 
 }

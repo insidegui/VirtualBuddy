@@ -39,6 +39,7 @@ struct VirtualBuddyApp: App {
 
                     sessionManager.open(fileURL: url, library: library)
                 }
+                .environment(\.openVirtualBuddySettings, appDelegate.openSettingsAction)
         }
         .windowToolbarStyle(.unified)
         .commands {
@@ -49,6 +50,13 @@ struct VirtualBuddyApp: App {
                 }
             }
             #endif
+
+            CommandGroup(replacing: .appSettings) {
+                Button("Settings…") {
+                    appDelegate.openSettingsAction()
+                }
+                .keyboardShortcut(",", modifiers: .command)
+            }
 
             CommandGroup(before: .windowSize) {
                 VirtualMachineWindowCommands()
@@ -63,13 +71,5 @@ struct VirtualBuddyApp: App {
             }
         }
         .handlesExternalEvents(matching: ["*"])
-
-        Settings {
-            SettingsScreen(
-                enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled,
-                deepLinkSentinel: DeepLinkHandler.shared.sentinel
-            )
-            .environmentObject(settingsContainer)
-        }
     }
 }
