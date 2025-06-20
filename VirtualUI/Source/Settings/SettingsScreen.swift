@@ -10,12 +10,22 @@ import VirtualCore
 import DeepLinkSecurity
 import BuddyKit
 
-public enum SettingsTab: Int, Identifiable {
+public enum SettingsTab: Int, Identifiable, CaseIterable {
     public var id: RawValue { rawValue }
 
     case general
     case virtualization
     case automation
+}
+
+extension SettingsTab {
+    var label: Label<Text, Image> {
+        switch self {
+        case .general: Label("General", systemImage: "gear")
+        case .virtualization: Label("Virtualization", systemImage: "cpu")
+        case .automation: Label("Automation", systemImage: "rectangle.grid.1x2")
+        }
+    }
 }
 
 private let kSelectedTabKey = "SettingsScreen.selectedTab"
@@ -42,34 +52,47 @@ public struct SettingsScreen: View {
     @State private var alert = AlertContent()
 
     @AppStorage(kSelectedTabKey)
-    private var selectedTab: SettingsTab?
+    private var selectedTab: SettingsTab = .general
 
-    static var width: CGFloat { 640 }
+    public static var width: CGFloat { 640 }
+    public static var minHeight: CGFloat { 420 }
 
     public var body: some View {
-        TabView(selection: $selectedTab) {
-            GeneralSettingsView(settings: $container.settings, enableAutomaticUpdates: $enableAutomaticUpdates, alert: $alert)
-                .tag(SettingsTab.general)
-                .tabItem {
-                    Label("General", systemImage: "gear")
+        NavigationSplitView {
+            List(selection: $selectedTab) {
+                ForEach(SettingsTab.allCases) { tab in
+                    NavigationLink(value: tab) {
+                        tab.label
+                    }
                 }
-
-            VirtualizationSettingsView(settings: $container.settings)
-                .tag(SettingsTab.virtualization)
-                .tabItem {
-                    Label("Virtualization", systemImage: "cpu")
-                }
-
-            AutomationSettingsView()
-                .tag(SettingsTab.automation)
-                .environmentObject(deepLinkSentinel())
-                .tabItem {
-                    Label("Automation", systemImage: "rectangle.grid.1x2")
-                }
+            }
+            .toolbarRemovingSidebarToggle()
+            .toolbar {
+                // HACK! Don't want sidebar toggle, but want the toolbar visible
+                Button("") { }
+                    .opacity(0)
+                    .accessibilityHidden(true)
+            }
+            .navigationSplitViewColumnWidth(160)
+        } detail: {
+            switch selectedTab {
+            case .general:
+                GeneralSettingsView(
+                    settings: $container.settings,
+                    enableAutomaticUpdates: $enableAutomaticUpdates,
+                    alert: $alert
+                )
+            case .virtualization:
+                VirtualizationSettingsView(
+                    settings: $container.settings
+                )
+            case .automation:
+                AutomationSettingsView()
+                    .environmentObject(deepLinkSentinel())
+            }
         }
         .formStyle(.grouped)
-        .sidebarAdaptableTabViewStyle()
-        .frame(minWidth: Self.width, maxWidth: Self.width, minHeight: 450, maxHeight: .infinity)
+        .frame(minWidth: Self.width, maxWidth: Self.width, minHeight: Self.minHeight, maxHeight: .infinity)
         .alert($alert)
         .task {
             #if DEBUG
@@ -77,7 +100,6 @@ public struct SettingsScreen: View {
             self.selectedTab = previewTab
             #endif
         }
-        .toolbarRemovingSidebarToggle()
     }
 }
 

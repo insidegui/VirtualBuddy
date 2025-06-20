@@ -97,16 +97,16 @@ import SwiftUI
         }
     }
 
-    private var settingsWindowController: NSWindowController?
+    private var settingsWindow: NSWindow?
 
     private(set) lazy var openSettingsAction = OpenVirtualBuddySettingsAction { [weak self] in
         self?.openSettingsWindow()
     }
 
     private func openSettingsWindow() {
-        if let settingsWindowController {
+        if let settingsWindow {
             logger.debug("Settings window already available, showing")
-            settingsWindowController.showWindow(nil)
+            settingsWindow.makeKeyAndOrderFront(self)
             return
         }
 
@@ -116,17 +116,19 @@ import SwiftUI
         )
         .environmentObject(settingsContainer)
 
-        let controller = HostingWindowController(id: "settings", rootView: rootView, onWindowClose: { [weak self] _ in
-            guard let self else { return }
-            self.logger.debug("Settings window closed")
-            self.settingsWindowController = nil
-        })
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: SettingsScreen.width, height: SettingsScreen.minHeight),
+            styleMask: [.titled, .closable, .miniaturizable, .resizable, .fullSizeContentView, .unifiedTitleAndToolbar],
+            backing: .buffered,
+            defer: false
+        )
+        window.isReleasedWhenClosed = false
+        window.contentViewController = NSHostingController(rootView: rootView)
 
-        controller.window?.styleMask = [.titled, .closable, .resizable, .miniaturizable, .fullSizeContentView, .unifiedTitleAndToolbar]
+        window.makeKeyAndOrderFront(self)
+        window.center()
 
-        controller.showWindow(self)
-
-        settingsWindowController = controller
+        self.settingsWindow = window
     }
 
 }

@@ -133,7 +133,9 @@ fileprivate final class HostingWindow: VBRestorableWindow {
     override var acceptsFirstResponder: Bool { true }
 
     var confirmBeforeClosingCallback: () async -> Bool = { true }
-    
+
+    var enableMemoryLeakAssertion = true
+
     override func performClose(_ sender: Any?) {
         /// This addresses a weird issue introduced after #257 where for some reason `VMController`
         /// was being retained by a SwiftUI button when closing a VM window using Command+W
