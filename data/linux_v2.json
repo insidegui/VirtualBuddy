@@ -93,6 +93,31 @@
     },
     {
       "darkImage" : {
+        "id" : "debian",
+        "thumbnail" : {
+          "blurHash" : "U96%Xrw$I%oLS,NWR#ohRyR}bGohW8s?oNWU",
+          "height" : 720,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/debian-dark-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/debian-dark.heic"
+      },
+      "id" : "debian",
+      "image" : {
+        "id" : "debian",
+        "thumbnail" : {
+          "blurHash" : "U96%Xrw$I%oLS,NWR#ohRyR}bGohW8s?oNWU",
+          "height" : 720,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/debian-thumbnail.heic",
+          "width" : 720
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/debian.heic"
+      },
+      "majorVersion" : "12.0.0",
+      "name" : "Debian"
+    },
+    {
+      "darkImage" : {
         "id" : "fedora",
         "thumbnail" : {
           "blurHash" : "UQ6+b#kCMcflyGaeR4f5R4ayozj[Mbofx^a}",
@@ -176,17 +201,29 @@
       "url" : "https:\/\/download.fedoraproject.org\/pub\/fedora\/linux\/releases\/42\/Everything\/aarch64\/iso\/Fedora-Everything-netinst-aarch64-42-1.1.iso",
       "version" : "42.1.1"
     },
+    {
+      "build" : "2025.2",
+      "channel" : "regular",
+      "downloadSize" : 3767808000,
+      "group" : "kali",
+      "id" : "2025.2",
+      "mobileDeviceMinVersion" : "0.0.0",
+      "name" : "Kali Linux 2025.2 Full",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/cdimage.kali.org\/kali-2025.2\/kali-linux-2025.2-installer-arm64.iso",
+      "version" : "2025.2.0"
+    },
         {
-            "build": "2025.2",
+            "build": "12.11",
             "channel": "regular",
-            "downloadSize": 3767808000,
-            "group": "kali",
-            "id": "2025.2",
+            "downloadSize": 3993284608,
+            "group": "debian",
+            "id": "12.11",
             "mobileDeviceMinVersion": "0.0.0",
-            "name": "Kali Linux 2025.2 Full",
+            "name": "Debian 12.11",
             "requirements": "min_host_13",
-            "url": "https://cdimage.kali.org/kali-2025.2/kali-linux-2025.2-installer-arm64.iso",
-            "version": "2025.2"
+            "url": "https://cdimage.debian.org/debian-cd/current/arm64/iso-dvd/debian-12.11.0-arm64-DVD-1.iso",
+            "version": "12.11"
         }
   ]
 }
