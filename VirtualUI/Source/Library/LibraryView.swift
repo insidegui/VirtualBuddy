@@ -21,12 +21,22 @@ public struct LibraryView: View {
     @Environment(\.openCocoaWindow)
     private var openCocoaWindow
 
+    @Environment(\.openVirtualBuddySettings)
+    private var openSettings
+
     public init() { }
 
     public var body: some View {
         libraryContents
             .frame(minWidth: 600, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .toolbar(content: { toolbarContents })
+            .task {
+                #if DEBUG
+                if UserDefaults.standard.bool(forKey: "VBOpenSettings") {
+                    openSettings()
+                }
+                #endif
+            }
     }
 
     private var gridSpacing: CGFloat { 16 }

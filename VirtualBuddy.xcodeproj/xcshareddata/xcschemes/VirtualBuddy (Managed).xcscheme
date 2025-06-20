@@ -131,6 +131,10 @@
             argument = "-VBSimulateGuestDiskImageGenerationError YES"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBOpenSettings YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
