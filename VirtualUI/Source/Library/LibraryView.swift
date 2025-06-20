@@ -21,12 +21,22 @@ public struct LibraryView: View {
     @Environment(\.openCocoaWindow)
     private var openCocoaWindow
 
+    @Environment(\.backwardsCompatibleOpenSettings)
+    private var openSettings
+
     public init() { }
 
     public var body: some View {
         libraryContents
             .frame(minWidth: 600, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .toolbar(content: { toolbarContents })
+            .task {
+                #if DEBUG
+                if UserDefaults.standard.bool(forKey: "VBOpenSettings") {
+                    openSettings()
+                }
+                #endif
+            }
     }
 
     private var gridSpacing: CGFloat { 16 }
@@ -118,5 +128,17 @@ fileprivate extension URL {
     LibraryView()
         .environmentObject(VMLibraryController.preview)
         .environmentObject(VirtualMachineSessionUIManager.shared)
+}
+#endif
+
+#if DEBUG
+private extension EnvironmentValues {
+    var backwardsCompatibleOpenSettings: () -> () {
+        guard #available(macOS 14.0, *) else {
+            return { }
+        }
+
+        return openSettings.callAsFunction
+    }
 }
 #endif

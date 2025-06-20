@@ -83,7 +83,7 @@
 		F42C015B2888FC0C00EB15CD /* VMSessionConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01542888FC0C00EB15CD /* VMSessionConfigurationView.swift */; };
 		F42C015C2888FC0C00EB15CD /* VirtualMachineSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01552888FC0C00EB15CD /* VirtualMachineSessionView.swift */; };
 		F42C015D2888FC0C00EB15CD /* SwiftUIVMView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */; };
-		F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01592888FC0C00EB15CD /* PreferencesView.swift */; };
+		F42C015E2888FC0C00EB15CD /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01592888FC0C00EB15CD /* SettingsScreen.swift */; };
 		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
 		F42CF4A82DF5FEC3001DE049 /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */; };
 		F43B01182AD858FE00164CD1 /* DeepLinkSecurity.h in Headers */ = {isa = PBXBuildFile; fileRef = F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -587,7 +587,7 @@
 		F42C01542888FC0C00EB15CD /* VMSessionConfigurationView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMSessionConfigurationView.swift; sourceTree = "<group>"; };
 		F42C01552888FC0C00EB15CD /* VirtualMachineSessionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionView.swift; sourceTree = "<group>"; };
 		F42C01572888FC0C00EB15CD /* SwiftUIVMView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwiftUIVMView.swift; sourceTree = "<group>"; };
-		F42C01592888FC0C00EB15CD /* PreferencesView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreferencesView.swift; sourceTree = "<group>"; };
+		F42C01592888FC0C00EB15CD /* SettingsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
 		F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DeepLinkSecurity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1121,7 +1121,7 @@
 		F42C01582888FC0C00EB15CD /* Settings */ = {
 			isa = PBXGroup;
 			children = (
-				F42C01592888FC0C00EB15CD /* PreferencesView.swift */,
+				F42C01592888FC0C00EB15CD /* SettingsScreen.swift */,
 				F4510A7C2AE2B5C200E24DD9 /* DeepLinkAuthManagementUI.swift */,
 			);
 			path = Settings;
@@ -2537,7 +2537,7 @@
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 				F4A7FB3F2BB5EBEF00E4C12A /* SavedStatePicker.swift in Sources */,
 				F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */,
-				F42C015E2888FC0C00EB15CD /* PreferencesView.swift in Sources */,
+				F42C015E2888FC0C00EB15CD /* SettingsScreen.swift in Sources */,
 				F45502142DF394DC005582A4 /* VirtualBuddyInstallerInputView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -65,8 +65,11 @@ struct VirtualBuddyApp: App {
         .handlesExternalEvents(matching: ["*"])
 
         Settings {
-            PreferencesView(deepLinkSentinel: DeepLinkHandler.shared.sentinel, enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled)
-                .environmentObject(settingsContainer)
+            SettingsScreen(
+                enableAutomaticUpdates: $updatesController.automaticUpdatesEnabled,
+                deepLinkSentinel: DeepLinkHandler.shared.sentinel
+            )
+            .environmentObject(settingsContainer)
         }
     }
 }

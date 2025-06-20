@@ -9,53 +9,39 @@ import SwiftUI
 import VirtualCore
 import DeepLinkSecurity
 
-/// This is a shell that handles showing the correct version depending on the OS and setting the library path,
-/// which is the only preference in common between legacy OS (Monterey) and modern OSes (Ventura and later).
-public struct PreferencesView: View {
-    var deepLinkSentinel: () -> DeepLinkSentinel
-    @Binding var enableAutomaticUpdates: Bool
+public struct SettingsScreen: View {
+    @Binding private var enableAutomaticUpdates: Bool
+    private var deepLinkSentinel: () -> DeepLinkSentinel
 
-    public init(deepLinkSentinel: @escaping @autoclosure () -> DeepLinkSentinel, enableAutomaticUpdates: Binding<Bool>) {
+    public init(enableAutomaticUpdates: Binding<Bool>, deepLinkSentinel: @escaping @autoclosure () -> DeepLinkSentinel) {
+        self._enableAutomaticUpdates = enableAutomaticUpdates
         self.deepLinkSentinel = deepLinkSentinel
+    }
+
+    public var body: some View {
+        SettingsRootView(enableAutomaticUpdates: $enableAutomaticUpdates)
+            .environmentObject(deepLinkSentinel())
+    }
+}
+
+private struct SettingsRootView: View {
+    @EnvironmentObject private var container: VBSettingsContainer
+    @EnvironmentObject private var sentinel: DeepLinkSentinel
+    @Binding private var enableAutomaticUpdates: Bool
+
+    public init(enableAutomaticUpdates: Binding<Bool>) {
         self._enableAutomaticUpdates = enableAutomaticUpdates
     }
 
-    @EnvironmentObject var container: VBSettingsContainer
+    @State private var libraryPathText = ""
+    @State private var showingAutomationSecuritySheet = false
+    @State private var isShowingErrorAlert = false
+    @State private var errorMessage: String?
 
     private var settings: VBSettings {
         get { container.settings }
         nonmutating set { container.settings = newValue }
     }
-
-    @State private var libraryPathText = ""
-
-    public var body: some View {
-        Group {
-            ModernSettingsView(
-                libraryPathText: $libraryPathText,
-                enableAutomaticUpdates: $enableAutomaticUpdates,
-                enableTSSCheck: $container.settings.enableTSSCheck,
-                enableASIFDiskImages: $container.settings.bootDiskImagesUseASIF,
-                setLibraryPath: setLibraryPath,
-                showOpenPanel: showOpenPanel
-            )
-            .environmentObject(deepLinkSentinel())
-        }
-        .alert("Error", isPresented: $isShowingErrorAlert, actions: {
-            Button("OK") { isShowingErrorAlert = false }
-        }, message: {
-            Text(errorMessage ?? "")
-        })
-        .onChange(of: settings.libraryURL) { newValue in
-            libraryPathText = newValue.path
-        }
-        .onAppearOnce {
-            libraryPathText = settings.libraryURL.path
-        }
-    }
-
-    @State private var isShowingErrorAlert = false
-    @State private var errorMessage: String?
 
     private func setLibraryPath(to newValue: String) {
         let url = URL(fileURLWithPath: newValue)
@@ -82,37 +68,15 @@ public struct PreferencesView: View {
 
         setLibraryPath(to: newURL.path)
     }
-}
 
-/// Settings view for modern OSes (Ventura and later).
-@available(macOS 13.0, *)
-private struct ModernSettingsView: View {
-    @Binding var libraryPathText: String
-    @Binding var enableAutomaticUpdates: Bool
-    @Binding var enableTSSCheck: Bool
-    @Binding var enableASIFDiskImages: Bool
-
-    var setLibraryPath: (String) -> Void
-    var showOpenPanel: () -> Void
-
-    @EnvironmentObject var container: VBSettingsContainer
-    @EnvironmentObject var sentinel: DeepLinkSentinel
-
-    private var settings: VBSettings {
-        get { container.settings }
-        nonmutating set { container.settings = newValue }
-    }
-
-    @State private var showingAutomationSecuritySheet = false
-
-    var body: some View {
+    public var body: some View {
         Form {
             Section {
                 LabeledContent("Location") {
                     HStack {
                         TextField("", text: $libraryPathText)
                             .onSubmit {
-                                setLibraryPath(libraryPathText)
+                                setLibraryPath(to: libraryPathText)
                             }
 
                         Button {
@@ -134,7 +98,7 @@ private struct ModernSettingsView: View {
 
             if #available(macOS 26, *) {
                 Section {
-                    Picker("Boot Image Format", selection: $enableASIFDiskImages) {
+                    Picker("Boot Image Format", selection: $container.settings.bootDiskImagesUseASIF) {
                         Text("Most Efficient")
                             .tag(true)
                         Text("Most Compatible")
@@ -161,7 +125,7 @@ private struct ModernSettingsView: View {
             }
 
             Section {
-                Toggle("Check signing status before downloading macOS", isOn: $enableTSSCheck)
+                Toggle("Check signing status before downloading macOS", isOn: $container.settings.enableTSSCheck)
             } header: {
                 Text("Services")
             }
@@ -184,6 +148,14 @@ private struct ModernSettingsView: View {
             automationSecuritySheet
         }
         .frame(minWidth: 440, maxWidth: 440, minHeight: 500, maxHeight: .infinity, alignment: .top)
+        .alert("Error", isPresented: $isShowingErrorAlert, actions: {
+            Button("OK") { isShowingErrorAlert = false }
+        }, message: {
+            Text(errorMessage ?? "")
+        })
+        .task(id: settings.libraryURL.path) {
+            libraryPathText = settings.libraryURL.path
+        }
     }
 
     @ViewBuilder
@@ -281,15 +253,6 @@ struct LibraryPathError: LocalizedError {
     init(_ msg: String) { self.errorDescription = msg }
 }
 
-
-
-
-
-
-
-
-
-
 // MARK: - Previews
 
 #if DEBUG
@@ -301,7 +264,7 @@ private extension VBSettingsContainer {
 
 @available(macOS 14.0, *)
 #Preview("Settings") {
-    PreferencesView(deepLinkSentinel: .preview, enableAutomaticUpdates: .constant(true))
+    SettingsScreen(enableAutomaticUpdates: .constant(true), deepLinkSentinel: .preview)
         .environmentObject(VBSettingsContainer.preview)
 }
 #endif
