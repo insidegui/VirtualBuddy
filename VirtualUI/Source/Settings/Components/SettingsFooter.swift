@@ -45,11 +45,16 @@ struct SettingsFooter: View {
 extension View {
     @ViewBuilder
     func settingsFooterStyle() -> some View {
+        let padding: Double = if #available(macOS 26, *) {
+            0
+        } else {
+            8
+        }
         frame(maxWidth: .infinity, alignment: .leading)
             .foregroundStyle(.secondary)
             .font(.footnote)
             .multilineTextAlignment(.leading)
-            .padding(.leading, 8)
+            .padding(.leading, padding)
             .textSelection(.enabled)
     }
 }

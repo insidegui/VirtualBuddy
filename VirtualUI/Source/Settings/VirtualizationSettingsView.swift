@@ -13,7 +13,7 @@ struct VirtualizationSettingsView: View {
     @Binding var settings: VBSettings
 
     #if DEBUG
-    private var _forceShowBootImageFormatSettings: Bool { true }
+    private var _forceShowBootImageFormatSettings: Bool { false }
     #endif
 
     private var showBootImageFormatSection: Bool {
