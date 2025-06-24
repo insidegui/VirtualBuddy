@@ -64,34 +64,52 @@ import SwiftUI
         if let firstValidAssertion = sender.assertionsPreventingAppTermination.first {
             logger.debug("Preventing app termination due to active assertions: \(sender.assertionsPreventingAppTermination.map(\.reason).formatted(.list(type: .and)), privacy: .public)")
 
-            let alert = NSAlert()
-            alert.messageText = "Quit VirtualBuddy?"
-            alert.informativeText = "VirtualBuddy is currently \(firstValidAssertion.reason). This will be cancelled if you quit the app."
+            let reply: NSApplication.TerminateReply
 
-            let button = alert.addButton(withTitle: "Quit")
-            button.hasDestructiveAction = true
+            if let assertionReply = firstValidAssertion.handleShouldTerminate() {
+                logger.debug("Assertion handles should terminate, returning its reply \(assertionReply)")
 
-            let button2 = alert.addButton(withTitle: "Quit When Done")
-            button2.keyEquivalent = "\r"
+                reply = assertionReply
+            } else {
+                logger.debug("Assertion doesn't handle should terminate, performing default handling")
 
-            alert.addButton(withTitle: "Cancel")
+                let alert = NSAlert()
+                alert.messageText = "Quit VirtualBuddy?"
+                alert.informativeText = "VirtualBuddy is currently \(firstValidAssertion.reason). This will be cancelled if you quit the app."
 
-            let response = alert.runModal()
+                let button = alert.addButton(withTitle: "Quit")
+                button.hasDestructiveAction = true
 
-            switch response {
-            case .alertFirstButtonReturn:
+                let button2 = alert.addButton(withTitle: "Quit When Done")
+                button2.keyEquivalent = "\r"
+
+                alert.addButton(withTitle: "Cancel")
+
+                let response = alert.runModal()
+
+                reply = switch response {
+                case .alertFirstButtonReturn: .terminateNow
+                case .alertSecondButtonReturn: .terminateLater
+                default: .terminateCancel
+                }
+            }
+
+            switch reply {
+            case .terminateCancel:
+                logger.info("User cancelled termination request. Good.")
+            case .terminateNow:
                 logger.info("User decided to terminate now despite assertions :(")
-
-                return .terminateNow
-            case .alertSecondButtonReturn:
+            case .terminateLater:
                 logger.info("User wants app to terminate when assertions preventing termination are invalidated.")
 
-                return .terminateLater
-            default:
-                logger.info("User cancelled termination request. Good.")
-                
-                return .terminateCancel
+                /// Note that there's  no point in resetting this to `false` in any other case because once `.terminateLater`
+                /// has been returned from this method, any attempt to terminate the app will no longer trigger it.
+                sender.shouldTerminateWhenLastAssertionInvalidated = true
+            @unknown default:
+                logger.fault("Unknown terminate reply \(reply, privacy: .public)")
             }
+
+            return reply
         } else {
             return .terminateNow
         }
