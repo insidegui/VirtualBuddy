@@ -269,7 +269,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         vm.delegate = self
 
-        library.bootedMachineIdentifiers.insert(self.virtualMachineModel.id)
+        library.registerBootedVM(self)
 
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(beforeStart: vm)
@@ -317,7 +317,7 @@ public final class VMInstance: NSObject, ObservableObject {
         
         try await vm.stop()
 
-        library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
+        library.unregisterBootedVM(self)
     }
 
     @available(macOS 14.0, *)
@@ -520,7 +520,7 @@ extension VMInstance: VZVirtualMachineDelegate {
         }
 
         DispatchQueue.main.async { [self] in
-            library.bootedMachineIdentifiers.remove(virtualMachineModel.id)
+            library.unregisterBootedVM(self)
 
             Task {
                 await wormhole.unregister(virtualMachineModel.wormholeID)

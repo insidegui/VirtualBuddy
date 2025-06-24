@@ -32,7 +32,11 @@ public final class VMLibraryController: ObservableObject {
     @Published public private(set) var virtualMachines: [VBVirtualMachine] = []
 
     /// Identifiers for all VMs that are currently in a "booted" state (starting, booted, or paused).
-    @Published public internal(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
+    @Published public private(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
+    private let bootedInstances = NSMapTable<NSString, VMInstance>(keyOptions: [.objectPersonality, .strongMemory], valueOptions: [.objectPersonality, .weakMemory])
+
+    /// Populated when ``bootedMachineIdentifiers`` is not empty, invalidated when the last booted machine identifier is unregistered via ``unregisterBootedVM(identifier:)``.
+    private var preventTerminationAssertion: PreventTerminationAssertion?
 
     let settingsContainer: VBSettingsContainer
 
@@ -371,3 +375,99 @@ public extension VMLibraryController {
 }
 
 extension NSWorkspace: @retroactive @unchecked Sendable { }
+
+// MARK: - Booted VM Tracking
+
+public extension VMLibraryController {
+    /// Adds virtual machine to the list of booted machines.
+    func registerBootedVM(_ instance: VMInstance) {
+        let id = instance.virtualMachineModel.id
+
+        logger.debug("Registering booted VM \(id.shortID, privacy: .public)")
+
+        bootedMachineIdentifiers.insert(id)
+        bootedInstances.setObject(instance, forKey: id as NSString)
+
+        startPreventingAppTerminationIfNeeded()
+    }
+
+    /// Removes virtual machine from the list of booted machines.
+    func unregisterBootedVM(_ instance: VMInstance) {
+        let id = instance.virtualMachineModel.id
+        logger.debug("Unregistering booted VM \(id.shortID, privacy: .public)")
+
+        bootedMachineIdentifiers.remove(id)
+        bootedInstances.removeObject(forKey: id as NSString)
+
+        stopPreventingAppTerminationIfNeeded()
+    }
+
+    func shutdownAll() {
+        logger.debug(#function)
+
+        for instance in bootedInstances.dictionaryRepresentation().values {
+            let id = instance.virtualMachineModel.id
+            Task {
+                do {
+                    logger.debug("Requesting stop for \(id.shortID, privacy: .public)")
+                    
+                    try await instance.stop()
+                } catch {
+                    logger.error("Error requesting stop for \(id.shortID, privacy: .public) - \(error, privacy: .public)")
+                }
+            }
+        }
+    }
+}
+
+// MARK: - App Termination Assertion
+
+private extension VMLibraryController {
+    func startPreventingAppTerminationIfNeeded() {
+        guard !bootedMachineIdentifiers.isEmpty else { return }
+        guard preventTerminationAssertion == nil || preventTerminationAssertion?.isValid == false else { return }
+
+        logger.notice("Start preventing app termination")
+
+        preventTerminationAssertion = NSApp.preventTermination(reason: "virtual machines are currently running", shouldTerminate: { [weak self] _ in
+            self?.handleAppTerminationAttempt() ?? .terminateNow
+        })
+    }
+
+    func stopPreventingAppTerminationIfNeeded() {
+        guard bootedMachineIdentifiers.isEmpty else { return }
+        guard preventTerminationAssertion != nil else { return }
+
+        logger.notice("Stop preventing app termination")
+
+        preventTerminationAssertion?.invalidate()
+        preventTerminationAssertion = nil
+    }
+
+    func handleAppTerminationAttempt() -> NSApplication.TerminateReply {
+        let alert = NSAlert()
+        alert.messageText = "Quit VirtualBuddy?"
+        alert.informativeText = "VirtualBuddy is currently running virtual machines. Quitting the app without shutting them down first can result in data loss."
+
+        let button = alert.addButton(withTitle: "Quit Now")
+        button.hasDestructiveAction = true
+
+        let button2 = alert.addButton(withTitle: "Shutdown")
+        button2.keyEquivalent = "\r"
+
+        alert.addButton(withTitle: "Cancel")
+
+        let response = alert.runModal()
+
+        switch response {
+        case .alertFirstButtonReturn:
+            return .terminateNow
+        case .alertSecondButtonReturn:
+            defer { shutdownAll() }
+            
+            return .terminateLater
+        default:
+            return .terminateCancel
+        }
+    }
+}
