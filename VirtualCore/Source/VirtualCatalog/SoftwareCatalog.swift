@@ -127,6 +127,19 @@ public struct CatalogChannel: CatalogModel {
     }
 }
 
+/// Describes a "device support files" installation and the instructions that should be presented to the user when it's required.
+public struct CatalogDeviceSupportVersion: CatalogModel {
+    public var id: String
+    /// Hint for which MobileDevice version this entry refers to.
+    public var mobileDeviceMinVersion: SoftwareVersion
+    /// OS version this entry refers to. Matching will be attempted by `major.minor` first, then `major` only.
+    public var osVersion: SoftwareVersion
+    /// User-facing title displayed on the list of software images.
+    public var title: String
+    /// User-facing instructions displayed in interstitial or when user clicks the warning. May contain markdown.
+    public var instructions: String
+}
+
 /// Adopted by both ``RestoreImage`` and ``ResolvedRestoreImage`` to make download lookup more convenient to implement.
 public protocol DownloadableCatalogContent: Identifiable, Hashable, Sendable {
     var build: String { get }
@@ -188,8 +201,10 @@ public struct SoftwareCatalog: Codable, Sendable {
     public var features: [VirtualizationFeature]
     /// Requirement set definitions.
     public var requirementSets: [RequirementSet]
+    /// Device support files definitions.
+    public var deviceSupportVersions: [CatalogDeviceSupportVersion]
 
-    public init(apiVersion: Int, minAppVersion: SoftwareVersion, channels: [CatalogChannel], groups: [CatalogGroup], restoreImages: [RestoreImage], features: [VirtualizationFeature], requirementSets: [RequirementSet]) {
+    public init(apiVersion: Int, minAppVersion: SoftwareVersion, channels: [CatalogChannel], groups: [CatalogGroup], restoreImages: [RestoreImage], features: [VirtualizationFeature], requirementSets: [RequirementSet], deviceSupportVersions: [CatalogDeviceSupportVersion]) {
         self.apiVersion = apiVersion
         self.minAppVersion = minAppVersion
         self.channels = channels
@@ -197,9 +212,10 @@ public struct SoftwareCatalog: Codable, Sendable {
         self.restoreImages = restoreImages
         self.features = features
         self.requirementSets = requirementSets
+        self.deviceSupportVersions = deviceSupportVersions
     }
 
-    public static let empty = SoftwareCatalog(apiVersion: 0, minAppVersion: .empty, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [])
+    public static let empty = SoftwareCatalog(apiVersion: 0, minAppVersion: .empty, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [], deviceSupportVersions: [])
 }
 
 public extension SoftwareCatalog {

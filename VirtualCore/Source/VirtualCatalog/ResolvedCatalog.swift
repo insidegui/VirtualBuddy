@@ -35,6 +35,7 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel, DownloadableCatalogCon
     public var channel: CatalogChannel
     public var features: [ResolvedVirtualizationFeature]
     public var requirements: ResolvedRequirementSet
+    public var deviceSupportVersion: CatalogDeviceSupportVersion?
     public var status: ResolvedFeatureStatus
     public var localFileURL: URL?
 
@@ -46,13 +47,14 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel, DownloadableCatalogCon
     public var downloadSize: Int64 { Int64(image.downloadSize ?? 0) }
     public var isDownloaded: Bool { localFileURL != nil }
 
-    public init(image: RestoreImage, channel: CatalogChannel, features: [ResolvedVirtualizationFeature], requirements: ResolvedRequirementSet, status: ResolvedFeatureStatus, localFileURL: URL?) {
+    public init(image: RestoreImage, channel: CatalogChannel, features: [ResolvedVirtualizationFeature], requirements: ResolvedRequirementSet, status: ResolvedFeatureStatus, localFileURL: URL?, deviceSupportVersion: CatalogDeviceSupportVersion?) {
         self.image = image
         self.channel = channel
         self.features = features
         self.requirements = requirements
         self.status = status
         self.localFileURL = localFileURL
+        self.deviceSupportVersion = deviceSupportVersion
     }
 }
 
@@ -61,14 +63,21 @@ public enum ResolvedFeatureStatus: Hashable, Sendable {
     /// The feature is fully supported.
     case supported
     /// The feature is partially supported.
-    case warning(message: String)
+    case warning(title: String?, message: String)
     /// The feature is not supported.
-    case unsupported(message: String)
+    case unsupported(title: String?, message: String)
+
+    var title: String? {
+        switch self {
+        case .supported: return nil
+        case .warning(let title, _), .unsupported(let title, _): return title
+        }
+    }
 
     var message: String? {
         switch self {
         case .supported: return nil
-        case .warning(let message), .unsupported(let message): return message
+        case .warning(_, let message), .unsupported(_, let message): return message
         }
     }
 }
@@ -207,7 +216,8 @@ public extension ResolvedRestoreImage {
             features: catalog.features.map { ResolvedVirtualizationFeature(feature: $0, status: .supported, platform: environment.guestPlatform) },
             requirements: ResolvedRequirementSet(requirements: catalog.requirementSet(with: image.requirements), status: .supported),
             status: .supported,
-            localFileURL: environment.downloadsProvider?.localFileURL(for: image)
+            localFileURL: environment.downloadsProvider?.localFileURL(for: image),
+            deviceSupportVersion: catalog.deviceSupportVersion(for: image)
         )
 
         update(with: environment)
@@ -219,7 +229,11 @@ public extension ResolvedRestoreImage {
 
         /// Mobile device requirement is isolated from min host/app requirements.
         if versionedEnvironment.mobileDeviceVersion < image.mobileDeviceMinVersion {
-            self.status = .mobileDeviceOutdated
+            if let deviceSupportVersion {
+                self.status = .unsupported(title: deviceSupportVersion.title, message: deviceSupportVersion.instructions)
+            } else {
+                self.status = .mobileDeviceOutdated
+            }
         }
 
         features = features.map { $0.updated(with: versionedEnvironment) }
@@ -230,6 +244,16 @@ public extension ResolvedRestoreImage {
         if requirements.status.isMoreImportant(than: status) {
             status = requirements.status
         }
+    }
+}
+
+extension SoftwareCatalog {
+    func deviceSupportVersion(for image: RestoreImage) -> CatalogDeviceSupportVersion? {
+        deviceSupportVersions.first(where: {
+            $0.mobileDeviceMinVersion == image.mobileDeviceMinVersion
+            || ($0.osVersion.major == image.version.major && $0.osVersion.minor == image.version.minor)
+            || $0.osVersion.major == image.version.major
+        })
     }
 }
 
@@ -286,7 +310,7 @@ public extension ResolvedRequirementSet {
 
 extension ResolvedFeatureStatus {
     static func unsupported(_ message: String?...) -> Self {
-        .unsupported(message: message.compactMap({ $0 }).joined(separator: "\n"))
+        .unsupported(title: nil, message: message.compactMap({ $0 }).joined(separator: "\n"))
     }
 
     static func unsupportedHostAndGuestAligned(_ feature: VirtualizationFeature) -> Self {
@@ -313,16 +337,19 @@ extension ResolvedFeatureStatus {
         .unsupported("Not supported for \(platform.name) guests.", feature.detail)
     }
 
-
     static var mobileDeviceOutdated: Self {
-        .warning(message: """
-        This version of macOS requires device support files which are not currently installed on your system.
-        
-        It's likely that this is a beta for a major macOS version and your Mac is not running the corresponding macOS beta.
-        
-        Device support files can be obtained by installing the Xcode beta, they are sometimes made available separately in the Apple Developer portal.
-        """)
+        .unsupported(title: Self.defaultDeviceSupportUpdateNeededTitle,  message: Self.defaultDeviceSupportUpdateNeededInstructions)
     }
+
+    static let defaultDeviceSupportUpdateNeededTitle = "Device Support Update Required"
+
+    static let defaultDeviceSupportUpdateNeededInstructions = """
+    This version of macOS requires device support files which are not currently installed on your system.
+    
+    It's likely that this is a beta for a major macOS version and your Mac is not running the corresponding macOS beta.
+    
+    Device support files can be obtained by installing the Xcode beta, they are sometimes made available separately in the Apple Developer portal.
+    """
 }
 
 struct CatalogError: LocalizedError, CustomStringConvertible {
@@ -420,7 +447,7 @@ public extension ResolvedVirtualizationFeature {
             case .linux: "Supported. Requires host on macOS \(minVersionHost.shortDescription) or later."
             default: "Supported."
             }
-        case .warning(let message), .unsupported(let message):
+        case .warning(_, let message), .unsupported(_, let message):
             message
         }
     }

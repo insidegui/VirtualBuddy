@@ -93,7 +93,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateMobileDeviceVersion 1770.0.0"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceSigningStatusUnsigned YES"

@@ -52,7 +52,7 @@ extension CatalogCommand {
             } else {
                 fputs("Creating empty version 2 catalog for migration\n", stderr)
 
-                catalog = SoftwareCatalog(apiVersion: 2, minAppVersion: .init(string: "2.0.0")!, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [])
+                catalog = SoftwareCatalog(apiVersion: 2, minAppVersion: .init(string: "2.0.0")!, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [], deviceSupportVersions: [])
             }
 
             for legacyChannel in legacyCatalog.channels {

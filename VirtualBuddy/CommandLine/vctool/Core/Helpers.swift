@@ -114,9 +114,9 @@ extension ResolvedFeatureStatus {
         switch self {
         case .supported:
             return "✅ Supported"
-        case .warning(let message):
+        case .warning(_, let message):
             return "⚠️ Warning: \(message)"
-        case .unsupported(let message):
+        case .unsupported(_, let message):
             return "🛑 Not Supported: \(message)"
         }
     }
