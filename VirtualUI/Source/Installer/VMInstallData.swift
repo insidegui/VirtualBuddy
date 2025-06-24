@@ -28,10 +28,25 @@ struct VMInstallData: Hashable, Codable {
 
     // MARK: Temporary State
 
-    private(set) var selectedRestoreImage: RestoreImage? = nil
+    /// This can be the restore image selected by the user in the UI, or a matching restore image
+    /// from the software catalog inferred from a user-provided custom download link or existing local file.
+    @MainActor
+    private(set) var restoreImage: RestoreImage? = nil {
+        didSet {
+            /// Ensure background hash is set to whatever restore image group ends up being used,
+            /// even if it's matched from user-provided file/url.
+            if let group = catalog.groups.first(where: { $0.id == restoreImage?.group }),
+               let value = group.darkImage?.thumbnail.blurHash
+            {
+                backgroundHash = BlurHashToken(value: value)
+            } else {
+                backgroundHash = systemType == .mac ? .virtualBuddyBackground : .virtualBuddyBackgroundLinux
+            }
+        }
+    }
     var resolvedRestoreImage: ResolvedRestoreImage? = nil {
         didSet {
-            selectedRestoreImage = resolvedRestoreImage?.image
+            restoreImage = resolvedRestoreImage?.image
             localRestoreImageURL = resolvedRestoreImage?.localFileURL
         }
     }
@@ -53,6 +68,9 @@ extension VMInstallData {
         case .none: nil
         }
     }
+
+    @MainActor
+    var catalog: SoftwareCatalog { SoftwareCatalog.current(for: systemType) }
 }
 
 // MARK: Updates / Validation
@@ -62,7 +80,7 @@ extension VMInstallData {
         switch step {
         case .systemType: true
         case .restoreImageInput: installMethodSelection != nil
-        case .restoreImageSelection: selectedRestoreImage != nil
+        case .restoreImageSelection: restoreImage != nil
         case .name: !name.isEmpty
         case .configuration:
             true // TODO: Implement
@@ -101,23 +119,32 @@ extension VMInstallData {
     }
 
     mutating func commitSelectedRestoreImage() throws {
-        UILog("\(#function) \(String(optional: selectedRestoreImage?.url.absoluteString.quoted))")
+        UILog("\(#function) \(String(optional: restoreImage?.url.absoluteString.quoted))")
 
-        installMethodSelection = try .remoteOptions(selectedRestoreImage.require("Please select one of the OS versions available."))
+        installMethodSelection = try .remoteOptions(restoreImage.require("Please select one of the OS versions available."))
     }
 
+    @MainActor
     mutating func commitCustomRestoreImageURL() throws {
         UILog("\(#function) \(customInstallImageRemoteURL.quoted)")
 
-        installMethodSelection = try .remoteManual(URL(string: customInstallImageRemoteURL).require("Invalid URL: \(customInstallImageRemoteURL.quoted)."))
+        let customURL = try URL(string: customInstallImageRemoteURL).require("Invalid URL: \(customInstallImageRemoteURL.quoted).")
+        installMethodSelection = .remoteManual(customURL)
+
+        /// Attempt to match custom URL with known catalog content.
+        restoreImage = catalog.restoreImageMatchingDownloadableCatalogContent(at: customURL)
     }
 
+    @MainActor
     mutating func commitCustomRestoreImageLocalFile(path: String) {
         UILog("\(#function) \(path.quoted)")
 
         let fileURL = URL(fileURLWithPath: path)
         installMethodSelection = .localFile(fileURL)
         commitLocalRestoreImageURL(fileURL)
+
+        /// Attempt to match custom local file with known catalog content.
+        restoreImage = catalog.restoreImageMatchingDownloadableCatalogContent(at: fileURL)
     }
 
     @MainActor

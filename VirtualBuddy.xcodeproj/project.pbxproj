@@ -292,6 +292,9 @@
 		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4C2374D2888A462001FF286 /* VolumeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374C2888A462001FF286 /* VolumeUtils.swift */; };
 		F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374F2888AF67001FF286 /* LogStreamer.swift */; };
+		F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */; };
+		F4C947D62E0B12D0001ACC91 /* String+AppleOSBuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */; };
+		F4C947DA2E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */; };
 		F4CD13202E05A5780067DC75 /* FileSystemPathFormControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CD131F2E05A5780067DC75 /* FileSystemPathFormControl.swift */; };
 		F4CD133C2E05A9DF0067DC75 /* OpenVirtualBuddySettingsAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CD133B2E05A9DF0067DC75 /* OpenVirtualBuddySettingsAction.swift */; };
 		F4CD133E2E05AB280067DC75 /* BackwardsCompatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CD133D2E05AB280067DC75 /* BackwardsCompatibility.swift */; };
@@ -797,6 +800,9 @@
 		F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuest.entitlements; sourceTree = "<group>"; };
 		F4C2374C2888A462001FF286 /* VolumeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeUtils.swift; sourceTree = "<group>"; };
 		F4C2374F2888AF67001FF286 /* LogStreamer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogStreamer.swift; sourceTree = "<group>"; };
+		F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ExtendedAttributes.swift"; sourceTree = "<group>"; };
+		F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AppleOSBuild.swift"; sourceTree = "<group>"; };
+		F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+DownloadMatching.swift"; sourceTree = "<group>"; };
 		F4CD131F2E05A5780067DC75 /* FileSystemPathFormControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileSystemPathFormControl.swift; sourceTree = "<group>"; };
 		F4CD133B2E05A9DF0067DC75 /* OpenVirtualBuddySettingsAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenVirtualBuddySettingsAction.swift; sourceTree = "<group>"; };
 		F4CD133D2E05AB280067DC75 /* BackwardsCompatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackwardsCompatibility.swift; sourceTree = "<group>"; };
@@ -1252,6 +1258,8 @@
 			isa = PBXGroup;
 			children = (
 				F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */,
+				F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */,
+				F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1263,8 +1271,9 @@
 				F453C4172DF0B43D007EAD5F /* Utilities */,
 				F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */,
 				F453C4192DF0B43D007EAD5F /* MobileDeviceFramework.swift */,
-				F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */,
 				F453C41B2DF0B43D007EAD5F /* SoftwareCatalog.swift */,
+				F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */,
+				F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */,
 			);
 			path = VirtualCatalog;
 			sourceTree = "<group>";
@@ -2619,6 +2628,7 @@
 				F45502162DF45E53005582A4 /* VBSettings+CatalogDownload.swift in Sources */,
 				F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */,
 				F453C4892DF1CDA0007EAD5F /* DownloadBackend.swift in Sources */,
+				F4C947DA2E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift in Sources */,
 				F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */,
 				F49B832B2E04593A00395F87 /* NSImage+DRMProtected.swift in Sources */,
 				F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */,
@@ -2663,6 +2673,7 @@
 				F49FD8812DFB6CDD0019D638 /* UTMImporter.swift in Sources */,
 				F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */,
 				F485B9232BB306AF004B3C2B /* VBDebugUtil.m in Sources */,
+				F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */,
 				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
@@ -2675,6 +2686,7 @@
 				F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */,
 				F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */,
 				F453C4A02DF1D7C0007EAD5F /* RestoreBackend.swift in Sources */,
+				F4C947D62E0B12D0001ACC91 /* String+AppleOSBuild.swift in Sources */,
 				F453C4202DF0B43D007EAD5F /* SoftwareCatalog.swift in Sources */,
 				F453C4212DF0B43D007EAD5F /* MobileDeviceFramework.swift in Sources */,
 				0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */,

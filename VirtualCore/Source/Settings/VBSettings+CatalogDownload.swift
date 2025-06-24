@@ -24,33 +24,40 @@ public extension VBSettings {
             return Self.fallbackURL
         }
     }
+}
 
-    func existingLocalURL(for remoteURL: URL) -> URL? {
-        let downloadedFileURL = downloadsDirectoryURL.appendingPathComponent(remoteURL.lastPathComponent)
+extension VBSettings: CatalogDownloadsProvider {
+    public func localFileURL(for restoreImage: RestoreImage) -> URL? {
+        do {
+            let files = try FilePath(downloadsDirectoryURL).children().map(\.url.vb_restoreImageStub)
 
-        if FileManager.default.fileExists(atPath: downloadedFileURL.path) {
-            return downloadedFileURL
-        } else {
+            guard let stub = files.vb_elementMatchingDownloadableCatalogContent(at: restoreImage.url) else { return nil }
+
+            logger.debug("Found download matching \(restoreImage.name.quoted) - \(stub)")
+
+            /// Take this opportunity to set the extended attribute if it hasn't been set yet.
+            stub.url.vb_addSoftwareCatalogExtendedAttributeIfNeeded(for: restoreImage)
+
+            return stub.url
+        } catch {
+            logger.fault("Error enumerating downloads directory - \(error, privacy: .public)")
+
             return nil
         }
     }
 }
 
-extension VBSettings: CatalogDownloadsProvider {
-    public func catalogDownloads() -> CatalogDownloads {
-        do {
-            var filesByName = [String : URL]()
+extension URL {
+    private static let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "URL+SoftwareCatalogAttribute")
 
-            let files = try FilePath(downloadsDirectoryURL).children()
+    func vb_addSoftwareCatalogExtendedAttributeIfNeeded(for restoreImage: RestoreImage) {
+        guard vb_softwareCatalogData == nil else { return }
 
-            for file in files {
-                filesByName[file.lastComponent] = file.url
-            }
+        Self.logger.debug("Adding software catalog extended attribute for \(restoreImage.build) to \(lastPathComponent.quoted)")
 
-            return CatalogDownloads(localFileURLByFileName: filesByName)
-        } catch {
-            logger.fault("Error enumerating downloads directory - \(error, privacy: .public)")
-            return CatalogDownloads()
-        }
+        vb_softwareCatalogData = VirtualBuddyCatalogData(
+            build: restoreImage.build,
+            filename: restoreImage.url.lastPathComponent
+        )
     }
 }

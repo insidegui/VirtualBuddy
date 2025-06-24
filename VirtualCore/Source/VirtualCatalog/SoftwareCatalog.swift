@@ -127,8 +127,14 @@ public struct CatalogChannel: CatalogModel {
     }
 }
 
+/// Adopted by both ``RestoreImage`` and ``ResolvedRestoreImage`` to make download lookup more convenient to implement.
+public protocol DownloadableCatalogContent: Identifiable, Hashable, Sendable {
+    var build: String { get }
+    var url: URL { get }
+}
+
 /// Defines an individual macOS restore image in the catalog.
-public struct RestoreImage: CatalogModel {
+public struct RestoreImage: CatalogModel, DownloadableCatalogContent {
     /// Unique identifier for this restore image.
     public var id: String
     /// Identifier of the ``CatalogGroup`` this restore image is a part of.
