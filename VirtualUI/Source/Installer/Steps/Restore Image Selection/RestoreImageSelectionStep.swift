@@ -32,9 +32,7 @@ struct RestoreImageSelectionStep: View {
         .frame(maxWidth: .infinity)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .environmentObject(controller)
-        .task(id: viewModel.data.systemType) {
-            controller.loadRestoreImageOptions(for: viewModel.data.systemType)
-        }
+        .task(id: viewModel.data.systemType) { loadOptions() }
         .task(id: controller.selectedGroup) {
             if let group = controller.selectedGroup {
                 viewModel.data.backgroundHash = BlurHashToken(value: group.darkImage.thumbnail.blurHash)
@@ -42,6 +40,21 @@ struct RestoreImageSelectionStep: View {
                 viewModel.data.backgroundHash = .virtualBuddyBackground
             }
         }
+        .toolbar {
+            ToolbarItemGroup(placement: .primaryAction) {
+                Button {
+                    loadOptions(skipCache: true)
+                } label: {
+                    Image(systemName: "arrow.clockwise")
+                }
+                .help(Text("Reload"))
+                .keyboardShortcut("r", modifiers: .command)
+            }
+        }
+    }
+
+    private func loadOptions(skipCache: Bool = false) {
+        controller.loadRestoreImageOptions(for: viewModel.data.systemType, skipCache: skipCache)
     }
 
 }
