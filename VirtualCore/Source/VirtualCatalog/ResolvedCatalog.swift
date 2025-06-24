@@ -29,7 +29,7 @@ public struct ResolvedCatalogGroup: ResolvedCatalogModel {
     }
 }
 
-public struct ResolvedRestoreImage: ResolvedCatalogModel {
+public struct ResolvedRestoreImage: ResolvedCatalogModel, DownloadableCatalogContent {
     public var id: RestoreImage.ID { image.id }
     public var image: RestoreImage
     public var channel: CatalogChannel
@@ -132,26 +132,14 @@ public struct CatalogGuestPlatform: ResolvedCatalogModel, RawRepresentable, Case
     public var description: String { id }
 }
 
-/// Provides information about catalog content that's already been downloaded to the host.
-public struct CatalogDownloads: Sendable {
-    /// Maps from catalog file name (last remote URL path component) to URL of corresponding file in the app downloads directory.
-    ///
-    /// - note: This doesn't account for renaming. If files are renamed by the user or some other process, incorrect mappings
-    /// may occur or files that are already downloaded may not be found.
-    private var localFileURLByFileName: [String: URL]
-
-    public init(localFileURLByFileName: [String : URL] = [:]) {
-        self.localFileURLByFileName = localFileURLByFileName
-    }
-
-    public func localFileURL(for remoteURL: URL) -> URL? {
-        localFileURLByFileName[remoteURL.lastPathComponent]
-    }
-}
-
-/// Protocol adopted by types that can provide ``CatalogDownloads`` to a ``CatalogResolutionEnvironment``.
+/// Protocol adopted by types that can provide local file URLs to a ``CatalogResolutionEnvironment``.
+///
+/// This type is used when resolving download status for restore images.
 public protocol CatalogDownloadsProvider: Sendable {
-    func catalogDownloads() -> CatalogDownloads
+    /// Returns the local file URL matching the remote restore image.
+    ///
+    /// Implementations must return `nil` if a local file matching the remote restore image has not been downloaded yet.
+    func localFileURL(for restoreImage: RestoreImage) -> URL?
 }
 
 /// Properties used when resolving a catalog for a given environment.
@@ -176,7 +164,7 @@ public struct CatalogResolutionEnvironment: Sendable {
     /// in which case the requirement set will be considered as satisfied.
     public var memorySizeMB: Int?
     /// Information about catalog content that's already been downloaded by the host.
-    public var downloads: CatalogDownloads
+    public var downloadsProvider: CatalogDownloadsProvider?
 
     public init(hostVersion: SoftwareVersion, guestVersion: SoftwareVersion, guestPlatform: CatalogGuestPlatform, appVersion: SoftwareVersion, mobileDeviceVersion: SoftwareVersion, cpuCoreCount: Int? = nil, memorySizeMB: Int? = nil, downloadsProvider: CatalogDownloadsProvider? = nil) {
         self.hostVersion = hostVersion
@@ -186,7 +174,7 @@ public struct CatalogResolutionEnvironment: Sendable {
         self.mobileDeviceVersion = mobileDeviceVersion
         self.cpuCoreCount = cpuCoreCount
         self.memorySizeMB = memorySizeMB
-        self.downloads = downloadsProvider?.catalogDownloads() ?? CatalogDownloads()
+        self.downloadsProvider = downloadsProvider
     }
 }
 
@@ -219,7 +207,7 @@ public extension ResolvedRestoreImage {
             features: catalog.features.map { ResolvedVirtualizationFeature(feature: $0, status: .supported, platform: environment.guestPlatform) },
             requirements: ResolvedRequirementSet(requirements: catalog.requirementSet(with: image.requirements), status: .supported),
             status: .supported,
-            localFileURL: environment.downloads.localFileURL(for: image.url)
+            localFileURL: environment.downloadsProvider?.localFileURL(for: image)
         )
 
         update(with: environment)

@@ -388,6 +388,13 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         downloader = nil
 
         do {
+            /// Attach metadata to the file so that VirtualBuddy can match it with the restore image in the software catalog
+            /// even if the user renames the file or moves it within the same volume.
+            if data.systemType == .mac, let restoreImage = data.restoreImage {
+                UILog("Attaching metadata for \(restoreImage.name.quoted) to downloaded file \(fileURL.lastPathComponent.quoted)")
+                fileURL.vb_softwareCatalogData = .init(restoreImage)
+            }
+
             try updateModelInstallerURL(with: fileURL)
 
             next()
