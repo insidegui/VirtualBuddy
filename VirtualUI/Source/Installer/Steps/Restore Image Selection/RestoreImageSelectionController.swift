@@ -25,8 +25,6 @@ final class RestoreImageSelectionController: ObservableObject {
             guard let self else { return }
             guard let group else { return }
 
-            guard selectedRestoreImage?.image.group != group.id else { return }
-
             /// Selected group has changed, update available channel groups, images, and selected image.
             let updatedChannelGroups = ChannelGroup.groups(with: group.restoreImages)
             channelGroups = updatedChannelGroups
@@ -79,7 +77,7 @@ final class RestoreImageSelectionController: ObservableObject {
     private var inputCatalog: SoftwareCatalog?
     private var guestType = VBGuestType.mac
 
-    func loadRestoreImageOptions(for guest: VBGuestType) {
+    func loadRestoreImageOptions(for guest: VBGuestType, skipCache: Bool = false) {
         logger.debug("Loading restore image options.")
 
         guestType = guest
@@ -103,7 +101,7 @@ final class RestoreImageSelectionController: ObservableObject {
                 }
                 #endif
 
-                let catalog = try await api.fetchRestoreImages(for: guest)
+                let catalog = try await api.fetchRestoreImages(for: guest, skipCache: skipCache)
                 inputCatalog = catalog
 
                 await refreshResolvedCatalog(with: catalog)

@@ -59,7 +59,7 @@ public final class VBAPIClient {
         self.environment = environment
     }
 
-    private func request(for endpoint: String, query: [String: String] = [:]) throws -> URLRequest {
+    private func request(for endpoint: String, query: [String: String] = [:], cachePolicy: URLRequest.CachePolicy = .useProtocolCachePolicy) throws -> URLRequest {
         let url = environment.baseURL
             .appendingPathComponent(endpoint)
 
@@ -73,14 +73,18 @@ public final class VBAPIClient {
             components.queryItems?.append(URLQueryItem(name: key, value: value))
         }
 
-        return try URLRequest(url: components.url.require("Failed to construct request URL."))
+        var request = try URLRequest(url: components.url.require("Failed to construct request URL."))
+
+        request.cachePolicy = cachePolicy
+
+        return request
     }
 
     private static let decoder = JSONDecoder()
 
     @MainActor
-    public func fetchRestoreImages(for guest: VBGuestType) async throws -> SoftwareCatalog {
-        let catalog = try await performCatalogFetch(for: guest)
+    public func fetchRestoreImages(for guest: VBGuestType, skipCache: Bool) async throws -> SoftwareCatalog {
+        let catalog = try await performCatalogFetch(for: guest, skipCache: skipCache)
 
         SoftwareCatalog.setCurrent(catalog, for: guest)
 
@@ -88,7 +92,7 @@ public final class VBAPIClient {
     }
 
     @MainActor
-    func performCatalogFetch(for guest: VBGuestType) async throws -> SoftwareCatalog {
+    func performCatalogFetch(for guest: VBGuestType, skipCache: Bool) async throws -> SoftwareCatalog {
         #if DEBUG
         guard !ProcessInfo.isSwiftUIPreview, !UserDefaults.standard.bool(forKey: "VBForceBuiltInSoftwareCatalog") else {
             logger.debug("Forcing built-in catalog")
@@ -97,7 +101,7 @@ public final class VBAPIClient {
         #endif
 
         do {
-            let remoteCatalog = try await fetchRemoteCatalog(for: guest)
+            let remoteCatalog = try await fetchRemoteCatalog(for: guest, skipCache: skipCache)
 
             logger.debug("Fetched remote catalog with \(remoteCatalog.restoreImages.count, privacy: .public) restore images")
 
@@ -119,10 +123,13 @@ public final class VBAPIClient {
         }
     }
 
-    func fetchRemoteCatalog(for guest: VBGuestType) async throws -> SoftwareCatalog {
-        let req = try request(for: guest.restoreImagesAPIPath)
+    func fetchRemoteCatalog(for guest: VBGuestType, skipCache: Bool) async throws -> SoftwareCatalog {
+        let req = try request(
+            for: guest.restoreImagesAPIPath,
+            cachePolicy: skipCache ? .reloadIgnoringLocalAndRemoteCacheData : .useProtocolCachePolicy
+        )
 
-        logger.debug("Fetching remote catalog from \(req.url?.host() ?? "<nil>")")
+        logger.debug("Fetching remote catalog from \(req.url?.host() ?? "<nil>") (skipCache? \(skipCache, privacy: .public))")
 
         let (data, res) = try await URLSession.shared.data(for: req)
 
