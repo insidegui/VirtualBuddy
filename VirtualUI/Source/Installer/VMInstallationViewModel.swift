@@ -142,7 +142,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private func startPreventingAppTermination(forReason reason: String) {
         stopPreventingAppTermination()
 
-        preventTerminationAssertion = NSApp.preventTermination(forReason: reason)
+        preventTerminationAssertion = NSApp.preventTermination(reason: reason)
     }
 
     private func stopPreventingAppTermination() {

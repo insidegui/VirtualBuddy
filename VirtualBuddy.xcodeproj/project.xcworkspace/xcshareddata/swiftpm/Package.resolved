@@ -6,8 +6,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/insidegui/BuddyKit",
       "state" : {
-        "revision" : "8f6bcee289ad71c5978b19f7425082d6c175fd8f",
-        "version" : "1.7.1"
+        "revision" : "a68a8aef7eadbd62ec61afcf97e4b2cd0a31f05d",
+        "version" : "1.7.4"
       }
     },
     {
