@@ -7,7 +7,7 @@
 
 import Cocoa
 
-class VBRestorableWindow: NSWindow {
+class VBRestorableWindow: FB18383725Window {
 
     override func close() {
         vbSaveFrame()

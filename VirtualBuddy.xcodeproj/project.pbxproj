@@ -169,6 +169,7 @@
 		F45502262DF463A1005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */; };
 		F45502272DF463A1005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */; };
+		F462C9422E0C96D300C172E2 /* FB18383725Window.swift in Sources */ = {isa = PBXBuildFile; fileRef = F462C9412E0C96D300C172E2 /* FB18383725Window.swift */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -672,6 +673,7 @@
 		F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.3_24D60_Restore.ipsw; sourceTree = "<group>"; };
 		F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.5_24F74_Restore.ipsw; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameInputView.swift; sourceTree = "<group>"; };
+		F462C9412E0C96D300C172E2 /* FB18383725Window.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FB18383725Window.swift; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -1447,6 +1449,7 @@
 				F48E0D27288883150080DDFA /* OpenCocoaWindowAction.swift */,
 				F48E0D28288883150080DDFA /* HostingWindowController.swift */,
 				F48E0D29288883150080DDFA /* WindowEnvironment.swift */,
+				F462C9412E0C96D300C172E2 /* FB18383725Window.swift */,
 				F49AA2C229BA22A5009625F7 /* VBRestorableWindow.swift */,
 				F49AA2C629BA3F2B009625F7 /* VBRestorableWindow+Resizing.swift */,
 			);
@@ -2507,6 +2510,7 @@
 				F498AD142884C36A006F1C00 /* NumericValueField.swift in Sources */,
 				F417255D288604A8004FF8A7 /* SoundConfigurationView.swift in Sources */,
 				F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */,
+				F462C9422E0C96D300C172E2 /* FB18383725Window.swift in Sources */,
 				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
 				F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */,
 				F453C4B42DF20301007EAD5F /* RestoreImageURLInputView.swift in Sources */,
