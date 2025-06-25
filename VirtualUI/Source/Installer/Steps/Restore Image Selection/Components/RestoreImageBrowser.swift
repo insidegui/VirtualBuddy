@@ -148,16 +148,37 @@ private struct RestoreImageButton: View {
         .buttonStyle(RestoreImageButtonStyle(isSelected: isSelected))
     }
 
+    @State private var showingSupportDetail = false
+
     @ViewBuilder
     var label: some View {
-        HStack {
-            downloadState
+        VStack(alignment: .leading, spacing: 6) {
+            HStack {
+                downloadState
 
-            Spacer()
+                Spacer()
 
-            details
+                details
 
-            supportState
+                supportState
+            }
+
+            if case .unsupported(let title, _) = image.status, let title {
+                Button {
+                    showingSupportDetail.toggle()
+                } label: {
+                    Text(title)
+                        .multilineTextAlignment(.trailing)
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                        .font(.subheadline)
+                }
+                .buttonStyle(.borderless)
+                .foregroundStyle(Color.red)
+                .blendMode(.plusLighter)
+                .popover(isPresented: $showingSupportDetail) {
+                    RestoreImageFeatureDetailView(image: image)
+                }
+            }
         }
         .monospacedDigit()
         .contextMenu {
@@ -225,8 +246,8 @@ struct RestoreImageFeatureStatusButton: View {
     var helpText: String {
         switch status {
         case .supported: "This version is supported on your Mac. Click for details about supported features."
-        case .warning(let message): message
-        case .unsupported(let message): message
+        case .warning(let title, let message): title ?? message
+        case .unsupported(let title, let message): title ?? message
         }
     }
 
@@ -280,18 +301,28 @@ struct RestoreImageFeatureDetailView: View {
         switch image.status {
         case .supported:
             EmptyView()
-        case .warning(let message), .unsupported(let message):
+        case .warning(let title, let message), .unsupported(let title, let message):
             VStack(alignment: .leading, spacing: 12) {
                 HStack {
                     FeatureStatusLabel(status: image.status)
 
-                    Text("This Version May Not Work")
+                    if let title {
+                        Text(title)
+                    } else {
+                        Text("This Version May Not Work")
+                    }
                 }
                     .imageScale(.large)
                     .font(.headline)
 
-                Text(message)
-                    .fixedSize(horizontal: false, vertical: true)
+                Group {
+                    if let attributedMessage = try? AttributedString(markdown: message, options: .init(allowsExtendedAttributes: true, interpretedSyntax: .inlineOnlyPreservingWhitespace, failurePolicy: .returnPartiallyParsedIfPossible, languageCode: nil)) {
+                        Text(attributedMessage)
+                    } else {
+                        Text(message)
+                    }
+                }
+                .fixedSize(horizontal: false, vertical: true)
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()

@@ -208,6 +208,15 @@
       "minVersionHost" : "13.0.0"
     }
   ],
+    "deviceSupportVersions": [
+        {
+            "id": "device_support_macOS26_beta",
+            "mobileDeviceMinVersion": "1810.0.0",
+            "osVersion": "26.0.0",
+            "title": "Device Support Update Required",
+            "instructions": "Your Mac needs an update to install virtual machines that use this version of macOS.\n\nHere’s how you can install the update:\n\n1. Head over to the [Apple Developer downloads page](https://developer.apple.com/download/).\n2. Under “Operating Systems”, find “Device Support for macOS 26”.\n3. Click the link below that item.\n4. Double-click the downloaded DMG and open the installer. Follow the instructions.\n5. Quit and relaunch VirtualBuddy. Then, try again.\n\nInstalling the latest Xcode beta will also install the required update."
+        }
+    ],
   "restoreImages" : [
     {
       "build" : "25A5295e",
