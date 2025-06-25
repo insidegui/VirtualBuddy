@@ -35,12 +35,6 @@ public struct VirtualMachineSessionView: View {
         ZStack {
             controllerStateView
         }
-            .toolbar {
-                if #available(macOS 14.0, *) {
-                    VirtualMachineControls<VMController>()
-                        .environmentObject(controller)
-                }
-            }
             .edgesIgnoringSafeArea(.all)
             .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
             .background(backgroundView)
@@ -74,6 +68,12 @@ public struct VirtualMachineSessionView: View {
             .task {
                 if controller.options.autoBoot {
                     Task { try? await controller.start() }
+                }
+            }
+            .toolbar {
+                if #available(macOS 14.0, *) {
+                    VirtualMachineControls<VMController>()
+                        .environmentObject(controller)
                 }
             }
     }
