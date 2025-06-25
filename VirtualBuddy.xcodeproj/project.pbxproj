@@ -169,6 +169,7 @@
 		F45502262DF463A1005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */; };
 		F45502272DF463A1005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw in Copy Preview Library Downloads */ = {isa = PBXBuildFile; fileRef = F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */; };
 		F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */; };
+		F462C9222E0C68A600C172E2 /* AppIcon-Default.icon in Resources */ = {isa = PBXBuildFile; fileRef = F462C9212E0C68A600C172E2 /* AppIcon-Default.icon */; };
 		F465C3AE284F93A5006E9ED4 /* VBAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */; };
 		F465C3B0284F9660006E9ED4 /* VBRestoreImagesResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */; };
 		F465C3B2284F9666006E9ED4 /* VBRestoreImageInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */; };
@@ -672,6 +673,7 @@
 		F455021B2DF46368005582A4 /* UniversalMac_15.3_24D60_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.3_24D60_Restore.ipsw; sourceTree = "<group>"; };
 		F455021C2DF46368005582A4 /* UniversalMac_15.5_24F74_Restore.ipsw */ = {isa = PBXFileReference; lastKnownFileType = text; path = UniversalMac_15.5_24F74_Restore.ipsw; sourceTree = "<group>"; };
 		F4561A6728981B4100055289 /* VirtualMachineNameInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineNameInputView.swift; sourceTree = "<group>"; };
+		F462C9212E0C68A600C172E2 /* AppIcon-Default.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon-Default.icon"; sourceTree = "<group>"; };
 		F465C3AD284F93A5006E9ED4 /* VBAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBAPIClient.swift; sourceTree = "<group>"; };
 		F465C3AF284F9660006E9ED4 /* VBRestoreImagesResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImagesResponse.swift; sourceTree = "<group>"; };
 		F465C3B1284F9666006E9ED4 /* VBRestoreImageInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBRestoreImageInfo.swift; sourceTree = "<group>"; };
@@ -1365,6 +1367,14 @@
 			path = _Downloads;
 			sourceTree = "<group>";
 		};
+		F462C9202E0C635C00C172E2 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				F462C9212E0C68A600C172E2 /* AppIcon-Default.icon */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		F465C3AC284F939C006E9ED4 /* Restore Images */ = {
 			isa = PBXGroup;
 			children = (
@@ -1701,6 +1711,7 @@
 		F4BE9C5027FF052100B648F8 /* VirtualBuddy */ = {
 			isa = PBXGroup;
 			children = (
+				F462C9202E0C635C00C172E2 /* Resources */,
 				F453C4292DF0B785007EAD5F /* CommandLine */,
 				F4C122472807145600D359E2 /* Config */,
 				F4A21BFB28033968001072B8 /* Bootstrap */,
@@ -2340,6 +2351,7 @@
 			files = (
 				F4BE9C5927FF052100B648F8 /* Preview Assets.xcassets in Resources */,
 				F4BE9C5627FF052100B648F8 /* Assets.xcassets in Resources */,
+				F462C9222E0C68A600C172E2 /* AppIcon-Default.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
