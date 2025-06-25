@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1024px" height="1024px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>Toggle</title>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#FFA90D" offset="0%"></stop>
+            <stop stop-color="#FF8D00" offset="100%"></stop>
+        </linearGradient>
+    </defs>
+    <g id="Toggle" stroke="none" fill="none" fill-rule="evenodd">
+        <path d="M661.126214,314.407767 C661.126214,396.768518 594.360751,463.533981 512,463.533981 C429.639249,463.533981 362.873786,396.768518 362.873786,314.407767 C362.873786,232.047016 429.639249,165.281553 512,165.281553 C594.360751,165.281553 661.126214,232.047016 661.126214,314.407767" id="toggle" fill="url(#linearGradient-1)"></path>
+    </g>
+</svg>
