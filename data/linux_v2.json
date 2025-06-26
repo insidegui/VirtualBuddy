@@ -65,6 +65,8 @@
       "unsupportedPlatform" : false
     }
   ],
+    "deviceSupportVersions": [
+    ],
   "groups" : [
     {
       "darkImage" : {
