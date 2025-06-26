@@ -65,11 +65,14 @@ struct DisplayConfigurationView: View {
 }
 
 private struct DisplayPresetPicker: View {
-    
+
     @Binding var display: VBDisplayDevice
     @Binding var selection: VBDisplayPreset?
     @State private var presets = [VBDisplayPreset]()
-    
+
+    @Environment(\.configurationGuestType)
+    private var guestType: VBGuestType
+
     var body: some View {
         Menu {
             menuItems
@@ -80,7 +83,7 @@ private struct DisplayPresetPicker: View {
         .menuStyle(.borderlessButton)
         .help("Display Suggestions")
         .onAppear {
-            presets = VBDisplayPreset.availablePresets
+            presets = VBDisplayPreset.availablePresets(for: guestType)
         }
     }
     

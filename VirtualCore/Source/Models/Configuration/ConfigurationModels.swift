@@ -566,27 +566,94 @@ public extension VBDisplayDevice {
 public struct VBDisplayPreset: Identifiable, Hashable {
     public var id: String { name }
     public var name: String
+    public var defaultForGuestType: VBGuestType? = nil
+    public var limitToGuestType: VBGuestType? = nil
     public var device: VBDisplayDevice
     public var warning: String? = nil
-    public var isAvailable = true
-}
+    public var isAvailable: () -> Bool = { true }
 
-public extension VBDisplayDevice {
-    static let fullHD = VBDisplayDevice(name: "1920x1080@144", width: 1920, height: 1080, pixelsPerInch: 144)
+    public func hash(into hasher: inout Hasher) { hasher.combine(id) }
+
+    public static func ==(lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
 }
 
 public extension VBDisplayPreset {
-    static var presets: [VBDisplayPreset] {
-        [
-            VBDisplayPreset(name: "Full HD", device: .fullHD),
-            VBDisplayPreset(name: "4.5K Retina", device: .init(name: "4480x2520", width: 4480, height: 2520, pixelsPerInch: 218)),
-            // This preset is only relevant for displays with a notch.
-            VBDisplayPreset(name: "Match \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .matchHost, warning: "If things look small in the VM after boot, go to System Preferences and select a HiDPI scaled reslution for the display.", isAvailable: ProcessInfo.processInfo.vb_mainDisplayHasNotch),
-            VBDisplayPreset(name: "Size to fit in \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"", device: .sizeToFit)
-        ]
-    }
+    static let fullHD = VBDisplayPreset(
+        name: "Full HD",
+        defaultForGuestType: .linux,
+        device: VBDisplayDevice(
+            name: "1920x1080@144",
+            width: 1920,
+            height: 1080,
+            pixelsPerInch: 144
+        )
+    )
+
+    static let fourK = VBDisplayPreset(
+        name: "4K",
+        device: .init(
+            name: "3840x2160",
+            width: 3840,
+            height: 2160
+        )
+    )
+
+    static let four5K = VBDisplayPreset(
+        name: "4.5K",
+        limitToGuestType: .linux,
+        device: .init(
+            name: "4480x2520@72",
+            width: 4480,
+            height: 2520,
+            pixelsPerInch: 72
+        )
+    )
+
+    static let four5KRetina = VBDisplayPreset(
+        name: "4.5K Retina",
+        defaultForGuestType: .mac,
+        limitToGuestType: .mac,
+        device: .init(
+            name: "4480x2520@218",
+            width: 4480,
+            height: 2520,
+            pixelsPerInch: 218
+        )
+    )
+
+    static let matchMainDisplay = VBDisplayPreset(
+        name: "Match \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"",
+        device: .matchHost,
+        warning: "If things look small in the VM after boot, go to System Preferences and select a HiDPI scaled reslution for the display.",
+        isAvailable: {
+            /// This preset is only relevant for displays with a notch.
+            ProcessInfo.processInfo.vb_mainDisplayHasNotch
+        })
+
+    static let sizeToFitMainDisplay = VBDisplayPreset(
+        name: "Size to fit in \"\(ProcessInfo.processInfo.vb_mainDisplayName)\"",
+        device: .sizeToFit
+    )
+
+    static let presets: [VBDisplayPreset] = [
+        .fullHD,
+        .fourK,
+        .four5K,
+        .four5KRetina,
+        .matchMainDisplay,
+        .sizeToFitMainDisplay,
+    ]
     
-    static var availablePresets: [VBDisplayPreset] { presets.filter(\.isAvailable) }
+    static func availablePresets(for guestType: VBGuestType) -> [VBDisplayPreset] {
+        presets.filter {
+            $0.isAvailable()
+            && $0.limitToGuestType == nil || $0.limitToGuestType == guestType
+        }
+    }
+
+    static func defaultPreset(for guestType: VBGuestType) -> VBDisplayPreset {
+        presets.first(where: { $0.isAvailable() && $0.defaultForGuestType == guestType }) ?? presets[0]
+    }
 }
 
 public struct VBNetworkDeviceInterface: Identifiable, Hashable {

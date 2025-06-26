@@ -163,6 +163,12 @@ public extension VBVirtualMachine {
         self.bundleURL = bundleURL
         var (metadata, config, installRestore) = try loadMetadata()
 
+        if isNewInstall {
+            config.hardware.displayDevices = [
+                VBDisplayPreset.defaultPreset(for: .mac).device
+            ]
+        }
+
         /// Migration from previous versions that didn't have a configuration file
         /// describing the storage devices.
         config.hardware.addMissingBootDeviceIfNeeded()
@@ -189,7 +195,12 @@ public extension VBVirtualMachine {
         guard !FileManager.default.fileExists(atPath: bundleURL.path) else { fatalError() }
         try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
         self.bundleURL = bundleURL
-        self.configuration = .init(systemType: .linux)
+
+        var hardware = VBMacDevice.default
+        hardware.displayDevices = [
+            VBDisplayPreset.defaultPreset(for: .linux).device
+        ]
+        self.configuration = .init(systemType: .linux, hardware: hardware)
 
         self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now)
         metadata.setLinuxBackgroundHashIfNeeded()
