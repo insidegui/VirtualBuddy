@@ -8,6 +8,11 @@
 import SwiftUI
 import VirtualCore
 
+extension EnvironmentValues {
+    /// Type of guest that's currently being configured in a `VMConfigurationView`.
+    @Entry fileprivate(set) var configurationGuestType: VBGuestType = .mac
+}
+
 struct VMConfigurationView: View {
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
@@ -86,6 +91,7 @@ struct VMConfigurationView: View {
                 .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
         }
         .font(.system(size: 12))
+        .environment(\.configurationGuestType, viewModel.config.systemType)
     }
 
     @ViewBuilder

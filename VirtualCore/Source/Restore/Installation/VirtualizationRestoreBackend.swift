@@ -99,7 +99,7 @@ extension VBVirtualMachine {
         var mself = self
 
         /// Use a fixed 1080p display resolution for installation.
-        mself.configuration.hardware.displayDevices = [.fullHD]
+        mself.configuration.hardware.displayDevices = [VBDisplayPreset.fullHD.device]
 
         return mself
     }
