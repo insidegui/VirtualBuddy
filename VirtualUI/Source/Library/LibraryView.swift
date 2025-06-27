@@ -39,6 +39,20 @@ public struct LibraryView: View {
             }
     }
 
+    @ToolbarContentBuilder
+    private var toolbarContents: some ToolbarContent {
+        ToolbarItemGroup(placement: .primaryAction) {
+            Button {
+                openCocoaWindow {
+                    VMInstallationWizard(library: library)
+                }
+            } label: {
+                Image(systemName: "plus")
+            }
+            .help("New virtual machine")
+        }
+    }
+
     private var gridSpacing: CGFloat { 16 }
     private var gridItemMinSize: CGFloat { 240 }
     private var gridColumns: [GridItem] {
@@ -47,107 +61,36 @@ public struct LibraryView: View {
     
     @ViewBuilder
     private var libraryContents: some View {
-        switch library.state {
-        case .loaded(let vms):
-            if vms.isEmpty {
-                emptyLibraryView
-            } else {
-                collectionView(with: vms)
-            }
-        case .loading:
-            ProgressView()
-        case .volumeNotMounted:
-            libraryError(
-                "Library Not Mounted",
-                systemImage: "externaldrive.badge.questionmark",
-                description: Text("""
-                The removable volume that contains your VirtualBuddy library is not mounted.
-                
-                Your virtual machines will show up here when it's mounted.
-                """)
-            ) {
-                Button("Try Again") {
-                    library.loadMachines()
-                }
-                .keyboardShortcut(.defaultAction)
+        ZStack {
+            BlurHashFullBleedBackground(content: .blurHash(.virtualBuddyBackground))
+                .ignoresSafeArea()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .fullBleedBackgroundDimmed(![.loaded, .loading].contains(library.state.id))
 
-                Button("Open Settings") {
-                    openSettings()
+            Group {
+                switch library.state {
+                case .loaded(let machines):
+                    grid(machines)
+                case .empty:
+                    libraryEmptyMessage
+                case .loading:
+                    EmptyView()
+                case .volumeNotMounted:
+                    libraryVolumeNotMountedMessage
+                case .directoryMissing:
+                    libraryDirectoryMissingMessage
                 }
             }
-        case .directoryMissing:
-            libraryError(
-                "Library Missing",
-                systemImage: "questionmark.folder",
-                description: Text("""
-                VirtualBuddy couldn't find your library directory.
-                
-                Please check your settings. If the library directory exists, this might be a permission issue.
-                
-                If you have deleted your library directory, you can choose to start a new empty library.
-                """)
-            ) {
-                Button("Open Settings") {
-                    openSettings()
-                }
-                .keyboardShortcut(.defaultAction)
-
-                Button("Create Empty Library") {
-                    library.loadMachines(createLibrary: true)
-                }
-            }
+            .transition(.scale(scale: 1.5).combined(with: .opacity))
         }
+        .animation(.snappy, value: library.state.id)
     }
 
     @ViewBuilder
-    private func libraryError<Actions: View>(_ title: LocalizedStringKey, systemImage: String, description: Text, @ViewBuilder actions: () -> Actions) -> some View {
-        VStack(spacing: 16) {
-            VStack(spacing: 6) {
-                Image(systemName: systemImage)
-                    .imageScale(.large)
-
-                Text(title)
-            }
-            .font(.system(size: 22, weight: .semibold, design: .rounded))
-
-            description
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-
-            VStack(spacing: 8) {
-                actions()
-            }
-            .controlSize(.large)
-        }
-        .textSelection(.enabled)
-        .frame(maxWidth: 400)
-    }
-
-    @ViewBuilder
-    private var emptyLibraryView: some View {
-        VStack(spacing: 16) {
-            Text("Your Library is Empty")
-                .font(.system(size: 22, weight: .semibold, design: .rounded))
-
-            Text("VirtualBuddy is looking for virtual machines in **\(library.libraryURL.collapsedHomePath)**. You can change this in the app's settings.")
-                .multilineTextAlignment(.center)
-                .foregroundColor(.secondary)
-
-            Button("Create Your First VM") {
-                sessionManager.launchInstallWizard(library: library)
-            }
-            .controlSize(.large)
-            .keyboardShortcut(.defaultAction)
-            .padding(.top)
-        }
-        .frame(maxWidth: 400)
-    }
-
-    @ViewBuilder
-    private func collectionView(with vms: [VBVirtualMachine]) -> some View {
+    private func grid(_ machines: [VBVirtualMachine]) -> some View {
         ScrollView(.vertical) {
             LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
-                ForEach(vms) { vm in
+                ForEach(machines) { vm in
                     Button {
                         sessionManager.launch(vm, library: library, options: nil)
                     } label: {
@@ -163,17 +106,68 @@ public struct LibraryView: View {
         .environment(\.virtualBuddyShowDesktopPictureThumbnails, settingsContainer.settings.showDesktopPictureThumbnails)
     }
 
-    @ToolbarContentBuilder
-    private var toolbarContents: some ToolbarContent {
-        ToolbarItemGroup(placement: .primaryAction) {
-            Button {
-                openCocoaWindow {
-                    VMInstallationWizard(library: library)
-                }
-            } label: {
-                Image(systemName: "plus")
+    @ViewBuilder
+    private var libraryVolumeNotMountedMessage: some View {
+        BackportedContentUnavailableView(
+            "Library Not Mounted",
+            systemImage: "externaldrive.badge.questionmark",
+            description: Text("""
+            The volume containing your VirtualBuddy library is not currently mounted.
+            Once mounted, your virtual machines will appear here.
+            """)
+        ) {
+            Button("Try Again") {
+                library.loadMachines()
             }
-            .help("New virtual machine")
+            .keyboardShortcut(.defaultAction)
+
+            Button("Open Settings") {
+                openSettings()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var libraryDirectoryMissingMessage: some View {
+        BackportedContentUnavailableView(
+            "Library Missing",
+            systemImage: "questionmark.folder",
+            description: Text("""
+            VirtualBuddy is unable to locate your library directory.
+
+            Review your settings to ensure the directory is set correctly. If it exists, there may be a permission problem.
+
+            If you’ve deleted the library directory, you can start a new empty library.
+            """)
+        ) {
+            Button("Open Settings") {
+                openSettings()
+            }
+            .keyboardShortcut(.defaultAction)
+
+            Button("Create Empty Library") {
+                library.loadMachines(createLibrary: true)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var libraryEmptyMessage: some View {
+        BackportedContentUnavailableView(
+            "No Virtual Machines",
+            systemImage: "square.grid.2x2",
+            description: Text("""
+            You haven’t created any virtual machines yet. You can create a new one, or select a different library directory in settings.
+            """)
+        ) {
+            Button("Create Virtual Machine") {
+                sessionManager.launchInstallWizard(library: library)
+            }
+            .keyboardShortcut(.defaultAction)
+
+            Button("Open Settings") {
+                openSettings()
+            }
         }
     }
     

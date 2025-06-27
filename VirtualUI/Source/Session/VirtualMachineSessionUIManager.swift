@@ -92,6 +92,14 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
+    public func launchImportVirtualMachinePanel(library: VMLibraryController) {
+        guard let url = NSOpenPanel.run(accepting: VMImporterRegistry.default.supportedFileTypes, directoryURL: nil, defaultDirectoryKey: "importVirtualMachine", prompt: "Import") else {
+            return
+        }
+
+        open(fileURL: url, library: library)
+    }
+
     private func importVirtualMachine(from path: FilePath, using importer: any VMImporter, library: VMLibraryController) async {
         do {
             guard await confirmImport(using: importer) else {

@@ -6,7 +6,7 @@ private let logger = Logger(subsystem: VirtualUIConstants.subsystemName, categor
 
 public extension NSOpenPanel {
 
-    static func run(accepting contentTypes: Set<UTType>, directoryURL: URL? = nil, defaultDirectoryKey: String? = nil) -> URL? {
+    static func run(accepting contentTypes: Set<UTType>, directoryURL: URL? = nil, defaultDirectoryKey: String? = nil, prompt: String? = nil) -> URL? {
         let panel = NSOpenPanel()
 
         if contentTypes == [.folder] || contentTypes == [.directory] {
@@ -14,6 +14,10 @@ public extension NSOpenPanel {
             panel.canChooseDirectories = true
         } else {
             panel.allowedContentTypes = Array(contentTypes)
+        }
+
+        if let prompt {
+            panel.prompt = prompt
         }
 
         panel.treatsFilePackagesAsDirectories = true

@@ -15,25 +15,40 @@ public final class VMLibraryController: ObservableObject {
 
     private let logger = Logger(for: VMLibraryController.self)
 
-    public enum State {
+    public enum State: Identifiable {
+        public enum ID: Int {
+            case loading
+            case loaded
+            case empty
+            case volumeNotMounted
+            case directoryMissing
+        }
+
+        public var id: ID {
+            switch self {
+            case .loading: .loading
+            case .loaded: .loaded
+            case .empty: .empty
+            case .volumeNotMounted: .volumeNotMounted
+            case .directoryMissing: .directoryMissing
+            }
+        }
+
         case loading
         case loaded([VBVirtualMachine])
+        case empty
         case volumeNotMounted
         case directoryMissing
 
-        var isVolumeNotMounted: Bool {
-            if case .volumeNotMounted = self {
-                true
-            } else {
-                false
-            }
-        }
+        var isVolumeNotMounted: Bool { id == .volumeNotMounted }
     }
     
     @Published public private(set) var state = State.loading {
         didSet {
-            if case .loaded(let vms) = state {
-                self.virtualMachines = vms
+            if case .loaded(let machines) = state {
+                self.virtualMachines = machines
+            } else {
+                self.virtualMachines = []
             }
         }
     }
@@ -201,7 +216,7 @@ public final class VMLibraryController: ObservableObject {
 
         let sortedMachines = machines.sorted(by: { $0.bundleURL.creationDate > $1.bundleURL.creationDate })
 
-        self.state = .loaded(sortedMachines)
+        self.state = sortedMachines.isEmpty ? .empty : .loaded(sortedMachines)
 
         if !hasLoadedMachinesOnce {
             hasLoadedMachinesOnce = true
@@ -620,6 +635,9 @@ private extension VMLibraryController {
             return true
         } else if UserDefaults.standard.bool(forKey: "VBSimulateLibraryDirectoryMissing") {
             state = .directoryMissing
+            return true
+        } else if UserDefaults.standard.bool(forKey: "VBSimulateLibraryEmpty") {
+            state = .empty
             return true
         } else {
             return false

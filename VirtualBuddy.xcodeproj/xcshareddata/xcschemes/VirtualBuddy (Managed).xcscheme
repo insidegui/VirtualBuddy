@@ -137,10 +137,14 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateLibraryVolumeNotMounted YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateLibraryDirectoryMissing YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateLibraryEmpty YES"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
