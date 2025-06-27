@@ -24,11 +24,18 @@ public struct LibraryView: View {
     @Environment(\.openVirtualBuddySettings)
     private var openSettings
 
+    @AppStorage("hasSeenFirstLaunchExperience")
+    private var hasSeenFirstLaunchExperience = false
+
+    private var shouldShowFirstLaunchExperienceOnEmptyLibrary: Bool {
+        !hasSeenFirstLaunchExperience || UserDefaults.standard.bool(forKey: "VBForceFirstLaunchExperience")
+    }
+
     public init() { }
 
     public var body: some View {
         libraryContents
-            .frame(minWidth: 600, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
+            .frame(minWidth: 900, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
             .toolbar(content: { toolbarContents })
             .task {
                 #if DEBUG
@@ -72,7 +79,13 @@ public struct LibraryView: View {
                 case .loaded(let machines):
                     grid(machines)
                 case .empty:
-                    libraryEmptyMessage
+                    if shouldShowFirstLaunchExperienceOnEmptyLibrary {
+                        FirstLaunchExperienceView {
+                            sessionManager.launchInstallWizard(library: library)
+                        }
+                    } else {
+                        libraryEmptyMessage
+                    }
                 case .loading:
                     EmptyView()
                 case .volumeNotMounted:
@@ -170,7 +183,6 @@ public struct LibraryView: View {
             }
         }
     }
-    
 }
 
 fileprivate extension URL {
