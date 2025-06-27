@@ -145,11 +145,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateLibraryEmpty YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceFirstLaunchExperience YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>

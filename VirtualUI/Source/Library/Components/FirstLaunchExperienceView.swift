@@ -20,12 +20,14 @@ struct FirstLaunchExperienceView: View {
                         action()
                     } label: {
                         Text("Create Virtual Machine")
+                            .font(.system(.title2, design: .rounded, weight: .medium))
                     }
-                    .buttonStyle(.bordered)
                     .keyboardShortcut(.defaultAction)
                     .modifier {
                         if #available(macOS 26.0, *) {
-                            $0.controlSize(.extraLarge)
+                            $0
+                                .buttonStyle(.glass)
+                                .controlSize(.extraLarge)
                         } else {
                             $0.controlSize(.large)
                         }
@@ -37,7 +39,7 @@ struct FirstLaunchExperienceView: View {
             }
         }
         .task {
-            withAnimation(.snappy.delay(7)) {
+            withAnimation(.snappy.delay(7.5)) {
                 buttonRevealed = true
             }
         }
