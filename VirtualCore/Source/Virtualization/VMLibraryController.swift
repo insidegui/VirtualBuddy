@@ -15,16 +15,40 @@ public final class VMLibraryController: ObservableObject {
 
     private let logger = Logger(for: VMLibraryController.self)
 
-    public enum State {
+    public enum State: Identifiable {
+        public enum ID: Int {
+            case loading
+            case loaded
+            case empty
+            case volumeNotMounted
+            case directoryMissing
+        }
+
+        public var id: ID {
+            switch self {
+            case .loading: .loading
+            case .loaded: .loaded
+            case .empty: .empty
+            case .volumeNotMounted: .volumeNotMounted
+            case .directoryMissing: .directoryMissing
+            }
+        }
+
         case loading
         case loaded([VBVirtualMachine])
-        case failed(VBError)
+        case empty
+        case volumeNotMounted
+        case directoryMissing
+
+        var isVolumeNotMounted: Bool { id == .volumeNotMounted }
     }
     
     @Published public private(set) var state = State.loading {
         didSet {
-            if case .loaded(let vms) = state {
-                self.virtualMachines = vms
+            if case .loaded(let machines) = state {
+                self.virtualMachines = machines
+            } else {
+                self.virtualMachines = []
             }
         }
     }
@@ -37,6 +61,12 @@ public final class VMLibraryController: ObservableObject {
 
     /// Populated when ``bootedMachineIdentifiers`` is not empty, invalidated when the last booted machine identifier is unregistered via ``unregisterBootedVM(identifier:)``.
     private var preventTerminationAssertion: PreventTerminationAssertion?
+
+    /// Observes notifications about volume mount/unmount that are used when library resides in a removable volume.
+    private var volumeNotificationsTask: Task<Void, Never>?
+
+    /// Set when the library is loaded.
+    private var isLibraryInRemovableVolume = false
 
     let settingsContainer: VBSettingsContainer
 
@@ -74,6 +104,7 @@ public final class VMLibraryController: ObservableObject {
     public private(set) var libraryURL: URL {
         didSet {
             guard oldValue != libraryURL else { return }
+            stopObservingRemovableVolumeNotifications()
             loadMachines()
         }
     }
@@ -119,11 +150,46 @@ public final class VMLibraryController: ObservableObject {
         loadMachines()
     }
 
-    public func loadMachines() {
+    public func loadMachines(createLibrary: Bool = false) {
+        #if DEBUG
+        guard !simulateState() else { return }
+        #endif
+
+        let path = libraryURL.path
+
+        logger.debug("Loading machines from \(path.quoted)")
+
+        if createLibrary, !libraryURL.isReadableDirectory {
+            do {
+                try fileManager.createDirectory(at: libraryURL, withIntermediateDirectories: true)
+            } catch {
+                NSApp.presentError(error)
+                return
+            }
+        }
+
+        isLibraryInRemovableVolume = Self.isLibraryURLInRemovableVolume(libraryURL)
+
+        observeRemovableVolumeNotifications()
+
+        guard libraryURL.isReadableDirectory else {
+            if isLibraryInRemovableVolume {
+                logger.warning("External volume library directory not found at \(path.quoted)")
+
+                state = .volumeNotMounted
+            } else {
+                logger.warning("Library directory not found at \(path.quoted)")
+
+                state = .directoryMissing
+            }
+            return
+        }
+
         filePresenter.presentedItemURL = libraryURL
 
         guard let enumerator = fileManager.enumerator(at: libraryURL, includingPropertiesForKeys: [.creationDateKey], options: [.skipsHiddenFiles, .skipsPackageDescendants, .skipsSubdirectoryDescendants], errorHandler: nil) else {
-            state = .failed(.init("Failed to open directory at \(libraryURL.path)"))
+            logger.fault("Failed to create directory enumerator for library at \(path.quoted)")
+            state = .directoryMissing
             return
         }
         
@@ -150,7 +216,7 @@ public final class VMLibraryController: ObservableObject {
 
         let sortedMachines = machines.sorted(by: { $0.bundleURL.creationDate > $1.bundleURL.creationDate })
 
-        self.state = .loaded(sortedMachines)
+        self.state = sortedMachines.isEmpty ? .empty : .loaded(sortedMachines)
 
         if !hasLoadedMachinesOnce {
             hasLoadedMachinesOnce = true
@@ -471,3 +537,111 @@ private extension VMLibraryController {
         }
     }
 }
+
+// MARK: - Removable Volume Detection
+
+/// External volume detection
+extension VMLibraryController {
+    /// `true` if the specified file URL lives in a removable volume that could be unmounted when the app attempts to access it.
+    static func isLibraryURLInRemovableVolume(_ url: URL) -> Bool {
+        if let isInRemovableVolume = url.isInRemovableVolume {
+            isInRemovableVolume
+        } else if url.path.hasPrefix("/Volumes") {
+            /// Assume removable volume when path starts with `/Volumes`.
+            /// This is technically wrong as an external volume can be mounted anywhere and the built-in data
+            /// volume is also located in `/Volumes`, but that one will always be mounted when this is used.
+            /// It's fine to do here because this is only meant to be used for reporting things in the UI.
+            true
+        } else {
+            /// Settings stores the removable volume state of the library directory when the user customizes it,
+            /// use that fact as the final response if above checks fail.
+            /// This is needed because we could be checking a URL for a directory that doesn't currently exist,
+            /// and the mount could be somewhere other than `/Volumes`, so we have to go with what we knew before.
+            VBSettings.current.isLibraryInRemovableVolume
+        }
+    }
+}
+
+extension URL {
+    /// Whether the file resides in a removable volume, or `nil` if it can't be determined.
+    var isInRemovableVolume: Bool? {
+        guard let volumeURL = try? resourceValues(forKeys: [.volumeURLKey]).volume else { return nil }
+        return (try? volumeURL.resourceValues(forKeys: [.volumeIsRemovableKey]))?.volumeIsRemovable
+    }
+}
+
+private extension VMLibraryController {
+    func observeRemovableVolumeNotifications() {
+        /// Only observe when library lives in a removable volume.
+        guard isLibraryInRemovableVolume else { return }
+
+        guard volumeNotificationsTask == nil || volumeNotificationsTask?.isCancelled == true else { return }
+
+        logger.debug(#function)
+
+        volumeNotificationsTask = Task.detached(priority: .background) { [weak self] in
+            await withTaskGroup { group in
+                group.addTask {
+                    for await notification in NSWorkspace.shared.notificationCenter.notifications(named: NSWorkspace.didMountNotification) {
+                        guard !Task.isCancelled else { return }
+                        await self?.handleVolumeNotification(notification)
+                    }
+                }
+
+                group.addTask {
+                    for await notification in NSWorkspace.shared.notificationCenter.notifications(named: NSWorkspace.didUnmountNotification) {
+                        guard !Task.isCancelled else { return }
+                        await self?.handleVolumeNotification(notification)
+                    }
+                }
+            }
+        }
+    }
+
+    func stopObservingRemovableVolumeNotifications() {
+        logger.debug(#function)
+
+        volumeNotificationsTask?.cancel()
+        volumeNotificationsTask = nil
+    }
+
+    func handleVolumeNotification(_ notification: Notification) {
+        let isMount = notification.name == NSWorkspace.didMountNotification
+
+        if isMount {
+            /// Don't care about mount notifications unless we're currently waiting for the volume to mount.
+            guard state.isVolumeNotMounted else { return }
+        }
+
+        guard let volumeURL = notification.userInfo?[NSWorkspace.volumeURLUserInfoKey] as? URL else { return }
+
+        /// Cheap way to check if mounted volume is our library volume.
+        guard libraryURL.path.hasPrefix(volumeURL.path) else { return }
+
+        logger.notice("Library volume mounted: \(volumeURL.path.quoted)")
+
+        /// Try to load machines again now that library is mounted.
+        loadMachines()
+    }
+}
+
+#if DEBUG
+// MARK: - Debug State Simulation
+
+private extension VMLibraryController {
+    func simulateState() -> Bool {
+        if UserDefaults.standard.bool(forKey: "VBSimulateLibraryVolumeNotMounted") {
+            state = .volumeNotMounted
+            return true
+        } else if UserDefaults.standard.bool(forKey: "VBSimulateLibraryDirectoryMissing") {
+            state = .directoryMissing
+            return true
+        } else if UserDefaults.standard.bool(forKey: "VBSimulateLibraryEmpty") {
+            state = .empty
+            return true
+        } else {
+            return false
+        }
+    }
+}
+#endif

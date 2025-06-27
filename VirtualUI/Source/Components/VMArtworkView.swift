@@ -34,6 +34,7 @@ public struct VMArtworkView: View {
                 BlurHashFullBleedBackground(blurHash: token)
                     .fullBleedBackgroundBrightness(-0.2)
                     .fullBleedBackgroundSaturation(1.4)
+                    .fullBleedBackgroundIsThumbnail()
             }
 
             if showsIcon, case .blurHash = content {

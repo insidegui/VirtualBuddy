@@ -1,6 +1,7 @@
 import Foundation
 import BuddyFoundation
 import OSLog
+import UniformTypeIdentifiers
 
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VMImporterRegistry")
 
@@ -12,6 +13,10 @@ public struct VMImporterRegistry {
     private let importers: [VMImporter] = [
         UTMImporter()
     ]
+
+    public var supportedFileTypes: Set<UTType> {
+        Set(importers.map(\.fileType))
+    }
 
     /// Returns the importer that can handle the file at the specified path.
     public func importer(for filePath: FilePath) -> VMImporter? {

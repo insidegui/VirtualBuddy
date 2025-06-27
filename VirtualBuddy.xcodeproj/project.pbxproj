@@ -63,6 +63,8 @@
 		F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417257028877121004FF8A7 /* DiskImageGenerator.swift */; };
 		F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F417257328877478004FF8A7 /* VirtualCore.xcassets */; };
 		F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725752887758A004FF8A7 /* RandomNameGenerator.swift */; };
+		F417CB882E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417CB872E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift */; };
+		F417CB8A2E0EDF1A0065B5D6 /* EqualWidthHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417CB892E0EDF1A0065B5D6 /* EqualWidthHStack.swift */; };
 		F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */; };
 		F42258702885D537009420AE /* EphemeralTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586F2885D537009420AE /* EphemeralTextField.swift */; };
 		F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258712885E100009420AE /* VMConfigurationSheet.swift */; };
@@ -580,6 +582,8 @@
 		F417257028877121004FF8A7 /* DiskImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskImageGenerator.swift; sourceTree = "<group>"; };
 		F417257328877478004FF8A7 /* VirtualCore.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = VirtualCore.xcassets; sourceTree = "<group>"; };
 		F41725752887758A004FF8A7 /* RandomNameGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomNameGenerator.swift; sourceTree = "<group>"; };
+		F417CB872E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackportedContentUnavailableView.swift; sourceTree = "<group>"; };
+		F417CB892E0EDF1A0065B5D6 /* EqualWidthHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualWidthHStack.swift; sourceTree = "<group>"; };
 		F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFocusEnvironment.swift; sourceTree = "<group>"; };
 		F422586F2885D537009420AE /* EphemeralTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralTextField.swift; sourceTree = "<group>"; };
 		F42258712885E100009420AE /* VMConfigurationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationSheet.swift; sourceTree = "<group>"; };
@@ -1036,6 +1040,8 @@
 				F47BCDD42C5C0B8C00165191 /* Array+Navigation.swift */,
 				F444D0F32DF34BE40086537A /* CALayer+Asset.swift */,
 				F49B82972E02F5A300395F87 /* VMArtworkView.swift */,
+				F417CB872E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift */,
+				F417CB892E0EDF1A0065B5D6 /* EqualWidthHStack.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2513,6 +2519,7 @@
 				F462C9422E0C96D300C172E2 /* FB18383725Window.swift in Sources */,
 				F48E0D03288858E00080DDFA /* ManagedDiskImageEditor.swift in Sources */,
 				F413696F29916F6E002CE8D3 /* NSStatusItem+.m in Sources */,
+				F417CB882E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift in Sources */,
 				F453C4B42DF20301007EAD5F /* RestoreImageURLInputView.swift in Sources */,
 				F42C015A2888FC0C00EB15CD /* LibraryView.swift in Sources */,
 				F444D0FA2DF37DFB0086537A /* InstallProgressDisplayView.swift in Sources */,
@@ -2570,6 +2577,7 @@
 				F4ECC6D52C63BFD5001DAC1D /* NumberDisplayMode.swift in Sources */,
 				F4CD13482E05B67E0067DC75 /* SettingsFooter.swift in Sources */,
 				F42258702885D537009420AE /* EphemeralTextField.swift in Sources */,
+				F417CB8A2E0EDF1A0065B5D6 /* EqualWidthHStack.swift in Sources */,
 				F49AA2C329BA22A5009625F7 /* VBRestorableWindow.swift in Sources */,
 				F422587A2885E17D009420AE /* ConfigurationSection.swift in Sources */,
 				F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */,

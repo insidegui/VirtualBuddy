@@ -19,7 +19,12 @@ public struct VBSettings: Hashable, Sendable {
     public static let currentVersion = 3
 
     public var version: Int = Self.currentVersion
-    public var libraryURL: URL
+    public var libraryURL: URL {
+        didSet {
+            guard libraryURL != oldValue else { return }
+            isLibraryInRemovableVolume = libraryURL.isInRemovableVolume ?? false
+        }
+    }
     public var updateChannel: AppUpdateChannel {
         didSet {
             guard updateChannel != oldValue else { return }
@@ -34,6 +39,11 @@ public struct VBSettings: Hashable, Sendable {
 
     /// Enables using the new ASIF format for boot disk images (requires macOS 26+ host).
     public var bootDiskImagesUseASIF: Bool
+
+    /// Updated when user changes the library directory.
+    /// This helps ``VMLibraryController`` determine whether the library is in a removable volume
+    /// so that it can better handle the case where the app is launched before the volume is mounted.
+    public var isLibraryInRemovableVolume: Bool
 
 }
 
@@ -56,6 +66,7 @@ extension VBSettings {
         self.enableTSSCheck = Self.defaultEnableTSSCheck
         self.showDesktopPictureThumbnails = Self.defaultShowDesktopPictureThumbnails
         self.bootDiskImagesUseASIF = Self.defaultBootDiskImagesUseASIF
+        self.isLibraryInRemovableVolume = false
     }
 
     private struct Keys {
@@ -71,6 +82,7 @@ extension VBSettings {
         static let enableTSSCheck = "enableTSSCheck"
         static let showDesktopPictureThumbnails = "showDesktopPictureThumbnails"
         static let bootDiskImagesUseASIF = "bootDiskImagesUseASIF"
+        static let isLibraryInRemovableVolume = "isLibraryInRemovableVolume"
     }
 
     init(with defaults: UserDefaults) throws {
@@ -82,6 +94,7 @@ extension VBSettings {
         self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
         self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
         self.bootDiskImagesUseASIF = defaults.bool(forKey: Keys.bootDiskImagesUseASIF)
+        self.isLibraryInRemovableVolume = defaults.bool(forKey: Keys.isLibraryInRemovableVolume)
 
         if let path = defaults.string(forKey: Keys.libraryPath) {
             self.libraryURL = URL(fileURLWithPath: path)
@@ -128,6 +141,7 @@ extension VBSettings {
         defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
         defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
         defaults.set(bootDiskImagesUseASIF, forKey: Keys.bootDiskImagesUseASIF)
+        defaults.set(isLibraryInRemovableVolume, forKey: Keys.isLibraryInRemovableVolume)
     }
 
 }

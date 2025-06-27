@@ -7,6 +7,7 @@ private extension EnvironmentValues {
     @Entry var fullBleedBackgroundBrightness: Double = BlurHashFullBleedBackground.defaultBrightness
     @Entry var fullBleedBackgroundSaturation: Double = BlurHashFullBleedBackground.defaultSaturation
     @Entry var fullBleedBackgroundBlurRadius: Double = BlurHashFullBleedBackground.defaultBlurRadius
+    @Entry var fullBleedBackgroundIsThumbnail: Bool = false
 
     var fullBleedBackgroundDimmed: Bool {
         get {
@@ -32,6 +33,9 @@ public extension View {
     func fullBleedBackgroundBlurRadius(_ radius: Double?) -> some View {
         environment(\.fullBleedBackgroundBlurRadius, radius ?? BlurHashFullBleedBackground.defaultBlurRadius)
     }
+    func fullBleedBackgroundIsThumbnail(_ isThumbnail: Bool = true) -> some View {
+        environment(\.fullBleedBackgroundIsThumbnail, isThumbnail)
+    }
 }
 
 struct BlurHashFullBleedBackground: View {
@@ -44,6 +48,10 @@ struct BlurHashFullBleedBackground: View {
     static let defaultSaturationDimmed: Double = 0.8
 
     static let defaultBlurRadius: Double = 22
+
+    static let reduceTransparencyMultiplierSaturation: Double = 0.4
+    static let reduceTransparencyOffsetBrightness: Double = -0.15
+    static let reduceTransparencyMultiplierBlurRadius: Double = 2.0
 
     enum Content: Hashable {
         case blurHash(BlurHashToken)
@@ -68,10 +76,23 @@ struct BlurHashFullBleedBackground: View {
         self.init(blurHash: blurHashValue.flatMap { BlurHashToken(value: $0) })
     }
 
+    @Environment(\.fullBleedBackgroundIsThumbnail)
+    private var isThumbnail
+
+    @Environment(\.accessibilityReduceTransparency)
+    private var reduceTransparency
+
     var body: some View {
-        _BlurHashRepresentable(content: content)
-            .ignoresSafeArea()
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        ZStack {
+            _BlurHashRepresentable(content: content)
+
+            if reduceTransparency, !isThumbnail {
+                Color(nsColor: .windowBackgroundColor)
+                    .opacity(0.5)
+            }
+        }
+        .ignoresSafeArea()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -100,9 +121,15 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
             nsView.customImage = nil
         }
 
-        nsView.brightness = context.environment.fullBleedBackgroundBrightness
-        nsView.saturation = context.environment.fullBleedBackgroundSaturation
-        nsView.blurRadius = context.environment.fullBleedBackgroundBlurRadius
+        /// Reduce transparency modifications only apply when the view is being used as a background, not when it's used as a standalone image thumbnail.
+        let reduceTransparency = context.environment.accessibilityReduceTransparency && !context.environment.fullBleedBackgroundIsThumbnail
+        let brightnessOffset = reduceTransparency ? BlurHashFullBleedBackground.reduceTransparencyOffsetBrightness : 0
+        let saturationMultiplier = reduceTransparency ? BlurHashFullBleedBackground.reduceTransparencyMultiplierSaturation : 1
+        let blurRadiusMultiplier = reduceTransparency ? BlurHashFullBleedBackground.reduceTransparencyMultiplierBlurRadius : 1
+
+        nsView.brightness = context.environment.fullBleedBackgroundBrightness + brightnessOffset
+        nsView.saturation = context.environment.fullBleedBackgroundSaturation * saturationMultiplier
+        nsView.blurRadius = context.environment.fullBleedBackgroundBlurRadius * blurRadiusMultiplier
     }
 
     final class _BlurHashNSView: NSView {
