@@ -136,6 +136,10 @@ public final class VMLibraryController: ObservableObject {
     }
 
     public func loadMachines(createLibrary: Bool = false) {
+        #if DEBUG
+        guard !simulateState() else { return }
+        #endif
+
         let path = libraryURL.path
 
         logger.debug("Loading machines from \(path.quoted)")
@@ -605,3 +609,21 @@ private extension VMLibraryController {
         loadMachines()
     }
 }
+
+#if DEBUG
+// MARK: - Debug State Simulation
+
+private extension VMLibraryController {
+    func simulateState() -> Bool {
+        if UserDefaults.standard.bool(forKey: "VBSimulateLibraryVolumeNotMounted") {
+            state = .volumeNotMounted
+            return true
+        } else if UserDefaults.standard.bool(forKey: "VBSimulateLibraryDirectoryMissing") {
+            state = .directoryMissing
+            return true
+        } else {
+            return false
+        }
+    }
+}
+#endif

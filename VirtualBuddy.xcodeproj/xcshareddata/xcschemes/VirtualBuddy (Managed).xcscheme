@@ -135,6 +135,14 @@
             argument = "-VBOpenSettings YES"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateLibraryVolumeNotMounted YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateLibraryDirectoryMissing YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
