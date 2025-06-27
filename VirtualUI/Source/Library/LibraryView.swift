@@ -28,7 +28,8 @@ public struct LibraryView: View {
     private var hasSeenFirstLaunchExperience = false
 
     private var shouldShowFirstLaunchExperienceOnEmptyLibrary: Bool {
-        !hasSeenFirstLaunchExperience || UserDefaults.standard.bool(forKey: "VBForceFirstLaunchExperience")
+        guard #available(macOS 15.0, *) else { return false }
+        return !hasSeenFirstLaunchExperience || UserDefaults.standard.bool(forKey: "VBForceFirstLaunchExperience")
     }
 
     public init() { }
@@ -83,6 +84,7 @@ public struct LibraryView: View {
                         FirstLaunchExperienceView {
                             sessionManager.launchInstallWizard(library: library)
                         }
+                        .task { hasSeenFirstLaunchExperience = true }
                     } else {
                         libraryEmptyMessage
                     }
