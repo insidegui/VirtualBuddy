@@ -118,7 +118,7 @@ struct LibraryItemView: View {
         }
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
-        .background(Material.thin, in: backgroundShape)
+        .background(Material.regular, in: backgroundShape)
         .clipShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)

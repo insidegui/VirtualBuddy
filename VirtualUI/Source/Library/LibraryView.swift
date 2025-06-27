@@ -12,6 +12,17 @@ public extension String {
     static let vb_libraryWindowID = "library"
 }
 
+private extension UserDefaults {
+    /// Not using `AppStorage` because this can't update the view.
+    var hasSeenFirstLaunchExperience: Bool {
+        get { bool(forKey: #function) }
+        set {
+            set(newValue, forKey: #function)
+            synchronize()
+        }
+    }
+}
+
 public struct LibraryView: View {
     @ObservedObject private var settingsContainer = VBSettingsContainer.current
 
@@ -24,15 +35,21 @@ public struct LibraryView: View {
     @Environment(\.openVirtualBuddySettings)
     private var openSettings
 
-    @AppStorage("hasSeenFirstLaunchExperience")
-    private var hasSeenFirstLaunchExperience = false
+    /// Whether the first launch experience has been presented in the current app session.
+    /// The defaults flag itself is not read again, but this is set whenever a non-empty library state is shown.
+    @State private var canShowFirstLaunchExperience = true
 
     private var shouldShowFirstLaunchExperienceOnEmptyLibrary: Bool {
         guard #available(macOS 15.0, *) else { return false }
-        return !hasSeenFirstLaunchExperience || UserDefaults.standard.bool(forKey: "VBForceFirstLaunchExperience")
+        return canShowFirstLaunchExperience && (!hasSeenFirstLaunchExperience || UserDefaults.standard.bool(forKey: "VBForceFirstLaunchExperience"))
     }
 
-    public init() { }
+    /// Set on view initialization only so that when the defaults flag is updated, it doesn't cause the first launch experience to disappear.
+    private let hasSeenFirstLaunchExperience: Bool
+
+    public init() {
+        hasSeenFirstLaunchExperience = UserDefaults.standard.hasSeenFirstLaunchExperience
+    }
 
     public var body: some View {
         libraryContents
@@ -79,12 +96,13 @@ public struct LibraryView: View {
                 switch library.state {
                 case .loaded(let machines):
                     grid(machines)
+                        .task { canShowFirstLaunchExperience = false }
                 case .empty:
                     if shouldShowFirstLaunchExperienceOnEmptyLibrary {
                         FirstLaunchExperienceView {
                             sessionManager.launchInstallWizard(library: library)
                         }
-                        .task { hasSeenFirstLaunchExperience = true }
+                        .task { UserDefaults.standard.hasSeenFirstLaunchExperience = true }
                     } else {
                         libraryEmptyMessage
                     }
