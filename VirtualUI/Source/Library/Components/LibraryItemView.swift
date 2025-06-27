@@ -83,22 +83,13 @@ struct LibraryItemView: View {
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
 
-    @Environment(\.virtualBuddyShowDesktopPictureThumbnails)
-    private var showDesktopPicture
-
     var nameFieldFocus = BoolSubject()
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
 
     var body: some View {
         VStack(spacing: 12) {
-            VMArtworkView(virtualMachine: vm, alwaysUseBlurHash: !showDesktopPicture)
-                .id(vm.blurHashBackgroundContent)
-                .aspectRatio(contentMode: .fill)
-                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
-                .aspectRatio(16/9, contentMode: .fit)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-                .shadow(color: Color.black.opacity(0.4), radius: 4)
+            ArtworkView(virtualMachine: vm)
 
             EphemeralTextField($name, alignment: .leading, setFocus: nameFieldFocus) { name in
                 Text(name)
@@ -119,12 +110,14 @@ struct LibraryItemView: View {
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
         .background(Material.regular, in: backgroundShape)
+        .highlightBorder(backgroundShape, color: .accentColor, opacity: 0.2)
         .clipShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
-        .scaleEffect(isPressed ? 0.96 : 1)
+        .scaleEffect(isPressed ? 0.98 : 1)
         .contextMenu { contextMenuItems }
         .task(id: vm.name) { self.name = vm.name }
+        .animation(isPressed ? .linear(duration: 0) : .snappy, value: isPressed)
     }
 
     private func rename(_ newName: String) {
@@ -192,6 +185,57 @@ struct LibraryItemView: View {
         }
     }
 
+    private struct ArtworkView: View {
+        var virtualMachine: VBVirtualMachine
+
+        @Environment(\.virtualBuddyShowDesktopPictureThumbnails)
+        private var showDesktopPicture
+
+        var body: some View {
+            VMArtworkView(virtualMachine: virtualMachine, alwaysUseBlurHash: !showDesktopPicture)
+                .id(virtualMachine.blurHashBackgroundContent)
+                .aspectRatio(contentMode: .fill)
+                .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
+                .aspectRatio(16/9, contentMode: .fit)
+                .highlightBorder(shape)
+                .clipShape(shape)
+        }
+
+        private var shape: some InsettableShape {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+        }
+    }
+
+}
+
+struct HighlightBorderModifier<Shape: InsettableShape>: ViewModifier {
+    var shape: Shape
+    var color: Color
+    var opacity: Double
+
+    func body(content: Content) -> some View {
+        ZStack {
+            content
+
+            ZStack {
+                LinearGradient(colors: [color.opacity(1), color.opacity(0.4)], startPoint: .top, endPoint: .bottom)
+
+                shape
+                    .inset(by: 1)
+                    .blendMode(.destinationOut)
+            }
+            .compositingGroup()
+            .clipShape(shape)
+            .blendMode(.plusLighter)
+            .opacity(opacity)
+        }
+    }
+}
+
+extension View {
+    func highlightBorder<Shape: InsettableShape>(_ shape: Shape, color: Color = .white, opacity: Double = 0.14) -> some View {
+        modifier(HighlightBorderModifier(shape: shape, color: color, opacity: opacity))
+    }
 }
 
 extension VMLibraryController {

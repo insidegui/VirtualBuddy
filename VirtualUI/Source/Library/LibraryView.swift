@@ -131,6 +131,7 @@ public struct LibraryView: View {
                     }
                     .buttonStyle(.vbLibraryItem)
                     .environmentObject(library)
+                    .transition(.scale(scale: 0.3).combined(with: .opacity))
                 }
             }
             .padding()
