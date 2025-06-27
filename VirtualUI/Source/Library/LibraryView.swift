@@ -56,9 +56,71 @@ public struct LibraryView: View {
             }
         case .loading:
             ProgressView()
-        case .failed(let error):
-            Text(error.errorDescription!)
+        case .volumeNotMounted:
+            libraryError(
+                "Library Not Mounted",
+                systemImage: "externaldrive.badge.questionmark",
+                description: Text("""
+                The removable volume that contains your VirtualBuddy library is not mounted.
+                
+                Your virtual machines will show up here when it's mounted.
+                """)
+            ) {
+                Button("Try Again") {
+                    library.loadMachines()
+                }
+                .keyboardShortcut(.defaultAction)
+
+                Button("Open Settings") {
+                    openSettings()
+                }
+            }
+        case .directoryMissing:
+            libraryError(
+                "Library Missing",
+                systemImage: "questionmark.folder",
+                description: Text("""
+                VirtualBuddy couldn't find your library directory.
+                
+                Please check your settings. If the library directory exists, this might be a permission issue.
+                
+                If you have deleted your library directory, you can choose to start a new empty library.
+                """)
+            ) {
+                Button("Open Settings") {
+                    openSettings()
+                }
+                .keyboardShortcut(.defaultAction)
+
+                Button("Create Empty Library") {
+                    library.loadMachines(createLibrary: true)
+                }
+            }
         }
+    }
+
+    @ViewBuilder
+    private func libraryError<Actions: View>(_ title: LocalizedStringKey, systemImage: String, description: Text, @ViewBuilder actions: () -> Actions) -> some View {
+        VStack(spacing: 16) {
+            VStack(spacing: 6) {
+                Image(systemName: systemImage)
+                    .imageScale(.large)
+
+                Text(title)
+            }
+            .font(.system(size: 22, weight: .semibold, design: .rounded))
+
+            description
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+
+            VStack(spacing: 8) {
+                actions()
+            }
+            .controlSize(.large)
+        }
+        .textSelection(.enabled)
+        .frame(maxWidth: 400)
     }
 
     @ViewBuilder
