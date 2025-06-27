@@ -92,13 +92,17 @@ public struct OpenCocoaWindowAction {
     /// structure that you get from the Environment.
     @MainActor
     @discardableResult
-    public func callAsFunction<Content>(id: String? = nil, @ViewBuilder _ content: @escaping () -> Content, onClose: (() -> Void)? = nil) -> Token where Content: View {
+    public func callAsFunction<Content>(id: String? = nil, animationBehavior: NSWindow.AnimationBehavior? = nil, @ViewBuilder _ content: @escaping () -> Content, onClose: (() -> Void)? = nil) -> Token where Content: View {
         let token = Token(id: id ?? UUID().uuidString)
 
         if let existingController = manager[token] {
             existingController.showWindow(nil)
         } else {
             let controller = HostingWindowController(id: id, rootView: content(), onWindowClose: { _ in onClose?() })
+
+            if let animationBehavior {
+                controller.window?.animationBehavior = animationBehavior
+            }
 
             manager[token] = controller
         }

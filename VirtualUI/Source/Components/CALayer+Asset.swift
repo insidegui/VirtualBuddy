@@ -46,11 +46,11 @@ public extension CALayer {
         }
     }
 
-    func sublayer<T: CALayer>(named name: String, of type: T.Type) -> T? {
+    func sublayer<T: CALayer>(named name: String, of type: T.Type = CALayer.self) -> T? {
         return sublayers?.first(where: { $0.name == name }) as? T
     }
 
-    func sublayer<T: CALayer>(path: String, of type: T.Type) -> T? {
+    func sublayer<T: CALayer>(path: String, of type: T.Type = CALayer.self) -> T? {
         let components = path.components(separatedBy: ".")
         var target: CALayer? = self
         for component in components {
@@ -60,27 +60,61 @@ public extension CALayer {
     }
 }
 
-public extension CALayer {
+extension CALayer {
+    static func resize(_ targetLayer: CALayer?,
+                       within containerBounds: CGRect,
+                       multiplier: CGFloat = 1,
+                       offset: CGPoint = .zero,
+                       gravity: CALayerContentsGravity = .resizeAspect,
+                       resetPosition: Bool = false,
+                       disableAnimations: Bool = false)
+    {
+        assert([.resizeAspect, .resizeAspectFill, .resize, .center].contains(gravity), "Unsupported layer gravity")
 
-    func resizeLayer(_ targetLayer: CALayer?) {
+        if disableAnimations {
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            CATransaction.setAnimationDuration(0)
+        }
+        defer { if disableAnimations { CATransaction.commit() } }
+
+        let fn: (CGFloat, CGFloat) -> CGFloat = gravity == .resizeAspectFill ? max : min
+
         guard let targetLayer = targetLayer else { return }
 
         let layerWidth = targetLayer.bounds.width
         let layerHeight = targetLayer.bounds.height
 
-        let aspectWidth  = bounds.width / layerWidth
-        let aspectHeight = bounds.height / layerHeight
+        let aspectWidth  = containerBounds.width / layerWidth
+        let aspectHeight = containerBounds.height / layerHeight
 
-        let ratio = min(aspectWidth, aspectHeight)
+        let ratioWidth: CGFloat
+        let ratioHeight: CGFloat
 
-        let scale = CATransform3DMakeScale(ratio,
-                                           ratio,
+        switch gravity {
+        case .resize:
+            ratioWidth = aspectWidth * multiplier
+            ratioHeight = aspectHeight * multiplier
+        case .center:
+            ratioWidth = multiplier
+            ratioHeight = multiplier
+        default:
+            ratioWidth = fn(aspectWidth, aspectHeight) * multiplier
+            ratioHeight = fn(aspectWidth, aspectHeight) * multiplier
+        }
+
+        let scale = CATransform3DMakeScale(ratioWidth,
+                                           ratioHeight,
                                            1)
-        let translation = CATransform3DMakeTranslation((bounds.width - (layerWidth * ratio))/2.0,
-                                                       (bounds.height - (layerHeight * ratio))/2.0,
+        let translation = CATransform3DMakeTranslation((containerBounds.width - (layerWidth * ratioWidth)) / 2.0 - offset.x,
+                                                       (containerBounds.height - (layerHeight * ratioHeight)) / 2.0 - offset.y,
                                                        0)
+
+        if resetPosition {
+            targetLayer.anchorPoint = .zero
+            targetLayer.position = .zero
+        }
 
         targetLayer.transform = CATransform3DConcat(scale, translation)
     }
-
 }

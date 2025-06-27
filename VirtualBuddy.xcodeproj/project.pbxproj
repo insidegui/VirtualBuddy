@@ -65,6 +65,7 @@
 		F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725752887758A004FF8A7 /* RandomNameGenerator.swift */; };
 		F417CB882E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417CB872E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift */; };
 		F417CB8A2E0EDF1A0065B5D6 /* EqualWidthHStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417CB892E0EDF1A0065B5D6 /* EqualWidthHStack.swift */; };
+		F417CBB92E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417CBB82E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift */; };
 		F422586D2885CC9F009420AE /* SharedFocusEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */; };
 		F42258702885D537009420AE /* EphemeralTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = F422586F2885D537009420AE /* EphemeralTextField.swift */; };
 		F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42258712885E100009420AE /* VMConfigurationSheet.swift */; };
@@ -584,6 +585,7 @@
 		F41725752887758A004FF8A7 /* RandomNameGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RandomNameGenerator.swift; sourceTree = "<group>"; };
 		F417CB872E0EDECD0065B5D6 /* BackportedContentUnavailableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackportedContentUnavailableView.swift; sourceTree = "<group>"; };
 		F417CB892E0EDF1A0065B5D6 /* EqualWidthHStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EqualWidthHStack.swift; sourceTree = "<group>"; };
+		F417CBB82E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstLaunchExperienceView.swift; sourceTree = "<group>"; };
 		F422586C2885CC9F009420AE /* SharedFocusEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFocusEnvironment.swift; sourceTree = "<group>"; };
 		F422586F2885D537009420AE /* EphemeralTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralTextField.swift; sourceTree = "<group>"; };
 		F42258712885E100009420AE /* VMConfigurationSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMConfigurationSheet.swift; sourceTree = "<group>"; };
@@ -1162,6 +1164,7 @@
 			isa = PBXGroup;
 			children = (
 				F42C01602888FC3500EB15CD /* LibraryItemView.swift */,
+				F417CBB82E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -2504,6 +2507,7 @@
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
 				F4CD13462E05B4DE0067DC75 /* VirtualizationSettingsView.swift in Sources */,
 				F4CD13202E05A5780067DC75 /* FileSystemPathFormControl.swift in Sources */,
+				F417CBB92E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */,
 				F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */,
 				F49AA2C529BA31CC009625F7 /* VirtualMachineSessionUI.swift in Sources */,

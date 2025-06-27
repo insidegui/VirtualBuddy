@@ -40,6 +40,7 @@ struct VirtualBuddyApp: App {
                     sessionManager.open(fileURL: url, library: library)
                 }
                 .environment(\.openVirtualBuddySettings, appDelegate.openSettingsAction)
+                .background { TransparentWindowTitleBarView() }
         }
         .windowToolbarStyle(.unified)
         .commands {
@@ -71,5 +72,26 @@ struct VirtualBuddyApp: App {
             }
         }
         .handlesExternalEvents(matching: ["*"])
+    }
+}
+
+// TODO: Remove this after moving to AppKit lifecycle
+private struct TransparentWindowTitleBarView: NSViewRepresentable {
+    typealias NSViewType = _MakeWindowTitleBarTransparentView
+
+    func makeNSView(context: Context) -> _MakeWindowTitleBarTransparentView {
+        _MakeWindowTitleBarTransparentView(frame: .zero)
+    }
+
+    func updateNSView(_ nsView: _MakeWindowTitleBarTransparentView, context: Context) {
+
+    }
+
+    final class _MakeWindowTitleBarTransparentView: NSView {
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            
+            window?.titlebarAppearsTransparent = true
+        }
     }
 }

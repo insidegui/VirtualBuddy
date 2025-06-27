@@ -86,7 +86,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     }
 
     public func launchInstallWizard(restoringAt restoreURL: URL? = nil, library: VMLibraryController) {
-        openWindow {
+        openWindow(animationBehavior: .documentWindow) {
             VMInstallationWizard(library: library, restoringAt: restoreURL)
                 .environmentObject(library)
         }
