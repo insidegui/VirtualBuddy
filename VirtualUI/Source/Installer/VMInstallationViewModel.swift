@@ -69,12 +69,23 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     var canGoBack: Bool {
         switch step {
-        case .systemType, .configuration, .install:
+        case .systemType:
             false
-        case .restoreImageInput, .restoreImageSelection, .name, .done:
+        case .restoreImageInput, .restoreImageSelection:
+            /// Only allow going back from restore image selection if a VM bundle has not been created yet.
+            /// It's possible for this condition to be reached when user goes back after the name step,
+            /// and we don't want the user to change the guest type after that.
+            machine == nil
+        case .name, .configuration, .done:
             true
         case .download:
             if case .failed = downloadState {
+                true
+            } else {
+                false
+            }
+        case .install:
+            if case .error = state {
                 true
             } else {
                 false
@@ -173,17 +184,27 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     func next() {
+        /// It's possible for the user to go back in case of a failed download/install,
+        /// in which case the naming step will be skipped because the VM has already been named.
+        func goNextAfterRestoreImageSelection() {
+            if machine == nil {
+                step = .name
+            } else {
+                step = .configuration
+            }
+        }
+
         switch step {
         case .systemType:
             step = .restoreImageSelection
         case .restoreImageInput:
             commitCustomRestoreImageURL()
 
-            step = .name
+            goNextAfterRestoreImageSelection()
         case .restoreImageSelection:
             commitSelectedRestoreImage()
 
-            step = .name
+            goNextAfterRestoreImageSelection()
         case .name:
             step = .configuration
         case .configuration:
@@ -201,16 +222,24 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         guard canGoBack else { return }
 
         switch step {
-        case .systemType, .configuration, .install, .done:
+        case .systemType, .done:
             break
         case .restoreImageInput:
             selectInstallMethod(.remoteOptions)
         case .restoreImageSelection:
             data.backgroundHash = .virtualBuddyBackground
             step = .systemType
-        case .download:
+        case .download, .install:
+            /// Always nuke restore image selection when backing out of download/install.
+            /// This ensures that the new selection will be respected when moving forward again.
+            data.resetRestoreImageSelection()
+            
+            state = .idle
             step = .restoreImageSelection
-        case .name:
+        case .name, .configuration:
+            /// **NOTE:** When going back from configuration step, all configuration is lost due to how configuration saving is currently tied
+            /// to the specific "continue" button in the configuration sheet view. This will be addressed alongside other configuration UI changes soon...
+
             /// Re-trigger any UI prompts associated with the install method, such as entering remote URL or selecting local file.
             selectInstallMethod(data.installMethod)
         }
@@ -373,6 +402,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
                 self.handleDownloadCompleted(with: localURL)
             case .failed:
+                downloader = nil
                 stopPreventingAppTermination()
             case .idle, .preCheck, .downloading:
                 break
@@ -409,6 +439,11 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private var progressObservation: NSKeyValueObservation?
 
     private func prepareModel() throws {
+        /// It's possible for the model to already be available in case installation failed and the user navigated back to restore image selection.
+        guard machine == nil else {
+            return
+        }
+        
         let vmURL = library.libraryURL
             .appendingPathComponent(data.name)
             .appendingPathExtension(VBVirtualMachine.bundleExtension)
@@ -465,15 +500,38 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
         do {
             let config = try await VMInstance.makeConfiguration(for: model, installImageURL: installURL)
-            do {
-                try config.validate()
-            } catch {
-                throw Failure("Failed to validate configuration: \(String(describing: error))")
-            }
+
+            try config.validate()
 
             step = .done
+        } catch let error as VZError {
+            handleVirtualMachineValidationError(error)
         } catch {
             state = .error(error.localizedDescription)
+        }
+    }
+
+    private func handleVirtualMachineValidationError(_ error: VZError) {
+        UILog("Validation failed with error \(error)")
+
+        let baseMessage = """
+        Virtualization error \(error.code.rawValue). \(error.localizedDescription)
+        """
+
+        switch error.code {
+        case .invalidDiskImage, .invalidRestoreImage, .restoreImageLoadFailed:
+            let imageType = switch data.systemType {
+            case .mac: "restore image"
+            case .linux: "iso image"
+            }
+            let detail = """
+            The \(imageType) on your computer may be corrupted from a faulty download.
+            Please delete the existing download and try again, or use a different \(imageType).
+            """
+
+            state = .error(baseMessage + "\n" + detail)
+        default:
+            state = .error(baseMessage)
         }
     }
 
@@ -559,6 +617,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
                 UILog("Installation task finished successfully")
             } catch is CancellationError {
+            } catch let error as VZError {
+                handleVirtualMachineValidationError(error)
             } catch {
                 UILog("Installation task finished with error \(error)")
 
@@ -626,29 +686,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     private var needsConfirmationBeforeClosing: Bool {
-        guard step.needsConfirmationBeforeClosing else { return false }
-
-        return switch step {
-        case .download:
-            switch downloadState {
-            case .preCheck, .downloading: true
-            default: false
-            }
-        default: true
-        }
+        /// Require confirmation as soon as a VM bundle has been created for this install and it's not finished.
+        step != .done && machine != nil
     }
 
 }
-
-private extension VMInstallationViewModel.Step {
-    var needsConfirmationBeforeClosing: Bool {
-        switch self {
-        /// These steps are destructive if interrupted, so confirm before closing the wizard.
-        case .configuration, .download, .install:
-            return true
-        default:
-            return false
-        }
-    }
-}
-

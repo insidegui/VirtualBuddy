@@ -7,8 +7,12 @@
 
 import Foundation
 import Combine
+import OSLog
+import BuddyFoundation
 
 public final class URLSessionDownloadBackend: NSObject, ObservableObject, DownloadBackend {
+
+    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "URLSessionDownloadBackend")
 
     let library: VMLibraryController
     public var cookie: String?
@@ -42,6 +46,8 @@ public final class URLSessionDownloadBackend: NSObject, ObservableObject, Downlo
 
     @MainActor
     public func startDownload(with url: URL) {
+        logger.debug("Start download from \(url.absoluteString.quoted)")
+
         session = makeSession()
 
         resetProgress()
@@ -98,6 +104,8 @@ public final class URLSessionDownloadBackend: NSObject, ObservableObject, Downlo
 extension URLSessionDownloadBackend: URLSessionDownloadDelegate, URLSessionDelegate {
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, willPerformHTTPRedirection response: HTTPURLResponse, newRequest request: URLRequest) async -> URLRequest? {
+        logger.debug("Will perform HTTP redirection \(response)")
+
         if request.url?.absoluteString.lowercased().contains("unauthorized") == true {
             DispatchQueue.main.async {
                 self.state = .failed("The download failed due to missing authentication credentials.")
@@ -117,6 +125,19 @@ extension URLSessionDownloadBackend: URLSessionDownloadDelegate, URLSessionDeleg
 
     public func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
         guard !isInFailedState else { return }
+
+        logger.notice("Download finished to \(location.path.quoted)")
+
+        if let response = downloadTask.response as? HTTPURLResponse {
+            guard 200..<300 ~= response.statusCode else {
+                logger.error("Download failed with HTTP \(response.statusCode)")
+
+                state = .failed("HTTP error \(response.statusCode). Please check the download link.")
+                return
+            }
+        } else {
+            logger.fault("Download task finished without a valid response!")
+        }
 
         guard let destinationURL = destinationURL else {
             state = .failed("Missing destination URL.")
@@ -138,6 +159,12 @@ extension URLSessionDownloadBackend: URLSessionDownloadDelegate, URLSessionDeleg
     }
 
     public func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if let error {
+            logger.error("Download failed - \(error, privacy: .public)")
+        } else {
+            logger.notice("Download completed")
+        }
+
         // Successful completion is handled in `urlSession:downloadTask:didFinishDownloadingTo`.
         guard let error = error else { return }
         state = .failed(error.localizedDescription)
