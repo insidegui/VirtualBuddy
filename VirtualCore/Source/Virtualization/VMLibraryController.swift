@@ -236,6 +236,9 @@ public final class VMLibraryController: ObservableObject {
     }
 
     public func validateNewName(_ name: String, for vm: VBVirtualMachine) throws {
+        /// No need to validate if name is not changed.
+        guard name != vm.name else { return }
+
         try urlForRenaming(vm, to: name)
     }
 
