@@ -41,8 +41,8 @@ public extension View {
 struct BlurHashFullBleedBackground: View {
     static let defaultTransitionDuration: TimeInterval = 1.0
 
-    static let defaultBrightness: Double = -0.1
-    static let defaultBrightnessDimmed: Double = -0.2
+    static let defaultBrightness: Double = -0.2
+    static let defaultBrightnessDimmed: Double = -0.3
 
     static let defaultSaturation: Double = 1.3
     static let defaultSaturationDimmed: Double = 0.8
@@ -175,7 +175,6 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
 
         var brightness: Double = BlurHashFullBleedBackground.defaultBrightness {
             didSet {
-                guard brightness != oldValue else { return }
                 withCurrentEnvironment {
                     assetLayer.setValue(brightness, forKeyPath: "filters.colorBrightness.inputAmount")
                 }
@@ -184,7 +183,6 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
 
         var saturation: Double = BlurHashFullBleedBackground.defaultSaturation {
             didSet {
-                guard saturation != oldValue else { return }
                 withCurrentEnvironment {
                     assetLayer.setValue(saturation, forKeyPath: "filters.colorSaturate.inputAmount")
                 }
@@ -193,7 +191,6 @@ private struct _BlurHashRepresentable: NSViewRepresentable {
 
         var blurRadius: Double = BlurHashFullBleedBackground.defaultBlurRadius {
             didSet {
-                guard blurRadius != oldValue else { return }
                 withCurrentEnvironment {
                     assetLayer.setValue(blurRadius, forKeyPath: "filters.gaussianBlur.inputRadius")
                 }

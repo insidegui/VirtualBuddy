@@ -1,0 +1,13 @@
+{
+  "data" : [
+    {
+      "filename" : "FirstLaunchExperience.caar",
+      "idiom" : "universal",
+      "universal-type-identifier" : "com.apple.coreanimation-archive"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
