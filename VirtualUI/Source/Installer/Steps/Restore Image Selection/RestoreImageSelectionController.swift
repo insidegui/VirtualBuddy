@@ -163,7 +163,7 @@ extension ChannelGroup {
         var groupsByChannel = [CatalogChannel: ChannelGroup]()
 
         for image in restoreImages {
-            /// Ensures images from each group are listed in the same order as the groups are ordered in the catalog.
+            /// Ensures images from each channel group are listed in the same order as the channels are ordered in the catalog.
             let order = groupsByChannel.keys.count
 
             groupsByChannel[image.channel, default: ChannelGroup(
