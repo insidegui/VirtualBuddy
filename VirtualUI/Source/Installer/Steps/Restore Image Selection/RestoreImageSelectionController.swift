@@ -162,16 +162,17 @@ extension ChannelGroup {
     static func groups(with restoreImages: [ResolvedRestoreImage]) -> [ChannelGroup] {
         var groupsByChannel = [CatalogChannel: ChannelGroup]()
 
-        let sortedImages = restoreImages.sorted(by: { $0.build > $1.build })
+        for image in restoreImages {
+            /// Ensures images from each group are listed in the same order as the groups are ordered in the catalog.
+            let order = groupsByChannel.keys.count
 
-        for image in sortedImages {
-            groupsByChannel[image.channel, default: ChannelGroup(channel: image.channel, images: [])]
-                .images.append(image)
+            groupsByChannel[image.channel, default: ChannelGroup(
+                order: order,
+                channel: image.channel,
+                images: []
+            )].images.append(image)
         }
 
-        /// Place regular releases above developer betas.
-        return groupsByChannel.values.sorted {
-            $0.id == "regular" && $1.id == "devbeta"
-        }
+        return groupsByChannel.values.sorted(by: { $0.order < $1.order })
     }
 }
