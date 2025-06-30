@@ -219,6 +219,18 @@
     ],
   "restoreImages" : [
     {
+      "build" : "24G5065c",
+      "channel" : "devbeta",
+      "downloadSize" : 16877786738,
+      "group" : "sequoia",
+      "id" : "24G5065c",
+      "mobileDeviceMinVersion" : "1774.0.0",
+      "name" : "macOS 15.6 Developer Beta 2",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SpringSeed\/fullrestores\/082-62583\/9DB8F3CA-FCE0-45B5-8C17-6A4BF5E5A706\/UniversalMac_15.6_24G5065c_Restore.ipsw",
+      "version" : "15.6.0"
+    },
+    {
       "build" : "25A5295e",
       "channel" : "devbeta",
       "downloadSize" : 18740071846,
