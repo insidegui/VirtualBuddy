@@ -12,6 +12,7 @@ import BuddyKit
 
 struct ChannelGroup: Identifiable, Hashable {
     var id: CatalogChannel.ID { channel.id }
+    var order: Int
     var channel: CatalogChannel
     var images: [ResolvedRestoreImage]
 }
