@@ -53,6 +53,8 @@ public final class VirtualizationRestoreBackend: RestoreBackend {
     public func cancel() async {
         logger.warning("Installation cancelled by client.")
 
+        progress.cancel()
+
         if let _installer, _installer.virtualMachine.canStop {
             do {
                 logger.info("Stopping installation VM...")

@@ -179,7 +179,8 @@ extension VMInstallData {
         case .remoteManual, .remoteOptions:
             /// `localRestoreImageURL` is set when user selects a remote URL but that file has already been downloaded to the local library.
             /// Check that the file name matches and skip download when that's the case.
-            if let localRestoreImageURL, localRestoreImageURL.lastPathComponent == downloadURL.lastPathComponent {
+            /// Also ensure the local file actually exists, as it could have been deleted before the setup process read this property.
+            if let localRestoreImageURL, localRestoreImageURL.lastPathComponent == downloadURL.lastPathComponent, FileManager.default.fileExists(atPath: localRestoreImageURL.path) {
                 UILog("[\(#function)] Method is \(installMethod), remote URL is \(downloadURL.absoluteString.quoted), found matching download at \(localRestoreImageURL.path.quoted).")
 
                 return false
@@ -189,6 +190,14 @@ extension VMInstallData {
                 return true
             }
         }
+    }
+
+    @MainActor
+    mutating func resetRestoreImageSelection() {
+        installMethodSelection = nil
+        resolvedRestoreImage = nil
+        localRestoreImageURL = nil
+        restoreImage = nil
     }
 }
 
