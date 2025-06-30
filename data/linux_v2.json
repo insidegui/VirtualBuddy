@@ -7,6 +7,12 @@
       "name" : "Release",
       "note" : "Public, stable releases."
     },
+        {
+            "icon": "checkmark.seal",
+            "id": "lts",
+            "name": "LTS",
+            "note": "Long-term support releases"
+        },
     {
       "icon" : "wrench.and.screwdriver",
       "id" : "daily",
@@ -179,18 +185,42 @@
     }
   ],
   "restoreImages" : [
+        {
+            "build": "25.04",
+            "channel": "regular",
+            "downloadSize": 3816173568,
+            "group": "ubuntu",
+            "id": "25.04_Desktop",
+            "mobileDeviceMinVersion": "0.0.0",
+            "name": "Ubuntu Desktop 25.04",
+            "requirements": "min_host_13",
+            "url": "https://cdimage.ubuntu.com/releases/25.04/release/ubuntu-25.04-desktop-arm64.iso",
+            "version": "25.04"
+        },
     {
-      "build" : "22.04.4 LTS",
-      "channel" : "daily",
-      "downloadSize" : 4047564800,
+      "build" : "24.04.2 LTS",
+      "channel" : "lts",
+      "downloadSize" : 2922393600,
       "group" : "ubuntu",
-      "id" : "22.04.4 LTS",
+      "id" : "24.04.2 LTS",
       "mobileDeviceMinVersion" : "0.0.0",
-      "name" : "Jammy Jellyfish 22.04.4",
+      "name" : "Ubuntu Server 24.04.2 LTS",
       "requirements" : "min_host_13",
-      "url" : "https:\/\/cdimage.ubuntu.com\/jammy\/daily-live\/current\/jammy-desktop-arm64.iso",
-      "version" : "22.4.4"
+      "url" : "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.2-live-server-arm64.iso",
+      "version" : "24.04.2"
     },
+        {
+            "build": "25.04",
+            "channel": "regular",
+            "downloadSize": 2047127552,
+            "group": "ubuntu",
+            "id": "25.04_Server",
+            "mobileDeviceMinVersion": "0.0.0",
+            "name": "Ubuntu Server 25.04",
+            "requirements": "min_host_13",
+            "url": "https://cdimage.ubuntu.com/releases/25.04/release/ubuntu-25.04-live-server-arm64.iso",
+            "version": "25.04"
+        },
     {
       "build" : "42.1.1",
       "channel" : "regular",
