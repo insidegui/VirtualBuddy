@@ -14,6 +14,15 @@
       "note" : "Betas meant for developer testing."
     }
   ],
+  "deviceSupportVersions" : [
+    {
+      "id" : "device_support_macOS26_beta",
+      "instructions" : "Your Mac needs an update to install virtual machines that use this version of macOS.\n\nHere’s how you can install the update:\n\n1. Head over to the [Apple Developer downloads page](https:\/\/developer.apple.com\/download\/).\n2. Under “Operating Systems”, find “Device Support for macOS 26”.\n3. Click the link below that item.\n4. Double-click the downloaded DMG and open the installer. Follow the instructions.\n5. Quit and relaunch VirtualBuddy. Then, try again.\n\nInstalling the latest Xcode beta will also install the required update.",
+      "mobileDeviceMinVersion" : "1810.0.0",
+      "osVersion" : "26.0.0",
+      "title" : "Device Support Update Required"
+    }
+  ],
   "features" : [
     {
       "detail" : "For previous versions, you can enable file sharing in System Preferences > Sharing.",
@@ -208,15 +217,6 @@
       "minVersionHost" : "13.0.0"
     }
   ],
-    "deviceSupportVersions": [
-        {
-            "id": "device_support_macOS26_beta",
-            "mobileDeviceMinVersion": "1810.0.0",
-            "osVersion": "26.0.0",
-            "title": "Device Support Update Required",
-            "instructions": "Your Mac needs an update to install virtual machines that use this version of macOS.\n\nHere’s how you can install the update:\n\n1. Head over to the [Apple Developer downloads page](https://developer.apple.com/download/).\n2. Under “Operating Systems”, find “Device Support for macOS 26”.\n3. Click the link below that item.\n4. Double-click the downloaded DMG and open the installer. Follow the instructions.\n5. Quit and relaunch VirtualBuddy. Then, try again.\n\nInstalling the latest Xcode beta will also install the required update."
-        }
-    ],
   "restoreImages" : [
     {
       "build" : "25A5306g",
@@ -229,6 +229,18 @@
       "requirements" : "min_host_13",
       "url" : "https:\/\/updates.cdn-apple.com\/2025SummerSeed\/fullrestores\/082-72248\/F32F08F8-FC66-4D24-847B-F03C6CF7C410\/UniversalMac_26.0_25A5306g_Restore.ipsw",
       "version" : "26.0.0"
+    },
+    {
+      "build" : "24G5074c",
+      "channel" : "devbeta",
+      "downloadSize" : 16877900839,
+      "group" : "sequoia",
+      "id" : "24G5074c",
+      "mobileDeviceMinVersion" : "1774.0.0",
+      "name" : "macOS 15.6 Developer Beta 3",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SpringSeed\/fullrestores\/082-70173\/CA418AAE-B538-4B79-AA99-303369C6A512\/UniversalMac_15.6_24G5074c_Restore.ipsw",
+      "version" : "15.6.0"
     },
     {
       "build" : "24G5065c",
