@@ -139,25 +139,35 @@ public struct VirtualMachineSessionView: View {
                 }
             }
             .animation(.bouncy, value: controller.state)
+            
+            // Add hover overlay for screenshot functionality
+            VMSnapshotHoverOverlay()
+                .environmentObject(controller)
         }
     }
     
     private func startableStateView(with error: Error?) -> some View {
-        VStack(spacing: 28) {
-            if let error = error {
-                Text("The machine has stopped due to an error: \(String(describing: error))")
-                    .multilineTextAlignment(.center)
-                    .foregroundStyle(.secondary)
-                    .lineLimit(nil)
-                    .font(.caption)
+        ZStack {
+            VStack(spacing: 28) {
+                if let error = error {
+                    Text("The machine has stopped due to an error: \(String(describing: error))")
+                        .multilineTextAlignment(.center)
+                        .foregroundStyle(.secondary)
+                        .lineLimit(nil)
+                        .font(.caption)
+                }
+                
+                circularStartButton
+                
+                VMSessionConfigurationView()
+                    .environment(\.backgroundMaterial, Material.thin)
+                    .environmentObject(controller)
+                    .frame(maxWidth: 400)
             }
             
-            circularStartButton
-            
-            VMSessionConfigurationView()
-                .environment(\.backgroundMaterial, Material.thin)
+            // Add hover overlay for screenshot functionality when VM is stopped/idle
+            VMSnapshotHoverOverlay()
                 .environmentObject(controller)
-                .frame(maxWidth: 400)
         }
     }
     

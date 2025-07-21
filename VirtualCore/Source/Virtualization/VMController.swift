@@ -373,6 +373,12 @@ public final class VMController: ObservableObject {
     }
 
     public func storeScreenshot(with data: Data) {
+        // Skip storing if screenshot generation is disabled for this VM
+        guard virtualMachineModel.metadata.screenshotGenerationEnabled else {
+            logger.debug("Screenshot generation disabled for VM \(virtualMachineModel.name), skipping screenshot storage")
+            return
+        }
+        
         do {
             try virtualMachineModel.write(data, forMetadataFileNamed: VBVirtualMachine.screenshotFileName)
             try virtualMachineModel.invalidateThumbnail()            
