@@ -231,6 +231,18 @@
       "version" : "26.0.0"
     },
     {
+      "build" : "24G84",
+      "channel" : "devbeta",
+      "downloadSize" : 16814076831,
+      "group" : "sequoia",
+      "id" : "24G84",
+      "mobileDeviceMinVersion" : "1774.0.0",
+      "name" : "macOS 15.6 RC",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SummerFCS\/fullrestores\/082-08674\/51294E4D-A273-44BE-A280-A69FC347FB87\/UniversalMac_15.6_24G84_Restore.ipsw",
+      "version" : "15.6.0"
+    },
+    {
       "build" : "24G5074c",
       "channel" : "devbeta",
       "downloadSize" : 16877900839,
