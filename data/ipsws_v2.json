@@ -219,6 +219,18 @@
   ],
   "restoreImages" : [
     {
+      "build" : "25A5346a",
+      "channel" : "devbeta",
+      "downloadSize" : 18110708260,
+      "group" : "tahoe",
+      "id" : "25A5346a",
+      "mobileDeviceMinVersion" : "1810.0.0",
+      "name" : "macOS 26.0 Developer Beta 7",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SummerSeed\/fullrestores\/093-15545\/4C191A6F-E63B-4A9F-8597-6B1880EE09CC\/UniversalMac_26.0_25A5346a_Restore.ipsw",
+      "version" : "26.0.0"
+    },
+    {
       "build" : "25A5338b",
       "channel" : "devbeta",
       "downloadSize" : 18110631556,
