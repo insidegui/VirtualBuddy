@@ -279,6 +279,18 @@
       "version" : "26.0.0"
     },
     {
+      "build" : "24G90",
+      "channel" : "regular",
+      "downloadSize" : 16814137790,
+      "group" : "sequoia",
+      "id" : "24G90",
+      "mobileDeviceMinVersion" : "1774.0.0",
+      "name" : "macOS 15.6.1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025SummerFCS\/fullrestores\/093-10809\/CFD6DD38-DAF0-40DA-854F-31AAD1294C6F\/UniversalMac_15.6.1_24G90_Restore.ipsw",
+      "version" : "15.6.1"
+    },
+    {
       "build" : "24G84",
       "channel" : "regular",
       "downloadSize" : 16814076831,
