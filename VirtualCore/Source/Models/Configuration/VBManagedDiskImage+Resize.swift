@@ -72,9 +72,12 @@ extension VBManagedDiskImage.Format {
 
 extension VBStorageDevice {
     
-    public var canBeResized: Bool {
+    public func canBeResized(in container: any VBStorageDeviceContainer) -> Bool {
         guard let managedImage = managedImage else { return false }
-        return managedImage.canBeResized && diskImageExists(for: nil)
+        guard managedImage.canBeResized else { return false }
+        
+        let imageURL = container.diskImageURL(for: self)
+        return FileManager.default.fileExists(atPath: imageURL.path)
     }
     
     public func resizeDisk(to newSize: UInt64, in container: any VBStorageDeviceContainer) async throws {
@@ -84,12 +87,6 @@ extension VBStorageDevice {
         
         try await managedImage.resize(to: newSize, at: container)
         backing = .managedImage(managedImage)
-    }
-    
-    private func diskImageExists(for vm: VBVirtualMachine?) -> Bool {
-        guard let vm = vm else { return true }
-        let imageURL = vm.diskImageURL(for: self)
-        return FileManager.default.fileExists(atPath: imageURL.path)
     }
     
 }
