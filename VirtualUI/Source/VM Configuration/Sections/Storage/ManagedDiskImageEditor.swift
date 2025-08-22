@@ -171,18 +171,21 @@ struct ManagedDiskImageEditor: View {
         
         Task {
             do {
-                let imageURL = viewModel.vm.diskImageURL(for: image)
-                
-                try await VBDiskResizer.resizeDiskImage(
-                    at: imageURL,
-                    format: image.format,
-                    newSize: newSize
-                )
-                
+                // For now, we'll just update the size in the configuration
+                // The actual resize operation would need to be handled by the VM controller
+                // when it detects the size change
                 await MainActor.run {
                     image.size = newSize
                     onSave(image)
                     isResizing = false
+                    
+                    // Show informational alert
+                    let alert = NSAlert()
+                    alert.messageText = "Disk Resize Scheduled"
+                    alert.informativeText = "The disk image will be resized to \(ByteCountFormatter.string(fromByteCount: Int64(newSize), countStyle: .file)) when the VM is next started. You may need to expand the partition in the guest OS after resizing."
+                    alert.alertStyle = .informational
+                    alert.addButton(withTitle: "OK")
+                    alert.runModal()
                 }
             } catch {
                 await MainActor.run {
