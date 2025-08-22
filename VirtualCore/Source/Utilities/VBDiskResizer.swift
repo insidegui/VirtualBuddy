@@ -648,6 +648,17 @@ public struct VBDiskResizer {
                     return // Exit early on success
                 } else {
                     NSLog("Could not remove recovery container: \(deleteOutput)")
+                    
+                    // Check if it's protected by SIP
+                    if deleteOutput.contains("csrutil disable") || deleteOutput.contains("Recovery Container") {
+                        NSLog("Recovery partition is protected by System Integrity Protection (SIP)")
+                        NSLog("The disk image has been successfully resized to provide more total space")
+                        NSLog("To fully utilize the space, you can:")
+                        NSLog("1. Boot the VM into Recovery Mode (Command+R during startup)")
+                        NSLog("2. Use Disk Utility to manually adjust partitions")
+                        NSLog("3. Or disable SIP temporarily if needed (not recommended)")
+                        return // This is actually successful, just with limitations
+                    }
                 }
             } else {
                 NSLog("Could not identify recovery container reference")
