@@ -97,6 +97,18 @@ public struct VirtualMachineSessionView: View {
                         .frame(maxWidth: 400)
                 }
             }
+        case .resizingDisk(let message):
+            VStack(spacing: 12) {
+                ProgressView()
+
+                if let message {
+                    Text(message)
+                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                        .multilineTextAlignment(.center)
+                        .frame(maxWidth: 400)
+                }
+            }
         case .running(let vm):
             vmView(with: vm)
         case .paused(let vm), .savingState(let vm), .restoringState(let vm, _), .stateSaveCompleted(let vm, _):
