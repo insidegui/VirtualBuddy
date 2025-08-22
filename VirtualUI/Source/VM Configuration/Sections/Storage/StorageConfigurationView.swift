@@ -36,6 +36,21 @@ struct StorageConfigurationView: View {
                         configure(device)
                     }
                         .tag(device.id)
+                        .contextMenu {
+                            if device.canBeResized(in: viewModel.vm) {
+                                Button("Resize Disk…") {
+                                    configure(device)
+                                }
+                            }
+                            
+                            if !device.isBootVolume {
+                                Button("Remove Device", role: .destructive) {
+                                    if let idx = hardware.storageDevices.firstIndex(where: { $0.id == device.id }) {
+                                        hardware.storageDevices.remove(at: idx)
+                                    }
+                                }
+                            }
+                        }
                 }
             }
         } emptyOverlay: {
@@ -94,6 +109,7 @@ struct StorageConfigurationView: View {
 }
 
 struct StorageDeviceListItem: View {
+    @EnvironmentObject var viewModel: VMConfigurationViewModel
     @Binding var device: VBStorageDevice
     var configureDevice: () -> Void
 
@@ -119,6 +135,13 @@ struct StorageDeviceListItem: View {
             Text(device.displayName)
 
             Spacer()
+            
+            if device.canBeResized(in: viewModel.vm) {
+                Image(systemName: "arrow.up.right.and.arrow.down.left")
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                    .help("This disk can be resized")
+            }
 
             Button {
                 configureDevice()
