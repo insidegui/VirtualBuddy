@@ -46,7 +46,7 @@ public struct VBDiskResizer {
     
     public static func canResizeFormat(_ format: VBManagedDiskImage.Format) -> Bool {
         switch format {
-        case .raw, .dmg, .sparseimage:
+        case .raw, .dmg, .sparse:
             return true
         case .asif:
             return false
@@ -57,7 +57,7 @@ public struct VBDiskResizer {
         switch format {
         case .raw:
             return .createLargerImage
-        case .dmg, .sparseimage:
+        case .dmg, .sparse:
             return .expandInPlace
         case .asif:
             return .createLargerImage
@@ -99,7 +99,7 @@ public struct VBDiskResizer {
             let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
             return attributes[.size] as? UInt64 ?? 0
             
-        case .dmg, .sparseimage:
+        case .dmg, .sparse:
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
             process.arguments = ["imageinfo", "-plist", url.path]
@@ -166,7 +166,7 @@ public struct VBDiskResizer {
                     destFile.write(data)
                 }
                 
-            case .dmg, .sparseimage:
+            case .dmg, .sparse:
                 try await createExpandedDMGImage(from: backupURL, to: tempURL, newSize: newSize, format: format)
                 
             case .asif:
@@ -198,7 +198,7 @@ public struct VBDiskResizer {
         }
         
         switch format {
-        case .dmg, .sparseimage:
+        case .dmg, .sparse:
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
             
@@ -246,7 +246,7 @@ public struct VBDiskResizer {
         switch format {
         case .dmg:
             formatArg = "UDRW"
-        case .sparseimage:
+        case .sparse:
             formatArg = "SPARSE"
         default:
             formatArg = "UDRW"
