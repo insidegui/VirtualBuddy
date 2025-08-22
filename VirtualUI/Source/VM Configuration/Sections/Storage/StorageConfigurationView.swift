@@ -37,7 +37,7 @@ struct StorageConfigurationView: View {
                     }
                         .tag(device.id)
                         .contextMenu {
-                            if device.canBeResized(in: viewModel.vm) {
+                            if device.canBeResized {
                                 Button("Resize Disk…") {
                                     configure(device)
                                 }
@@ -136,7 +136,7 @@ struct StorageDeviceListItem: View {
 
             Spacer()
             
-            if device.canBeResized(in: viewModel.vm) {
+            if device.canBeResized {
                 Image(systemName: "arrow.up.right.and.arrow.down.left")
                     .font(.caption)
                     .foregroundColor(.blue)
