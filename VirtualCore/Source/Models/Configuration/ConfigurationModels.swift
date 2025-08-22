@@ -225,8 +225,8 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
     }
     
     public var canBeResized: Bool {
-        guard let managedImage = managedImage else { return false }
-        return managedImage.canBeResized
+        guard case .managedImage(let image) = backing else { return false }
+        return image.canBeResized
     }
     
     public var displayName: String {
