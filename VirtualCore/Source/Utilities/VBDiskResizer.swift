@@ -91,6 +91,9 @@ public struct VBDiskResizer {
         case .expandInPlace:
             try await expandImageInPlace(at: url, format: format, newSize: newSize)
         }
+        
+        // After resizing the disk image, attempt to expand the partition
+        try await expandPartitionsInDiskImage(at: url, format: format)
     }
     
     private static func getCurrentImageSize(at url: URL, format: VBManagedDiskImage.Format) async throws -> UInt64 {
@@ -298,5 +301,190 @@ public struct VBDiskResizer {
     private static func getAvailableSpace(at url: URL) async throws -> UInt64 {
         let resourceValues = try url.resourceValues(forKeys: [.volumeAvailableCapacityKey])
         return UInt64(resourceValues.volumeAvailableCapacity ?? 0)
+    }
+    
+    /// Expands partitions within a disk image to use the newly available space
+    private static func expandPartitionsInDiskImage(at url: URL, format: VBManagedDiskImage.Format) async throws {
+        NSLog("Attempting to expand partitions in disk image at \(url.path)")
+        
+        switch format {
+        case .raw:
+            // For RAW images, we need to mount and resize using diskutil
+            try await expandPartitionsInRawImage(at: url)
+            
+        case .dmg, .sparse:
+            // For DMG/Sparse images, we can work with them directly
+            try await expandPartitionsInDMGImage(at: url)
+            
+        case .asif:
+            // ASIF format doesn't support resizing
+            NSLog("Skipping partition expansion for ASIF format")
+        }
+    }
+    
+    private static func expandPartitionsInRawImage(at url: URL) async throws {
+        // Mount the disk image as a device
+        let attachProcess = Process()
+        attachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+        attachProcess.arguments = ["attach", "-imagekey", "diskimage-class=CRawDiskImage", "-nomount", url.path]
+        
+        let attachPipe = Pipe()
+        attachProcess.standardOutput = attachPipe
+        attachProcess.standardError = Pipe()
+        
+        try attachProcess.run()
+        attachProcess.waitUntilExit()
+        
+        guard attachProcess.terminationStatus == 0 else {
+            throw VBDiskResizeError.systemCommandFailed("hdiutil attach", attachProcess.terminationStatus)
+        }
+        
+        let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        
+        // Extract device node (e.g., /dev/disk4)
+        guard let deviceNode = extractDeviceNode(from: attachOutput) else {
+            throw VBDiskResizeError.systemCommandFailed("Could not extract device node", -1)
+        }
+        
+        defer {
+            // Detach the disk image when done
+            let detachProcess = Process()
+            detachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+            detachProcess.arguments = ["detach", deviceNode]
+            try? detachProcess.run()
+            detachProcess.waitUntilExit()
+        }
+        
+        // Resize the partition using diskutil
+        try await resizePartitionOnDevice(deviceNode: deviceNode)
+    }
+    
+    private static func expandPartitionsInDMGImage(at url: URL) async throws {
+        // Mount the DMG and resize its partitions
+        let attachProcess = Process()
+        attachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+        attachProcess.arguments = ["attach", "-nomount", url.path]
+        
+        let attachPipe = Pipe()
+        attachProcess.standardOutput = attachPipe
+        attachProcess.standardError = Pipe()
+        
+        try attachProcess.run()
+        attachProcess.waitUntilExit()
+        
+        guard attachProcess.terminationStatus == 0 else {
+            throw VBDiskResizeError.systemCommandFailed("hdiutil attach", attachProcess.terminationStatus)
+        }
+        
+        let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        
+        guard let deviceNode = extractDeviceNode(from: attachOutput) else {
+            throw VBDiskResizeError.systemCommandFailed("Could not extract device node", -1)
+        }
+        
+        defer {
+            let detachProcess = Process()
+            detachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+            detachProcess.arguments = ["detach", deviceNode]
+            try? detachProcess.run()
+            detachProcess.waitUntilExit()
+        }
+        
+        try await resizePartitionOnDevice(deviceNode: deviceNode)
+    }
+    
+    private static func extractDeviceNode(from hdiutilOutput: String) -> String? {
+        // hdiutil output format: "/dev/disk4          	Apple_partition_scheme"
+        let lines = hdiutilOutput.components(separatedBy: .newlines)
+        for line in lines {
+            if line.contains("/dev/disk") {
+                let components = line.components(separatedBy: .whitespaces)
+                if let deviceNode = components.first, deviceNode.hasPrefix("/dev/disk") {
+                    return deviceNode
+                }
+            }
+        }
+        return nil
+    }
+    
+    private static func resizePartitionOnDevice(deviceNode: String) async throws {
+        NSLog("Attempting to resize partition on device \(deviceNode)")
+        
+        // First, get partition information
+        let listProcess = Process()
+        listProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        listProcess.arguments = ["list", deviceNode]
+        
+        let listPipe = Pipe()
+        listProcess.standardOutput = listPipe
+        listProcess.standardError = Pipe()
+        
+        try listProcess.run()
+        listProcess.waitUntilExit()
+        
+        guard listProcess.terminationStatus == 0 else {
+            NSLog("Warning: Could not list partitions on \(deviceNode)")
+            return
+        }
+        
+        let listOutput = String(data: listPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        
+        // Find the main partition (usually s2 for APFS/HFS+ on macOS VMs)
+        guard let partitionIdentifier = findResizablePartition(in: listOutput, deviceNode: deviceNode) else {
+            NSLog("Warning: Could not find resizable partition on \(deviceNode)")
+            return
+        }
+        
+        NSLog("Found resizable partition: \(partitionIdentifier)")
+        
+        // Resize the partition to use all available space
+        let resizeProcess = Process()
+        resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        resizeProcess.arguments = ["resizeVolume", partitionIdentifier, "R"]
+        
+        let resizePipe = Pipe()
+        resizeProcess.standardOutput = resizePipe
+        resizeProcess.standardError = resizePipe
+        
+        try resizeProcess.run()
+        resizeProcess.waitUntilExit()
+        
+        let resizeOutput = String(data: resizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        
+        if resizeProcess.terminationStatus == 0 {
+            NSLog("Successfully expanded partition \(partitionIdentifier)")
+        } else {
+            NSLog("Warning: Failed to resize partition \(partitionIdentifier): \(resizeOutput)")
+            // Don't throw an error here - the disk resize succeeded, partition resize is bonus
+        }
+    }
+    
+    private static func findResizablePartition(in diskutilOutput: String, deviceNode: String) -> String? {
+        let lines = diskutilOutput.components(separatedBy: .newlines)
+        
+        // Look for APFS or HFS+ partitions (typically the main data partition)
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            
+            // Skip header and empty lines
+            guard !trimmed.isEmpty && !trimmed.contains("TYPE NAME") else { continue }
+            
+            // Look for APFS Container or HFS+ partition
+            if (trimmed.contains("APFS") || trimmed.contains("Apple_HFS")) && 
+               (trimmed.contains("Container") || trimmed.contains("Macintosh HD") || trimmed.contains("disk")) {
+                
+                // Extract partition number (e.g., "1:" -> "disk4s1")
+                let components = trimmed.components(separatedBy: .whitespaces)
+                for component in components {
+                    if component.hasSuffix(":") {
+                        let partitionNum = component.dropLast() // Remove ":"
+                        return "\(deviceNode)s\(partitionNum)"
+                    }
+                }
+            }
+        }
+        
+        // Fallback: try s2 which is commonly the main partition
+        return "\(deviceNode)s2"
     }
 }

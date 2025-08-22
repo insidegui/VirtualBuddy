@@ -127,6 +127,11 @@ public struct VirtualMachineSessionView: View {
                 switch controller.state {
                 case .paused:
                     circularStartButton
+                case .resizingDisk(let message):
+                    VMProgressOverlay(
+                        message: message ?? "Resizing Disk Image", 
+                        duration: 30
+                    )
                 case .savingState, .stateSaveCompleted:
                     VMProgressOverlay(
                         message: controller.state.isStateSaveCompleted ? "State Saved!" : "Saving Virtual Machine State",
