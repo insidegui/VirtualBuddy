@@ -430,8 +430,11 @@ public struct VBDiskResizer {
         let listOutput = String(data: listPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         NSLog("Partition layout for \(deviceNode):\n\(listOutput)")
         
-        // Try different resize strategies based on partition type
-        if let apfsContainer = findAPFSContainer(in: listOutput, deviceNode: deviceNode) {
+        // Check if there's an Apple_APFS_Recovery partition blocking expansion
+        if listOutput.contains("Apple_APFS_Recovery") {
+            NSLog("Detected Apple_APFS_Recovery partition - attempting recovery partition resize strategy")
+            try await resizeWithRecoveryPartition(deviceNode: deviceNode, listOutput: listOutput)
+        } else if let apfsContainer = findAPFSContainer(in: listOutput, deviceNode: deviceNode) {
             NSLog("Found APFS container: \(apfsContainer)")
             try await resizeAPFSContainer(apfsContainer)
         } else if let hfsPartition = findHFSPartition(in: listOutput, deviceNode: deviceNode) {
@@ -593,5 +596,67 @@ public struct VBDiskResizer {
         
         NSLog("No HFS+ partition found in diskutil output")
         return nil
+    }
+    
+    private static func resizeWithRecoveryPartition(deviceNode: String, listOutput: String) async throws {
+        NSLog("Handling partition layout with Apple_APFS_Recovery partition")
+        
+        // For disks with recovery partitions, we need to use a different approach
+        // The recovery partition is typically the last partition and can block expansion
+        // We'll use diskutil's ability to resize the entire partition scheme
+        
+        // First, try to find the main APFS container
+        guard let mainContainer = findAPFSContainer(in: listOutput, deviceNode: deviceNode) else {
+            NSLog("Could not find main APFS container for recovery partition resize")
+            return
+        }
+        
+        NSLog("Attempting to resize main APFS container \(mainContainer) with recovery partition present")
+        
+        // Method 1: Try to resize the container to use all available space
+        // This should automatically handle the recovery partition repositioning
+        let resizeProcess = Process()
+        resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        resizeProcess.arguments = ["apfs", "resizeContainer", mainContainer, "0"]
+        
+        let resizePipe = Pipe()
+        resizeProcess.standardOutput = resizePipe
+        resizeProcess.standardError = resizePipe
+        
+        try resizeProcess.run()
+        resizeProcess.waitUntilExit()
+        
+        let resizeOutput = String(data: resizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        
+        if resizeProcess.terminationStatus == 0 {
+            NSLog("Successfully resized APFS container \(mainContainer) with recovery partition")
+        } else {
+            NSLog("Method 1 failed: \(resizeOutput)")
+            
+            // Method 2: Try using diskutil's partition resizing
+            // This attempts to move the recovery partition automatically
+            NSLog("Attempting alternative resize method using partition table resize")
+            
+            let altResizeProcess = Process()
+            altResizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+            // Use 'R' flag to resize to use all available space
+            altResizeProcess.arguments = ["resizeVolume", mainContainer, "R"]
+            
+            let altResizePipe = Pipe()
+            altResizeProcess.standardOutput = altResizePipe
+            altResizeProcess.standardError = altResizePipe
+            
+            try altResizeProcess.run()
+            altResizeProcess.waitUntilExit()
+            
+            let altResizeOutput = String(data: altResizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            
+            if altResizeProcess.terminationStatus == 0 {
+                NSLog("Successfully resized using alternative method")
+            } else {
+                NSLog("Warning: Both resize methods failed with recovery partition present: \(altResizeOutput)")
+                NSLog("Recovery partitions may require manual intervention or different resize strategy")
+            }
+        }
     }
 }
