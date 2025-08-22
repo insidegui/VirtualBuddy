@@ -158,6 +158,14 @@ public final class VMController: ObservableObject {
         state = .starting(nil)
 
         await waitForGuestDiskImageReadyIfNeeded()
+        
+        // Check and resize disk images if needed
+        do {
+            try await virtualMachineModel.checkAndResizeDiskImages()
+        } catch {
+            // Log resize errors but don't fail VM start
+            NSLog("Warning: Failed to resize disk images: \(error)")
+        }
 
         try await updatingState {
             let newInstance = try createInstance()
