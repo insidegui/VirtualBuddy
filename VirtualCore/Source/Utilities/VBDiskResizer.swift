@@ -616,30 +616,41 @@ public struct VBDiskResizer {
             // Strategy 1: Try to delete the recovery partition to allow expansion
             NSLog("Attempting to temporarily remove recovery partition for expansion")
             
-            let deleteProcess = Process()
-            deleteProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-            deleteProcess.arguments = ["apfs", "deleteContainer", recovery]
+            // First, we need to find the actual container reference for the recovery partition
+            // The recovery partition is typically a synthesized disk, so we need to find its container
+            let recoveryContainer = findRecoveryContainer(in: listOutput)
             
-            let deletePipe = Pipe()
-            deleteProcess.standardOutput = deletePipe
-            deleteProcess.standardError = deletePipe
-            
-            try deleteProcess.run()
-            deleteProcess.waitUntilExit()
-            
-            let deleteOutput = String(data: deletePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-            
-            if deleteProcess.terminationStatus == 0 {
-                NSLog("Successfully removed recovery partition, attempting main container resize")
+            if let containerToDelete = recoveryContainer {
+                NSLog("Found recovery container reference: \(containerToDelete)")
                 
-                // Now try to resize the main container
-                try await resizeAPFSContainer(mainContainer)
+                let deleteProcess = Process()
+                deleteProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+                deleteProcess.arguments = ["apfs", "deleteContainer", containerToDelete, "-force"]
                 
-                NSLog("Main container resized successfully")
-                // Note: The recovery partition will be recreated by macOS when needed
+                let deletePipe = Pipe()
+                deleteProcess.standardOutput = deletePipe
+                deleteProcess.standardError = deletePipe
                 
+                try deleteProcess.run()
+                deleteProcess.waitUntilExit()
+                
+                let deleteOutput = String(data: deletePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                
+                if deleteProcess.terminationStatus == 0 {
+                    NSLog("Successfully removed recovery partition, attempting main container resize")
+                    
+                    // Now try to resize the main container
+                    try await resizeAPFSContainer(mainContainer)
+                    
+                    NSLog("Main container resized successfully")
+                    // Note: The recovery partition will be recreated by macOS when needed
+                    
+                    return // Exit early on success
+                } else {
+                    NSLog("Could not remove recovery container: \(deleteOutput)")
+                }
             } else {
-                NSLog("Could not remove recovery partition: \(deleteOutput)")
+                NSLog("Could not identify recovery container reference")
                 
                 // Strategy 2: Try using the limit parameter to resize up to the recovery partition
                 NSLog("Attempting to resize main container up to recovery partition boundary")
@@ -733,6 +744,35 @@ public struct VBDiskResizer {
             }
         }
         
+        return nil
+    }
+    
+    private static func findRecoveryContainer(in diskutilOutput: String) -> String? {
+        let lines = diskutilOutput.components(separatedBy: .newlines)
+        
+        // Look for the recovery container - it's typically shown as "Container disk6" in the output
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            guard !trimmed.isEmpty && !trimmed.contains("TYPE NAME") else { continue }
+            
+            if trimmed.contains("Apple_APFS_Recovery") && trimmed.contains("Container") {
+                // Extract the container disk reference (e.g., "disk6" from "Container disk6")
+                let components = trimmed.components(separatedBy: .whitespaces)
+                
+                // Look for "Container" followed by "diskX"
+                for (index, component) in components.enumerated() {
+                    if component == "Container" && index + 1 < components.count {
+                        let nextComponent = components[index + 1]
+                        if nextComponent.hasPrefix("disk") {
+                            NSLog("Found recovery container: \(nextComponent)")
+                            return nextComponent
+                        }
+                    }
+                }
+            }
+        }
+        
+        NSLog("Could not find recovery container in diskutil output")
         return nil
     }
     
