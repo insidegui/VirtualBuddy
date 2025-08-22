@@ -150,20 +150,26 @@ public struct VBDiskResizer {
             
             switch format {
             case .raw:
-                try await createRawImage(at: tempURL, size: newSize)
+                // Create empty file of new size
+                FileManager.default.createFile(atPath: tempURL.path, contents: nil, attributes: nil)
+                let fileHandle = try FileHandle(forWritingTo: tempURL)
+                defer { fileHandle.closeFile() }
                 
-                let sourceFile = try FileHandle(forReadingFrom: backupURL)
-                let destFile = try FileHandle(forWritingTo: tempURL)
-                defer {
-                    sourceFile.closeFile()
-                    destFile.closeFile()
+                let result = ftruncate(fileHandle.fileDescriptor, Int64(newSize))
+                guard result == 0 else {
+                    throw VBDiskResizeError.systemCommandFailed("ftruncate", result)
                 }
+                
+                // Copy original data to the beginning of the new larger file
+                let sourceFile = try FileHandle(forReadingFrom: backupURL)
+                fileHandle.seek(toFileOffset: 0)
+                defer { sourceFile.closeFile() }
                 
                 let bufferSize = 1024 * 1024
                 while true {
                     let data = sourceFile.readData(ofLength: bufferSize)
                     if data.isEmpty { break }
-                    destFile.write(data)
+                    fileHandle.write(data)
                 }
                 
             case .dmg, .sparse:
@@ -227,7 +233,12 @@ public struct VBDiskResizer {
     }
     
     private static func createRawImage(at url: URL, size: UInt64) async throws {
-        let fileHandle = try FileHandle(forWritingTo: url.appendingPathExtension("tmp"))
+        let tempURL = url.appendingPathExtension("tmp")
+        
+        // Create the temporary file first
+        FileManager.default.createFile(atPath: tempURL.path, contents: nil, attributes: nil)
+        
+        let fileHandle = try FileHandle(forWritingTo: tempURL)
         defer { fileHandle.closeFile() }
         
         let result = ftruncate(fileHandle.fileDescriptor, Int64(size))
@@ -235,7 +246,7 @@ public struct VBDiskResizer {
             throw VBDiskResizeError.systemCommandFailed("ftruncate", result)
         }
         
-        try FileManager.default.moveItem(at: url.appendingPathExtension("tmp"), to: url)
+        try FileManager.default.moveItem(at: tempURL, to: url)
     }
     
     private static func createExpandedDMGImage(from sourceURL: URL, to destURL: URL, newSize: UInt64, format: VBManagedDiskImage.Format) async throws {
