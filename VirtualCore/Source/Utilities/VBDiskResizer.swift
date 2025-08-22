@@ -428,16 +428,52 @@ public struct VBDiskResizer {
         }
         
         let listOutput = String(data: listPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        NSLog("Partition layout for \(deviceNode):\n\(listOutput)")
         
-        // Find the main partition (usually s2 for APFS/HFS+ on macOS VMs)
-        guard let partitionIdentifier = findResizablePartition(in: listOutput, deviceNode: deviceNode) else {
-            NSLog("Warning: Could not find resizable partition on \(deviceNode)")
-            return
+        // Try different resize strategies based on partition type
+        if let apfsContainer = findAPFSContainer(in: listOutput, deviceNode: deviceNode) {
+            NSLog("Found APFS container: \(apfsContainer)")
+            try await resizeAPFSContainer(apfsContainer)
+        } else if let hfsPartition = findHFSPartition(in: listOutput, deviceNode: deviceNode) {
+            NSLog("Found HFS+ partition: \(hfsPartition)")
+            try await resizeHFSPartition(hfsPartition)
+        } else {
+            // Fallback: try the original method
+            if let partitionIdentifier = findResizablePartition(in: listOutput, deviceNode: deviceNode) {
+                NSLog("Using fallback resize for partition: \(partitionIdentifier)")
+                try await resizeGenericPartition(partitionIdentifier)
+            } else {
+                NSLog("Warning: Could not find any resizable partition on \(deviceNode)")
+            }
         }
+    }
+    
+    private static func resizeAPFSContainer(_ containerIdentifier: String) async throws {
+        let resizeProcess = Process()
+        resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        resizeProcess.arguments = ["apfs", "resizeContainer", containerIdentifier, "0"]
         
-        NSLog("Found resizable partition: \(partitionIdentifier)")
+        let resizePipe = Pipe()
+        resizeProcess.standardOutput = resizePipe
+        resizeProcess.standardError = resizePipe
         
-        // Resize the partition to use all available space
+        try resizeProcess.run()
+        resizeProcess.waitUntilExit()
+        
+        let resizeOutput = String(data: resizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        
+        if resizeProcess.terminationStatus == 0 {
+            NSLog("Successfully expanded APFS container \(containerIdentifier)")
+        } else {
+            NSLog("Warning: Failed to resize APFS container \(containerIdentifier): \(resizeOutput)")
+        }
+    }
+    
+    private static func resizeHFSPartition(_ partitionIdentifier: String) async throws {
+        try await resizeGenericPartition(partitionIdentifier)
+    }
+    
+    private static func resizeGenericPartition(_ partitionIdentifier: String) async throws {
         let resizeProcess = Process()
         resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
         resizeProcess.arguments = ["resizeVolume", partitionIdentifier, "R"]
@@ -455,7 +491,6 @@ public struct VBDiskResizer {
             NSLog("Successfully expanded partition \(partitionIdentifier)")
         } else {
             NSLog("Warning: Failed to resize partition \(partitionIdentifier): \(resizeOutput)")
-            // Don't throw an error here - the disk resize succeeded, partition resize is bonus
         }
     }
     
@@ -486,5 +521,77 @@ public struct VBDiskResizer {
         
         // Fallback: try s2 which is commonly the main partition
         return "\(deviceNode)s2"
+    }
+    
+    private static func findAPFSContainer(in diskutilOutput: String, deviceNode: String) -> String? {
+        let lines = diskutilOutput.components(separatedBy: .newlines)
+        var foundContainers: [(String, Bool)] = [] // (device, isMainContainer)
+        
+        // Look for APFS Container entries
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            
+            // Skip header and empty lines
+            guard !trimmed.isEmpty && !trimmed.contains("TYPE NAME") else { continue }
+            
+            // Look for APFS Container (but prioritize main containers over ISC containers)
+            if trimmed.contains("Apple_APFS") && trimmed.contains("Container") {
+                // Extract partition number (e.g., "1:" -> "disk4s1")
+                let components = trimmed.components(separatedBy: .whitespaces)
+                for component in components {
+                    if component.hasSuffix(":") {
+                        let partitionNum = component.dropLast() // Remove ":"
+                        let containerDevice = "\(deviceNode)s\(partitionNum)"
+                        
+                        // Prioritize main containers over ISC (Initial System Container)
+                        let isMainContainer = !trimmed.contains("Apple_APFS_ISC")
+                        foundContainers.append((containerDevice, isMainContainer))
+                        
+                        NSLog("Found APFS container: \(containerDevice) (main: \(isMainContainer))")
+                    }
+                }
+            }
+        }
+        
+        // Prefer main containers over ISC containers
+        if let mainContainer = foundContainers.first(where: { $0.1 }) {
+            NSLog("Using main APFS container: \(mainContainer.0)")
+            return mainContainer.0
+        } else if let anyContainer = foundContainers.first {
+            NSLog("Using fallback APFS container: \(anyContainer.0)")
+            return anyContainer.0
+        }
+        
+        NSLog("No APFS container found in diskutil output")
+        return nil
+    }
+    
+    private static func findHFSPartition(in diskutilOutput: String, deviceNode: String) -> String? {
+        let lines = diskutilOutput.components(separatedBy: .newlines)
+        
+        // Look for HFS+ partitions
+        for line in lines {
+            let trimmed = line.trimmingCharacters(in: .whitespaces)
+            
+            // Skip header and empty lines
+            guard !trimmed.isEmpty && !trimmed.contains("TYPE NAME") else { continue }
+            
+            // Look for Apple_HFS partition (Mac OS Extended)
+            if trimmed.contains("Apple_HFS") && !trimmed.contains("Container") {
+                // Extract partition number (e.g., "2:" -> "disk4s2")
+                let components = trimmed.components(separatedBy: .whitespaces)
+                for component in components {
+                    if component.hasSuffix(":") {
+                        let partitionNum = component.dropLast() // Remove ":"
+                        let hfsDevice = "\(deviceNode)s\(partitionNum)"
+                        NSLog("Found HFS+ partition: \(hfsDevice)")
+                        return hfsDevice
+                    }
+                }
+            }
+        }
+        
+        NSLog("No HFS+ partition found in diskutil output")
+        return nil
     }
 }
