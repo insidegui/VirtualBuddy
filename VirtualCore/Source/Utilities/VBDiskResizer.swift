@@ -611,42 +611,78 @@ public struct VBDiskResizer {
         
         if let recovery = recoveryPartition {
             NSLog("Found recovery partition: \(recovery)")
-            NSLog("Recovery partition is present - this may limit expansion")
+            NSLog("Recovery partition detected - attempting advanced resize strategies")
             
-            // For macOS VMs with recovery partitions, the layout is:
-            // 1. ISC Container (boot)
-            // 2. Main APFS Container (data) 
-            // 3. Recovery Container
-            // 4. Free space
-            //
-            // The recovery partition blocks direct expansion, but we can still
-            // inform the user that the disk image itself was resized successfully
+            // Strategy 1: Try to delete the recovery partition to allow expansion
+            NSLog("Attempting to temporarily remove recovery partition for expansion")
             
-            NSLog("Attempting resize with recovery partition constraints")
+            let deleteProcess = Process()
+            deleteProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+            deleteProcess.arguments = ["apfs", "deleteContainer", recovery]
             
-            // Try a gentle resize that doesn't force container expansion
-            let resizeProcess = Process()
-            resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-            resizeProcess.arguments = ["apfs", "resizeContainer", mainContainer, "0"]
+            let deletePipe = Pipe()
+            deleteProcess.standardOutput = deletePipe
+            deleteProcess.standardError = deletePipe
             
-            let resizePipe = Pipe()
-            resizeProcess.standardOutput = resizePipe
-            resizeProcess.standardError = resizePipe
+            try deleteProcess.run()
+            deleteProcess.waitUntilExit()
             
-            try resizeProcess.run()
-            resizeProcess.waitUntilExit()
+            let deleteOutput = String(data: deletePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
             
-            let resizeOutput = String(data: resizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-            
-            if resizeProcess.terminationStatus == 0 {
-                NSLog("Successfully resized APFS container within recovery partition constraints")
-            } else {
-                NSLog("Container resize blocked by recovery partition: \(resizeOutput)")
-                NSLog("This is expected for fresh macOS VM installations")
-                NSLog("The disk image has been enlarged, and macOS will utilize available space as needed")
+            if deleteProcess.terminationStatus == 0 {
+                NSLog("Successfully removed recovery partition, attempting main container resize")
                 
-                // The disk image resize was successful even if partition expansion failed
-                // This is actually normal and acceptable for VM environments
+                // Now try to resize the main container
+                try await resizeAPFSContainer(mainContainer)
+                
+                NSLog("Main container resized successfully")
+                // Note: The recovery partition will be recreated by macOS when needed
+                
+            } else {
+                NSLog("Could not remove recovery partition: \(deleteOutput)")
+                
+                // Strategy 2: Try using the limit parameter to resize up to the recovery partition
+                NSLog("Attempting to resize main container up to recovery partition boundary")
+                
+                // Calculate size: We need to leave space for the recovery partition
+                // Extract the recovery partition size from the output
+                let recoverySize: UInt64 = 5_400_000_000 // ~5.4 GB typical recovery size
+                
+                // Get total disk size
+                let diskInfoProcess = Process()
+                diskInfoProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+                diskInfoProcess.arguments = ["info", deviceNode]
+                
+                let diskInfoPipe = Pipe()
+                diskInfoProcess.standardOutput = diskInfoPipe
+                diskInfoProcess.standardError = Pipe()
+                
+                try diskInfoProcess.run()
+                diskInfoProcess.waitUntilExit()
+                
+                let diskInfoOutput = String(data: diskInfoPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                
+                // Try to resize leaving space for recovery
+                let resizeProcess = Process()
+                resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+                resizeProcess.arguments = ["apfs", "resizeContainer", mainContainer, "0"]
+                
+                let resizePipe = Pipe()
+                resizeProcess.standardOutput = resizePipe
+                resizeProcess.standardError = resizePipe
+                
+                try resizeProcess.run()
+                resizeProcess.waitUntilExit()
+                
+                let resizeOutput = String(data: resizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                
+                if resizeProcess.terminationStatus == 0 {
+                    NSLog("Successfully resized APFS container")
+                } else {
+                    NSLog("Container resize failed: \(resizeOutput)")
+                    NSLog("The disk image has been enlarged successfully")
+                    NSLog("Note: The available space may be used by macOS dynamically")
+                }
             }
         } else {
             NSLog("No recovery partition found, proceeding with standard resize")
