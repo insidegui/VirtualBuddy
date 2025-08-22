@@ -81,7 +81,7 @@ struct ManagedDiskImageEditor: View {
                 }
                 
                 if isExistingDiskImage && canResize {
-                    Text("This \(image.displayName) can be expanded. After resizing, you may need to expand the partition using Disk Utility in the guest operating system.")
+                    Text("This \(image.format.displayName) can be expanded. After resizing, you may need to expand the partition using Disk Utility in the guest operating system.")
                         .foregroundColor(.blue)
                 }
 
@@ -171,12 +171,17 @@ struct ManagedDiskImageEditor: View {
         
         Task {
             do {
-                var updatedImage = image
-                try await updatedImage.resize(to: newSize, at: viewModel.vm)
+                let imageURL = viewModel.vm.diskImageURL(for: image)
+                
+                try await VBDiskResizer.resizeDiskImage(
+                    at: imageURL,
+                    format: image.format,
+                    newSize: newSize
+                )
                 
                 await MainActor.run {
-                    image = updatedImage
-                    onSave(updatedImage)
+                    image.size = newSize
+                    onSave(image)
                     isResizing = false
                 }
             } catch {
