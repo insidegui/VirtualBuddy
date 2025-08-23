@@ -56,7 +56,7 @@ public struct VBDiskResizer {
     public static func recommendedStrategy(for format: VBManagedDiskImage.Format) -> ResizeStrategy {
         switch format {
         case .raw:
-            return .createLargerImage
+            return .expandInPlace  // Use in-place expansion to save disk space
         case .dmg, .sparse:
             return .expandInPlace
         case .asif:
@@ -202,8 +202,12 @@ public struct VBDiskResizer {
         let parentDir = url.deletingLastPathComponent()
         let availableSpace = try await getAvailableSpace(at: parentDir)
         
-        guard availableSpace >= newSize else {
-            throw VBDiskResizeError.insufficientSpace(required: newSize, available: availableSpace)
+        // Get current file size
+        let currentSize = try await getCurrentImageSize(at: url, format: format)
+        let additionalSpaceNeeded = newSize > currentSize ? newSize - currentSize : 0
+        
+        guard availableSpace >= additionalSpaceNeeded else {
+            throw VBDiskResizeError.insufficientSpace(required: additionalSpaceNeeded, available: availableSpace)
         }
         
         switch format {
