@@ -436,9 +436,16 @@ public struct VBDiskResizer {
         
         // First, check if we need to use diskutil apfs list to find the APFS container
         // This is needed when the partition is an APFS volume rather than a container
+        // Also check if the device itself is an APFS container (common for VM disk images)
         if let apfsContainerFromList = await findAPFSContainerUsingAPFSList(deviceNode: deviceNode) {
             NSLog("Found APFS container using 'diskutil apfs list': \(apfsContainerFromList)")
             try await resizeAPFSContainer(apfsContainerFromList)
+        } else if listOutput.contains("Apple_APFS") {
+            // The disk might be an APFS container itself (common for VM images)
+            // Try to resize it directly
+            NSLog("Disk appears to have APFS partitions, attempting to resize \(deviceNode) as container")
+            let cleanDevice = deviceNode.replacingOccurrences(of: "/dev/", with: "")
+            try await resizeAPFSContainer(cleanDevice)
         } else if listOutput.contains("Apple_APFS_Recovery") {
             // Check if there's an Apple_APFS_Recovery partition blocking expansion
             NSLog("Detected Apple_APFS_Recovery partition - attempting recovery partition resize strategy")
@@ -523,6 +530,9 @@ public struct VBDiskResizer {
                     try await resizeAPFSContainer(container)
                 } else {
                     NSLog("Warning: Could not find APFS container for volume \(partitionIdentifier)")
+                    // Last resort: try to resize the base device itself as it might be the container
+                    NSLog("Attempting to resize base device \(baseDevice) as APFS container")
+                    try await resizeAPFSContainer(baseDevice.replacingOccurrences(of: "/dev/", with: ""))
                 }
             } else {
                 NSLog("Warning: Failed to resize partition \(partitionIdentifier): \(resizeOutput)")
