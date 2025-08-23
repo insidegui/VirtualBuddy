@@ -177,32 +177,24 @@ struct ManagedDiskImageEditor: View {
         isResizing = true
         
         Task {
-            do {
-                await MainActor.run {
-                    image.size = newSize
-                    onSave(image)
-                }
+            await MainActor.run {
+                image.size = newSize
+                onSave(image)
+            }
+            
+            // The actual resize will happen automatically when VM starts or restarts
+            // due to the size mismatch detection in checkAndResizeDiskImages()
+            
+            await MainActor.run {
+                isResizing = false
                 
-                // The actual resize will happen automatically when VM starts or restarts
-                // due to the size mismatch detection in checkAndResizeDiskImages()
-                
-                await MainActor.run {
-                    isResizing = false
-                    
-                    // Show informational alert
-                    let alert = NSAlert()
-                    alert.messageText = "Disk Resize in Progress"
-                    alert.informativeText = "The disk image is being resized to \(ByteCountFormatter.string(fromByteCount: Int64(newSize), countStyle: .file)). This may take several minutes depending on the disk size. The partition will be automatically expanded to use the new space."
-                    alert.alertStyle = .informational
-                    alert.addButton(withTitle: "OK")
-                    alert.runModal()
-                }
-            } catch {
-                await MainActor.run {
-                    image.size = minimumSize
-                    isResizing = false
-                    NSAlert(error: error).runModal()
-                }
+                // Show informational alert
+                let alert = NSAlert()
+                alert.messageText = "Disk Resize in Progress"
+                alert.informativeText = "The disk image is being resized to \(ByteCountFormatter.string(fromByteCount: Int64(newSize), countStyle: .file)). This may take several minutes depending on the disk size. The partition will be automatically expanded to use the new space."
+                alert.alertStyle = .informational
+                alert.addButton(withTitle: "OK")
+                alert.runModal()
             }
         }
     }

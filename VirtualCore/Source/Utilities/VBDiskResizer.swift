@@ -804,11 +804,7 @@ public struct VBDiskResizer {
                 // Strategy 2: Try using the limit parameter to resize up to the recovery partition
                 NSLog("Attempting to resize main container up to recovery partition boundary")
                 
-                // Calculate size: We need to leave space for the recovery partition
-                // Extract the recovery partition size from the output
-                let recoverySize: UInt64 = 5_400_000_000 // ~5.4 GB typical recovery size
-                
-                // Get total disk size
+                // Get total disk size (might be useful for debugging)
                 let diskInfoProcess = Process()
                 diskInfoProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
                 diskInfoProcess.arguments = ["info", deviceNode]
@@ -820,7 +816,7 @@ public struct VBDiskResizer {
                 try diskInfoProcess.run()
                 diskInfoProcess.waitUntilExit()
                 
-                let diskInfoOutput = String(data: diskInfoPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+                _ = diskInfoPipe.fileHandleForReading.readDataToEndOfFile()
                 
                 // Try to resize leaving space for recovery
                 let resizeProcess = Process()
