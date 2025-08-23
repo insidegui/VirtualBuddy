@@ -506,8 +506,16 @@ public struct VBDiskResizer {
             if resizeOutput.contains("is an APFS Volume") && resizeOutput.contains("diskutil apfs resizeContainer") {
                 NSLog("Partition \(partitionIdentifier) is an APFS Volume, attempting to find and resize its container")
                 
-                // Extract the base device (e.g., disk10 from disk10s2)
-                let baseDevice = partitionIdentifier.components(separatedBy: "s").first ?? partitionIdentifier
+                // Extract the base device (e.g., /dev/disk10 from /dev/disk10s2)
+                // We need to find the last 's' followed by a number to properly extract the base device
+                let baseDevice: String
+                if let lastSIndex = partitionIdentifier.lastIndex(of: "s"),
+                   partitionIdentifier.index(after: lastSIndex) < partitionIdentifier.endIndex,
+                   partitionIdentifier[partitionIdentifier.index(after: lastSIndex)].isNumber {
+                    baseDevice = String(partitionIdentifier[..<lastSIndex])
+                } else {
+                    baseDevice = partitionIdentifier
+                }
                 
                 // Try to find the container using diskutil apfs list
                 if let container = await findAPFSContainerUsingAPFSList(deviceNode: baseDevice) {
@@ -576,6 +584,9 @@ public struct VBDiskResizer {
         
         let apfsListOutput = String(data: apfsListPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         
+        // Clean the device node (remove /dev/ prefix if present)
+        let cleanDeviceNode = deviceNode.replacingOccurrences(of: "/dev/", with: "")
+        
         // Parse the output to find the container associated with our device
         // Look for patterns like:
         // "+-- Container disk10
@@ -588,48 +599,58 @@ public struct VBDiskResizer {
         var inContainer = false
         
         for line in lines {
-            // Check for container header
+            // Check for container header (e.g., "+-- Container disk10")
             if line.contains("Container disk") {
                 let components = line.components(separatedBy: .whitespaces)
                 for component in components {
                     if component.hasPrefix("disk") && !component.contains("s") {
                         currentContainer = component
                         inContainer = true
+                        // Check if this IS our device
+                        if component == cleanDeviceNode {
+                            NSLog("Device \(cleanDeviceNode) is itself an APFS container")
+                            return cleanDeviceNode
+                        }
                     }
                 }
             }
             
             // Check if our device is a Physical Store for this container
             if inContainer && currentContainer != nil {
-                if line.contains("Physical Store") && line.contains(deviceNode) {
-                    NSLog("Found APFS container \(currentContainer!) with physical store \(deviceNode)")
+                // Look for Physical Store line
+                if line.contains("Physical Store") && (line.contains(cleanDeviceNode) || line.contains(deviceNode)) {
+                    NSLog("Found APFS container \(currentContainer!) with physical store \(cleanDeviceNode)")
                     return currentContainer
-                }
-                
-                // Also check if the device itself is the container
-                if deviceNode == currentContainer {
-                    NSLog("Device \(deviceNode) is itself an APFS container")
-                    return deviceNode
                 }
                 
                 // Check for volumes that match our device pattern
                 // e.g., if deviceNode is disk10, check for disk10s1, disk10s2, etc.
-                if line.contains("APFS Volume") || line.contains("Physical Store") {
-                    let devicePrefix = deviceNode + "s"
+                if line.contains("APFS Volume") {
+                    let devicePrefix = cleanDeviceNode + "s"
                     if line.contains(devicePrefix) {
-                        NSLog("Found APFS container \(currentContainer!) containing volume from \(deviceNode)")
+                        NSLog("Found APFS container \(currentContainer!) containing volume from \(cleanDeviceNode)")
+                        return currentContainer
+                    }
+                }
+                
+                // Also check APFS Physical Store lines with disk references
+                if line.contains("APFS Physical Store Disk") && line.contains("(") && line.contains(")") {
+                    // Parse lines like "APFS Physical Store Disk:   (disk10s2)"
+                    if line.contains("(\(cleanDeviceNode)") || line.contains("(\(cleanDeviceNode)s") {
+                        NSLog("Found APFS container \(currentContainer!) with physical store reference to \(cleanDeviceNode)")
                         return currentContainer
                     }
                 }
             }
             
             // Reset when we hit a new container or end of container section
-            if line.contains("====") && !line.contains("Container disk") {
+            if line.isEmpty || (line.contains("+--") && !line.contains("Container disk")) {
                 inContainer = false
             }
         }
         
-        NSLog("No APFS container found in 'diskutil apfs list' for device \(deviceNode)")
+        NSLog("No APFS container found in 'diskutil apfs list' for device \(cleanDeviceNode)")
+        NSLog("Full APFS list output:\n\(apfsListOutput)")
         return nil
     }
     
