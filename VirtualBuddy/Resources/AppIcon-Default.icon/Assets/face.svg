@@ -3,8 +3,8 @@
     <title>Face</title>
     <defs>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
-            <stop stop-color="#380818" offset="0%"></stop>
-            <stop stop-color="#601514" offset="100%"></stop>
+            <stop stop-color="color(display-p3 0.219 0.030 0.093)" offset="0%"></stop>
+            <stop stop-color="color(display-p3 0.377 0.083 0.077)" offset="100%"></stop>
         </linearGradient>
     </defs>
     <g id="Face" stroke="none" fill="none" fill-rule="evenodd">

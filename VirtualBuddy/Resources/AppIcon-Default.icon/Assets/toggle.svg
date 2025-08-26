@@ -3,8 +3,8 @@
     <title>Toggle</title>
     <defs>
         <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
-            <stop stop-color="#FFA90D" offset="0%"></stop>
-            <stop stop-color="#FF8D00" offset="100%"></stop>
+            <stop stop-color="color(display-p3 1.000 0.663 0.053)" offset="0%"></stop>
+            <stop stop-color="color(display-p3 1.000 0.553 0.000)" offset="100%"></stop>
         </linearGradient>
     </defs>
     <g id="Toggle" stroke="none" fill="none" fill-rule="evenodd">
