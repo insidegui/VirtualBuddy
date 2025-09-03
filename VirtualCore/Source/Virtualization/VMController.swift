@@ -62,6 +62,7 @@ public struct VMSessionOptions: Hashable, Codable {
 public enum VMState: Equatable {
     case idle
     case starting(_ message: String?)
+    case resizingDisk(_ message: String?)
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
     case savingState(VZVirtualMachine)
@@ -158,6 +159,17 @@ public final class VMController: ObservableObject {
         state = .starting(nil)
 
         await waitForGuestDiskImageReadyIfNeeded()
+        
+        // Check and resize disk images if needed
+        do {
+            state = .resizingDisk("Checking disk image sizes...")
+            try await virtualMachineModel.checkAndResizeDiskImages()
+            state = .starting("Starting virtual machine...")
+        } catch {
+            // Log resize errors but don't fail VM start
+            NSLog("Warning: Failed to resize disk images: \(error)")
+            state = .starting("Starting virtual machine...")
+        }
 
         try await updatingState {
             let newInstance = try createInstance()
@@ -402,6 +414,7 @@ public extension VMState {
         switch lhs {
         case .idle: return rhs.isIdle
         case .starting: return rhs.isStarting
+        case .resizingDisk: return rhs.isResizingDisk
         case .running: return rhs.isRunning
         case .paused: return rhs.isPaused
         case .stopped: return rhs.isStopped
@@ -418,6 +431,10 @@ public extension VMState {
 
     var isStarting: Bool {
         guard case .starting = self else { return false }
+        return true
+    }
+    var isResizingDisk: Bool {
+        guard case .resizingDisk = self else { return false }
         return true
     }
 
