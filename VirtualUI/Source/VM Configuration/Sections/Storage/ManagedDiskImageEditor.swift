@@ -39,6 +39,7 @@ struct ManagedDiskImageEditor: View {
     @State private var isResizing = false
     @State private var showResizeConfirmation = false
     @State private var newSize: UInt64 = 0
+    @State private var sliderTimer: Timer?
 
     @Environment(\.dismiss)
     private var dismiss
@@ -108,8 +109,14 @@ struct ManagedDiskImageEditor: View {
         }
         .onChange(of: image) { newValue in
             if isExistingDiskImage && canResize && newValue.size != minimumSize {
-                newSize = newValue.size
-                showResizeConfirmation = true
+                // Cancel any existing timer
+                sliderTimer?.invalidate()
+                
+                // Set a timer to show confirmation after user stops sliding
+                sliderTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                    newSize = newValue.size
+                    showResizeConfirmation = true
+                }
             } else {
                 onSave(newValue)
             }
