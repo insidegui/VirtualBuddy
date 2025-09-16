@@ -100,15 +100,16 @@ public extension VBVirtualMachine {
     
     /// Resizes a managed disk image to the specified size
     private func resizeDiskImage(_ image: VBManagedDiskImage, to newSize: UInt64) async throws {
-        // The actual resize operation needs to be performed using system tools
-        // For now, we'll just log that a resize is needed
-        // The resize will happen when the VM configuration detects the size mismatch
-        
         let imageURL = diskImageURL(for: image)
-        NSLog("Disk resize needed for \(imageURL.path): current size < \(newSize) bytes")
+        NSLog("Resizing disk image at \(imageURL.path) from current size to \(newSize) bytes")
         
-        // TODO: Implement actual resize using hdiutil or other system tools
-        // This would require calling out to shell commands or using lower-level APIs
+        try await VBDiskResizer.resizeDiskImage(
+            at: imageURL,
+            format: image.format,
+            newSize: newSize
+        )
+        
+        NSLog("Successfully resized disk image at \(imageURL.path) to \(newSize) bytes")
     }
     
     /// Validates that all disk images can be resized if needed
