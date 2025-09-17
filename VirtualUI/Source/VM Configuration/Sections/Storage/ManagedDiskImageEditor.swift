@@ -31,7 +31,7 @@ struct ManagedDiskImageEditor: View {
         let f = ByteCountFormatter()
         f.allowedUnits = [.useGB, .useMB, .useTB]
         f.formattingContext = .standalone
-        f.countStyle = .file
+        f.countStyle = .binary
         return f
     }()
 
@@ -129,7 +129,7 @@ struct ManagedDiskImageEditor: View {
                 performResize()
             }
         } message: {
-            Text("This will resize the disk image from \(formatter.string(fromByteCount: Int64(minimumSize))) to \(formatter.string(fromByteCount: Int64(newSize))). This operation cannot be undone and may take some time.")
+                Text("This will resize the disk image from \(formatter.string(fromByteCount: Int64(minimumSize))) to \(formatter.string(fromByteCount: Int64(newSize))). The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone.")
         }
     }
 
@@ -180,22 +180,11 @@ struct ManagedDiskImageEditor: View {
             await MainActor.run {
                 image.size = newSize
                 onSave(image)
+                isResizing = false
             }
             
             // The actual resize will happen automatically when VM starts or restarts
             // due to the size mismatch detection in checkAndResizeDiskImages()
-            
-            await MainActor.run {
-                isResizing = false
-                
-                // Show informational alert
-                let alert = NSAlert()
-                alert.messageText = "Disk Resize in Progress"
-                alert.informativeText = "The disk image is being resized to \(ByteCountFormatter.string(fromByteCount: Int64(newSize), countStyle: .file)). This may take several minutes depending on the disk size. The partition will be automatically expanded to use the new space."
-                alert.alertStyle = .informational
-                alert.addButton(withTitle: "OK")
-                alert.runModal()
-            }
         }
     }
 }
