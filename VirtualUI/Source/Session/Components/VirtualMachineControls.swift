@@ -36,7 +36,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
     var body: some View {
         Group {
             switch controller.state {
-            case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted:
+            case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted, .resizingDisk:
                 Button {
                     runToolbarAction {
                         if controller.state.canResume {

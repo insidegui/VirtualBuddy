@@ -62,6 +62,7 @@ public struct VMSessionOptions: Hashable, Codable {
 public enum VMState: Equatable {
     case idle
     case starting(_ message: String?)
+    case resizingDisk(_ message: String?)
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
     case savingState(VZVirtualMachine)
@@ -158,6 +159,27 @@ public final class VMController: ObservableObject {
         state = .starting(nil)
 
         await waitForGuestDiskImageReadyIfNeeded()
+        
+        // Check and resize disk images if needed
+        do {
+            state = .resizingDisk("Preparing disk resize...")
+            try await virtualMachineModel.checkAndResizeDiskImages { message in
+                self.state = .resizingDisk(message)
+            }
+            state = .starting("Starting virtual machine...")
+        } catch {
+            if case let VBDiskResizeError.apfsVolumesLocked(container) = error {
+                let alert = NSAlert()
+                alert.messageText = "Unlock FileVault to Finish Resizing"
+                alert.informativeText = "VirtualBuddy enlarged the disk image, but the APFS container \(container) is still locked. Start the guest, sign in to unlock FileVault, then use Disk Utility (or run 'diskutil apfs resizeContainer disk0s2 0') inside the guest to claim the newly added space."
+                alert.addButton(withTitle: "OK")
+                alert.alertStyle = .informational
+                alert.runModal()
+            }
+            // Log resize errors but don't fail VM start
+            NSLog("Warning: Failed to resize disk images: \(error)")
+            state = .starting("Starting virtual machine...")
+        }
 
         try await updatingState {
             let newInstance = try createInstance()
@@ -402,6 +424,7 @@ public extension VMState {
         switch lhs {
         case .idle: return rhs.isIdle
         case .starting: return rhs.isStarting
+        case .resizingDisk: return rhs.isResizingDisk
         case .running: return rhs.isRunning
         case .paused: return rhs.isPaused
         case .stopped: return rhs.isStopped
@@ -418,6 +441,10 @@ public extension VMState {
 
     var isStarting: Bool {
         guard case .starting = self else { return false }
+        return true
+    }
+    var isResizingDisk: Bool {
+        guard case .resizingDisk = self else { return false }
         return true
     }
 
@@ -512,3 +539,4 @@ public extension VBMacConfiguration {
         #endif
     }
 }
+
