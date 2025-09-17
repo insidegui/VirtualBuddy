@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import zlib
 
 public enum VBDiskResizeError: LocalizedError {
     case diskImageNotFound(URL)
@@ -14,7 +15,8 @@ public enum VBDiskResizeError: LocalizedError {
     case cannotShrinkDisk
     case systemCommandFailed(String, Int32)
     case invalidSize(UInt64)
-    
+    case apfsVolumesLocked(container: String)
+
     public var errorDescription: String? {
         switch self {
         case .diskImageNotFound(let url):
@@ -33,6 +35,42 @@ public enum VBDiskResizeError: LocalizedError {
             return "System command '\(command)' failed with exit code \(exitCode)"
         case .invalidSize(let size):
             return "Invalid size: \(size) bytes. Size must be larger than current disk size."
+        case .apfsVolumesLocked(let container):
+            return "The APFS container \(container) contains locked volumes. Unlock the disk (for example by signing into the FileVault-protected guest) and run 'diskutil apfs resizeContainer disk0s2 0' inside the guest to complete the resize."
+        }
+    }
+}
+
+private extension FileHandle {
+    func vbWriteAll(_ data: Data) throws {
+        if #available(macOS 10.15.4, *) {
+            try self.write(contentsOf: data)
+        } else {
+            self.write(data)
+        }
+    }
+
+    func vbRead(upToCount count: Int) throws -> Data? {
+        if #available(macOS 10.15.4, *) {
+            return try self.read(upToCount: count)
+        } else {
+            return self.readData(ofLength: count)
+        }
+    }
+
+    func vbSeek(to offset: UInt64) throws {
+        if #available(macOS 10.15.4, *) {
+            _ = try self.seek(toOffset: offset)
+        } else {
+            self.seek(toFileOffset: offset)
+        }
+    }
+
+    func vbSynchronize() throws {
+        if #available(macOS 10.15.4, *) {
+            try self.synchronize()
+        } else {
+            self.synchronizeFile()
         }
     }
 }
@@ -43,7 +81,25 @@ public struct VBDiskResizer {
         case createLargerImage
         case expandInPlace
     }
-    
+
+    private struct APFSContainerInfo {
+        let container: String
+        let physicalStore: String?
+        let hasLockedVolumes: Bool
+    }
+
+    private struct APFSContainerDetails {
+        let capacityCeiling: UInt64
+        let physicalStoreSize: UInt64
+    }
+
+    private static func sanitizeDeviceIdentifier(_ identifier: String) -> String {
+        if identifier.hasPrefix("/dev/") {
+            return String(identifier.dropFirst(5))
+        }
+        return identifier
+    }
+
     public static func canResizeFormat(_ format: VBManagedDiskImage.Format) -> Bool {
         switch format {
         case .raw, .dmg, .sparse:
@@ -233,6 +289,7 @@ public struct VBDiskResizer {
             
         case .raw:
             try await expandRawImageInPlace(at: url, newSize: newSize)
+            try adjustGPTLayoutForRawImage(at: url, newSize: newSize)
             
         case .asif:
             throw VBDiskResizeError.unsupportedImageFormat(format)
@@ -438,21 +495,27 @@ public struct VBDiskResizer {
         // This is needed when the partition is an APFS volume rather than a container
         // Also check if the device itself is an APFS container (common for VM disk images)
         if let apfsContainerFromList = await findAPFSContainerUsingAPFSList(deviceNode: deviceNode) {
-            NSLog("Found APFS container using 'diskutil apfs list': \(apfsContainerFromList)")
+            if apfsContainerFromList.hasLockedVolumes {
+                throw VBDiskResizeError.apfsVolumesLocked(container: apfsContainerFromList.container)
+            }
+            let targetDescription = apfsContainerFromList.physicalStore ?? apfsContainerFromList.container
+            NSLog("Found APFS container using 'diskutil apfs list': \(apfsContainerFromList.container) (store: \(targetDescription))")
             try await resizeAPFSContainer(apfsContainerFromList)
-        } else if listOutput.contains("Apple_APFS") {
-            // The disk might be an APFS container itself (common for VM images)
-            // Try to resize it directly
-            NSLog("Disk appears to have APFS partitions, attempting to resize \(deviceNode) as container")
-            let cleanDevice = deviceNode.replacingOccurrences(of: "/dev/", with: "")
-            try await resizeAPFSContainer(cleanDevice)
         } else if listOutput.contains("Apple_APFS_Recovery") {
             // Check if there's an Apple_APFS_Recovery partition blocking expansion
             NSLog("Detected Apple_APFS_Recovery partition - attempting recovery partition resize strategy")
             try await resizeWithRecoveryPartition(deviceNode: deviceNode, listOutput: listOutput)
         } else if let apfsContainer = findAPFSContainer(in: listOutput, deviceNode: deviceNode) {
-            NSLog("Found APFS container: \(apfsContainer)")
+            let targetDescription = apfsContainer.physicalStore ?? apfsContainer.container
+            NSLog("Found APFS container: \(apfsContainer.container) (store: \(targetDescription))")
             try await resizeAPFSContainer(apfsContainer)
+        } else if listOutput.contains("Apple_APFS") {
+            // The disk might be an APFS container itself (common for VM images)
+            // Try to resize it directly
+            NSLog("Disk appears to have APFS partitions, attempting to resize \(deviceNode) as container")
+            let cleanDevice = sanitizeDeviceIdentifier(deviceNode)
+            let containerInfo = APFSContainerInfo(container: cleanDevice, physicalStore: nil, hasLockedVolumes: false)
+            try await resizeAPFSContainer(containerInfo)
         } else if let hfsPartition = findHFSPartition(in: listOutput, deviceNode: deviceNode) {
             NSLog("Found HFS+ partition: \(hfsPartition)")
             try await resizeHFSPartition(hfsPartition)
@@ -467,25 +530,41 @@ public struct VBDiskResizer {
         }
     }
     
-    private static func resizeAPFSContainer(_ containerIdentifier: String) async throws {
-        let resizeProcess = Process()
-        resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-        resizeProcess.arguments = ["apfs", "resizeContainer", containerIdentifier, "0"]
-        
-        let resizePipe = Pipe()
-        resizeProcess.standardOutput = resizePipe
-        resizeProcess.standardError = resizePipe
-        
-        try resizeProcess.run()
-        resizeProcess.waitUntilExit()
-        
-        let resizeOutput = String(data: resizePipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        
-        if resizeProcess.terminationStatus == 0 {
-            NSLog("Successfully expanded APFS container \(containerIdentifier)")
-        } else {
-            NSLog("Warning: Failed to resize APFS container \(containerIdentifier): \(resizeOutput)")
+    private static func resizeAPFSContainer(_ info: APFSContainerInfo) async throws {
+        if info.hasLockedVolumes {
+            throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
         }
+
+        let resizeTarget = info.physicalStore ?? info.container
+
+        let primaryResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", resizeTarget, "0"])
+
+        if primaryResult.status == 0 {
+            NSLog("Successfully expanded APFS container target \(resizeTarget)")
+        } else {
+            NSLog("Warning: Failed to resize APFS container target \(resizeTarget): \(primaryResult.output)")
+            if primaryResult.output.localizedCaseInsensitiveContains("locked") {
+                throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
+            }
+        }
+
+        // When resizing using the physical store, issue a follow-up pass on the logical container to
+        // encourage APFS to grow the volumes to the new ceiling. Ignore failures in this follow-up.
+        if info.physicalStore != nil && info.container != resizeTarget {
+            let containerTarget = info.container
+            let containerResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", containerTarget, "0"])
+
+            if containerResult.status == 0 {
+                NSLog("Performed follow-up resize on APFS container \(containerTarget)")
+            } else {
+                NSLog("Follow-up resize on container \(containerTarget) failed (ignored): \(containerResult.output)")
+                if containerResult.output.localizedCaseInsensitiveContains("locked") {
+                    throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
+                }
+            }
+        }
+
+        try await ensureAPFSContainerMaximized(info: info)
     }
     
     private static func resizeHFSPartition(_ partitionIdentifier: String) async throws {
@@ -526,13 +605,16 @@ public struct VBDiskResizer {
                 
                 // Try to find the container using diskutil apfs list
                 if let container = await findAPFSContainerUsingAPFSList(deviceNode: baseDevice) {
-                    NSLog("Found APFS container \(container) for volume \(partitionIdentifier)")
+                    let targetDescription = container.physicalStore ?? container.container
+                    NSLog("Found APFS container \(container.container) for volume \(partitionIdentifier) (store: \(targetDescription))")
                     try await resizeAPFSContainer(container)
                 } else {
                     NSLog("Warning: Could not find APFS container for volume \(partitionIdentifier)")
                     // Last resort: try to resize the base device itself as it might be the container
-                    NSLog("Attempting to resize base device \(baseDevice) as APFS container")
-                    try await resizeAPFSContainer(baseDevice.replacingOccurrences(of: "/dev/", with: ""))
+                    let sanitizedBase = sanitizeDeviceIdentifier(baseDevice)
+                    NSLog("Attempting to resize base device \(sanitizedBase) as APFS container")
+                    let fallbackInfo = APFSContainerInfo(container: sanitizedBase, physicalStore: nil, hasLockedVolumes: false)
+                    try await resizeAPFSContainer(fallbackInfo)
                 }
             } else {
                 NSLog("Warning: Failed to resize partition \(partitionIdentifier): \(resizeOutput)")
@@ -569,138 +651,136 @@ public struct VBDiskResizer {
         return "\(deviceNode)s2"
     }
     
-    private static func findAPFSContainerUsingAPFSList(deviceNode: String) async -> String? {
-        // Use 'diskutil apfs list' to find the APFS container
+    private static func findAPFSContainerUsingAPFSList(deviceNode: String) async -> APFSContainerInfo? {
         let apfsListProcess = Process()
         apfsListProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-        apfsListProcess.arguments = ["apfs", "list"]
-        
+        apfsListProcess.arguments = ["apfs", "list", "-plist"]
+
         let apfsListPipe = Pipe()
         apfsListProcess.standardOutput = apfsListPipe
         apfsListProcess.standardError = Pipe()
-        
+
         do {
             try apfsListProcess.run()
             apfsListProcess.waitUntilExit()
         } catch {
-            NSLog("Failed to run 'diskutil apfs list': \(error)")
+            NSLog("Failed to run 'diskutil apfs list -plist': \(error)")
             return nil
         }
-        
+
         guard apfsListProcess.terminationStatus == 0 else {
-            NSLog("'diskutil apfs list' failed with exit code \(apfsListProcess.terminationStatus)")
+            NSLog("'diskutil apfs list -plist' failed with exit code \(apfsListProcess.terminationStatus)")
             return nil
         }
-        
-        let apfsListOutput = String(data: apfsListPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        
-        // Clean the device node (remove /dev/ prefix if present)
-        let cleanDeviceNode = deviceNode.replacingOccurrences(of: "/dev/", with: "")
-        
-        // Parse the output to find the container associated with our device
-        // Look for patterns like:
-        // "+-- Container disk10
-        // |   ====================================================
-        // |   APFS Container Reference:     disk10"
-        // Or for Physical Store references that match our device
-        
-        let lines = apfsListOutput.components(separatedBy: .newlines)
-        var currentContainer: String?
-        var inContainer = false
-        
-        for line in lines {
-            // Check for container header (e.g., "+-- Container disk10")
-            if line.contains("Container disk") {
-                let components = line.components(separatedBy: .whitespaces)
-                for component in components {
-                    if component.hasPrefix("disk") && !component.contains("s") {
-                        currentContainer = component
-                        inContainer = true
-                        // Check if this IS our device
-                        if component == cleanDeviceNode {
-                            NSLog("Device \(cleanDeviceNode) is itself an APFS container")
-                            return cleanDeviceNode
-                        }
-                    }
-                }
+
+        let data = apfsListPipe.fileHandleForReading.readDataToEndOfFile()
+        guard
+            let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
+            let containers = plist["Containers"] as? [[String: Any]]
+        else {
+            NSLog("Failed to parse 'diskutil apfs list -plist' output")
+            return nil
+        }
+
+        let cleanDeviceNode = sanitizeDeviceIdentifier(deviceNode)
+        var candidates: [(info: APFSContainerInfo, size: UInt64, isLikelyISC: Bool)] = []
+
+        for container in containers {
+            guard let containerRef = container["ContainerReference"] as? String else { continue }
+            let volumes = container["Volumes"] as? [[String: Any]] ?? []
+            let roles = volumes.compactMap { $0["Roles"] as? [String] }.flatMap { $0 }
+            let hasSystemOrData = roles.contains(where: { $0 == "System" }) || roles.contains(where: { $0 == "Data" })
+            let hasLockedVolumes = volumes.contains { ($0["Locked"] as? Bool) == true }
+
+            let physicalStores = container["PhysicalStores"] as? [[String: Any]] ?? []
+            for store in physicalStores {
+                guard let storeIdentifier = store["DeviceIdentifier"] as? String else { continue }
+                guard storeIdentifier.hasPrefix(cleanDeviceNode) || containerRef == cleanDeviceNode else { continue }
+                let size = store["Size"] as? UInt64 ?? 0
+                let info = APFSContainerInfo(container: containerRef, physicalStore: storeIdentifier, hasLockedVolumes: hasLockedVolumes)
+                candidates.append((info: info, size: size, isLikelyISC: !hasSystemOrData))
             }
-            
-            // Check if our device is a Physical Store for this container
-            if inContainer && currentContainer != nil {
-                // Look for Physical Store line
-                if line.contains("Physical Store") && (line.contains(cleanDeviceNode) || line.contains(deviceNode)) {
-                    NSLog("Found APFS container \(currentContainer!) with physical store \(cleanDeviceNode)")
-                    return currentContainer
-                }
-                
-                // Check for volumes that match our device pattern
-                // e.g., if deviceNode is disk10, check for disk10s1, disk10s2, etc.
-                if line.contains("APFS Volume") {
-                    let devicePrefix = cleanDeviceNode + "s"
-                    if line.contains(devicePrefix) {
-                        NSLog("Found APFS container \(currentContainer!) containing volume from \(cleanDeviceNode)")
-                        return currentContainer
-                    }
-                }
-                
-                // Also check APFS Physical Store lines with disk references
-                if line.contains("APFS Physical Store Disk") && line.contains("(") && line.contains(")") {
-                    // Parse lines like "APFS Physical Store Disk:   (disk10s2)"
-                    if line.contains("(\(cleanDeviceNode)") || line.contains("(\(cleanDeviceNode)s") {
-                        NSLog("Found APFS container \(currentContainer!) with physical store reference to \(cleanDeviceNode)")
-                        return currentContainer
-                    }
-                }
-            }
-            
-            // Reset when we hit a new container or end of container section
-            if line.isEmpty || (line.contains("+--") && !line.contains("Container disk")) {
-                inContainer = false
+
+            if containerRef == cleanDeviceNode {
+                let size = (physicalStores.first?["Size"] as? UInt64) ?? 0
+                let info = APFSContainerInfo(container: containerRef, physicalStore: nil, hasLockedVolumes: hasLockedVolumes)
+                candidates.append((info: info, size: size, isLikelyISC: !hasSystemOrData))
             }
         }
-        
-        NSLog("No APFS container found in 'diskutil apfs list' for device \(cleanDeviceNode)")
-        NSLog("Full APFS list output:\n\(apfsListOutput)")
-        return nil
+
+        guard !candidates.isEmpty else {
+            NSLog("No APFS container found in 'diskutil apfs list' for device \(cleanDeviceNode)")
+            return nil
+        }
+
+        let preferred = candidates.sorted { lhs, rhs in
+            if lhs.info.hasLockedVolumes != rhs.info.hasLockedVolumes {
+                return lhs.info.hasLockedVolumes == false
+            }
+            if lhs.isLikelyISC != rhs.isLikelyISC {
+                return lhs.isLikelyISC == false
+            }
+            return lhs.size > rhs.size
+        }.first
+
+        return preferred?.info
     }
     
-    private static func findAPFSContainer(in diskutilOutput: String, deviceNode: String) -> String? {
+    private static func findAPFSContainer(in diskutilOutput: String, deviceNode: String) -> APFSContainerInfo? {
         let lines = diskutilOutput.components(separatedBy: .newlines)
-        var foundContainers: [(String, Bool)] = [] // (device, isMainContainer)
+        var foundContainers: [(info: APFSContainerInfo, isMain: Bool)] = [] // (partition, containerRef, isMainContainer)
         
-        // Look for APFS Container entries
+        // Look for APFS Container entries with their container references
+        // Format: "2:                 Apple_APFS Container disk11        47.8 GB    disk8s2"
         for line in lines {
             let trimmed = line.trimmingCharacters(in: .whitespaces)
             
             // Skip header and empty lines
             guard !trimmed.isEmpty && !trimmed.contains("TYPE NAME") else { continue }
             
-            // Look for APFS Container (but prioritize main containers over ISC containers)
-            if trimmed.contains("Apple_APFS") && trimmed.contains("Container") {
-                // Extract partition number (e.g., "1:" -> "disk4s1")
-                let components = trimmed.components(separatedBy: .whitespaces)
-                for component in components {
+            // Look for Apple_APFS entries (but not ISC or Recovery)
+            if trimmed.contains("Apple_APFS") && !trimmed.contains("Apple_APFS_Recovery") {
+                let components = trimmed.components(separatedBy: .whitespaces).filter { !$0.isEmpty }
+                
+                // Find partition number
+                var partitionNum: String?
+                var containerRef: String?
+                
+                for (index, component) in components.enumerated() {
+                    // Get partition number (e.g., "2:" -> "2")
                     if component.hasSuffix(":") {
-                        let partitionNum = component.dropLast() // Remove ":"
-                        let containerDevice = "\(deviceNode)s\(partitionNum)"
-                        
-                        // Prioritize main containers over ISC (Initial System Container)
-                        let isMainContainer = !trimmed.contains("Apple_APFS_ISC")
-                        foundContainers.append((containerDevice, isMainContainer))
-                        
-                        NSLog("Found APFS container: \(containerDevice) (main: \(isMainContainer))")
+                        partitionNum = String(component.dropLast())
                     }
+                    
+                    // Look for "Container disk" pattern
+                    if component == "Container" && index + 1 < components.count {
+                        let nextComponent = components[index + 1]
+                        if nextComponent.hasPrefix("disk") {
+                            containerRef = nextComponent
+                        }
+                    }
+                }
+                
+                if let partition = partitionNum {
+                    let partitionDevice = sanitizeDeviceIdentifier("\(deviceNode)s\(partition)")
+                    let isMainContainer = !trimmed.contains("Apple_APFS_ISC")
+
+                    let containerIdentifier = sanitizeDeviceIdentifier(containerRef ?? partitionDevice)
+                    let info = APFSContainerInfo(container: containerIdentifier, physicalStore: partitionDevice, hasLockedVolumes: false)
+                    foundContainers.append((info: info, isMain: isMainContainer))
+
+                    NSLog("Found APFS partition: \(partitionDevice) -> Container: \(containerIdentifier) (main: \(isMainContainer))")
                 }
             }
         }
         
         // Prefer main containers over ISC containers
-        if let mainContainer = foundContainers.first(where: { $0.1 }) {
-            NSLog("Using main APFS container: \(mainContainer.0)")
-            return mainContainer.0
+        if let mainContainer = foundContainers.first(where: { $0.isMain }) {
+            NSLog("Using main APFS container: \(mainContainer.info.container)")
+            return APFSContainerInfo(container: mainContainer.info.container, physicalStore: mainContainer.info.physicalStore, hasLockedVolumes: false)
         } else if let anyContainer = foundContainers.first {
-            NSLog("Using fallback APFS container: \(anyContainer.0)")
-            return anyContainer.0
+            NSLog("Using fallback APFS container: \(anyContainer.info.container)")
+            return APFSContainerInfo(container: anyContainer.info.container, physicalStore: anyContainer.info.physicalStore, hasLockedVolumes: false)
         }
         
         NSLog("No APFS container found in diskutil output")
@@ -743,10 +823,13 @@ public struct VBDiskResizer {
             NSLog("Could not find main APFS container for recovery partition resize")
             return
         }
-        
+
+        let mainContainerTarget = mainContainer.physicalStore ?? mainContainer.container
+        NSLog("Primary APFS container for recovery handling: \(mainContainer.container) (store: \(mainContainerTarget))")
+
         // Check if recovery partition is blocking expansion
         let recoveryPartition = findRecoveryPartition(in: listOutput, deviceNode: deviceNode)
-        
+
         if let recovery = recoveryPartition {
             NSLog("Found recovery partition: \(recovery)")
             NSLog("Recovery partition detected - attempting advanced resize strategies")
@@ -821,7 +904,8 @@ public struct VBDiskResizer {
                 // Try to resize leaving space for recovery
                 let resizeProcess = Process()
                 resizeProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-                resizeProcess.arguments = ["apfs", "resizeContainer", mainContainer, "0"]
+                let recoveryResizeTarget = mainContainer.physicalStore ?? mainContainer.container
+                resizeProcess.arguments = ["apfs", "resizeContainer", recoveryResizeTarget, "0"]
                 
                 let resizePipe = Pipe()
                 resizeProcess.standardOutput = resizePipe
@@ -921,34 +1005,421 @@ public struct VBDiskResizer {
         return nil
     }
     
-    private static func moveRecoveryPartitionToEnd(deviceNode: String, recoveryPartition: String) async throws {
-        NSLog("Recovery partition relocation is complex and may not be necessary")
-        NSLog("Attempting to work around recovery partition by using available space more efficiently")
-        
-        // Instead of moving the recovery partition, let's try a different approach:
-        // Calculate how much space is available and try to expand the main container 
-        // to use as much space as possible without conflicting with the recovery partition
-        
-        // Get detailed information about the disk layout
-        let infoProcess = Process()
-        infoProcess.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
-        infoProcess.arguments = ["info", deviceNode]
-        
-        let infoPipe = Pipe()
-        infoProcess.standardOutput = infoPipe
-        infoProcess.standardError = Pipe()
-        
-        try infoProcess.run()
-        infoProcess.waitUntilExit()
-        
-        let infoOutput = String(data: infoPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        NSLog("Disk info: \(infoOutput)")
-        
-        // For VM disk images, we'll skip the complex recovery partition relocation
-        // and instead just inform the user that the resize was completed but 
-        // partition expansion was limited by the recovery partition
-        NSLog("VM disk images with recovery partitions have complex layouts")
-        NSLog("The disk image has been resized, but partition expansion is limited by recovery partition placement")
-        NSLog("This is normal for macOS VM installations and the available space will be usable by the system")
+    private static func ensureAPFSContainerMaximized(info: APFSContainerInfo) async throws {
+        if info.hasLockedVolumes {
+            throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
+        }
+
+        guard let details = try fetchAPFSContainerDetails(container: info.container) else {
+            return
+        }
+
+        let physicalSize = details.physicalStoreSize
+        let capacity = details.capacityCeiling
+        let tolerance: UInt64 = 1 * 1024 * 1024 // 1 MB tolerance to account for rounding
+
+        if physicalSize > capacity + tolerance {
+            NSLog("APFS container \(info.container) ceiling (\(capacity)) is below physical store size (\(physicalSize)); nudging container")
+            try await nudgeAPFSContainer(info: info, physicalSize: physicalSize)
+
+            if let postDetails = try fetchAPFSContainerDetails(container: info.container) {
+                NSLog("Post-nudge container ceiling: \(postDetails.capacityCeiling) (store: \(postDetails.physicalStoreSize))")
+            }
+        }
     }
+
+    private static func fetchAPFSContainerDetails(container: String) throws -> APFSContainerDetails? {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        process.arguments = ["apfs", "list", "-plist", container]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = Pipe()
+
+        try process.run()
+        process.waitUntilExit()
+
+        guard process.terminationStatus == 0 else {
+            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+            NSLog("Failed to query APFS container \(container): \(output)")
+            return nil
+        }
+
+        let data = pipe.fileHandleForReading.readDataToEndOfFile()
+        guard
+            let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
+            let containers = plist["Containers"] as? [[String: Any]],
+            let first = containers.first,
+            let capacity = first["CapacityCeiling"] as? UInt64,
+            let stores = first["PhysicalStores"] as? [[String: Any]],
+            let store = stores.first,
+            let storeSize = store["Size"] as? UInt64
+        else {
+            NSLog("Could not parse APFS container details for \(container)")
+            return nil
+        }
+
+        return APFSContainerDetails(capacityCeiling: capacity, physicalStoreSize: storeSize)
+    }
+
+    private static func nudgeAPFSContainer(info: APFSContainerInfo, physicalSize: UInt64) async throws {
+        let alignment: UInt64 = 4096
+        let shrinkDelta: UInt64 = 32 * 1024 * 1024 // 32 MB nudge to ensure actual size change
+        let resizeTarget = info.physicalStore ?? info.container
+
+        guard physicalSize > alignment else { return }
+
+        let tentativeShrink = physicalSize > shrinkDelta ? physicalSize - shrinkDelta : physicalSize - alignment
+        let alignedShrink = max((tentativeShrink / alignment) * alignment, alignment)
+
+        let shrinkArg = "\(alignedShrink)B"
+        let shrinkResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", resizeTarget, shrinkArg])
+
+        if shrinkResult.status != 0 {
+            NSLog("APFS shrink nudge for \(resizeTarget) failed: \(shrinkResult.output)")
+            if shrinkResult.output.localizedCaseInsensitiveContains("locked") {
+                throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
+            }
+        }
+
+        let growResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", resizeTarget, "0"])
+        if growResult.status != 0 {
+            NSLog("APFS grow after nudge for \(resizeTarget) failed: \(growResult.output)")
+            if growResult.output.localizedCaseInsensitiveContains("locked") {
+                throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
+            }
+        }
+    }
+
+    private static func runDiskutilCommand(arguments: [String]) -> (status: Int32, output: String) {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        process.arguments = arguments
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        do {
+            try process.run()
+            process.waitUntilExit()
+        } catch {
+            NSLog("Failed to run diskutil \(arguments.joined(separator: " ")): \(error)")
+            return (-1, "\(error)")
+        }
+
+        let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        return (process.terminationStatus, output)
+    }
+
+    private static func adjustGPTLayoutForRawImage(at url: URL, newSize: UInt64) throws {
+        try GPTLayoutAdjuster(imageURL: url, newSize: newSize).perform()
+    }
+
+    private struct GPTLayoutAdjuster {
+        let imageURL: URL
+        let newSize: UInt64
+
+        private let sectorSize: UInt64 = 512
+        private let mainContainerGUID = UUID(uuidString: "7C3457EF-0000-11AA-AA11-00306543ECAC")!
+        private let recoveryGUID = UUID(uuidString: "52637672-7900-11AA-AA11-00306543ECAC")!
+
+        func perform() throws {
+            guard newSize % sectorSize == 0 else {
+                throw VBDiskResizeError.systemCommandFailed("New disk size must be 512-byte aligned", -1)
+            }
+
+            let fileHandle = try FileHandle(forUpdating: imageURL)
+            defer { try? fileHandle.close() }
+
+            let headerOffset = sectorSize
+            try fileHandle.vbSeek(to: headerOffset)
+            let headerData = try readExactly(fileHandle: fileHandle, length: Int(sectorSize))
+
+            var header = GPTHeader(data: headerData)
+            let entriesOffset = UInt64(header.partitionEntriesLBA) * sectorSize
+            let entriesLength = Int(header.numberOfEntries) * Int(header.entrySize)
+
+            try fileHandle.vbSeek(to: entriesOffset)
+            var entries = try readExactly(fileHandle: fileHandle, length: entriesLength)
+
+            guard
+                let mainIndex = findPartitionIndex(in: entries, guid: mainContainerGUID, entrySize: Int(header.entrySize), preferLargest: true),
+                let recoveryIndex = findPartitionIndex(in: entries, guid: recoveryGUID, entrySize: Int(header.entrySize), preferLargest: false)
+            else {
+                throw NSError(domain: "VBDiskResizer", code: 1, userInfo: [NSLocalizedDescriptionKey: "Could not locate APFS partitions in GPT"])
+            }
+
+            let mainLast = readUInt64LittleEndian(from: entries, offset: mainIndex * Int(header.entrySize) + 40)
+            let recoveryFirst = readUInt64LittleEndian(from: entries, offset: recoveryIndex * Int(header.entrySize) + 32)
+            let recoveryLast = readUInt64LittleEndian(from: entries, offset: recoveryIndex * Int(header.entrySize) + 40)
+
+            let recoveryLength = recoveryLast - recoveryFirst + 1
+
+            let totalSectors = newSize / sectorSize
+            let newBackupLBA = totalSectors - 1
+            let backupEntriesLBA = newBackupLBA - 32
+            var newLastUsable = backupEntriesLBA - 8
+            var newRecoveryFirst = newLastUsable - (recoveryLength - 1)
+
+            let alignment: UInt64 = 8
+            let remainder = newRecoveryFirst % alignment
+            if remainder != 0 {
+                newRecoveryFirst -= remainder
+                newLastUsable = newRecoveryFirst + recoveryLength - 1
+            }
+
+            let newMainLast = newRecoveryFirst - 1
+
+            guard newMainLast > mainLast else {
+                // Nothing to do if the main container already occupies the space
+                return
+            }
+
+            try copySectors(
+                fileHandle: fileHandle,
+                from: recoveryFirst,
+                to: newRecoveryFirst,
+                count: recoveryLength,
+                sectorSize: sectorSize
+            )
+
+            try zeroSectors(
+                fileHandle: fileHandle,
+                start: recoveryFirst,
+                count: recoveryLength,
+                sectorSize: sectorSize
+            )
+
+            writeUInt64LittleEndian(
+                &entries,
+                offset: mainIndex * Int(header.entrySize) + 40,
+                value: newMainLast
+            )
+
+            writeUInt64LittleEndian(
+                &entries,
+                offset: recoveryIndex * Int(header.entrySize) + 32,
+                value: newRecoveryFirst
+            )
+
+            writeUInt64LittleEndian(
+                &entries,
+                offset: recoveryIndex * Int(header.entrySize) + 40,
+                value: newLastUsable
+            )
+
+            header.backupLBA = newBackupLBA
+            header.lastUsableLBA = newLastUsable
+            header.partitionEntriesCRC32 = crc32(of: entries)
+
+            try fileHandle.vbSeek(to: entriesOffset)
+            try fileHandle.vbWriteAll(entries)
+
+            let primaryHeaderData = header.serialized(sectorSize: sectorSize, isBackup: false)
+            try fileHandle.vbSeek(to: headerOffset)
+            try fileHandle.vbWriteAll(primaryHeaderData)
+
+            let backupEntriesOffset = backupEntriesLBA * sectorSize
+            try fileHandle.vbSeek(to: backupEntriesOffset)
+            try fileHandle.vbWriteAll(entries)
+
+            let backupHeaderData = header.serialized(sectorSize: sectorSize, isBackup: true)
+            try fileHandle.vbSeek(to: newBackupLBA * sectorSize)
+            try fileHandle.vbWriteAll(backupHeaderData)
+
+            try fileHandle.vbSynchronize()
+        }
+
+        private func readExactly(fileHandle: FileHandle, length: Int) throws -> Data {
+            let data = try fileHandle.vbRead(upToCount: length) ?? Data()
+            guard data.count == length else {
+                throw NSError(domain: "VBDiskResizer", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to read expected GPT data"])
+            }
+            return data
+        }
+
+        private func findPartitionIndex(in entries: Data, guid: UUID, entrySize: Int, preferLargest: Bool) -> Int? {
+            var bestIndex: Int?
+            var bestLength: UInt64 = 0
+
+            for index in 0..<(entries.count / entrySize) {
+                let base = index * entrySize
+                let typeData = entries.subdata(in: base..<(base + 16))
+                guard let entryGUID = uuidFromGPTBytes(typeData), entryGUID == guid else {
+                    continue
+                }
+
+                if !preferLargest {
+                    return index
+                }
+
+                let first = readUInt64LittleEndian(from: entries, offset: base + 32)
+                let last = readUInt64LittleEndian(from: entries, offset: base + 40)
+                let length = last >= first ? last - first : 0
+                if length > bestLength {
+                    bestLength = length
+                    bestIndex = index
+                }
+            }
+
+            return preferLargest ? bestIndex : nil
+        }
+
+        private func copySectors(fileHandle: FileHandle, from: UInt64, to: UInt64, count: UInt64, sectorSize: UInt64) throws {
+            let bufferSize: UInt64 = 4 * 1024 * 1024
+            var remaining = count * sectorSize
+            var readOffset = from * sectorSize
+            var writeOffset = to * sectorSize
+
+            while remaining > 0 {
+                let chunk = Int(min(bufferSize, remaining))
+                try fileHandle.vbSeek(to: readOffset)
+                let data = try readExactly(fileHandle: fileHandle, length: chunk)
+
+                try fileHandle.vbSeek(to: writeOffset)
+                try fileHandle.vbWriteAll(data)
+
+                remaining -= UInt64(chunk)
+                readOffset += UInt64(chunk)
+                writeOffset += UInt64(chunk)
+            }
+        }
+
+        private func zeroSectors(fileHandle: FileHandle, start: UInt64, count: UInt64, sectorSize: UInt64) throws {
+            let bufferSize: UInt64 = 4 * 1024 * 1024
+            var remaining = count * sectorSize
+            var offset = start * sectorSize
+            let zeroChunk = Data(count: Int(min(bufferSize, remaining)))
+
+            while remaining > 0 {
+                let chunk = Int(min(UInt64(zeroChunk.count), remaining))
+                try fileHandle.vbSeek(to: offset)
+                try fileHandle.vbWriteAll(zeroChunk.prefix(chunk))
+
+                remaining -= UInt64(chunk)
+                offset += UInt64(chunk)
+            }
+        }
+    }
+
+    private struct GPTHeader {
+        var signature: UInt64
+        var revision: UInt32
+        var headerSize: UInt32
+        var headerCRC32: UInt32
+        var reserved: UInt32
+        var currentLBA: UInt64
+        var backupLBA: UInt64
+        var firstUsableLBA: UInt64
+        var lastUsableLBA: UInt64
+        var diskGUID: Data
+        var partitionEntriesLBA: UInt64
+        var numberOfEntries: UInt32
+        var entrySize: UInt32
+        var partitionEntriesCRC32: UInt32
+
+        init(data: Data) {
+            signature = readUInt64LittleEndian(from: data, offset: 0)
+            revision = readUInt32LittleEndian(from: data, offset: 8)
+            headerSize = readUInt32LittleEndian(from: data, offset: 12)
+            headerCRC32 = readUInt32LittleEndian(from: data, offset: 16)
+            reserved = readUInt32LittleEndian(from: data, offset: 20)
+            currentLBA = readUInt64LittleEndian(from: data, offset: 24)
+            backupLBA = readUInt64LittleEndian(from: data, offset: 32)
+            firstUsableLBA = readUInt64LittleEndian(from: data, offset: 40)
+            lastUsableLBA = readUInt64LittleEndian(from: data, offset: 48)
+            diskGUID = data.subdata(in: 56..<72)
+            partitionEntriesLBA = readUInt64LittleEndian(from: data, offset: 72)
+            numberOfEntries = readUInt32LittleEndian(from: data, offset: 80)
+            entrySize = readUInt32LittleEndian(from: data, offset: 84)
+            partitionEntriesCRC32 = readUInt32LittleEndian(from: data, offset: 88)
+        }
+
+        func serialized(sectorSize: UInt64, isBackup: Bool) -> Data {
+            var data = Data(count: Int(sectorSize))
+            writeUInt64LittleEndian(&data, offset: 0, value: signature)
+            writeUInt32LittleEndian(&data, offset: 8, value: revision)
+            writeUInt32LittleEndian(&data, offset: 12, value: headerSize)
+            writeUInt32LittleEndian(&data, offset: 16, value: 0) // placeholder for CRC
+            writeUInt32LittleEndian(&data, offset: 20, value: reserved)
+            let current = isBackup ? backupLBA : currentLBA
+            let backup = isBackup ? currentLBA : backupLBA
+            writeUInt64LittleEndian(&data, offset: 24, value: current)
+            writeUInt64LittleEndian(&data, offset: 32, value: backup)
+            writeUInt64LittleEndian(&data, offset: 40, value: firstUsableLBA)
+            writeUInt64LittleEndian(&data, offset: 48, value: lastUsableLBA)
+            data.replaceSubrange(56..<72, with: diskGUID)
+            let entriesLBA = isBackup ? (backupLBA - 32) : partitionEntriesLBA
+            writeUInt64LittleEndian(&data, offset: 72, value: entriesLBA)
+            writeUInt32LittleEndian(&data, offset: 80, value: numberOfEntries)
+            writeUInt32LittleEndian(&data, offset: 84, value: entrySize)
+            writeUInt32LittleEndian(&data, offset: 88, value: partitionEntriesCRC32)
+
+            let crc = crc32(of: data.prefix(Int(headerSize)))
+            writeUInt32LittleEndian(&data, offset: 16, value: crc)
+            return data
+        }
+    }
+
+    private static func crc32(of data: Data) -> UInt32 {
+        data.withUnsafeBytes { buffer -> UInt32 in
+            guard let base = buffer.bindMemory(to: UInt8.self).baseAddress else { return 0 }
+            return UInt32(zlib.crc32(0, base, uInt(buffer.count)))
+        }
+    }
+
+    private static func uuidFromGPTBytes(_ data: Data) -> UUID? {
+        guard data.count == 16 else { return nil }
+        let a = readUInt32LittleEndian(from: data, offset: 0)
+        let b = readUInt16LittleEndian(from: data, offset: 4)
+        let c = readUInt16LittleEndian(from: data, offset: 6)
+        let tail = Array(data[8..<16])
+        let uuidString = String(
+            format: "%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x",
+            a, b, c,
+            tail[0], tail[1],
+            tail[2], tail[3],
+            tail[4], tail[5], tail[6], tail[7]
+        )
+        return UUID(uuidString: uuidString)
+    }
+
+    private static func readUInt64LittleEndian(from data: Data, offset: Int) -> UInt64 {
+        let range = offset..<(offset + 8)
+        return data.subdata(in: range).withUnsafeBytes { $0.load(as: UInt64.self) }.littleEndian
+    }
+
+    private static func readUInt32LittleEndian(from data: Data, offset: Int) -> UInt32 {
+        let range = offset..<(offset + 4)
+        return data.subdata(in: range).withUnsafeBytes { $0.load(as: UInt32.self) }.littleEndian
+    }
+
+    private static func readUInt16LittleEndian(from data: Data, offset: Int) -> UInt16 {
+        let range = offset..<(offset + 2)
+        return data.subdata(in: range).withUnsafeBytes { $0.load(as: UInt16.self) }.littleEndian
+    }
+
+    private static func writeUInt64LittleEndian(_ data: inout Data, offset: Int, value: UInt64) {
+        var little = value.littleEndian
+        withUnsafeBytes(of: &little) { bytes in
+            data.replaceSubrange(offset..<(offset + 8), with: bytes)
+        }
+    }
+
+    private static func writeUInt32LittleEndian(_ data: inout Data, offset: Int, value: UInt32) {
+        var little = value.littleEndian
+        withUnsafeBytes(of: &little) { bytes in
+            data.replaceSubrange(offset..<(offset + 4), with: bytes)
+        }
+    }
+
+    private static func writeUInt16LittleEndian(_ data: inout Data, offset: Int, value: UInt16) {
+        var little = value.littleEndian
+        withUnsafeBytes(of: &little) { bytes in
+            data.replaceSubrange(offset..<(offset + 2), with: bytes)
+        }
+    }
+
 }
