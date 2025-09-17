@@ -162,10 +162,20 @@ public final class VMController: ObservableObject {
         
         // Check and resize disk images if needed
         do {
-            state = .resizingDisk("Checking disk image sizes...")
-            try await virtualMachineModel.checkAndResizeDiskImages()
+            state = .resizingDisk("Preparing disk resize...")
+            try await virtualMachineModel.checkAndResizeDiskImages { message in
+                self.state = .resizingDisk(message)
+            }
             state = .starting("Starting virtual machine...")
         } catch {
+            if case let VBDiskResizeError.apfsVolumesLocked(container) = error {
+                let alert = NSAlert()
+                alert.messageText = "Unlock FileVault to Finish Resizing"
+                alert.informativeText = "VirtualBuddy enlarged the disk image, but the APFS container \(container) is still locked. Start the guest, sign in to unlock FileVault, then use Disk Utility (or run 'diskutil apfs resizeContainer disk0s2 0') inside the guest to claim the newly added space."
+                alert.addButton(withTitle: "OK")
+                alert.alertStyle = .informational
+                alert.runModal()
+            }
             // Log resize errors but don't fail VM start
             NSLog("Warning: Failed to resize disk images: \(error)")
             state = .starting("Starting virtual machine...")
@@ -529,3 +539,4 @@ public extension VBMacConfiguration {
         #endif
     }
 }
+
