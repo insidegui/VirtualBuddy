@@ -73,29 +73,74 @@ extension URL {
 // MARK: - Disk Resize Support
 
 public extension VBVirtualMachine {
-    
+
+    typealias DiskResizeProgressHandler = @MainActor (_ message: String) -> Void
+
     /// Checks if any disk images need resizing based on configuration vs actual size
-    func checkAndResizeDiskImages() async throws {
+    func checkAndResizeDiskImages(progressHandler: DiskResizeProgressHandler? = nil) async throws {
         let config = configuration
-        
-        for device in config.hardware.storageDevices {
-            guard case .managedImage(let image) = device.backing else { continue }
-            guard image.canBeResized else { continue }
-            
-            let imageURL = diskImageURL(for: image)
-            
-            // Check if file exists
-            guard FileManager.default.fileExists(atPath: imageURL.path) else { continue }
-            
-            // Get actual file size
-            let attributes = try FileManager.default.attributesOfItem(atPath: imageURL.path)
-            let actualSize = attributes[.size] as? UInt64 ?? 0
-            
-            // If configured size is larger than actual size, resize the disk
-            if image.size > actualSize {
-                try await resizeDiskImage(image, to: image.size)
+
+        func report(_ message: String) async {
+            guard let progressHandler else { return }
+            await MainActor.run {
+                progressHandler(message)
             }
         }
+
+        let resizableDevices = config.hardware.storageDevices.compactMap { device -> (VBStorageDevice, VBManagedDiskImage)? in
+            guard case .managedImage(let image) = device.backing else { return nil }
+            guard image.canBeResized else { return nil }
+            return (device, image)
+        }
+
+        guard !resizableDevices.isEmpty else {
+            await report("Disk images already match their configured sizes.")
+            return
+        }
+
+        let formatter: ByteCountFormatter = {
+            let formatter = ByteCountFormatter()
+            formatter.allowedUnits = [.useGB, .useMB, .useTB]
+            formatter.countStyle = .binary
+            formatter.includesUnit = true
+            return formatter
+        }()
+
+        for (index, entry) in resizableDevices.enumerated() {
+            let (device, image) = entry
+            let position = index + 1
+            let total = resizableDevices.count
+            let deviceName = device.displayName
+
+            await report("Checking \(deviceName) (\(position)/\(total))...")
+
+            let imageURL = diskImageURL(for: image)
+
+            guard FileManager.default.fileExists(atPath: imageURL.path) else {
+                await report("Skipping \(deviceName): disk image not found.")
+                continue
+            }
+
+            let attributes = try FileManager.default.attributesOfItem(atPath: imageURL.path)
+            let actualSize = attributes[.size] as? UInt64 ?? 0
+
+            if image.size > actualSize {
+                let targetDescription = formatter.string(fromByteCount: Int64(image.size))
+                await report("Expanding \(deviceName) to \(targetDescription) (\(position)/\(total))...")
+
+                try await resizeDiskImage(image, to: image.size)
+
+                await report("\(deviceName) expanded successfully.")
+            } else if image.size < actualSize {
+                let actualDescription = formatter.string(fromByteCount: Int64(actualSize))
+                await report("\(deviceName) exceeds the configured size (\(actualDescription)); no changes made.")
+            } else {
+                let currentDescription = formatter.string(fromByteCount: Int64(actualSize))
+                await report("\(deviceName) already uses \(currentDescription).")
+            }
+        }
+
+        await report("Disk image checks complete.")
     }
     
     /// Resizes a managed disk image to the specified size
