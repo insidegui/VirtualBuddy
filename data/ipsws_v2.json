@@ -219,6 +219,18 @@
   ],
   "restoreImages" : [
     {
+      "build" : "25C5037j",
+      "channel" : "devbeta",
+      "downloadSize" : 18720456518,
+      "group" : "tahoe",
+      "id" : "25C5037j",
+      "mobileDeviceMinVersion" : "1810.0.0",
+      "name" : "macOS 26.2 Developer Beta 2",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2025FallSeed\/fullrestores\/089-37244\/F3E98428-E443-4226-849D-48649C50B10B\/UniversalMac_26.2_25C5037j_Restore.ipsw",
+      "version" : "26.2.0"
+    },
+    {
       "build" : "25C5031i",
       "channel" : "devbeta",
       "downloadSize" : 18688911675,
