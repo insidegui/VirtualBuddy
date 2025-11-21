@@ -163,8 +163,8 @@ extension ChannelGroup {
         var groupsByChannel = [CatalogChannel: ChannelGroup]()
 
         for image in restoreImages {
-            /// Ensures images from each channel group are listed in the same order as the channels are ordered in the catalog.
-            let order = groupsByChannel.keys.count
+            /// Order channels according to their standard priority: regular comes before devbeta.
+            let order = channelSortOrder(for: image.channel.id)
 
             groupsByChannel[image.channel, default: ChannelGroup(
                 order: order,
@@ -174,5 +174,13 @@ extension ChannelGroup {
         }
 
         return groupsByChannel.values.sorted(by: { $0.order < $1.order })
+    }
+    
+    private static func channelSortOrder(for channelID: String) -> Int {
+        switch channelID {
+        case "regular": return 0
+        case "devbeta": return 1
+        default: return 999
+        }
     }
 }
