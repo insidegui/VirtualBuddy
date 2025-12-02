@@ -683,14 +683,22 @@ public struct VBDiskResizer {
         }
 
         let cleanDeviceNode = sanitizeDeviceIdentifier(deviceNode)
-        var candidates: [(info: APFSContainerInfo, size: UInt64, isLikelyISC: Bool)] = []
+        var candidates: [(info: APFSContainerInfo, size: UInt64, isMainContainer: Bool)] = []
 
         for container in containers {
             guard let containerRef = container["ContainerReference"] as? String else { continue }
             let volumes = container["Volumes"] as? [[String: Any]] ?? []
             let roles = volumes.compactMap { $0["Roles"] as? [String] }.flatMap { $0 }
-            let hasSystemOrData = roles.contains(where: { $0 == "System" }) || roles.contains(where: { $0 == "Data" })
             let hasLockedVolumes = volumes.contains { ($0["Locked"] as? Bool) == true }
+
+            // Detect MAIN container: has "System" or "Data" role (the boot/data container)
+            let hasSystemOrData = roles.contains(where: { $0 == "System" }) || roles.contains(where: { $0 == "Data" })
+
+            // Detect ISC container: has "xART" or "Hardware" roles (unique to Internal Shared Cache)
+            let hasISCRoles = roles.contains(where: { $0 == "xART" }) || roles.contains(where: { $0 == "Hardware" })
+
+            // The main container is the one with System/Data and NOT ISC
+            let isMainContainer = hasSystemOrData && !hasISCRoles
 
             let physicalStores = container["PhysicalStores"] as? [[String: Any]] ?? []
             for store in physicalStores {
@@ -698,13 +706,14 @@ public struct VBDiskResizer {
                 guard storeIdentifier.hasPrefix(cleanDeviceNode) || containerRef == cleanDeviceNode else { continue }
                 let size = store["Size"] as? UInt64 ?? 0
                 let info = APFSContainerInfo(container: containerRef, physicalStore: storeIdentifier, hasLockedVolumes: hasLockedVolumes)
-                candidates.append((info: info, size: size, isLikelyISC: !hasSystemOrData))
+                candidates.append((info: info, size: size, isMainContainer: isMainContainer))
+                NSLog("APFS candidate: container=\(containerRef), store=\(storeIdentifier), size=\(size), isMain=\(isMainContainer), hasSystemOrData=\(hasSystemOrData), hasISCRoles=\(hasISCRoles), roles=\(roles)")
             }
 
             if containerRef == cleanDeviceNode {
                 let size = (physicalStores.first?["Size"] as? UInt64) ?? 0
                 let info = APFSContainerInfo(container: containerRef, physicalStore: nil, hasLockedVolumes: hasLockedVolumes)
-                candidates.append((info: info, size: size, isLikelyISC: !hasSystemOrData))
+                candidates.append((info: info, size: size, isMainContainer: isMainContainer))
             }
         }
 
@@ -713,17 +722,39 @@ public struct VBDiskResizer {
             return nil
         }
 
-        let preferred = candidates.sorted { lhs, rhs in
-            if lhs.info.hasLockedVolumes != rhs.info.hasLockedVolumes {
-                return lhs.info.hasLockedVolumes == false
-            }
-            if lhs.isLikelyISC != rhs.isLikelyISC {
-                return lhs.isLikelyISC == false
-            }
-            return lhs.size > rhs.size
-        }.first
+        // Selection priority:
+        // 1. Find the MAIN container (has System/Data, not ISC) that is unlocked
+        // 2. Fall back to largest unlocked container
+        // 3. Fall back to any container
 
-        return preferred?.info
+        let selected: (info: APFSContainerInfo, size: UInt64, isMainContainer: Bool)?
+
+        // First priority: unlocked main container
+        if let mainUnlocked = candidates.first(where: { $0.isMainContainer && !$0.info.hasLockedVolumes }) {
+            selected = mainUnlocked
+            NSLog("Selected unlocked main APFS container: \(mainUnlocked.info.container)")
+        }
+        // Second priority: any main container (even if locked)
+        else if let mainAny = candidates.first(where: { $0.isMainContainer }) {
+            selected = mainAny
+            NSLog("Selected main APFS container (locked): \(mainAny.info.container)")
+        }
+        // Third priority: largest unlocked non-main container
+        else if let largestUnlocked = candidates.filter({ !$0.info.hasLockedVolumes }).max(by: { $0.size < $1.size }) {
+            selected = largestUnlocked
+            NSLog("Selected largest unlocked APFS container: \(largestUnlocked.info.container)")
+        }
+        // Last resort: any container
+        else {
+            selected = candidates.first
+            NSLog("Selected fallback APFS container: \(selected?.info.container ?? "none")")
+        }
+
+        if let selected = selected {
+            NSLog("Final APFS container selection: \(selected.info.container) (store: \(selected.info.physicalStore ?? "none"), size: \(selected.size), isMain: \(selected.isMainContainer))")
+        }
+
+        return selected?.info
     }
     
     private static func findAPFSContainer(in diskutilOutput: String, deviceNode: String) -> APFSContainerInfo? {
