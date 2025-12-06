@@ -38,6 +38,7 @@ struct ManagedDiskImageEditor: View {
     @State private var nameError: String?
     @State private var isResizing = false
     @State private var showResizeConfirmation = false
+    @State private var showFileVaultError = false
     @State private var newSize: UInt64 = 0
     @State private var sliderTimer: Timer?
 
@@ -131,6 +132,11 @@ struct ManagedDiskImageEditor: View {
         } message: {
                 Text("This will resize the disk image from \(formatter.string(fromByteCount: Int64(minimumSize))) to \(formatter.string(fromByteCount: Int64(newSize))). The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone.")
         }
+        .alert("FileVault Enabled", isPresented: $showFileVaultError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("This disk has FileVault encryption enabled. To resize the disk, you must first disable FileVault in the guest operating system's System Settings, then restart the virtual machine before attempting to resize again.")
+        }
     }
 
     private var sizeMessagePrefix: String? {
@@ -175,14 +181,25 @@ struct ManagedDiskImageEditor: View {
     
     private func performResize() {
         isResizing = true
-        
+
         Task {
+            // Check for FileVault before proceeding with resize
+            let hasFileVault = await viewModel.vm.checkFileVaultForDiskImage(image)
+
             await MainActor.run {
-                image.size = newSize
-                onSave(image)
-                isResizing = false
+                if hasFileVault {
+                    // Reset size and show FileVault error
+                    image.size = minimumSize
+                    isResizing = false
+                    showFileVaultError = true
+                } else {
+                    // Proceed with resize
+                    image.size = newSize
+                    onSave(image)
+                    isResizing = false
+                }
             }
-            
+
             // The actual resize will happen automatically when VM starts or restarts
             // due to the size mismatch detection in checkAndResizeDiskImages()
         }
