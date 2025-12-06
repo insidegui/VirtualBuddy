@@ -108,7 +108,71 @@ public struct VBDiskResizer {
             return false
         }
     }
-    
+
+    /// Checks if a disk image has FileVault (locked volumes) enabled.
+    /// This attaches the disk image temporarily to inspect its APFS containers.
+    /// - Parameters:
+    ///   - url: The URL of the disk image to check.
+    ///   - format: The format of the disk image.
+    /// - Returns: `true` if the disk image has FileVault-protected (locked) volumes, `false` otherwise.
+    public static func checkFileVaultStatus(at url: URL, format: VBManagedDiskImage.Format) async -> Bool {
+        guard canResizeFormat(format) else { return false }
+        guard FileManager.default.fileExists(atPath: url.path) else { return false }
+
+        // Attach the disk image without mounting
+        let attachProcess = Process()
+        attachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+
+        switch format {
+        case .raw:
+            attachProcess.arguments = ["attach", "-imagekey", "diskimage-class=CRawDiskImage", "-nomount", url.path]
+        case .dmg, .sparse:
+            attachProcess.arguments = ["attach", "-nomount", url.path]
+        case .asif:
+            return false
+        }
+
+        let attachPipe = Pipe()
+        attachProcess.standardOutput = attachPipe
+        attachProcess.standardError = Pipe()
+
+        do {
+            try attachProcess.run()
+            attachProcess.waitUntilExit()
+        } catch {
+            NSLog("Failed to attach disk image for FileVault check: \(error)")
+            return false
+        }
+
+        guard attachProcess.terminationStatus == 0 else {
+            NSLog("hdiutil attach failed for FileVault check with exit code \(attachProcess.terminationStatus)")
+            return false
+        }
+
+        let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+
+        guard let deviceNode = extractDeviceNode(from: attachOutput) else {
+            NSLog("Could not extract device node for FileVault check")
+            return false
+        }
+
+        defer {
+            // Detach the disk image
+            let detachProcess = Process()
+            detachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
+            detachProcess.arguments = ["detach", deviceNode]
+            try? detachProcess.run()
+            detachProcess.waitUntilExit()
+        }
+
+        // Check for locked volumes using the APFS list
+        if let containerInfo = await findAPFSContainerUsingAPFSList(deviceNode: deviceNode) {
+            return containerInfo.hasLockedVolumes
+        }
+
+        return false
+    }
+
     public static func recommendedStrategy(for format: VBManagedDiskImage.Format) -> ResizeStrategy {
         switch format {
         case .raw:
