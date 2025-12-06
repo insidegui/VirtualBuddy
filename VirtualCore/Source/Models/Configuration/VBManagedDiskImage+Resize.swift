@@ -60,7 +60,7 @@ extension VBManagedDiskImage.Format {
         case .sparse:
             return "Sparse Image"
         case .asif:
-            return "Apple Silicon Image"
+            return "Apple Sparse Image Format (ASIF)"
         }
     }
     
