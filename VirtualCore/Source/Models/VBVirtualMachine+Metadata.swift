@@ -160,19 +160,27 @@ public extension VBVirtualMachine {
     /// Validates that all disk images can be resized if needed
     func validateDiskResizeCapability() -> [(device: VBStorageDevice, canResize: Bool)] {
         let config = configuration
-        
+
         return config.hardware.storageDevices.compactMap { device in
             guard case .managedImage(let image) = device.backing else { return nil }
-            
+
             let imageURL = diskImageURL(for: image)
             let exists = FileManager.default.fileExists(atPath: imageURL.path)
-            
+
             if !exists {
                 // New image, no resize needed
                 return nil
             }
-            
+
             return (device: device, canResize: image.canBeResized)
         }
+    }
+
+    /// Checks if a managed disk image has FileVault (locked volumes) enabled.
+    /// - Parameter image: The managed disk image to check.
+    /// - Returns: `true` if the disk image has FileVault-protected (locked) volumes, `false` otherwise.
+    func checkFileVaultForDiskImage(_ image: VBManagedDiskImage) async -> Bool {
+        let imageURL = diskImageURL(for: image)
+        return await VBDiskResizer.checkFileVaultStatus(at: imageURL, format: image.format)
     }
 }
