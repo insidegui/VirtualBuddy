@@ -296,6 +296,7 @@
 		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4C2374D2888A462001FF286 /* VolumeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374C2888A462001FF286 /* VolumeUtils.swift */; };
 		F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374F2888AF67001FF286 /* LogStreamer.swift */; };
+		VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */; };
 		F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */; };
 		F4C947D62E0B12D0001ACC91 /* String+AppleOSBuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */; };
 		F4C947DA2E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */; };
@@ -808,6 +809,7 @@
 		F4C18A4D28491B8500335EC7 /* VirtualBuddyGuest.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = VirtualBuddyGuest.entitlements; sourceTree = "<group>"; };
 		F4C2374C2888A462001FF286 /* VolumeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeUtils.swift; sourceTree = "<group>"; };
 		F4C2374F2888AF67001FF286 /* LogStreamer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogStreamer.swift; sourceTree = "<group>"; };
+		VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDiskResizer.swift; sourceTree = "<group>"; };
 		F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ExtendedAttributes.swift"; sourceTree = "<group>"; };
 		F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AppleOSBuild.swift"; sourceTree = "<group>"; };
 		F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+DownloadMatching.swift"; sourceTree = "<group>"; };
@@ -1884,6 +1886,7 @@
 				F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */,
 				F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */,
 				F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */,
+				VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -2677,6 +2680,7 @@
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
 				F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
+				VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
 				F4A7FB3B2BB5E79100E4C12A /* DirectoryObserver.swift in Sources */,
