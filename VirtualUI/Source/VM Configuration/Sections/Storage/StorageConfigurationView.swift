@@ -109,7 +109,6 @@ struct StorageConfigurationView: View {
 }
 
 struct StorageDeviceListItem: View {
-    @EnvironmentObject var viewModel: VMConfigurationViewModel
     @Binding var device: VBStorageDevice
     var configureDevice: () -> Void
 
