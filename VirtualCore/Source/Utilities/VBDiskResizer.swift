@@ -188,32 +188,38 @@ public struct VBDiskResizer {
         at url: URL,
         format: VBManagedDiskImage.Format,
         newSize: UInt64,
-        strategy: ResizeStrategy? = nil
+        strategy: ResizeStrategy? = nil,
+        guestType: VBGuestType = .mac
     ) async throws {
         guard canResizeFormat(format) else {
             throw VBDiskResizeError.unsupportedImageFormat(format)
         }
-        
+
         guard FileManager.default.fileExists(atPath: url.path) else {
             throw VBDiskResizeError.diskImageNotFound(url)
         }
-        
+
         let currentSize = try await getCurrentImageSize(at: url, format: format)
         guard newSize > currentSize else {
             throw VBDiskResizeError.cannotShrinkDisk
         }
-        
+
         let finalStrategy = strategy ?? recommendedStrategy(for: format)
-        
+
         switch finalStrategy {
         case .createLargerImage:
             try await createLargerImage(at: url, format: format, newSize: newSize, currentSize: currentSize)
         case .expandInPlace:
-            try await expandImageInPlace(at: url, format: format, newSize: newSize)
+            try await expandImageInPlace(at: url, format: format, newSize: newSize, guestType: guestType)
         }
-        
+
         // After resizing the disk image, attempt to expand the partition
-        try await expandPartitionsInDiskImage(at: url, format: format)
+        // Skip for Linux VMs - Linux does not use APFS and should handle partition expansion at boot
+        if guestType == .mac {
+            try await expandPartitionsInDiskImage(at: url, format: format)
+        } else {
+            NSLog("Skipping partition expansion for non-macOS guest (type: \(guestType)) - guest OS will handle partition resize")
+        }
     }
     
     private static func getCurrentImageSize(at url: URL, format: VBManagedDiskImage.Format) async throws -> UInt64 {
@@ -318,43 +324,49 @@ public struct VBDiskResizer {
         }
     }
     
-    private static func expandImageInPlace(at url: URL, format: VBManagedDiskImage.Format, newSize: UInt64) async throws {
+    private static func expandImageInPlace(at url: URL, format: VBManagedDiskImage.Format, newSize: UInt64, guestType: VBGuestType = .mac) async throws {
         let parentDir = url.deletingLastPathComponent()
         let availableSpace = try await getAvailableSpace(at: parentDir)
-        
+
         // Get current file size
         let currentSize = try await getCurrentImageSize(at: url, format: format)
         let additionalSpaceNeeded = newSize > currentSize ? newSize - currentSize : 0
-        
+
         guard availableSpace >= additionalSpaceNeeded else {
             throw VBDiskResizeError.insufficientSpace(required: additionalSpaceNeeded, available: availableSpace)
         }
-        
+
         switch format {
         case .dmg, .sparse:
             let process = Process()
             process.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
-            
+
             let sizeInSectors = newSize / 512
             process.arguments = ["resize", "-size", "\(sizeInSectors)s", url.path]
-            
+
             let pipe = Pipe()
             process.standardOutput = pipe
             process.standardError = pipe
-            
+
             try process.run()
             process.waitUntilExit()
-            
+
             guard process.terminationStatus == 0 else {
                 let errorData = pipe.fileHandleForReading.readDataToEndOfFile()
                 let errorString = String(data: errorData, encoding: .utf8) ?? "Unknown error"
                 throw VBDiskResizeError.systemCommandFailed("hdiutil resize: \(errorString)", process.terminationStatus)
             }
-            
+
         case .raw:
             try await expandRawImageInPlace(at: url, newSize: newSize)
-            try adjustGPTLayoutForRawImage(at: url, newSize: newSize)
-            
+            // Only adjust GPT layout for APFS partitions on macOS guests
+            // Linux VMs use different partition types (ext4, etc.) and don't have APFS
+            if guestType == .mac {
+                try adjustGPTLayoutForRawImage(at: url, newSize: newSize)
+            } else {
+                NSLog("Skipping APFS GPT layout adjustment for non-macOS guest (type: \(guestType))")
+            }
+
         case .asif:
             throw VBDiskResizeError.unsupportedImageFormat(format)
         }
