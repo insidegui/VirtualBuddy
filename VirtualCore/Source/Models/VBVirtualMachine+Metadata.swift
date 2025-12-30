@@ -147,13 +147,14 @@ public extension VBVirtualMachine {
     private func resizeDiskImage(_ image: VBManagedDiskImage, to newSize: UInt64) async throws {
         let imageURL = diskImageURL(for: image)
         NSLog("Resizing disk image at \(imageURL.path) from current size to \(newSize) bytes")
-        
+
         try await VBDiskResizer.resizeDiskImage(
             at: imageURL,
             format: image.format,
-            newSize: newSize
+            newSize: newSize,
+            guestType: configuration.systemType
         )
-        
+
         NSLog("Successfully resized disk image at \(imageURL.path) to \(newSize) bytes")
     }
     
