@@ -23,27 +23,28 @@ extension VBManagedDiskImage {
         return copy
     }
     
-    public mutating func resize(to newSize: UInt64, at container: any VBStorageDeviceContainer) async throws {
+    public mutating func resize(to newSize: UInt64, at container: any VBStorageDeviceContainer, guestType: VBGuestType = .mac) async throws {
         guard canBeResized else {
             throw VBDiskResizeError.unsupportedImageFormat(format)
         }
-        
+
         guard newSize > size else {
             throw VBDiskResizeError.cannotShrinkDisk
         }
-        
+
         guard newSize <= Self.maximumExtraDiskImageSize else {
             throw VBDiskResizeError.invalidSize(newSize)
         }
-        
+
         let imageURL = container.diskImageURL(for: self)
-        
+
         try await VBDiskResizer.resizeDiskImage(
             at: imageURL,
             format: format,
-            newSize: newSize
+            newSize: newSize,
+            guestType: guestType
         )
-        
+
         self.size = newSize
     }
     
@@ -80,12 +81,12 @@ extension VBStorageDevice {
         return FileManager.default.fileExists(atPath: imageURL.path)
     }
     
-    public func resizeDisk(to newSize: UInt64, in container: any VBStorageDeviceContainer) async throws {
+    public func resizeDisk(to newSize: UInt64, in container: any VBStorageDeviceContainer, guestType: VBGuestType = .mac) async throws {
         guard var managedImage = managedImage else {
             throw VBDiskResizeError.unsupportedImageFormat(.raw)
         }
-        
-        try await managedImage.resize(to: newSize, at: container)
+
+        try await managedImage.resize(to: newSize, at: container, guestType: guestType)
         backing = .managedImage(managedImage)
     }
     
