@@ -1,0 +1,316 @@
+#!/bin/bash
+#
+# VirtualBuddy Linux Guest Additions - Filesystem Grow Script
+#
+# This script automatically resizes the root partition and filesystem
+# after VirtualBuddy has expanded the virtual disk.
+#
+# Supports:
+# - Unencrypted ext4/xfs/btrfs partitions
+# - LUKS-encrypted partitions (with ext4/xfs/btrfs inside)
+# - GPT partition tables
+#
+# Usage: virtualbuddy-growfs [--dry-run] [--verbose]
+#
+
+set -euo pipefail
+
+VERSION="1.0.0"
+DRY_RUN=false
+VERBOSE=false
+
+log() {
+    echo "[virtualbuddy-growfs] $*"
+}
+
+log_verbose() {
+    if $VERBOSE; then
+        log "$*"
+    fi
+}
+
+die() {
+    log "ERROR: $*" >&2
+    exit 1
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --version)
+            echo "virtualbuddy-growfs version $VERSION"
+            exit 0
+            ;;
+        --help|-h)
+            echo "Usage: virtualbuddy-growfs [--dry-run] [--verbose]"
+            echo ""
+            echo "Automatically resize root partition and filesystem after disk expansion."
+            echo ""
+            echo "Options:"
+            echo "  --dry-run    Show what would be done without making changes"
+            echo "  --verbose    Show detailed output"
+            echo "  --version    Show version"
+            echo "  --help       Show this help"
+            exit 0
+            ;;
+        *)
+            die "Unknown option: $1"
+            ;;
+    esac
+done
+
+# Ensure we're running as root
+if [[ $EUID -ne 0 ]]; then
+    die "This script must be run as root"
+fi
+
+# Find the root device
+find_root_device() {
+    local root_mount
+    root_mount=$(findmnt -n -o SOURCE /)
+
+    if [[ -z "$root_mount" ]]; then
+        die "Could not find root filesystem"
+    fi
+
+    echo "$root_mount"
+}
+
+# Check if device is a LUKS container
+is_luks() {
+    local device="$1"
+    cryptsetup isLuks "$device" 2>/dev/null
+}
+
+# Get the underlying partition for a LUKS device
+get_luks_backing_device() {
+    local mapper_name="$1"
+    # Get the slave device from sysfs
+    local dm_name
+    dm_name=$(basename "$mapper_name")
+
+    if [[ -d "/sys/block/$dm_name/slaves" ]]; then
+        local slave
+        slave=$(ls "/sys/block/$dm_name/slaves" 2>/dev/null | head -1)
+        if [[ -n "$slave" ]]; then
+            echo "/dev/$slave"
+            return 0
+        fi
+    fi
+
+    # Fallback: try to get it from dmsetup
+    local backing
+    backing=$(dmsetup deps -o devname "$mapper_name" 2>/dev/null | grep -oP '\(\K[^)]+' | head -1)
+    if [[ -n "$backing" ]]; then
+        echo "/dev/$backing"
+        return 0
+    fi
+
+    return 1
+}
+
+# Get the disk device from a partition (e.g., /dev/vda2 -> /dev/vda)
+get_disk_from_partition() {
+    local partition="$1"
+    # Remove partition number suffix
+    echo "$partition" | sed 's/[0-9]*$//' | sed 's/p$//'
+}
+
+# Get partition number from device (e.g., /dev/vda2 -> 2)
+get_partition_number() {
+    local partition="$1"
+    echo "$partition" | grep -oE '[0-9]+$'
+}
+
+# Check if partition can be grown (has free space after it)
+check_growable() {
+    local disk="$1"
+    local partition_num="$2"
+
+    # Use growpart --dry-run to check
+    if command -v growpart &>/dev/null; then
+        if growpart --dry-run "$disk" "$partition_num" 2>&1 | grep -q "NOCHANGE"; then
+            return 1  # No change needed
+        fi
+        return 0  # Can grow
+    fi
+
+    # Fallback: check with parted
+    if command -v parted &>/dev/null; then
+        local part_end free_space
+        part_end=$(parted -s "$disk" unit s print 2>/dev/null | awk "/^ *$partition_num / {print \$3}" | tr -d 's')
+        free_space=$(parted -s "$disk" unit s print free 2>/dev/null | tail -1 | awk '{print $3}' | tr -d 's')
+
+        if [[ -n "$free_space" ]] && [[ "$free_space" -gt 2048 ]]; then
+            return 0  # Has free space
+        fi
+    fi
+
+    return 1  # No free space or can't determine
+}
+
+# Grow the partition
+grow_partition() {
+    local disk="$1"
+    local partition_num="$2"
+
+    log "Growing partition ${disk}${partition_num}..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: growpart $disk $partition_num"
+        return 0
+    fi
+
+    if command -v growpart &>/dev/null; then
+        growpart "$disk" "$partition_num"
+    else
+        die "growpart not found. Install cloud-guest-utils package."
+    fi
+}
+
+# Resize LUKS container
+resize_luks() {
+    local luks_device="$1"
+    local mapper_name="$2"
+
+    log "Resizing LUKS container $mapper_name..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: cryptsetup resize $mapper_name"
+        return 0
+    fi
+
+    cryptsetup resize "$mapper_name"
+}
+
+# Detect filesystem type
+detect_fs_type() {
+    local device="$1"
+    blkid -s TYPE -o value "$device" 2>/dev/null
+}
+
+# Resize filesystem
+resize_filesystem() {
+    local device="$1"
+    local fs_type="$2"
+
+    log "Resizing $fs_type filesystem on $device..."
+
+    if $DRY_RUN; then
+        case "$fs_type" in
+            ext4|ext3|ext2)
+                log "[DRY-RUN] Would run: resize2fs $device"
+                ;;
+            xfs)
+                log "[DRY-RUN] Would run: xfs_growfs /"
+                ;;
+            btrfs)
+                log "[DRY-RUN] Would run: btrfs filesystem resize max /"
+                ;;
+        esac
+        return 0
+    fi
+
+    case "$fs_type" in
+        ext4|ext3|ext2)
+            resize2fs "$device"
+            ;;
+        xfs)
+            xfs_growfs /
+            ;;
+        btrfs)
+            btrfs filesystem resize max /
+            ;;
+        *)
+            log "WARNING: Unknown filesystem type '$fs_type', skipping resize"
+            return 1
+            ;;
+    esac
+}
+
+# Main logic
+main() {
+    log "VirtualBuddy Guest Additions - Filesystem Grow v$VERSION"
+
+    if $DRY_RUN; then
+        log "Running in dry-run mode - no changes will be made"
+    fi
+
+    # Find root filesystem
+    local root_device
+    root_device=$(find_root_device)
+    log_verbose "Root device: $root_device"
+
+    local fs_device="$root_device"
+    local luks_mapper_name=""
+    local partition_device=""
+
+    # Check if root is on a LUKS device
+    if [[ "$root_device" == /dev/mapper/* ]]; then
+        luks_mapper_name=$(basename "$root_device")
+        log_verbose "Detected LUKS mapper: $luks_mapper_name"
+
+        partition_device=$(get_luks_backing_device "$luks_mapper_name")
+        if [[ -z "$partition_device" ]]; then
+            die "Could not determine backing device for LUKS container"
+        fi
+        log_verbose "LUKS backing partition: $partition_device"
+    else
+        partition_device="$root_device"
+    fi
+
+    # Get disk and partition number
+    local disk partition_num
+    disk=$(get_disk_from_partition "$partition_device")
+    partition_num=$(get_partition_number "$partition_device")
+
+    log_verbose "Disk: $disk, Partition: $partition_num"
+
+    # Check if we can grow
+    if ! check_growable "$disk" "$partition_num"; then
+        log "Partition is already at maximum size, nothing to do"
+        exit 0
+    fi
+
+    log "Free space detected after partition, proceeding with resize..."
+
+    # Step 1: Grow the partition
+    grow_partition "$disk" "$partition_num"
+
+    # Inform kernel of partition change
+    if ! $DRY_RUN; then
+        partprobe "$disk" 2>/dev/null || true
+        sleep 1
+    fi
+
+    # Step 2: If LUKS, resize the container
+    if [[ -n "$luks_mapper_name" ]]; then
+        resize_luks "$partition_device" "$luks_mapper_name"
+    fi
+
+    # Step 3: Resize the filesystem
+    local fs_type
+    fs_type=$(detect_fs_type "$fs_device")
+    log_verbose "Filesystem type: $fs_type"
+
+    if [[ -n "$fs_type" ]]; then
+        resize_filesystem "$fs_device" "$fs_type"
+    fi
+
+    log "Filesystem resize complete!"
+
+    # Show new size
+    if ! $DRY_RUN; then
+        df -h / | tail -1
+    fi
+}
+
+main "$@"

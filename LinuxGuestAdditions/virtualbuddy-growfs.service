@@ -1,0 +1,17 @@
+[Unit]
+Description=VirtualBuddy Guest Additions - Grow Filesystem
+Documentation=https://github.com/insidegui/VirtualBuddy
+After=local-fs.target
+Before=systemd-user-sessions.service
+ConditionVirtualization=vm
+DefaultDependencies=no
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/virtualbuddy-growfs --verbose
+RemainAfterExit=yes
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
