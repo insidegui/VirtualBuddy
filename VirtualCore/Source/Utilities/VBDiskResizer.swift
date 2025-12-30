@@ -359,13 +359,8 @@ public struct VBDiskResizer {
 
         case .raw:
             try await expandRawImageInPlace(at: url, newSize: newSize)
-            // Only adjust GPT layout for APFS partitions on macOS guests
-            // Linux VMs use different partition types (ext4, etc.) and don't have APFS
-            if guestType == .mac {
-                try adjustGPTLayoutForRawImage(at: url, newSize: newSize)
-            } else {
-                NSLog("Skipping APFS GPT layout adjustment for non-macOS guest (type: \(guestType))")
-            }
+            // Adjust GPT layout based on guest type
+            try adjustGPTLayoutForRawImage(at: url, newSize: newSize, guestType: guestType)
 
         case .asif:
             throw VBDiskResizeError.unsupportedImageFormat(format)
@@ -1220,9 +1215,200 @@ public struct VBDiskResizer {
         return (process.terminationStatus, output)
     }
 
-    private static func adjustGPTLayoutForRawImage(at url: URL, newSize: UInt64) throws {
-        try GPTLayoutAdjuster(imageURL: url, newSize: newSize).perform()
+    private static func adjustGPTLayoutForRawImage(at url: URL, newSize: UInt64, guestType: VBGuestType) throws {
+        switch guestType {
+        case .mac:
+            try GPTLayoutAdjuster(imageURL: url, newSize: newSize).perform()
+        case .linux:
+            try LinuxGPTLayoutAdjuster(imageURL: url, newSize: newSize).perform()
+        }
     }
+
+    // MARK: - Linux GPT Layout Adjuster
+
+    /// Adjusts GPT layout for Linux disk images.
+    /// Linux typically has a simpler partition layout (EFI + root, sometimes swap).
+    /// We extend the largest Linux partition to fill available space.
+    /// For LUKS-encrypted partitions, this extends the partition - the guest must then
+    /// run 'cryptsetup resize' followed by filesystem resize (resize2fs, xfs_growfs, etc.)
+    private struct LinuxGPTLayoutAdjuster {
+        let imageURL: URL
+        let newSize: UInt64
+
+        private let sectorSize: UInt64 = 512
+
+        // Linux partition type GUIDs
+        private let linuxFilesystemGUID = UUID(uuidString: "0FC63DAF-8483-4772-8E79-3D69D8477DE4")! // Generic Linux filesystem
+        private let linuxRootARM64GUID = UUID(uuidString: "B921B045-1DF0-41C3-AF44-4C6F280D3FAE")!  // Linux root (ARM64)
+        private let linuxRootX64GUID = UUID(uuidString: "4F68BCE3-E8CD-4DB1-96E7-FBCAF984B709")!    // Linux root (x86-64)
+        private let efiSystemGUID = UUID(uuidString: "C12A7328-F81F-11D2-BA4B-00A0C93EC93B")!       // EFI System Partition
+
+        func perform() throws {
+            guard newSize % sectorSize == 0 else {
+                throw VBDiskResizeError.systemCommandFailed("New disk size must be 512-byte aligned", -1)
+            }
+
+            let fileHandle = try FileHandle(forUpdating: imageURL)
+            defer { try? fileHandle.close() }
+
+            // Read primary GPT header (LBA 1)
+            let headerOffset = sectorSize
+            try fileHandle.vbSeek(to: headerOffset)
+            let headerData = try readExactly(fileHandle: fileHandle, length: Int(sectorSize))
+
+            var header = GPTHeader(data: headerData)
+
+            // Validate GPT signature
+            guard header.signature == 0x5452415020494645 else { // "EFI PART"
+                NSLog("Invalid GPT signature, skipping Linux GPT adjustment")
+                return
+            }
+
+            let entriesOffset = UInt64(header.partitionEntriesLBA) * sectorSize
+            let entriesLength = Int(header.numberOfEntries) * Int(header.entrySize)
+
+            try fileHandle.vbSeek(to: entriesOffset)
+            var entries = try readExactly(fileHandle: fileHandle, length: entriesLength)
+
+            // Find the largest Linux partition (this is typically the root partition)
+            guard let linuxPartitionIndex = findLargestLinuxPartition(in: entries, entrySize: Int(header.entrySize)) else {
+                NSLog("No Linux partition found in GPT, skipping partition resize")
+                // Still need to update GPT headers for the new disk size
+                try updateGPTHeadersOnly(fileHandle: fileHandle, header: &header, entries: entries)
+                return
+            }
+
+            let entrySize = Int(header.entrySize)
+            let partitionBase = linuxPartitionIndex * entrySize
+            let currentLastLBA = readUInt64LittleEndian(from: entries, offset: partitionBase + 40)
+
+            // Calculate new disk geometry
+            let totalSectors = newSize / sectorSize
+            let newBackupLBA = totalSectors - 1
+            let backupEntriesLBA = newBackupLBA - 32  // 32 sectors for backup partition entries
+            let newLastUsable = backupEntriesLBA - 1
+
+            // Extend the partition to the new last usable LBA
+            let newLastLBA = newLastUsable
+
+            guard newLastLBA > currentLastLBA else {
+                NSLog("Linux partition already at maximum size, only updating GPT headers")
+                try updateGPTHeadersOnly(fileHandle: fileHandle, header: &header, entries: entries)
+                return
+            }
+
+            NSLog("Extending Linux partition from LBA \(currentLastLBA) to \(newLastLBA) (partition index: \(linuxPartitionIndex))")
+
+            // Update partition end LBA
+            writeUInt64LittleEndian(&entries, offset: partitionBase + 40, value: newLastLBA)
+
+            // Update GPT header fields
+            header.backupLBA = newBackupLBA
+            header.lastUsableLBA = newLastUsable
+            header.partitionEntriesCRC32 = crc32(of: entries)
+
+            // Write updated partition entries (primary)
+            try fileHandle.vbSeek(to: entriesOffset)
+            try fileHandle.vbWriteAll(entries)
+
+            // Write updated primary GPT header
+            let primaryHeaderData = header.serialized(sectorSize: sectorSize, isBackup: false)
+            try fileHandle.vbSeek(to: headerOffset)
+            try fileHandle.vbWriteAll(primaryHeaderData)
+
+            // Write backup partition entries
+            let backupEntriesOffset = backupEntriesLBA * sectorSize
+            try fileHandle.vbSeek(to: backupEntriesOffset)
+            try fileHandle.vbWriteAll(entries)
+
+            // Write backup GPT header
+            let backupHeaderData = header.serialized(sectorSize: sectorSize, isBackup: true)
+            try fileHandle.vbSeek(to: newBackupLBA * sectorSize)
+            try fileHandle.vbWriteAll(backupHeaderData)
+
+            try fileHandle.vbSynchronize()
+
+            NSLog("Linux GPT layout adjusted successfully. Partition extended by \((newLastLBA - currentLastLBA) * sectorSize / (1024*1024)) MB")
+            NSLog("Note: For LUKS-encrypted partitions, the guest must run 'cryptsetup resize' to utilize the new space")
+        }
+
+        private func updateGPTHeadersOnly(fileHandle: FileHandle, header: inout GPTHeader, entries: Data) throws {
+            let totalSectors = newSize / sectorSize
+            let newBackupLBA = totalSectors - 1
+            let backupEntriesLBA = newBackupLBA - 32
+            let newLastUsable = backupEntriesLBA - 1
+
+            header.backupLBA = newBackupLBA
+            header.lastUsableLBA = newLastUsable
+            // Entries CRC doesn't change if we don't modify entries
+
+            let headerOffset = sectorSize
+
+            // Write updated primary GPT header
+            let primaryHeaderData = header.serialized(sectorSize: sectorSize, isBackup: false)
+            try fileHandle.vbSeek(to: headerOffset)
+            try fileHandle.vbWriteAll(primaryHeaderData)
+
+            // Write partition entries to backup location
+            let entriesOffset = UInt64(header.partitionEntriesLBA) * sectorSize
+            let entriesLength = Int(header.numberOfEntries) * Int(header.entrySize)
+            try fileHandle.vbSeek(to: entriesOffset)
+            let entriesData = try readExactly(fileHandle: fileHandle, length: entriesLength)
+
+            let backupEntriesOffset = backupEntriesLBA * sectorSize
+            try fileHandle.vbSeek(to: backupEntriesOffset)
+            try fileHandle.vbWriteAll(entriesData)
+
+            // Write backup GPT header
+            let backupHeaderData = header.serialized(sectorSize: sectorSize, isBackup: true)
+            try fileHandle.vbSeek(to: newBackupLBA * sectorSize)
+            try fileHandle.vbWriteAll(backupHeaderData)
+
+            try fileHandle.vbSynchronize()
+            NSLog("GPT headers updated for new disk size (no partition resize needed)")
+        }
+
+        private func findLargestLinuxPartition(in entries: Data, entrySize: Int) -> Int? {
+            var bestIndex: Int?
+            var bestLength: UInt64 = 0
+
+            let linuxGUIDs: Set<UUID> = [linuxFilesystemGUID, linuxRootARM64GUID, linuxRootX64GUID]
+
+            for index in 0..<(entries.count / entrySize) {
+                let base = index * entrySize
+                let typeData = entries.subdata(in: base..<(base + 16))
+                guard let entryGUID = uuidFromGPTBytes(typeData) else { continue }
+
+                // Check if this is a Linux partition
+                guard linuxGUIDs.contains(entryGUID) else { continue }
+
+                let firstLBA = readUInt64LittleEndian(from: entries, offset: base + 32)
+                let lastLBA = readUInt64LittleEndian(from: entries, offset: base + 40)
+
+                // Skip empty partitions
+                guard firstLBA > 0 && lastLBA >= firstLBA else { continue }
+
+                let length = lastLBA - firstLBA + 1
+                if length > bestLength {
+                    bestLength = length
+                    bestIndex = index
+                    NSLog("Found Linux partition at index \(index): LBA \(firstLBA)-\(lastLBA) (\(length * sectorSize / (1024*1024)) MB)")
+                }
+            }
+
+            return bestIndex
+        }
+
+        private func readExactly(fileHandle: FileHandle, length: Int) throws -> Data {
+            let data = try fileHandle.vbRead(upToCount: length) ?? Data()
+            guard data.count == length else {
+                throw NSError(domain: "VBDiskResizer", code: 2, userInfo: [NSLocalizedDescriptionKey: "Failed to read expected GPT data"])
+            }
+            return data
+        }
+    }
+
+    // MARK: - macOS GPT Layout Adjuster
 
     private struct GPTLayoutAdjuster {
         let imageURL: URL
