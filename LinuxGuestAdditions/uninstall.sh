@@ -48,6 +48,12 @@ main() {
         rm -f /usr/local/bin/virtualbuddy-growfs
     fi
 
+    # Remove version/config directory
+    if [[ -d /etc/virtualbuddy ]]; then
+        log "Removing VirtualBuddy config directory..."
+        rm -rf /etc/virtualbuddy
+    fi
+
     # Reload systemd
     log "Reloading systemd..."
     systemctl daemon-reload

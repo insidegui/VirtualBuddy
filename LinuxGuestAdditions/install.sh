@@ -90,6 +90,15 @@ install_files() {
     # Enable the service
     log "Enabling virtualbuddy-growfs service..."
     systemctl enable virtualbuddy-growfs.service
+
+    # Write version file for update detection
+    log "Writing version info..."
+    mkdir -p /etc/virtualbuddy
+    if [[ -f "$SCRIPT_DIR/VERSION" ]]; then
+        cp "$SCRIPT_DIR/VERSION" /etc/virtualbuddy/version
+    else
+        echo "$VERSION" > /etc/virtualbuddy/version
+    fi
 }
 
 run_now() {
