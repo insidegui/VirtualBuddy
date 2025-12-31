@@ -12,6 +12,8 @@ When you resize a disk in VirtualBuddy, the guest additions will automatically e
 - **LVM on LUKS** - full support for Fedora Workstation's default layout
 - **Multiple filesystems** - supports ext4, XFS, and Btrfs
 - **Safe operation** - only runs when free space is detected
+- **Desktop notifications** - shows a notification when disk is resized (desktop environments)
+- **Colorful terminal output** - easy to follow installation and resize progress
 
 ## Supported Distributions
 
@@ -49,8 +51,26 @@ sudo ./install.sh
 The installer will:
 - Check for required dependencies (`growpart`, `resize2fs`/`xfs_growfs`)
 - Install the `virtualbuddy-growfs` script to `/usr/local/bin/`
-- Install and enable the systemd service
+- Install the `virtualbuddy-notify` script for desktop notifications
+- Install and enable the systemd services
 - Optionally run the resize immediately
+
+## Desktop Notifications
+
+On desktop distributions (GNOME, KDE, Xfce, etc.), the guest additions will show a notification when the disk has been resized:
+
+- **Installation notification** - Shown when you run the installer
+- **Resize notification** - Shown after login if the disk was resized during boot
+
+The notification shows:
+- Previous disk size
+- New disk size
+
+This makes it easy to confirm that your disk expansion worked, even though the resize happens early in the boot process.
+
+**Requirements for notifications:**
+- X11 or Wayland display server
+- `notify-send` command (usually provided by `libnotify`)
 
 ## Dependencies
 
@@ -150,9 +170,18 @@ sudo ./uninstall.sh
 Or manually:
 
 ```bash
+# Disable services
 sudo systemctl disable --now virtualbuddy-growfs.service
+sudo systemctl --global disable virtualbuddy-notify.service
+
+# Remove files
 sudo rm /etc/systemd/system/virtualbuddy-growfs.service
+sudo rm /etc/systemd/user/virtualbuddy-notify.service
 sudo rm /usr/local/bin/virtualbuddy-growfs
+sudo rm /usr/local/bin/virtualbuddy-notify
+sudo rm -rf /etc/virtualbuddy
+
+# Reload systemd
 sudo systemctl daemon-reload
 ```
 
