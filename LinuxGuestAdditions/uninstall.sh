@@ -5,12 +5,39 @@
 
 set -euo pipefail
 
+# Colors for terminal output (disabled if not a TTY)
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    BOLD='\033[1m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    CYAN=''
+    BOLD=''
+    NC=''
+fi
+
 log() {
-    echo "[virtualbuddy-uninstall] $*"
+    echo -e "${CYAN}[virtualbuddy]${NC} $*"
+}
+
+log_step() {
+    echo -e "${BLUE}${BOLD}==>${NC} $*"
+}
+
+log_success() {
+    echo -e "${GREEN}✓${NC} $*"
 }
 
 die() {
-    log "ERROR: $*" >&2
+    echo -e "${RED}${BOLD}ERROR:${NC} $*" >&2
     exit 1
 }
 
@@ -21,45 +48,78 @@ check_root() {
 }
 
 main() {
-    log "VirtualBuddy Linux Guest Additions Uninstaller"
-    log ""
+    echo ""
+    echo -e "${YELLOW}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${YELLOW}${BOLD}║          VirtualBuddy Guest Additions Uninstaller            ║${NC}"
+    echo -e "${YELLOW}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
 
     check_root
 
-    # Disable and stop the service
+    log_step "Disabling services..."
+
+    # Disable and stop the growfs service
     if systemctl is-enabled virtualbuddy-growfs.service &>/dev/null; then
-        log "Disabling virtualbuddy-growfs service..."
         systemctl disable virtualbuddy-growfs.service
+        log_success "Disabled virtualbuddy-growfs service"
     fi
 
     if systemctl is-active virtualbuddy-growfs.service &>/dev/null; then
-        log "Stopping virtualbuddy-growfs service..."
         systemctl stop virtualbuddy-growfs.service
+        log_success "Stopped virtualbuddy-growfs service"
     fi
 
-    # Remove files
+    # Disable the user notification service globally
+    if systemctl --global is-enabled virtualbuddy-notify.service &>/dev/null 2>&1; then
+        systemctl --global disable virtualbuddy-notify.service 2>/dev/null || true
+        log_success "Disabled notification service"
+    fi
+
+    echo ""
+    log_step "Removing files..."
+
+    # Remove system service files
     if [[ -f /etc/systemd/system/virtualbuddy-growfs.service ]]; then
-        log "Removing systemd service file..."
         rm -f /etc/systemd/system/virtualbuddy-growfs.service
+        log_success "Removed growfs service file"
     fi
 
-    if [[ -f /usr/local/bin/virtualbuddy-growfs ]]; then
-        log "Removing virtualbuddy-growfs script..."
-        rm -f /usr/local/bin/virtualbuddy-growfs
+    # Remove user service file
+    if [[ -f /etc/systemd/user/virtualbuddy-notify.service ]]; then
+        rm -f /etc/systemd/user/virtualbuddy-notify.service
+        log_success "Removed notification service file"
     fi
+
+    # Remove scripts
+    if [[ -f /usr/local/bin/virtualbuddy-growfs ]]; then
+        rm -f /usr/local/bin/virtualbuddy-growfs
+        log_success "Removed virtualbuddy-growfs"
+    fi
+
+    if [[ -f /usr/local/bin/virtualbuddy-notify ]]; then
+        rm -f /usr/local/bin/virtualbuddy-notify
+        log_success "Removed virtualbuddy-notify"
+    fi
+
+    # Remove status file
+    rm -f /var/run/virtualbuddy-growfs.status 2>/dev/null || true
 
     # Remove version/config directory
     if [[ -d /etc/virtualbuddy ]]; then
-        log "Removing VirtualBuddy config directory..."
         rm -rf /etc/virtualbuddy
+        log_success "Removed VirtualBuddy config directory"
     fi
 
     # Reload systemd
     log "Reloading systemd..."
     systemctl daemon-reload
+    log_success "Reloaded systemd"
 
-    log ""
-    log "Uninstallation complete!"
+    echo ""
+    echo -e "${GREEN}${BOLD}Uninstallation complete!${NC}"
+    echo ""
+    echo "VirtualBuddy Guest Additions have been removed from your system."
+    echo ""
 }
 
 main "$@"
