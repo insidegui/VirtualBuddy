@@ -19,9 +19,41 @@ set -euo pipefail
 VERSION="1.1.0"
 DRY_RUN=false
 VERBOSE=false
+STATUS_FILE="/var/run/virtualbuddy-growfs.status"
+
+# Colors for terminal output (disabled if not a TTY)
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    BOLD='\033[1m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    CYAN=''
+    BOLD=''
+    NC=''
+fi
 
 log() {
-    echo "[virtualbuddy-growfs] $*"
+    echo -e "${CYAN}[virtualbuddy-growfs]${NC} $*"
+}
+
+log_step() {
+    echo -e "${BLUE}${BOLD}==>${NC} $*"
+}
+
+log_success() {
+    echo -e "${GREEN}✓${NC} $*"
+}
+
+log_warning() {
+    echo -e "${YELLOW}⚠${NC} $*"
 }
 
 log_verbose() {
@@ -31,8 +63,26 @@ log_verbose() {
 }
 
 die() {
-    log "ERROR: $*" >&2
+    echo -e "${RED}${BOLD}ERROR:${NC} $*" >&2
     exit 1
+}
+
+# Write status to file for notification service
+write_status() {
+    local status="$1"
+    local message="$2"
+    local old_size="${3:-}"
+    local new_size="${4:-}"
+
+    if ! $DRY_RUN; then
+        cat > "$STATUS_FILE" <<EOF
+STATUS=$status
+MESSAGE=$message
+OLD_SIZE=$old_size
+NEW_SIZE=$new_size
+TIMESTAMP=$(date -Iseconds)
+EOF
+    fi
 }
 
 # Parse arguments
@@ -310,15 +360,30 @@ resize_filesystem() {
     esac
 }
 
+# Get human-readable disk size for root filesystem
+get_root_size() {
+    df -h / | tail -1 | awk '{print $2}'
+}
+
 # Main logic
 main() {
-    log "VirtualBuddy Guest Additions - Filesystem Grow v$VERSION"
+    echo ""
+    echo -e "${BLUE}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}${BOLD}║        VirtualBuddy Filesystem Resize v$VERSION                ║${NC}"
+    echo -e "${BLUE}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
 
     if $DRY_RUN; then
-        log "Running in dry-run mode - no changes will be made"
+        log_warning "Running in dry-run mode - no changes will be made"
+        echo ""
     fi
 
+    # Save initial size
+    local initial_size
+    initial_size=$(get_root_size)
+
     # Find root filesystem
+    log_step "Detecting storage configuration..."
     local root_device
     root_device=$(find_root_device)
     log_verbose "Root device: $root_device"
@@ -340,7 +405,9 @@ main() {
             lv_device="$root_device"
             local vg_name
             vg_name=$(get_lvm_vg "$lv_device")
-            log_verbose "Detected LVM: LV=$lv_device, VG=$vg_name"
+            local lv_name
+            lv_name=$(get_lvm_lv_name "$lv_device")
+            log_success "Detected LVM logical volume: $lv_name (VG: $vg_name)"
 
             # Find the physical volume
             pv_device=$(get_lvm_pv "$vg_name")
@@ -356,7 +423,7 @@ main() {
                 if [[ -z "$partition_device" ]]; then
                     die "Could not determine backing device for LUKS container"
                 fi
-                log_verbose "LUKS container: $luks_mapper_name, backing partition: $partition_device"
+                log_success "Detected LUKS encryption on $partition_device"
             else
                 # PV is directly on a partition (no LUKS)
                 partition_device="$pv_device"
@@ -368,11 +435,12 @@ main() {
             if [[ -z "$partition_device" ]]; then
                 die "Could not determine backing device for LUKS container"
             fi
-            log_verbose "LUKS container: $luks_mapper_name, backing partition: $partition_device"
+            log_success "Detected LUKS encryption on $partition_device"
         fi
     else
         # Root is directly on a partition (no LUKS, no LVM)
         partition_device="$root_device"
+        log_success "Detected direct partition: $partition_device"
     fi
 
     # Get disk and partition number
@@ -381,17 +449,28 @@ main() {
     partition_num=$(get_partition_number "$partition_device")
 
     log_verbose "Disk: $disk, Partition: $partition_num"
+    echo ""
 
     # Check if we can grow
+    log_step "Checking for available space..."
     if ! check_growable "$disk" "$partition_num"; then
-        log "Partition is already at maximum size, nothing to do"
+        echo ""
+        log "Partition is already at maximum size."
+        log "Current root filesystem size: $initial_size"
+        echo ""
+        write_status "unchanged" "Partition already at maximum size" "$initial_size" "$initial_size"
         exit 0
     fi
 
-    log "Free space detected after partition, proceeding with resize..."
+    log_success "Free space detected after partition!"
+    echo ""
+    log_step "Resizing storage layers..."
+    echo ""
 
     # Step 1: Grow the partition
+    log "Step 1/4: Growing partition..."
     grow_partition "$disk" "$partition_num"
+    log_success "Partition grown"
 
     # Inform kernel of partition change
     if ! $DRY_RUN; then
@@ -401,11 +480,16 @@ main() {
 
     # Step 2: If LUKS, resize the container
     if [[ -n "$luks_mapper_name" ]]; then
+        log "Step 2/4: Resizing LUKS container..."
         resize_luks "$partition_device" "$luks_mapper_name"
+        log_success "LUKS container resized"
+    else
+        log_verbose "Step 2/4: No LUKS - skipping"
     fi
 
     # Step 3: If LVM, resize PV and extend LV
     if [[ -n "$lv_device" ]]; then
+        log "Step 3/4: Resizing LVM volumes..."
         # Resize the physical volume
         if [[ -n "$pv_device" ]]; then
             resize_lvm_pv "$pv_device"
@@ -413,22 +497,42 @@ main() {
 
         # Extend the logical volume
         resize_lvm_lv "$lv_device"
+        log_success "LVM volumes resized"
+    else
+        log_verbose "Step 3/4: No LVM - skipping"
     fi
 
     # Step 4: Resize the filesystem
     local fs_type
     fs_type=$(detect_fs_type "$fs_device")
-    log_verbose "Filesystem type: $fs_type"
+    log "Step 4/4: Resizing $fs_type filesystem..."
 
     if [[ -n "$fs_type" ]]; then
         resize_filesystem "$fs_device" "$fs_type"
+        log_success "Filesystem resized"
     fi
 
-    log "Filesystem resize complete!"
+    # Get new size
+    local new_size
+    new_size=$(get_root_size)
 
-    # Show new size
+    echo ""
+    echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}${BOLD}║              Filesystem Resize Complete!                     ║${NC}"
+    echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "  Previous size: ${YELLOW}$initial_size${NC}"
+    echo -e "  New size:      ${GREEN}${BOLD}$new_size${NC}"
+    echo ""
+
+    # Show disk usage
     if ! $DRY_RUN; then
-        df -h / | tail -1
+        echo "Current disk usage:"
+        df -h / | tail -1 | awk '{printf "  Total: %s  Used: %s  Available: %s  Usage: %s\n", $2, $3, $4, $5}'
+        echo ""
+
+        # Write status for notification service
+        write_status "resized" "Filesystem resized from $initial_size to $new_size" "$initial_size" "$new_size"
     fi
 }
 
