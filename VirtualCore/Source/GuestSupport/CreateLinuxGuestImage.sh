@@ -50,6 +50,8 @@ cp "$SOURCE_DIR/install.sh" "$STAGING_DIR/"
 cp "$SOURCE_DIR/uninstall.sh" "$STAGING_DIR/"
 cp "$SOURCE_DIR/virtualbuddy-growfs" "$STAGING_DIR/"
 cp "$SOURCE_DIR/virtualbuddy-growfs.service" "$STAGING_DIR/"
+cp "$SOURCE_DIR/virtualbuddy-notify" "$STAGING_DIR/"
+cp "$SOURCE_DIR/virtualbuddy-notify.service" "$STAGING_DIR/"
 cp "$SOURCE_DIR/INSTALL.md" "$STAGING_DIR/"
 
 # Write version/digest file
@@ -102,6 +104,7 @@ fi
 chmod +x "$STAGING_DIR/install.sh"
 chmod +x "$STAGING_DIR/uninstall.sh"
 chmod +x "$STAGING_DIR/virtualbuddy-growfs"
+chmod +x "$STAGING_DIR/virtualbuddy-notify"
 
 # Remove any existing ISO at destination
 rm -f "$DEST_PATH" 2>/dev/null || true

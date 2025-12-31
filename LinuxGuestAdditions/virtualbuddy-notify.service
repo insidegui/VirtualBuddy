@@ -1,0 +1,12 @@
+[Unit]
+Description=VirtualBuddy Guest Additions - Desktop Notification
+Documentation=https://github.com/insidegui/VirtualBuddy
+After=graphical-session.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/virtualbuddy-notify
+RemainAfterExit=no
+
+[Install]
+WantedBy=graphical-session.target
