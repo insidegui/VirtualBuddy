@@ -163,7 +163,7 @@ public final class LinuxGuestAdditionsDiskImage: ObservableObject {
 
             // Skip design documents and other non-essential files
             let filename = fileURL.lastPathComponent
-            guard !filename.hasSuffix(".md") || filename == "README.md" else { continue }
+            guard !filename.hasSuffix(".md") || filename == "INSTALL.md" else { continue }
             guard !filename.hasPrefix(".") else { continue }
 
             #if DEBUG

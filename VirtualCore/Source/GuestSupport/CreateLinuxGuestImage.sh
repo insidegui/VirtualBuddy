@@ -50,7 +50,7 @@ cp "$SOURCE_DIR/install.sh" "$STAGING_DIR/"
 cp "$SOURCE_DIR/uninstall.sh" "$STAGING_DIR/"
 cp "$SOURCE_DIR/virtualbuddy-growfs" "$STAGING_DIR/"
 cp "$SOURCE_DIR/virtualbuddy-growfs.service" "$STAGING_DIR/"
-cp "$SOURCE_DIR/README.md" "$STAGING_DIR/"
+cp "$SOURCE_DIR/INSTALL.md" "$STAGING_DIR/"
 
 # Write version/digest file
 echo "$DIGEST" > "$STAGING_DIR/VERSION"
