@@ -8,6 +8,7 @@
 # Supports:
 # - Unencrypted ext4/xfs/btrfs partitions
 # - LUKS-encrypted partitions (with ext4/xfs/btrfs inside)
+# - LVM logical volumes (with or without LUKS)
 # - GPT partition tables
 #
 # Usage: virtualbuddy-growfs [--dry-run] [--verbose]
@@ -15,7 +16,7 @@
 
 set -euo pipefail
 
-VERSION="1.0.0"
+VERSION="1.1.0"
 DRY_RUN=false
 VERBOSE=false
 
@@ -90,8 +91,8 @@ is_luks() {
     cryptsetup isLuks "$device" 2>/dev/null
 }
 
-# Get the underlying partition for a LUKS device
-get_luks_backing_device() {
+# Get the underlying device for a device-mapper device (LUKS or LVM)
+get_dm_backing_device() {
     local mapper_name="$1"
     # Get the slave device from sysfs
     local dm_name
@@ -115,6 +116,79 @@ get_luks_backing_device() {
     fi
 
     return 1
+}
+
+# Alias for backward compatibility
+get_luks_backing_device() {
+    get_dm_backing_device "$1"
+}
+
+# Check if device is an LVM logical volume
+is_lvm_lv() {
+    local device="$1"
+    if command -v lvs &>/dev/null; then
+        lvs "$device" &>/dev/null
+        return $?
+    fi
+    return 1
+}
+
+# Get LVM volume group name from logical volume
+get_lvm_vg() {
+    local lv_device="$1"
+    lvs --noheadings -o vg_name "$lv_device" 2>/dev/null | tr -d ' '
+}
+
+# Get LVM logical volume name
+get_lvm_lv_name() {
+    local lv_device="$1"
+    lvs --noheadings -o lv_name "$lv_device" 2>/dev/null | tr -d ' '
+}
+
+# Get physical volume device(s) for a volume group
+get_lvm_pv() {
+    local vg_name="$1"
+    # Get the first PV (most common case is single PV)
+    pvs --noheadings -o pv_name -S "vg_name=$vg_name" 2>/dev/null | head -1 | tr -d ' '
+}
+
+# Resize LVM physical volume
+resize_lvm_pv() {
+    local pv_device="$1"
+
+    log "Resizing LVM physical volume $pv_device..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: pvresize $pv_device"
+        return 0
+    fi
+
+    pvresize "$pv_device"
+}
+
+# Extend LVM logical volume to use all free space
+resize_lvm_lv() {
+    local lv_device="$1"
+
+    log "Extending LVM logical volume $lv_device..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: lvextend -l +100%FREE $lv_device"
+        return 0
+    fi
+
+    # Check if there's free space in the VG first
+    local vg_name
+    vg_name=$(get_lvm_vg "$lv_device")
+    local free_extents
+    free_extents=$(vgs --noheadings -o vg_free_count "$vg_name" 2>/dev/null | tr -d ' ')
+
+    if [[ -z "$free_extents" ]] || [[ "$free_extents" -eq 0 ]]; then
+        log_verbose "No free extents in VG $vg_name, skipping LV extend"
+        return 0
+    fi
+
+    lvextend -l +100%FREE "$lv_device"
 }
 
 # Get the disk device from a partition (e.g., /dev/vda2 -> /dev/vda)
@@ -250,20 +324,54 @@ main() {
     log_verbose "Root device: $root_device"
 
     local fs_device="$root_device"
+    local lv_device=""
+    local pv_device=""
     local luks_mapper_name=""
     local partition_device=""
 
-    # Check if root is on a LUKS device
-    if [[ "$root_device" == /dev/mapper/* ]]; then
-        luks_mapper_name=$(basename "$root_device")
-        log_verbose "Detected LUKS mapper: $luks_mapper_name"
+    # Detect storage stack: partition -> [LUKS] -> [LVM] -> filesystem
+    # We need to walk backwards from the filesystem to find the partition
 
-        partition_device=$(get_luks_backing_device "$luks_mapper_name")
-        if [[ -z "$partition_device" ]]; then
-            die "Could not determine backing device for LUKS container"
+    if [[ "$root_device" == /dev/mapper/* ]]; then
+        # Root is on a device-mapper device (could be LVM, LUKS, or both)
+
+        # Check if it's an LVM logical volume
+        if is_lvm_lv "$root_device"; then
+            lv_device="$root_device"
+            local vg_name
+            vg_name=$(get_lvm_vg "$lv_device")
+            log_verbose "Detected LVM: LV=$lv_device, VG=$vg_name"
+
+            # Find the physical volume
+            pv_device=$(get_lvm_pv "$vg_name")
+            if [[ -z "$pv_device" ]]; then
+                die "Could not determine physical volume for VG $vg_name"
+            fi
+            log_verbose "LVM physical volume: $pv_device"
+
+            # Check if PV is on LUKS
+            if [[ "$pv_device" == /dev/mapper/* ]]; then
+                luks_mapper_name=$(basename "$pv_device")
+                partition_device=$(get_dm_backing_device "$luks_mapper_name")
+                if [[ -z "$partition_device" ]]; then
+                    die "Could not determine backing device for LUKS container"
+                fi
+                log_verbose "LUKS container: $luks_mapper_name, backing partition: $partition_device"
+            else
+                # PV is directly on a partition (no LUKS)
+                partition_device="$pv_device"
+            fi
+        else
+            # Not LVM, assume it's LUKS directly on a partition
+            luks_mapper_name=$(basename "$root_device")
+            partition_device=$(get_dm_backing_device "$luks_mapper_name")
+            if [[ -z "$partition_device" ]]; then
+                die "Could not determine backing device for LUKS container"
+            fi
+            log_verbose "LUKS container: $luks_mapper_name, backing partition: $partition_device"
         fi
-        log_verbose "LUKS backing partition: $partition_device"
     else
+        # Root is directly on a partition (no LUKS, no LVM)
         partition_device="$root_device"
     fi
 
@@ -296,7 +404,18 @@ main() {
         resize_luks "$partition_device" "$luks_mapper_name"
     fi
 
-    # Step 3: Resize the filesystem
+    # Step 3: If LVM, resize PV and extend LV
+    if [[ -n "$lv_device" ]]; then
+        # Resize the physical volume
+        if [[ -n "$pv_device" ]]; then
+            resize_lvm_pv "$pv_device"
+        fi
+
+        # Extend the logical volume
+        resize_lvm_lv "$lv_device"
+    fi
+
+    # Step 4: Resize the filesystem
     local fs_type
     fs_type=$(detect_fs_type "$fs_device")
     log_verbose "Filesystem type: $fs_type"

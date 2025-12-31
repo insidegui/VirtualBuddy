@@ -7,7 +7,9 @@ When you resize a disk in VirtualBuddy, the guest additions will automatically e
 ## Features
 
 - **Automatic partition resize** using `growpart`
+- **LVM support** - automatically extends physical volumes and logical volumes
 - **LUKS support** - automatically resizes encrypted containers
+- **LVM on LUKS** - full support for Fedora Workstation's default layout
 - **Multiple filesystems** - supports ext4, XFS, and Btrfs
 - **Safe operation** - only runs when free space is detected
 
@@ -104,15 +106,29 @@ journalctl -u virtualbuddy-growfs
 
 ## How It Works
 
-1. **Detect root device** - Finds the root filesystem mount
-2. **Check for LUKS** - Detects if root is on an encrypted volume
-3. **Find free space** - Checks if partition can be grown
-4. **Grow partition** - Uses `growpart` to extend the GPT partition
-5. **Resize LUKS** - If encrypted, runs `cryptsetup resize`
+1. **Detect storage stack** - Walks from root filesystem back through LVM, LUKS, to the partition
+2. **Find free space** - Checks if partition can be grown
+3. **Grow partition** - Uses `growpart` to extend the GPT partition
+4. **Resize LUKS** - If encrypted, runs `cryptsetup resize`
+5. **Resize LVM** - If using LVM:
+   - `pvresize` to extend the physical volume
+   - `lvextend` to extend the logical volume
 6. **Resize filesystem** - Runs the appropriate tool:
    - ext4: `resize2fs`
    - XFS: `xfs_growfs`
    - Btrfs: `btrfs filesystem resize max`
+
+## LVM Support
+
+For distributions using LVM (with or without encryption), the guest additions automatically handle:
+
+1. Extending the physical volume (`pvresize`)
+2. Extending the logical volume (`lvextend -l +100%FREE`)
+3. Resizing the filesystem
+
+This works for both:
+- **LVM on partition** - direct partition → LVM → filesystem
+- **LVM on LUKS** - partition → LUKS → LVM → filesystem (Fedora Workstation default)
 
 ## LUKS Encrypted Disks
 
@@ -120,7 +136,8 @@ For LUKS-encrypted root partitions (common with Fedora Workstation), the guest a
 
 1. Grow the GPT partition containing LUKS
 2. Run `cryptsetup resize` to expand the LUKS container
-3. Resize the inner filesystem
+3. If LVM is on top of LUKS, extend PV and LV
+4. Resize the inner filesystem
 
 No manual intervention required!
 
@@ -175,6 +192,43 @@ sudo apt install xfsprogs   # or dnf install xfsprogs
 
 # For Btrfs
 sudo apt install btrfs-progs  # or dnf install btrfs-progs
+```
+
+### LVM not detected
+
+Ensure LVM tools are installed:
+
+```bash
+# Fedora/RHEL
+sudo dnf install lvm2
+
+# Ubuntu/Debian
+sudo apt install lvm2
+```
+
+Check your storage stack:
+
+```bash
+# View LVM layout
+sudo lsblk
+sudo lvs
+sudo pvs
+sudo vgs
+```
+
+### LV not extending
+
+If the logical volume isn't growing, check for free space in the volume group:
+
+```bash
+sudo vgs
+```
+
+If `VFree` is 0, the physical volume may not have been resized. Try running manually:
+
+```bash
+sudo pvresize /dev/mapper/luks-xxx  # or your PV device
+sudo lvextend -l +100%FREE /dev/mapper/fedora-root
 ```
 
 ## License
