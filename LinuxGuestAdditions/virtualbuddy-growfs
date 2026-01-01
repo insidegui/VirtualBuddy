@@ -455,6 +455,7 @@ main() {
     log_step "Checking for available space..."
     local partition_grew=false
     local lvm_can_extend=false
+    local fs_can_extend=false
 
     if check_growable "$disk" "$partition_num"; then
         log_success "Free space detected after partition!"
@@ -499,13 +500,39 @@ main() {
         fi
     fi
 
+    # Check if filesystem can be extended (for LUKS-without-LVM case)
+    # This handles when VirtualBuddy resizes partition and LUKS auto-expands,
+    # but filesystem inside still needs resizing
+    if [[ -z "$lv_device" ]] && [[ -n "$fs_device" ]]; then
+        local fs_size_bytes device_size_bytes
+        # Get filesystem size from df (in 1K blocks, convert to bytes)
+        fs_size_bytes=$(df --block-size=1 "$fs_device" 2>/dev/null | tail -1 | awk '{print $2}')
+        # Get underlying device size
+        if [[ -b "$fs_device" ]]; then
+            device_size_bytes=$(blockdev --getsize64 "$fs_device" 2>/dev/null || echo "0")
+        else
+            device_size_bytes="0"
+        fi
+
+        if [[ -n "$fs_size_bytes" ]] && [[ -n "$device_size_bytes" ]] && [[ "$device_size_bytes" -gt 0 ]]; then
+            # Allow 5% tolerance for filesystem overhead
+            local threshold=$((device_size_bytes * 95 / 100))
+            if [[ "$fs_size_bytes" -lt "$threshold" ]]; then
+                local unused_bytes=$((device_size_bytes - fs_size_bytes))
+                local unused_gb=$((unused_bytes / 1073741824))
+                log_verbose "Filesystem can be extended (~${unused_gb}GB available)"
+                fs_can_extend=true
+            fi
+        fi
+    fi
+
     # Exit early only if nothing needs to be done
-    if ! $partition_grew && ! $lvm_can_extend; then
+    if ! $partition_grew && ! $lvm_can_extend && ! $fs_can_extend; then
         echo ""
-        log "No resize needed - partition and LVM are already at maximum size."
+        log "No resize needed - all storage layers already at maximum size."
         log "Current root filesystem size: $initial_size"
         echo ""
-        write_status "unchanged" "Partition and LVM already at maximum size" "$initial_size" "$initial_size"
+        write_status "unchanged" "All storage layers already at maximum size" "$initial_size" "$initial_size"
         exit 0
     fi
 
