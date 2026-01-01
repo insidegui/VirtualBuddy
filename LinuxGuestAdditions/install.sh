@@ -11,7 +11,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-VERSION="1.1.0"
+VERSION="1.2.0"
 
 # Colors for terminal output (disabled if not a TTY)
 if [[ -t 1 ]]; then

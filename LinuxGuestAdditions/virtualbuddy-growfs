@@ -16,7 +16,7 @@
 
 set -euo pipefail
 
-VERSION="1.1.0"
+VERSION="1.2.0"
 DRY_RUN=false
 VERBOSE=false
 STATUS_FILE="/var/run/virtualbuddy-growfs.status"
@@ -451,31 +451,81 @@ main() {
     log_verbose "Disk: $disk, Partition: $partition_num"
     echo ""
 
-    # Check if we can grow
+    # Check if partition can be grown
     log_step "Checking for available space..."
-    if ! check_growable "$disk" "$partition_num"; then
-        echo ""
+    local partition_grew=false
+    local lvm_can_extend=false
+
+    if check_growable "$disk" "$partition_num"; then
+        log_success "Free space detected after partition!"
+        partition_grew=true
+    else
         log "Partition is already at maximum size."
+        # VirtualBuddy may have resized the partition at host level,
+        # but LVM/filesystem might still need extending
+    fi
+
+    # Check if LVM has free space that needs extending
+    if [[ -n "$lv_device" ]]; then
+        local vg_name
+        vg_name=$(get_lvm_vg "$lv_device")
+
+        # First, we need to ensure PV knows about the full device size
+        # by checking if pvresize would add space
+        if [[ -n "$pv_device" ]]; then
+            # Get current PV size and compare to device size
+            local pv_size_bytes dev_size_bytes
+            pv_size_bytes=$(pvs --noheadings --units b -o pv_size "$pv_device" 2>/dev/null | tr -d ' bB')
+            if [[ -b "$pv_device" ]]; then
+                dev_size_bytes=$(blockdev --getsize64 "$pv_device" 2>/dev/null || echo "0")
+            else
+                dev_size_bytes="0"
+            fi
+
+            # Allow some tolerance (1MB) for metadata
+            local size_diff=$((dev_size_bytes - pv_size_bytes))
+            if [[ $size_diff -gt 1048576 ]]; then
+                log_verbose "PV $pv_device can be extended (${size_diff} bytes available)"
+                lvm_can_extend=true
+            fi
+        fi
+
+        # Also check for existing free extents in the VG
+        local free_extents
+        free_extents=$(vgs --noheadings -o vg_free_count "$vg_name" 2>/dev/null | tr -d ' ')
+        if [[ -n "$free_extents" ]] && [[ "$free_extents" -gt 0 ]]; then
+            log_verbose "VG $vg_name has $free_extents free extents"
+            lvm_can_extend=true
+        fi
+    fi
+
+    # Exit early only if nothing needs to be done
+    if ! $partition_grew && ! $lvm_can_extend; then
+        echo ""
+        log "No resize needed - partition and LVM are already at maximum size."
         log "Current root filesystem size: $initial_size"
         echo ""
-        write_status "unchanged" "Partition already at maximum size" "$initial_size" "$initial_size"
+        write_status "unchanged" "Partition and LVM already at maximum size" "$initial_size" "$initial_size"
         exit 0
     fi
 
-    log_success "Free space detected after partition!"
     echo ""
     log_step "Resizing storage layers..."
     echo ""
 
-    # Step 1: Grow the partition
-    log "Step 1/4: Growing partition..."
-    grow_partition "$disk" "$partition_num"
-    log_success "Partition grown"
+    # Step 1: Grow the partition (if needed)
+    if $partition_grew; then
+        log "Step 1/4: Growing partition..."
+        grow_partition "$disk" "$partition_num"
+        log_success "Partition grown"
 
-    # Inform kernel of partition change
-    if ! $DRY_RUN; then
-        partprobe "$disk" 2>/dev/null || true
-        sleep 1
+        # Inform kernel of partition change
+        if ! $DRY_RUN; then
+            partprobe "$disk" 2>/dev/null || true
+            sleep 1
+        fi
+    else
+        log_verbose "Step 1/4: Partition already at max - skipping growpart"
     fi
 
     # Step 2: If LUKS, resize the container
@@ -490,7 +540,7 @@ main() {
     # Step 3: If LVM, resize PV and extend LV
     if [[ -n "$lv_device" ]]; then
         log "Step 3/4: Resizing LVM volumes..."
-        # Resize the physical volume
+        # Always try to resize the physical volume (it's safe even if no change needed)
         if [[ -n "$pv_device" ]]; then
             resize_lvm_pv "$pv_device"
         fi
