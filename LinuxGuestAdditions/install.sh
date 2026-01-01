@@ -60,13 +60,16 @@ die() {
 }
 
 # Send desktop notification if available
+# Note: When running as root (sudo), D-Bus session may not be accessible,
+# so we use timeout to prevent hanging
 notify() {
     local title="$1"
     local message="$2"
     local urgency="${3:-normal}"  # low, normal, critical
 
     if $HAS_DESKTOP && command -v notify-send &>/dev/null; then
-        notify-send -u "$urgency" -i "drive-harddisk" "VirtualBuddy: $title" "$message" 2>/dev/null || true
+        # Use timeout to prevent hanging if D-Bus session is inaccessible (common with sudo)
+        timeout 2s notify-send -u "$urgency" -i "drive-harddisk" "VirtualBuddy: $title" "$message" 2>/dev/null || true
     fi
 }
 
