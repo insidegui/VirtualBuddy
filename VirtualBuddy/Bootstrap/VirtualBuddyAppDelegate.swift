@@ -49,8 +49,21 @@ import SwiftUI
         }
         .store(in: &cancellables)
 
+        LinuxGuestAdditionsDiskImage.current.$state.sink { state in
+            switch state {
+            case .ready:
+                self.logger.debug("Linux guest tools ISO ready")
+            case .installing:
+                self.logger.debug("Linux guest tools ISO generating")
+            case .installFailed(let error):
+                self.logger.debug("Linux guest tools ISO generation failed - \(error, privacy: .public)")
+            }
+        }
+        .store(in: &cancellables)
+
         Task {
             try? await GuestAdditionsDiskImage.current.installIfNeeded()
+            try? await LinuxGuestAdditionsDiskImage.current.installIfNeeded()
         }
 
         #if DEBUG

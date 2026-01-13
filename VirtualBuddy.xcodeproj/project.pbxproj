@@ -25,6 +25,9 @@
 /* Begin PBXBuildFile section */
 		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
 		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
+		E85386982F0578690032FB67 /* LinuxGuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E85386972F0578690032FB67 /* LinuxGuestAdditionsDiskImage.swift */; };
+		E853869A2F0578A60032FB67 /* CreateLinuxGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = E85386992F0578A60032FB67 /* CreateLinuxGuestImage.sh */; };
+		E85386AA2F0579000032FB67 /* LinuxGuestAdditions in Resources */ = {isa = PBXBuildFile; fileRef = E85386A22F0578E60032FB67 /* LinuxGuestAdditions */; };
 		F40A1E9D2C1873CA0033E47D /* VBBuildType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40A1E9C2C1873C60033E47D /* VBBuildType.swift */; };
 		F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695129916F6E002CE8D3 /* StatusItemButton.swift */; };
 		F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */; };
@@ -342,6 +345,7 @@
 		F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */; };
 		F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */; };
 		F4FC983D2BB386DD00E511C9 /* VMProgressOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */; };
+		VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -545,6 +549,9 @@
 /* Begin PBXFileReference section */
 		0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LinuxVirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
 		4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineConfigurationHelper.swift; sourceTree = "<group>"; };
+		E85386972F0578690032FB67 /* LinuxGuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinuxGuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
+		E85386992F0578A60032FB67 /* CreateLinuxGuestImage.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = CreateLinuxGuestImage.sh; sourceTree = "<group>"; };
+		E85386A22F0578E60032FB67 /* LinuxGuestAdditions */ = {isa = PBXFileReference; lastKnownFileType = folder; path = LinuxGuestAdditions; sourceTree = SOURCE_ROOT; };
 		F40A1E9C2C1873C60033E47D /* VBBuildType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBBuildType.swift; sourceTree = "<group>"; };
 		F413695129916F6E002CE8D3 /* StatusItemButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusItemButton.swift; sourceTree = "<group>"; };
 		F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarPanelChrome.swift; sourceTree = "<group>"; };
@@ -853,6 +860,7 @@
 		F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousProgressIndicator.swift; sourceTree = "<group>"; };
 		F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskProgressView.swift; sourceTree = "<group>"; };
 		F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMProgressOverlay.swift; sourceTree = "<group>"; };
+		VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDiskResizer.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1259,6 +1267,9 @@
 		F443620D29B79D6800745B43 /* GuestSupport */ = {
 			isa = PBXGroup;
 			children = (
+				E85386992F0578A60032FB67 /* CreateLinuxGuestImage.sh */,
+				E85386A22F0578E60032FB67 /* LinuxGuestAdditions */,
+				E85386972F0578690032FB67 /* LinuxGuestAdditionsDiskImage.swift */,
 				F443620E29B7A0C600745B43 /* CreateGuestImage.sh */,
 				F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */,
 			);
@@ -1884,6 +1895,7 @@
 				F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */,
 				F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */,
 				F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */,
+				VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -2360,7 +2372,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F453C4922DF1D213007EAD5F /* FakeRestoreImage.ipsw in Resources */,
+				E85386AA2F0579000032FB67 /* LinuxGuestAdditions in Resources */,
 				F453C45D2DF0D28A007EAD5F /* README.md in Resources */,
+				E853869A2F0578A60032FB67 /* CreateLinuxGuestImage.sh in Resources */,
 				F417257428877478004FF8A7 /* VirtualCore.xcassets in Resources */,
 				F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */,
 			);
@@ -2638,6 +2652,7 @@
 			files = (
 				F4E7DF922BB3338900C459FC /* NSImage+HEIC.swift in Sources */,
 				F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */,
+				E85386982F0578690032FB67 /* LinuxGuestAdditionsDiskImage.swift in Sources */,
 				F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */,
 				F42CF4A82DF5FEC3001DE049 /* BlurHashToken.swift in Sources */,
 				F41725762887758A004FF8A7 /* RandomNameGenerator.swift in Sources */,
@@ -2677,6 +2692,7 @@
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
 				F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
+				VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
 				F4A7FB3B2BB5E79100E4C12A /* DirectoryObserver.swift in Sources */,

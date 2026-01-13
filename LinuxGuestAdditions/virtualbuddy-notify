@@ -1,0 +1,61 @@
+#!/bin/bash
+#
+# VirtualBuddy Linux Guest Additions - Desktop Notification Script
+#
+# This script is run at user login to display notifications about
+# disk resize operations that occurred during boot.
+#
+# Usage: virtualbuddy-notify
+#
+
+STATUS_FILE="/var/run/virtualbuddy-growfs.status"
+NOTIFICATION_SENT_FILE="/tmp/virtualbuddy-notify-sent-$$"
+
+# Check if we're in a desktop session
+if [[ -z "${DISPLAY:-}" ]] && [[ -z "${WAYLAND_DISPLAY:-}" ]]; then
+    exit 0
+fi
+
+# Check if notify-send is available
+if ! command -v notify-send &>/dev/null; then
+    exit 0
+fi
+
+# Check if status file exists
+if [[ ! -f "$STATUS_FILE" ]]; then
+    exit 0
+fi
+
+# Read status file
+source "$STATUS_FILE" 2>/dev/null || exit 0
+
+# Check if we already sent a notification for this status
+if [[ -f "/tmp/virtualbuddy-notified-$(echo "$TIMESTAMP" | md5sum | cut -d' ' -f1)" ]]; then
+    exit 0
+fi
+
+# Send appropriate notification based on status
+case "$STATUS" in
+    resized)
+        notify-send \
+            -u normal \
+            -i "drive-harddisk" \
+            -t 10000 \
+            "VirtualBuddy: Disk Resized" \
+            "Your disk has been automatically expanded.\n\nPrevious: $OLD_SIZE\nNew: $NEW_SIZE"
+        ;;
+    unchanged)
+        # Don't notify if nothing changed - that's expected
+        ;;
+    error)
+        notify-send \
+            -u critical \
+            -i "dialog-error" \
+            -t 15000 \
+            "VirtualBuddy: Resize Failed" \
+            "$MESSAGE\n\nRun 'journalctl -u virtualbuddy-growfs' for details."
+        ;;
+esac
+
+# Mark as notified
+touch "/tmp/virtualbuddy-notified-$(echo "$TIMESTAMP" | md5sum | cut -d' ' -f1)" 2>/dev/null || true

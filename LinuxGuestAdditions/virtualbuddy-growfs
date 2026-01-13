@@ -1,0 +1,616 @@
+#!/bin/bash
+#
+# VirtualBuddy Linux Guest Additions - Filesystem Grow Script
+#
+# This script automatically resizes the root partition and filesystem
+# after VirtualBuddy has expanded the virtual disk.
+#
+# Supports:
+# - Unencrypted ext4/xfs/btrfs partitions
+# - LUKS-encrypted partitions (with ext4/xfs/btrfs inside)
+# - LVM logical volumes (with or without LUKS)
+# - GPT partition tables
+#
+# Usage: virtualbuddy-growfs [--dry-run] [--verbose]
+#
+
+set -euo pipefail
+
+VERSION="1.2.0"
+DRY_RUN=false
+VERBOSE=false
+STATUS_FILE="/var/run/virtualbuddy-growfs.status"
+
+# Colors for terminal output (disabled if not a TTY)
+if [[ -t 1 ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[0;33m'
+    BLUE='\033[0;34m'
+    CYAN='\033[0;36m'
+    BOLD='\033[1m'
+    NC='\033[0m' # No Color
+else
+    RED=''
+    GREEN=''
+    YELLOW=''
+    BLUE=''
+    CYAN=''
+    BOLD=''
+    NC=''
+fi
+
+log() {
+    echo -e "${CYAN}[virtualbuddy-growfs]${NC} $*"
+}
+
+log_step() {
+    echo -e "${BLUE}${BOLD}==>${NC} $*"
+}
+
+log_success() {
+    echo -e "${GREEN}✓${NC} $*"
+}
+
+log_warning() {
+    echo -e "${YELLOW}⚠${NC} $*"
+}
+
+log_verbose() {
+    if $VERBOSE; then
+        log "$*"
+    fi
+}
+
+die() {
+    echo -e "${RED}${BOLD}ERROR:${NC} $*" >&2
+    exit 1
+}
+
+# Write status to file for notification service
+write_status() {
+    local status="$1"
+    local message="$2"
+    local old_size="${3:-}"
+    local new_size="${4:-}"
+
+    if ! $DRY_RUN; then
+        cat > "$STATUS_FILE" <<EOF
+STATUS=$status
+MESSAGE=$message
+OLD_SIZE=$old_size
+NEW_SIZE=$new_size
+TIMESTAMP=$(date -Iseconds)
+EOF
+    fi
+}
+
+# Parse arguments
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        --verbose|-v)
+            VERBOSE=true
+            shift
+            ;;
+        --version)
+            echo "virtualbuddy-growfs version $VERSION"
+            exit 0
+            ;;
+        --help|-h)
+            echo "Usage: virtualbuddy-growfs [--dry-run] [--verbose]"
+            echo ""
+            echo "Automatically resize root partition and filesystem after disk expansion."
+            echo ""
+            echo "Options:"
+            echo "  --dry-run    Show what would be done without making changes"
+            echo "  --verbose    Show detailed output"
+            echo "  --version    Show version"
+            echo "  --help       Show this help"
+            exit 0
+            ;;
+        *)
+            die "Unknown option: $1"
+            ;;
+    esac
+done
+
+# Ensure we're running as root
+if [[ $EUID -ne 0 ]]; then
+    die "This script must be run as root"
+fi
+
+# Find the root device
+find_root_device() {
+    local root_mount
+    root_mount=$(findmnt -n -o SOURCE /)
+
+    if [[ -z "$root_mount" ]]; then
+        die "Could not find root filesystem"
+    fi
+
+    echo "$root_mount"
+}
+
+# Check if device is a LUKS container
+is_luks() {
+    local device="$1"
+    cryptsetup isLuks "$device" 2>/dev/null
+}
+
+# Get the underlying device for a device-mapper device (LUKS or LVM)
+get_dm_backing_device() {
+    local mapper_name="$1"
+    # Get the slave device from sysfs
+    local dm_name
+    dm_name=$(basename "$mapper_name")
+
+    if [[ -d "/sys/block/$dm_name/slaves" ]]; then
+        local slave
+        slave=$(ls "/sys/block/$dm_name/slaves" 2>/dev/null | head -1)
+        if [[ -n "$slave" ]]; then
+            echo "/dev/$slave"
+            return 0
+        fi
+    fi
+
+    # Fallback: try to get it from dmsetup
+    local backing
+    backing=$(dmsetup deps -o devname "$mapper_name" 2>/dev/null | grep -oP '\(\K[^)]+' | head -1)
+    if [[ -n "$backing" ]]; then
+        echo "/dev/$backing"
+        return 0
+    fi
+
+    return 1
+}
+
+# Alias for backward compatibility
+get_luks_backing_device() {
+    get_dm_backing_device "$1"
+}
+
+# Check if device is an LVM logical volume
+is_lvm_lv() {
+    local device="$1"
+    if command -v lvs &>/dev/null; then
+        lvs "$device" &>/dev/null
+        return $?
+    fi
+    return 1
+}
+
+# Get LVM volume group name from logical volume
+get_lvm_vg() {
+    local lv_device="$1"
+    lvs --noheadings -o vg_name "$lv_device" 2>/dev/null | tr -d ' '
+}
+
+# Get LVM logical volume name
+get_lvm_lv_name() {
+    local lv_device="$1"
+    lvs --noheadings -o lv_name "$lv_device" 2>/dev/null | tr -d ' '
+}
+
+# Get physical volume device(s) for a volume group
+get_lvm_pv() {
+    local vg_name="$1"
+    # Get the first PV (most common case is single PV)
+    pvs --noheadings -o pv_name -S "vg_name=$vg_name" 2>/dev/null | head -1 | tr -d ' '
+}
+
+# Resize LVM physical volume
+resize_lvm_pv() {
+    local pv_device="$1"
+
+    log "Resizing LVM physical volume $pv_device..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: pvresize $pv_device"
+        return 0
+    fi
+
+    pvresize "$pv_device"
+}
+
+# Extend LVM logical volume to use all free space
+resize_lvm_lv() {
+    local lv_device="$1"
+
+    log "Extending LVM logical volume $lv_device..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: lvextend -l +100%FREE $lv_device"
+        return 0
+    fi
+
+    # Check if there's free space in the VG first
+    local vg_name
+    vg_name=$(get_lvm_vg "$lv_device")
+    local free_extents
+    free_extents=$(vgs --noheadings -o vg_free_count "$vg_name" 2>/dev/null | tr -d ' ')
+
+    if [[ -z "$free_extents" ]] || [[ "$free_extents" -eq 0 ]]; then
+        log_verbose "No free extents in VG $vg_name, skipping LV extend"
+        return 0
+    fi
+
+    lvextend -l +100%FREE "$lv_device"
+}
+
+# Get the disk device from a partition (e.g., /dev/vda2 -> /dev/vda)
+get_disk_from_partition() {
+    local partition="$1"
+    # Remove partition number suffix
+    echo "$partition" | sed 's/[0-9]*$//' | sed 's/p$//'
+}
+
+# Get partition number from device (e.g., /dev/vda2 -> 2)
+get_partition_number() {
+    local partition="$1"
+    echo "$partition" | grep -oE '[0-9]+$'
+}
+
+# Check if partition can be grown (has free space after it)
+check_growable() {
+    local disk="$1"
+    local partition_num="$2"
+
+    # Use growpart --dry-run to check
+    if command -v growpart &>/dev/null; then
+        if growpart --dry-run "$disk" "$partition_num" 2>&1 | grep -q "NOCHANGE"; then
+            return 1  # No change needed
+        fi
+        return 0  # Can grow
+    fi
+
+    # Fallback: check with parted
+    if command -v parted &>/dev/null; then
+        local part_end free_space
+        part_end=$(parted -s "$disk" unit s print 2>/dev/null | awk "/^ *$partition_num / {print \$3}" | tr -d 's')
+        free_space=$(parted -s "$disk" unit s print free 2>/dev/null | tail -1 | awk '{print $3}' | tr -d 's')
+
+        if [[ -n "$free_space" ]] && [[ "$free_space" -gt 2048 ]]; then
+            return 0  # Has free space
+        fi
+    fi
+
+    return 1  # No free space or can't determine
+}
+
+# Grow the partition
+grow_partition() {
+    local disk="$1"
+    local partition_num="$2"
+
+    log "Growing partition ${disk}${partition_num}..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: growpart $disk $partition_num"
+        return 0
+    fi
+
+    if command -v growpart &>/dev/null; then
+        growpart "$disk" "$partition_num"
+    else
+        die "growpart not found. Install cloud-guest-utils package."
+    fi
+}
+
+# Resize LUKS container
+resize_luks() {
+    local luks_device="$1"
+    local mapper_name="$2"
+
+    log "Resizing LUKS container $mapper_name..."
+
+    if $DRY_RUN; then
+        log "[DRY-RUN] Would run: cryptsetup resize $mapper_name"
+        return 0
+    fi
+
+    cryptsetup resize "$mapper_name"
+}
+
+# Detect filesystem type
+detect_fs_type() {
+    local device="$1"
+    blkid -s TYPE -o value "$device" 2>/dev/null
+}
+
+# Resize filesystem
+resize_filesystem() {
+    local device="$1"
+    local fs_type="$2"
+
+    log "Resizing $fs_type filesystem on $device..."
+
+    if $DRY_RUN; then
+        case "$fs_type" in
+            ext4|ext3|ext2)
+                log "[DRY-RUN] Would run: resize2fs $device"
+                ;;
+            xfs)
+                log "[DRY-RUN] Would run: xfs_growfs /"
+                ;;
+            btrfs)
+                log "[DRY-RUN] Would run: btrfs filesystem resize max /"
+                ;;
+        esac
+        return 0
+    fi
+
+    case "$fs_type" in
+        ext4|ext3|ext2)
+            resize2fs "$device"
+            ;;
+        xfs)
+            xfs_growfs /
+            ;;
+        btrfs)
+            btrfs filesystem resize max /
+            ;;
+        *)
+            log "WARNING: Unknown filesystem type '$fs_type', skipping resize"
+            return 1
+            ;;
+    esac
+}
+
+# Get human-readable disk size for root filesystem
+get_root_size() {
+    df -h / | tail -1 | awk '{print $2}'
+}
+
+# Main logic
+main() {
+    echo ""
+    echo -e "${BLUE}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}${BOLD}║        VirtualBuddy Filesystem Resize v$VERSION                ║${NC}"
+    echo -e "${BLUE}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+
+    if $DRY_RUN; then
+        log_warning "Running in dry-run mode - no changes will be made"
+        echo ""
+    fi
+
+    # Save initial size
+    local initial_size
+    initial_size=$(get_root_size)
+
+    # Find root filesystem
+    log_step "Detecting storage configuration..."
+    local root_device
+    root_device=$(find_root_device)
+    log_verbose "Root device: $root_device"
+
+    local fs_device="$root_device"
+    local lv_device=""
+    local pv_device=""
+    local luks_mapper_name=""
+    local partition_device=""
+
+    # Detect storage stack: partition -> [LUKS] -> [LVM] -> filesystem
+    # We need to walk backwards from the filesystem to find the partition
+
+    if [[ "$root_device" == /dev/mapper/* ]]; then
+        # Root is on a device-mapper device (could be LVM, LUKS, or both)
+
+        # Check if it's an LVM logical volume
+        if is_lvm_lv "$root_device"; then
+            lv_device="$root_device"
+            local vg_name
+            vg_name=$(get_lvm_vg "$lv_device")
+            local lv_name
+            lv_name=$(get_lvm_lv_name "$lv_device")
+            log_success "Detected LVM logical volume: $lv_name (VG: $vg_name)"
+
+            # Find the physical volume
+            pv_device=$(get_lvm_pv "$vg_name")
+            if [[ -z "$pv_device" ]]; then
+                die "Could not determine physical volume for VG $vg_name"
+            fi
+            log_verbose "LVM physical volume: $pv_device"
+
+            # Check if PV is on LUKS
+            if [[ "$pv_device" == /dev/mapper/* ]]; then
+                luks_mapper_name=$(basename "$pv_device")
+                partition_device=$(get_dm_backing_device "$luks_mapper_name")
+                if [[ -z "$partition_device" ]]; then
+                    die "Could not determine backing device for LUKS container"
+                fi
+                log_success "Detected LUKS encryption on $partition_device"
+            else
+                # PV is directly on a partition (no LUKS)
+                partition_device="$pv_device"
+            fi
+        else
+            # Not LVM, assume it's LUKS directly on a partition
+            luks_mapper_name=$(basename "$root_device")
+            partition_device=$(get_dm_backing_device "$luks_mapper_name")
+            if [[ -z "$partition_device" ]]; then
+                die "Could not determine backing device for LUKS container"
+            fi
+            log_success "Detected LUKS encryption on $partition_device"
+        fi
+    else
+        # Root is directly on a partition (no LUKS, no LVM)
+        partition_device="$root_device"
+        log_success "Detected direct partition: $partition_device"
+    fi
+
+    # Get disk and partition number
+    local disk partition_num
+    disk=$(get_disk_from_partition "$partition_device")
+    partition_num=$(get_partition_number "$partition_device")
+
+    log_verbose "Disk: $disk, Partition: $partition_num"
+    echo ""
+
+    # Check if partition can be grown
+    log_step "Checking for available space..."
+    local partition_grew=false
+    local lvm_can_extend=false
+    local fs_can_extend=false
+
+    if check_growable "$disk" "$partition_num"; then
+        log_success "Free space detected after partition!"
+        partition_grew=true
+    else
+        log "Partition is already at maximum size."
+        # VirtualBuddy may have resized the partition at host level,
+        # but LVM/filesystem might still need extending
+    fi
+
+    # Check if LVM has free space that needs extending
+    if [[ -n "$lv_device" ]]; then
+        local vg_name
+        vg_name=$(get_lvm_vg "$lv_device")
+
+        # First, we need to ensure PV knows about the full device size
+        # by checking if pvresize would add space
+        if [[ -n "$pv_device" ]]; then
+            # Get current PV size and compare to device size
+            local pv_size_bytes dev_size_bytes
+            pv_size_bytes=$(pvs --noheadings --units b -o pv_size "$pv_device" 2>/dev/null | tr -d ' bB')
+            if [[ -b "$pv_device" ]]; then
+                dev_size_bytes=$(blockdev --getsize64 "$pv_device" 2>/dev/null || echo "0")
+            else
+                dev_size_bytes="0"
+            fi
+
+            # Allow some tolerance (1MB) for metadata
+            local size_diff=$((dev_size_bytes - pv_size_bytes))
+            if [[ $size_diff -gt 1048576 ]]; then
+                log_verbose "PV $pv_device can be extended (${size_diff} bytes available)"
+                lvm_can_extend=true
+            fi
+        fi
+
+        # Also check for existing free extents in the VG
+        local free_extents
+        free_extents=$(vgs --noheadings -o vg_free_count "$vg_name" 2>/dev/null | tr -d ' ')
+        if [[ -n "$free_extents" ]] && [[ "$free_extents" -gt 0 ]]; then
+            log_verbose "VG $vg_name has $free_extents free extents"
+            lvm_can_extend=true
+        fi
+    fi
+
+    # Check if filesystem can be extended (for LUKS-without-LVM case)
+    # This handles when VirtualBuddy resizes partition and LUKS auto-expands,
+    # but filesystem inside still needs resizing
+    if [[ -z "$lv_device" ]] && [[ -n "$fs_device" ]]; then
+        local fs_size_bytes device_size_bytes
+        # Get filesystem size from df (in 1K blocks, convert to bytes)
+        fs_size_bytes=$(df --block-size=1 "$fs_device" 2>/dev/null | tail -1 | awk '{print $2}')
+        # Get underlying device size
+        if [[ -b "$fs_device" ]]; then
+            device_size_bytes=$(blockdev --getsize64 "$fs_device" 2>/dev/null || echo "0")
+        else
+            device_size_bytes="0"
+        fi
+
+        if [[ -n "$fs_size_bytes" ]] && [[ -n "$device_size_bytes" ]] && [[ "$device_size_bytes" -gt 0 ]]; then
+            # Allow 5% tolerance for filesystem overhead
+            local threshold=$((device_size_bytes * 95 / 100))
+            if [[ "$fs_size_bytes" -lt "$threshold" ]]; then
+                local unused_bytes=$((device_size_bytes - fs_size_bytes))
+                local unused_gb=$((unused_bytes / 1073741824))
+                log_verbose "Filesystem can be extended (~${unused_gb}GB available)"
+                fs_can_extend=true
+            fi
+        fi
+    fi
+
+    # Exit early only if nothing needs to be done
+    if ! $partition_grew && ! $lvm_can_extend && ! $fs_can_extend; then
+        echo ""
+        log "No resize needed - all storage layers already at maximum size."
+        log "Current root filesystem size: $initial_size"
+        echo ""
+        write_status "unchanged" "All storage layers already at maximum size" "$initial_size" "$initial_size"
+        exit 0
+    fi
+
+    echo ""
+    log_step "Resizing storage layers..."
+    echo ""
+
+    # Step 1: Grow the partition (if needed)
+    if $partition_grew; then
+        log "Step 1/4: Growing partition..."
+        grow_partition "$disk" "$partition_num"
+        log_success "Partition grown"
+
+        # Inform kernel of partition change
+        if ! $DRY_RUN; then
+            partprobe "$disk" 2>/dev/null || true
+            sleep 1
+        fi
+    else
+        log_verbose "Step 1/4: Partition already at max - skipping growpart"
+    fi
+
+    # Step 2: If LUKS, resize the container
+    if [[ -n "$luks_mapper_name" ]]; then
+        log "Step 2/4: Resizing LUKS container..."
+        resize_luks "$partition_device" "$luks_mapper_name"
+        log_success "LUKS container resized"
+    else
+        log_verbose "Step 2/4: No LUKS - skipping"
+    fi
+
+    # Step 3: If LVM, resize PV and extend LV
+    if [[ -n "$lv_device" ]]; then
+        log "Step 3/4: Resizing LVM volumes..."
+        # Always try to resize the physical volume (it's safe even if no change needed)
+        if [[ -n "$pv_device" ]]; then
+            resize_lvm_pv "$pv_device"
+        fi
+
+        # Extend the logical volume
+        resize_lvm_lv "$lv_device"
+        log_success "LVM volumes resized"
+    else
+        log_verbose "Step 3/4: No LVM - skipping"
+    fi
+
+    # Step 4: Resize the filesystem
+    local fs_type
+    fs_type=$(detect_fs_type "$fs_device")
+    log "Step 4/4: Resizing $fs_type filesystem..."
+
+    if [[ -n "$fs_type" ]]; then
+        resize_filesystem "$fs_device" "$fs_type"
+        log_success "Filesystem resized"
+    fi
+
+    # Get new size
+    local new_size
+    new_size=$(get_root_size)
+
+    echo ""
+    echo -e "${GREEN}${BOLD}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${GREEN}${BOLD}║              Filesystem Resize Complete!                     ║${NC}"
+    echo -e "${GREEN}${BOLD}╚══════════════════════════════════════════════════════════════╝${NC}"
+    echo ""
+    echo -e "  Previous size: ${YELLOW}$initial_size${NC}"
+    echo -e "  New size:      ${GREEN}${BOLD}$new_size${NC}"
+    echo ""
+
+    # Show disk usage
+    if ! $DRY_RUN; then
+        echo "Current disk usage:"
+        df -h / | tail -1 | awk '{printf "  Total: %s  Used: %s  Available: %s  Usage: %s\n", $2, $3, $4, $5}'
+        echo ""
+
+        # Write status for notification service
+        write_status "resized" "Filesystem resized from $initial_size to $new_size" "$initial_size" "$new_size"
+    fi
+}
+
+main "$@"

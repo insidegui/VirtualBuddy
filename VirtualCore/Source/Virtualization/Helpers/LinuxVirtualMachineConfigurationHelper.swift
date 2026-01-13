@@ -54,6 +54,18 @@ struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
 
         return consoleDevice
     }
+
+    func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
+        var devices = try storageDeviceContainer.additionalBlockDevices(guestType: vm.configuration.systemType)
+
+        // Attach Linux guest tools ISO if enabled
+        if vm.configuration.guestAdditionsEnabled,
+           let disk = try? VZVirtioBlockDeviceConfiguration.linuxGuestToolsDisk {
+            devices.append(disk)
+        }
+
+        return devices
+    }
 }
 
 // MARK: - Configuration Models -> Virtualization

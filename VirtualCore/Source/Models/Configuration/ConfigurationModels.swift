@@ -111,6 +111,19 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
                 }
             }
         }
+        
+        public var displayName: String {
+            switch self {
+            case .raw:
+                return "Raw Image"
+            case .dmg:
+                return "Disk Image (DMG)"
+            case .sparse:
+                return "Sparse Image"
+            case .asif:
+            return "Apple Sparse Image Format (ASIF)"
+            }
+        }
     }
     
     public var id: String = UUID().uuidString
@@ -134,6 +147,15 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
             size: VBManagedDiskImage.minimumExtraDiskImageSize,
             format: .raw
         )
+    }
+    
+    public var canBeResized: Bool {
+        switch format {
+        case .raw, .dmg, .sparse:
+            return true
+        case .asif:
+            return false
+        }
     }
 }
 
@@ -200,6 +222,11 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
             isUSBMassStorageDevice: false,
             backing: .managedImage(image)
         )
+    }
+    
+    public var canBeResized: Bool {
+        guard case .managedImage(let image) = backing else { return false }
+        return image.canBeResized
     }
     
     public var displayName: String {
