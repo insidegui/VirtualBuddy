@@ -50,9 +50,10 @@ struct ManagedDiskImageEditor: View {
                 }
             }
 
+            let maximumSize = isBootVolume ? VBManagedDiskImage.maximumBootDiskImageSize : VBManagedDiskImage.maximumExtraDiskImageSize
             NumericPropertyControl(
                 value: $image.size.gbStorageValue,
-                range: minimumSize.gbStorageValue...VBManagedDiskImage.maximumExtraDiskImageSize.gbStorageValue,
+                range: minimumSize.gbStorageValue...maximumSize.gbStorageValue,
                 hideSlider: isExistingDiskImage,
                 label: isBootVolume ? "Boot Disk Size (GB)" : "Disk Image Size (GB)",
                 formatter: NumberFormatter.numericPropertyControlDefault
