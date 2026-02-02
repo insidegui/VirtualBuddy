@@ -28,6 +28,12 @@ public final class VMConfigurationViewModel: ObservableObject {
     }
     
     @Published public internal(set) var supportState: VBMacConfiguration.SupportState = .supported
+
+    @Published public internal(set) var resolvedRestoreImage: ResolvedRestoreImage? {
+        didSet {
+            applyResolvedFeatureDefaultsIfNeeded()
+        }
+    }
     
     @Published var selectedDisplayPreset: VBDisplayPreset?
     
@@ -35,11 +41,14 @@ public final class VMConfigurationViewModel: ObservableObject {
 
     public let context: VMConfigurationContext
     
-    public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall) {
+    public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall, resolvedRestoreImage: ResolvedRestoreImage? = nil) {
         self.config = vm.configuration
         self.vm = vm
         self.context = context
+        self.resolvedRestoreImage = resolvedRestoreImage
         
+        applyResolvedFeatureDefaultsIfNeeded()
+
         Task { await validate() }
     }
 
@@ -74,4 +83,47 @@ public final class VMConfigurationViewModel: ObservableObject {
         config.hardware.addOrUpdate(device)
     }
     
+}
+
+// MARK: - Feature Defaults
+
+private extension VMConfigurationViewModel {
+    func applyResolvedFeatureDefaultsIfNeeded() {
+        guard context == .preInstall else { return }
+        guard let resolvedRestoreImage else { return }
+
+        var updated = config
+
+        if resolvedRestoreImage.feature(id: CatalogFeatureID.guestApp)?.status.isUnsupported == true {
+            updated.guestAdditionsEnabled = false
+        }
+
+        if resolvedRestoreImage.feature(id: CatalogFeatureID.trackpad)?.status.isUnsupported == true,
+           updated.hardware.pointingDevice.kind == .trackpad
+        {
+            updated.hardware.pointingDevice.kind = .mouse
+        }
+
+        if resolvedRestoreImage.feature(id: CatalogFeatureID.macKeyboard)?.status.isUnsupported == true,
+           updated.hardware.keyboardDevice.kind == .mac
+        {
+            updated.hardware.keyboardDevice.kind = .generic
+        }
+
+        if resolvedRestoreImage.feature(id: CatalogFeatureID.displayResize)?.status.isUnsupported == true {
+            updated.hardware.displayDevices = updated.hardware.displayDevices.map { device in
+                var updatedDevice = device
+                updatedDevice.automaticallyReconfiguresDisplay = false
+                return updatedDevice
+            }
+        }
+
+        if resolvedRestoreImage.feature(id: CatalogFeatureID.rosettaSharing)?.status.isUnsupported == true {
+            updated.rosettaSharingEnabled = false
+        }
+
+        if updated != config {
+            config = updated
+        }
+    }
 }

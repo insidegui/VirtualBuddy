@@ -11,6 +11,9 @@ import VirtualCore
 struct SharedFoldersManagementView: View {
     
     @Binding var configuration: VBMacConfiguration
+
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
     
     @StateObject private var availabilityProvider: SharedFoldersAvailabilityProvider
     
@@ -26,54 +29,108 @@ struct SharedFoldersManagementView: View {
     @State private var selectionBeingRemoved: Set<VBSharedFolder.ID>?
     @State private var isShowingRemovalConfirmation = false
     @State private var isShowingHelpPopover = false
+
+    private var fileSharingStatus: ResolvedFeatureStatus? {
+        guard configuration.systemType == .mac else { return nil }
+        return resolvedRestoreImage?.feature(id: CatalogFeatureID.fileSharing)?.status
+    }
+
+    private var fileSharingUnsupported: Bool { fileSharingStatus?.isUnsupported == true }
+    private var fileSharingHelp: String? {
+        fileSharingUnsupported ? (fileSharingStatus?.supportMessage ?? "Not supported.") : nil
+    }
+
+    private var rosettaStatus: ResolvedFeatureStatus? {
+        guard configuration.systemType == .linux else { return nil }
+        return resolvedRestoreImage?.feature(id: CatalogFeatureID.rosettaSharing)?.status
+    }
+
+    private var rosettaUnsupported: Bool { rosettaStatus?.isUnsupported == true }
+    private var rosettaHelp: String? {
+        rosettaUnsupported ? (rosettaStatus?.supportMessage ?? "Not supported.") : nil
+    }
+
+    @ViewBuilder
+    private var sharedFoldersList: some View {
+        GroupedList {
+            List(selection: $selection) {
+                ForEach($configuration.sharedFolders) { $folder in
+                    SharedFolderListItem(folder: $folder)
+                        .contextMenu { folderMenu(for: $folder) }
+                        .tag(folder.id)
+                }
+            }
+        } headerAccessory: {
+            headerAccessory
+        } footerAccessory: {
+            EmptyView()
+        } emptyOverlay: {
+            emptyOverlay
+        } addButton: { label in
+            Button {
+                addFolder()
+            } label: {
+                label
+            }
+            .help("Add shared folder")
+        } removeButton: { label in
+            Button {
+                confirmRemoval()
+            } label: {
+                label
+            }
+            .help("Remove selection from shared folders")
+            .disabled(selection.isEmpty)
+        }
+    }
     
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            GroupedList {
-                List(selection: $selection) {
-                    ForEach($configuration.sharedFolders) { $folder in
-                        SharedFolderListItem(folder: $folder)
-                            .contextMenu { folderMenu(for: $folder) }
-                            .tag(folder.id)
-                    }
+            Group {
+                if let fileSharingHelp {
+                    sharedFoldersList
+                        .help(fileSharingHelp)
+                } else {
+                    sharedFoldersList
                 }
-            } headerAccessory: {
-                headerAccessory
-            } footerAccessory: {
-                EmptyView()
-            } emptyOverlay: {
-                emptyOverlay
-            } addButton: { label in
-                Button {
-                    addFolder()
-                } label: {
-                    label
-                }
-                .help("Add shared folder")
-            } removeButton: { label in
-                Button {
-                    confirmRemoval()
-                } label: {
-                    label
-                }
-                .help("Remove selection from shared folders")
-                .disabled(selection.isEmpty)
+            }
+            .disabled(fileSharingUnsupported)
+
+            if configuration.systemType == .mac, fileSharingUnsupported {
+                Text(VBMacConfiguration.fileSharingNotice)
+                    .font(.caption)
+                    .foregroundColor(.yellow)
             }
 
-            Text(VBMacConfiguration.fileSharingNotice)
-                .font(.caption)
-                .foregroundColor(.yellow)
-
             if configuration.systemType == .linux {
-                let rosettaToggleBind = if VBMacConfiguration.rosettaSupported {
-                    $configuration.rosettaSharingEnabled
-                } else {
-                    Binding.constant(false)
-                }
-                Toggle("Share Rosetta for Linux", isOn: rosettaToggleBind)
-                    .disabled(!VBMacConfiguration.rosettaSupported)
+                Group {
+                    let rosettaToggleBind = if VBMacConfiguration.rosettaSupported && !rosettaUnsupported {
+                        $configuration.rosettaSharingEnabled
+                    } else {
+                        Binding.constant(false)
+                    }
 
-                if let rosettaSharingNotice = VBMacConfiguration.rosettaSharingNotice() {
+                    if let rosettaHelp {
+                        Toggle("Share Rosetta for Linux", isOn: rosettaToggleBind)
+                            .disabled(true)
+                            .help(rosettaHelp)
+                    } else {
+                        Toggle("Share Rosetta for Linux", isOn: rosettaToggleBind)
+                            .disabled(!VBMacConfiguration.rosettaSupported || rosettaUnsupported)
+                    }
+                }
+                .onChange(of: rosettaUnsupported) { isUnsupported in
+                    if isUnsupported {
+                        configuration.rosettaSharingEnabled = false
+                    }
+                }
+                .onAppear {
+                    if rosettaUnsupported {
+                        configuration.rosettaSharingEnabled = false
+                    }
+                }
+
+                if !rosettaUnsupported, let rosettaSharingNotice = VBMacConfiguration.rosettaSharingNotice() {
                     Text(try! AttributedString(markdown: rosettaSharingNotice))
                         .font(.caption)
                         .foregroundColor(.yellow)

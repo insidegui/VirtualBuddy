@@ -13,6 +13,15 @@ struct DisplayConfigurationView: View {
     @Binding var device: VBDisplayDevice
     @Binding var selectedPreset: VBDisplayPreset?
     var canChangePPI: Bool
+
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
+
+    private var displayResizeStatus: ResolvedFeatureStatus? {
+        resolvedRestoreImage?.feature(id: CatalogFeatureID.displayResize)?.status
+    }
+
+    private var displayResizeUnsupported: Bool { displayResizeStatus?.isUnsupported == true }
     
     var body: some View {
         if let warning = selectedPreset?.warning {
@@ -48,11 +57,25 @@ struct DisplayConfigurationView: View {
         }
         
         if VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
-            Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
-
-            if (device.automaticallyReconfiguresDisplay) {
-                Text(VBDisplayDevice.automaticallyReconfiguresDisplayWarningMessage)
-                    .foregroundColor(.yellow)
+            Group {
+                if displayResizeUnsupported {
+                    let helpMessage = displayResizeStatus?.supportMessage ?? "Not supported."
+                    Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
+                        .disabled(true)
+                        .help(helpMessage)
+                } else {
+                    Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
+                }
+            }
+            .onChange(of: displayResizeUnsupported) { isUnsupported in
+                if isUnsupported {
+                    device.automaticallyReconfiguresDisplay = false
+                }
+            }
+            .onAppear {
+                if displayResizeUnsupported {
+                    device.automaticallyReconfiguresDisplay = false
+                }
             }
         }
     }
