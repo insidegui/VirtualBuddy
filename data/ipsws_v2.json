@@ -231,6 +231,18 @@
       "version" : "26.3.0"
     },
     {
+      "build" : "25D5112c",
+      "channel" : "devbeta",
+      "downloadSize" : 18873995756,
+      "group" : "tahoe",
+      "id" : "25D5112c",
+      "mobileDeviceMinVersion" : "1810.0.0",
+      "name" : "macOS 26.3 Developer Beta 3",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026WinterSeed\/fullrestores\/047-27561\/D17A405D-58FC-4CD3-9CBD-2FF572E5B45C\/UniversalMac_26.3_25D5112c_Restore.ipsw",
+      "version" : "26.3.0"
+    },
+    {
       "build" : "25D5101c",
       "channel" : "devbeta",
       "downloadSize" : 18806520160,
