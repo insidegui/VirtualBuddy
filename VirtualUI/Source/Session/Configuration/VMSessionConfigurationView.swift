@@ -15,6 +15,22 @@ struct VMSessionConfigurationView: View {
 
     private var vm: VBVirtualMachine { controller.virtualMachineModel }
 
+    private var resolvedRestoreImage: ResolvedRestoreImage? {
+        let catalog = SoftwareCatalog.current(for: vm.configuration.systemType)
+
+        if let remoteURL = vm.metadata.remoteInstallImageURL,
+           let resolved = catalog.resolvedRestoreImage(matching: remoteURL, guestType: vm.configuration.systemType) {
+            return resolved
+        }
+
+        if let localURL = vm.metadata.installImageURL,
+           let resolved = catalog.resolvedRestoreImage(matching: localURL, guestType: vm.configuration.systemType) {
+            return resolved
+        }
+
+        return nil
+    }
+
     var body: some View {
         SelfSizingGroupedForm(minHeight: 100) {
             if showSavedStatePicker {
@@ -47,7 +63,7 @@ struct VMSessionConfigurationView: View {
             VMConfigurationSheet(
                 configuration: $controller.virtualMachineModel.configuration
             )
-            .environmentObject(VMConfigurationViewModel(vm))
+            .environmentObject(VMConfigurationViewModel(vm, resolvedRestoreImage: resolvedRestoreImage))
         }
     }
 

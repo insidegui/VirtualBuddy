@@ -10,23 +10,42 @@ import VirtualCore
 
 struct PointingDeviceConfigurationView: View {
     @Binding var hardware: VBMacDevice
+
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
+
+    private var trackpadFeature: ResolvedVirtualizationFeature? {
+        resolvedRestoreImage?.feature(id: CatalogFeatureID.trackpad)
+    }
+
+    private var trackpadStatus: ResolvedFeatureStatus? { trackpadFeature?.status }
+
+    private var trackpadUnsupported: Bool { trackpadStatus?.isUnsupported == true }
+
+    private var availableKinds: [VBPointingDevice.Kind] {
+        VBPointingDevice.Kind.allCases.filter { kind in
+            kind != .trackpad || !trackpadUnsupported
+        }
+    }
     
     var body: some View {
         PropertyControl("Device Type", spacing: 8) {
             VStack(alignment: .leading) {
                 Picker("Device Type", selection: $hardware.pointingDevice.kind) {
-                    ForEach(VBPointingDevice.Kind.allCases) { kind in
+                    ForEach(availableKinds) { kind in
                         Text(kind.name)
                             .tag(kind)
                     }
                 }
-                
-                if let error = hardware.pointingDevice.kind.error {
-                    Text(error)
-                        .foregroundColor(.red)
-                } else if let warning = hardware.pointingDevice.kind.warning {
-                    Text(warning)
-                        .foregroundColor(.yellow)
+                .onChange(of: trackpadUnsupported) { isUnsupported in
+                    if isUnsupported, hardware.pointingDevice.kind == .trackpad {
+                        hardware.pointingDevice.kind = .mouse
+                    }
+                }
+                .onAppear {
+                    if trackpadUnsupported, hardware.pointingDevice.kind == .trackpad {
+                        hardware.pointingDevice.kind = .mouse
+                    }
                 }
             }
         }
