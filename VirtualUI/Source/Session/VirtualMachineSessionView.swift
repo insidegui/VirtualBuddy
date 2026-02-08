@@ -145,7 +145,7 @@ public struct VirtualMachineSessionView: View {
     private func startableStateView(with error: Error?) -> some View {
         VStack(spacing: 28) {
             if let error = error {
-                Text("The machine has stopped due to an error: \(String(describing: error))")
+                Text(startupErrorMessage(for: error))
                     .multilineTextAlignment(.center)
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
@@ -159,6 +159,17 @@ public struct VirtualMachineSessionView: View {
                 .environmentObject(controller)
                 .frame(maxWidth: 400)
         }
+    }
+
+    private func startupErrorMessage(for error: Error) -> String {
+        if error.isMaximumActiveVirtualMachinesError {
+            return """
+            VirtualBuddy can't start this virtual machine because macOS has reached the system limit for active virtual machines. \
+            This is a system limitation. Shut down another virtual machine before starting this one.
+            """
+        }
+
+        return "The machine has stopped due to an error: \(error.localizedDescription)"
     }
     
     @ViewBuilder
@@ -277,6 +288,23 @@ extension VBVirtualMachine {
         } else {
             .blurHash(metadata.backgroundHash)
         }
+    }
+}
+
+private extension Error {
+    var isMaximumActiveVirtualMachinesError: Bool {
+        let nsError = self as NSError
+
+        guard nsError.domain == "VZErrorDomain" else { return false }
+
+        if nsError.code == 6 { return true }
+
+        if let reason = nsError.localizedFailureReason,
+           reason.localizedCaseInsensitiveContains("maximum supported number of active virtual machines") {
+            return true
+        }
+
+        return nsError.localizedDescription.localizedCaseInsensitiveContains("maximum supported number of active virtual machines")
     }
 }
 
