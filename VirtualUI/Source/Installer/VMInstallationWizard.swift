@@ -242,7 +242,7 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var configureVM: some View {
         if let machine = viewModel.machine {
-            InstallConfigurationStepView(vm: machine) { configuredModel in
+            InstallConfigurationStepView(vm: machine, resolvedRestoreImage: viewModel.data.resolvedRestoreImage) { configuredModel in
                 viewModel.machine = configuredModel
                 try? viewModel.machine?.saveMetadata()
 

@@ -131,8 +131,8 @@ extension VMInstallData {
         let customURL = try URL(string: customInstallImageRemoteURL).require("Invalid URL: \(customInstallImageRemoteURL.quoted).")
         installMethodSelection = .remoteManual(customURL)
 
-        /// Attempt to match custom URL with known catalog content.
-        restoreImage = catalog.restoreImageMatchingDownloadableCatalogContent(at: customURL)
+        /// Attempt to resolve a catalog image for custom URL.
+        resolveCatalogImage(for: customURL)
     }
 
     @MainActor
@@ -143,15 +143,24 @@ extension VMInstallData {
         installMethodSelection = .localFile(fileURL)
         commitLocalRestoreImageURL(fileURL)
 
-        /// Attempt to match custom local file with known catalog content.
-        restoreImage = catalog.restoreImageMatchingDownloadableCatalogContent(at: fileURL)
+        /// Attempt to resolve a catalog image for custom local file.
+        resolveCatalogImage(for: fileURL, localFileURL: fileURL)
     }
 
     @MainActor
     mutating func resolveCatalogImageIfNeeded(with model: VBVirtualMachine) throws {
-        guard case .remoteOptions(let restoreImage) = installMethodSelection else { return }
+        guard resolvedRestoreImage == nil else { return }
 
-        resolvedRestoreImage = try model.resolveCatalogImage(restoreImage)
+        switch installMethodSelection {
+        case .remoteOptions(let restoreImage):
+            resolvedRestoreImage = try model.resolveCatalogImage(restoreImage)
+        case .remoteManual(let url):
+            resolveCatalogImage(for: url)
+        case .localFile(let url):
+            resolveCatalogImage(for: url, localFileURL: url)
+        case .none:
+            break
+        }
     }
 
     mutating func commitLocalRestoreImageURL(_ url: URL) {
@@ -198,6 +207,24 @@ extension VMInstallData {
         resolvedRestoreImage = nil
         localRestoreImageURL = nil
         restoreImage = nil
+    }
+}
+
+// MARK: - Catalog Resolution
+
+private extension VMInstallData {
+    @MainActor
+    mutating func resolveCatalogImage(for url: URL, localFileURL: URL? = nil) {
+        guard var resolved = catalog.resolvedRestoreImage(matching: url, guestType: systemType) else {
+            restoreImage = catalog.restoreImageMatchingDownloadableCatalogContent(at: url)
+            return
+        }
+
+        if let localFileURL {
+            resolved.localFileURL = localFileURL
+        }
+
+        resolvedRestoreImage = resolved
     }
 }
 

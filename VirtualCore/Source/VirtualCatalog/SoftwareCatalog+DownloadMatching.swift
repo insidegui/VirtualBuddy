@@ -90,6 +90,23 @@ extension URL {
 
     /// Container for properties of a restore image that can be inferred from a local file by reading from extended attributes or parsing from the file name.
     var vb_restoreImageStub: RestoreImageStub { RestoreImageStub(url: self) }
+
+    /// Attempts to infer the OS version represented by a restore image file or URL.
+    var vb_restoreImageVersion: SoftwareVersion? {
+        let candidates = [
+            vb_softwareCatalogData?.filename,
+            lastPathComponent,
+            vb_whereFromsSpotlightMetadata.first?.lastPathComponent
+        ].compactMap { $0 }
+
+        for candidate in candidates {
+            if let version = candidate.matchAppleOSVersion() {
+                return version
+            }
+        }
+
+        return nil
+    }
 }
 
 public extension SoftwareCatalog {
@@ -130,3 +147,94 @@ extension Array where Element: DownloadableCatalogContent {
     }
 }
 
+// MARK: - Best-effort Resolution
+
+public extension SoftwareCatalog {
+    /// Attempts to resolve a restore image using catalog matching. If no catalog entry matches,
+    /// creates a best-effort inferred restore image using metadata from the URL.
+    func resolvedRestoreImage(matching url: URL, guestType: VBGuestType) -> ResolvedRestoreImage? {
+        if let match = restoreImageMatchingDownloadableCatalogContent(at: url) {
+            return try? ResolvedRestoreImage(
+                environment: .current.guestType(guestType),
+                catalog: self,
+                image: match
+            )
+        }
+
+        guard let inferredImage = inferredRestoreImage(for: url, guestType: guestType) else {
+            return nil
+        }
+
+        return try? ResolvedRestoreImage(
+            environment: .current.guestType(guestType),
+            catalog: self,
+            image: inferredImage
+        )
+    }
+}
+
+private extension SoftwareCatalog {
+    func inferredRestoreImage(for url: URL, guestType: VBGuestType) -> RestoreImage? {
+        guard let version = url.vb_restoreImageVersion else { return nil }
+
+        let build = url.vb_restoreImageStub.build
+        let resolvedBuild = build.isEmpty ? url.deletingPathExtension().lastPathComponent : build
+        let groupID = groupID(for: version) ?? "custom"
+        let channelID = channels.first?.id ?? "custom"
+        let requirementID = bestRequirementSetID(for: version) ?? "custom"
+        let name = inferredName(for: version, guestType: guestType)
+        let mobileDeviceMinVersion = inferredMobileDeviceMinVersion(for: version)
+
+        return RestoreImage(
+            id: resolvedBuild,
+            group: groupID,
+            channel: channelID,
+            requirements: requirementID,
+            name: name,
+            build: resolvedBuild,
+            version: version,
+            mobileDeviceMinVersion: mobileDeviceMinVersion,
+            url: url,
+            downloadSize: nil
+        )
+    }
+
+    func inferredName(for version: SoftwareVersion, guestType: VBGuestType) -> String {
+        switch guestType {
+        case .mac:
+            return "macOS \(version.shortDescription)"
+        case .linux:
+            return "Linux \(version.shortDescription)"
+        }
+    }
+
+    func groupID(for version: SoftwareVersion) -> CatalogGroup.ID? {
+        groups.first(where: { $0.majorVersion.major == version.major })?.id
+    }
+
+    func inferredMobileDeviceMinVersion(for version: SoftwareVersion) -> SoftwareVersion {
+        if let deviceSupportVersion = deviceSupportVersions.first(where: {
+            ($0.osVersion.major == version.major && $0.osVersion.minor == version.minor)
+            || $0.osVersion.major == version.major
+        }) {
+            return deviceSupportVersion.mobileDeviceMinVersion
+        }
+
+        return .empty
+    }
+
+    func bestRequirementSetID(for version: SoftwareVersion) -> RequirementSet.ID? {
+        guard !requirementSets.isEmpty else { return nil }
+
+        if let minHost13 = requirementSets.first(where: { $0.id == "min_host_13" }),
+           let minHost12 = requirementSets.first(where: { $0.id == "min_host_12" }),
+           let threshold = SoftwareVersion(string: "13.3")
+        {
+            return version >= threshold ? minHost13.id : minHost12.id
+        }
+
+        return requirementSets
+            .max(by: { $0.minVersionHost < $1.minVersionHost })?
+            .id
+    }
+}

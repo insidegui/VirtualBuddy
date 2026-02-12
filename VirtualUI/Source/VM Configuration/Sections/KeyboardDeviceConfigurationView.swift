@@ -11,22 +11,41 @@ import VirtualCore
 struct KeyboardDeviceConfigurationView: View {
     @Binding var hardware: VBMacDevice
 
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
+
+    private var macKeyboardFeature: ResolvedVirtualizationFeature? {
+        resolvedRestoreImage?.feature(id: CatalogFeatureID.macKeyboard)
+    }
+
+    private var macKeyboardStatus: ResolvedFeatureStatus? { macKeyboardFeature?.status }
+
+    private var macKeyboardUnsupported: Bool { macKeyboardStatus?.isUnsupported == true }
+
+    private var availableKinds: [VBKeyboardDevice.Kind] {
+        VBKeyboardDevice.Kind.allCases.filter { kind in
+            kind != .mac || !macKeyboardUnsupported
+        }
+    }
+
     var body: some View {
         PropertyControl("Device Type", spacing: 8) {
             VStack(alignment: .leading) {
                 Picker("Device Type", selection: $hardware.keyboardDevice.kind) {
-                    ForEach(VBKeyboardDevice.Kind.allCases) { kind in
+                    ForEach(availableKinds) { kind in
                         Text(kind.name)
                             .tag(kind)
                     }
                 }
-
-                if let error = hardware.keyboardDevice.kind.error {
-                    Text(error)
-                        .foregroundColor(.red)
-                } else if let warning = hardware.keyboardDevice.kind.warning {
-                    Text(warning)
-                        .foregroundColor(.yellow)
+                .onChange(of: macKeyboardUnsupported) { isUnsupported in
+                    if isUnsupported, hardware.keyboardDevice.kind == .mac {
+                        hardware.keyboardDevice.kind = .generic
+                    }
+                }
+                .onAppear {
+                    if macKeyboardUnsupported, hardware.keyboardDevice.kind == .mac {
+                        hardware.keyboardDevice.kind = .generic
+                    }
                 }
             }
         }

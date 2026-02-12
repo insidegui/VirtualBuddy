@@ -13,6 +13,55 @@ extension EnvironmentValues {
     @Entry fileprivate(set) var configurationGuestType: VBGuestType = .mac
 }
 
+private struct ResolvedRestoreImageKey: EnvironmentKey {
+    static let defaultValue: ResolvedRestoreImage? = nil
+}
+
+extension EnvironmentValues {
+    var resolvedRestoreImage: ResolvedRestoreImage? {
+        get { self[ResolvedRestoreImageKey.self] }
+        set { self[ResolvedRestoreImageKey.self] = newValue }
+    }
+}
+
+enum CatalogFeatureID {
+    static let fileSharing = "file_sharing"
+    static let guestApp = "guest_app"
+    static let trackpad = "trackpad"
+    static let macKeyboard = "mac_keyboard"
+    static let stateRestoration = "state_restoration"
+    static let displayResize = "display_resize"
+    static let rosettaSharing = "rosetta_sharing"
+}
+
+extension ResolvedRestoreImage {
+    func feature(id: String) -> ResolvedVirtualizationFeature? {
+        features.first { $0.id == id }
+    }
+}
+
+extension ResolvedFeatureStatus {
+    var supportMessage: String? {
+        switch self {
+        case .supported:
+            return nil
+        case .warning(let title, let message), .unsupported(let title, let message):
+            return title ?? message
+        }
+    }
+
+    var supportMessageColor: Color {
+        switch self {
+        case .supported:
+            return .secondary
+        case .warning:
+            return .yellow
+        case .unsupported:
+            return .red
+        }
+    }
+}
+
 struct VMConfigurationView: View {
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
     
@@ -92,6 +141,7 @@ struct VMConfigurationView: View {
         }
         .font(.system(size: 12))
         .environment(\.configurationGuestType, viewModel.config.systemType)
+        .environment(\.resolvedRestoreImage, viewModel.resolvedRestoreImage)
     }
 
     @ViewBuilder
