@@ -219,6 +219,18 @@
   ],
   "restoreImages" : [
     {
+      "build" : "25E5207k",
+      "channel" : "devbeta",
+      "downloadSize" : 19289462929,
+      "group" : "tahoe",
+      "id" : "25E5207k",
+      "mobileDeviceMinVersion" : "1810.0.0",
+      "name" : "macOS 26.4 Developer Beta 1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026WinterSeed\/fullrestores\/047-01191\/B8945931-E74E-43AC-9370-BFCA2E35392E\/UniversalMac_26.4_25E5207k_Restore.ipsw",
+      "version" : "26.4.0"
+    },
+    {
       "build" : "25D125",
       "channel" : "regular",
       "downloadSize" : 18877622182,
