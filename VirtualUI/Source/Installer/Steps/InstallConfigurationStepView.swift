@@ -13,9 +13,9 @@ struct InstallConfigurationStepView: View {
     @State private var vm: VBVirtualMachine
     var onSave: (VBVirtualMachine) -> Void
     
-    init(vm: VBVirtualMachine, onSave: @escaping (VBVirtualMachine) -> Void) {
+    init(vm: VBVirtualMachine, resolvedRestoreImage: ResolvedRestoreImage? = nil, onSave: @escaping (VBVirtualMachine) -> Void) {
         self._vm = .init(wrappedValue: vm)
-        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(vm, context: .preInstall))
+        self._viewModel = .init(wrappedValue: VMConfigurationViewModel(vm, context: .preInstall, resolvedRestoreImage: resolvedRestoreImage))
         self.onSave = onSave
     }
     

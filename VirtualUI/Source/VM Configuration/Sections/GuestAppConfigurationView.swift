@@ -11,9 +11,39 @@ import VirtualCore
 struct GuestAppConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
 
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
+
+    private var guestAppStatus: ResolvedFeatureStatus? {
+        resolvedRestoreImage?.feature(id: CatalogFeatureID.guestApp)?.status
+    }
+
+    private var guestAppUnsupported: Bool { guestAppStatus?.isUnsupported == true }
+    private var guestAppHelp: String? {
+        guestAppUnsupported ? (guestAppStatus?.supportMessage ?? "Not supported.") : nil
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
+            Group {
+                if let guestAppHelp {
+                    Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
+                        .disabled(true)
+                        .help(guestAppHelp)
+                } else {
+                    Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
+                }
+            }
+            .onChange(of: guestAppUnsupported) { isUnsupported in
+                if isUnsupported {
+                    configuration.guestAdditionsEnabled = false
+                }
+            }
+            .onAppear {
+                if guestAppUnsupported {
+                    configuration.guestAdditionsEnabled = false
+                }
+            }
 
             Text("""
             The guest app mounts shared directories and shares the clipboard between your Mac and virtual machines.
