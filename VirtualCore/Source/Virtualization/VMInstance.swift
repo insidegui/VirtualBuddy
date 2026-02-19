@@ -226,6 +226,12 @@ public final class VMInstance: NSObject, ObservableObject {
         let task = Task {
             do {
                 for await message in try await wormhole.desktopPictureMessages(from: virtualMachineModel.wormholeID) {
+                    // Skip processing if screenshot generation is disabled for this VM
+                    guard virtualMachineModel.metadata.screenshotGenerationEnabled else {
+                        logger.debug("Screenshot generation disabled for VM \(virtualMachineModel.name), skipping desktop picture message")
+                        continue
+                    }
+                    
                     do {
                         let fileURL = virtualMachineModel.metadataFileURL(VBVirtualMachine.thumbnailFileName)
 
