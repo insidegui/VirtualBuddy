@@ -186,40 +186,40 @@
   ],
   "restoreImages" : [
         {
-            "build": "25.04",
+            "build": "25.10",
             "channel": "regular",
-            "downloadSize": 3816173568,
+            "downloadSize": 4981665792,
             "group": "ubuntu",
-            "id": "25.04_Desktop",
+            "id": "25.10_Desktop",
             "mobileDeviceMinVersion": "0.0.0",
-            "name": "Ubuntu Desktop 25.04",
+            "name": "Ubuntu Desktop 25.10",
             "requirements": "min_host_13",
-            "url": "https://cdimage.ubuntu.com/releases/25.04/release/ubuntu-25.04-desktop-arm64.iso",
-            "version": "25.04"
+            "url": "https://cdimage.ubuntu.com/releases/25.10/release/ubuntu-25.10-desktop-arm64.iso",
+            "version": "25.10"
         },
     {
-      "build" : "24.04.2 LTS",
+      "build" : "24.04.4 LTS",
       "channel" : "lts",
-      "downloadSize" : 2922393600,
+      "downloadSize" : 3059724288,
       "group" : "ubuntu",
-      "id" : "24.04.2 LTS",
+      "id" : "24.04.4 LTS",
       "mobileDeviceMinVersion" : "0.0.0",
-      "name" : "Ubuntu Server 24.04.2 LTS",
+      "name" : "Ubuntu Server 24.04.4 LTS",
       "requirements" : "min_host_13",
-      "url" : "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.2-live-server-arm64.iso",
-      "version" : "24.04.2"
+      "url" : "https://cdimage.ubuntu.com/releases/24.04/release/ubuntu-24.04.4-live-server-arm64.iso",
+      "version" : "24.04.4"
     },
         {
-            "build": "25.04",
+            "build": "25.10",
             "channel": "regular",
-            "downloadSize": 2047127552,
+            "downloadSize": 2394763264,
             "group": "ubuntu",
-            "id": "25.04_Server",
+            "id": "25.10_Server",
             "mobileDeviceMinVersion": "0.0.0",
-            "name": "Ubuntu Server 25.04",
+            "name": "Ubuntu Server 25.10",
             "requirements": "min_host_13",
-            "url": "https://cdimage.ubuntu.com/releases/25.04/release/ubuntu-25.04-live-server-arm64.iso",
-            "version": "25.04"
+            "url": "https://cdimage.ubuntu.com/releases/25.10/release/ubuntu-25.10-live-server-arm64.iso",
+            "version": "25.10"
         },
     {
       "build" : "42.1.1",
