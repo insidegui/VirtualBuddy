@@ -89,6 +89,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         openWindow(animationBehavior: .documentWindow) {
             VMInstallationWizard(library: library, restoringAt: restoreURL)
                 .environmentObject(library)
+                .environmentObject(self)
         }
     }
 
