@@ -1347,6 +1347,18 @@
       "version" : "14.5.0"
     },
     {
+      "build" : "23E224",
+      "channel" : "regular",
+      "downloadSize" : 14744062393,
+      "group" : "sonoma",
+      "id" : "23E224",
+      "mobileDeviceMinVersion" : "1600.0.0",
+      "name" : "macOS 14.4.1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2024WinterFCS\/fullrestores\/052-77579\/4569734E-120C-4F31-AD08-FC1FF825D059\/UniversalMac_14.4.1_23E224_Restore.ipsw",
+      "version" : "14.4.1"
+    },
+    {
       "build" : "23E214",
       "channel" : "regular",
       "downloadSize" : 14744505377,
@@ -1417,6 +1429,18 @@
       "requirements" : "min_host_13",
       "url" : "https:\/\/updates.cdn-apple.com\/2024WinterSeed\/fullrestores\/052-42583\/F09F735D-D3C3-4AF7-9BEC-F9C5D3B84363\/UniversalMac_14.4_23E5180j_Restore.ipsw",
       "version" : "14.4.0"
+    },
+    {
+      "build" : "23D60",
+      "channel" : "regular",
+      "downloadSize" : 14503964718,
+      "group" : "sonoma",
+      "id" : "23D60",
+      "mobileDeviceMinVersion" : "1600.0.0",
+      "name" : "macOS 14.3.1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2024WinterFCS\/fullrestores\/052-40770\/72916BCC-D357-422D-A4A2-EF1DEDF6968C\/UniversalMac_14.3.1_23D60_Restore.ipsw",
+      "version" : "14.3.1"
     },
     {
       "build" : "23D56",
@@ -1549,6 +1573,18 @@
       "requirements" : "min_host_13",
       "url" : "https:\/\/updates.cdn-apple.com\/2023FallSeed\/fullrestores\/042-71093\/ECEFE157-E28B-40B4-9F21-CFD075129029\/UniversalMac_14.2_23C5030f_Restore.ipsw",
       "version" : "14.2.0"
+    },
+    {
+      "build" : "23B92",
+      "channel" : "regular",
+      "downloadSize" : 13980816431,
+      "group" : "sonoma",
+      "id" : "23B92",
+      "mobileDeviceMinVersion" : "1600.0.0",
+      "name" : "macOS 14.1.2",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2023FallFCS\/fullrestores\/052-09443\/E8752548-0B80-480C-9FB4-67246672C1B5\/UniversalMac_14.1.2_23B92_Restore.ipsw",
+      "version" : "14.1.2"
     },
     {
       "build" : "23B81",
