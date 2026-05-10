@@ -88,9 +88,20 @@ public final class VMController: ObservableObject {
     }
     
     public typealias State = VMState
-    
+
     @Published
     public private(set) var state = State.idle
+
+    /// Resolution returned from ``macAddressConflictHandler`` when a duplicate MAC is detected at start time.
+    public enum MACAddressConflictResolution {
+        case cancel
+        case continueAnyway
+        case randomize
+    }
+
+    /// Called from ``start()`` when the VM's MAC addresses collide with a currently-running VM.
+    /// Set by the UI layer to present a prompt. If `nil`, ``start()`` proceeds without checking.
+    public var macAddressConflictHandler: (@MainActor (Set<String>) async -> MACAddressConflictResolution)?
     
     private(set) var virtualMachine: VZVirtualMachine?
 
@@ -155,6 +166,24 @@ public final class VMController: ObservableObject {
     }
 
     public func start() async throws {
+        // Check for MAC-address collisions with running VMs before changing state.
+        // Done here so every start path (autoBoot, in-window button, toolbar) is gated.
+        if let handler = macAddressConflictHandler {
+            let conflicts = library.macAddressConflicts(for: virtualMachineModel)
+            if !conflicts.isEmpty {
+                switch await handler(conflicts) {
+                case .cancel:
+                    return
+                case .continueAnyway:
+                    break
+                case .randomize:
+                    for index in virtualMachineModel.configuration.hardware.networkDevices.indices {
+                        virtualMachineModel.configuration.hardware.networkDevices[index].macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
+                    }
+                }
+            }
+        }
+
         state = .starting(nil)
 
         await waitForGuestDiskImageReadyIfNeeded()

@@ -67,7 +67,7 @@ public struct VirtualMachineSessionView: View {
             }
             .task {
                 if controller.options.autoBoot {
-                    Task { await sessionManager.startVM(controller: controller, library: library) }
+                    Task { try? await controller.start() }
                 }
             }
             .toolbar {
@@ -176,7 +176,7 @@ public struct VirtualMachineSessionView: View {
     private var circularStartButton: some View {
         Button {
             if controller.canStart {
-                Task { await sessionManager.startVM(controller: controller, library: library) }
+                Task { try? await controller.start() }
             } else if controller.canResume {
                 Task {
                     try? await controller.resume()

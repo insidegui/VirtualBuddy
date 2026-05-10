@@ -382,6 +382,29 @@ public extension VMLibraryController {
     func virtualMachine(named name: String) -> VBVirtualMachine? {
         virtualMachines(matching: { $0.name.caseInsensitiveCompare(name) == .orderedSame }).first
     }
+
+    /// Returns MAC addresses from `vm`'s configured network devices that are already in use
+    /// by another VM currently booted in this library. Comparison is case-insensitive and
+    /// ignores empty MACs (e.g. disabled interfaces).
+    func macAddressConflicts(for vm: VBVirtualMachine) -> Set<String> {
+        let candidates = Set(
+            vm.configuration.hardware.networkDevices
+                .map { $0.macAddress.uppercased() }
+                .filter { !$0.isEmpty }
+        )
+        guard !candidates.isEmpty else { return [] }
+
+        var runningMACs = Set<String>()
+        for runningID in bootedMachineIdentifiers where runningID != vm.id {
+            guard let runningVM = virtualMachines.first(where: { $0.id == runningID }) else { continue }
+            for device in runningVM.configuration.hardware.networkDevices {
+                let mac = device.macAddress.uppercased()
+                if !mac.isEmpty { runningMACs.insert(mac) }
+            }
+        }
+
+        return candidates.intersection(runningMACs)
+    }
 }
 
 // MARK: - Management Actions

@@ -1,5 +1,4 @@
 import SwiftUI
-import Virtualization
 import VirtualCore
 import Combine
 import OSLog
@@ -43,61 +42,12 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
-    /// Runs the MAC-address conflict check against currently-running VMs, prompts the user
-    /// if there's a collision, optionally randomizes the MACs, then starts the VM.
-    /// Resume is intentionally not routed through here — a paused VM is already using its MAC.
-    public func startVM(controller: VMController, library: VMLibraryController) async {
-        let conflicts = findMACAddressConflicts(for: controller.virtualMachineModel, in: library)
-
-        if !conflicts.isEmpty {
-            switch await presentMACAddressConflictAlert(conflicts: conflicts) {
-            case .cancel:
-                return
-            case .continueAnyway:
-                break
-            case .randomize:
-                for index in controller.virtualMachineModel.configuration.hardware.networkDevices.indices {
-                    controller.virtualMachineModel.configuration.hardware.networkDevices[index].macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
-                }
-                // VMController's $virtualMachineModel sink persists the change via saveMetadata.
-            }
-        }
-
-        try? await controller.start()
-    }
-
-    private enum MACAddressConflictResolution {
-        case cancel
-        case continueAnyway
-        case randomize
-    }
-
-    private func findMACAddressConflicts(for vm: VBVirtualMachine, in library: VMLibraryController) -> Set<String> {
-        let candidates = Set(
-            vm.configuration.hardware.networkDevices
-                .map { $0.macAddress.uppercased() }
-                .filter { !$0.isEmpty }
-        )
-        guard !candidates.isEmpty else { return [] }
-
-        var runningMACs = Set<String>()
-        for runningID in library.bootedMachineIdentifiers where runningID != vm.id {
-            guard let runningVM = library.virtualMachines.first(where: { $0.id == runningID }) else { continue }
-            for device in runningVM.configuration.hardware.networkDevices {
-                let mac = device.macAddress.uppercased()
-                if !mac.isEmpty { runningMACs.insert(mac) }
-            }
-        }
-
-        return candidates.intersection(runningMACs)
-    }
-
-    private func presentMACAddressConflictAlert(conflicts: Set<String>) async -> MACAddressConflictResolution {
+    private func presentMACAddressConflictAlert(conflicts: Set<String>) async -> VMController.MACAddressConflictResolution {
         let alert = NSAlert()
         alert.messageText = "Duplicate MAC Address"
         let formattedConflicts = conflicts.sorted().joined(separator: ", ")
         alert.informativeText = "One or more network devices on this virtual machine share a MAC address with a virtual machine that's already running:\n\n\(formattedConflicts)\n\nRunning multiple virtual machines with the same MAC address on the same network may cause connectivity issues."
-        alert.addButton(withTitle: "Randomize & Continue")
+        alert.addButton(withTitle: "Randomize MAC address(es) & Continue")
         alert.addButton(withTitle: "Continue Anyway")
         alert.addButton(withTitle: "Cancel")
 
@@ -119,6 +69,11 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         let vmID = vm.id
 
         let session = createSession(for: vm, library: library, options: options)
+
+        session.controller.macAddressConflictHandler = { [weak self] conflicts in
+            guard let self else { return .cancel }
+            return await self.presentMACAddressConflictAlert(conflicts: conflicts)
+        }
 
         openWindow(id: vmID) {
             VirtualMachineSessionView()
