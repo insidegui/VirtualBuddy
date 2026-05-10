@@ -1,4 +1,5 @@
 import SwiftUI
+import Virtualization
 import VirtualCore
 import Combine
 import OSLog
@@ -37,8 +38,99 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         if let existingSession = session(for: vm) {
             existingSession.update(with: options)
             existingSession.bringToFront()
-        } else {
+            return
+        }
+
+        let conflicts = findMACAddressConflicts(for: vm, in: library)
+        guard !conflicts.isEmpty else {
             launchNewSession(for: vm, library: library, options: options)
+            return
+        }
+
+        Task {
+            await resolveMACAddressConflictsAndLaunch(
+                vm: vm,
+                conflicts: conflicts,
+                library: library,
+                options: options
+            )
+        }
+    }
+
+    private enum MACAddressConflictResolution {
+        case cancel
+        case continueAnyway
+        case randomize
+    }
+
+    private func findMACAddressConflicts(for vm: VBVirtualMachine, in library: VMLibraryController) -> Set<String> {
+        let candidates = Set(
+            vm.configuration.hardware.networkDevices
+                .map { $0.macAddress.uppercased() }
+                .filter { !$0.isEmpty }
+        )
+        guard !candidates.isEmpty else { return [] }
+
+        var runningMACs = Set<String>()
+        for runningID in library.bootedMachineIdentifiers where runningID != vm.id {
+            guard let runningVM = library.virtualMachines.first(where: { $0.id == runningID }) else { continue }
+            for device in runningVM.configuration.hardware.networkDevices {
+                let mac = device.macAddress.uppercased()
+                if !mac.isEmpty { runningMACs.insert(mac) }
+            }
+        }
+
+        return candidates.intersection(runningMACs)
+    }
+
+    private func resolveMACAddressConflictsAndLaunch(
+        vm: VBVirtualMachine,
+        conflicts: Set<String>,
+        library: VMLibraryController,
+        options: VMSessionOptions?
+    ) async {
+        switch await presentMACAddressConflictAlert(conflicts: conflicts) {
+        case .cancel:
+            return
+        case .continueAnyway:
+            launchNewSession(for: vm, library: library, options: options)
+        case .randomize:
+            var updatedVM = vm
+            for index in updatedVM.configuration.hardware.networkDevices.indices {
+                updatedVM.configuration.hardware.networkDevices[index].macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
+            }
+            do {
+                try updatedVM.saveMetadata()
+                library.reload()
+            } catch {
+                logger.error("Failed to save randomized MAC addresses for \(updatedVM.name, privacy: .public): \(error, privacy: .public)")
+                NSAlert(error: error).runModal()
+                return
+            }
+            launchNewSession(for: updatedVM, library: library, options: options)
+        }
+    }
+
+    private func presentMACAddressConflictAlert(conflicts: Set<String>) async -> MACAddressConflictResolution {
+        let alert = NSAlert()
+        alert.messageText = "Duplicate MAC Address"
+        let formattedConflicts = conflicts.sorted().joined(separator: ", ")
+        alert.informativeText = "One or more network devices on this virtual machine share a MAC address with a virtual machine that's already running:\n\n\(formattedConflicts)\n\nRunning multiple virtual machines with the same MAC address on the same network may cause connectivity issues."
+        alert.addButton(withTitle: "Randomize & Continue")
+        alert.addButton(withTitle: "Continue Anyway")
+        alert.addButton(withTitle: "Cancel")
+
+        let response: NSApplication.ModalResponse
+        if let window = NSApp?.keyWindow {
+            response = await alert.beginSheetModal(for: window)
+        } else {
+            response = alert.runModal()
+        }
+
+        switch response {
+        case .alertFirstButtonReturn: return .randomize
+        case .alertSecondButtonReturn: return .continueAnyway
+        default: return .cancel
         }
     }
 
