@@ -383,10 +383,11 @@ public extension VMLibraryController {
         virtualMachines(matching: { $0.name.caseInsensitiveCompare(name) == .orderedSame }).first
     }
 
-    /// Returns MAC addresses from `vm`'s configured network devices that are already in use
-    /// by another VM currently booted in this library. Comparison is case-insensitive and
+    /// Returns the MAC-address conflicts between `vm`'s configured network devices and any
+    /// network device on a VM currently booted in this library. Each entry pairs the offending
+    /// MAC with the name of the running VM that holds it. Comparison is case-insensitive and
     /// ignores empty MACs (e.g. disabled interfaces).
-    func macAddressConflicts(for vm: VBVirtualMachine) -> Set<String> {
+    func macAddressConflicts(for vm: VBVirtualMachine) -> [MACAddressConflict] {
         let candidates = Set(
             vm.configuration.hardware.networkDevices
                 .map { $0.macAddress.uppercased() }
@@ -394,16 +395,28 @@ public extension VMLibraryController {
         )
         guard !candidates.isEmpty else { return [] }
 
-        var runningMACs = Set<String>()
+        var conflicts: [MACAddressConflict] = []
         for runningID in bootedMachineIdentifiers where runningID != vm.id {
             guard let runningVM = virtualMachines.first(where: { $0.id == runningID }) else { continue }
             for device in runningVM.configuration.hardware.networkDevices {
                 let mac = device.macAddress.uppercased()
-                if !mac.isEmpty { runningMACs.insert(mac) }
+                guard candidates.contains(mac) else { continue }
+                conflicts.append(MACAddressConflict(macAddress: mac, runningVMName: runningVM.name))
             }
         }
+        return conflicts
+    }
+}
 
-        return candidates.intersection(runningMACs)
+/// A single MAC-address conflict detected by ``VMLibraryController/macAddressConflicts(for:)``,
+/// pairing the duplicated MAC with the name of the running VM that already holds it.
+public struct MACAddressConflict: Hashable {
+    public let macAddress: String
+    public let runningVMName: String
+
+    public init(macAddress: String, runningVMName: String) {
+        self.macAddress = macAddress
+        self.runningVMName = runningVMName
     }
 }
 

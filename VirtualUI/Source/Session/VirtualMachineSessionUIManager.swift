@@ -42,12 +42,15 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
-    private func presentMACAddressConflictAlert(conflicts: Set<String>) async -> VMController.MACAddressConflictResolution {
+    private func presentMACAddressConflictAlert(conflicts: [MACAddressConflict]) async -> VMController.MACAddressConflictResolution {
         let alert = NSAlert()
         alert.messageText = "Duplicate MAC Address"
-        let formattedConflicts = conflicts.sorted().joined(separator: ", ")
-        alert.informativeText = "One or more network devices on this virtual machine share a MAC address with a virtual machine that's already running:\n\n\(formattedConflicts)\n\nRunning multiple virtual machines with the same MAC address on the same network may cause connectivity issues."
-        alert.addButton(withTitle: "Randomize MAC address(es) & Continue")
+        let formattedConflicts = conflicts
+            .sorted { $0.macAddress < $1.macAddress }
+            .map { "\($0.macAddress) — in use by \"\($0.runningVMName)\"" }
+            .joined(separator: "\n")
+        alert.informativeText = "A network device on this virtual machine shares a MAC address with a virtual machine that's already running:\n\n\(formattedConflicts)\n\nRunning multiple virtual machines with the same MAC address on the same network may cause connectivity issues."
+        alert.addButton(withTitle: "Randomize MAC address & Continue")
         alert.addButton(withTitle: "Continue Anyway")
         alert.addButton(withTitle: "Cancel")
 
