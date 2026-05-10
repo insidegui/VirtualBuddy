@@ -38,23 +38,32 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         if let existingSession = session(for: vm) {
             existingSession.update(with: options)
             existingSession.bringToFront()
-            return
-        }
-
-        let conflicts = findMACAddressConflicts(for: vm, in: library)
-        guard !conflicts.isEmpty else {
+        } else {
             launchNewSession(for: vm, library: library, options: options)
-            return
+        }
+    }
+
+    /// Runs the MAC-address conflict check against currently-running VMs, prompts the user
+    /// if there's a collision, optionally randomizes the MACs, then starts the VM.
+    /// Resume is intentionally not routed through here — a paused VM is already using its MAC.
+    public func startVM(controller: VMController, library: VMLibraryController) async {
+        let conflicts = findMACAddressConflicts(for: controller.virtualMachineModel, in: library)
+
+        if !conflicts.isEmpty {
+            switch await presentMACAddressConflictAlert(conflicts: conflicts) {
+            case .cancel:
+                return
+            case .continueAnyway:
+                break
+            case .randomize:
+                for index in controller.virtualMachineModel.configuration.hardware.networkDevices.indices {
+                    controller.virtualMachineModel.configuration.hardware.networkDevices[index].macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
+                }
+                // VMController's $virtualMachineModel sink persists the change via saveMetadata.
+            }
         }
 
-        Task {
-            await resolveMACAddressConflictsAndLaunch(
-                vm: vm,
-                conflicts: conflicts,
-                library: library,
-                options: options
-            )
-        }
+        try? await controller.start()
     }
 
     private enum MACAddressConflictResolution {
@@ -81,34 +90,6 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
 
         return candidates.intersection(runningMACs)
-    }
-
-    private func resolveMACAddressConflictsAndLaunch(
-        vm: VBVirtualMachine,
-        conflicts: Set<String>,
-        library: VMLibraryController,
-        options: VMSessionOptions?
-    ) async {
-        switch await presentMACAddressConflictAlert(conflicts: conflicts) {
-        case .cancel:
-            return
-        case .continueAnyway:
-            launchNewSession(for: vm, library: library, options: options)
-        case .randomize:
-            var updatedVM = vm
-            for index in updatedVM.configuration.hardware.networkDevices.indices {
-                updatedVM.configuration.hardware.networkDevices[index].macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
-            }
-            do {
-                try updatedVM.saveMetadata()
-                library.reload()
-            } catch {
-                logger.error("Failed to save randomized MAC addresses for \(updatedVM.name, privacy: .public): \(error, privacy: .public)")
-                NSAlert(error: error).runModal()
-                return
-            }
-            launchNewSession(for: updatedVM, library: library, options: options)
-        }
     }
 
     private func presentMACAddressConflictAlert(conflicts: Set<String>) async -> MACAddressConflictResolution {
