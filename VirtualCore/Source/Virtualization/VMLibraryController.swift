@@ -374,6 +374,16 @@ public final class VMLibraryController: ObservableObject {
 
 // MARK: - Queries
 
+public struct MACAddressConflict: Hashable {
+    public let macAddress: String
+    public let vmName: String
+
+    public init(macAddress: String, runningVMName: String) {
+        self.macAddress = macAddress
+        self.vmName = runningVMName
+    }
+}
+
 public extension VMLibraryController {
     func virtualMachines(matching predicate: (VBVirtualMachine) -> Bool) -> [VBVirtualMachine] {
         virtualMachines.filter(predicate)
@@ -401,16 +411,6 @@ public extension VMLibraryController {
             }
         }
         return conflicts
-    }
-}
-
-public struct MACAddressConflict: Hashable {
-    public let macAddress: String
-    public let vmName: String
-
-    public init(macAddress: String, runningVMName: String) {
-        self.macAddress = macAddress
-        self.vmName = runningVMName
     }
 }
 

@@ -99,7 +99,6 @@ public final class VMController: ObservableObject {
     public private(set) var state = State.idle
 
     /// Called from ``start()`` when the VM's MAC address collides with a currently-running VM.
-    /// Set by the UI layer to present a prompt. If `nil`, ``start()`` proceeds without checking.
     public var macAddressConflictHandler: (@MainActor ([MACAddressConflict]) async -> MACAddressConflictResolution)?
     
     private(set) var virtualMachine: VZVirtualMachine?
