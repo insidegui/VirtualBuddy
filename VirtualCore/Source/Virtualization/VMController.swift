@@ -70,6 +70,12 @@ public enum VMState: Equatable {
     case stopped(Error?)
 }
 
+public enum MACAddressConflictResolution {
+    case cancel
+    case continueAnyway
+    case randomize
+}
+
 @MainActor
 public final class VMController: ObservableObject {
 
@@ -92,14 +98,7 @@ public final class VMController: ObservableObject {
     @Published
     public private(set) var state = State.idle
 
-    /// Resolution returned from ``macAddressConflictHandler`` when a duplicate MAC is detected at start time.
-    public enum MACAddressConflictResolution {
-        case cancel
-        case continueAnyway
-        case randomize
-    }
-
-    /// Called from ``start()`` when the VM's MAC addresses collide with a currently-running VM.
+    /// Called from ``start()`` when the VM's MAC address collides with a currently-running VM.
     /// Set by the UI layer to present a prompt. If `nil`, ``start()`` proceeds without checking.
     public var macAddressConflictHandler: (@MainActor ([MACAddressConflict]) async -> MACAddressConflictResolution)?
     
@@ -167,7 +166,6 @@ public final class VMController: ObservableObject {
 
     public func start() async throws {
         // Check for MAC-address collisions with running VMs before changing state.
-        // Done here so every start path (autoBoot, in-window button, toolbar) is gated.
         if let handler = macAddressConflictHandler {
             let conflicts = library.macAddressConflicts(for: virtualMachineModel)
             if !conflicts.isEmpty {

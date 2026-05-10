@@ -383,10 +383,6 @@ public extension VMLibraryController {
         virtualMachines(matching: { $0.name.caseInsensitiveCompare(name) == .orderedSame }).first
     }
 
-    /// Returns the MAC-address conflicts between `vm`'s configured network devices and any
-    /// network device on a VM currently booted in this library. Each entry pairs the offending
-    /// MAC with the name of the running VM that holds it. Comparison is case-insensitive and
-    /// ignores empty MACs (e.g. disabled interfaces).
     func macAddressConflicts(for vm: VBVirtualMachine) -> [MACAddressConflict] {
         let candidates = Set(
             vm.configuration.hardware.networkDevices
@@ -408,15 +404,13 @@ public extension VMLibraryController {
     }
 }
 
-/// A single MAC-address conflict detected by ``VMLibraryController/macAddressConflicts(for:)``,
-/// pairing the duplicated MAC with the name of the running VM that already holds it.
 public struct MACAddressConflict: Hashable {
     public let macAddress: String
-    public let runningVMName: String
+    public let vmName: String
 
     public init(macAddress: String, runningVMName: String) {
         self.macAddress = macAddress
-        self.runningVMName = runningVMName
+        self.vmName = runningVMName
     }
 }
 
