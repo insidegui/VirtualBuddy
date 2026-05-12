@@ -374,6 +374,16 @@ public final class VMLibraryController: ObservableObject {
 
 // MARK: - Queries
 
+public struct MACAddressConflict: Hashable {
+    public let macAddress: String
+    public let vmName: String
+
+    public init(macAddress: String, runningVMName: String) {
+        self.macAddress = macAddress
+        self.vmName = runningVMName
+    }
+}
+
 public extension VMLibraryController {
     func virtualMachines(matching predicate: (VBVirtualMachine) -> Bool) -> [VBVirtualMachine] {
         virtualMachines.filter(predicate)
@@ -381,6 +391,26 @@ public extension VMLibraryController {
 
     func virtualMachine(named name: String) -> VBVirtualMachine? {
         virtualMachines(matching: { $0.name.caseInsensitiveCompare(name) == .orderedSame }).first
+    }
+
+    func macAddressConflicts(for vm: VBVirtualMachine) -> [MACAddressConflict] {
+        let candidates = Set(
+            vm.configuration.hardware.networkDevices
+                .map { $0.macAddress.uppercased() }
+                .filter { !$0.isEmpty }
+        )
+        guard !candidates.isEmpty else { return [] }
+
+        var conflicts: [MACAddressConflict] = []
+        for runningID in bootedMachineIdentifiers where runningID != vm.id {
+            guard let runningVM = virtualMachines.first(where: { $0.id == runningID }) else { continue }
+            for device in runningVM.configuration.hardware.networkDevices {
+                let mac = device.macAddress.uppercased()
+                guard candidates.contains(mac) else { continue }
+                conflicts.append(MACAddressConflict(macAddress: mac, runningVMName: runningVM.name))
+            }
+        }
+        return conflicts
     }
 }
 

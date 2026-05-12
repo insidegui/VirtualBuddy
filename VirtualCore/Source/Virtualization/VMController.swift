@@ -70,6 +70,12 @@ public enum VMState: Equatable {
     case stopped(Error?)
 }
 
+public enum MACAddressConflictResolution {
+    case cancel
+    case continueAnyway
+    case randomize
+}
+
 @MainActor
 public final class VMController: ObservableObject {
 
@@ -88,9 +94,12 @@ public final class VMController: ObservableObject {
     }
     
     public typealias State = VMState
-    
+
     @Published
     public private(set) var state = State.idle
+
+    /// Called from ``start()`` when the VM's MAC address collides with a currently-running VM.
+    public var macAddressConflictHandler: (@MainActor ([MACAddressConflict]) async -> MACAddressConflictResolution)?
     
     private(set) var virtualMachine: VZVirtualMachine?
 
@@ -155,6 +164,9 @@ public final class VMController: ObservableObject {
     }
 
     public func start() async throws {
+        // Check for MAC address collisions with running VMs before changing state.
+        guard await resolveMACAddressConflictsIfNeeded() else { return }
+
         state = .starting(nil)
 
         await waitForGuestDiskImageReadyIfNeeded()
@@ -186,6 +198,29 @@ public final class VMController: ObservableObject {
 
             state = .running(vm)
             virtualMachineModel.metadata.installFinished = true
+        }
+    }
+
+    /// Checks whether this virtual machine's network devices share a MAC address with any running virtual machine,
+    /// asking the conflict handler how to proceed if so.
+    ///
+    /// - Returns: `true` if startup should continue, or `false` if the user chose to cancel the launch.
+    private func resolveMACAddressConflictsIfNeeded() async -> Bool {
+        guard let handler = macAddressConflictHandler else { return true }
+
+        let conflicts = library.macAddressConflicts(for: virtualMachineModel)
+        guard !conflicts.isEmpty else { return true }
+
+        switch await handler(conflicts) {
+        case .cancel:
+            return false
+        case .continueAnyway:
+            return true
+        case .randomize:
+            for index in virtualMachineModel.configuration.hardware.networkDevices.indices {
+                virtualMachineModel.configuration.hardware.networkDevices[index].macAddress = VZMACAddress.randomLocallyAdministered().string.uppercased()
+            }
+            return true
         }
     }
 

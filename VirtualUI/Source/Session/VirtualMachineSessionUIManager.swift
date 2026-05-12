@@ -42,10 +42,41 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
+    private func presentMACAddressConflictAlert(conflicts: [MACAddressConflict]) async -> MACAddressConflictResolution {
+        let alert = NSAlert()
+        alert.messageText = "Duplicate MAC Address"
+        let formattedConflicts = conflicts
+            .sorted { $0.macAddress < $1.macAddress }
+            .map { "\($0.macAddress) used by \"\($0.vmName)\"" }
+            .joined(separator: "\n")
+        alert.informativeText = "A network device on this virtual machine shares a MAC address with another virtual machine that's already running:\n\n\(formattedConflicts)\n\nRunning multiple virtual machines with the same MAC address may cause network connectivity issues."
+        alert.addButton(withTitle: "Randomize MAC address & Continue")
+        alert.addButton(withTitle: "Continue Anyway")
+        alert.addButton(withTitle: "Cancel")
+
+        let response: NSApplication.ModalResponse
+        if let window = NSApp?.keyWindow {
+            response = await alert.beginSheetModal(for: window)
+        } else {
+            response = alert.runModal()
+        }
+
+        switch response {
+        case .alertFirstButtonReturn: return .randomize
+        case .alertSecondButtonReturn: return .continueAnyway
+        default: return .cancel
+        }
+    }
+
     private func launchNewSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         let vmID = vm.id
 
         let session = createSession(for: vm, library: library, options: options)
+
+        session.controller.macAddressConflictHandler = { [weak self] conflicts in
+            guard let self else { return .cancel }
+            return await self.presentMACAddressConflictAlert(conflicts: conflicts)
+        }
 
         openWindow(id: vmID) {
             VirtualMachineSessionView()
