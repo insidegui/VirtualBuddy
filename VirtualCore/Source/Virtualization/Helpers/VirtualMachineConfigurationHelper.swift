@@ -32,7 +32,9 @@ func createVZDiskImageStorageDeviceAttachment(url: URL, readOnly: Bool, guestTyp
         // fixes this IO errors and disk corruption issues for Linux guest.
         return try VZDiskImageStorageDeviceAttachment(url: url, readOnly: readOnly, cachingMode: .cached, synchronizationMode: .fsync)
     } else {
-        return try VZDiskImageStorageDeviceAttachment(url: url, readOnly: readOnly)
+        // macOS guests also need cached mode to prevent APFS corruption under heavy I/O.
+        // See: UTM #4840, Lima VM #1957
+        return try VZDiskImageStorageDeviceAttachment(url: url, readOnly: readOnly, cachingMode: .cached, synchronizationMode: .fsync)
     }
 }
 
