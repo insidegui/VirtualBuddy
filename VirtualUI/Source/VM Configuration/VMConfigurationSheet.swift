@@ -56,9 +56,7 @@ public struct VMConfigurationSheet: View {
                 .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            buttons
-        }
+        .virtualBuddyBottomBar { buttons }
         .resizableSheet(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
 
@@ -83,10 +81,10 @@ public struct VMConfigurationSheet: View {
                     validateAndSave()
                 }
                 .keyboardShortcut(.defaultAction)
+                .airGlassButtonStyle(prominent: true)
                 .disabled(showValidationErrors)
             }
         }
-        .virtualBuddyBottomBarStyle()
         .onChange(of: viewModel.config) { _, newValue in
             guard showValidationErrors else { return }
             

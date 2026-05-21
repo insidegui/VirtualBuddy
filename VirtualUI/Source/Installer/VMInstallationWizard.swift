@@ -129,11 +129,7 @@ public struct VMInstallationWizard: View {
             }
         }
         .animation(.snappy, value: showingConsole)
-        .safeAreaInset(edge: .bottom, spacing: 0) {
-            if !hideBottomBar {
-                bottomBar
-            }
-        }
+        .virtualBuddyBottomBar(hidden: hideBottomBar) { bottomBar }
         .background {
             BlurHashFullBleedBackground(blurHash: viewModel.data.backgroundHash)
                 .fullBleedBackgroundDimmed(dimBackground)
@@ -194,7 +190,6 @@ public struct VMInstallationWizard: View {
                 nextButton
             }
         }
-        .virtualBuddyBottomBarStyle()
     }
 
     @ViewBuilder
@@ -279,17 +274,6 @@ extension VMInstallationStep {
         case .install: "Installing"
         case .done: "Finished"
         }
-    }
-}
-
-extension View {
-    @ViewBuilder
-    func virtualBuddyBottomBarStyle() -> some View {
-        frame(maxWidth: .infinity)
-            .controlSize(.large)
-            .padding()
-            .background(Material.bar)
-            .overlay(alignment: .top) { Divider() }
     }
 }
 

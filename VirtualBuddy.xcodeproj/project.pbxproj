@@ -99,6 +99,7 @@
 		F436BC5F2FBF8F96007840E4 /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC532FBF8F96007840E4 /* MaterialView.swift */; };
 		F436BC602FBF8F96007840E4 /* ColorSchemeBlendMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC502FBF8F96007840E4 /* ColorSchemeBlendMode.swift */; };
 		F436BC612FBF8F96007840E4 /* PreviewWallpaper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC542FBF8F96007840E4 /* PreviewWallpaper.swift */; };
+		F436BC632FBF998F007840E4 /* VirtualBuddyBottomBarModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC622FBF998F007840E4 /* VirtualBuddyBottomBarModifier.swift */; };
 		F43B01182AD858FE00164CD1 /* DeepLinkSecurity.h in Headers */ = {isa = PBXBuildFile; fileRef = F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -626,6 +627,7 @@
 		F436BC542FBF8F96007840E4 /* PreviewWallpaper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWallpaper.swift; sourceTree = "<group>"; };
 		F436BC552FBF8F96007840E4 /* RimEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RimEffect.swift; sourceTree = "<group>"; };
 		F436BC562FBF8F96007840E4 /* RimShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RimShape.swift; sourceTree = "<group>"; };
+		F436BC622FBF998F007840E4 /* VirtualBuddyBottomBarModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyBottomBarModifier.swift; sourceTree = "<group>"; };
 		F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DeepLinkSecurity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeepLinkSecurity.h; sourceTree = "<group>"; };
 		F43B01242AD8590F00164CD1 /* DeepLinkAuthUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthUI.swift; sourceTree = "<group>"; };
@@ -1051,6 +1053,7 @@
 				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
 				F48E0D26288883150080DDFA /* HostingWindowController */,
 				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
+				F436BC622FBF998F007840E4 /* VirtualBuddyBottomBarModifier.swift */,
 				F48E0D21288882E50080DDFA /* NSAlert+Confirmation.swift */,
 				F48E0D22288882E50080DDFA /* OnAppearOnce.swift */,
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
@@ -2590,6 +2593,7 @@
 				F413696729916F6E002CE8D3 /* VUIAppKitViewControllerHost.swift in Sources */,
 				F4450CCA2ACB0DB500092618 /* KeyboardDeviceConfigurationView.swift in Sources */,
 				F444D0FC2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift in Sources */,
+				F436BC632FBF998F007840E4 /* VirtualBuddyBottomBarModifier.swift in Sources */,
 				F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
