@@ -73,7 +73,7 @@ struct CatalogGroupPicker: View {
                 }
             }
         }
-        .onChange(of: selectedGroup?.id) { groupID in
+        .onChange(of: selectedGroup?.id) { _, groupID in
             withAnimation(.snappy) {
                 scrolledGroupID = groupID
             }

@@ -37,7 +37,7 @@ struct KeyboardDeviceConfigurationView: View {
                             .tag(kind)
                     }
                 }
-                .onChange(of: macKeyboardUnsupported) { isUnsupported in
+                .onChange(of: macKeyboardUnsupported) { _, isUnsupported in
                     if isUnsupported, hardware.keyboardDevice.kind == .mac {
                         hardware.keyboardDevice.kind = .generic
                     }

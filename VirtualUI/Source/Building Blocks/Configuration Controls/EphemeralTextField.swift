@@ -85,7 +85,7 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
                     .focused($isFocused)
                     .textFieldStyle(.plain)
                     .frame(width: contentWidth, alignment: alignment)
-                    .onChange(of: value) { newValue in
+                    .onChange(of: value) { _, newValue in
                         // Unfocus when changing the value externally.
                         isFocused = false
                         internalValue = newValue
@@ -100,7 +100,7 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
                             cancel()
                         }
                     }
-                    .onChange(of: isFocused) { newValue in
+                    .onChange(of: isFocused) { _, newValue in
                         if !newValue { isInEditMode = false }
                     }
             }
@@ -113,13 +113,13 @@ struct EphemeralTextField<Value, StaticContent, EditableContent>: View where Sta
         .padding(.vertical, -4)
         .padding(.horizontal, -8)
         .offset(x: shakeOffset)
-        .onChange(of: isInEditMode) { newValue in
+        .onChange(of: isInEditMode) { _, newValue in
             if newValue {
                 internalValue = value
                 isFocused = true
             }
         }
-        .onChange(of: value) { newValue in
+        .onChange(of: value) { _, newValue in
             internalValue = newValue
         }
         .onReceive(setFocus) { focus in

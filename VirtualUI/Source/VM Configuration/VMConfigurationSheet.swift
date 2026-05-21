@@ -87,7 +87,7 @@ public struct VMConfigurationSheet: View {
             }
         }
         .virtualBuddyBottomBarStyle()
-        .onChange(of: viewModel.config) { newValue in
+        .onChange(of: viewModel.config) { _, newValue in
             guard showValidationErrors else { return }
             
             Task {

@@ -68,7 +68,7 @@ struct RestoreImageBrowser: View {
                 break
             }
         }
-        .onChange(of: selection) { image in
+        .onChange(of: selection) { _, image in
             guard let image else { return }
 
             scrolledImageID = image.id

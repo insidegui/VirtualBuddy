@@ -34,7 +34,7 @@ struct GuestAppConfigurationView: View {
                     Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
                 }
             }
-            .onChange(of: guestAppUnsupported) { isUnsupported in
+            .onChange(of: guestAppUnsupported) { _, isUnsupported in
                 if isUnsupported {
                     configuration.guestAdditionsEnabled = false
                 }

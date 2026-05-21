@@ -114,8 +114,7 @@ public struct VirtualMachineWindowCommands: View {
             focusedSessionReference = ref
             ref?.object?.lockProportions = lockProportions
         }
-        .onChange(of: lockProportions) { [lockProportions] newValue in
-            guard newValue != lockProportions else { return }
+        .onChange(of: lockProportions) { _, newValue in
             focusedSession?.lockProportions = newValue
         }
 
