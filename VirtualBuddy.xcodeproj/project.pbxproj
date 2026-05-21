@@ -57,7 +57,6 @@
 		F417256128861A05004FF8A7 /* SharingConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256028861A05004FF8A7 /* SharingConfigurationView.swift */; };
 		F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725622886DD37004FF8A7 /* SharedFolderListItem.swift */; };
 		F41725662886DF58004FF8A7 /* OpenSavePanelUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */; };
-		F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41725672886E5AD004FF8A7 /* MaterialView.swift */; };
 		F417256C2887500F004FF8A7 /* StorageConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */; };
 		F417256F2887544A004FF8A7 /* StorageDeviceDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */; };
 		F417257128877121004FF8A7 /* DiskImageGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F417257028877121004FF8A7 /* DiskImageGenerator.swift */; };
@@ -89,6 +88,17 @@
 		F42C015E2888FC0C00EB15CD /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01592888FC0C00EB15CD /* SettingsScreen.swift */; };
 		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
 		F42CF4A82DF5FEC3001DE049 /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */; };
+		F436BC572FBF8F96007840E4 /* AirVisualEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */; };
+		F436BC582FBF8F96007840E4 /* AirGlassEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */; };
+		F436BC592FBF8F96007840E4 /* AirMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */; };
+		F436BC5A2FBF8F96007840E4 /* RimEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC552FBF8F96007840E4 /* RimEffect.swift */; };
+		F436BC5B2FBF8F96007840E4 /* ColorSchemeOpacity.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC512FBF8F96007840E4 /* ColorSchemeOpacity.swift */; };
+		F436BC5C2FBF8F96007840E4 /* AnyInsettableShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4F2FBF8F96007840E4 /* AnyInsettableShape.swift */; };
+		F436BC5D2FBF8F96007840E4 /* RimShape.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC562FBF8F96007840E4 /* RimShape.swift */; };
+		F436BC5E2FBF8F96007840E4 /* LiquidGlassEnvironment.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC522FBF8F96007840E4 /* LiquidGlassEnvironment.swift */; };
+		F436BC5F2FBF8F96007840E4 /* MaterialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC532FBF8F96007840E4 /* MaterialView.swift */; };
+		F436BC602FBF8F96007840E4 /* ColorSchemeBlendMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC502FBF8F96007840E4 /* ColorSchemeBlendMode.swift */; };
+		F436BC612FBF8F96007840E4 /* PreviewWallpaper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC542FBF8F96007840E4 /* PreviewWallpaper.swift */; };
 		F43B01182AD858FE00164CD1 /* DeepLinkSecurity.h in Headers */ = {isa = PBXBuildFile; fileRef = F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
 		F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -199,7 +209,6 @@
 		F48E0D0728885E140080DDFA /* PreviewSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0628885E140080DDFA /* PreviewSupport.swift */; };
 		F48E0D0C2888760D0080DDFA /* VBMacDevice+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */; };
 		F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */; };
-		F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */; };
 		F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */; };
 		F48E0D1D288882BD0080DDFA /* AuthenticatingWebView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */; };
 		F48E0D1E288882BD0080DDFA /* VMInstallationWizard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */; };
@@ -577,7 +586,6 @@
 		F417256028861A05004FF8A7 /* SharingConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharingConfigurationView.swift; sourceTree = "<group>"; };
 		F41725622886DD37004FF8A7 /* SharedFolderListItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFolderListItem.swift; sourceTree = "<group>"; };
 		F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenSavePanelUtils.swift; sourceTree = "<group>"; };
-		F41725672886E5AD004FF8A7 /* MaterialView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
 		F417256B2887500F004FF8A7 /* StorageConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageConfigurationView.swift; sourceTree = "<group>"; };
 		F417256E2887544A004FF8A7 /* StorageDeviceDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageDeviceDetailView.swift; sourceTree = "<group>"; };
 		F417257028877121004FF8A7 /* DiskImageGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskImageGenerator.swift; sourceTree = "<group>"; };
@@ -607,6 +615,17 @@
 		F42C01592888FC0C00EB15CD /* SettingsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
+		F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirGlassEffect.swift; sourceTree = "<group>"; };
+		F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirMaterial.swift; sourceTree = "<group>"; };
+		F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirVisualEffect.swift; sourceTree = "<group>"; };
+		F436BC4F2FBF8F96007840E4 /* AnyInsettableShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyInsettableShape.swift; sourceTree = "<group>"; };
+		F436BC502FBF8F96007840E4 /* ColorSchemeBlendMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemeBlendMode.swift; sourceTree = "<group>"; };
+		F436BC512FBF8F96007840E4 /* ColorSchemeOpacity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorSchemeOpacity.swift; sourceTree = "<group>"; };
+		F436BC522FBF8F96007840E4 /* LiquidGlassEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidGlassEnvironment.swift; sourceTree = "<group>"; };
+		F436BC532FBF8F96007840E4 /* MaterialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaterialView.swift; sourceTree = "<group>"; };
+		F436BC542FBF8F96007840E4 /* PreviewWallpaper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewWallpaper.swift; sourceTree = "<group>"; };
+		F436BC552FBF8F96007840E4 /* RimEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RimEffect.swift; sourceTree = "<group>"; };
+		F436BC562FBF8F96007840E4 /* RimShape.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RimShape.swift; sourceTree = "<group>"; };
 		F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = DeepLinkSecurity.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F43B01172AD858FE00164CD1 /* DeepLinkSecurity.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = DeepLinkSecurity.h; sourceTree = "<group>"; };
 		F43B01242AD8590F00164CD1 /* DeepLinkAuthUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthUI.swift; sourceTree = "<group>"; };
@@ -707,7 +726,6 @@
 		F48E0D0628885E140080DDFA /* PreviewSupport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreviewSupport.swift; sourceTree = "<group>"; };
 		F48E0D0B2888760D0080DDFA /* VBMacDevice+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBMacDevice+Storage.swift"; sourceTree = "<group>"; };
 		F48E0D14288882BD0080DDFA /* InstallationWizardTitle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallationWizardTitle.swift; sourceTree = "<group>"; };
-		F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InstallMethodPicker.swift; sourceTree = "<group>"; };
 		F48E0D16288882BD0080DDFA /* RestoreImageSelectionStep.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionStep.swift; sourceTree = "<group>"; };
 		F48E0D17288882BD0080DDFA /* AuthenticatingWebView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthenticatingWebView.swift; sourceTree = "<group>"; };
 		F48E0D18288882BD0080DDFA /* VMInstallationWizard.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VMInstallationWizard.swift; sourceTree = "<group>"; };
@@ -1027,6 +1045,7 @@
 		F41725642886DF4A004FF8A7 /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				F436BC4B2FBF8F85007840E4 /* LiquidGlassCompat */,
 				F453C4642DF0F7F4007EAD5F /* BlurHash */,
 				F47BCDC92C5C01C600165191 /* RemoteImage */,
 				F413694F29916F6E002CE8D3 /* SwiftUI Status Item */,
@@ -1034,7 +1053,6 @@
 				F48E0D20288882E50080DDFA /* DecentFormView.swift */,
 				F48E0D21288882E50080DDFA /* NSAlert+Confirmation.swift */,
 				F48E0D22288882E50080DDFA /* OnAppearOnce.swift */,
-				F41725672886E5AD004FF8A7 /* MaterialView.swift */,
 				F41725652886DF58004FF8A7 /* OpenSavePanelUtils.swift */,
 				F42C014B2888C34B00EB15CD /* LogConsole.swift */,
 				F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */,
@@ -1167,6 +1185,24 @@
 				F417CBB82E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift */,
 			);
 			path = Components;
+			sourceTree = "<group>";
+		};
+		F436BC4B2FBF8F85007840E4 /* LiquidGlassCompat */ = {
+			isa = PBXGroup;
+			children = (
+				F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */,
+				F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */,
+				F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */,
+				F436BC4F2FBF8F96007840E4 /* AnyInsettableShape.swift */,
+				F436BC502FBF8F96007840E4 /* ColorSchemeBlendMode.swift */,
+				F436BC512FBF8F96007840E4 /* ColorSchemeOpacity.swift */,
+				F436BC522FBF8F96007840E4 /* LiquidGlassEnvironment.swift */,
+				F436BC532FBF8F96007840E4 /* MaterialView.swift */,
+				F436BC542FBF8F96007840E4 /* PreviewWallpaper.swift */,
+				F436BC552FBF8F96007840E4 /* RimEffect.swift */,
+				F436BC562FBF8F96007840E4 /* RimShape.swift */,
+			);
+			path = LiquidGlassCompat;
 			sourceTree = "<group>";
 		};
 		F43B01162AD858FE00164CD1 /* DeepLinkSecurity */ = {
@@ -1479,7 +1515,6 @@
 			children = (
 				F4E4F71D2DF080D200B3B8BA /* Restore Image Selection */,
 				F4E7680E29B655DD0075A897 /* InstallMethod.swift */,
-				F48E0D15288882BD0080DDFA /* InstallMethodPicker.swift */,
 				F4E7680929B64C590075A897 /* GuestTypePicker.swift */,
 				F48E0D31288884A10080DDFA /* RestoreImageDownloadView.swift */,
 				F48E0D33288889E60080DDFA /* InstallConfigurationStepView.swift */,
@@ -2506,6 +2541,17 @@
 				F413696529916F6E002CE8D3 /* StatusItemPanelContentController.swift in Sources */,
 				F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */,
 				F4CD13462E05B4DE0067DC75 /* VirtualizationSettingsView.swift in Sources */,
+				F436BC572FBF8F96007840E4 /* AirVisualEffect.swift in Sources */,
+				F436BC582FBF8F96007840E4 /* AirGlassEffect.swift in Sources */,
+				F436BC592FBF8F96007840E4 /* AirMaterial.swift in Sources */,
+				F436BC5A2FBF8F96007840E4 /* RimEffect.swift in Sources */,
+				F436BC5B2FBF8F96007840E4 /* ColorSchemeOpacity.swift in Sources */,
+				F436BC5C2FBF8F96007840E4 /* AnyInsettableShape.swift in Sources */,
+				F436BC5D2FBF8F96007840E4 /* RimShape.swift in Sources */,
+				F436BC5E2FBF8F96007840E4 /* LiquidGlassEnvironment.swift in Sources */,
+				F436BC5F2FBF8F96007840E4 /* MaterialView.swift in Sources */,
+				F436BC602FBF8F96007840E4 /* ColorSchemeBlendMode.swift in Sources */,
+				F436BC612FBF8F96007840E4 /* PreviewWallpaper.swift in Sources */,
 				F4CD13202E05A5780067DC75 /* FileSystemPathFormControl.swift in Sources */,
 				F417CBB92E0F3D2E0065B5D6 /* FirstLaunchExperienceView.swift in Sources */,
 				F4561A6828981B4100055289 /* VirtualMachineNameInputView.swift in Sources */,
@@ -2546,7 +2592,6 @@
 				F444D0FC2DF37EF80086537A /* VirtualBuddyMonoProgressView.swift in Sources */,
 				F444D0CE2DF32E100086537A /* BlurHashFullBleedBackground.swift in Sources */,
 				F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */,
-				F41725682886E5AD004FF8A7 /* MaterialView.swift in Sources */,
 				F413696E29916F6E002CE8D3 /* NSApplication+MenuBar.m in Sources */,
 				F48E0D2B288883150080DDFA /* HostingWindowController.swift in Sources */,
 				F47BCDCB2C5C01D100165191 /* BlurHashDecoding.swift in Sources */,
@@ -2594,7 +2639,6 @@
 				F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */,
 				F47BCDD12C5C06CE00165191 /* CatalogGroupPicker.swift in Sources */,
 				F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */,
-				F48E0D1B288882BD0080DDFA /* InstallMethodPicker.swift in Sources */,
 				F42258722885E100009420AE /* VMConfigurationSheet.swift in Sources */,
 				F4A7FB3F2BB5EBEF00E4C12A /* SavedStatePicker.swift in Sources */,
 				F413697929917135002CE8D3 /* CGFloat+OnePixel.swift in Sources */,

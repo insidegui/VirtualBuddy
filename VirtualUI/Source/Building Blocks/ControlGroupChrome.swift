@@ -107,6 +107,7 @@ struct ControlGroupChrome_Previews: PreviewProvider {
         .padding(30)
         .controlGroup()
         .padding(50)
+        .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
     }
 }
 #endif

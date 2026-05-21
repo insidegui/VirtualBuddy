@@ -42,7 +42,11 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
             .safeAreaInset(edge: .bottom, alignment: .leading, spacing: 0, content: {
                 listButtons
             })
-            .materialBackground(.contentBackground, blendMode: .withinWindow, state: .active, in: listShape)
+            .airMaterialBackground(
+                visualEffect: .contentBackground,
+                glassEffect: nil,
+                in: listShape
+            )
             .controlGroup(level: .secondary)
         }
     }
