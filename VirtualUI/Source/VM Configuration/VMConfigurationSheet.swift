@@ -81,7 +81,6 @@ public struct VMConfigurationSheet: View {
                     validateAndSave()
                 }
                 .keyboardShortcut(.defaultAction)
-                .airGlassButtonStyle(prominent: true)
                 .disabled(showValidationErrors)
             }
         }
