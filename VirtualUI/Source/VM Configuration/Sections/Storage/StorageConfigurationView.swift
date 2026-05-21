@@ -44,7 +44,7 @@ struct StorageConfigurationView: View {
             Button {
                 create()
             } label: {
-                label
+                label.groupedListButtonLabel()
             }
             .help("Add storage device")
         } removeButton: { label in
@@ -55,7 +55,7 @@ struct StorageConfigurationView: View {
                     hardware.storageDevices.remove(at: idx)
                 }
             } label: {
-                label
+                label.groupedListButtonLabel()
             }
             .disabled(selection.isEmpty)
             .help("Remove selected devices")

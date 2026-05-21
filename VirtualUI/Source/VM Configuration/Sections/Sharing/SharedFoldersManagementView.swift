@@ -70,14 +70,14 @@ struct SharedFoldersManagementView: View {
             Button {
                 addFolder()
             } label: {
-                label
+                label.groupedListButtonLabel()
             }
             .help("Add shared folder")
         } removeButton: { label in
             Button {
                 confirmRemoval()
             } label: {
-                label
+                label.groupedListButtonLabel()
             }
             .help("Remove selection from shared folders")
             .disabled(selection.isEmpty)

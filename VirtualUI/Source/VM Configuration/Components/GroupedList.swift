@@ -99,14 +99,17 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
             .padding(8)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(Material.thick, in: Rectangle())
-            .overlay(alignment: .top) {
-                Rectangle()
-                    .frame(height: 0.5)
-                    .foregroundColor(.black.opacity(0.5))
-            }
+            .overlay(alignment: .top) { Divider().opacity(0.5) }
         }
     }
     
+}
+
+extension View {
+    /// Ensures that button labels are the same size in a `GroupedList`.
+    func groupedListButtonLabel() -> some View {
+        frame(width: 14, height: 14)
+    }
 }
 
 extension GroupedList where HeaderAccessory == EmptyView, FooterAccessory == EmptyView, EmptyOverlay == EmptyView, AddButton == EmptyView, RemoveButton == EmptyView {
