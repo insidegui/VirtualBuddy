@@ -247,20 +247,19 @@ struct VirtualMachineSessionBackgroundView: View {
 struct VMCircularButtonStyle: ButtonStyle {
     
     func makeBody(configuration: Configuration) -> some View {
-        mainContent(with: configuration)
-            .contentShape(Circle())
-    }
-    
-    private func mainContent(with configuration: Configuration) -> some View {
         configuration.label
             .font(.system(size: 50, weight: .bold, design: .rounded))
             .foregroundStyle(.primary)
             .padding(30)
-            .background(Circle().fill(Material.thin))
-            .brightness(configuration.isPressed ? 0.3 : 0)
             .symbolVariant(.fill)
+            .airMaterialBackground(
+                visualEffect: configuration.isPressed ? .selection : .hudWindow,
+                glassEffect: .clear.tint(configuration.isPressed ? Color.white.opacity(0.2) : nil),
+                in: Circle()
+            )
+            .contentShape(Circle())
     }
-    
+
 }
 
 extension VMController {
