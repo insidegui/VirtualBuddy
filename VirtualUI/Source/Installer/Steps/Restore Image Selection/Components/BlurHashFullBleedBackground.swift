@@ -302,7 +302,7 @@ private struct BlurHashFullBleedBackgroundPreview: View {
                 .chromeBorder(radius: 16)
                 .padding()
             }
-            .onChange(of: brightness) { newValue in
+            .onChange(of: brightness) { _, newValue in
                 withTransaction(\.disablesAnimations, true) {
                     effectiveBrightness = newValue
                 }

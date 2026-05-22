@@ -37,7 +37,7 @@ struct PointingDeviceConfigurationView: View {
                             .tag(kind)
                     }
                 }
-                .onChange(of: trackpadUnsupported) { isUnsupported in
+                .onChange(of: trackpadUnsupported) { _, isUnsupported in
                     if isUnsupported, hardware.pointingDevice.kind == .trackpad {
                         hardware.pointingDevice.kind = .mouse
                     }

@@ -43,11 +43,11 @@ struct ConfigurationSection<Header: View, Content: View>: View {
             }
         }
         .controlGroup()
-        .onChange(of: collapsedStateBinding) { newValue in
+        .onChange(of: collapsedStateBinding) { _, newValue in
             guard newValue != isCollapsed else { return }
             isCollapsed = newValue
         }
-        .onChange(of: isCollapsed) { newValue in
+        .onChange(of: isCollapsed) { _, newValue in
             guard collapsedStateBinding != newValue else { return }
             collapsedStateBinding = newValue
         }

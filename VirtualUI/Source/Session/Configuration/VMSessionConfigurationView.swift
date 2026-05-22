@@ -59,12 +59,19 @@ struct VMSessionConfigurationView: View {
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
         }
+        .padding(-12)
+        .clipShape(shape)
+        .airMaterialBackground(visualEffect: .hudWindow, glassEffect: .clear, in: shape)
         .sheet(isPresented: $isShowingVMSettings) {
             VMConfigurationSheet(
                 configuration: $controller.virtualMachineModel.configuration
             )
             .environmentObject(VMConfigurationViewModel(vm, resolvedRestoreImage: resolvedRestoreImage))
         }
+    }
+
+    private var shape: RoundedRectangle {
+        RoundedRectangle(cornerRadius: 18)
     }
 
     private var showInstallDeviceOption: Bool { vm.configuration.systemType == .linux && vm.metadata.installImageURL != nil }
@@ -77,7 +84,12 @@ struct VMSessionConfigurationView: View {
 }
 
 #if DEBUG
-#Preview {
+#Preview("Glass") {
     VirtualMachineSessionViewPreview()
+}
+
+#Preview("No Glass") {
+    VirtualMachineSessionViewPreview()
+        .environment(\.preview_overrideLiquidGlassSupported, false)
 }
 #endif

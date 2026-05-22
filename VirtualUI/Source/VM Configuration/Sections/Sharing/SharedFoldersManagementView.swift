@@ -70,14 +70,14 @@ struct SharedFoldersManagementView: View {
             Button {
                 addFolder()
             } label: {
-                label
+                label.groupedListButtonLabel()
             }
             .help("Add shared folder")
         } removeButton: { label in
             Button {
                 confirmRemoval()
             } label: {
-                label
+                label.groupedListButtonLabel()
             }
             .help("Remove selection from shared folders")
             .disabled(selection.isEmpty)
@@ -119,7 +119,7 @@ struct SharedFoldersManagementView: View {
                             .disabled(!VBMacConfiguration.rosettaSupported || rosettaUnsupported)
                     }
                 }
-                .onChange(of: rosettaUnsupported) { isUnsupported in
+                .onChange(of: rosettaUnsupported) { _, isUnsupported in
                     if isUnsupported {
                         configuration.rosettaSharingEnabled = false
                     }
@@ -143,8 +143,10 @@ struct SharedFoldersManagementView: View {
         .onReceive(NSWorkspace.shared.notificationCenter.publisher(for: NSWorkspace.didUnmountNotification)) { note in
             availabilityProvider.refreshAvailabilityIfNeeded(with: note)
         }
-        .onChange(of: configuration) { availabilityProvider.configuration = $0 }
-        .onChange(of: configuration.sharedFolders.count) { newValue in
+        .onChange(of: configuration) { _, newValue in
+            availabilityProvider.configuration = newValue
+        }
+        .onChange(of: configuration.sharedFolders.count) { _, newValue in
             if newValue > 0 {
                 withAnimation(.spring()) {
                     showTip = true

@@ -88,7 +88,7 @@ struct ManagedDiskImageEditor: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .lineLimit(nil)
         }
-        .onChange(of: image) { newValue in
+        .onChange(of: image) { _, newValue in
             onSave(newValue)
         }
     }

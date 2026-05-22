@@ -108,20 +108,7 @@ struct GuestTypeItemView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
         .aspectRatio(1, contentMode: .fit)
         .frame(maxWidth: 260)
-        .background {
-            ZStack {
-//                if isSelected {
-//                    Rectangle().foregroundStyle(Material.thick)
-//
-//                    Color.accentColor
-//                        .blendMode(.plusLighter)
-//                        .opacity(0.2)
-//                } else {
-                    Rectangle().foregroundStyle(Material.thin)
-//                }
-            }
-            .clipShape(shape)
-        }
+        .airMaterialBackground(visualEffect: .menu, glassEffect: .regular, in: shape)
         .chromeBorder(shape: shape, shadowEnabled: false, highlightIntensity: 0.5)
         .overlay {
             if isSelected {
@@ -151,5 +138,6 @@ struct GuestTypeItemView: View {
         .padding(22)
         .frame(width: VMInstallationWizard.maxContentWidth, height: 600)
         .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
+//        .environment(\.preview_overrideLiquidGlassSupported, false)
 }
 #endif

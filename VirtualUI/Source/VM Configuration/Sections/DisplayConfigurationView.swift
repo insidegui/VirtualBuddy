@@ -67,7 +67,7 @@ struct DisplayConfigurationView: View {
                     Toggle("Automatically Configure Display", isOn: $device.automaticallyReconfiguresDisplay)
                 }
             }
-            .onChange(of: displayResizeUnsupported) { isUnsupported in
+            .onChange(of: displayResizeUnsupported) { _, isUnsupported in
                 if isUnsupported {
                     device.automaticallyReconfiguresDisplay = false
                 }

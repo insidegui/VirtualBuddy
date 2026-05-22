@@ -8,7 +8,7 @@ struct RestoreImageURLInputView: View {
         VirtualBuddyInstallerInputView {
             TextField("Custom Download Link", text: $viewModel.data.customInstallImageRemoteURL, onCommit: viewModel.next)
         }
-        .onChange(of: viewModel.data.customInstallImageRemoteURL) { _ in
+        .onChange(of: viewModel.data.customInstallImageRemoteURL) {
             viewModel.validateCustomRemoteURL()
         }
     }
