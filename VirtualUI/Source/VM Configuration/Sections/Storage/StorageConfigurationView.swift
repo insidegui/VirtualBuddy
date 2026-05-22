@@ -120,6 +120,13 @@ struct StorageDeviceListItem: View {
 
             Spacer()
 
+            if device.canBeResized {
+                Image(systemName: "arrow.up.right.and.arrow.down.left")
+                    .font(.caption)
+                    .foregroundColor(.blue)
+                    .help("This disk can be resized")
+            }
+
             Button {
                 configureDevice()
             } label: {
