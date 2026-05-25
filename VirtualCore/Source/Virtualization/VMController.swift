@@ -180,16 +180,8 @@ public final class VMController: ObservableObject {
             }
             state = .starting("Starting virtual machine...")
         } catch {
-            if case let VBDiskResizeError.apfsVolumesLocked(container) = error {
-                let alert = NSAlert()
-                alert.messageText = "Unlock FileVault to Finish Resizing"
-                alert.informativeText = "VirtualBuddy enlarged the disk image, but the APFS container \(container) is still locked. Start the guest, sign in to unlock FileVault, then use Disk Utility (or run 'diskutil apfs resizeContainer disk0s2 0') inside the guest to claim the newly added space."
-                alert.addButton(withTitle: "OK")
-                alert.alertStyle = .informational
-                alert.runModal()
-            }
-            // Log resize errors but don't fail VM start
-            NSLog("Warning: Failed to resize disk images: \(error)")
+            logger.warning("Failed to resize disk images: \(error, privacy: .public)")
+            presentDiskResizeError(error)
             state = .starting("Starting virtual machine...")
         }
 
@@ -221,6 +213,23 @@ public final class VMController: ObservableObject {
             state = .running(vm)
             virtualMachineModel.metadata.installFinished = true
         }
+    }
+
+    private func presentDiskResizeError(_ error: Error) {
+        let alert = NSAlert()
+
+        if case let VBDiskResizeError.apfsVolumesLocked(container) = error {
+            alert.messageText = "Unlock FileVault to Finish Resizing"
+            alert.informativeText = "VirtualBuddy enlarged the disk image, but the APFS container \(container) is still locked. Start the guest, sign in to unlock FileVault, then use Disk Utility (or run 'diskutil apfs resizeContainer disk0s2 0') inside the guest to claim the newly added space."
+            alert.alertStyle = .informational
+        } else {
+            alert.messageText = "Disk Resize Failed"
+            alert.informativeText = "VirtualBuddy couldn't resize disk images before startup. The virtual machine will continue starting.\n\n\(error.localizedDescription)"
+            alert.alertStyle = .warning
+        }
+
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 
     /// Checks whether this virtual machine's network devices share a MAC address with any running virtual machine,

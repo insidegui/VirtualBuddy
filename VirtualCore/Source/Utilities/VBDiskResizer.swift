@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import OSLog
 import zlib
 
 public enum VBDiskResizeError: LocalizedError {
@@ -76,6 +77,8 @@ private extension FileHandle {
 }
 
 public struct VBDiskResizer {
+    private static let logger = Logger(for: VBDiskResizer.self)
+
     private struct APFSContainerInfo {
         let container: String
         let physicalStore: String?
@@ -134,19 +137,19 @@ public struct VBDiskResizer {
             try attachProcess.run()
             attachProcess.waitUntilExit()
         } catch {
-            NSLog("Failed to attach disk image for FileVault check: \(error)")
+            logger.warning("Failed to attach disk image for FileVault check: \(error, privacy: .public)")
             return false
         }
 
         guard attachProcess.terminationStatus == 0 else {
-            NSLog("hdiutil attach failed for FileVault check with exit code \(attachProcess.terminationStatus)")
+            logger.warning("hdiutil attach failed for FileVault check with exit code \(attachProcess.terminationStatus, privacy: .public)")
             return false
         }
 
         let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
 
         guard let deviceNode = extractDeviceNode(from: attachOutput) else {
-            NSLog("Could not extract device node for FileVault check")
+            logger.warning("Could not extract device node for FileVault check")
             return false
         }
 
@@ -285,7 +288,7 @@ public struct VBDiskResizer {
 
     /// Expands partitions within a disk image to use the newly available space
     private static func expandPartitionsInDiskImage(at url: URL, format: VBManagedDiskImage.Format) async throws {
-        NSLog("Attempting to expand partitions in disk image at \(url.path)")
+        logger.debug("Attempting to expand partitions in disk image at \(url.path, privacy: .public)")
 
         switch format {
         case .raw:
@@ -298,7 +301,7 @@ public struct VBDiskResizer {
 
         case .dmg, .asif:
             // Unsupported formats — partition expansion is skipped
-            NSLog("Skipping partition expansion for unsupported format: \(format)")
+            logger.debug("Skipping partition expansion for unsupported format: \(format.displayName, privacy: .public)")
         }
     }
 
@@ -388,7 +391,7 @@ public struct VBDiskResizer {
     }
 
     private static func resizePartitionOnDevice(deviceNode: String) async throws {
-        NSLog("Attempting to resize partition on device \(deviceNode)")
+        logger.debug("Attempting to resize partition on device \(deviceNode, privacy: .public)")
 
         // First, get partition information
         let listProcess = Process()
@@ -403,12 +406,12 @@ public struct VBDiskResizer {
         listProcess.waitUntilExit()
 
         guard listProcess.terminationStatus == 0 else {
-            NSLog("Warning: Could not list partitions on \(deviceNode)")
+            logger.warning("Could not list partitions on \(deviceNode, privacy: .public)")
             return
         }
 
         let listOutput = String(data: listPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        NSLog("Partition layout for \(deviceNode):\n\(listOutput)")
+        logger.debug("Partition layout for \(deviceNode, privacy: .public):\n\(listOutput, privacy: .public)")
 
         // First, check if we need to use diskutil apfs list to find the APFS container
         // This is needed when the partition is an APFS volume rather than a container
@@ -418,21 +421,21 @@ public struct VBDiskResizer {
                 throw VBDiskResizeError.apfsVolumesLocked(container: apfsContainerFromList.container)
             }
             let targetDescription = apfsContainerFromList.physicalStore ?? apfsContainerFromList.container
-            NSLog("Found APFS container using 'diskutil apfs list': \(apfsContainerFromList.container) (store: \(targetDescription))")
+            logger.debug("Found APFS container using 'diskutil apfs list': \(apfsContainerFromList.container, privacy: .public) (store: \(targetDescription, privacy: .public))")
             try await resizeAPFSContainer(apfsContainerFromList)
         } else if let apfsContainer = findAPFSContainer(in: listOutput, deviceNode: deviceNode) {
             let targetDescription = apfsContainer.physicalStore ?? apfsContainer.container
-            NSLog("Found APFS container: \(apfsContainer.container) (store: \(targetDescription))")
+            logger.debug("Found APFS container: \(apfsContainer.container, privacy: .public) (store: \(targetDescription, privacy: .public))")
             try await resizeAPFSContainer(apfsContainer)
         } else if listOutput.contains("Apple_APFS") {
             // The disk might be an APFS container itself (common for VM images)
             // Try to resize it directly
-            NSLog("Disk appears to have APFS partitions, attempting to resize \(deviceNode) as container")
+            logger.debug("Disk appears to have APFS partitions, attempting to resize \(deviceNode, privacy: .public) as container")
             let cleanDevice = sanitizeDeviceIdentifier(deviceNode)
             let containerInfo = APFSContainerInfo(container: cleanDevice, physicalStore: nil, hasLockedVolumes: false)
             try await resizeAPFSContainer(containerInfo)
         } else {
-            NSLog("Warning: Could not find a resizable APFS container on \(deviceNode)")
+            logger.warning("Could not find a resizable APFS container on \(deviceNode, privacy: .public)")
         }
     }
 
@@ -446,12 +449,12 @@ public struct VBDiskResizer {
         let primaryResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", resizeTarget, "0"])
 
         if primaryResult.status == 0 {
-            NSLog("Successfully expanded APFS container target \(resizeTarget)")
+            logger.debug("Successfully expanded APFS container target \(resizeTarget, privacy: .public)")
         } else {
             if primaryResult.output.localizedCaseInsensitiveContains("locked") {
                 throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
             }
-            NSLog("Initial APFS container resize at \(resizeTarget) did not apply (will reconcile via nudge): \(primaryResult.output)")
+            logger.warning("Initial APFS container resize at \(resizeTarget, privacy: .public) did not apply (will reconcile via nudge): \(primaryResult.output, privacy: .public)")
         }
 
         // When resizing using the physical store, issue a follow-up pass on the logical container to
@@ -461,12 +464,12 @@ public struct VBDiskResizer {
             let containerResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", containerTarget, "0"])
 
             if containerResult.status == 0 {
-                NSLog("Performed follow-up resize on APFS container \(containerTarget)")
+                logger.debug("Performed follow-up resize on APFS container \(containerTarget, privacy: .public)")
             } else {
                 if containerResult.output.localizedCaseInsensitiveContains("locked") {
                     throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
                 }
-                NSLog("Follow-up resize on container \(containerTarget) deferred (will reconcile via nudge if needed)")
+                logger.warning("Follow-up resize on container \(containerTarget, privacy: .public) deferred (will reconcile via nudge if needed)")
             }
         }
 
@@ -486,12 +489,12 @@ public struct VBDiskResizer {
             try apfsListProcess.run()
             apfsListProcess.waitUntilExit()
         } catch {
-            NSLog("Failed to run 'diskutil apfs list -plist': \(error)")
+            logger.warning("Failed to run 'diskutil apfs list -plist': \(error, privacy: .public)")
             return nil
         }
 
         guard apfsListProcess.terminationStatus == 0 else {
-            NSLog("'diskutil apfs list -plist' failed with exit code \(apfsListProcess.terminationStatus)")
+            logger.warning("'diskutil apfs list -plist' failed with exit code \(apfsListProcess.terminationStatus, privacy: .public)")
             return nil
         }
 
@@ -500,7 +503,7 @@ public struct VBDiskResizer {
             let plist = try? PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any],
             let containers = plist["Containers"] as? [[String: Any]]
         else {
-            NSLog("Failed to parse 'diskutil apfs list -plist' output")
+            logger.warning("Failed to parse 'diskutil apfs list -plist' output")
             return nil
         }
 
@@ -529,7 +532,7 @@ public struct VBDiskResizer {
                 let size = store["Size"] as? UInt64 ?? 0
                 let info = APFSContainerInfo(container: containerRef, physicalStore: storeIdentifier, hasLockedVolumes: hasLockedVolumes)
                 candidates.append((info: info, size: size, isMainContainer: isMainContainer))
-                NSLog("APFS candidate: container=\(containerRef), store=\(storeIdentifier), size=\(size), isMain=\(isMainContainer), hasSystemOrData=\(hasSystemOrData), hasISCRoles=\(hasISCRoles), roles=\(roles)")
+                logger.debug("APFS candidate: container=\(containerRef, privacy: .public), store=\(storeIdentifier, privacy: .public), size=\(size, privacy: .public), isMain=\(isMainContainer, privacy: .public), hasSystemOrData=\(hasSystemOrData, privacy: .public), hasISCRoles=\(hasISCRoles, privacy: .public), roles=\(String(describing: roles), privacy: .public)")
             }
 
             if containerRef == cleanDeviceNode {
@@ -540,7 +543,7 @@ public struct VBDiskResizer {
         }
 
         guard !candidates.isEmpty else {
-            NSLog("No APFS container found in 'diskutil apfs list' for device \(cleanDeviceNode)")
+            logger.debug("No APFS container found in 'diskutil apfs list' for device \(cleanDeviceNode, privacy: .public)")
             return nil
         }
 
@@ -554,26 +557,26 @@ public struct VBDiskResizer {
         // First priority: unlocked main container
         if let mainUnlocked = candidates.first(where: { $0.isMainContainer && !$0.info.hasLockedVolumes }) {
             selected = mainUnlocked
-            NSLog("Selected unlocked main APFS container: \(mainUnlocked.info.container)")
+            logger.debug("Selected unlocked main APFS container: \(mainUnlocked.info.container, privacy: .public)")
         }
         // Second priority: any main container (even if locked)
         else if let mainAny = candidates.first(where: { $0.isMainContainer }) {
             selected = mainAny
-            NSLog("Selected main APFS container (locked): \(mainAny.info.container)")
+            logger.debug("Selected main APFS container (locked): \(mainAny.info.container, privacy: .public)")
         }
         // Third priority: largest unlocked non-main container
         else if let largestUnlocked = candidates.filter({ !$0.info.hasLockedVolumes }).max(by: { $0.size < $1.size }) {
             selected = largestUnlocked
-            NSLog("Selected largest unlocked APFS container: \(largestUnlocked.info.container)")
+            logger.debug("Selected largest unlocked APFS container: \(largestUnlocked.info.container, privacy: .public)")
         }
         // Last resort: any container
         else {
             selected = candidates.first
-            NSLog("Selected fallback APFS container: \(selected?.info.container ?? "none")")
+            logger.debug("Selected fallback APFS container: \(selected?.info.container ?? "none", privacy: .public)")
         }
 
         if let selected = selected {
-            NSLog("Final APFS container selection: \(selected.info.container) (store: \(selected.info.physicalStore ?? "none"), size: \(selected.size), isMain: \(selected.isMainContainer))")
+            logger.debug("Final APFS container selection: \(selected.info.container, privacy: .public) (store: \(selected.info.physicalStore ?? "none", privacy: .public), size: \(selected.size, privacy: .public), isMain: \(selected.isMainContainer, privacy: .public))")
         }
 
         return selected?.info
@@ -622,21 +625,21 @@ public struct VBDiskResizer {
                     let info = APFSContainerInfo(container: containerIdentifier, physicalStore: partitionDevice, hasLockedVolumes: false)
                     foundContainers.append((info: info, isMain: isMainContainer))
 
-                    NSLog("Found APFS partition: \(partitionDevice) -> Container: \(containerIdentifier) (main: \(isMainContainer))")
+                    logger.debug("Found APFS partition: \(partitionDevice, privacy: .public) -> Container: \(containerIdentifier, privacy: .public) (main: \(isMainContainer, privacy: .public))")
                 }
             }
         }
 
         // Prefer main containers over ISC containers
         if let mainContainer = foundContainers.first(where: { $0.isMain }) {
-            NSLog("Using main APFS container: \(mainContainer.info.container)")
+            logger.debug("Using main APFS container: \(mainContainer.info.container, privacy: .public)")
             return APFSContainerInfo(container: mainContainer.info.container, physicalStore: mainContainer.info.physicalStore, hasLockedVolumes: false)
         } else if let anyContainer = foundContainers.first {
-            NSLog("Using fallback APFS container: \(anyContainer.info.container)")
+            logger.debug("Using fallback APFS container: \(anyContainer.info.container, privacy: .public)")
             return APFSContainerInfo(container: anyContainer.info.container, physicalStore: anyContainer.info.physicalStore, hasLockedVolumes: false)
         }
 
-        NSLog("No APFS container found in diskutil output")
+        logger.debug("No APFS container found in diskutil output")
         return nil
     }
 
@@ -654,11 +657,11 @@ public struct VBDiskResizer {
         let tolerance: UInt64 = 1 * 1024 * 1024 // 1 MB tolerance to account for rounding
 
         if physicalSize > capacity + tolerance {
-            NSLog("APFS container \(info.container) ceiling (\(capacity)) is below physical store size (\(physicalSize)); nudging container")
+            logger.debug("APFS container \(info.container, privacy: .public) ceiling (\(capacity, privacy: .public)) is below physical store size (\(physicalSize, privacy: .public)); nudging container")
             try await nudgeAPFSContainer(info: info, physicalSize: physicalSize)
 
             if let postDetails = try fetchAPFSContainerDetails(container: info.container) {
-                NSLog("Post-nudge container ceiling: \(postDetails.capacityCeiling) (store: \(postDetails.physicalStoreSize))")
+                logger.debug("Post-nudge container ceiling: \(postDetails.capacityCeiling, privacy: .public) (store: \(postDetails.physicalStoreSize, privacy: .public))")
             }
         }
     }
@@ -677,7 +680,7 @@ public struct VBDiskResizer {
 
         guard process.terminationStatus == 0 else {
             let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-            NSLog("Failed to query APFS container \(container): \(output)")
+            logger.warning("Failed to query APFS container \(container, privacy: .public): \(output, privacy: .public)")
             return nil
         }
 
@@ -691,7 +694,7 @@ public struct VBDiskResizer {
             let store = stores.first,
             let storeSize = store["Size"] as? UInt64
         else {
-            NSLog("Could not parse APFS container details for \(container)")
+            logger.warning("Could not parse APFS container details for \(container, privacy: .public)")
             return nil
         }
 
@@ -712,7 +715,7 @@ public struct VBDiskResizer {
         let shrinkResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", resizeTarget, shrinkArg])
 
         if shrinkResult.status != 0 {
-            NSLog("APFS shrink nudge for \(resizeTarget) failed: \(shrinkResult.output)")
+            logger.warning("APFS shrink nudge for \(resizeTarget, privacy: .public) failed: \(shrinkResult.output, privacy: .public)")
             if shrinkResult.output.localizedCaseInsensitiveContains("locked") {
                 throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
             }
@@ -720,7 +723,7 @@ public struct VBDiskResizer {
 
         let growResult = runDiskutilCommand(arguments: ["apfs", "resizeContainer", resizeTarget, "0"])
         if growResult.status != 0 {
-            NSLog("APFS grow after nudge for \(resizeTarget) failed: \(growResult.output)")
+            logger.warning("APFS grow after nudge for \(resizeTarget, privacy: .public) failed: \(growResult.output, privacy: .public)")
             if growResult.output.localizedCaseInsensitiveContains("locked") {
                 throw VBDiskResizeError.apfsVolumesLocked(container: info.container)
             }
@@ -740,7 +743,7 @@ public struct VBDiskResizer {
             try process.run()
             process.waitUntilExit()
         } catch {
-            NSLog("Failed to run diskutil \(arguments.joined(separator: " ")): \(error)")
+            logger.error("Failed to run diskutil \(arguments.joined(separator: " "), privacy: .public): \(error, privacy: .public)")
             return (-1, "\(error)")
         }
 

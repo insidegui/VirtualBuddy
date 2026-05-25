@@ -9,16 +9,17 @@ import SwiftUI
 import VirtualCore
 
 struct ManagedDiskImageEditor: View {
-    @EnvironmentObject var viewModel: VMConfigurationViewModel
     @State private var image: VBManagedDiskImage
+    let virtualMachine: VBVirtualMachine
     var minimumSize: UInt64
     var isExistingDiskImage: Bool
     var onSave: (VBManagedDiskImage) -> Void
     var isBootVolume: Bool
     var canResize: Bool
 
-    init(image: VBManagedDiskImage, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
+    init(image: VBManagedDiskImage, virtualMachine: VBVirtualMachine, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
         self._image = .init(wrappedValue: image)
+        self.virtualMachine = virtualMachine
         self.isExistingDiskImage = isExistingDiskImage
         self.onSave = onSave
         let fallbackMinimumSize = isForBootVolume ? VBManagedDiskImage.minimumBootDiskImageSize : VBManagedDiskImage.minimumExtraDiskImageSize
@@ -110,6 +111,7 @@ struct ManagedDiskImageEditor: View {
                 .lineLimit(nil)
         }
         .onChange(of: image) { _, newValue in
+            // TODO: Extract the resize slider confirmation flow into a reusable component.
             if isExistingDiskImage && canResize && newValue.size != minimumSize {
                 // Cancel any existing timer
                 sliderTimer?.invalidate()
@@ -145,26 +147,23 @@ struct ManagedDiskImageEditor: View {
     }
 
     private var sizeChangeInfo: String {
-        if isBootVolume {
-            if canResize {
-                return "Boot disk can be expanded, but not shrunk. Choose your size carefully."
-            } else {
-                return "Be sure to reserve enough space, since it won't be possible to change the size of the disk later."
-            }
-        } else {
-            if canResize {
-                return "This disk can be expanded to a larger size, but cannot be shrunk."
-            } else {
-                return "It's not possible to change the size of an existing storage device."
-            }
+        switch (isBootVolume, canResize) {
+        case (true, true):
+            "Boot disk can be expanded, but not shrunk. Choose your size carefully."
+        case (true, false):
+            "Be sure to reserve enough space, since it won't be possible to change the size of the disk later."
+        case (false, true):
+            "This disk can be expanded to a larger size, but cannot be shrunk."
+        case (false, false):
+            "It's not possible to change the size of an existing storage device."
         }
     }
     
     private var sizeMessage: String {
         if isExistingDiskImage {
-            return sizeChangeInfo
+            sizeChangeInfo
         } else {
-            return "\(sizeMessagePrefix ?? "")After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
+            "\(sizeMessagePrefix ?? "")After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
         }
     }
 
@@ -185,7 +184,7 @@ struct ManagedDiskImageEditor: View {
 
         Task {
             // Check for FileVault before proceeding with resize
-            let hasFileVault = await viewModel.vm.checkFileVaultForDiskImage(image)
+            let hasFileVault = await virtualMachine.checkFileVaultForDiskImage(image)
 
             await MainActor.run {
                 if hasFileVault {
