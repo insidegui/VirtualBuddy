@@ -147,26 +147,23 @@ struct ManagedDiskImageEditor: View {
     }
 
     private var sizeChangeInfo: String {
-        if isBootVolume {
-            if canResize {
-                return "Boot disk can be expanded, but not shrunk. Choose your size carefully."
-            } else {
-                return "Be sure to reserve enough space, since it won't be possible to change the size of the disk later."
-            }
-        } else {
-            if canResize {
-                return "This disk can be expanded to a larger size, but cannot be shrunk."
-            } else {
-                return "It's not possible to change the size of an existing storage device."
-            }
+        switch (isBootVolume, canResize) {
+        case (true, true):
+            "Boot disk can be expanded, but not shrunk. Choose your size carefully."
+        case (true, false):
+            "Be sure to reserve enough space, since it won't be possible to change the size of the disk later."
+        case (false, true):
+            "This disk can be expanded to a larger size, but cannot be shrunk."
+        case (false, false):
+            "It's not possible to change the size of an existing storage device."
         }
     }
     
     private var sizeMessage: String {
         if isExistingDiskImage {
-            return sizeChangeInfo
+            sizeChangeInfo
         } else {
-            return "\(sizeMessagePrefix ?? "")After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
+            "\(sizeMessagePrefix ?? "")After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
         }
     }
 
