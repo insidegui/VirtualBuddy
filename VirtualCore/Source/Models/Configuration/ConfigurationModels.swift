@@ -114,14 +114,10 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
 
         public var displayName: String {
             switch self {
-            case .raw:
-                return "Raw Image"
-            case .dmg:
-                return "Disk Image (DMG)"
-            case .sparse:
-                return "Sparse Image"
-            case .asif:
-                return "Apple Sparse Image Format (ASIF)"
+            case .raw: "Raw Image"
+            case .dmg: "Disk Image (DMG)"
+            case .sparse: "Sparse Image"
+            case .asif: "Apple Sparse Image Format (ASIF)"
             }
         }
     }
@@ -151,10 +147,8 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
 
     public var canBeResized: Bool {
         switch format {
-        case .raw, .sparse:
-            return true
-        case .dmg, .asif:
-            return false
+        case .raw, .sparse: true
+        case .dmg, .asif: false
         }
     }
 }
