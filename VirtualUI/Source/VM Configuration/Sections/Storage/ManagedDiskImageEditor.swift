@@ -111,6 +111,7 @@ struct ManagedDiskImageEditor: View {
                 .lineLimit(nil)
         }
         .onChange(of: image) { _, newValue in
+            // TODO: Extract the resize slider confirmation flow into a reusable component.
             if isExistingDiskImage && canResize && newValue.size != minimumSize {
                 // Cancel any existing timer
                 sliderTimer?.invalidate()
