@@ -9,16 +9,17 @@ import SwiftUI
 import VirtualCore
 
 struct ManagedDiskImageEditor: View {
-    @EnvironmentObject var viewModel: VMConfigurationViewModel
     @State private var image: VBManagedDiskImage
+    let virtualMachine: VBVirtualMachine
     var minimumSize: UInt64
     var isExistingDiskImage: Bool
     var onSave: (VBManagedDiskImage) -> Void
     var isBootVolume: Bool
     var canResize: Bool
 
-    init(image: VBManagedDiskImage, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
+    init(image: VBManagedDiskImage, virtualMachine: VBVirtualMachine, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
         self._image = .init(wrappedValue: image)
+        self.virtualMachine = virtualMachine
         self.isExistingDiskImage = isExistingDiskImage
         self.onSave = onSave
         let fallbackMinimumSize = isForBootVolume ? VBManagedDiskImage.minimumBootDiskImageSize : VBManagedDiskImage.minimumExtraDiskImageSize
@@ -185,7 +186,7 @@ struct ManagedDiskImageEditor: View {
 
         Task {
             // Check for FileVault before proceeding with resize
-            let hasFileVault = await viewModel.vm.checkFileVaultForDiskImage(image)
+            let hasFileVault = await virtualMachine.checkFileVaultForDiskImage(image)
 
             await MainActor.run {
                 if hasFileVault {
