@@ -307,6 +307,7 @@
 		F4C2374D2888A462001FF286 /* VolumeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374C2888A462001FF286 /* VolumeUtils.swift */; };
 		F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374F2888AF67001FF286 /* LogStreamer.swift */; };
 		VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */; };
+		VB01DISKRESIZ00004A0104 /* VBVirtualMachine+DiskResize.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */; };
 		F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */; };
 		F4C947D62E0B12D0001ACC91 /* String+AppleOSBuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */; };
 		F4C947DA2E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */; };
@@ -830,6 +831,7 @@
 		F4C2374C2888A462001FF286 /* VolumeUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VolumeUtils.swift; sourceTree = "<group>"; };
 		F4C2374F2888AF67001FF286 /* LogStreamer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LogStreamer.swift; sourceTree = "<group>"; };
 		VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDiskResizer.swift; sourceTree = "<group>"; };
+		VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+DiskResize.swift"; sourceTree = "<group>"; };
 		F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+ExtendedAttributes.swift"; sourceTree = "<group>"; };
 		F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+AppleOSBuild.swift"; sourceTree = "<group>"; };
 		F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SoftwareCatalog+DownloadMatching.swift"; sourceTree = "<group>"; };
@@ -1631,6 +1633,7 @@
 				F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */,
 				F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */,
 				F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */,
+				VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */,
 				F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */,
 			);
 			path = Models;
@@ -2704,6 +2707,7 @@
 				F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */,
 				F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */,
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
+				VB01DISKRESIZ00004A0104 /* VBVirtualMachine+DiskResize.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
 				F49FD8842DFB727B0019D638 /* VMImporter+Helpers.swift in Sources */,
