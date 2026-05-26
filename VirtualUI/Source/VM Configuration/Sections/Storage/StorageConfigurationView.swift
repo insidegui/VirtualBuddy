@@ -123,7 +123,7 @@ struct StorageDeviceListItem: View {
             if device.canBeResized {
                 Image(systemName: "arrow.up.right.and.arrow.down.left")
                     .font(.caption)
-                    .foregroundColor(.blue)
+                    .foregroundStyle(.secondary)
                     .help("This disk can be resized")
             }
 
