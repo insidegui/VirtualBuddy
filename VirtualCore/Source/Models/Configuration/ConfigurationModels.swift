@@ -147,8 +147,16 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
 
     public var canBeResized: Bool {
         switch format {
-        case .raw, .sparse: true
-        case .dmg, .asif: false
+        case .raw, .sparse:
+            true
+        case .asif:
+            if #available(macOS 26, *) {
+                true
+            } else {
+                false
+            }
+        case .dmg:
+            false
         }
     }
 }

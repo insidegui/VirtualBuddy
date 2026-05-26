@@ -87,6 +87,11 @@ public struct VBDiskResizer {
         let physicalStoreSize: UInt64
     }
 
+    struct DiskImageProcessCommand {
+        let executablePath: String
+        let arguments: [String]
+    }
+
     private static func sanitizeDeviceIdentifier(_ identifier: String) -> String {
         if identifier.hasPrefix("/dev/") {
             return String(identifier.dropFirst(5))
@@ -98,8 +103,61 @@ public struct VBDiskResizer {
         switch format {
         case .raw, .sparse:
             return true
-        case .dmg, .asif:
+        case .asif:
+            if #available(macOS 26, *) {
+                return true
+            } else {
+                return false
+            }
+        case .dmg:
             return false
+        }
+    }
+
+    static func fileVaultAttachCommand(for format: VBManagedDiskImage.Format, at url: URL) -> DiskImageProcessCommand? {
+        switch format {
+        case .raw:
+            return DiskImageProcessCommand(
+                executablePath: "/usr/bin/hdiutil",
+                arguments: ["attach", "-imagekey", "diskimage-class=CRawDiskImage", "-nomount", url.path]
+            )
+        case .sparse:
+            return DiskImageProcessCommand(
+                executablePath: "/usr/bin/hdiutil",
+                arguments: ["attach", "-nomount", url.path]
+            )
+        case .asif:
+            if #available(macOS 26, *) {
+                return DiskImageProcessCommand(
+                    executablePath: "/usr/sbin/diskutil",
+                    arguments: ["image", "attach", "--nomount", url.path]
+                )
+            } else {
+                return nil
+            }
+        case .dmg:
+            return nil
+        }
+    }
+
+    static func fileVaultDetachCommand(for format: VBManagedDiskImage.Format, deviceNode: String) -> DiskImageProcessCommand? {
+        switch format {
+        case .raw, .sparse:
+            return DiskImageProcessCommand(
+                executablePath: "/usr/bin/hdiutil",
+                arguments: ["detach", deviceNode]
+            )
+        case .asif:
+            if #available(macOS 26, *) {
+                return DiskImageProcessCommand(
+                    executablePath: "/usr/sbin/diskutil",
+                    arguments: ["eject", deviceNode]
+                )
+            } else {
+                return nil
+            }
+        case .dmg:
+            return nil
         }
     }
 
@@ -112,19 +170,12 @@ public struct VBDiskResizer {
     public static func checkFileVaultStatus(at url: URL, format: VBManagedDiskImage.Format) async -> Bool {
         guard canResizeFormat(format) else { return false }
         guard FileManager.default.fileExists(atPath: url.path) else { return false }
+        guard let attachCommand = fileVaultAttachCommand(for: format, at: url) else { return false }
 
         // Attach the disk image without mounting
         let attachProcess = Process()
-        attachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
-
-        switch format {
-        case .raw:
-            attachProcess.arguments = ["attach", "-imagekey", "diskimage-class=CRawDiskImage", "-nomount", url.path]
-        case .sparse:
-            attachProcess.arguments = ["attach", "-nomount", url.path]
-        case .dmg, .asif:
-            return false
-        }
+        attachProcess.executableURL = URL(fileURLWithPath: attachCommand.executablePath)
+        attachProcess.arguments = attachCommand.arguments
 
         let attachPipe = Pipe()
         attachProcess.standardOutput = attachPipe
@@ -139,7 +190,7 @@ public struct VBDiskResizer {
         }
 
         guard attachProcess.terminationStatus == 0 else {
-            NSLog("hdiutil attach failed for FileVault check with exit code \(attachProcess.terminationStatus)")
+            NSLog("Disk image attach failed for FileVault check with exit code \(attachProcess.terminationStatus)")
             return false
         }
 
@@ -151,12 +202,18 @@ public struct VBDiskResizer {
         }
 
         defer {
-            // Detach the disk image
-            let detachProcess = Process()
-            detachProcess.executableURL = URL(fileURLWithPath: "/usr/bin/hdiutil")
-            detachProcess.arguments = ["detach", deviceNode]
-            try? detachProcess.run()
-            detachProcess.waitUntilExit()
+            if let detachCommand = fileVaultDetachCommand(for: format, deviceNode: deviceNode) {
+                let detachProcess = Process()
+                detachProcess.executableURL = URL(fileURLWithPath: detachCommand.executablePath)
+                detachProcess.arguments = detachCommand.arguments
+
+                do {
+                    try detachProcess.run()
+                    detachProcess.waitUntilExit()
+                } catch {
+                    NSLog("Failed to detach disk image after FileVault check: \(error)")
+                }
+            }
         }
 
         // Check for locked volumes using the APFS list
@@ -221,8 +278,60 @@ public struct VBDiskResizer {
 
             return size
 
-        case .dmg, .asif:
+        case .asif:
+            if #available(macOS 26, *) {
+                let process = Process()
+                process.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+                process.arguments = ["image", "info", "--plist", url.path]
+
+                let pipe = Pipe()
+                process.standardOutput = pipe
+                process.standardError = Pipe()
+
+                try process.run()
+                process.waitUntilExit()
+
+                guard process.terminationStatus == 0 else {
+                    throw VBDiskResizeError.systemCommandFailed("diskutil image info", process.terminationStatus)
+                }
+
+                return try imageSize(fromDiskutilImageInfoPlist: pipe.fileHandleForReading.readDataToEndOfFile())
+            } else {
+                throw VBDiskResizeError.unsupportedImageFormat(format)
+            }
+
+        case .dmg:
             throw VBDiskResizeError.unsupportedImageFormat(format)
+        }
+    }
+
+    static func imageSize(fromDiskutilImageInfoPlist data: Data) throws -> UInt64 {
+        guard let plist = try PropertyListSerialization.propertyList(from: data, options: [], format: nil) as? [String: Any] else {
+            throw VBDiskResizeError.systemCommandFailed("diskutil image info", -1)
+        }
+
+        if let sizeInfo = plist["Size Info"] as? [String: Any],
+           let size = unsignedIntegerValue(sizeInfo["Total Bytes"]) {
+            return size
+        }
+
+        if let size = unsignedIntegerValue(plist["Total Bytes"]) {
+            return size
+        }
+
+        throw VBDiskResizeError.systemCommandFailed("diskutil image info", -1)
+    }
+
+    private static func unsignedIntegerValue(_ value: Any?) -> UInt64? {
+        switch value {
+        case let value as UInt64:
+            return value
+        case let value as Int:
+            return value >= 0 ? UInt64(value) : nil
+        case let value as NSNumber:
+            return value.uint64Value
+        default:
+            return nil
         }
     }
 
@@ -263,8 +372,37 @@ public struct VBDiskResizer {
             try await expandRawImageInPlace(at: url, newSize: newSize)
             try adjustGPTLayoutForRawImage(at: url, newSize: newSize)
 
-        case .dmg, .asif:
+        case .asif:
+            if #available(macOS 26, *) {
+                try await resizeASIFImage(at: url, newSize: newSize)
+            } else {
+                throw VBDiskResizeError.unsupportedImageFormat(format)
+            }
+
+        case .dmg:
             throw VBDiskResizeError.unsupportedImageFormat(format)
+        }
+    }
+
+    @available(macOS 26, *)
+    private static func resizeASIFImage(at url: URL, newSize: UInt64) async throws {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/diskutil")
+        process.arguments = ["image", "resize", "--size", "\(newSize)B", url.path]
+
+        let pipe = Pipe()
+        process.standardOutput = pipe
+        process.standardError = pipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        guard process.terminationStatus == 0 else {
+            let output = String(data: pipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? "Unknown error"
+            if output.localizedCaseInsensitiveContains("locked") {
+                throw VBDiskResizeError.apfsVolumesLocked(container: "ASIF disk image")
+            }
+            throw VBDiskResizeError.systemCommandFailed("diskutil image resize: \(output)", process.terminationStatus)
         }
     }
 
