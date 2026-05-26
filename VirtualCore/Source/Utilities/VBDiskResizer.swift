@@ -114,6 +114,27 @@ public struct VBDiskResizer {
         }
     }
 
+    static func shouldReconcilePartitions(
+        configuredSize: UInt64,
+        actualSize: UInt64,
+        format: VBManagedDiskImage.Format
+    ) -> Bool {
+        guard configuredSize == actualSize else { return false }
+
+        switch format {
+        case .raw, .sparse:
+            return true
+        case .asif:
+            if #available(macOS 26, *) {
+                return true
+            } else {
+                return false
+            }
+        case .dmg:
+            return false
+        }
+    }
+
     static func fileVaultAttachCommand(for format: VBManagedDiskImage.Format, at url: URL) -> DiskImageProcessCommand? {
         switch format {
         case .raw:
@@ -245,6 +266,18 @@ public struct VBDiskResizer {
         try await expandImageInPlace(at: url, format: format, newSize: newSize)
 
         // After resizing the disk image, attempt to expand the partition
+        try await expandPartitionsInDiskImage(at: url, format: format)
+    }
+
+    static func reconcilePartitions(at url: URL, format: VBManagedDiskImage.Format) async throws {
+        guard canResizeFormat(format) else {
+            throw VBDiskResizeError.unsupportedImageFormat(format)
+        }
+
+        guard FileManager.default.fileExists(atPath: url.path) else {
+            throw VBDiskResizeError.diskImageNotFound(url)
+        }
+
         try await expandPartitionsInDiskImage(at: url, format: format)
     }
 
@@ -434,7 +467,14 @@ public struct VBDiskResizer {
             // For sparse images, we can work with them directly
             try await expandPartitionsInSparseImage(at: url)
 
-        case .dmg, .asif:
+        case .asif:
+            if #available(macOS 26, *) {
+                try await expandPartitionsInASIFImage(at: url)
+            } else {
+                NSLog("Skipping partition expansion for unsupported format: \(format)")
+            }
+
+        case .dmg:
             // Unsupported formats — partition expansion is skipped
             NSLog("Skipping partition expansion for unsupported format: \(format)")
         }
@@ -506,6 +546,46 @@ public struct VBDiskResizer {
             detachProcess.arguments = ["detach", deviceNode]
             try? detachProcess.run()
             detachProcess.waitUntilExit()
+        }
+
+        try await resizePartitionOnDevice(deviceNode: deviceNode)
+    }
+
+    @available(macOS 26, *)
+    private static func expandPartitionsInASIFImage(at url: URL) async throws {
+        guard let attachCommand = fileVaultAttachCommand(for: .asif, at: url) else {
+            throw VBDiskResizeError.unsupportedImageFormat(.asif)
+        }
+
+        let attachProcess = Process()
+        attachProcess.executableURL = URL(fileURLWithPath: attachCommand.executablePath)
+        attachProcess.arguments = attachCommand.arguments
+
+        let attachPipe = Pipe()
+        attachProcess.standardOutput = attachPipe
+        attachProcess.standardError = Pipe()
+
+        try attachProcess.run()
+        attachProcess.waitUntilExit()
+
+        guard attachProcess.terminationStatus == 0 else {
+            throw VBDiskResizeError.systemCommandFailed("diskutil image attach", attachProcess.terminationStatus)
+        }
+
+        let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+
+        guard let deviceNode = deviceNode(fromDiskImageAttachOutput: attachOutput) else {
+            throw VBDiskResizeError.systemCommandFailed("Could not extract device node", -1)
+        }
+
+        defer {
+            if let detachCommand = fileVaultDetachCommand(for: .asif, deviceNode: deviceNode) {
+                let detachProcess = Process()
+                detachProcess.executableURL = URL(fileURLWithPath: detachCommand.executablePath)
+                detachProcess.arguments = detachCommand.arguments
+                try? detachProcess.run()
+                detachProcess.waitUntilExit()
+            }
         }
 
         try await resizePartitionOnDevice(deviceNode: deviceNode)
