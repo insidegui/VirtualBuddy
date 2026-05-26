@@ -79,4 +79,18 @@ final class DiskResizeSupportTests: XCTestCase {
         XCTAssertEqual(detachCommand?.executablePath, "/usr/bin/hdiutil")
         XCTAssertEqual(detachCommand?.arguments, ["detach", "/dev/disk4"])
     }
+
+    func testAttachOutputParserPrefersBackingDiskOverSynthesizedAPFSDevices() {
+        let output = """
+        /dev/disk10         \tEF57347C-0000-11AA-AA11-0030654\t
+        /dev/disk10s1       \t41504653-0000-11AA-AA11-0030654\t
+        /dev/disk10s2       \t41504653-0000-11AA-AA11-0030654\t
+        /dev/disk8          \tGUID_partition_scheme          \t
+        /dev/disk8s1        \tApple_APFS_ISC                 \t
+        /dev/disk8s2        \tApple_APFS                     \t
+        /dev/disk8s3        \tApple_APFS_Recovery            \t
+        """
+
+        XCTAssertEqual(VBDiskResizer.deviceNode(fromDiskImageAttachOutput: output), "/dev/disk8")
+    }
 }

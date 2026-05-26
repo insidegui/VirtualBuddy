@@ -196,7 +196,7 @@ public struct VBDiskResizer {
 
         let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
 
-        guard let deviceNode = extractDeviceNode(from: attachOutput) else {
+        guard let deviceNode = deviceNode(fromDiskImageAttachOutput: attachOutput) else {
             NSLog("Could not extract device node for FileVault check")
             return false
         }
@@ -460,7 +460,7 @@ public struct VBDiskResizer {
         let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
 
         // Extract device node (e.g., /dev/disk4)
-        guard let deviceNode = extractDeviceNode(from: attachOutput) else {
+        guard let deviceNode = deviceNode(fromDiskImageAttachOutput: attachOutput) else {
             throw VBDiskResizeError.systemCommandFailed("Could not extract device node", -1)
         }
 
@@ -496,7 +496,7 @@ public struct VBDiskResizer {
 
         let attachOutput = String(data: attachPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
 
-        guard let deviceNode = extractDeviceNode(from: attachOutput) else {
+        guard let deviceNode = deviceNode(fromDiskImageAttachOutput: attachOutput) else {
             throw VBDiskResizeError.systemCommandFailed("Could not extract device node", -1)
         }
 
@@ -511,18 +511,37 @@ public struct VBDiskResizer {
         try await resizePartitionOnDevice(deviceNode: deviceNode)
     }
 
-    private static func extractDeviceNode(from hdiutilOutput: String) -> String? {
-        // hdiutil output format: "/dev/disk4          	Apple_partition_scheme"
-        let lines = hdiutilOutput.components(separatedBy: .newlines)
+    static func deviceNode(fromDiskImageAttachOutput output: String) -> String? {
+        // hdiutil/diskutil can list synthesized APFS devices before the backing disk.
+        let lines = output.components(separatedBy: .newlines)
+        var fallbackDeviceNode: String?
+
         for line in lines {
-            if line.contains("/dev/disk") {
-                let components = line.components(separatedBy: .whitespaces)
-                if let deviceNode = components.first, deviceNode.hasPrefix("/dev/disk") {
-                    return deviceNode
-                }
+            let components = line.split(whereSeparator: { $0.isWhitespace })
+            guard let firstComponent = components.first else { continue }
+
+            let deviceNode = String(firstComponent)
+            guard deviceNode.hasPrefix("/dev/disk") else { continue }
+
+            if fallbackDeviceNode == nil {
+                fallbackDeviceNode = deviceNode
+            }
+
+            if isWholeDiskDeviceNode(deviceNode),
+               line.contains("partition_scheme") {
+                return deviceNode
             }
         }
-        return nil
+
+        return fallbackDeviceNode
+    }
+
+    private static func isWholeDiskDeviceNode(_ deviceNode: String) -> Bool {
+        let prefix = "/dev/disk"
+        guard deviceNode.hasPrefix(prefix) else { return false }
+
+        let suffix = deviceNode.dropFirst(prefix.count)
+        return !suffix.isEmpty && suffix.allSatisfy(\.isNumber)
     }
 
     private static func resizePartitionOnDevice(deviceNode: String) async throws {
