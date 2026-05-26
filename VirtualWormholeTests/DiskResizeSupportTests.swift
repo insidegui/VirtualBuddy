@@ -93,4 +93,30 @@ final class DiskResizeSupportTests: XCTestCase {
 
         XCTAssertEqual(VBDiskResizer.deviceNode(fromDiskImageAttachOutput: output), "/dev/disk8")
     }
+
+    func testRawDiskAtConfiguredSizeStillReconcilesPartitions() {
+        let size = UInt64.storageGigabyte
+
+        XCTAssertTrue(VBDiskResizer.shouldReconcilePartitions(configuredSize: size, actualSize: size, format: .raw))
+    }
+
+    func testASIFDiskAtConfiguredSizeReconcilesPartitionsOnSupportedSystems() {
+        let size = UInt64.storageGigabyte
+
+        if #available(macOS 26, *) {
+            XCTAssertTrue(VBDiskResizer.shouldReconcilePartitions(configuredSize: size, actualSize: size, format: .asif))
+        } else {
+            XCTAssertFalse(VBDiskResizer.shouldReconcilePartitions(configuredSize: size, actualSize: size, format: .asif))
+        }
+    }
+
+    func testGrowingDiskDoesNotRunSeparatePartitionReconciliationFirst() {
+        XCTAssertFalse(
+            VBDiskResizer.shouldReconcilePartitions(
+                configuredSize: 2 * .storageGigabyte,
+                actualSize: .storageGigabyte,
+                format: .raw
+            )
+        )
+    }
 }

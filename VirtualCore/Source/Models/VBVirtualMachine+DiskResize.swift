@@ -73,6 +73,14 @@ public extension VBVirtualMachine {
                 await report("\(deviceName) exceeds the configured size (\(actualDescription)); no changes made.")
             } else {
                 let currentDescription = formatter.string(fromByteCount: Int64(actualSize))
+                if VBDiskResizer.shouldReconcilePartitions(
+                    configuredSize: image.size,
+                    actualSize: actualSize,
+                    format: image.format
+                ) {
+                    await report("Verifying \(deviceName) partition layout (\(position)/\(total))...")
+                    try await VBDiskResizer.reconcilePartitions(at: imageURL, format: image.format)
+                }
                 await report("\(deviceName) already uses \(currentDescription).")
             }
         }
