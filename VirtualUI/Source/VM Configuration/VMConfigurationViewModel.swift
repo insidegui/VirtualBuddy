@@ -134,8 +134,13 @@ public final class VMConfigurationViewModel: ObservableObject {
         !pendingDiskImageResizeConfirmations.isEmpty
     }
 
-    func diskImageResizeConfirmationMessage(formatter: ByteCountFormatter) -> String {
-        let confirmations = pendingDiskImageResizeConfirmations.values.sorted { $0.deviceName < $1.deviceName }
+    func hasPendingDiskImageResizeConfirmation(for image: VBManagedDiskImage?) -> Bool {
+        guard let image else { return false }
+        return pendingDiskImageResizeConfirmations[image.id] != nil
+    }
+
+    func diskImageResizeConfirmationMessage(for image: VBManagedDiskImage? = nil, formatter: ByteCountFormatter) -> String {
+        let confirmations = sortedPendingDiskImageResizeConfirmations(for: image)
 
         if confirmations.count == 1, let confirmation = confirmations.first {
             let originalSize = formatter.string(fromByteCount: Int64(confirmation.originalSize))
@@ -149,10 +154,8 @@ public final class VMConfigurationViewModel: ObservableObject {
         return "This will resize \(confirmations.count) disk images. The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone."
     }
 
-    func firstFileVaultProtectedPendingResizeName() async -> String? {
-        let confirmations = pendingDiskImageResizeConfirmations.values.sorted { $0.deviceName < $1.deviceName }
-
-        for confirmation in confirmations {
+    func firstFileVaultProtectedPendingResizeName(for image: VBManagedDiskImage? = nil) async -> String? {
+        for confirmation in sortedPendingDiskImageResizeConfirmations(for: image) {
             if await vm.checkFileVaultForDiskImage(confirmation.image) {
                 return confirmation.deviceName
             }
@@ -161,12 +164,20 @@ public final class VMConfigurationViewModel: ObservableObject {
         return nil
     }
 
-    func confirmPendingDiskImageResizes() {
-        for confirmation in pendingDiskImageResizeConfirmations.values {
+    func confirmPendingDiskImageResizes(for image: VBManagedDiskImage? = nil) {
+        for confirmation in sortedPendingDiskImageResizeConfirmations(for: image) {
             markDiskImageResizePending(for: confirmation.image)
+            pendingDiskImageResizeConfirmations.removeValue(forKey: confirmation.image.id)
+        }
+    }
+
+    private func sortedPendingDiskImageResizeConfirmations(for image: VBManagedDiskImage? = nil) -> [PendingDiskImageResizeConfirmation] {
+        if let image {
+            guard let confirmation = pendingDiskImageResizeConfirmations[image.id] else { return [] }
+            return [confirmation]
         }
 
-        pendingDiskImageResizeConfirmations.removeAll()
+        return pendingDiskImageResizeConfirmations.values.sorted { $0.deviceName < $1.deviceName }
     }
 
     func applyPendingDiskImageResizeIDs(to metadata: inout VBVirtualMachine.Metadata) {
