@@ -172,16 +172,21 @@ public final class VMController: ObservableObject {
 
         await waitForGuestDiskImageReadyIfNeeded()
 
-        // Check and resize disk images if needed
-        do {
-            state = .resizingDisk("Preparing disk resize...")
-            try await virtualMachineModel.checkAndResizeDiskImages { message in
-                self.state = .resizingDisk(message)
+        if virtualMachineModel.hasPendingDiskImageResizes {
+            do {
+                state = .resizingDisk("Preparing disk resize...")
+                var updatedModel = virtualMachineModel
+                try await updatedModel.checkAndResizeDiskImages { message in
+                    self.state = .resizingDisk(message)
+                }
+                virtualMachineModel = updatedModel
+                state = .starting("Starting virtual machine...")
+            } catch {
+                logger.warning("Failed to resize disk images: \(error, privacy: .public)")
+                presentDiskResizeError(error)
+                state = .starting("Starting virtual machine...")
             }
-            state = .starting("Starting virtual machine...")
-        } catch {
-            logger.warning("Failed to resize disk images: \(error, privacy: .public)")
-            presentDiskResizeError(error)
+        } else {
             state = .starting("Starting virtual machine...")
         }
 

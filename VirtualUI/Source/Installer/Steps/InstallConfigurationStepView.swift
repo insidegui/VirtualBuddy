@@ -20,7 +20,7 @@ struct InstallConfigurationStepView: View {
     }
     
     var body: some View {
-        VMConfigurationSheet(configuration: $vm.configuration, customConfirmationButtonAction: { configuration in
+        VMConfigurationSheet(configuration: $vm.configuration, metadata: $vm.metadata, customConfirmationButtonAction: { configuration in
             var updatedVM = vm
             updatedVM.configuration = configuration
             self.vm = updatedVM

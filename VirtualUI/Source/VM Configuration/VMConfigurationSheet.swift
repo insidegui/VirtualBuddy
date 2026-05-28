@@ -22,20 +22,42 @@ public struct VMConfigurationSheet: View {
     /// Setting this saves the configuration.
     @Binding private var savedConfiguration: VBMacConfiguration
 
+    @Binding private var savedMetadata: VBVirtualMachine.Metadata
+    private var appliesMetadataChanges: Bool
+
     @State private var showValidationErrors = false
+    @State private var showResizeConfirmation = false
+    @State private var showFileVaultError = false
+    @State private var fileVaultErrorMessage = ""
+    @State private var isPreparingDiskResize = false
     
     private var showsCancelButton: Bool { viewModel.context == .postInstall }
     private var customConfirmationButtonAction: ((VBMacConfiguration) -> Void)? = nil
+
+    private let diskResizeFormatter: ByteCountFormatter = {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useGB, .useMB, .useTB]
+        formatter.formattingContext = .standalone
+        formatter.countStyle = .binary
+        return formatter
+    }()
     
     /// Initializes the VM configuration sheet, bound to a VM configuration model.
     /// - Parameter configuration: The binding that will be updated when the user saves the configuration by clicking the "Done" button.
-    public init(configuration: Binding<VBMacConfiguration>) {
-        self.init(configuration: configuration, showingValidationErrors: false)
+    public init(configuration: Binding<VBMacConfiguration>, metadata: Binding<VBVirtualMachine.Metadata>? = nil) {
+        self.init(configuration: configuration, metadata: metadata, showingValidationErrors: false)
     }
     
-    init(configuration: Binding<VBMacConfiguration>, showingValidationErrors: Bool = false, customConfirmationButtonAction: ((VBMacConfiguration) -> Void)? = nil) {
+    init(
+        configuration: Binding<VBMacConfiguration>,
+        metadata: Binding<VBVirtualMachine.Metadata>? = nil,
+        showingValidationErrors: Bool = false,
+        customConfirmationButtonAction: ((VBMacConfiguration) -> Void)? = nil
+    ) {
         self.initialConfiguration = configuration.wrappedValue
         self._savedConfiguration = configuration
+        self._savedMetadata = metadata ?? .constant(VBVirtualMachine.Metadata())
+        self.appliesMetadataChanges = metadata != nil
         self._showValidationErrors = .init(wrappedValue: showingValidationErrors)
         self.customConfirmationButtonAction = customConfirmationButtonAction
     }
@@ -81,7 +103,7 @@ public struct VMConfigurationSheet: View {
                     validateAndSave()
                 }
                 .keyboardShortcut(.defaultAction)
-                .disabled(showValidationErrors)
+                .disabled(showValidationErrors || isPreparingDiskResize)
             }
         }
         .onChange(of: viewModel.config) { _, newValue in
@@ -92,6 +114,19 @@ public struct VMConfigurationSheet: View {
                     showValidationErrors = false
                 }
             }
+        }
+        .alert("Resize Disk Image", isPresented: $showResizeConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Resize") {
+                confirmDiskResizeAndSave()
+            }
+        } message: {
+            Text(viewModel.diskImageResizeConfirmationMessage(formatter: diskResizeFormatter))
+        }
+        .alert("FileVault Enabled", isPresented: $showFileVaultError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(fileVaultErrorMessage)
         }
     }
     
@@ -110,14 +145,56 @@ public struct VMConfigurationSheet: View {
             let state = await viewModel.validate()
             
             guard state.allowsSaving else { return }
-            
-            savedConfiguration = viewModel.config
-            
-            if let customConfirmationButtonAction {
-                customConfirmationButtonAction(savedConfiguration)
-            } else {
-                dismiss()
+
+            if viewModel.hasPendingDiskImageResizeConfirmations {
+                await MainActor.run {
+                    showValidationErrors = false
+                    showResizeConfirmation = true
+                }
+                return
             }
+
+            await MainActor.run {
+                showValidationErrors = false
+                saveConfiguration()
+            }
+        }
+    }
+
+    private func confirmDiskResizeAndSave() {
+        isPreparingDiskResize = true
+
+        Task {
+            if let deviceName = await viewModel.firstFileVaultProtectedPendingResizeName() {
+                await MainActor.run {
+                    fileVaultErrorMessage = "The \(deviceName) disk has FileVault encryption enabled. To resize the disk, you must first disable FileVault in the guest operating system's System Settings, then restart the virtual machine before attempting to resize again."
+                    showFileVaultError = true
+                    isPreparingDiskResize = false
+                }
+                return
+            }
+
+            await MainActor.run {
+                viewModel.confirmPendingDiskImageResizes()
+                isPreparingDiskResize = false
+                saveConfiguration()
+            }
+        }
+    }
+
+    private func saveConfiguration() {
+        savedConfiguration = viewModel.config
+
+        if appliesMetadataChanges {
+            var metadata = savedMetadata
+            viewModel.applyPendingDiskImageResizeIDs(to: &metadata)
+            savedMetadata = metadata
+        }
+
+        if let customConfirmationButtonAction {
+            customConfirmationButtonAction(savedConfiguration)
+        } else {
+            dismiss()
         }
     }
     

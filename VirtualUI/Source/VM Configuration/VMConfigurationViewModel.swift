@@ -13,6 +13,15 @@ public enum VMConfigurationContext: Int {
     case postInstall
 }
 
+struct PendingDiskImageResizeConfirmation: Identifiable, Hashable {
+    var image: VBManagedDiskImage
+    var originalSize: UInt64
+    var proposedSize: UInt64
+    var deviceName: String
+
+    var id: String { image.id }
+}
+
 public final class VMConfigurationViewModel: ObservableObject {
     
     @Published var config: VBMacConfiguration {
@@ -38,6 +47,10 @@ public final class VMConfigurationViewModel: ObservableObject {
     @Published var selectedDisplayPreset: VBDisplayPreset?
     
     @Published private(set) var vm: VBVirtualMachine
+
+    @Published private(set) var pendingDiskImageResizeIDs = Set<String>()
+
+    @Published private(set) var pendingDiskImageResizeConfirmations = [String: PendingDiskImageResizeConfirmation]()
 
     public let context: VMConfigurationContext
     
@@ -81,6 +94,85 @@ public final class VMConfigurationViewModel: ObservableObject {
         var device = config.hardware.storageDevices[idx]
         device.backing = .managedImage(image)
         config.hardware.addOrUpdate(device)
+    }
+
+    func markDiskImageResizePending(for image: VBManagedDiskImage) {
+        pendingDiskImageResizeIDs.insert(image.id)
+    }
+
+    func clearPendingDiskImageResize(for image: VBManagedDiskImage) {
+        pendingDiskImageResizeIDs.remove(image.id)
+        pendingDiskImageResizeConfirmations.removeValue(forKey: image.id)
+    }
+
+    func updateDiskImageResizeConfirmation(
+        for image: VBManagedDiskImage,
+        originalSize: UInt64,
+        deviceName: String,
+        isExistingDiskImage: Bool,
+        canResize: Bool
+    ) {
+        guard VBManagedDiskImage.requiresResizeConfirmation(
+            isExistingDiskImage: isExistingDiskImage,
+            canResize: canResize,
+            originalSize: originalSize,
+            proposedSize: image.size
+        ) else {
+            clearPendingDiskImageResize(for: image)
+            return
+        }
+
+        pendingDiskImageResizeConfirmations[image.id] = PendingDiskImageResizeConfirmation(
+            image: image,
+            originalSize: originalSize,
+            proposedSize: image.size,
+            deviceName: deviceName
+        )
+    }
+
+    var hasPendingDiskImageResizeConfirmations: Bool {
+        !pendingDiskImageResizeConfirmations.isEmpty
+    }
+
+    func diskImageResizeConfirmationMessage(formatter: ByteCountFormatter) -> String {
+        let confirmations = pendingDiskImageResizeConfirmations.values.sorted { $0.deviceName < $1.deviceName }
+
+        if confirmations.count == 1, let confirmation = confirmations.first {
+            let originalSize = formatter.string(fromByteCount: Int64(confirmation.originalSize))
+            let proposedSize = formatter.string(fromByteCount: Int64(confirmation.proposedSize))
+
+            return "This will resize the disk image from \(originalSize) to \(proposedSize). The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone."
+        }
+
+        guard !confirmations.isEmpty else { return "" }
+
+        return "This will resize \(confirmations.count) disk images. The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone."
+    }
+
+    func firstFileVaultProtectedPendingResizeName() async -> String? {
+        let confirmations = pendingDiskImageResizeConfirmations.values.sorted { $0.deviceName < $1.deviceName }
+
+        for confirmation in confirmations {
+            if await vm.checkFileVaultForDiskImage(confirmation.image) {
+                return confirmation.deviceName
+            }
+        }
+
+        return nil
+    }
+
+    func confirmPendingDiskImageResizes() {
+        for confirmation in pendingDiskImageResizeConfirmations.values {
+            markDiskImageResizePending(for: confirmation.image)
+        }
+
+        pendingDiskImageResizeConfirmations.removeAll()
+    }
+
+    func applyPendingDiskImageResizeIDs(to metadata: inout VBVirtualMachine.Metadata) {
+        for imageID in pendingDiskImageResizeIDs {
+            metadata.pendingDiskImageResizeIDs.insert(imageID)
+        }
     }
     
 }

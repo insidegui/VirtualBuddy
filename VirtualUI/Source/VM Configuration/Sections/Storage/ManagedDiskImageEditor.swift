@@ -37,14 +37,11 @@ struct ManagedDiskImageEditor: View {
     }()
 
     @State private var nameError: String?
-    @State private var isResizing = false
-    @State private var showResizeConfirmation = false
-    @State private var showFileVaultError = false
-    @State private var newSize: UInt64 = 0
-    @State private var sliderTimer: Timer?
 
     @Environment(\.dismiss)
     private var dismiss
+
+    @EnvironmentObject private var viewModel: VMConfigurationViewModel
 
     var body: some View {
         VStack(alignment: .leading) {
@@ -59,26 +56,45 @@ struct ManagedDiskImageEditor: View {
                 }
             }
 
-            let maximumSize = isBootVolume ? VBManagedDiskImage.maximumBootDiskImageSize : VBManagedDiskImage.maximumExtraDiskImageSize
-            HStack {
+            HStack(alignment: .top) {
                 NumericPropertyControl(
                     value: $image.size.gbStorageValue,
-                    range: minimumSize.gbStorageValue...maximumSize.gbStorageValue,
+                    range: selectableSizeRangeInGigabytes,
+                    step: 1,
                     hideSlider: isExistingDiskImage && !canResize,
                     label: isBootVolume ? "Boot Disk Size (GB)" : "Disk Image Size (GB)",
                     formatter: NumberFormatter.numericPropertyControlDefault
                 )
-                .disabled((isExistingDiskImage && !canResize) || isResizing)
+                .disabled(isExistingDiskImage && !canResize)
                 .foregroundColor(sizeWarning != nil ? .yellow : .primary)
 
-                if isResizing {
-                    ProgressView()
-                        .scaleEffect(0.5)
-                        .frame(width: 16, height: 16)
+                if isExistingDiskImage && canResize {
+                    Stepper(
+                        value: $image.size.gbStorageValue,
+                        in: selectableSizeRangeInGigabytes,
+                        step: 1
+                    ) { EmptyView() }
+                        .labelsHidden()
+                        .disabled(!canIncreaseSize)
+                        .help("Adjust disk size by 1 GB")
                 }
             }
 
             VStack(alignment: .leading, spacing: 8) {
+                if isExistingDiskImage && canResize {
+                    HStack(spacing: 8) {
+                        Button("Use Maximum") {
+                            image.size = maximumSelectableSize
+                        }
+                        .controlSize(.small)
+                        .disabled(!canIncreaseSize || image.size == maximumSelectableSize)
+
+                        if let storageLimitMessage {
+                            Text(storageLimitMessage)
+                        }
+                    }
+                }
+
                 if !isExistingDiskImage, !isBootVolume {
                     Text("You'll have to use Disk Utility in the guest operating system to initialize the disk image. If you see an error after it boots up, choose the \"Initialize\" option.")
                         .foregroundColor(.yellow)
@@ -111,35 +127,63 @@ struct ManagedDiskImageEditor: View {
                 .lineLimit(nil)
         }
         .onChange(of: image) { _, newValue in
-            // TODO: Extract the resize slider confirmation flow into a reusable component.
-            if isExistingDiskImage && canResize && newValue.size != minimumSize {
-                // Cancel any existing timer
-                sliderTimer?.invalidate()
+            viewModel.updateDiskImageResizeConfirmation(
+                for: newValue,
+                originalSize: minimumSize,
+                deviceName: deviceName,
+                isExistingDiskImage: isExistingDiskImage,
+                canResize: canResize
+            )
+            onSave(newValue)
+        }
+        .onAppear {
+            image.size = image.size.limited(to: selectableSizeRange)
+        }
+    }
 
-                // Set a timer to show confirmation after user stops sliding
-                sliderTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
-                    newSize = newValue.size
-                    showResizeConfirmation = true
-                }
-            } else {
-                onSave(newValue)
-            }
-        }
-        .alert("Resize Disk Image", isPresented: $showResizeConfirmation) {
-            Button("Cancel", role: .cancel) {
-                image.size = minimumSize
-            }
-            Button("Resize") {
-                performResize()
-            }
-        } message: {
-                Text("This will resize the disk image from \(formatter.string(fromByteCount: Int64(minimumSize))) to \(formatter.string(fromByteCount: Int64(newSize))). The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone.")
-        }
-        .alert("FileVault Enabled", isPresented: $showFileVaultError) {
-            Button("OK", role: .cancel) { }
-        } message: {
-            Text("This disk has FileVault encryption enabled. To resize the disk, you must first disable FileVault in the guest operating system's System Settings, then restart the virtual machine before attempting to resize again.")
-        }
+    private var configuredMaximumSize: UInt64 {
+        isBootVolume ? VBManagedDiskImage.maximumBootDiskImageSize : VBManagedDiskImage.maximumExtraDiskImageSize
+    }
+
+    private var maximumSelectableSize: UInt64 {
+        let libraryURL = VBSettingsContainer.current.settings.libraryURL
+
+        let rawMaximum = VBManagedDiskImage.maximumSelectableSize(
+            configuredMaximum: configuredMaximumSize,
+            minimumSize: minimumSize,
+            existingImageSize: isExistingDiskImage ? minimumSize : nil,
+            availableSpace: libraryURL.freeDiskSpaceOnVolume,
+            volumeCapacity: libraryURL.totalDiskSpaceOnVolume
+        )
+
+        let gigabyteAlignedMaximum = UInt64(rawMaximum.gbStorageValue) * .storageGigabyte
+        return max(minimumSize, gigabyteAlignedMaximum)
+    }
+
+    private var selectableSizeRange: ClosedRange<UInt64> {
+        minimumSize...maximumSelectableSize
+    }
+
+    private var selectableSizeRangeInGigabytes: ClosedRange<Int> {
+        minimumSize.gbStorageValue...maximumSelectableSize.gbStorageValue
+    }
+
+    private var canIncreaseSize: Bool {
+        maximumSelectableSize > minimumSize
+    }
+
+    private var deviceName: String {
+        isBootVolume ? "Boot" : image.filename
+    }
+
+    private var storageLimitMessage: String? {
+        guard canResize else { return nil }
+        guard let availableSpace = VBSettingsContainer.current.settings.libraryURL.freeDiskSpaceOnVolume else { return nil }
+
+        let availableDescription = formatter.string(fromByteCount: Int64(availableSpace))
+        let maximumDescription = formatter.string(fromByteCount: Int64(maximumSelectableSize))
+
+        return "Up to \(maximumDescription), based on \(availableDescription) free on \(volumeDescription)."
     }
 
     private var sizeMessagePrefix: String? {
@@ -169,41 +213,18 @@ struct ManagedDiskImageEditor: View {
 
     private var sizeWarning: String? {
         guard !VBSettingsContainer.current.libraryVolumeCanFit(image.size) else { return nil }
-        let volumeDescription: String
-        if let volumeName = VBSettingsContainer.current.settings.libraryURL.containingVolumeName {
-            volumeDescription = "\"\(volumeName)\""
-        } else {
-            volumeDescription = "where your library is stored"
-        }
 
         return "The volume \(volumeDescription) doesn't have enough free space to fit the full size of the disk image."
     }
 
-    private func performResize() {
-        isResizing = true
-
-        Task {
-            // Check for FileVault before proceeding with resize
-            let hasFileVault = await virtualMachine.checkFileVaultForDiskImage(image)
-
-            await MainActor.run {
-                if hasFileVault {
-                    // Reset size and show FileVault error
-                    image.size = minimumSize
-                    isResizing = false
-                    showFileVaultError = true
-                } else {
-                    // Proceed with resize
-                    image.size = newSize
-                    onSave(image)
-                    isResizing = false
-                }
-            }
-
-            // The actual resize will happen automatically when VM starts or restarts
-            // due to the size mismatch detection in checkAndResizeDiskImages()
+    private var volumeDescription: String {
+        if let volumeName = VBSettingsContainer.current.settings.libraryURL.containingVolumeName {
+            return "\"\(volumeName)\""
+        } else {
+            return "where your library is stored"
         }
     }
+
 }
 
 #if DEBUG
