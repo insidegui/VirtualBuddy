@@ -15,8 +15,12 @@ public extension VBVirtualMachine {
     typealias DiskResizeProgressHandler = @MainActor (_ message: String) -> Void
 
     /// Checks if any disk images need resizing based on configuration vs actual size
-    func checkAndResizeDiskImages(progressHandler: DiskResizeProgressHandler? = nil) async throws {
+    mutating func checkAndResizeDiskImages(progressHandler: DiskResizeProgressHandler? = nil) async throws {
         let config = configuration
+
+        guard metadata.hasPendingDiskImageResizes else { return }
+
+        let pendingImageIDs = metadata.pendingDiskImageResizeIDs
 
         func report(_ message: String) async {
             guard let progressHandler else { return }
@@ -27,12 +31,13 @@ public extension VBVirtualMachine {
 
         let resizableDevices = config.hardware.storageDevices.compactMap { device -> (VBStorageDevice, VBManagedDiskImage)? in
             guard case .managedImage(let image) = device.backing else { return nil }
+            guard pendingImageIDs.contains(image.id) else { return nil }
             guard image.canBeResized else { return nil }
             return (device, image)
         }
 
         guard !resizableDevices.isEmpty else {
-            await report("Disk images already match their configured sizes.")
+            metadata.pendingDiskImageResizeIDs.removeAll()
             return
         }
 
@@ -56,6 +61,7 @@ public extension VBVirtualMachine {
 
             guard FileManager.default.fileExists(atPath: imageURL.path) else {
                 await report("Skipping \(deviceName): disk image not found.")
+                metadata.clearPendingDiskImageResize(for: image)
                 continue
             }
 
@@ -68,9 +74,11 @@ public extension VBVirtualMachine {
                 try await resizeDiskImage(image, to: image.size)
 
                 await report("\(deviceName) expanded successfully.")
+                metadata.clearPendingDiskImageResize(for: image)
             } else if image.size < actualSize {
                 let actualDescription = formatter.string(fromByteCount: Int64(actualSize))
                 await report("\(deviceName) exceeds the configured size (\(actualDescription)); no changes made.")
+                metadata.clearPendingDiskImageResize(for: image)
             } else {
                 let currentDescription = formatter.string(fromByteCount: Int64(actualSize))
                 if VBDiskResizer.shouldReconcilePartitions(
@@ -82,6 +90,7 @@ public extension VBVirtualMachine {
                     try await VBDiskResizer.reconcilePartitions(at: imageURL, format: image.format)
                 }
                 await report("\(deviceName) already uses \(currentDescription).")
+                metadata.clearPendingDiskImageResize(for: image)
             }
         }
 

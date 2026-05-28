@@ -159,6 +159,32 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
             false
         }
     }
+
+    public static func maximumSelectableSize(
+        configuredMaximum: UInt64,
+        minimumSize: UInt64,
+        existingImageSize: UInt64?,
+        availableSpace: UInt64?,
+        volumeCapacity: UInt64?
+    ) -> UInt64 {
+        let availableLimit = availableSpace.map { available in
+            (existingImageSize ?? 0) + available
+        } ?? configuredMaximum
+
+        let capacityLimit = volumeCapacity ?? configuredMaximum
+        let storageLimit = min(availableLimit, capacityLimit)
+
+        return max(minimumSize, min(configuredMaximum, storageLimit))
+    }
+
+    public static func requiresResizeConfirmation(
+        isExistingDiskImage: Bool,
+        canResize: Bool,
+        originalSize: UInt64,
+        proposedSize: UInt64
+    ) -> Bool {
+        isExistingDiskImage && canResize && proposedSize > originalSize
+    }
 }
 
 /// Configures a storage device.

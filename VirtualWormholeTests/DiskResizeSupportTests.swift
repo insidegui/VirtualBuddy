@@ -10,6 +10,108 @@ import XCTest
 
 final class DiskResizeSupportTests: XCTestCase {
 
+    @MainActor
+    func testDiskResizeCheckDoesNothingWithoutPendingMetadataFlag() async throws {
+        let bundleURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathExtension(VBVirtualMachine.bundleExtension)
+        defer { try? FileManager.default.removeItem(at: bundleURL) }
+
+        var vm = try VBVirtualMachine(bundleURL: bundleURL, isNewInstall: true)
+        let image = VBManagedDiskImage(id: "boot-disk", filename: "Disk", size: 2 * .storageGigabyte, format: .raw)
+        vm.configuration.hardware.storageDevices = [
+            VBStorageDevice(
+                id: "boot",
+                isBootVolume: true,
+                isReadOnly: false,
+                isUSBMassStorageDevice: false,
+                backing: .managedImage(image)
+            )
+        ]
+
+        var messages = [String]()
+        try await vm.checkAndResizeDiskImages { message in
+            messages.append(message)
+        }
+
+        XCTAssertTrue(messages.isEmpty)
+    }
+
+    func testMetadataTracksPendingDiskResizeIDs() {
+        let image = VBManagedDiskImage(id: "boot-disk", filename: "Disk", size: .storageGigabyte, format: .raw)
+        var metadata = VBVirtualMachine.Metadata()
+
+        XCTAssertFalse(metadata.hasPendingDiskImageResizes)
+
+        metadata.markDiskImageResizePending(for: image)
+
+        XCTAssertTrue(metadata.hasPendingDiskImageResizes)
+        XCTAssertEqual(metadata.pendingDiskImageResizeIDs, ["boot-disk"])
+
+        metadata.clearPendingDiskImageResize(for: image)
+
+        XCTAssertFalse(metadata.hasPendingDiskImageResizes)
+    }
+
+    func testSelectableResizeLimitUsesOnlyAvailableHostSpace() {
+        let currentSize = 64 * UInt64.storageGigabyte
+        let maximumSize = 512 * UInt64.storageGigabyte
+        let availableSpace = 24 * UInt64.storageGigabyte
+
+        let limit = VBManagedDiskImage.maximumSelectableSize(
+            configuredMaximum: maximumSize,
+            minimumSize: currentSize,
+            existingImageSize: currentSize,
+            availableSpace: availableSpace,
+            volumeCapacity: 256 * .storageGigabyte
+        )
+
+        XCTAssertEqual(limit, 88 * .storageGigabyte)
+    }
+
+    func testSelectableResizeLimitNeverFallsBelowMinimumSize() {
+        let currentSize = 128 * UInt64.storageGigabyte
+
+        let limit = VBManagedDiskImage.maximumSelectableSize(
+            configuredMaximum: 512 * .storageGigabyte,
+            minimumSize: currentSize,
+            existingImageSize: currentSize,
+            availableSpace: 4 * .storageGigabyte,
+            volumeCapacity: 96 * .storageGigabyte
+        )
+
+        XCTAssertEqual(limit, currentSize)
+    }
+
+    func testResizeConfirmationIsOnlyRequiredForExplicitExpansion() {
+        XCTAssertTrue(
+            VBManagedDiskImage.requiresResizeConfirmation(
+                isExistingDiskImage: true,
+                canResize: true,
+                originalSize: 64 * .storageGigabyte,
+                proposedSize: 128 * .storageGigabyte
+            )
+        )
+
+        XCTAssertFalse(
+            VBManagedDiskImage.requiresResizeConfirmation(
+                isExistingDiskImage: true,
+                canResize: true,
+                originalSize: 64 * .storageGigabyte,
+                proposedSize: 64 * .storageGigabyte
+            )
+        )
+
+        XCTAssertFalse(
+            VBManagedDiskImage.requiresResizeConfirmation(
+                isExistingDiskImage: false,
+                canResize: true,
+                originalSize: 64 * .storageGigabyte,
+                proposedSize: 128 * .storageGigabyte
+            )
+        )
+    }
+
     func testASIFResizeSupportMatchesPlatformSupport() {
         let image = VBManagedDiskImage(filename: "Disk", size: .storageGigabyte, format: .asif)
 
