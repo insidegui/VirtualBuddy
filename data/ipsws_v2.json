@@ -231,6 +231,18 @@
       "version" : "26.6.0"
     },
     {
+      "build" : "25F80",
+      "channel" : "regular",
+      "downloadSize" : 19769808058,
+      "group" : "tahoe",
+      "id" : "25F80",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 26.5.1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SpringFCS\/fullrestores\/122-88870\/E47EBB85-45F2-4E3C-B9E7-6FF7868C2FBA\/UniversalMac_26.5.1_25F80_Restore.ipsw",
+      "version" : "26.5.1"
+    },
+    {
       "build" : "25F71",
       "channel" : "regular",
       "downloadSize" : 19769944180,
