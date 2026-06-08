@@ -78,6 +78,31 @@
   "groups" : [
     {
       "darkImage" : {
+        "id" : "goldengate",
+        "thumbnail" : {
+          "blurHash" : "U14U{d%3xx%5xxM^M_tTDzRhxwt8D|t9ogM^",
+          "height" : 2048,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/goldengate-dark-thumbnail.heic",
+          "width" : 2048
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/goldengate-dark.heic"
+      },
+      "id" : "goldengate",
+      "image" : {
+        "id" : "goldengate",
+        "thumbnail" : {
+          "blurHash" : "UKIh55=W%K?a}:NHM}%L4:R-t7-pNHxat6M{",
+          "height" : 2048,
+          "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/goldengate-thumbnail.heic",
+          "width" : 2048
+        },
+        "url" : "https:\/\/api.virtualbuddy.app\/v2\/images\/goldengate.heic"
+      },
+      "majorVersion" : "27.0.0",
+      "name" : "macOS Golden Gate"
+    },
+    {
+      "darkImage" : {
         "id" : "tahoe",
         "thumbnail" : {
           "blurHash" : "UfG0bS?9S1Rn~Pr@R.ofs+S6jFt3EBIZt5oJ",
@@ -218,6 +243,18 @@
     }
   ],
   "restoreImages" : [
+    {
+      "build" : "26A5353q",
+      "channel" : "devbeta",
+      "downloadSize" : 22569026466,
+      "group" : "goldengate",
+      "id" : "26A5353q",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 27.0 Developer Beta 1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SummerSeed\/fullrestores\/122-99636\/BB03A927-E303-44C1-BB94-6197F130A163\/UniversalMac_27.0_26A5353q_Restore.ipsw",
+      "version" : "27.0.0"
+    },
     {
       "build" : "25G5028f",
       "channel" : "devbeta",
