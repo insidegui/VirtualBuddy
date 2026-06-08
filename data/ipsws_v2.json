@@ -240,7 +240,19 @@
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
       "minVersionHost" : "13.0.0"
-    }
+    },
+        {
+            "id": "min_host_26",
+            "minCPUCount": 2,
+            "minMemorySizeMB": 4096,
+            "minVersionHost": "26.0.0"
+        },
+        {
+            "id": "min_host_27",
+            "minCPUCount": 2,
+            "minMemorySizeMB": 4096,
+            "minVersionHost": "27.0.0"
+        }
   ],
   "restoreImages" : [
     {
@@ -263,7 +275,7 @@
       "id" : "25G5028f",
       "mobileDeviceMinVersion" : "1827.100.14",
       "name" : "macOS 26.6 Developer Beta 1",
-      "requirements" : "min_host_13",
+      "requirements" : "min_host_27",
       "url" : "https:\/\/updates.cdn-apple.com\/2026SpringSeed\/fullrestores\/122-66788\/E1D3F6EB-514E-4A9B-833A-2A82621ACA18\/UniversalMac_26.6_25G5028f_Restore.ipsw",
       "version" : "26.6.0"
     },
