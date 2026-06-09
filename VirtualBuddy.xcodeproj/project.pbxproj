@@ -89,6 +89,8 @@
 		F42C01612888FC3500EB15CD /* LibraryItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42C01602888FC3500EB15CD /* LibraryItemView.swift */; };
 		F42CF4A82DF5FEC3001DE049 /* BlurHashToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */; };
 		F43076E32FD8B19B002BB1EC /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = F43076E22FD8B19B002BB1EC /* SwiftUIIntrospect */; };
+		F43087DF2FD8C255002BB1EC /* KeychainPasswordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43087DD2FD8C255002BB1EC /* KeychainPasswordItem.swift */; };
+		F43087E02FD8C255002BB1EC /* KeychainReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43087DE2FD8C255002BB1EC /* KeychainReference.swift */; };
 		F436BC572FBF8F96007840E4 /* AirVisualEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */; };
 		F436BC582FBF8F96007840E4 /* AirGlassEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */; };
 		F436BC592FBF8F96007840E4 /* AirMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */; };
@@ -616,6 +618,8 @@
 		F42C01592888FC0C00EB15CD /* SettingsScreen.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		F42C01602888FC3500EB15CD /* LibraryItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryItemView.swift; sourceTree = "<group>"; };
 		F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
+		F43087DD2FD8C255002BB1EC /* KeychainPasswordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainPasswordItem.swift; sourceTree = "<group>"; };
+		F43087DE2FD8C255002BB1EC /* KeychainReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainReference.swift; sourceTree = "<group>"; };
 		F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirGlassEffect.swift; sourceTree = "<group>"; };
 		F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirMaterial.swift; sourceTree = "<group>"; };
 		F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirVisualEffect.swift; sourceTree = "<group>"; };
@@ -1922,6 +1926,8 @@
 				F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */,
 				F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */,
 				F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */,
+				F43087DD2FD8C255002BB1EC /* KeychainPasswordItem.swift */,
+				F43087DE2FD8C255002BB1EC /* KeychainReference.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -2740,6 +2746,8 @@
 				F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */,
 				F47BCDD72C5D2B4600165191 /* CatalogExtensions.swift in Sources */,
 				F4BE9C7827FF055100B648F8 /* MacOSVirtualMachineConfigurationHelper.swift in Sources */,
+				F43087DF2FD8C255002BB1EC /* KeychainPasswordItem.swift in Sources */,
+				F43087E02FD8C255002BB1EC /* KeychainReference.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
 				F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,

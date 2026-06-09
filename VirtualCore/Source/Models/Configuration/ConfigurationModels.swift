@@ -52,7 +52,7 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     @DecodableDefault.True public var captureSystemKeys = true
 
-    @DecodableDefault.EmptyPlaceholder public var provisioning = VBMacProvisioningConfiguration.empty
+    public var provisioning: VBMacProvisioningConfiguration? = nil
 
     public var hasSharedFolders: Bool { !sharedFolders.filter(\.isEnabled).isEmpty }
 
@@ -362,24 +362,22 @@ public struct VBMacDevice: Hashable, Codable {
 
 // MARK: - Provisioning
 
-public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable, ProvidesEmptyPlaceholder {
+public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
     public var isEnabled: Bool
     public var enablesRemoteLogin: Bool
+    public var logsInAutomatically: Bool
     public var fullName: String
     public var username: String
-    public var password: String
-    public var logsInAutomatically: Bool
+    @KeychainReference public var password: String
 
-    public init(isEnabled: Bool = false, enablesRemoteLogin: Bool = false, fullName: String = "", username: String = "", password: String = "", logsInAutomatically: Bool = false) {
+    public init(isEnabled: Bool = false, enablesRemoteLogin: Bool = false, logsInAutomatically: Bool = false, fullName: String = "", username: String = "", password: KeychainReference) {
         self.isEnabled = isEnabled
         self.enablesRemoteLogin = enablesRemoteLogin
+        self.logsInAutomatically = logsInAutomatically
         self.fullName = fullName
         self.username = username
-        self.password = password
-        self.logsInAutomatically = logsInAutomatically
+        self._password = password
     }
-
-    public static let empty = VBMacProvisioningConfiguration()
 
     public struct ValidationError: LocalizedError {
         public let property: PartialKeyPath<VBMacProvisioningConfiguration>

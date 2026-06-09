@@ -63,8 +63,7 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
 
     @available(macOS 27.0, *)
     static func createProvisioningOptions(for vm: VBVirtualMachine) -> VZMacGuestProvisioningOptions? {
-        let provisioning = vm.configuration.provisioning
-        guard provisioning.isEnabled else { return nil }
+        guard let provisioning = vm.configuration.provisioning, provisioning.isEnabled else { return nil }
 
         let options = VZMacGuestProvisioningOptions()
 
