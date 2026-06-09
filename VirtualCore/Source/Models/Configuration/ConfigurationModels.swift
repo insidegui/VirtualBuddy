@@ -380,6 +380,37 @@ public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable, Provi
     }
 
     public static let empty = VBMacProvisioningConfiguration()
+
+    public struct ValidationError: LocalizedError {
+        public let property: PartialKeyPath<VBMacProvisioningConfiguration>
+        public let message: String
+
+        init(property: PartialKeyPath<VBMacProvisioningConfiguration>, message: String) {
+            self.property = property
+            self.message = message
+        }
+
+        public var errorDescription: String? { "Invalid Provisioning Configuration" }
+        public var failureReason: String? { message }
+    }
+
+    public func validationErrors() -> [ValidationError] {
+        guard isEnabled else { return [] }
+
+        var errors = [ValidationError]()
+
+        if fullName.isEmpty {
+            errors.append(ValidationError(property: \.fullName, message: "Full name can't be empty."))
+        }
+        if username.isEmpty {
+            errors.append(ValidationError(property: \.username, message: "Username name can't be empty."))
+        }
+        if !password.isEmpty, password.count < 4 {
+            errors.append(ValidationError(property: \.password, message: "A non-empty password must be at least 4 characters long."))
+        }
+
+        return errors
+    }
 }
 
 // MARK: - Sharing And Other Features
