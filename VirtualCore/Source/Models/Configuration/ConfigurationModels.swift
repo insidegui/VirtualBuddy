@@ -36,6 +36,8 @@ public struct VBMacConfiguration: Hashable, Codable {
         case unsupported([String])
     }
 
+    @DecodableDefault.EmptyPlaceholder public var provisioningUUID = UUID()
+
     public static let currentVersion = 0
     @DecodableDefault.Zero public var version = VBMacConfiguration.currentVersion
 
@@ -363,6 +365,8 @@ public struct VBMacDevice: Hashable, Codable {
 // MARK: - Provisioning
 
 public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
+    public static let keychainItemService = "codes.rambo.VirtualBuddy.Provisioning"
+    
     public var isEnabled: Bool
     public var enablesRemoteLogin: Bool
     public var logsInAutomatically: Bool
@@ -378,36 +382,17 @@ public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
         self.username = username
         self._password = password
     }
+}
 
-    public struct ValidationError: LocalizedError {
-        public let property: PartialKeyPath<VBMacProvisioningConfiguration>
-        public let message: String
-
-        init(property: PartialKeyPath<VBMacProvisioningConfiguration>, message: String) {
-            self.property = property
-            self.message = message
-        }
-
-        public var errorDescription: String? { "Invalid Provisioning Configuration" }
-        public var failureReason: String? { message }
-    }
-
-    public func validationErrors() -> [ValidationError] {
-        guard isEnabled else { return [] }
-
-        var errors = [ValidationError]()
-
-        if fullName.isEmpty {
-            errors.append(ValidationError(property: \.fullName, message: "Full name can't be empty."))
-        }
-        if username.isEmpty {
-            errors.append(ValidationError(property: \.username, message: "Username name can't be empty."))
-        }
-        if !password.isEmpty, password.count < 4 {
-            errors.append(ValidationError(property: \.password, message: "A non-empty password must be at least 4 characters long."))
-        }
-
-        return errors
+public extension VBMacConfiguration {
+    func createProvisioningConfiguration() -> VBMacProvisioningConfiguration {
+        VBMacProvisioningConfiguration(
+            isEnabled: true,
+            password: KeychainReference(
+                service: VBMacProvisioningConfiguration.keychainItemService,
+                account: provisioningUUID.uuidString
+            )
+        )
     }
 }
 

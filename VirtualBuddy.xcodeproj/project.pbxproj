@@ -91,6 +91,7 @@
 		F43076E32FD8B19B002BB1EC /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = F43076E22FD8B19B002BB1EC /* SwiftUIIntrospect */; };
 		F43087DF2FD8C255002BB1EC /* KeychainPasswordItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43087DD2FD8C255002BB1EC /* KeychainPasswordItem.swift */; };
 		F43087E02FD8C255002BB1EC /* KeychainReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43087DE2FD8C255002BB1EC /* KeychainReference.swift */; };
+		F43087E22FD8C3CA002BB1EC /* ProvisioningConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43087E12FD8C3CA002BB1EC /* ProvisioningConfigurationView.swift */; };
 		F436BC572FBF8F96007840E4 /* AirVisualEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */; };
 		F436BC582FBF8F96007840E4 /* AirGlassEffect.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */; };
 		F436BC592FBF8F96007840E4 /* AirMaterial.swift in Sources */ = {isa = PBXBuildFile; fileRef = F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */; };
@@ -620,6 +621,7 @@
 		F42CF4A72DF5FEC3001DE049 /* BlurHashToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashToken.swift; sourceTree = "<group>"; };
 		F43087DD2FD8C255002BB1EC /* KeychainPasswordItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainPasswordItem.swift; sourceTree = "<group>"; };
 		F43087DE2FD8C255002BB1EC /* KeychainReference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainReference.swift; sourceTree = "<group>"; };
+		F43087E12FD8C3CA002BB1EC /* ProvisioningConfigurationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProvisioningConfigurationView.swift; sourceTree = "<group>"; };
 		F436BC4C2FBF8F96007840E4 /* AirGlassEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirGlassEffect.swift; sourceTree = "<group>"; };
 		F436BC4D2FBF8F96007840E4 /* AirMaterial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirMaterial.swift; sourceTree = "<group>"; };
 		F436BC4E2FBF8F96007840E4 /* AirVisualEffect.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AirVisualEffect.swift; sourceTree = "<group>"; };
@@ -1111,6 +1113,7 @@
 				F417256D2887543B004FF8A7 /* Storage */,
 				F4B5C5D12886FA77005AA632 /* Sharing */,
 				F422587D2885E2ED009420AE /* HardwareConfigurationView.swift */,
+				F43087E12FD8C3CA002BB1EC /* ProvisioningConfigurationView.swift */,
 				F42258772885E14A009420AE /* DisplayConfigurationView.swift */,
 				F422587B2885E1CE009420AE /* NetworkConfigurationView.swift */,
 				F417255C288604A8004FF8A7 /* SoundConfigurationView.swift */,
@@ -2616,6 +2619,7 @@
 				F48E0D1A288882BD0080DDFA /* InstallationWizardTitle.swift in Sources */,
 				F41725632886DD37004FF8A7 /* SharedFolderListItem.swift in Sources */,
 				F42258782885E14A009420AE /* DisplayConfigurationView.swift in Sources */,
+				F43087E22FD8C3CA002BB1EC /* ProvisioningConfigurationView.swift in Sources */,
 				F413697029916F6E002CE8D3 /* StatusItemManager.swift in Sources */,
 				F48E0D1C288882BD0080DDFA /* RestoreImageSelectionStep.swift in Sources */,
 				F47BCDD52C5C0B8F00165191 /* Array+Navigation.swift in Sources */,

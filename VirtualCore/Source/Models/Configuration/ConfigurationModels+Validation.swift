@@ -207,6 +207,8 @@ public extension VBGuestType {
 
     var supportsGuestApp: Bool { self == .mac }
 
+    var supportsProvisioning: Bool { self == .mac }
+
 }
 
 public extension VBVirtualMachine {

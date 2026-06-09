@@ -32,6 +32,7 @@ enum CatalogFeatureID {
     static let stateRestoration = "state_restoration"
     static let displayResize = "display_resize"
     static let rosettaSharing = "rosetta_sharing"
+    static let provisioning = "provisioning"
 }
 
 extension ResolvedRestoreImage {
@@ -72,6 +73,9 @@ struct VMConfigurationView: View {
     @AppStorage("config.general.collapsed")
     private var generalCollapsed = true
 
+    @AppStorage("config.provisioning.collapsed")
+    private var provisioningCollapsed = true
+
     @AppStorage("config.storage.collapsed")
     private var storageCollapsed = true
 
@@ -108,6 +112,8 @@ struct VMConfigurationView: View {
 
     private var showGuestAppSection: Bool { systemType.supportsGuestApp }
 
+    private var showProvisioningSection: Bool { systemType.supportsProvisioning }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             if showBootDiskSection {
@@ -115,6 +121,10 @@ struct VMConfigurationView: View {
             }
 
             general
+
+            if showProvisioningSection {
+                provisioning
+            }
 
             storage
 
@@ -153,6 +163,19 @@ struct VMConfigurationView: View {
                 "General",
                 systemImage: "memorychip",
                 summary: viewModel.config.generalSummary
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var provisioning: some View {
+        ConfigurationSection($provisioningCollapsed) {
+            ProvisioningConfigurationView(configuration: $viewModel.config)
+        } header: {
+            SummaryHeader(
+                "Create Mac User Account",
+                systemImage: "person.crop.circle",
+                summary: viewModel.config.provisioningSummary
             )
         }
     }
