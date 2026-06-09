@@ -52,6 +52,8 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     @DecodableDefault.True public var captureSystemKeys = true
 
+    @DecodableDefault.EmptyPlaceholder public var provisioning = VBMacProvisioningConfiguration.empty
+
     public var hasSharedFolders: Bool { !sharedFolders.filter(\.isEnabled).isEmpty }
 
 }
@@ -356,6 +358,28 @@ public struct VBMacDevice: Hashable, Codable {
         guard _storageDevices == nil else { return }
         _storageDevices = [.defaultBootDevice]
     }
+}
+
+// MARK: - Provisioning
+
+public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable, ProvidesEmptyPlaceholder {
+    public var isEnabled: Bool
+    public var enablesRemoteLogin: Bool
+    public var fullName: String
+    public var username: String
+    public var password: String
+    public var logsInAutomatically: Bool
+
+    public init(isEnabled: Bool = false, enablesRemoteLogin: Bool = false, fullName: String = "", username: String = "", password: String = "", logsInAutomatically: Bool = false) {
+        self.isEnabled = isEnabled
+        self.enablesRemoteLogin = enablesRemoteLogin
+        self.fullName = fullName
+        self.username = username
+        self.password = password
+        self.logsInAutomatically = logsInAutomatically
+    }
+
+    public static let empty = VBMacProvisioningConfiguration()
 }
 
 // MARK: - Sharing And Other Features
