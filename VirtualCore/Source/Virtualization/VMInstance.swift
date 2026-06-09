@@ -255,6 +255,22 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = try ensureVM()
 
+        let configuration = virtualMachineModel.configuration
+        let startOptions: VZVirtualMachineStartOptions
+
+        switch configuration.systemType {
+        case .mac:
+            let macOptions = VZMacOSVirtualMachineStartOptions(options: options)
+            if #available(macOS 27.0, *),
+               let provisioning = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(for: virtualMachineModel)
+            {
+                try macOptions.setGuestProvisioning(provisioning)
+            }
+            startOptions = macOptions
+        case .linux:
+            startOptions = VZVirtualMachineStartOptions()
+        }
+
         try await vm.start(options: startOptions)
 
         #if DEBUG
@@ -276,16 +292,6 @@ public final class VMInstance: NSObject, ObservableObject {
         #endif
     }
 
-    @available(macOS 13, *)
-    private var startOptions: VZVirtualMachineStartOptions {
-        switch virtualMachineModel.configuration.systemType {
-        case .mac:
-            return VZMacOSVirtualMachineStartOptions(options: options)
-        case .linux:
-            return VZVirtualMachineStartOptions()
-        }
-    }
-    
     func pause() async throws {
         logger.debug(#function)
 
