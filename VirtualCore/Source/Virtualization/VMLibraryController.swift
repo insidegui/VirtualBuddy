@@ -426,7 +426,7 @@ public extension VMLibraryController {
 
         try fileManager.copyItem(at: vm.bundleURL, to: copyURL)
 
-        var newVM = try VBVirtualMachine(bundleURL: copyURL)
+        var newVM = VBVirtualMachine(bundleURL: copyURL)
 
         newVM.bundleURL.creationDate = .now
         newVM.uuid = UUID()

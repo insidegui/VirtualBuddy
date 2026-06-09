@@ -7,7 +7,7 @@ let previewLibraryDirName = "PreviewLibrary"
 
 public extension VBVirtualMachine {
     static func previewMachine(named name: String) -> VBVirtualMachine {
-        try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
+        VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
     }
     static let preview = VBVirtualMachine.previewMachine(named: "PreviewMac")
     static let previewBlurHash = VBVirtualMachine.previewMachine(named: "PreviewMacBlurHash")
