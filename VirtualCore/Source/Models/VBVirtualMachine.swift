@@ -13,7 +13,13 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         public var uuid = UUID()
         public var version = Self.currentVersion
         public var installFinished: Bool = false
+        /// The date of the first non-recovery virtual machine boot.
+        ///
+        /// - note: This might be set for older virtual machines created before VirtualBuddy 2.2 even if the VM has not been booted before.
         public var firstBootDate: Date? = nil
+        /// The date of the most recent non-recovery virtual machine boot.
+        ///
+        /// - note: This might be set for older virtual machines created before VirtualBuddy 2.2 even if the VM has not been booted before.
         public var lastBootDate: Date? = nil
         @DecodableDefault.EmptyPlaceholder
         public var backgroundHash: BlurHashToken = .virtualBuddyBackground
@@ -78,7 +84,10 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         get { _installRestoreData }
         set { _installRestoreData = newValue }
     }
-    
+
+    /// Whether this virtual machine has ever been booted to a non-recovery mode after installation.
+    public var hasBootedNonRecoveryAtLeastOnce: Bool { metadata.firstBootDate != nil }
+
 }
 
 public extension VBVirtualMachine {
@@ -184,7 +193,7 @@ public extension VBVirtualMachine {
             self.metadata = metadata
         } else {
             /// Migration from previous versions that didn't have a metadata file.
-            self.metadata = Metadata(installFinished: !isNewInstall, firstBootDate: .now, lastBootDate: .now)
+            self.metadata = Metadata(installFinished: !isNewInstall, firstBootDate: nil, lastBootDate: nil)
         }
 
         self.installRestoreData = installRestore
@@ -202,7 +211,7 @@ public extension VBVirtualMachine {
         ]
         self.configuration = .init(systemType: .linux, hardware: hardware)
 
-        self.metadata = Metadata(installFinished: false, firstBootDate: .now, lastBootDate: .now)
+        self.metadata = Metadata(installFinished: false, firstBootDate: nil, lastBootDate: nil)
         metadata.setLinuxBackgroundHashIfNeeded()
 
         try saveMetadata()

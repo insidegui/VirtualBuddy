@@ -257,6 +257,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let configuration = virtualMachineModel.configuration
         let startOptions: VZVirtualMachineStartOptions
+        let isRecoveryBoot: Bool
 
         switch configuration.systemType {
         case .mac:
@@ -267,11 +268,18 @@ public final class VMInstance: NSObject, ObservableObject {
                 try macOptions.setGuestProvisioning(provisioning)
             }
             startOptions = macOptions
+            isRecoveryBoot = macOptions.startUpFromMacOSRecovery
         case .linux:
             startOptions = VZVirtualMachineStartOptions()
+            isRecoveryBoot = false
         }
 
         try await vm.start(options: startOptions)
+
+        /// Update boot date VM metadata only on successful non-recovery boot.
+        if !isRecoveryBoot {
+            updateBootDates()
+        }
 
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(afterStart: vm)
@@ -290,6 +298,18 @@ public final class VMInstance: NSObject, ObservableObject {
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(beforeStart: vm)
         #endif
+    }
+
+    /// Update boot date VM metadata with the current date as the last boot date (and first boot date if first boot date is not set yet).
+    private func updateBootDates() {
+        if virtualMachineModel.metadata.firstBootDate == nil {
+            logger.debug("Setting first boot date")
+            virtualMachineModel.metadata.firstBootDate = .now
+        }
+
+        virtualMachineModel.metadata.lastBootDate = .now
+
+        /// No need to save metadata here since ``VMController`` does it automatically.
     }
 
     func pause() async throws {
