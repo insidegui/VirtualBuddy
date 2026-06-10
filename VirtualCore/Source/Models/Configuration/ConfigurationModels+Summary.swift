@@ -14,7 +14,15 @@ public extension VBMacConfiguration {
     }
 
     var provisioningSummary: String {
-        provisioning?.isEnabled == true ? "Enabled" : "Disabled"
+        if provisioningEnabled {
+            if provisioningSetup {
+                "Enabled"
+            } else {
+                "Not Set Up"
+            }
+        } else {
+            "Disabled"
+        }
     }
 
     var storageSummary: String {

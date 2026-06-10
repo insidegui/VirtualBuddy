@@ -54,6 +54,7 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     @DecodableDefault.True public var captureSystemKeys = true
 
+    @DecodableDefault.False public var provisioningEnabled = false
     public var provisioning: VBMacProvisioningConfiguration? = nil
 
     public var hasSharedFolders: Bool { !sharedFolders.filter(\.isEnabled).isEmpty }
@@ -367,15 +368,13 @@ public struct VBMacDevice: Hashable, Codable {
 public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
     public static let keychainItemService = "codes.rambo.VirtualBuddy.Provisioning"
     
-    public var isEnabled: Bool
     public var enablesRemoteLogin: Bool
     public var logsInAutomatically: Bool
     public var fullName: String
     public var username: String
     @KeychainReference public var password: String
 
-    public init(isEnabled: Bool = false, enablesRemoteLogin: Bool = false, logsInAutomatically: Bool = false, fullName: String = "", username: String = "", password: KeychainReference) {
-        self.isEnabled = isEnabled
+    public init(enablesRemoteLogin: Bool = false, logsInAutomatically: Bool = false, fullName: String = "", username: String = "", password: KeychainReference) {
         self.enablesRemoteLogin = enablesRemoteLogin
         self.logsInAutomatically = logsInAutomatically
         self.fullName = fullName
@@ -384,16 +383,109 @@ public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
     }
 }
 
+public extension VBMacProvisioningConfiguration {
+    enum FormField: CaseIterable, Sendable {
+        case fullName
+        case username
+        case password
+        case passwordConfirmation
+    }
+
+    struct FormData: Hashable, Sendable {
+        public var fullName: String
+        public var username: String
+        public var password: String
+        public var passwordConfirmation: String
+
+        public init(fullName: String = "", username: String = "", password: String = "", passwordConfirmation: String = "") {
+            self.fullName = fullName
+            self.username = username
+            self.password = password
+            self.passwordConfirmation = passwordConfirmation
+        }
+    }
+}
+
+public extension VBMacProvisioningConfiguration.FormData {
+    static let minPasswordLength = 4
+
+    func validationErrorMessage(for field: VBMacProvisioningConfiguration.FormField, value: String? = nil) -> String? {
+        switch field {
+        case .fullName: (value ?? fullName).isEmpty ? "Can’t be empty" : nil
+        case .username: (value ?? username).isEmpty ? "Can’t be empty" : nil
+        case .password: if !(value ?? password).isEmpty {
+            if (value ?? password).count < Self.minPasswordLength {
+                "Must be 4 characters or longer"
+            } else {
+                nil
+            }
+        } else {
+            nil
+        }
+        case .passwordConfirmation: if !password.isEmpty {
+            if (value ?? passwordConfirmation) != password {
+                "Passwords don’t match"
+            } else {
+                nil
+            }
+        } else {
+            nil
+        }
+        }
+    }
+
+    func validationErrorMessages() -> [VBMacProvisioningConfiguration.FormField: String] {
+        var result = [VBMacProvisioningConfiguration.FormField: String]()
+
+        for field in VBMacProvisioningConfiguration.FormField.allCases {
+            result[field] = validationErrorMessage(for: field)
+        }
+
+        return result
+    }
+
+    init(_ configuration: VBMacProvisioningConfiguration) {
+        self.init(
+            fullName: configuration.fullName,
+            username: configuration.username,
+            password: configuration.password,
+            passwordConfirmation: configuration.password
+        )
+    }
+}
+
 public extension VBMacConfiguration {
-    func createProvisioningConfiguration() -> VBMacProvisioningConfiguration {
-        VBMacProvisioningConfiguration(
-            isEnabled: true,
+    struct ProvisioningSetupError: Error {
+        public let validationErrorMessages: [VBMacProvisioningConfiguration.FormField: String]
+
+        fileprivate init(validationErrorMessages: [VBMacProvisioningConfiguration.FormField : String]) {
+            self.validationErrorMessages = validationErrorMessages
+        }
+    }
+
+    /// Validates the provisioning form data, creates the corresponding ``VBMacProvisioningConfiguration`` and associates it with the virtual machine.
+    mutating func applyProvisioningConfiguration(with data: VBMacProvisioningConfiguration.FormData) throws {
+        let validationErrors = data.validationErrorMessages()
+
+        guard validationErrors.isEmpty else {
+            throw ProvisioningSetupError(validationErrorMessages: validationErrors)
+        }
+
+        let configuration = VBMacProvisioningConfiguration(
+            fullName: data.fullName,
+            username: data.username,
             password: KeychainReference(
                 service: VBMacProvisioningConfiguration.keychainItemService,
                 account: provisioningUUID.uuidString
             )
         )
+
+        try configuration.$password.write(data.password)
+
+        self.provisioning = configuration
     }
+
+    var provisioningSetup: Bool { provisioning != nil }
 }
 
 // MARK: - Sharing And Other Features
