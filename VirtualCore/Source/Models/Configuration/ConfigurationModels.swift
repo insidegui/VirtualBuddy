@@ -943,3 +943,74 @@ public extension NSScreen {
         (deviceDescription[NSDeviceDescriptionKey.resolution] as? CGSize) ?? CGSize(width: 72.0, height: 72.0)
     }
 }
+
+// MARK: - Duplication Support
+
+public extension VBMacConfiguration {
+    /// Creates a copy of the configuration that can be used to set up a new virtual machine with the same configuration.
+    func duplicate() throws -> VBMacConfiguration {
+        var copy = self
+
+        /// Reset provisioning UUID.
+        copy.provisioningUUID = UUID()
+
+        /// Create unique copy of provisioning with Keychain item pointing to the new UUID.
+        if let provisioning {
+            copy.provisioning = try provisioning.duplicate(destinationUUID: copy.provisioningUUID)
+        }
+
+        /// Currently only the boot volume configuration is duplicated.
+        copy.hardware.storageDevices = hardware.storageDevices.filter { $0.isBootVolume }
+
+        return copy
+    }
+}
+
+extension VBMacProvisioningConfiguration {
+    func duplicate(destinationUUID: UUID) throws -> VBMacProvisioningConfiguration {
+        var copy = self
+        try copy._password.duplicate(newAccount: destinationUUID.uuidString)
+        return copy
+    }
+}
+
+// MARK: - Templates
+
+/// Represents a template that can be applied to the configuration of a virtual machine.
+///
+/// Currently the app dynamically offers configuration templates based on a user's existing virtual machines, but this will be
+/// expanded in the future to allow arbitrary configuration templates that are not tied to existing virtual machines,.
+///
+/// > Tip: To set a VM's configuration to a template, use ``VBMacConfiguration/apply(template:)``.
+public struct VBConfigurationTemplate: Identifiable, Hashable, Codable {
+    public private(set) var id: String
+    public var name: String
+
+    /// This is made private because clients are not supposed to access it directly.
+    ///
+    /// To set a VM's configuration to a template, use ``VBMacConfiguration/apply(template:)``.
+    fileprivate var configuration: VBMacConfiguration
+
+    public var systemType: VBGuestType { configuration.systemType }
+
+    public init(id: String, name: String, configuration: VBMacConfiguration) {
+        self.id = id
+        self.name = name
+        self.configuration = configuration
+    }
+
+    public init(referencing virtualMachine: VBVirtualMachine) {
+        self.init(
+            id: virtualMachine.id,
+            name: virtualMachine.name,
+            configuration: virtualMachine.configuration
+        )
+    }
+}
+
+public extension VBMacConfiguration {
+    /// Replaces this configuration with a duplicate of the configuration from the template.
+    mutating func apply(template: VBConfigurationTemplate) throws {
+        self = try template.configuration.duplicate()
+    }
+}

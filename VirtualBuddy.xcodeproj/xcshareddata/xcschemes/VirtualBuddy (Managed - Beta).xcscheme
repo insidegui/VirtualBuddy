@@ -67,6 +67,10 @@
             argument = "-WHVerbosePacketLogging YES"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VerboseUILoggingEnabled YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

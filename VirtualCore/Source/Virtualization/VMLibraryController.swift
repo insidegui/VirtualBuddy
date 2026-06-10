@@ -79,6 +79,8 @@ public final class VMLibraryController: ObservableObject {
         "heic"
     ]
 
+    public private(set) lazy var templatesController = VMTemplatesController(library: self)
+
     public init(settingsContainer: VBSettingsContainer = .current) {
         self.settingsContainer = settingsContainer
         self.settings = settingsContainer.settings

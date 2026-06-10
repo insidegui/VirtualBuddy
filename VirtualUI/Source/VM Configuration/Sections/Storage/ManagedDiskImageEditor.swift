@@ -9,19 +9,22 @@ import SwiftUI
 import VirtualCore
 
 struct ManagedDiskImageEditor: View {
-    @State private var image: VBManagedDiskImage
+    private var image: VBManagedDiskImage
     var minimumSize: UInt64
     var isExistingDiskImage: Bool
     var onSave: (VBManagedDiskImage) -> Void
     var isBootVolume: Bool
 
+    @State private var size: UInt64
+
     init(image: VBManagedDiskImage, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
-        self._image = .init(wrappedValue: image)
+        self.image = image
         self.isExistingDiskImage = isExistingDiskImage
         self.onSave = onSave
         let fallbackMinimumSize = isForBootVolume ? VBManagedDiskImage.minimumBootDiskImageSize : VBManagedDiskImage.minimumExtraDiskImageSize
         self.minimumSize = isExistingDiskImage ? image.size : fallbackMinimumSize
         self.isBootVolume = isForBootVolume
+        self.size = image.size
     }
 
     private let formatter: ByteCountFormatter = {
@@ -52,7 +55,7 @@ struct ManagedDiskImageEditor: View {
 
             let maximumSize = isBootVolume ? VBManagedDiskImage.maximumBootDiskImageSize : VBManagedDiskImage.maximumExtraDiskImageSize
             NumericPropertyControl(
-                value: $image.size.gbStorageValue,
+                value: $size.gbStorageValue,
                 range: minimumSize.gbStorageValue...maximumSize.gbStorageValue,
                 hideSlider: isExistingDiskImage,
                 label: isBootVolume ? "Boot Disk Size (GB)" : "Disk Image Size (GB)",
@@ -88,8 +91,14 @@ struct ManagedDiskImageEditor: View {
                 .fixedSize(horizontal: false, vertical: true)
                 .lineLimit(nil)
         }
-        .onChange(of: image) { _, newValue in
-            onSave(newValue)
+        .onChange(of: size) { _, newValue in
+            var image = self.image
+            image.size = newValue
+            onSave(image)
+        }
+        .onChange(of: image.size, initial: true) { _, newValue in
+            guard newValue != size else { return }
+            size = newValue
         }
     }
 

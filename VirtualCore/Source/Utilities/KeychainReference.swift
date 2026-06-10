@@ -39,6 +39,23 @@ public struct KeychainReference: Codable, Hashable, Sendable {
     public func write(_ password: String) throws {
         try keychainItem.savePassword(password)
     }
+    
+    // MARK: - Duplicate
+
+    public mutating func duplicate(newAccount: String) throws {
+        guard newAccount != keychainItem.account else {
+            throw "Keychain reference duplicate must use a different value for account."
+        }
+
+        let value = try keychainItem.readPassword()
+
+        let copy = KeychainReference(service: keychainItem.service, account: newAccount)
+        try copy.write(value)
+
+        self = copy
+    }
+
+    // MARK: - Encoding / Decoding
 
     private static let encoder = JSONEncoder()
     private static let decoder = JSONDecoder()
@@ -52,8 +69,6 @@ public struct KeychainReference: Codable, Hashable, Sendable {
             preconditionFailure("Encoding a \(Self.self) should never fail. Error: \(error)")
         }
     }
-
-    // MARK: - Encoding / Decoding
 
     private struct JSONRepresentation: Codable {
         let service: String

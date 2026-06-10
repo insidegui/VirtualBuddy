@@ -243,6 +243,7 @@ public struct VMInstallationWizard: View {
 
                 viewModel.next()
             }
+            .environment(library.templatesController)
         } else {
             preparingStatus
         }

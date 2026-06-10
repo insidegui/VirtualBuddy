@@ -157,6 +157,7 @@ public struct VirtualMachineSessionView: View {
             VMSessionConfigurationView()
                 .environment(\.backgroundMaterial, Material.thin)
                 .environmentObject(controller)
+                .environment(library.templatesController)
                 .frame(maxWidth: 400)
         }
     }
@@ -316,6 +317,7 @@ struct VirtualMachineSessionViewPreview: View {
             .environmentObject(VMController.preview)
             .environmentObject(VirtualMachineSessionUI.preview)
             .environmentObject(VirtualMachineSessionUIManager.shared)
+            .environment(VMLibraryController.preview.templatesController)
     }
 }
 
