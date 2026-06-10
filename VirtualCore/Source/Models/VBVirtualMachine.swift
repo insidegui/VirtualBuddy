@@ -234,10 +234,6 @@ public extension VBVirtualMachine {
         let configData = try PropertyListEncoder.virtualBuddy.encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
 
-        #if DEBUG
-        print(">> SAVING METADATA FOR \(name.quoted) WITH firstBootDate = \(metadata.firstBootDate, default: "<nil>")")
-        #endif
-
         let metaData = try PropertyListEncoder.virtualBuddy.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
 
