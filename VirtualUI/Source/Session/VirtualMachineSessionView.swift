@@ -33,49 +33,52 @@ public struct VirtualMachineSessionView: View {
 
     public var body: some View {
         ZStack {
+            if !controller.state.isRunning {
+                backgroundView
+            }
+
             controllerStateView
         }
-            .edgesIgnoringSafeArea(.all)
-            .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
-            .background(backgroundView)
-            .environmentObject(controller)
-            .windowTitle(controller.virtualMachineModel.name)
-            .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
-            .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
-            .onWindowKeyChange { [weak sessionManager, weak ui] isKey in
-                guard let sessionManager, let ui else { return }
-                sessionManager.focusedSessionChanged.send(isKey ? .init(ui) : nil)
+        .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
+        .environmentObject(controller)
+        .windowTitle(controller.virtualMachineModel.name)
+        .windowTitleBarTransparent(!controller.state.isRunning)
+        .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
+        .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
+        .onWindowKeyChange { [weak sessionManager, weak ui] isKey in
+            guard let sessionManager, let ui else { return }
+            sessionManager.focusedSessionChanged.send(isKey ? .init(ui) : nil)
+        }
+        .onAppearOnce {
+            guard vbWindow?.hasSavedFrame == false else { return }
+            guard let display = controller.virtualMachineModel.configuration.hardware.displayDevices.first else { return }
+            vbWindow?.resize(to: .fitScreen, for: display)
+        }
+        .onReceive(ui.resizeWindow) { size in
+            guard let display = controller.virtualMachineModel.configuration.hardware.displayDevices.first else {
+                assertionFailure("VM doesn't have a display")
+                return
             }
-            .onAppearOnce {
-                guard vbWindow?.hasSavedFrame == false else { return }
-                guard let display = controller.virtualMachineModel.configuration.hardware.displayDevices.first else { return }
-                vbWindow?.resize(to: .fitScreen, for: display)
-            }
-            .onReceive(ui.resizeWindow) { size in
-                guard let display = controller.virtualMachineModel.configuration.hardware.displayDevices.first else {
-                    assertionFailure("VM doesn't have a display")
-                    return
-                }
 
-                vbWindow?.resize(to: size, for: display)
+            vbWindow?.resize(to: size, for: display)
+        }
+        .onReceive(ui.setWindowAspectRatio) { ratio in
+            vbWindow?.applyAspectRatio(ratio)
+        }
+        .onReceive(ui.makeWindowKey) {
+            window?.makeKeyAndOrderFront(nil)
+        }
+        .task {
+            if controller.options.autoBoot {
+                Task { try? await controller.start() }
             }
-            .onReceive(ui.setWindowAspectRatio) { ratio in
-                vbWindow?.applyAspectRatio(ratio)
+        }
+        .toolbar {
+            if #available(macOS 14.0, *) {
+                VirtualMachineControls<VMController>()
+                    .environmentObject(controller)
             }
-            .onReceive(ui.makeWindowKey) {
-                window?.makeKeyAndOrderFront(nil)
-            }
-            .task {
-                if controller.options.autoBoot {
-                    Task { try? await controller.start() }
-                }
-            }
-            .toolbar {
-                if #available(macOS 14.0, *) {
-                    VirtualMachineControls<VMController>()
-                        .environmentObject(controller)
-                }
-            }
+        }
     }
     
     @ViewBuilder
@@ -195,6 +198,7 @@ public struct VirtualMachineSessionView: View {
             content: controller.virtualMachineModel.blurHashBackgroundContent,
             isRunning: controller.isRunning
         )
+        .ignoresSafeArea()
     }
 
     private var confirmBeforeClosing: () async -> Bool {
