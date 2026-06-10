@@ -73,7 +73,14 @@
       "minVersionHost" : "14.0.0",
       "name" : "Rosetta Sharing",
       "unsupportedPlatform" : true
-    }
+    },
+        {
+            "id": "provisioning",
+            "minVersionGuest": "27.0.0",
+            "minVersionHost": "27.0.0",
+            "name": "Skip Setup Assistant",
+            "unsupportedPlatform": false
+        }
   ],
   "groups" : [
     {
