@@ -13,6 +13,13 @@ struct ProvisioningConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
     @State private var isShowingProvisioningFormSheet = false
 
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
+
+    private var feature: ResolvedVirtualizationFeature? { resolvedRestoreImage?.feature(id: CatalogFeatureID.provisioning) }
+
+    private var unsupported: Bool { feature?.status.isUnsupported == true }
+
     private var logsInAutomatically: Binding<Bool> {
         Binding {
             configuration.provisioning?.logsInAutomatically ?? false
@@ -55,6 +62,12 @@ struct ProvisioningConfigurationView: View {
             }
             .disabled(!configuration.provisioningSetup)
             .help(!configuration.provisioningSetup ? "Please set up account first" : "")
+
+            if unsupported, let feature, let message = feature.status.supportMessage {
+                Text(verbatim: message)
+                    // HACK: Force yellow warning when host supports provisioning, red only when host doesn't support provisioning
+                    .foregroundStyle(VBMacConfiguration.hostSupportsProvisioning ? .yellow : .red)
+            }
         }
         .sheet(isPresented: $isShowingProvisioningFormSheet) {
             NavigationStack {
@@ -73,6 +86,7 @@ struct ProvisioningConfigurationView: View {
 
             isShowingProvisioningFormSheet = true
         }
+        .disabled(unsupported)
     }
 
     fileprivate struct ProvisioningForm: View {

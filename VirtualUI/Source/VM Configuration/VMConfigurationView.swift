@@ -173,7 +173,7 @@ struct VMConfigurationView: View {
             ProvisioningConfigurationView(configuration: $viewModel.config)
         } header: {
             SummaryHeader(
-                "Create Mac User Account",
+                "Skip Setup Assistant",
                 systemImage: "person.crop.circle",
                 summary: viewModel.config.provisioningSummary
             )
