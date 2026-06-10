@@ -167,6 +167,7 @@ struct VMConfigurationView: View {
         ConfigurationSection(.constant(false)) {
             VMConfigurationTemplatePicker(
                 controller: templatesController,
+                context: viewModel.context,
                 configuration: $viewModel.config
             ) { updatedConfiguration in
                 if let image = viewModel.config.hardware.storageDevices.first(where: { $0.isBootVolume })?.managedImage {
@@ -357,6 +358,7 @@ struct VMConfigurationView: View {
 
 struct VMConfigurationTemplatePicker: View {
     let controller: VMTemplatesController
+    let context: VMConfigurationContext
     @Binding var configuration: VBMacConfiguration
     var onApply: (_ configuration: VBMacConfiguration) -> ()
 
@@ -405,7 +407,10 @@ struct VMConfigurationTemplatePicker: View {
 
         do {
             var updatedConfiguration = configuration
-            try updatedConfiguration.apply(template: selectedTemplate)
+            try updatedConfiguration.apply(
+                template: selectedTemplate,
+                includingStorageDevices: context == .preInstall
+            )
 
             configuration = updatedConfiguration
 

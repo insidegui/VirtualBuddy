@@ -1010,7 +1010,15 @@ public struct VBConfigurationTemplate: Identifiable, Hashable, Codable {
 
 public extension VBMacConfiguration {
     /// Replaces this configuration with a duplicate of the configuration from the template.
-    mutating func apply(template: VBConfigurationTemplate) throws {
-        self = try template.configuration.duplicate()
+    mutating func apply(template: VBConfigurationTemplate, includingStorageDevices: Bool) throws {
+        var duplicate = try template.configuration.duplicate()
+
+        /// Restore our current storage devices when excluding storage from duplicate.
+        /// This is used when applying a configuration for a virtual machine in a post-install context.
+        if !includingStorageDevices {
+            duplicate.hardware.storageDevices = hardware.storageDevices
+        }
+
+        self = duplicate
     }
 }
