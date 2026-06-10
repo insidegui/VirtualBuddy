@@ -76,7 +76,16 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
     public var metadata: Metadata {
         /// Masking private `_metadata` since it's initialized dynamically from a file.
         get { _metadata ?? .init() }
-        set { _metadata = newValue }
+        set {
+            var effectiveNewValue = newValue
+
+            /// Just in case: disallow overriding existing first boot date with `nil`.
+            if newValue.firstBootDate == nil, let existingFirstBootDate = _metadata?.firstBootDate {
+                effectiveNewValue.firstBootDate = existingFirstBootDate
+            }
+            
+            _metadata = effectiveNewValue
+        }
     }
 
     public var installRestoreData: Data? {
@@ -224,6 +233,10 @@ public extension VBVirtualMachine {
         
         let configData = try PropertyListEncoder.virtualBuddy.encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
+
+        #if DEBUG
+        print(">> SAVING METADATA FOR \(name.quoted) WITH firstBootDate = \(metadata.firstBootDate, default: "<nil>")")
+        #endif
 
         let metaData = try PropertyListEncoder.virtualBuddy.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)

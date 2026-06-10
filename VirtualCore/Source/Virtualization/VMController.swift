@@ -197,6 +197,16 @@ public final class VMController: ObservableObject {
             let vm = try newInstance.virtualMachine
 
             state = .running(vm)
+
+            /// Update boot date VM metadata with the current date, only if not booting in recovery mode.
+            if !newInstance.isRecoveryBoot {
+                if virtualMachineModel.metadata.firstBootDate == nil {
+                    logger.debug("Setting first boot date")
+                    virtualMachineModel.metadata.firstBootDate = .now
+                }
+                virtualMachineModel.metadata.lastBootDate = .now
+            }
+
             virtualMachineModel.metadata.installFinished = true
         }
     }

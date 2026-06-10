@@ -195,7 +195,10 @@ struct VMConfigurationView: View {
     @ViewBuilder
     private var provisioning: some View {
         ConfigurationSection($provisioningCollapsed) {
-            ProvisioningConfigurationView(configuration: $viewModel.config)
+            ProvisioningConfigurationView(
+                configuration: $viewModel.config,
+                contextForbidden: viewModel.context != .preInstall && viewModel.vm.hasBootedNonRecoveryAtLeastOnce
+            )
         } header: {
             SummaryHeader(
                 "Skip Setup Assistant",

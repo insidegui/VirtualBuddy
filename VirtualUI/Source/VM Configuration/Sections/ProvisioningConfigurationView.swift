@@ -11,6 +11,7 @@ import VirtualCore
 struct ProvisioningConfigurationView: View {
     
     @Binding var configuration: VBMacConfiguration
+    var contextForbidden = false
     @State private var isShowingProvisioningFormSheet = false
 
     @Environment(\.resolvedRestoreImage)
@@ -86,7 +87,16 @@ struct ProvisioningConfigurationView: View {
 
             isShowingProvisioningFormSheet = true
         }
-        .disabled(unsupported)
+        .opacity(contextForbidden ? 0 : 1)
+        .disabled(contextForbidden || unsupported)
+        .overlay {
+            if contextForbidden {
+                Text("Available only before the virtual machine is started for the first time.")
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+            }
+        }
     }
 
     fileprivate struct ProvisioningForm: View {
