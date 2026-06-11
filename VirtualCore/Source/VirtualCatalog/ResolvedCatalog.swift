@@ -100,6 +100,7 @@ public struct ResolvedRequirementSet: ResolvedCatalogModel {
     public var id: RequirementSet.ID { requirements.id }
     public var requirements: RequirementSet
     public var status: ResolvedFeatureStatus
+    public var shouldForceVirtualInstallationBackend: Bool { requirements.virtualInstallationBackend }
 
     public init(requirements: RequirementSet, status: ResolvedFeatureStatus) {
         self.requirements = requirements

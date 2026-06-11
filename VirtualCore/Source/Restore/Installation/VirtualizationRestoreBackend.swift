@@ -4,7 +4,7 @@ import BuddyKit
 import OSLog
 import Combine
 
-public final class VirtualizationRestoreBackend: RestoreBackend {
+public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreBackend {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualizationRestoreBackend")
 
     public let model: VBVirtualMachine

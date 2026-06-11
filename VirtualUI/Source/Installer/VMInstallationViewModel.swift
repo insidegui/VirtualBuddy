@@ -580,17 +580,34 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
         state = .loading(nil, "Preparing Installation\nThis may take a moment")
 
-        let forceVirtualInstallation = UserDefaults.standard.bool(forKey: "VBForceVirtualInstallationBackend")
+        let forceVirtualInstallation: Bool
+        if data.systemType == .mac {
+            if UserDefaults.standard.bool(forKey: "VBForceVirtualInstallationBackend") {
+                UILog("Will use VirtualInstallation restore backend (VBForceVirtualInstallationBackend in user defaults)")
 
-        if forceVirtualInstallation {
-            UILog("Will use VirtualInstallation restore backend")
+                forceVirtualInstallation = true
+            } else if let resolvedRestoreImage = data.resolvedRestoreImage {
+                if resolvedRestoreImage.requirements.shouldForceVirtualInstallationBackend {
+                    UILog("Resolved restore image requirement set requires VirtualInstallation backend, enforcing it")
+
+                    forceVirtualInstallation = true
+                } else {
+                    forceVirtualInstallation = false
+                }
+            } else {
+                UILog("⚠️ No resolved restore image, so can't determine restore backend to use")
+
+                forceVirtualInstallation = false
+            }
+        } else {
+            forceVirtualInstallation = false
         }
 
         let backend = createRestoreBackend(for: model, restoreURL: restoreURL, forceVirtualInstallation: forceVirtualInstallation)
         installer = backend
 
-        if let realBackend = backend as? VirtualizationRestoreBackend {
-            realBackend.virtualMachine.assign(to: &$virtualMachine)
+        if let vmProvidingBackend = backend as? VirtualMachineProvidingRestoreBackend {
+            vmProvidingBackend.virtualMachine.assign(to: &$virtualMachine)
         }
 
         progressObservation = backend.progress.observe(\.completedUnitCount) { [weak self] progress, _ in

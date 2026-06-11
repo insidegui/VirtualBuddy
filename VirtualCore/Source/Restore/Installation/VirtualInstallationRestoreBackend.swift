@@ -5,7 +5,7 @@ import OSLog
 import Combine
 import VirtualInstallation
 
-public final class VirtualInstallationRestoreBackend: RestoreBackend {
+public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRestoreBackend {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualInstallationRestoreBackend")
 
     public let model: VBVirtualMachine

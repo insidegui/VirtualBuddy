@@ -259,6 +259,13 @@
             "minCPUCount": 2,
             "minMemorySizeMB": 4096,
             "minVersionHost": "27.0.0"
+        },
+        {
+            "id": "virtual_installation_macOS27",
+            "minCPUCount": 2,
+            "minMemorySizeMB": 4096,
+            "minVersionHost": "14.0.0",
+            "virtualInstallationBackend": true
         }
   ],
   "restoreImages" : [
@@ -270,7 +277,7 @@
       "id" : "26A5353q",
       "mobileDeviceMinVersion" : "1827.100.14",
       "name" : "macOS 27.0 Developer Beta 1",
-      "requirements" : "min_host_27",
+      "requirements" : "virtual_installation_macOS27",
       "url" : "https:\/\/updates.cdn-apple.com\/2026SummerSeed\/fullrestores\/122-99636\/BB03A927-E303-44C1-BB94-6197F130A163\/UniversalMac_27.0_26A5353q_Restore.ipsw",
       "version" : "27.0.0"
     },
