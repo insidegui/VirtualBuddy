@@ -71,6 +71,10 @@
             argument = "-VerboseUILoggingEnabled YES"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBForceVirtualInstallationBackend YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction

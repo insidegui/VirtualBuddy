@@ -535,7 +535,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL) -> RestoreBackend {
+    private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL, forceVirtualInstallation: Bool) -> RestoreBackend {
         let Backend: RestoreBackend.Type
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
@@ -543,11 +543,17 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         } else if restoreURL == SimulatedDownloadBackend.localFileURL {
             UILog("⚠️ Using simulated installer because the download was also simulated.")
             Backend = SimulatedRestoreBackend.self
+        } else if forceVirtualInstallation {
+            Backend = VirtualInstallationRestoreBackend.self
         } else {
             Backend = VirtualizationRestoreBackend.self
         }
         #else
-        Backend = VirtualizationRestoreBackend.self
+        if forceVirtualInstallation {
+            Backend = VirtualInstallationRestoreBackend.self
+        } else {
+            Backend = VirtualizationRestoreBackend.self
+        }
         #endif
 
         return Backend.init(model: model, restoringFromImageAt: restoreURL)
@@ -574,7 +580,13 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
         state = .loading(nil, "Preparing Installation\nThis may take a moment")
 
-        let backend = createRestoreBackend(for: model, restoreURL: restoreURL)
+        let forceVirtualInstallation = UserDefaults.standard.bool(forKey: "VBForceVirtualInstallationBackend")
+
+        if forceVirtualInstallation {
+            UILog("Will use VirtualInstallation restore backend")
+        }
+
+        let backend = createRestoreBackend(for: model, restoreURL: restoreURL, forceVirtualInstallation: forceVirtualInstallation)
         installer = backend
 
         if let realBackend = backend as? VirtualizationRestoreBackend {

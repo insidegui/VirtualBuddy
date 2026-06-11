@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 55;
+	objectVersion = 75;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -347,6 +347,12 @@
 		F4E7DF972BB33E1700C459FC /* VMLibraryController+SavedState.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */; };
 		F4E7DFCF2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */; };
 		F4ECC6D52C63BFD5001DAC1D /* NumberDisplayMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */; };
+		F4EFB5692FDB2A0D00AF2A63 /* VirtualInstallation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; };
+		F4EFB56A2FDB2A0D00AF2A63 /* VirtualInstallation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F4EFB5BF2FDB2BD400AF2A63 /* VirtualInstallationService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = F4EFB5B42FDB2BD300AF2A63 /* VirtualInstallationService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		F4EFB5CA2FDB2BEF00AF2A63 /* VirtualInstallation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; };
+		F4EFB5D02FDB2C9800AF2A63 /* VirtualInstallationRestoreBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4EFB5CF2FDB2C9800AF2A63 /* VirtualInstallationRestoreBackend.swift */; };
+		F4EFB5D12FDB2CD200AF2A63 /* VirtualInstallation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; };
 		F4F9B416284CE0F900F21737 /* VBSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B415284CE0F900F21737 /* VBSettings.swift */; };
 		F4F9B418284CE12000F21737 /* VBSettingsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */; };
 		F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F9B419284CE37C00F21737 /* Logging.swift */; };
@@ -443,6 +449,34 @@
 			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
 			remoteInfo = VirtualWormhole;
 		};
+		F4EFB5672FDB2A0D00AF2A63 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4EFB5622FDB2A0D00AF2A63;
+			remoteInfo = VirtualInstallation;
+		};
+		F4EFB5BD2FDB2BD400AF2A63 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4EFB5B32FDB2BD300AF2A63;
+			remoteInfo = VirtualInstallationService;
+		};
+		F4EFB5CC2FDB2BEF00AF2A63 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4EFB5622FDB2A0D00AF2A63;
+			remoteInfo = VirtualInstallation;
+		};
+		F4EFB5D32FDB2CD200AF2A63 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4EFB5622FDB2A0D00AF2A63;
+			remoteInfo = VirtualInstallation;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -534,6 +568,7 @@
 			files = (
 				F4BE9C6C27FF053A00B648F8 /* VirtualCore.framework in Embed Frameworks */,
 				F498AD052884BF13006F1C00 /* VirtualUI.framework in Embed Frameworks */,
+				F4EFB56A2FDB2A0D00AF2A63 /* VirtualInstallation.framework in Embed Frameworks */,
 				F43B011C2AD858FE00164CD1 /* DeepLinkSecurity.framework in Embed Frameworks */,
 				F4C189E72848F59F00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 			);
@@ -552,6 +587,17 @@
 				F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB5C92FDB2BD400AF2A63 /* Embed XPC Services */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/XPCServices";
+			dstSubfolderSpec = 16;
+			files = (
+				F4EFB5BF2FDB2BD400AF2A63 /* VirtualInstallationService.xpc in Embed XPC Services */,
+			);
+			name = "Embed XPC Services";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
@@ -872,6 +918,11 @@
 		F4E7DF962BB33E1700C459FC /* VMLibraryController+SavedState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VMLibraryController+SavedState.swift"; sourceTree = "<group>"; };
 		F4E7DFCE2BB3587D00C459FC /* VirtualMachineSessionUIManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualMachineSessionUIManager.swift; sourceTree = "<group>"; };
 		F4ECC6D42C63BFD5001DAC1D /* NumberDisplayMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberDisplayMode.swift; sourceTree = "<group>"; };
+		F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = VirtualInstallation.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4EFB5AE2FDB2A7B00AF2A63 /* Security.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Security.xcconfig; sourceTree = "<group>"; };
+		F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = VirtualInstallation.xcconfig; sourceTree = "<group>"; };
+		F4EFB5B42FDB2BD300AF2A63 /* VirtualInstallationService.xpc */ = {isa = PBXFileReference; explicitFileType = "wrapper.xpc-service"; includeInIndex = 0; path = VirtualInstallationService.xpc; sourceTree = BUILT_PRODUCTS_DIR; };
+		F4EFB5CF2FDB2C9800AF2A63 /* VirtualInstallationRestoreBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualInstallationRestoreBackend.swift; sourceTree = "<group>"; };
 		F4F9B415284CE0F900F21737 /* VBSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettings.swift; sourceTree = "<group>"; };
 		F4F9B417284CE12000F21737 /* VBSettingsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBSettingsContainer.swift; sourceTree = "<group>"; };
 		F4F9B419284CE37C00F21737 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
@@ -882,6 +933,39 @@
 		F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskProgressView.swift; sourceTree = "<group>"; };
 		F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMProgressOverlay.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F4EFB5AD2FDB2A7600AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			attributesByRelativePath = {
+				Source/SPI/MobileDevice.tbd = (
+					Weak,
+				);
+			};
+			publicHeaders = (
+				Source/Backend/VIWaitForDevice.h,
+				Source/Constants.h,
+				Source/SPI/MobileDeviceEnums.h,
+				Source/SPI/MobileDeviceHelper.h,
+				Source/SPI/MobileDeviceSPI.h,
+				Source/SPI/XPCSPI.h,
+				VirtualInstallation.h,
+			);
+			target = F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */;
+		};
+		F4EFB5C02FDB2BD400AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F4EFB5B32FDB2BD300AF2A63 /* VirtualInstallationService */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5AD2FDB2A7600AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallation; sourceTree = "<group>"; };
+		F4EFB5B52FDB2BD400AF2A63 /* VirtualInstallationService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5C02FDB2BD400AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallationService; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		F41369A829918576002CE8D3 /* Frameworks */ = {
@@ -923,6 +1007,7 @@
 				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
 				F453C42B2DF0B792007EAD5F /* ArgumentParser in Frameworks */,
 				F4C189E62848F59F00335EC7 /* VirtualWormhole.framework in Frameworks */,
+				F4EFB5692FDB2A0D00AF2A63 /* VirtualInstallation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -930,6 +1015,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4EFB5D12FDB2CD200AF2A63 /* VirtualInstallation.framework in Frameworks */,
 				F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
@@ -959,6 +1045,21 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB5602FDB2A0D00AF2A63 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB5B12FDB2BD300AF2A63 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				F4EFB5CA2FDB2BEF00AF2A63 /* VirtualInstallation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1408,6 +1509,7 @@
 				F453C49F2DF1D7C0007EAD5F /* RestoreBackend.swift */,
 				F453C4A12DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift */,
 				F453C4A32DF1D85C007EAD5F /* VirtualizationRestoreBackend.swift */,
+				F4EFB5CF2FDB2C9800AF2A63 /* VirtualInstallationRestoreBackend.swift */,
 			);
 			path = Installation;
 			sourceTree = "<group>";
@@ -1738,6 +1840,8 @@
 				F41369AC29918576002CE8D3 /* VirtualBuddyGuestHelper */,
 				F4D3059D29B8DB700006E748 /* VirtualWormholeTests */,
 				F43B01162AD858FE00164CD1 /* DeepLinkSecurity */,
+				F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */,
+				F4EFB5B52FDB2BD400AF2A63 /* VirtualInstallationService */,
 				F4BE9C4F27FF052100B648F8 /* Products */,
 				F4C189F12848F5F500335EC7 /* Frameworks */,
 			);
@@ -1754,6 +1858,8 @@
 				F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */,
 				F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */,
 				F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */,
+				F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */,
+				F4EFB5B42FDB2BD300AF2A63 /* VirtualInstallationService.xpc */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1824,10 +1930,12 @@
 				F4C1224D280715B500D359E2 /* Paths.xcconfig */,
 				F4C122482807146200D359E2 /* Versions.xcconfig */,
 				F4C1224A2807156200D359E2 /* Signing.xcconfig */,
+				F4EFB5AE2FDB2A7B00AF2A63 /* Security.xcconfig */,
 				F482FC7228CB7A6C00F2BA4F /* InfoPlist.xcconfig */,
 				F4B068B528882F5D003743BF /* AppTarget.xcconfig */,
 				F4D0F71B28674F24004D5782 /* Features.xcconfig */,
 				F4C1224E280715F200D359E2 /* Main.xcconfig */,
+				F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */,
 			);
 			path = Config;
 			sourceTree = "<group>";
@@ -2112,6 +2220,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F4EFB55E2FDB2A0D00AF2A63 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
@@ -2184,12 +2299,15 @@
 				F4BE9C7027FF053A00B648F8 /* Embed Frameworks */,
 				F443620B29B79A5800745B43 /* Embed Guest App */,
 				F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */,
+				F4EFB5C92FDB2BD400AF2A63 /* Embed XPC Services */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 				F498AD032884BF13006F1C00 /* PBXTargetDependency */,
 				F4C18A5828491C0D00335EC7 /* PBXTargetDependency */,
+				F4EFB5682FDB2A0D00AF2A63 /* PBXTargetDependency */,
+				F4EFB5BE2FDB2BD400AF2A63 /* PBXTargetDependency */,
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
@@ -2222,6 +2340,7 @@
 			dependencies = (
 				F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */,
 				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
+				F4EFB5D42FDB2CD200AF2A63 /* PBXTargetDependency */,
 			);
 			name = VirtualCore;
 			productName = VirtualCore;
@@ -2291,6 +2410,52 @@
 			productReference = F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4EFB5732FDB2A0D00AF2A63 /* Build configuration list for PBXNativeTarget "VirtualInstallation" */;
+			buildPhases = (
+				F4EFB55E2FDB2A0D00AF2A63 /* Headers */,
+				F4EFB55F2FDB2A0D00AF2A63 /* Sources */,
+				F4EFB5602FDB2A0D00AF2A63 /* Frameworks */,
+				F4EFB5612FDB2A0D00AF2A63 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */,
+			);
+			name = VirtualInstallation;
+			packageProductDependencies = (
+			);
+			productName = VirtualInstallation;
+			productReference = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		F4EFB5B32FDB2BD300AF2A63 /* VirtualInstallationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F4EFB5C12FDB2BD400AF2A63 /* Build configuration list for PBXNativeTarget "VirtualInstallationService" */;
+			buildPhases = (
+				F4EFB5B02FDB2BD300AF2A63 /* Sources */,
+				F4EFB5B12FDB2BD300AF2A63 /* Frameworks */,
+				F4EFB5B22FDB2BD300AF2A63 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F4EFB5CD2FDB2BEF00AF2A63 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F4EFB5B52FDB2BD400AF2A63 /* VirtualInstallationService */,
+			);
+			name = VirtualInstallationService;
+			packageProductDependencies = (
+			);
+			productName = VirtualInstallationService;
+			productReference = F4EFB5B42FDB2BD300AF2A63 /* VirtualInstallationService.xpc */;
+			productType = "com.apple.product-type.xpc-service";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -2298,7 +2463,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
+				LastSwiftUpdateCheck = 2700;
 				LastUpgradeCheck = 2700;
 				TargetAttributes = {
 					F41369AA29918576002CE8D3 = {
@@ -2334,10 +2499,15 @@
 					F4D3059B29B8DB700006E748 = {
 						CreatedOnToolsVersion = 14.2;
 					};
+					F4EFB5622FDB2A0D00AF2A63 = {
+						CreatedOnToolsVersion = 27.0;
+					};
+					F4EFB5B32FDB2BD300AF2A63 = {
+						CreatedOnToolsVersion = 27.0;
+					};
 				};
 			};
 			buildConfigurationList = F4BE9C4927FF052100B648F8 /* Build configuration list for PBXProject "VirtualBuddy" */;
-			compatibilityVersion = "Xcode 13.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -2353,6 +2523,7 @@
 				F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */,
 			);
+			preferredProjectObjectVersion = 55;
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -2365,6 +2536,8 @@
 				F498ACFD2884BF13006F1C00 /* VirtualUI */,
 				F4D3059B29B8DB700006E748 /* VirtualWormholeTests */,
 				F4C189DF2848F59F00335EC7 /* VirtualWormhole */,
+				F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */,
+				F4EFB5B32FDB2BD300AF2A63 /* VirtualInstallationService */,
 				F453C44F2DF0BCE3007EAD5F /* vctool */,
 			);
 		};
@@ -2439,6 +2612,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4D305AA29B8E7120006E748 /* TestStream.bin in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB5612FDB2A0D00AF2A63 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB5B22FDB2BD300AF2A63 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2757,6 +2944,7 @@
 				F43087DF2FD8C255002BB1EC /* KeychainPasswordItem.swift in Sources */,
 				F43087E02FD8C255002BB1EC /* KeychainReference.swift in Sources */,
 				F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */,
+				F4EFB5D02FDB2C9800AF2A63 /* VirtualInstallationRestoreBackend.swift in Sources */,
 				F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */,
 				F46FFBAC28059FF600D61023 /* VMInstance.swift in Sources */,
 				F4E7DF952BB336F600C459FC /* VBSavedStatePackage.swift in Sources */,
@@ -2818,6 +3006,20 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB55F2FDB2A0D00AF2A63 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F4EFB5B02FDB2BD300AF2A63 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2887,6 +3089,26 @@
 			isa = PBXTargetDependency;
 			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
 			targetProxy = F4D305A129B8DB700006E748 /* PBXContainerItemProxy */;
+		};
+		F4EFB5682FDB2A0D00AF2A63 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */;
+			targetProxy = F4EFB5672FDB2A0D00AF2A63 /* PBXContainerItemProxy */;
+		};
+		F4EFB5BE2FDB2BD400AF2A63 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4EFB5B32FDB2BD300AF2A63 /* VirtualInstallationService */;
+			targetProxy = F4EFB5BD2FDB2BD400AF2A63 /* PBXContainerItemProxy */;
+		};
+		F4EFB5CD2FDB2BEF00AF2A63 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */;
+			targetProxy = F4EFB5CC2FDB2BEF00AF2A63 /* PBXContainerItemProxy */;
+		};
+		F4EFB5D42FDB2CD200AF2A63 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */;
+			targetProxy = F4EFB5D32FDB2CD200AF2A63 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -4905,6 +5127,503 @@
 			};
 			name = Release_Managed;
 		};
+		F4EFB56B2FDB2A0D00AF2A63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+		F4EFB56C2FDB2A0D00AF2A63 /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug_Managed;
+		};
+		F4EFB56D2FDB2A0D00AF2A63 /* Beta_Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Beta_Debug;
+		};
+		F4EFB56E2FDB2A0D00AF2A63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		F4EFB56F2FDB2A0D00AF2A63 /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release_Managed;
+		};
+		F4EFB5702FDB2A0D00AF2A63 /* Beta_Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Beta_Release;
+		};
+		F4EFB5712FDB2A0D00AF2A63 /* Dev_Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F4EFB5AF2FDB2A9500AF2A63 /* VirtualInstallation.xcconfig */;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_ASSET_PATHS = "VirtualInstallation/Resources/RestoreStates-VMA2.txt";
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				ENABLE_MODULE_VERIFIER = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/VirtualInstallation/Source/SPI",
+				);
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
+				MODULE_VERIFIER_SUPPORTED_LANGUAGE_STANDARDS = "gnu17 gnu++20";
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallation;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 6.0;
+			};
+			name = Dev_Release;
+		};
+		F4EFB5C22FDB2BD400AF2A63 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		F4EFB5C32FDB2BD400AF2A63 /* Debug_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug_Managed;
+		};
+		F4EFB5C42FDB2BD400AF2A63 /* Beta_Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Beta_Debug;
+		};
+		F4EFB5C52FDB2BD400AF2A63 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		F4EFB5C62FDB2BD400AF2A63 /* Release_Managed */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release_Managed;
+		};
+		F4EFB5C72FDB2BD400AF2A63 /* Beta_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Beta_Release;
+		};
+		F4EFB5C82FDB2BD400AF2A63 /* Dev_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = 8C7439RJLG;
+				ENABLE_APP_SANDBOX = NO;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Dev_Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -5044,6 +5763,34 @@
 				F4D305A729B8DB700006E748 /* Release_Managed */,
 				F40A1E972C18697B0033E47D /* Beta_Release */,
 				F4A277122BF50EA00011B626 /* Dev_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F4EFB5732FDB2A0D00AF2A63 /* Build configuration list for PBXNativeTarget "VirtualInstallation" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4EFB56B2FDB2A0D00AF2A63 /* Debug */,
+				F4EFB56C2FDB2A0D00AF2A63 /* Debug_Managed */,
+				F4EFB56D2FDB2A0D00AF2A63 /* Beta_Debug */,
+				F4EFB56E2FDB2A0D00AF2A63 /* Release */,
+				F4EFB56F2FDB2A0D00AF2A63 /* Release_Managed */,
+				F4EFB5702FDB2A0D00AF2A63 /* Beta_Release */,
+				F4EFB5712FDB2A0D00AF2A63 /* Dev_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F4EFB5C12FDB2BD400AF2A63 /* Build configuration list for PBXNativeTarget "VirtualInstallationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F4EFB5C22FDB2BD400AF2A63 /* Debug */,
+				F4EFB5C32FDB2BD400AF2A63 /* Debug_Managed */,
+				F4EFB5C42FDB2BD400AF2A63 /* Beta_Debug */,
+				F4EFB5C52FDB2BD400AF2A63 /* Release */,
+				F4EFB5C62FDB2BD400AF2A63 /* Release_Managed */,
+				F4EFB5C72FDB2BD400AF2A63 /* Beta_Release */,
+				F4EFB5C82FDB2BD400AF2A63 /* Dev_Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
