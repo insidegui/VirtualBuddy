@@ -5430,6 +5430,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5461,6 +5466,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5492,6 +5502,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5521,6 +5536,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5551,6 +5571,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5581,6 +5606,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5611,6 +5641,11 @@
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
+					"$(inherited)",
+					"$(VB_XPC_SERVICE_RUNPATH_SEARCH_PATHS)",
+				);
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = codes.rambo.VirtualBuddy.VirtualInstallationService;
 				PRODUCT_NAME = "$(TARGET_NAME)";
