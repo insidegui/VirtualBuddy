@@ -15,6 +15,10 @@ VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal o
 
 To install a macOS virtual machine, you can select from a list of macOS versions provided by VirtualBuddy, which will automatically download and install the selected version. You may also provide your own IPSW link or select from an IPSW you have already downloaded.
 
+### ⚠️ Important Note About macOS Golden Gate
+
+To install macOS Golden Gate beta on a macOS 26 host, make sure you are running [VirtualBuddy 2.2 beta 2](https://github.com/insidegui/VirtualBuddy/releases/tag/2.2-b2) or later and that you have downloaded and installed the [latest device support files](https://developer.apple.com/services-account/download?path=/Developer_Tools/RaveMobileDeviceSeed2050A3n/DeviceSupport_macOS_27_beta.dmg) from Apple. If you already have the Xcode 27 beta installed, then you don't need to install the device support files separately.
+
 ### Installing macOS Betas
 
 If you’d like to run a virtual machine with a macOS beta that’s more recent than the one you’re currently running, such as a macOS 15 virtual machine running in a macOS 14 host, then you’ll need the latest device support package from Apple. 
