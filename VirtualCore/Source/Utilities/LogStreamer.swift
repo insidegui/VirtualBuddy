@@ -63,7 +63,7 @@ public final class LogStreamer: ObservableObject {
         public var description: String {
             switch self {
             case .library(let name):
-                return "library = '\(name)'"
+                return "senderImagePath contains '\(name)'"
             case .subsystem(let name):
                 return "subsystem = '\(name)'"
             case .process(let name):
@@ -91,7 +91,7 @@ public final class LogStreamer: ObservableObject {
             .throttle(for: .init(throttleInterval), scheduler: RunLoop.main, latest: true)
             .sink(receiveValue: { [weak self] newEvent in
                 guard let self = self else { return }
-                self.events.insert(newEvent, at: 0)
+                self.events.append(newEvent)
             })
 
         let p = Process()

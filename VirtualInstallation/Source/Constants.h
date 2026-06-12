@@ -12,4 +12,6 @@ extern NSString * const kVirtualInstallationProjectVersionForCodeSigningRequirem
 extern NSString * const kVirtualInstallationTeamIDForCodeSigningRequirements;
 extern NSString * const kVirtualBuddyBundleID;
 
+extern NSString * const kVirtualInstallationUnifiedLogPredicate;
+
 NS_ASSUME_NONNULL_END

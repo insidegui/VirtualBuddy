@@ -8,6 +8,8 @@ import VirtualInstallation
 public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRestoreBackend {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualInstallationRestoreBackend")
 
+    public var consolePredicate: LogStreamer.Predicate { .custom(kVirtualInstallationUnifiedLogPredicate) }
+
     public let model: VBVirtualMachine
     public let restoreImageFileURL: URL
 

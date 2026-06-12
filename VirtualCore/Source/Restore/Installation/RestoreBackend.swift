@@ -9,6 +9,7 @@ public protocol RestoreBackend: AnyObject {
     var progress: Progress { get }
     func install() async throws
     func cancel() async
+    var consolePredicate: LogStreamer.Predicate { get }
 }
 
 @MainActor
