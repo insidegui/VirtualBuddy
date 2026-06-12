@@ -230,7 +230,9 @@ public extension VBVirtualMachine {
         #if DEBUG
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
-        
+
+        print("-- SAVE METADATA FOR \(name.quoted) with installFinished = \(metadata.installFinished)")
+
         let configData = try PropertyListEncoder.virtualBuddy.encode(configuration)
         try write(configData, forMetadataFileNamed: Self.configurationFilename)
 
