@@ -131,10 +131,24 @@ struct ProvisioningConfigurationView: View {
             #if DEBUG
             .task {
                 guard ProcessInfo.isSwiftUIPreview else { return }
-                errors[.username] = data.validationErrorMessage(for: .username, value: "")
+//                errors[.username] = data.validationErrorMessage(for: .username, value: "")
+//                errors[.global] = "Invalid username for guest provisioning. Short name 'abcd' is not valid"
             }
             #endif
             .formStyle(.grouped)
+            .safeAreaInset(edge: .top, spacing: 0) {
+                if let globalError = errors[.global] {
+                    Text(globalError)
+                        .font(.headline.weight(.medium))
+                        .foregroundStyle(.red)
+                        .textSelection(.enabled)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding()
+                        .background(Color.red.opacity(0.1))
+                        .transition(.blurReplace)
+                }
+            }
+            .animation(.default, value: errors[.global] != nil)
             .onChange(of: isEnabled) { oldValue, newValue in
                 guard !oldValue, newValue else { return }
                 focusedField = .fullName
@@ -238,6 +252,9 @@ struct ProvisioningConfigurationView: View {
                 errors[field] = data.validationErrorMessage(for: field, value: text.wrappedValue)
             }
             .onChange(of: text.wrappedValue) { _, newValue in
+                /// Always reset global errors when editing any field.
+                if errors[.global] != nil { errors[.global] = nil }
+
                 guard errors[field] != nil else { return }
                 errors[field] = data.validationErrorMessage(for: field, value: text.wrappedValue)
             }
@@ -258,7 +275,7 @@ struct ProvisioningConfigurationView: View {
             } catch let error as VBMacConfiguration.ProvisioningSetupError {
                 errors = error.validationErrorMessages
             } catch {
-                NSApp.presentError(error)
+                errors[.global] = error.localizedDescription
             }
         }
     }

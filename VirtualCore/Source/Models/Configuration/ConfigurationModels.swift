@@ -385,6 +385,7 @@ public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
 
 public extension VBMacProvisioningConfiguration {
     enum FormField: CaseIterable, Sendable {
+        case global
         case fullName
         case username
         case password
@@ -411,6 +412,7 @@ public extension VBMacProvisioningConfiguration.FormData {
 
     func validationErrorMessage(for field: VBMacProvisioningConfiguration.FormField, value: String? = nil) -> String? {
         switch field {
+        case .global: nil
         case .fullName: (value ?? fullName).isEmpty ? "Can’t be empty" : nil
         case .username: (value ?? username).isEmpty ? "Can’t be empty" : nil
         case .password: if !(value ?? password).isEmpty {
