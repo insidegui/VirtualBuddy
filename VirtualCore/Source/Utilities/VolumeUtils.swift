@@ -56,6 +56,17 @@ public extension URL {
         }
     }
 
+    /// The full capacity of the volume that contains this URL.
+    var totalDiskSpaceOnVolume: UInt64? {
+        do {
+            let attrs = try FileManager.default.attributesOfFileSystem(forPath: path)
+            guard let totalSize = attrs[.systemSize] as? UInt64 else { return nil }
+            return totalSize
+        } catch {
+            return nil
+        }
+    }
+
     /// User-friendly name for the volume that contains this URL.
     var containingVolumeName: String? {
         guard let volumeURL = (try? resourceValues(forKeys: [.volumeURLKey]))?.volume else { return nil }

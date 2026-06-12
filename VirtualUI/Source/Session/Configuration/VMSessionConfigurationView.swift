@@ -64,7 +64,8 @@ struct VMSessionConfigurationView: View {
         .airMaterialBackground(visualEffect: .hudWindow, glassEffect: .clear, in: shape)
         .sheet(isPresented: $isShowingVMSettings) {
             VMConfigurationSheet(
-                configuration: $controller.virtualMachineModel.configuration
+                configuration: $controller.virtualMachineModel.configuration,
+                metadata: $controller.virtualMachineModel.metadata
             )
             .environmentObject(VMConfigurationViewModel(vm, resolvedRestoreImage: resolvedRestoreImage))
         }

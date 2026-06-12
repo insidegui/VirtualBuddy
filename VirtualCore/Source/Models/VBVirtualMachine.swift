@@ -17,6 +17,8 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         public var lastBootDate: Date? = nil
         @DecodableDefault.EmptyPlaceholder
         public var backgroundHash: BlurHashToken = .virtualBuddyBackground
+        @DecodableDefault.EmptyList
+        public var pendingDiskImageResizeIDs = Set<String>()
         /// If this VM was imported from some other app, contains the name of the ``VMImporter`` that was used.
         public var importedFromAppName: String? = nil
 
@@ -25,6 +27,30 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
 
         /// The original local file URL that was specified (or set after a successful download from ``remoteInstallImageURL``).
         public private(set) var installImageURL: URL? = nil
+
+        public init(
+            uuid: UUID = UUID(),
+            version: Int = Self.currentVersion,
+            installFinished: Bool = false,
+            firstBootDate: Date? = nil,
+            lastBootDate: Date? = nil,
+            backgroundHash: BlurHashToken = .virtualBuddyBackground,
+            pendingDiskImageResizeIDs: Set<String> = [],
+            importedFromAppName: String? = nil,
+            remoteInstallImageURL: URL? = nil,
+            installImageURL: URL? = nil
+        ) {
+            self.uuid = uuid
+            self.version = version
+            self.installFinished = installFinished
+            self.firstBootDate = firstBootDate
+            self.lastBootDate = lastBootDate
+            self.backgroundHash = backgroundHash
+            self.pendingDiskImageResizeIDs = pendingDiskImageResizeIDs
+            self.importedFromAppName = importedFromAppName
+            self.remoteInstallImageURL = remoteInstallImageURL
+            self.installImageURL = installImageURL
+        }
 
         /**
          Usage of the same property for both local and remote restore image URLs has been the source of recurring bugs in the past.
@@ -45,6 +71,18 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         fileprivate mutating func setLinuxBackgroundHashIfNeeded() {
             guard backgroundHash == .virtualBuddyBackground else { return }
             backgroundHash = .virtualBuddyBackgroundLinux
+        }
+
+        public var hasPendingDiskImageResizes: Bool {
+            !pendingDiskImageResizeIDs.isEmpty
+        }
+
+        public mutating func markDiskImageResizePending(for image: VBManagedDiskImage) {
+            pendingDiskImageResizeIDs.insert(image.id)
+        }
+
+        public mutating func clearPendingDiskImageResize(for image: VBManagedDiskImage) {
+            pendingDiskImageResizeIDs.remove(image.id)
         }
     }
 
@@ -77,6 +115,10 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
         /// Masking private `_installRestoreData` since it's initialized dynamically from a file.
         get { _installRestoreData }
         set { _installRestoreData = newValue }
+    }
+
+    public var hasPendingDiskImageResizes: Bool {
+        metadata.hasPendingDiskImageResizes
     }
     
 }

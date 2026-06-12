@@ -120,6 +120,13 @@ struct StorageDeviceListItem: View {
 
             Spacer()
 
+            if device.canBeResized {
+                Image(systemName: "arrow.up.right.and.arrow.down.left")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .help("This disk can be resized")
+            }
+
             Button {
                 configureDevice()
             } label: {
@@ -127,7 +134,7 @@ struct StorageDeviceListItem: View {
             }
             .help("Device settings")
             .buttonStyle(.plain)
-            .disabled(device.isBootVolume)
+            .disabled(device.isBootVolume && !device.canBeResized)
         }
         .padding(.leading, 6)
         .opacity(device.isEnabled ? 1 : 0.8)

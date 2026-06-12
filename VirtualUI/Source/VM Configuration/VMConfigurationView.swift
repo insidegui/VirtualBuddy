@@ -161,7 +161,12 @@ struct VMConfigurationView: View {
     private var bootDisk: some View {
         ConfigurationSection(.constant(false), collapsingDisabled: true) {
             if let image = (try? viewModel.vm.bootDevice)?.managedImage {
-                ManagedDiskImageEditor(image: image, isExistingDiskImage: false, isForBootVolume: true) { image in
+                ManagedDiskImageEditor(
+                    image: image,
+                    virtualMachine: viewModel.vm,
+                    isExistingDiskImage: false,
+                    isForBootVolume: true
+                ) { image in
                     viewModel.updateBootStorageDevice(with: image)
                 }
             } else {
