@@ -100,6 +100,7 @@ public struct ResolvedRequirementSet: ResolvedCatalogModel {
     public var id: RequirementSet.ID { requirements.id }
     public var requirements: RequirementSet
     public var status: ResolvedFeatureStatus
+    public var shouldForceVirtualInstallationBackend: Bool { requirements.virtualInstallationBackend }
 
     public init(requirements: RequirementSet, status: ResolvedFeatureStatus) {
         self.requirements = requirements
@@ -274,7 +275,11 @@ public extension ResolvedVirtualizationFeature {
         }
 
         guard environment.guestVersion >= self.feature.minVersionGuest else {
-            if self.feature.minVersionGuest == self.feature.minVersionHost {
+            /// Only use aligned host and guest message when host does not support the feature and the version requirement is the same between guest and host,
+            /// otherwise use the more explicit guest-specific message.
+            if environment.hostVersion < self.feature.minVersionHost,
+               self.feature.minVersionHost == self.feature.minVersionGuest
+            {
                 self.status = .unsupportedHostAndGuestAligned(feature)
             } else {
                 self.status = .unsupportedGuest(feature)

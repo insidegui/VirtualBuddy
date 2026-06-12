@@ -38,8 +38,12 @@ final class WHSharedClipboardService: WormholeService {
         logger.debug(#function)
 
         Task {
-            for try await message in connection.stream(for: ClipboardMessage.self) {
-                handle(message.payload)
+            do {
+                for try await message in connection.stream(for: ClipboardMessage.self) {
+                    handle(message.payload)
+                }
+            } catch {
+                logger.info("Connection stream terminated: \(error, privacy: .public)")
             }
         }
 

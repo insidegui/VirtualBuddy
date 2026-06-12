@@ -476,6 +476,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     private func startInstallation() async {
+        installationStartTime = .now
+
         switch machine?.configuration.systemType {
         case .mac:
             startMacInstallation()
@@ -535,7 +537,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         }
     }
 
-    private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL) -> RestoreBackend {
+    private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL, forceVirtualInstallation: Bool) -> RestoreBackend {
         let Backend: RestoreBackend.Type
         #if DEBUG
         if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
@@ -543,17 +545,25 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         } else if restoreURL == SimulatedDownloadBackend.localFileURL {
             UILog("⚠️ Using simulated installer because the download was also simulated.")
             Backend = SimulatedRestoreBackend.self
+        } else if forceVirtualInstallation {
+            Backend = VirtualInstallationRestoreBackend.self
         } else {
             Backend = VirtualizationRestoreBackend.self
         }
         #else
-        Backend = VirtualizationRestoreBackend.self
+        if forceVirtualInstallation {
+            Backend = VirtualInstallationRestoreBackend.self
+        } else {
+            Backend = VirtualizationRestoreBackend.self
+        }
         #endif
 
         return Backend.init(model: model, restoringFromImageAt: restoreURL)
     }
 
     @Published private(set) var virtualMachine: VZVirtualMachine? = nil
+    @Published private(set) var consolePredicate: LogStreamer.Predicate? = ProcessInfo.isSwiftUIPreview ? .process("Xcode") : nil
+    @Published private(set) var installationStartTime = Date.now
 
     private var installationTask: Task<Void, Never>?
 
@@ -574,11 +584,36 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
         state = .loading(nil, "Preparing Installation\nThis may take a moment")
 
-        let backend = createRestoreBackend(for: model, restoreURL: restoreURL)
+        let forceVirtualInstallation: Bool
+        if data.systemType == .mac {
+            if UserDefaults.standard.bool(forKey: "VBForceVirtualInstallationBackend") {
+                UILog("Will use VirtualInstallation restore backend (VBForceVirtualInstallationBackend in user defaults)")
+
+                forceVirtualInstallation = true
+            } else if let resolvedRestoreImage = data.resolvedRestoreImage {
+                if resolvedRestoreImage.requirements.shouldForceVirtualInstallationBackend {
+                    UILog("Resolved restore image requirement set requires VirtualInstallation backend, enforcing it")
+
+                    forceVirtualInstallation = true
+                } else {
+                    forceVirtualInstallation = false
+                }
+            } else {
+                UILog("⚠️ No resolved restore image, so can't determine restore backend to use")
+
+                forceVirtualInstallation = false
+            }
+        } else {
+            forceVirtualInstallation = false
+        }
+
+        let backend = createRestoreBackend(for: model, restoreURL: restoreURL, forceVirtualInstallation: forceVirtualInstallation)
         installer = backend
 
-        if let realBackend = backend as? VirtualizationRestoreBackend {
-            realBackend.virtualMachine.assign(to: &$virtualMachine)
+        consolePredicate = backend.consolePredicate
+
+        if let vmProvidingBackend = backend as? VirtualMachineProvidingRestoreBackend {
+            vmProvidingBackend.virtualMachine.assign(to: &$virtualMachine)
         }
 
         progressObservation = backend.progress.observe(\.completedUnitCount) { [weak self] progress, _ in

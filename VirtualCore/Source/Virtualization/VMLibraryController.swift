@@ -42,7 +42,11 @@ public final class VMLibraryController: ObservableObject {
 
         var isVolumeNotMounted: Bool { id == .volumeNotMounted }
     }
-    
+
+    /// ``reload(animated:)`` exits early if this lock is not available, preventing race conditions caused by virtual machine
+    /// bundles being loaded from the filesystem during critical library operations (such as when duplicating a virtual machine).
+    private let transactionLock = NSLock()
+
     @Published public private(set) var state = State.loading {
         didSet {
             if case .loaded(let machines) = state {
@@ -78,6 +82,8 @@ public final class VMLibraryController: ObservableObject {
         "plist",
         "heic"
     ]
+
+    public private(set) lazy var templatesController = VMTemplatesController(library: self)
 
     public init(settingsContainer: VBSettingsContainer = .current) {
         self.settingsContainer = settingsContainer
@@ -122,7 +128,7 @@ public final class VMLibraryController: ObservableObject {
         .store(in: &cancellables)
 
         updateSignal
-            .throttle(for: 0.1, scheduler: DispatchQueue.main, latest: true)
+            .debounce(for: .milliseconds(200), scheduler: DispatchQueue.main)
             .sink { [weak self] url in
                 guard let self else { return }
 
@@ -151,6 +157,12 @@ public final class VMLibraryController: ObservableObject {
     }
 
     public func loadMachines(createLibrary: Bool = false) {
+        guard transactionLock.try() else {
+            logger.warning("Skip load machines: transaction lock already taken")
+            return
+        }
+        defer { transactionLock.unlock() }
+
         #if DEBUG
         guard !simulateState() else { return }
         #endif
@@ -420,22 +432,30 @@ public extension VMLibraryController {
 
     @discardableResult
     func duplicate(_ vm: VBVirtualMachine) throws -> VBVirtualMachine {
-        let newName = "Copy of " + vm.name
+        /// Prevent ``reload(animated:)`` from reloading virtual machines due to filesystem changes
+        /// before we've had a chance to finish setting up and saving the duplicated virtual machine.
+        /// This addresses an issue that could cause some metadata to be lost when duplicating a virtual machine
+        /// because it was being reloaded from the filesystem before the duplication process could finish.
+        let duplicate = try transactionLock.withLock {
+            let newName = "Copy of " + vm.name
 
-        let copyURL = try urlForRenaming(vm, to: newName)
+            let copyURL = try urlForRenaming(vm, to: newName)
 
-        try fileManager.copyItem(at: vm.bundleURL, to: copyURL)
+            try fileManager.copyItem(at: vm.bundleURL, to: copyURL)
 
-        var newVM = try VBVirtualMachine(bundleURL: copyURL)
+            var newVM = try VBVirtualMachine(bundleURL: copyURL, isNewInstall: false, createIfNeeded: false)
 
-        newVM.bundleURL.creationDate = .now
-        newVM.uuid = UUID()
+            newVM.bundleURL.creationDate = .now
+            newVM.uuid = UUID()
 
-        try newVM.saveMetadata()
+            try newVM.saveMetadata()
+
+            return newVM
+        }
 
         reload()
 
-        return newVM
+        return duplicate
     }
 
     func moveToTrash(_ vm: VBVirtualMachine) async throws {

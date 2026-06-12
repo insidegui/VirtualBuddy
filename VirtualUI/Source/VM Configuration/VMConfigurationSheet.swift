@@ -144,20 +144,24 @@ struct VMConfigurationSheet_Previews: PreviewProvider {
     struct _Template: View {
         @State var vm: VBVirtualMachine
         var context: VMConfigurationContext
+        @State private var library = VMLibraryController.preview
 
         var body: some View {
-            if context == .postInstall {
-                PreviewSheet {
+            Group {
+                if context == .postInstall {
+                    PreviewSheet {
+                        VMConfigurationSheet(configuration: $vm.configuration)
+                            .environmentObject(VMConfigurationViewModel(vm, context: context))
+                            .frame(width: VMConfigurationSheet.minWidth, height: VMConfigurationSheet_Previews.height, alignment: .top)
+                    }
+                } else {
                     VMConfigurationSheet(configuration: $vm.configuration)
                         .environmentObject(VMConfigurationViewModel(vm, context: context))
                         .frame(width: VMConfigurationSheet.minWidth, height: VMConfigurationSheet_Previews.height, alignment: .top)
+                        .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
                 }
-            } else {
-                VMConfigurationSheet(configuration: $vm.configuration)
-                    .environmentObject(VMConfigurationViewModel(vm, context: context))
-                    .frame(width: VMConfigurationSheet.minWidth, height: VMConfigurationSheet_Previews.height, alignment: .top)
-                    .background(BlurHashFullBleedBackground(blurHash: .virtualBuddyBackground))
             }
+            .environment(library.templatesController)
         }
     }
 }

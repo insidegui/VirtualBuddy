@@ -44,10 +44,14 @@ final class WHDesktopPictureService: WormholeService {
         logger.debug(#function)
 
         Task {
-            for try await message in connection.stream(for: DesktopPictureMessage.self) {
-                logger.debug("Received desktop picture message with \(message.payload.content.count) bytes of image data.")
+            do {
+                for try await message in connection.stream(for: DesktopPictureMessage.self) {
+                    logger.debug("Received desktop picture message with \(message.payload.content.count) bytes of image data.")
 
-                peerSentDesktopPictureSubject.send((message.payload, message.senderID))
+                    peerSentDesktopPictureSubject.send((message.payload, message.senderID))
+                }
+            } catch {
+                logger.info("Connection stream terminated: \(error, privacy: .public)")
             }
         }
 
@@ -96,5 +100,3 @@ final class WHDesktopPictureService: WormholeService {
     }
 
 }
-
-extension NSImage: @retroactive @unchecked Sendable { }

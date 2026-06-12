@@ -133,7 +133,7 @@ public final class VMController: ObservableObject {
         /// Ensure configuration is persisted whenever it changes.
         $virtualMachineModel
             .dropFirst()
-            .throttle(for: 0.5, scheduler: DispatchQueue.main, latest: true)
+            .debounce(for: .milliseconds(50), scheduler: DispatchQueue.main)
             .sink { updatedModel in
                 do {
                     try updatedModel.saveMetadata()
@@ -197,6 +197,16 @@ public final class VMController: ObservableObject {
             let vm = try newInstance.virtualMachine
 
             state = .running(vm)
+
+            /// Update boot date VM metadata with the current date, only if not booting in recovery mode.
+            if !newInstance.isRecoveryBoot {
+                if virtualMachineModel.metadata.firstBootDate == nil {
+                    logger.debug("Setting first boot date")
+                    virtualMachineModel.metadata.firstBootDate = .now
+                }
+                virtualMachineModel.metadata.lastBootDate = .now
+            }
+
             virtualMachineModel.metadata.installFinished = true
         }
     }

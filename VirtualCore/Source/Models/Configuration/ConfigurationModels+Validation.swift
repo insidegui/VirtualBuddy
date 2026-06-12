@@ -44,20 +44,25 @@ public extension VBMacConfiguration {
             errors.append("\(hardware.pointingDevice.kind.name) requires macOS 13 or later.")
         }
         if hasSharedFolders {
-            if VBMacConfiguration.isFileSharingSupported {
-                warnings.append(VBMacConfiguration.fileSharingNotice)
-            } else {
-                errors.append(VBMacConfiguration.fileSharingNotice)
-            }
+            warnings.append(VBMacConfiguration.fileSharingNotice)
         }
         if hardware.networkDevices.contains(where: { $0.kind == .bridge }), !VBNetworkDevice.appSupportsBridgedNetworking {
             errors.append(VBNetworkDevice.bridgeUnsupportedMessage)
         }
-        
+        if provisioningEnabled, provisioningSetup, !VBMacConfiguration.hostSupportsProvisioning {
+            warnings.append(VBMacConfiguration.provisioningUnsupportedHostNotice)
+        }
+
         return SupportState(errors: errors, warnings: warnings)
     }
 
-    static let isFileSharingSupported = true
+    static let hostSupportsProvisioning: Bool = {
+        if #available(macOS 27.0, *) {
+            true
+        } else {
+            false
+        }
+    }()
 
     static let rosettaSupported: Bool = {
         VZLinuxRosettaDirectoryShare.availability != VZLinuxRosettaAvailability.notSupported
@@ -67,15 +72,9 @@ public extension VBMacConfiguration {
         VZLinuxRosettaDirectoryShare.availability == VZLinuxRosettaAvailability.installed
     }
 
-    static let fileSharingNotice: String = {
-        let tip = "For older versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
+    static let fileSharingNotice = "File sharing requires the virtual machine to be running macOS 13 or later. For older versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
 
-        if isFileSharingSupported {
-            return "File sharing requires the virtual machine to be running macOS 13 or later. \(tip)"
-        } else {
-            return "File sharing requires both the host Mac and the virtual machine to be running macOS 13 or later. \(tip)"
-        }
-    }()
+    static let provisioningUnsupportedHostNotice = "Skip Setup Assistant requires macOS 27 or later."
 
     static func rosettaSharingNotice() -> String? {
         if rosettaSupported {
@@ -207,6 +206,8 @@ public extension VBGuestType {
 
     var supportsGuestApp: Bool { self == .mac }
 
+    var supportsProvisioning: Bool { self == .mac }
+
 }
 
 public extension VBVirtualMachine {
@@ -217,4 +218,16 @@ public extension UTType {
     static let ipsw = UTType(filenameExtension: "ipsw")!
     static let iso = UTType(filenameExtension: "iso")!
     static let img = UTType(filenameExtension: "img")!
+}
+
+public extension VBMacProvisioningConfiguration {
+    /// Unlike the soft validations that are implemented by the model itself and designed to be updated and displayed as the user changes data in the UI,
+    /// this one actually creates the underlying Virtualization object and uses that to validate against internal requirements which might change between releases.
+    func validateWithVirtualization() throws {
+        guard #available(macOS 27.0, *) else { return }
+
+        let options = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(with: self)
+
+        try options.validate()
+    }
 }

@@ -60,6 +60,26 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
         let xhci = VZXHCIControllerConfiguration()
         return [xhci]
     }
+
+    @available(macOS 27.0, *)
+    static func createProvisioningOptions(for vm: VBVirtualMachine) -> VZMacGuestProvisioningOptions? {
+        guard vm.configuration.provisioningEnabled, let provisioning = vm.configuration.provisioning else { return nil }
+
+        return createProvisioningOptions(with: provisioning)
+    }
+
+    @available(macOS 27.0, *)
+    static func createProvisioningOptions(with provisioning: VBMacProvisioningConfiguration) -> VZMacGuestProvisioningOptions {
+        let options = VZMacGuestProvisioningOptions()
+
+        options.enablesRemoteLogin = provisioning.enablesRemoteLogin
+        options.fullName = provisioning.fullName
+        options.username = provisioning.username
+        options.password = provisioning.password
+        options.logsInAutomatically = provisioning.logsInAutomatically
+
+        return options
+    }
 }
 
 // MARK: - Configuration Models -> Virtualization

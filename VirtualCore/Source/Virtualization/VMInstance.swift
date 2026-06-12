@@ -36,7 +36,8 @@ public final class VMInstance: NSObject, ObservableObject {
     let wormhole: WormholeManager = .sharedHost
     
     private var isLoadingNVRAM = false
-    
+    private(set) var isRecoveryBoot = false
+
     var virtualMachineModel: VBVirtualMachine {
         didSet {
             precondition(oldValue.id == virtualMachineModel.id, "Can't change the virtual machine identity after initializing the controller")
@@ -255,6 +256,23 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = try ensureVM()
 
+        let configuration = virtualMachineModel.configuration
+        let startOptions: VZVirtualMachineStartOptions
+
+        switch configuration.systemType {
+        case .mac:
+            let macOptions = VZMacOSVirtualMachineStartOptions(options: options)
+            if #available(macOS 27.0, *),
+               let provisioning = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(for: virtualMachineModel)
+            {
+                try macOptions.setGuestProvisioning(provisioning)
+            }
+            startOptions = macOptions
+            isRecoveryBoot = macOptions.startUpFromMacOSRecovery
+        case .linux:
+            startOptions = VZVirtualMachineStartOptions()
+        }
+
         try await vm.start(options: startOptions)
 
         #if DEBUG
@@ -276,16 +294,6 @@ public final class VMInstance: NSObject, ObservableObject {
         #endif
     }
 
-    @available(macOS 13, *)
-    private var startOptions: VZVirtualMachineStartOptions {
-        switch virtualMachineModel.configuration.systemType {
-        case .mac:
-            return VZMacOSVirtualMachineStartOptions(options: options)
-        case .linux:
-            return VZVirtualMachineStartOptions()
-        }
-    }
-    
     func pause() async throws {
         logger.debug(#function)
 
