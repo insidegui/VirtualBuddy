@@ -133,7 +133,7 @@ public final class VMController: ObservableObject {
         /// Ensure configuration is persisted whenever it changes.
         $virtualMachineModel
             .dropFirst()
-            .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+            .debounce(for: .milliseconds(50), scheduler: DispatchQueue.main)
             .sink { updatedModel in
                 do {
                     try updatedModel.saveMetadata()
