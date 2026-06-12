@@ -1,0 +1,5 @@
+/// #defines a CURRENT_PROJECT_VERSION_FOR_CODE_REQUIREMENTS macro that can be used in code signing verification code
+/// Appends `Service` to the end because this refers to the bundle identifier of the VirtualInstallation framework.
+VI_SERVICE_BUNDLE_IDENTIFIER_STR=@"$(PRODUCT_BUNDLE_IDENTIFIER)Service"
+
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) VI_SERVICE_BUNDLE_IDENTIFIER='$(VI_SERVICE_BUNDLE_IDENTIFIER_STR)'

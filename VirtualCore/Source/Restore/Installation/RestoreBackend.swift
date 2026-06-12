@@ -1,6 +1,7 @@
 import Foundation
 import Virtualization
 import BuddyKit
+import Combine
 
 @MainActor
 public protocol RestoreBackend: AnyObject {
@@ -8,4 +9,9 @@ public protocol RestoreBackend: AnyObject {
     var progress: Progress { get }
     func install() async throws
     func cancel() async
+}
+
+@MainActor
+public protocol VirtualMachineProvidingRestoreBackend: RestoreBackend {
+    var virtualMachine: AnyPublisher<VZVirtualMachine?, Never> { get }
 }

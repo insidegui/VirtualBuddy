@@ -14,12 +14,15 @@ public struct RequirementSet: CatalogModel {
     public var minMemorySizeMB: Int
     /// The minimum host operating system version required to run the system.
     public var minVersionHost: SoftwareVersion
+    /// Whether restore images with this requirement set should be restored using our custom VirtualInstallation backend.
+    public var virtualInstallationBackend: Bool
 
-    public init(id: String, minCPUCount: Int, minMemorySizeMB: Int, minVersionHost: SoftwareVersion) {
+    public init(id: String, minCPUCount: Int, minMemorySizeMB: Int, minVersionHost: SoftwareVersion, virtualInstallationBackend: Bool = false) {
         self.id = id
         self.minCPUCount = minCPUCount
         self.minMemorySizeMB = minMemorySizeMB
         self.minVersionHost = minVersionHost
+        self.virtualInstallationBackend = virtualInstallationBackend
     }
 }
 
@@ -259,5 +262,16 @@ public extension VirtualizationFeature {
         self.name = try container.decode(String.self, forKey: .name)
         self.detail = try container.decodeIfPresent(String.self, forKey: .detail)
         self.unsupportedPlatform = (try? container.decodeIfPresent(Bool.self, forKey: .unsupportedPlatform)) ?? false
+    }
+}
+
+public extension RequirementSet {
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.minCPUCount = try container.decode(Int.self, forKey: .minCPUCount)
+        self.minMemorySizeMB = try container.decode(Int.self, forKey: .minMemorySizeMB)
+        self.minVersionHost = try container.decode(SoftwareVersion.self, forKey: .minVersionHost)
+        self.virtualInstallationBackend = try container.decodeIfPresent(Bool.self, forKey: .virtualInstallationBackend) ?? false
     }
 }

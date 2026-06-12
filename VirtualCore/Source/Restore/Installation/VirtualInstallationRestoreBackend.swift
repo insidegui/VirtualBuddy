@@ -3,9 +3,10 @@ import Virtualization
 import BuddyKit
 import OSLog
 import Combine
+import VirtualInstallation
 
-public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreBackend {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualizationRestoreBackend")
+public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRestoreBackend {
+    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualInstallationRestoreBackend")
 
     public let model: VBVirtualMachine
     public let restoreImageFileURL: URL
@@ -19,7 +20,8 @@ public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreB
 
     public let progress = Progress()
 
-    private var _installer: VZMacOSInstaller?
+    private var _installer: VIVirtualMachineInstaller?
+    private var _virtualMachine: VZVirtualMachine?
 
     private let virtualMachineSubject = PassthroughSubject<VZVirtualMachine?, Never>()
     public var virtualMachine: AnyPublisher<VZVirtualMachine?, Never> { virtualMachineSubject.eraseToAnyPublisher() }
@@ -30,12 +32,20 @@ public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreB
         let config = try await VMInstance.makeConfiguration(for: installModel, installImageURL: restoreImageFileURL)
 
         let vm = VZVirtualMachine(configuration: config)
+        _virtualMachine = vm
 
         await MainActor.run {
             virtualMachineSubject.send(vm)
         }
 
-        let installer = VZMacOSInstaller(virtualMachine: vm, restoringFromImageAt: restoreImageFileURL)
+        let options = VZMacOSVirtualMachineStartOptions()
+        options._forceDFU = true
+
+        try await vm.start(options: options)
+
+        let ecid = try installModel.ECID.require("Failed to obtain virtual machine ECID for installation.")
+
+        let installer = VIVirtualMachineInstaller(ecid: ecid, bundleURL: restoreImageFileURL)
 
         _installer = installer
 
@@ -55,11 +65,11 @@ public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreB
 
         progress.cancel()
 
-        if let _installer, _installer.virtualMachine.canStop {
+        if let _virtualMachine, _virtualMachine.canStop {
             do {
                 logger.info("Stopping installation VM...")
 
-                try await _installer.virtualMachine.stop()
+                try await _virtualMachine.stop()
 
                 logger.info("Installation VM stopped.")
             } catch {
@@ -75,10 +85,11 @@ public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreB
 
         cancellables.removeAll()
         _installer = nil
+        _virtualMachine = nil
         virtualMachineSubject.send(nil)
     }
 
-    private func createInternalProgressObservations(with installer: VZMacOSInstaller) {
+    private func createInternalProgressObservations(with installer: VIVirtualMachineInstaller) {
         installer.progress
             .publisher(for: \.totalUnitCount, options: [.initial, .new])
             .sink { [weak self] value in
@@ -92,17 +103,5 @@ public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreB
                 self?.progress.completedUnitCount = value
             }
             .store(in: &cancellables)
-    }
-}
-
-extension VBVirtualMachine {
-    /// Returns a copy of the model configured for use during installation.
-    func forInstallation() -> Self {
-        var mself = self
-
-        /// Use a fixed 1080p display resolution for installation.
-        mself.configuration.hardware.displayDevices = [VBDisplayPreset.fullHD.device]
-
-        return mself
     }
 }
