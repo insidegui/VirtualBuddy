@@ -415,12 +415,8 @@ public extension VBMacProvisioningConfiguration.FormData {
         case .global: nil
         case .fullName: (value ?? fullName).isEmpty ? "Can’t be empty" : nil
         case .username: (value ?? username).isEmpty ? "Can’t be empty" : nil
-        case .password: if !(value ?? password).isEmpty {
-            if (value ?? password).count < Self.minPasswordLength {
-                "Must be 4 characters or longer"
-            } else {
-                nil
-            }
+        case .password: if (value ?? password).count < Self.minPasswordLength {
+            "Must be 4 characters or longer"
         } else {
             nil
         }
