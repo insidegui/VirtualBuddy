@@ -482,6 +482,8 @@ public extension VBMacConfiguration {
 
         try configuration.$password.write(data.password)
 
+        try configuration.validateWithVirtualization()
+
         self.provisioning = configuration
     }
 

@@ -219,3 +219,15 @@ public extension UTType {
     static let iso = UTType(filenameExtension: "iso")!
     static let img = UTType(filenameExtension: "img")!
 }
+
+public extension VBMacProvisioningConfiguration {
+    /// Unlike the soft validations that are implemented by the model itself and designed to be updated and displayed as the user changes data in the UI,
+    /// this one actually creates the underlying Virtualization object and uses that to validate against internal requirements which might change between releases.
+    func validateWithVirtualization() throws {
+        guard #available(macOS 27.0, *) else { return }
+
+        let options = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(with: self)
+
+        try options.validate()
+    }
+}
