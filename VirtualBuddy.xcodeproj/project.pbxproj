@@ -336,6 +336,7 @@
 		F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0A2D6F54E000603527 /* VBSavedStateMetadata+Clone.swift */; };
 		F4DE1C0F2D6F603300603527 /* VBSavedStatePackage+VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */; };
 		F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */; };
+		F4DF12ED2FDC824800540CF4 /* VirtualInstallation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
 		F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */; };
 		F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */; };
@@ -581,6 +582,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				F4DF12ED2FDC824800540CF4 /* VirtualInstallation.framework in Embed Frameworks */,
 				F453C4252DF0B602007EAD5F /* VirtualUI.framework in Embed Frameworks */,
 				F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */,
 				F428622F2AE87D7E0052F029 /* DeepLinkSecurity.framework in Embed Frameworks */,
