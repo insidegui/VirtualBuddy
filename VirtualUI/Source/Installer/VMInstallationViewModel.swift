@@ -560,6 +560,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     @Published private(set) var virtualMachine: VZVirtualMachine? = nil
+    @Published private(set) var consolePredicate: LogStreamer.Predicate? = ProcessInfo.isSwiftUIPreview ? .process("Xcode") : nil
 
     private var installationTask: Task<Void, Never>?
 
@@ -605,6 +606,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
         let backend = createRestoreBackend(for: model, restoreURL: restoreURL, forceVirtualInstallation: forceVirtualInstallation)
         installer = backend
+
+        consolePredicate = backend.consolePredicate
 
         if let vmProvidingBackend = backend as? VirtualMachineProvidingRestoreBackend {
             vmProvidingBackend.virtualMachine.assign(to: &$virtualMachine)

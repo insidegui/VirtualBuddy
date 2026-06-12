@@ -60,7 +60,7 @@ public struct VMInstallationWizard: View {
         }
     }
 
-    @State private var showingConsole = false
+    @AppStorage("VMInstallation.ShowConsole") private var showingConsole = false
 
     public var body: some View {
         NavigationStack {
@@ -77,7 +77,7 @@ public struct VMInstallationWizard: View {
                     case .name:
                         renameVM
                     case .download, .install, .done:
-                        InstallProgressDisplayView().environmentObject(viewModel)
+                        installProgress
                 }
             }
             .onReceive(stepValidationStateChanged) { isValid in
@@ -111,7 +111,7 @@ public struct VMInstallationWizard: View {
             }
 
             ToolbarItemGroup(placement: .primaryAction) {
-                if viewModel.step == .install {
+                if viewModel.step == .install, viewModel.consolePredicate != nil {
                     Toggle(isOn: $showingConsole) {
                         Image(systemName: "terminal")
                     }
@@ -120,15 +120,6 @@ public struct VMInstallationWizard: View {
             }
         }
         .frame(minWidth: 800, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
-        .overlay(alignment: .bottom) {
-            if showingConsole {
-                InstallationConsole()
-                    .padding(.horizontal, Self.padding * 2)
-                    .padding(.bottom, Self.padding)
-                    .transition(.move(edge: .bottom))
-            }
-        }
-        .animation(.snappy, value: showingConsole)
         .virtualBuddyBottomBar(hidden: hideBottomBar) { bottomBar }
         .background {
             BlurHashFullBleedBackground(blurHash: viewModel.data.backgroundHash)
@@ -259,6 +250,23 @@ public struct VMInstallationWizard: View {
     @ViewBuilder
     private var renameVM: some View {
         VirtualMachineNameInputView(name: $viewModel.data.name)
+    }
+
+    @ViewBuilder
+    private var installProgress: some View {
+        ZStack {
+            InstallProgressDisplayView()
+
+            if showingConsole, let consolePredicate = viewModel.consolePredicate {
+                VirtualDisplayView {
+                    InstallationConsole(predicate: consolePredicate)
+                        .background(Color.black.opacity(0.5))
+                        .contentMargins(.all, EdgeInsets(top: LogConsole.padding, leading: LogConsole.padding, bottom: 0, trailing: LogConsole.padding), for: .scrollContent)
+                }
+                .virtualDisplayChromeDisabled()
+            }
+        }
+        .environmentObject(viewModel)
     }
 
 }
