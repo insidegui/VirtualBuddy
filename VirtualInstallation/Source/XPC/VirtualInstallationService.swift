@@ -119,7 +119,7 @@ import os
         self.driver = nil
         self.clientConnection.invalidate()
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.logger.notice("Service terminating after cancellation")
             exit(0)
         }

@@ -7,6 +7,7 @@ public final class VIVirtualMachineInstaller: @unchecked Sendable {
     public let bundleURL: URL
     private let client: VirtualInstallationClient
     public let progress: Progress
+    private let logger = Logger(subsystem: kVirtualInstallationSubsystem, category: String(describing: VIVirtualMachineInstaller.self))
 
     public init(ecid: ECID, bundleURL: URL) {
         self.ecid = ecid
@@ -17,6 +18,8 @@ public final class VIVirtualMachineInstaller: @unchecked Sendable {
     }
 
     public func install() async throws {
+        defer { logger.debug("\(#function, privacy: .public) is returning now") }
+
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) -> () in
             Task {
                 for await event in client.eventPublisher.values {
@@ -27,6 +30,8 @@ public final class VIVirtualMachineInstaller: @unchecked Sendable {
                         await updateProgress(with: state)
 
                         if let outcome = state.outcome {
+                            logger.info("Received state update with outcome: \(String(describing: outcome), privacy: .public)")
+
                             switch outcome {
                             case .success:
                                 continuation.resume()

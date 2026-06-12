@@ -114,7 +114,7 @@ public final class LogStreamer: ObservableObject {
         let secondsSinceStart = Date.now.timeIntervalSince(startTime)
 
         /// No need to recover if we've just started.
-        guard secondsSinceStart >= 1.0 else { return }
+        guard secondsSinceStart >= 5.0 else { return }
 
         /// Only recover previous log messages if start time is not way too long ago (over 30 minutes).
         guard secondsSinceStart < 60 * 30 else { return }
@@ -148,7 +148,9 @@ public final class LogStreamer: ObservableObject {
                 guard let entry = try? decoder.decode(LogEntry.self, from: Data(line.utf8)) else { continue }
                 recoveredEntries.append(entry)
             }
-            self.events = recoveredEntries
+            await MainActor.run { [weak self, recoveredEntries] in
+                self?.events = recoveredEntries
+            }
         } catch {
             logger.error("Error recovering logs: \(error, privacy: .public)")
         }
@@ -157,7 +159,7 @@ public final class LogStreamer: ObservableObject {
     private var streamTask: Task<Void, Never>?
 
     private func startStreaming(with fileHandle: FileHandle) {
-        streamTask = Task { [weak self] in
+        streamTask = Task.detached { [weak self] in
             await self?.recoverLogMessagesIfNeeded()
 
             do {

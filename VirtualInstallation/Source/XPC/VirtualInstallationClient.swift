@@ -17,6 +17,14 @@ final class VirtualInstallationClient: NSObject, VirtualInstallationClientProtoc
     enum Event: Sendable {
         case stateChanged(_ state: DeviceRestoreState)
         case connectionFailed(_ error: Failure)
+
+        var isStateChanged: Bool {
+            if case .stateChanged = self {
+                true
+            } else {
+                false
+            }
+        }
     }
 
     private let _invalidated = OSAllocatedUnfairLock<Bool>(initialState: false)
@@ -87,7 +95,10 @@ final class VirtualInstallationClient: NSObject, VirtualInstallationClientProtoc
 
     private func send(_ event: Event) {
         DispatchQueue.main.async { [self] in
-            guard !invalidated else { return }
+            /// Allow state changed events to go through even when invalidated, as we must report
+            /// a final state event for the installer to report its completion and it may occur shortly after
+            /// the service instance has already been invalidated.
+            guard event.isStateChanged || !invalidated else { return }
             eventSubject.send(event)
         }
     }

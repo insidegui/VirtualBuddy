@@ -6,7 +6,7 @@ import Combine
 import VirtualInstallation
 
 public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRestoreBackend {
-    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualInstallationRestoreBackend")
+    private let logger = Logger(subsystem: kVirtualInstallationSubsystem, category: String(describing: VirtualInstallationRestoreBackend.self))
 
     public var consolePredicate: LogStreamer.Predicate { .custom(kVirtualInstallationUnifiedLogPredicate) }
 
@@ -29,6 +29,8 @@ public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRes
     public var virtualMachine: AnyPublisher<VZVirtualMachine?, Never> { virtualMachineSubject.eraseToAnyPublisher() }
 
     public func install() async throws {
+        logger.debug("Install - creating configuration")
+
         let installModel = model.forInstallation()
 
         let config = try await VMInstance.makeConfiguration(for: installModel, installImageURL: restoreImageFileURL)
@@ -43,9 +45,13 @@ public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRes
         let options = VZMacOSVirtualMachineStartOptions()
         options._forceDFU = true
 
+        logger.debug("Requesting vm start")
+
         try await vm.start(options: options)
 
         let ecid = try installModel.ECID.require("Failed to obtain virtual machine ECID for installation.")
+
+        logger.debug("Activating installer")
 
         let installer = VIVirtualMachineInstaller(ecid: ecid, bundleURL: restoreImageFileURL)
 

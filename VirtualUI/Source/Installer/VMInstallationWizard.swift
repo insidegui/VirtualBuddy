@@ -60,7 +60,8 @@ public struct VMInstallationWizard: View {
         }
     }
 
-    @AppStorage("VMInstallation.ShowConsole") private var showingConsole = false
+    /// Not making this persist because having the console open immediately upon installation start slows down installation.
+    @State private var showingConsole = false
 
     public var body: some View {
         NavigationStack {
