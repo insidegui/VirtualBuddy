@@ -469,9 +469,14 @@ public extension VBMacConfiguration {
             throw ProvisioningSetupError(validationErrorMessages: validationErrors)
         }
 
+        /// Usernames with leading or trailing whitespace are rejected by Virtualization (https://github.com/insidegui/VirtualBuddy/discussions/686#discussioncomment-17278047)
+        /// It does not seem to reject full names or passwords with leading/trailing whitespaces, but I'm also trimming full name for consistency.
+        let sanitizedFullName = data.fullName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sanitizedUsername = data.username.trimmingCharacters(in: .whitespacesAndNewlines)
+
         let configuration = VBMacProvisioningConfiguration(
-            fullName: data.fullName,
-            username: data.username,
+            fullName: sanitizedFullName,
+            username: sanitizedUsername,
             password: KeychainReference(
                 service: VBMacProvisioningConfiguration.keychainItemService,
                 account: provisioningUUID.uuidString
