@@ -1,6 +1,5 @@
 import Foundation
 import OSLog
-import Combine
 
 public struct LogEntry: Identifiable, Hashable, Codable, CustomStringConvertible {
     public enum Level: String, Codable {
@@ -46,13 +45,12 @@ public extension LogEntry {
 
 public final class LogStreamer: ObservableObject {
 
-    private lazy var logger = Logger(for: Self.self)
+    private let logger = Logger(for: LogStreamer.self)
 
+    private var recoveryProcess: Process?
     private var logProcess: Process?
 
     @Published public private(set) var events = [LogEntry]()
-
-    public let onEvent = PassthroughSubject<LogEntry, Never>()
 
     public enum Predicate: CustomStringConvertible {
         case library(String)
@@ -75,24 +73,15 @@ public final class LogStreamer: ObservableObject {
     }
 
     public let predicate: Predicate
-    public let throttleInterval: Double
+    public let startTime: Date
 
-    public init(predicate: Predicate, throttleInterval: Double = 0.5) {
+    public init(predicate: Predicate, startTime: Date = .now) {
         self.predicate = predicate
-        self.throttleInterval = throttleInterval
+        self.startTime = startTime
     }
-
-    private var eventsCancellable: Cancellable?
 
     public func activate() {
         logger.debug(#function)
-
-        eventsCancellable = onEvent
-            .throttle(for: .init(throttleInterval), scheduler: RunLoop.main, latest: true)
-            .sink(receiveValue: { [weak self] newEvent in
-                guard let self = self else { return }
-                self.events.append(newEvent)
-            })
 
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/usr/bin/log")
@@ -121,29 +110,77 @@ public final class LogStreamer: ObservableObject {
         }
     }
 
+    private func recoverLogMessagesIfNeeded() async {
+        let secondsSinceStart = Date.now.timeIntervalSince(startTime)
+
+        /// No need to recover if we've just started.
+        guard secondsSinceStart >= 1.0 else { return }
+
+        /// Only recover previous log messages if start time is not way too long ago (over 30 minutes).
+        guard secondsSinceStart < 60 * 30 else { return }
+
+        let p = Process()
+        p.executableURL = URL(fileURLWithPath: "/usr/bin/log")
+        p.arguments = [
+            "show",
+            "--debug",
+            "--last",
+            String(format: "%.0fs", secondsSinceStart),
+            "--style",
+            "ndjson",
+            "--predicate",
+            "\(predicate)"
+        ]
+
+        let outPipe = Pipe()
+        p.standardError = Pipe()
+        p.standardOutput = outPipe
+        recoveryProcess = p
+
+        defer { recoveryProcess = nil }
+
+        do {
+            try p.run()
+
+            /// Recover entries by getting all of them and injecting directly into our events to bypass throttling.
+            var recoveredEntries = [LogEntry]()
+            for try await line in outPipe.fileHandleForReading.bytes.lines {
+                guard let entry = try? decoder.decode(LogEntry.self, from: Data(line.utf8)) else { continue }
+                recoveredEntries.append(entry)
+            }
+            self.events = recoveredEntries
+        } catch {
+            logger.error("Error recovering logs: \(error, privacy: .public)")
+        }
+    }
+
     private var streamTask: Task<Void, Never>?
 
     private func startStreaming(with fileHandle: FileHandle) {
-        streamTask = Task {
+        streamTask = Task { [weak self] in
+            await self?.recoverLogMessagesIfNeeded()
+
             do {
                 for try await line in fileHandle.bytes.lines {
-                    await onTaskProduceEvent(for: line)
+                    await self?.onTaskProduceEvent(for: line)
                 }
             } catch {
-                logger.error("AsyncSequence error: \(String(describing: error), privacy: .public)")
+                self?.logger.error("AsyncSequence error: \(String(describing: error), privacy: .public)")
             }
         }
 
     }
 
+    private let decoder = JSONDecoder()
+
     private func onTaskProduceEvent(for line: String) async {
         guard !line.contains("Filtering the log data using") else { return }
 
         do {
-            let entry = try JSONDecoder().decode(LogEntry.self, from: Data(line.utf8))
+            let entry = try decoder.decode(LogEntry.self, from: Data(line.utf8))
 
-            await MainActor.run {
-                onEvent.send(entry)
+            await MainActor.run { [weak self] in
+                self?.events.append(entry)
             }
         } catch {
             logger.error("Error decoding log entry \(line, privacy: .public): \(String(describing: error), privacy: .public)")

@@ -476,6 +476,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     private func startInstallation() async {
+        installationStartTime = .now
+
         switch machine?.configuration.systemType {
         case .mac:
             startMacInstallation()
@@ -561,6 +563,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
     @Published private(set) var virtualMachine: VZVirtualMachine? = nil
     @Published private(set) var consolePredicate: LogStreamer.Predicate? = ProcessInfo.isSwiftUIPreview ? .process("Xcode") : nil
+    @Published private(set) var installationStartTime = Date.now
 
     private var installationTask: Task<Void, Never>?
 

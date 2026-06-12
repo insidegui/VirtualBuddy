@@ -8,8 +8,8 @@ struct LogConsole: View {
 
     @StateObject private var streamer: LogStreamer
 
-    init(predicate: LogStreamer.Predicate) {
-        self._streamer = .init(wrappedValue: LogStreamer(predicate: predicate))
+    init(predicate: LogStreamer.Predicate, startTime: Date = .now) {
+        self._streamer = .init(wrappedValue: LogStreamer(predicate: predicate, startTime: startTime))
     }
 
     init(streamer: LogStreamer) {
@@ -19,9 +19,11 @@ struct LogConsole: View {
     @State private var searchTerm = ""
     @AppStorage("LogConsole.ScrollAutomatically") private var autoscroll = true
 
+    @State private var throttledEvents = [LogEntry]()
+
     private var filteredEvents: [LogEntry] {
-        guard searchTerm.count >= 3 else { return streamer.events }
-        return streamer.events.filter {
+        guard searchTerm.count >= 3 else { return throttledEvents }
+        return throttledEvents.filter {
             $0.message.localizedCaseInsensitiveContains(searchTerm)
         }
     }
@@ -65,6 +67,9 @@ struct LogConsole: View {
             }
         }
         .onAppear(perform: streamer.activate)
+        .onReceive(streamer.$events.throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)) { events in
+            throttledEvents = events
+        }
     }
 
     @FocusState private var searchFieldFocused: Bool

@@ -11,9 +11,10 @@ import VirtualCore
 struct InstallationConsole: View {
 
     var predicate: LogStreamer.Predicate
+    var startTime: Date
 
     var body: some View {
-        LogConsole(predicate: predicate)
+        LogConsole(predicate: predicate, startTime: startTime)
             .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
     }
 
@@ -21,7 +22,7 @@ struct InstallationConsole: View {
 
 #if DEBUG
 #Preview {
-    InstallationConsole(predicate: .process("Xcode"))
+    InstallationConsole(predicate: .process("Xcode"), startTime: .now)
         .padding()
         .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity, alignment: .bottom)
 }

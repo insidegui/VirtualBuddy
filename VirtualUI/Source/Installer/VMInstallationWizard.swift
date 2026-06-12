@@ -259,7 +259,7 @@ public struct VMInstallationWizard: View {
 
             if showingConsole, let consolePredicate = viewModel.consolePredicate {
                 VirtualDisplayView {
-                    InstallationConsole(predicate: consolePredicate)
+                    InstallationConsole(predicate: consolePredicate, startTime: viewModel.installationStartTime)
                         .background(Color.black.opacity(0.5))
                         .contentMargins(.all, EdgeInsets(top: LogConsole.padding, leading: LogConsole.padding, bottom: 0, trailing: LogConsole.padding), for: .scrollContent)
                 }
