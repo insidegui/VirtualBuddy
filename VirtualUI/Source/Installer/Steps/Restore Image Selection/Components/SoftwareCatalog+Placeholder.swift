@@ -68,7 +68,7 @@ extension ResolvedRequirementSet {
 }
 
 extension SoftwareCatalog {
-    static let placeholder = SoftwareCatalog(apiVersion: 1, minAppVersion: "1.0", channels: [.placeholder], groups: [.placeholder], restoreImages: [.placeholder], features: [], requirementSets: [.placeholder], deviceSupportVersions: [])
+    static let placeholder = SoftwareCatalog(apiVersion: 1, minAppVersion: "1.0", channels: [.placeholder], groups: [.placeholder], restoreImages: [.placeholder], features: [], requirementSets: [.placeholder], deviceSupportVersions: [], legacyGuestAppVersions: [])
 }
 
 extension ResolvedRestoreImage {

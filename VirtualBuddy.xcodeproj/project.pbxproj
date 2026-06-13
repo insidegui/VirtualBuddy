@@ -124,6 +124,7 @@
 		F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */ = {isa = PBXBuildFile; productRef = F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */; };
 		F43B014B2AD85ABB00164CD1 /* DeepLinkAuthDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */; };
 		F43B014E2AD86BFA00164CD1 /* DeepLinkHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */; };
+		F43ED2BE2FDD9631001D143B /* LegacyGuestAppCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F43ED2BD2FDD9631001D143B /* LegacyGuestAppCommand.swift */; };
 		F443620A29B7947A00745B43 /* GuestAdditionsDiskImage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */; };
 		F443620C29B79A6800745B43 /* VirtualBuddyGuest.app in Embed Guest App */ = {isa = PBXBuildFile; fileRef = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F443620F29B7A0C600745B43 /* CreateGuestImage.sh in Resources */ = {isa = PBXBuildFile; fileRef = F443620E29B7A0C600745B43 /* CreateGuestImage.sh */; };
@@ -701,6 +702,7 @@
 		F43B01432AD85A6500164CD1 /* VirtualBuddyDeepLinks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualBuddyDeepLinks.swift; sourceTree = "<group>"; };
 		F43B01492AD85ABB00164CD1 /* DeepLinkAuthDialog.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeepLinkAuthDialog.swift; sourceTree = "<group>"; };
 		F43B014D2AD86BFA00164CD1 /* DeepLinkHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandler.swift; sourceTree = "<group>"; };
+		F43ED2BD2FDD9631001D143B /* LegacyGuestAppCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegacyGuestAppCommand.swift; sourceTree = "<group>"; };
 		F443620929B7947A00745B43 /* GuestAdditionsDiskImage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestAdditionsDiskImage.swift; sourceTree = "<group>"; };
 		F443620E29B7A0C600745B43 /* CreateGuestImage.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; path = CreateGuestImage.sh; sourceTree = "<group>"; };
 		F444D0C92DF321CD0086537A /* CatalogGroupPlaceholder.heic */ = {isa = PBXFileReference; lastKnownFileType = file; path = CatalogGroupPlaceholder.heic; sourceTree = "<group>"; };
@@ -965,6 +967,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F43EC1962FDD8233001D143B /* Scripts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Scripts; sourceTree = "<group>"; };
 		F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5AD2FDB2A7600AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallation; sourceTree = "<group>"; };
 		F4EFB5B52FDB2BD400AF2A63 /* VirtualInstallationService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5C02FDB2BD400AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallationService; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -1467,6 +1470,7 @@
 				F453C4312DF0B7A5007EAD5F /* Core */,
 				F453C4322DF0B7A5007EAD5F /* CatalogCommand.swift */,
 				F453C4332DF0B7A5007EAD5F /* GroupCommand.swift */,
+				F43ED2BD2FDD9631001D143B /* LegacyGuestAppCommand.swift */,
 				F453C4342DF0B7A5007EAD5F /* ImageCommand.swift */,
 				F453C4352DF0B7A5007EAD5F /* IPSWCommand.swift */,
 				F453C4362DF0B7A5007EAD5F /* MigrateCommand.swift */,
@@ -1834,6 +1838,7 @@
 		F4BE9C4527FF052100B648F8 = {
 			isa = PBXGroup;
 			children = (
+				F43EC1962FDD8233001D143B /* Scripts */,
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
@@ -2379,6 +2384,7 @@
 				F4C18A4028491B8500335EC7 /* Resources */,
 				F4C18A5628491B9D00335EC7 /* Embed Frameworks */,
 				F41369BE2991861C002CE8D3 /* Embed Login Item */,
+				F43EC19B2FDD8920001D143B /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -2426,6 +2432,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				F43EC1962FDD8233001D143B /* Scripts */,
 				F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */,
 			);
 			name = VirtualInstallation;
@@ -2634,6 +2641,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		F43EC19B2FDD8920001D143B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Scripts/check_guest_app_deployment_target.sh\n";
+		};
 		F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -2871,6 +2896,7 @@
 				F453C4422DF0B7A5007EAD5F /* MobileDeviceCommand.swift in Sources */,
 				F453C4432DF0B7A5007EAD5F /* BuildManifest+Fetch.swift in Sources */,
 				F453C4682DF10181007EAD5F /* BlurHashCommand.swift in Sources */,
+				F43ED2BE2FDD9631001D143B /* LegacyGuestAppCommand.swift in Sources */,
 				F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */,
 				F453C4442DF0B7A5007EAD5F /* TreeStringConvertible.swift in Sources */,
 				F453C4452DF0B7A5007EAD5F /* MigrateCommand.swift in Sources */,
