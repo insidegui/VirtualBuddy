@@ -965,6 +965,7 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		F43EC1962FDD8233001D143B /* Scripts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Scripts; sourceTree = "<group>"; };
 		F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5AD2FDB2A7600AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallation; sourceTree = "<group>"; };
 		F4EFB5B52FDB2BD400AF2A63 /* VirtualInstallationService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5C02FDB2BD400AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallationService; sourceTree = "<group>"; };
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -1834,6 +1835,7 @@
 		F4BE9C4527FF052100B648F8 = {
 			isa = PBXGroup;
 			children = (
+				F43EC1962FDD8233001D143B /* Scripts */,
 				F4BE9C5027FF052100B648F8 /* VirtualBuddy */,
 				F4BE9C6627FF053A00B648F8 /* VirtualCore */,
 				F498ACFF2884BF13006F1C00 /* VirtualUI */,
@@ -2426,6 +2428,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
+				F43EC1962FDD8233001D143B /* Scripts */,
 				F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */,
 			);
 			name = VirtualInstallation;
