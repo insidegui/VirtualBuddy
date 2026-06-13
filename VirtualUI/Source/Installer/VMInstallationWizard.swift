@@ -106,7 +106,6 @@ public struct VMInstallationWizard: View {
                     Button("Done") {
                         closeWindow()
                     }
-                    .keyboardShortcut(.defaultAction)
                 }
             }
 
@@ -283,6 +282,8 @@ extension VMInstallationWizard {
     static func preview(step: VMInstallationStep) -> some View {
         VMInstallationWizard(library: .preview, initialStep: step)
             .frame(width: 900)
+            .environmentObject(VMLibraryController.preview)
+            .environmentObject(VirtualMachineSessionUIManager.shared)
     }
 
     @ViewBuilder
