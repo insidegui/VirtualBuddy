@@ -57,7 +57,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceBuiltInSoftwareCatalog YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBDisableMemoryLeakAssertions YES"
@@ -69,11 +69,11 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-WHVerbosePacketLogging YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VerboseUILoggingEnabled YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceVirtualInstallationBackend YES"
@@ -84,6 +84,11 @@
          <EnvironmentVariable
             key = "VI_TEST_MODE"
             value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "VB_TOOL"
+            value = "vctool"
             isEnabled = "NO">
          </EnvironmentVariable>
       </EnvironmentVariables>
