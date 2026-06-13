@@ -2381,6 +2381,7 @@
 				F4C18A4028491B8500335EC7 /* Resources */,
 				F4C18A5628491B9D00335EC7 /* Embed Frameworks */,
 				F41369BE2991861C002CE8D3 /* Embed Login Item */,
+				F43EC19B2FDD8920001D143B /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -2637,6 +2638,24 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		F43EC19B2FDD8920001D143B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "./Scripts/check_guest_app_deployment_target.sh\n";
+		};
 		F453C4282DF0B65B007EAD5F /* Create Command-Line Tool Symlinks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;

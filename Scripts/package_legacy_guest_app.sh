@@ -2,6 +2,8 @@
 
 set -e
 
+source "Scripts/legacy_guest_env.zsh"
+
 GUEST_APP_BUNDLE="${1}"
 
 echoerr () {
@@ -83,7 +85,8 @@ fi
 
 rm -Rf "${EXTRACTDIR}" 2>/dev/null || true
 
-echoerr "\n✅ Archive created and verified!"
-echo "\"${OUTPUT}\""
+cp -cf "${OUTPUT}" "${LEGACY_GUEST_ARCHIVE_DIR}/"
 
-echoerr ""
+echoerr "\n✅ Archive created and verified!\n"
+
+echoerr "You may now set LATEST_LEGACY_GUEST_APP_ARCHIVE_DEPLOYMENT_TARGET=\"${MIN_VERSION}\" in Scripts/legacy_guest_env.zsh\n"
