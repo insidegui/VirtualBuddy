@@ -11,6 +11,7 @@ import CryptoKit
 import UniformTypeIdentifiers
 import OSLog
 import Combine
+import BuddyFoundation
 
 public final class GuestAdditionsDiskImage: ObservableObject {
 
@@ -83,20 +84,6 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
     // MARK: File Paths
 
-    private var embeddedGuestAppURL: URL {
-        get throws {
-            guard let url = Bundle.main.sharedSupportURL?.appendingPathComponent("VirtualBuddyGuest.app") else {
-                throw Failure("Couldn't get VirtualBuddyGuest.app URL within main app bundle")
-            }
-
-            guard FileManager.default.fileExists(atPath: url.path) else {
-                throw Failure("VirtualBuddyGuest.app doesn't exist at \(url.path)")
-            }
-
-            return url
-        }
-    }
-
     private var generatorScriptURL: URL {
         get throws {
             guard let url = Bundle.virtualCore.url(forResource: "CreateGuestImage", withExtension: "sh") else {
@@ -154,7 +141,7 @@ public final class GuestAdditionsDiskImage: ObservableObject {
     }
 
     private func computeEmbeddedGuestDigest() throws -> String {
-        let url = try embeddedGuestAppURL
+        let url = Bundle.embeddedGuestApp.bundleURL
         guard let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.contentTypeKey]) else {
             throw Failure("Couldn't instantiate file enumerator for computing guest app bundle digest")
         }
@@ -193,7 +180,7 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
     private func writeGuestImage(with digest: String) async throws {
         let scriptPath = try generatorScriptURL.path
-        let guestURL = try embeddedGuestAppURL
+        let guestURL = Bundle.embeddedGuestApp.bundleURL
         let guestPath = guestURL.path
         let size = computeImageSizeInMB(guestAppURL: guestURL)
 
@@ -244,6 +231,43 @@ public final class GuestAdditionsDiskImage: ObservableObject {
         logger.notice("Guest additions disk image generated at \(self.installedImageURL.path, privacy: .public)")
     }
 
+}
+
+public extension Bundle {
+    /// Bundle of the VirtualBuddyGuest app embedded in the app's main bundle.
+    static let embeddedGuestApp: Bundle = {
+        #if DEBUG
+        /// Allow using SwiftUI previews with VirtualUI target selected without having to embed VirtualBuddyGuest.app inside VirtualUI.
+        guard !ProcessInfo.isSwiftUIPreview else { return Bundle.main }
+        #endif
+        do {
+            guard let url = Bundle.main.sharedSupportURL?.appendingPathComponent("VirtualBuddyGuest.app") else {
+                throw Failure("Couldn't get VirtualBuddyGuest.app URL within main app bundle")
+            }
+
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                throw Failure("VirtualBuddyGuest.app doesn't exist at \(url.path)")
+            }
+
+            guard let bundle = Bundle(url: url) else {
+                throw Failure("Failed to construct bundle for embedded guest app at \(url.path(percentEncoded: false)).")
+            }
+
+            return bundle
+        } catch {
+            preconditionFailure("\(error)")
+        }
+    }()
+
+    var minimumSystemVersion: SoftwareVersion {
+        guard let versionString: String = self.infoPlistValue(for: "LSMinimumSystemVersion") else { return .empty }
+        return SoftwareVersion(string: versionString) ?? .empty
+    }
+}
+
+public extension SoftwareVersion {
+    /// Version of the VirtualBuddyGuest app embedded in the app's main bundle.
+    static let embeddedGuestApp = Bundle.embeddedGuestApp.softwareVersion
 }
 
 // MARK: - Virtualization Extensions

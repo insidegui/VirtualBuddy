@@ -73,10 +73,14 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VerboseUILoggingEnabled YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceVirtualInstallationBackend YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBAllowAllGuestAppVersions YES"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>

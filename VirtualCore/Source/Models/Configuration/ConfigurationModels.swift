@@ -59,6 +59,11 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     public var hasSharedFolders: Bool { !sharedFolders.filter(\.isEnabled).isEmpty }
 
+    /// Manual override for which guest app version should be mounted for this virtual machine.
+    ///
+    /// `nil` means use the copy of VirtualBuddyGuest that's embedded in the current build of VirtualBuddy.
+    public var guestAppVersion: CatalogLegacyGuestAppVersion.ID? = nil
+
 }
 
 // MARK: - Hardware Configuration
