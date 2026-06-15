@@ -240,7 +240,7 @@
       "id" : "VirtualBuddyGuest_minOS_12.3",
       "maxGuestVersion" : "12.99.99",
       "minGuestVersion" : "12.3.0",
-      "sha384" : "e72c9610af01af5bc3940129f8fc6c6ba9430fbc16e9833c7e71482981542db32bbdbeeb95042dd28ff7d6ace060e315",
+      "sha384" : "8b4797ad33b40fc939a532c28d121c63bebcd7bb36c0fdd0de1db54174652c18fb3da4a2cea298a2efd1984ead37ac77",
       "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_12.3.dmg"
     },
     {
@@ -248,7 +248,7 @@
       "id" : "VirtualBuddyGuest_minOS_13.0",
       "maxGuestVersion" : "13.99.99",
       "minGuestVersion" : "13.0.0",
-      "sha384" : "77a723c88a70cf89170235989e60692024e8da310573289b09b0ddf16170217b987b2e9199d7bacb3fb11501bcfbd7a6",
+      "sha384" : "ccb6c968eff880dd2e2a1b91d9d1be373b95cfb3bb2072042c0af3be0fc0962fb22d56516d2ca2b05a51935ad5a63f8c",
       "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_13.0.dmg"
     },
     {
@@ -256,7 +256,7 @@
       "id" : "VirtualBuddyGuest_minOS_14.0",
       "maxGuestVersion" : "14.99.99",
       "minGuestVersion" : "14.0.0",
-      "sha384" : "0b456552e2f3ccf8be8a89e19fff70d33ec86977b68d74d98cf0cacf9dbb20198e9838bca18af2d7f6d246953318c5c1",
+      "sha384" : "ccb6c968eff880dd2e2a1b91d9d1be373b95cfb3bb2072042c0af3be0fc0962fb22d56516d2ca2b05a51935ad5a63f8c",
       "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_14.0.dmg"
     }
   ],
