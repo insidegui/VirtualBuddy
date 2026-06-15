@@ -568,7 +568,7 @@ public extension VBMacConfiguration {
     }
 }
 
-private extension VBMacConfiguration {
+extension VBMacConfiguration {
     var guestAppDiskImageSource: GuestAdditionsDiskImage.Source {
         if let guestAppVersion {
             GuestAdditionsDiskImage.Source.catalog(guestAppVersion)

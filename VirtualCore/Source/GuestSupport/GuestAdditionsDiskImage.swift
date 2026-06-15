@@ -79,7 +79,12 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
         switch source {
         case .embedded: try await generateAndInstallEmbeddedGuestDiskImage()
-        case .catalog(let id): try await installCatalogDiskImage(id)
+        case .catalog(let id): do {
+            try await installCatalogDiskImage(id)
+            await MainActor.run { self.state = .ready }
+        } catch {
+            await MainActor.run { self.state = .installFailed(error) }
+        }
         }
     }
 
@@ -95,6 +100,7 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
             if let digest = try? imagePath.sha384Digest {
                 guard digest.hexString.caseInsensitiveCompare(app.sha384) != .orderedSame else {
+                    await MainActor.run { self.state = .ready }
                     return
                 }
 
@@ -110,11 +116,15 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
         logger.debug("Downloading image from \(app.url, privacy: .public)")
 
+        await MainActor.run { self.state = .downloading }
+
         let request = URLRequest(url: app.url)
         let (fileURL, response) = try await URLSession.shared.download(for: request)
 
         let status = (response as! HTTPURLResponse).statusCode
         try (status == 200).require("HTTP \(status).")
+
+        await MainActor.run { self.state = .installing }
 
         logger.debug("Copying image to \(imagePath)")
 
@@ -361,17 +371,13 @@ public extension SoftwareVersion {
 extension VZVirtioBlockDeviceConfiguration {
 
     static func guestAdditionsDisk(for configuration: VBMacConfiguration) async throws -> VZVirtioBlockDeviceConfiguration? {
-        let image: GuestAdditionsDiskImage = if let guestAppVersion = configuration.guestAppVersion {
-            GuestAdditionsDiskImage(source: .catalog(guestAppVersion))
-        } else {
-            GuestAdditionsDiskImage.default
-        }
+        let image = GuestAdditionsDiskImage(source: configuration.guestAppDiskImageSource)
 
-        let guestImageURL = image.installedImageURL
+        let guestImagePath = FilePath(image.installedImageURL)
 
-        guard FileManager.default.fileExists(atPath: guestImageURL.path) else { return nil }
+        guard guestImagePath.exists else { return nil }
 
-        let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImageURL, readOnly: true)
+        let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImagePath.url, readOnly: true)
 
         return VZVirtioBlockDeviceConfiguration(attachment: guestAttachment)
     }
