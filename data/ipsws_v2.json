@@ -34,7 +34,7 @@
     },
     {
       "id" : "guest_app",
-      "minVersionGuest" : "13.0.0",
+      "minVersionGuest" : "12.3.0",
       "minVersionHost" : "13.0.0",
       "name" : "VirtualBuddyGuest app",
       "unsupportedPlatform" : false
