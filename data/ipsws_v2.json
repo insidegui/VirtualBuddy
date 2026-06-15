@@ -240,24 +240,24 @@
       "id" : "VirtualBuddyGuest_minOS_12.3",
       "maxGuestVersion" : "12.99.99",
       "minGuestVersion" : "12.3.0",
-      "sha384" : "670b2f377e6c9a3c6675f5efd0f63ea83e50c968e754f0fc554bdda6da85bc690ce6bc1a408425399371705f7d79d1cd",
-      "url" : "https:\/\/raw.githubusercontent.com\/insidegui\/VirtualBuddy\/refs\/heads\/main\/data\/LegacyGuestApp\/VirtualBuddyGuest_minOS_12.3.aar"
+      "sha384" : "e72c9610af01af5bc3940129f8fc6c6ba9430fbc16e9833c7e71482981542db32bbdbeeb95042dd28ff7d6ace060e315",
+      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_12.3.dmg"
     },
     {
       "guestAppVersion" : "2.1.0",
       "id" : "VirtualBuddyGuest_minOS_13.0",
       "maxGuestVersion" : "13.99.99",
       "minGuestVersion" : "13.0.0",
-      "sha384" : "f7b40c4692d5bd497ca533fad02c5291c82b7e559e056f3790d024d838b721102ee88c7dad84e7099da32973733b8116",
-      "url" : "https:\/\/raw.githubusercontent.com\/insidegui\/VirtualBuddy\/refs\/heads\/main\/data\/LegacyGuestApp\/VirtualBuddyGuest_minOS_13.0.aar"
+      "sha384" : "77a723c88a70cf89170235989e60692024e8da310573289b09b0ddf16170217b987b2e9199d7bacb3fb11501bcfbd7a6",
+      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_13.0.dmg"
     },
     {
       "guestAppVersion" : "2.2.0",
       "id" : "VirtualBuddyGuest_minOS_14.0",
       "maxGuestVersion" : "14.99.99",
       "minGuestVersion" : "14.0.0",
-      "sha384" : "a3f721ecd63eff3b9271bc35363d5cb2fa45828cb643abf0ecc9f6199d067e2932b776d07a2d81a8489d2e1153edd6d0",
-      "url" : "https:\/\/raw.githubusercontent.com\/insidegui\/VirtualBuddy\/refs\/heads\/main\/data\/LegacyGuestApp\/VirtualBuddyGuest_minOS_14.0.aar"
+      "sha384" : "0b456552e2f3ccf8be8a89e19fff70d33ec86977b68d74d98cf0cacf9dbb20198e9838bca18af2d7f6d246953318c5c1",
+      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_14.0.dmg"
     }
   ],
   "minAppVersion" : "2.0.0",

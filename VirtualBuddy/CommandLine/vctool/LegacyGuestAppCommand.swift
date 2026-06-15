@@ -9,7 +9,7 @@ extension CatalogCommand {
     struct LegacyGuestAppCommand: AsyncParsableCommand {
         static let configuration = CommandConfiguration(
             commandName: "legacyguestapp",
-            abstract: "Modify legacy guest app archives.",
+            abstract: "Modify legacy guest app disk images.",
             subcommands: [
                 AddCommand.self,
             ]
@@ -18,53 +18,74 @@ extension CatalogCommand {
         struct AddCommand: AsyncParsableCommand {
             static let configuration = CommandConfiguration(
                 commandName: "add",
-                abstract: "Adds a legacy guest app archive to the catalog.",
+                abstract: "Adds a legacy guest app disk image to the catalog.",
                 discussion: """
                 This command is used to add legacy builds of the VirtualBuddyGuest app to the catalog so that users running legacy guest OSes
                 can still have a version of the guest app that supports them.
                 
-                If run with an archive matching the file name of an archive already in the catalog, the corresponding entry in the catalog is updated.
+                If run with a disk image matching the file name of a disk image already in the catalog, the corresponding entry in the catalog is updated.
                 """
             )
 
             @Option(name: [.short, .long], help: "Path to an existing catalog JSON file that will be updated with the new group.")
             var output: String
 
-            @Option(help: "Remote base URL where legacy guest app archives will be served from.")
+            @Option(help: "Remote base URL where legacy guest app disk images will be served from.")
             var baseURL: String = "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/main/data/LegacyGuestApp"
 
-            @Argument(help: "Path to VirtualBuddyGuest app archive created with the package_legacy_guest_app script.", completion: .file(extensions: ["aar"]))
+            @Argument(help: "Path to VirtualBuddyGuest app DMG created with dmgdist.", completion: .file(extensions: ["dmg"]))
             var input: String
 
             func run() async throws {
                 let catalogURL = try output.resolvedURL.ensureExistingFile()
                 var catalog = try SoftwareCatalog(contentsOf: catalogURL)
 
-                let temp = FileManager.default.temporaryDirectory.path(percentEncoded: false)
-                let archiveURL = URL(filePath: input)
-                let archiveData = try Data(contentsOf: archiveURL, options: .mappedIfSafe)
+                let imageURL = URL(filePath: input)
+                let imageData = try Data(contentsOf: imageURL, options: .mappedIfSafe)
                 let baseURL = try URL(string: self.baseURL).require("Invalid base URL \(self.baseURL.quoted)")
-                let remoteURL = baseURL.appending(path: archiveURL.lastPathComponent)
+                let remoteURL = baseURL.appending(path: imageURL.lastPathComponent)
 
-                let aa = Process()
-                aa.executableURL = URL(filePath: "/usr/bin/aa")
-                aa.arguments = [
-                    "extract",
-                    "-i",
+                let mountURL = FileManager.default.temporaryDirectory
+                    .appending(path: "VirtualBuddyGuest-\(UUID().uuidString)")
+                try FileManager.default.createDirectory(at: mountURL, withIntermediateDirectories: true)
+                var isMounted = false
+                defer {
+                    if isMounted {
+                        let hdiutilDetach = Process()
+                        hdiutilDetach.executableURL = URL(filePath: "/usr/bin/hdiutil")
+                        hdiutilDetach.arguments = [
+                            "detach",
+                            mountURL.path(percentEncoded: false),
+                            "-quiet",
+                        ]
+
+                        if (try? hdiutilDetach.run()) != nil {
+                            hdiutilDetach.waitUntilExit()
+                        }
+                    }
+
+                    try? FileManager.default.removeItem(at: mountURL)
+                }
+
+                let hdiutilAttach = Process()
+                hdiutilAttach.executableURL = URL(filePath: "/usr/bin/hdiutil")
+                hdiutilAttach.arguments = [
+                    "attach",
                     input,
-                    "-d",
-                    temp
+                    "-readonly",
+                    "-nobrowse",
+                    "-mountpoint",
+                    mountURL.path(percentEncoded: false),
                 ]
-                try aa.run()
-                aa.waitUntilExit()
+                try hdiutilAttach.run()
+                hdiutilAttach.waitUntilExit()
 
-                try (aa.terminationStatus == 0).require("Error extracting archive.")
+                try (hdiutilAttach.terminationStatus == 0).require("Error mounting disk image.")
+                isMounted = true
 
-                let bundleURL = URL(filePath: temp).appending(path: "VirtualBuddyGuest.app")
+                let bundleURL = mountURL.appending(path: "VirtualBuddyGuest.app")
 
                 try bundleURL.requireExistingDirectory()
-
-                defer { try? FileManager.default.removeItem(at: bundleURL) }
 
                 let bundle = try Bundle(url: bundleURL).require("Error constructing bundle at \(bundleURL.path(percentEncoded: false).quoted).")
 
@@ -77,12 +98,12 @@ extension CatalogCommand {
                 let minOSVersion = try SoftwareVersion(string: minOSVersionString).require("Invalid min OS version string \(minOSVersionString.quoted).")
                 let maxOSVersion = SoftwareVersion(major: minOSVersion.major, minor: 99, patch: 99)
 
-                let sha384 = SHA384.hash(data: archiveData)
+                let sha384 = SHA384.hash(data: imageData)
                     .map { String(format: "%02x", $0) }
                     .joined()
 
                 let entry = CatalogLegacyGuestAppVersion(
-                    id: archiveURL.deletingPathExtension().lastPathComponent,
+                    id: imageURL.deletingPathExtension().lastPathComponent,
                     url: remoteURL,
                     sha384: sha384,
                     guestAppVersion: appVersion,
