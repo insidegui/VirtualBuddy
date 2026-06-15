@@ -34,7 +34,7 @@
     },
     {
       "id" : "guest_app",
-      "minVersionGuest" : "13.0.0",
+      "minVersionGuest" : "12.3.0",
       "minVersionHost" : "13.0.0",
       "name" : "VirtualBuddyGuest app",
       "unsupportedPlatform" : false
@@ -74,13 +74,13 @@
       "name" : "Rosetta Sharing",
       "unsupportedPlatform" : true
     },
-        {
-            "id": "provisioning",
-            "minVersionGuest": "27.0.0",
-            "minVersionHost": "27.0.0",
-            "name": "Skip Setup Assistant",
-            "unsupportedPlatform": false
-        }
+    {
+      "id" : "provisioning",
+      "minVersionGuest" : "27.0.0",
+      "minVersionHost" : "27.0.0",
+      "name" : "Skip Setup Assistant",
+      "unsupportedPlatform" : false
+    }
   ],
   "groups" : [
     {
@@ -234,39 +234,69 @@
       "name" : "macOS Monterey"
     }
   ],
+  "legacyGuestAppVersions" : [
+    {
+      "guestAppVersion" : "1.4.0",
+      "id" : "VirtualBuddyGuest_minOS_12.3",
+      "maxGuestVersion" : "12.99.99",
+      "minGuestVersion" : "12.3.0",
+      "sha384" : "8b4797ad33b40fc939a532c28d121c63bebcd7bb36c0fdd0de1db54174652c18fb3da4a2cea298a2efd1984ead37ac77",
+      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_12.3.dmg"
+    },
+    {
+      "guestAppVersion" : "2.1.0",
+      "id" : "VirtualBuddyGuest_minOS_13.0",
+      "maxGuestVersion" : "13.99.99",
+      "minGuestVersion" : "13.0.0",
+      "sha384" : "ccb6c968eff880dd2e2a1b91d9d1be373b95cfb3bb2072042c0af3be0fc0962fb22d56516d2ca2b05a51935ad5a63f8c",
+      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_13.0.dmg"
+    },
+    {
+      "guestAppVersion" : "2.2.0",
+      "id" : "VirtualBuddyGuest_minOS_14.0",
+      "maxGuestVersion" : "14.99.99",
+      "minGuestVersion" : "14.0.0",
+      "sha384" : "ccb6c968eff880dd2e2a1b91d9d1be373b95cfb3bb2072042c0af3be0fc0962fb22d56516d2ca2b05a51935ad5a63f8c",
+      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_14.0.dmg"
+    }
+  ],
   "minAppVersion" : "2.0.0",
   "requirementSets" : [
     {
       "id" : "min_host_12",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "12.0.0"
+      "minVersionHost" : "12.0.0",
+      "virtualInstallationBackend" : false
     },
     {
       "id" : "min_host_13",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "13.0.0"
+      "minVersionHost" : "13.0.0",
+      "virtualInstallationBackend" : false
     },
-        {
-            "id": "min_host_26",
-            "minCPUCount": 2,
-            "minMemorySizeMB": 4096,
-            "minVersionHost": "26.0.0"
-        },
-        {
-            "id": "min_host_27",
-            "minCPUCount": 2,
-            "minMemorySizeMB": 4096,
-            "minVersionHost": "27.0.0"
-        },
-        {
-            "id": "min_host_26_virtual_installation",
-            "minCPUCount": 2,
-            "minMemorySizeMB": 4096,
-            "minVersionHost": "26.0.0",
-            "virtualInstallationBackend": true
-        }
+    {
+      "id" : "min_host_26",
+      "minCPUCount" : 2,
+      "minMemorySizeMB" : 4096,
+      "minVersionHost" : "26.0.0",
+      "virtualInstallationBackend" : false
+    },
+    {
+      "id" : "min_host_27",
+      "minCPUCount" : 2,
+      "minMemorySizeMB" : 4096,
+      "minVersionHost" : "27.0.0",
+      "virtualInstallationBackend" : false
+    },
+    {
+      "id" : "min_host_26_virtual_installation",
+      "minCPUCount" : 2,
+      "minMemorySizeMB" : 4096,
+      "minVersionHost" : "26.0.0",
+      "virtualInstallationBackend" : true
+    }
   ],
   "restoreImages" : [
     {

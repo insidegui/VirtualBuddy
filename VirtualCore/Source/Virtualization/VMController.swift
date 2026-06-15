@@ -108,15 +108,18 @@ public final class VMController: ObservableObject {
 
     public private(set) var savedStatesController: VMSavedStatesController
 
-    private lazy var cancellables = Set<AnyCancellable>()
-    
+    private var cancellables = Set<AnyCancellable>()
+
+    private let guestAppDiskImage: GuestAdditionsDiskImage
+
     public init(with vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions? = nil) {
         self.id = vm.id
         self.name = vm.name
         self.virtualMachineModel = vm
         self.library = library
         self.savedStatesController = VMSavedStatesController(library: library, virtualMachine: vm)
-        
+        self.guestAppDiskImage = GuestAdditionsDiskImage(source: vm.configuration.guestAppDiskImageSource)
+
         #if DEBUG
         if ProcessInfo.isSwiftUIPreview { self.savedStatesController = .preview }
         #endif
@@ -246,14 +249,19 @@ public final class VMController: ObservableObject {
            virtualMachineModel.configuration.systemType.supportsGuestApp
         else { return }
 
-        let guestDiskState = GuestAdditionsDiskImage.current.state
+        /// Kick off legacy guest app download if needed.
+        if virtualMachineModel.configuration.guestAppVersion != nil {
+            Task { try? await guestAppDiskImage.installIfNeeded() }
+        }
+
+        let guestDiskState = guestAppDiskImage.state
 
         logger.info("Guest disk image state is \(guestDiskState, privacy: .public)")
 
         switch guestDiskState {
         case .ready:
             break
-        case .installing:
+        case .downloading, .installing:
             await waitForGuestDiskImageReady()
         case .installFailed(let error):
             runGuestDiskImageErrorAlert(error: error)
@@ -263,7 +271,7 @@ public final class VMController: ObservableObject {
     private func waitForGuestDiskImageReady() async {
         state = .starting("Preparing guest app disk image")
 
-        for await state in GuestAdditionsDiskImage.current.$state.values {
+        for await state in guestAppDiskImage.$state.values {
             switch state {
             case .ready:
                 logger.debug("Guest disk image is ready 🚀")
@@ -271,6 +279,8 @@ public final class VMController: ObservableObject {
             case .installFailed(let error):
                 logger.error("Guest disk image install failed - \(error, privacy: .public)")
                 return runGuestDiskImageErrorAlert(error: error)
+            case .downloading:
+                logger.debug("Guest disk image is downloading...")
             case .installing:
                 logger.debug("Guest disk image is installing...")
             }
@@ -555,5 +565,15 @@ public extension VBMacConfiguration {
         #else
         return UserDefaults.standard.bool(forKey: "VBShowDFUModeBootOption")
         #endif
+    }
+}
+
+extension VBMacConfiguration {
+    var guestAppDiskImageSource: GuestAdditionsDiskImage.Source {
+        if let guestAppVersion {
+            GuestAdditionsDiskImage.Source.catalog(guestAppVersion)
+        } else {
+            GuestAdditionsDiskImage.Source.embedded
+        }
     }
 }
