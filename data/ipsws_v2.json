@@ -74,13 +74,13 @@
       "name" : "Rosetta Sharing",
       "unsupportedPlatform" : true
     },
-        {
-            "id": "provisioning",
-            "minVersionGuest": "27.0.0",
-            "minVersionHost": "27.0.0",
-            "name": "Skip Setup Assistant",
-            "unsupportedPlatform": false
-        }
+    {
+      "id" : "provisioning",
+      "minVersionGuest" : "27.0.0",
+      "minVersionHost" : "27.0.0",
+      "name" : "Skip Setup Assistant",
+      "unsupportedPlatform" : false
+    }
   ],
   "groups" : [
     {
@@ -248,25 +248,24 @@
       "minMemorySizeMB" : 4096,
       "minVersionHost" : "13.0.0"
     },
-        {
-            "id": "min_host_26",
-            "minCPUCount": 2,
-            "minMemorySizeMB": 4096,
-            "minVersionHost": "26.0.0"
-        },
-        {
-            "id": "min_host_27",
-            "minCPUCount": 2,
-            "minMemorySizeMB": 4096,
-            "minVersionHost": "27.0.0"
-        },
-        {
-            "id": "min_host_26_virtual_installation",
-            "minCPUCount": 2,
-            "minMemorySizeMB": 4096,
-            "minVersionHost": "26.0.0",
-            "virtualInstallationBackend": true
-        }
+    {
+      "id" : "min_host_26",
+      "minCPUCount" : 2,
+      "minMemorySizeMB" : 4096,
+      "minVersionHost" : "26.0.0"
+    },
+    {
+      "id" : "min_host_27",
+      "minCPUCount" : 2,
+      "minMemorySizeMB" : 4096,
+      "minVersionHost" : "27.0.0"
+    },
+    {
+      "id" : "min_host_26_virtual_installation",
+      "minCPUCount" : 2,
+      "minMemorySizeMB" : 4096,
+      "minVersionHost" : "26.0.0"
+    }
   ],
   "restoreImages" : [
     {
@@ -280,6 +279,18 @@
       "requirements" : "min_host_26_virtual_installation",
       "url" : "https:\/\/updates.cdn-apple.com\/2026SummerSeed\/fullrestores\/122-99636\/BB03A927-E303-44C1-BB94-6197F130A163\/UniversalMac_27.0_26A5353q_Restore.ipsw",
       "version" : "27.0.0"
+    },
+    {
+      "build" : "25G5043d",
+      "channel" : "devbeta",
+      "downloadSize" : 19906521059,
+      "group" : "tahoe",
+      "id" : "25G5043d",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 26.6 Developer Beta 2",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SpringSeed\/fullrestores\/140-06140\/0C979E51-6B9F-4D2E-84E1-08718CAB38F5\/UniversalMac_26.6_25G5043d_Restore.ipsw",
+      "version" : "26.6.0"
     },
     {
       "build" : "25G5028f",
