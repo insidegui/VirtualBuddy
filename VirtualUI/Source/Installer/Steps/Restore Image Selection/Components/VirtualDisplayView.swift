@@ -1,5 +1,5 @@
 import SwiftUI
-import BuddyKit
+import BuddyUI
 
 private extension EnvironmentValues {
     @Entry var virtualDisplayChromeDisabled = false

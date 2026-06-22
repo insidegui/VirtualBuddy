@@ -7,6 +7,9 @@
 
 import SwiftUI
 import VirtualCore
+import OSLog
+
+private let provisioningLogger = Logger(subsystem: VirtualUIConstants.subsystemName, category: String(describing: ProvisioningConfigurationView.self))
 
 struct ProvisioningConfigurationView: View {
     
@@ -81,7 +84,7 @@ struct ProvisioningConfigurationView: View {
             guard !configuration.provisioningSetup else { return }
             guard !oldValue, newValue else { return }
             guard !ProcessInfo.isSwiftUIPreview else {
-                UILog("I would present the provisioning form sheet now, but I'm in a preview")
+                provisioningLogger.debug("I would present the provisioning form sheet now, but I'm in a preview")
                 return
             }
 
