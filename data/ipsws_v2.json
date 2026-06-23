@@ -240,34 +240,51 @@
       "id" : "min_host_12",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "12.0.0"
+      "minVersionHost" : "12.0.0",
+      "virtualInstallationBackend" : false
     },
     {
       "id" : "min_host_13",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "13.0.0"
+      "minVersionHost" : "13.0.0",
+      "virtualInstallationBackend" : false
     },
     {
       "id" : "min_host_26",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "26.0.0"
+      "minVersionHost" : "26.0.0",
+      "virtualInstallationBackend" : false
     },
     {
       "id" : "min_host_27",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "27.0.0"
+      "minVersionHost" : "27.0.0",
+      "virtualInstallationBackend" : false
     },
     {
       "id" : "min_host_26_virtual_installation",
       "minCPUCount" : 2,
       "minMemorySizeMB" : 4096,
-      "minVersionHost" : "26.0.0"
+      "minVersionHost" : "26.0.0",
+      "virtualInstallationBackend" : true
     }
   ],
   "restoreImages" : [
+    {
+      "build" : "26A5368g",
+      "channel" : "devbeta",
+      "downloadSize" : 22661410445,
+      "group" : "goldengate",
+      "id" : "26A5368g",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 27.0 Developer Beta 2",
+      "requirements" : "min_host_26_virtual_installation",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SummerSeed\/fullrestores\/140-20108\/5D0C3865-B25E-4700-A8B0-A15D60451BF4\/UniversalMac_27.0_26A5368g_Restore.ipsw",
+      "version" : "27.0.0"
+    },
     {
       "build" : "26A5353q",
       "channel" : "devbeta",
