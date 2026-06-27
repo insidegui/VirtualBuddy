@@ -1,6 +1,6 @@
 import Foundation
 import VirtualCore
-import BuddyKit
+import BuddyUI
 
 struct VMInstallData: Hashable, Codable {
     // MARK: Persisted State

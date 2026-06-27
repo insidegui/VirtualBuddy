@@ -1,5 +1,6 @@
 import SwiftUI
-import BuddyKit
+import BuddyPlatform
+import BuddyUI
 
 struct FirstLaunchExperienceView: View {
     var action: () -> ()

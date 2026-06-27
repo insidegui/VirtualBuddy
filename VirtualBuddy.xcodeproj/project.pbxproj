@@ -25,6 +25,8 @@
 /* Begin PBXBuildFile section */
 		0196B45329292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0196B45229292B2A00614EF1 /* LinuxVirtualMachineConfigurationHelper.swift */; };
 		4BA6BE7D293D22E500F396AE /* VirtualMachineConfigurationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4BA6BE7C293D22E500F396AE /* VirtualMachineConfigurationHelper.swift */; };
+		CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422E82FE9B99300DD1670 /* BuddyFoundation */; };
+		CD4422ED2FE9B9D900DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422EC2FE9B9D900DD1670 /* BuddyFoundation */; };
 		F40A1E9D2C1873CA0033E47D /* VBBuildType.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40A1E9C2C1873C60033E47D /* VBBuildType.swift */; };
 		F413696229916F6E002CE8D3 /* StatusItemButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695129916F6E002CE8D3 /* StatusItemButton.swift */; };
 		F413696329916F6E002CE8D3 /* StatusBarPanelChrome.swift in Sources */ = {isa = PBXBuildFile; fileRef = F413695229916F6E002CE8D3 /* StatusBarPanelChrome.swift */; };
@@ -141,7 +143,6 @@
 		F44C00FB2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */; };
 		F4510A782AE2A16F00E24DD9 /* WeakReference.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4510A772AE2A16F00E24DD9 /* WeakReference.swift */; };
 		F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F43B01152AD858FE00164CD1 /* DeepLinkSecurity.framework */; };
-		F453C4122DF0B1ED007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4112DF0B1ED007EAD5F /* BuddyKit */; };
 		F453C41D2DF0B43D007EAD5F /* ResolvedCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C41A2DF0B43D007EAD5F /* ResolvedCatalog.swift */; };
 		F453C41E2DF0B43D007EAD5F /* LegacyCatalog.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4182DF0B43D007EAD5F /* LegacyCatalog.swift */; };
 		F453C41F2DF0B43D007EAD5F /* BlurHashEncode.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4162DF0B43D007EAD5F /* BlurHashEncode.swift */; };
@@ -167,7 +168,6 @@
 		F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4492DF0B7F6007EAD5F /* FragmentZip */; };
 		F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = F453C44B2DF0B835007EAD5F /* libcurl.tbd */; };
 		F453C44E2DF0B870007EAD5F /* VirtualBuddyCLI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C44D2DF0B869007EAD5F /* VirtualBuddyCLI.swift */; };
-		F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C45A2DF0C4BE007EAD5F /* BuddyKit */; };
 		F453C45D2DF0D28A007EAD5F /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = F453C45C2DF0D286007EAD5F /* README.md */; };
 		F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F453C4622DF0E609007EAD5F /* BuddyKit */; };
 		F453C4682DF10181007EAD5F /* BlurHashCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = F453C4672DF10181007EAD5F /* BlurHashCommand.swift */; };
@@ -340,7 +340,6 @@
 		F4DF12ED2FDC824800540CF4 /* VirtualInstallation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
 		F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */; };
-		F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */ = {isa = PBXBuildFile; productRef = F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
 		F4E7680D29B651220075A897 /* VirtualUI.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F4E7680C29B651220075A897 /* VirtualUI.xcassets */; };
 		F4E7680F29B655DD0075A897 /* InstallMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680E29B655DD0075A897 /* InstallMethod.swift */; };
@@ -991,8 +990,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */,
 				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
+				F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
 				F43076E32FD8B19B002BB1EC /* SwiftUIIntrospect in Frameworks */,
 			);
@@ -1003,10 +1002,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */,
-				F453C4122DF0B1ED007EAD5F /* BuddyKit in Frameworks */,
 				F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */,
 				F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */,
 				F4D0F71828674E4B004D5782 /* Sparkle in Frameworks */,
+				CD4422ED2FE9B9D900DD1670 /* BuddyFoundation in Frameworks */,
 				F453C44A2DF0B7F6007EAD5F /* FragmentZip in Frameworks */,
 				F4BE9C6B27FF053A00B648F8 /* VirtualCore.framework in Frameworks */,
 				F43B011B2AD858FE00164CD1 /* DeepLinkSecurity.framework in Frameworks */,
@@ -1021,7 +1020,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F4EFB5D12FDB2CD200AF2A63 /* VirtualInstallation.framework in Frameworks */,
-				F4E4F7262DF0A1CB00B3B8BA /* BuddyKit in Frameworks */,
+				CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1039,7 +1038,6 @@
 			files = (
 				F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */,
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
-				F453C45B2DF0C4BE007EAD5F /* BuddyKit in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
 				F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */,
 			);
@@ -2320,9 +2318,9 @@
 			packageProductDependencies = (
 				F4D0F71728674E4B004D5782 /* Sparkle */,
 				F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */,
-				F453C4112DF0B1ED007EAD5F /* BuddyKit */,
 				F453C42A2DF0B792007EAD5F /* ArgumentParser */,
 				F453C4492DF0B7F6007EAD5F /* FragmentZip */,
+				CD4422EC2FE9B9D900DD1670 /* BuddyFoundation */,
 			);
 			productName = VirtualBuddy;
 			productReference = F4BE9C4E27FF052100B648F8 /* VirtualBuddy.app */;
@@ -2345,7 +2343,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */,
 				F4C189F02848F5F100335EC7 /* PBXTargetDependency */,
 				F4EFB5D42FDB2CD200AF2A63 /* PBXTargetDependency */,
 			);
@@ -3073,10 +3070,6 @@
 			isa = PBXTargetDependency;
 			target = F43B01142AD858FE00164CD1 /* DeepLinkSecurity */;
 			targetProxy = F4510A792AE2B3AB00E24DD9 /* PBXContainerItemProxy */;
-		};
-		F453C3ED2DF0A4D1007EAD5F /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			productRef = F453C3EC2DF0A4D1007EAD5F /* BuddyKit */;
 		};
 		F453C4272DF0B602007EAD5F /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -5909,17 +5902,19 @@
 				minimumVersion = 2.0.0;
 			};
 		};
-		F4E4F7242DF0A1CB00B3B8BA /* XCRemoteSwiftPackageReference "BuddyKit" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/insidegui/BuddyKit";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.6.1;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		CD4422E82FE9B99300DD1670 /* BuddyFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyFoundation;
+		};
+		CD4422EC2FE9B9D900DD1670 /* BuddyFoundation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
+			productName = BuddyFoundation;
+		};
 		F43076E22FD8B19B002BB1EC /* SwiftUIIntrospect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
@@ -5929,16 +5924,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */;
 			productName = URLQueryItemCoder;
-		};
-		F453C3EC2DF0A4D1007EAD5F /* BuddyKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
-			productName = BuddyKit;
-		};
-		F453C4112DF0B1ED007EAD5F /* BuddyKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
-			productName = BuddyKit;
 		};
 		F453C42A2DF0B792007EAD5F /* ArgumentParser */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -5950,11 +5935,6 @@
 			package = F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */;
 			productName = FragmentZip;
 		};
-		F453C45A2DF0C4BE007EAD5F /* BuddyKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
-			productName = BuddyKit;
-		};
 		F453C4622DF0E609007EAD5F /* BuddyKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
@@ -5964,11 +5944,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
-		};
-		F4E4F7252DF0A1CB00B3B8BA /* BuddyKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = F4E4F7242DF0A1CB00B3B8BA /* XCRemoteSwiftPackageReference "BuddyKit" */;
-			productName = BuddyKit;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

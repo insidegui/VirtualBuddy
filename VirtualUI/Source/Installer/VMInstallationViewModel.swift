@@ -10,7 +10,7 @@ import UniformTypeIdentifiers
 import Combine
 import Virtualization
 import VirtualCore
-import BuddyKit
+import BuddyUI
 
 public enum VMInstallationStep: Int, Hashable, Codable {
     case systemType

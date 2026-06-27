@@ -8,8 +8,10 @@
 import SwiftUI
 import VirtualCore
 import VirtualUI
+import OSLog
 
 let kShellAppSubsystem = "codes.rambo.VirtualBuddy"
+private let logger = Logger(subsystem: kShellAppSubsystem, category: "VirtualBuddyApp")
 
 struct VirtualBuddyApp: App {
     @NSApplicationDelegateAdaptor
@@ -35,7 +37,7 @@ struct VirtualBuddyApp: App {
                 .environmentObject(sessionManager)
                 .handlesExternalEvents(preferring: ["*"], allowing: ["*"])
                 .onOpenURL { url in
-                    UILog("OPEN URL \(url.path(percentEncoded: false))")
+                    logger.debug("OPEN URL \(url.path(percentEncoded: false), privacy: .public)")
 
                     sessionManager.open(fileURL: url, library: library)
                 }
