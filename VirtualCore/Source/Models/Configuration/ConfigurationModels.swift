@@ -36,6 +36,8 @@ public struct VBMacConfiguration: Hashable, Codable {
         case unsupported([String])
     }
 
+    @DecodableDefault.EmptyPlaceholder public var provisioningUUID = UUID()
+
     public static let currentVersion = 0
     @DecodableDefault.Zero public var version = VBMacConfiguration.currentVersion
 
@@ -52,7 +54,15 @@ public struct VBMacConfiguration: Hashable, Codable {
 
     @DecodableDefault.True public var captureSystemKeys = true
 
+    @DecodableDefault.False public var provisioningEnabled = false
+    public var provisioning: VBMacProvisioningConfiguration? = nil
+
     public var hasSharedFolders: Bool { !sharedFolders.filter(\.isEnabled).isEmpty }
+
+    /// Manual override for which guest app version should be mounted for this virtual machine.
+    ///
+    /// `nil` means use the copy of VirtualBuddyGuest that's embedded in the current build of VirtualBuddy.
+    public var guestAppVersion: CatalogLegacyGuestAppVersion.ID? = nil
 
 }
 
@@ -356,6 +366,136 @@ public struct VBMacDevice: Hashable, Codable {
         guard _storageDevices == nil else { return }
         _storageDevices = [.defaultBootDevice]
     }
+}
+
+// MARK: - Provisioning
+
+public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
+    public static let keychainItemService = "codes.rambo.VirtualBuddy.Provisioning"
+    
+    public var enablesRemoteLogin: Bool
+    public var logsInAutomatically: Bool
+    public var fullName: String
+    public var username: String
+    @KeychainReference public var password: String
+
+    public init(enablesRemoteLogin: Bool = false, logsInAutomatically: Bool = false, fullName: String = "", username: String = "", password: KeychainReference) {
+        self.enablesRemoteLogin = enablesRemoteLogin
+        self.logsInAutomatically = logsInAutomatically
+        self.fullName = fullName
+        self.username = username
+        self._password = password
+    }
+}
+
+public extension VBMacProvisioningConfiguration {
+    enum FormField: CaseIterable, Sendable {
+        case global
+        case fullName
+        case username
+        case password
+        case passwordConfirmation
+    }
+
+    struct FormData: Hashable, Sendable {
+        public var fullName: String
+        public var username: String
+        public var password: String
+        public var passwordConfirmation: String
+
+        public init(fullName: String = "", username: String = "", password: String = "", passwordConfirmation: String = "") {
+            self.fullName = fullName
+            self.username = username
+            self.password = password
+            self.passwordConfirmation = passwordConfirmation
+        }
+    }
+}
+
+public extension VBMacProvisioningConfiguration.FormData {
+    static let minPasswordLength = 4
+
+    func validationErrorMessage(for field: VBMacProvisioningConfiguration.FormField, value: String? = nil) -> String? {
+        switch field {
+        case .global: nil
+        case .fullName: (value ?? fullName).isEmpty ? "Can’t be empty" : nil
+        case .username: (value ?? username).isEmpty ? "Can’t be empty" : nil
+        case .password: if (value ?? password).count < Self.minPasswordLength {
+            "Must be 4 characters or longer"
+        } else {
+            nil
+        }
+        case .passwordConfirmation: if !password.isEmpty {
+            if (value ?? passwordConfirmation) != password {
+                "Passwords don’t match"
+            } else {
+                nil
+            }
+        } else {
+            nil
+        }
+        }
+    }
+
+    func validationErrorMessages() -> [VBMacProvisioningConfiguration.FormField: String] {
+        var result = [VBMacProvisioningConfiguration.FormField: String]()
+
+        for field in VBMacProvisioningConfiguration.FormField.allCases {
+            result[field] = validationErrorMessage(for: field)
+        }
+
+        return result
+    }
+
+    init(_ configuration: VBMacProvisioningConfiguration) {
+        self.init(
+            fullName: configuration.fullName,
+            username: configuration.username,
+            password: configuration.password,
+            passwordConfirmation: configuration.password
+        )
+    }
+}
+
+public extension VBMacConfiguration {
+    struct ProvisioningSetupError: Error {
+        public let validationErrorMessages: [VBMacProvisioningConfiguration.FormField: String]
+
+        fileprivate init(validationErrorMessages: [VBMacProvisioningConfiguration.FormField : String]) {
+            self.validationErrorMessages = validationErrorMessages
+        }
+    }
+
+    /// Validates the provisioning form data, creates the corresponding ``VBMacProvisioningConfiguration`` and associates it with the virtual machine.
+    mutating func applyProvisioningConfiguration(with data: VBMacProvisioningConfiguration.FormData) throws {
+        let validationErrors = data.validationErrorMessages()
+
+        guard validationErrors.isEmpty else {
+            throw ProvisioningSetupError(validationErrorMessages: validationErrors)
+        }
+
+        /// Usernames with leading or trailing whitespace are rejected by Virtualization (https://github.com/insidegui/VirtualBuddy/discussions/686#discussioncomment-17278047)
+        /// It does not seem to reject full names or passwords with leading/trailing whitespaces, but I'm also trimming full name for consistency.
+        let sanitizedFullName = data.fullName.trimmingCharacters(in: .whitespacesAndNewlines)
+        let sanitizedUsername = data.username.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let configuration = VBMacProvisioningConfiguration(
+            fullName: sanitizedFullName,
+            username: sanitizedUsername,
+            password: KeychainReference(
+                service: VBMacProvisioningConfiguration.keychainItemService,
+                account: provisioningUUID.uuidString
+            )
+        )
+
+        try configuration.$password.write(data.password)
+
+        try configuration.validateWithVirtualization()
+
+        self.provisioning = configuration
+    }
+
+    var provisioningSetup: Bool { provisioning != nil }
 }
 
 // MARK: - Sharing And Other Features
@@ -811,5 +951,84 @@ public extension ProcessInfo {
 public extension NSScreen {
     var dpi: CGSize {
         (deviceDescription[NSDeviceDescriptionKey.resolution] as? CGSize) ?? CGSize(width: 72.0, height: 72.0)
+    }
+}
+
+// MARK: - Duplication Support
+
+public extension VBMacConfiguration {
+    /// Creates a copy of the configuration that can be used to set up a new virtual machine with the same configuration.
+    func duplicate() throws -> VBMacConfiguration {
+        var copy = self
+
+        /// Reset provisioning UUID.
+        copy.provisioningUUID = UUID()
+
+        /// Create unique copy of provisioning with Keychain item pointing to the new UUID.
+        if let provisioning {
+            copy.provisioning = try provisioning.duplicate(destinationUUID: copy.provisioningUUID)
+        }
+
+        /// Currently only the boot volume configuration is duplicated.
+        copy.hardware.storageDevices = hardware.storageDevices.filter { $0.isBootVolume }
+
+        return copy
+    }
+}
+
+extension VBMacProvisioningConfiguration {
+    func duplicate(destinationUUID: UUID) throws -> VBMacProvisioningConfiguration {
+        var copy = self
+        try copy._password.duplicate(newAccount: destinationUUID.uuidString)
+        return copy
+    }
+}
+
+// MARK: - Templates
+
+/// Represents a template that can be applied to the configuration of a virtual machine.
+///
+/// Currently the app dynamically offers configuration templates based on a user's existing virtual machines, but this will be
+/// expanded in the future to allow arbitrary configuration templates that are not tied to existing virtual machines,.
+///
+/// > Tip: To set a VM's configuration to a template, use ``VBMacConfiguration/apply(template:)``.
+public struct VBConfigurationTemplate: Identifiable, Hashable, Codable {
+    public private(set) var id: String
+    public var name: String
+
+    /// This is made private because clients are not supposed to access it directly.
+    ///
+    /// To set a VM's configuration to a template, use ``VBMacConfiguration/apply(template:)``.
+    fileprivate var configuration: VBMacConfiguration
+
+    public var systemType: VBGuestType { configuration.systemType }
+
+    public init(id: String, name: String, configuration: VBMacConfiguration) {
+        self.id = id
+        self.name = name
+        self.configuration = configuration
+    }
+
+    public init(referencing virtualMachine: VBVirtualMachine) {
+        self.init(
+            id: virtualMachine.id,
+            name: virtualMachine.name,
+            configuration: virtualMachine.configuration
+        )
+    }
+}
+
+public extension VBMacConfiguration {
+    /// Replaces this configuration with a duplicate of the configuration from the template.
+    mutating func apply(template: VBConfigurationTemplate, includingStorageDevices: Bool) throws {
+        var duplicate = try template.configuration.duplicate()
+
+        /// Restore our current storage devices when excluding storage from duplicate.
+        /// This is used when applying a configuration for a virtual machine in a post-install context.
+        if !includingStorageDevices {
+            duplicate.hardware.storageDevices = hardware.storageDevices
+        }
+
+        self = duplicate
     }
 }

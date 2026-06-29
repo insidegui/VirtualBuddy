@@ -10,23 +10,19 @@ import VirtualCore
 
 struct InstallationConsole: View {
 
-    var overridePredicate: LogStreamer.Predicate? = nil
-
-    private var predicate: LogStreamer.Predicate {
-        overridePredicate ?? .process("com.apple.Virtualization.Installation")
-    }
+    var predicate: LogStreamer.Predicate
+    var startTime: Date
 
     var body: some View {
-        LogConsole(predicate: predicate)
-            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 100, maxHeight: 400)
-            .controlGroup(level: .secondary)
+        LogConsole(predicate: predicate, startTime: startTime)
+            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
     }
 
 }
 
 #if DEBUG
 #Preview {
-    InstallationConsole(overridePredicate: .process("Xcode"))
+    InstallationConsole(predicate: .process("Xcode"), startTime: .now)
         .padding()
         .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity, alignment: .bottom)
 }

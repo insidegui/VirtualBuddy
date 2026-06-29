@@ -1,11 +1,12 @@
 import Foundation
 import Virtualization
-import BuddyKit
 import OSLog
 import Combine
 
-public final class VirtualizationRestoreBackend: RestoreBackend {
+public final class VirtualizationRestoreBackend: VirtualMachineProvidingRestoreBackend {
     private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VirtualizationRestoreBackend")
+
+    public var consolePredicate: LogStreamer.Predicate { .process("com.apple.Virtualization.Installation") }
 
     public let model: VBVirtualMachine
     public let restoreImageFileURL: URL

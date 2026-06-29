@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "2650"
+   LastUpgradeVersion = "2700"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -56,6 +56,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-VBForceBuiltInSoftwareCatalog YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-VBDisableMemoryLeakAssertions YES"
             isEnabled = "NO">
          </CommandLineArgument>
@@ -65,9 +69,33 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-WHVerbosePacketLogging YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VerboseUILoggingEnabled YES"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBForceVirtualInstallationBackend YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBAllowAllGuestAppVersions YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "VI_TEST_MODE"
+            value = "1"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "VB_TOOL"
+            value = "vctool"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Beta_Release"

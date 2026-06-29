@@ -38,6 +38,7 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel, DownloadableCatalogCon
     public var deviceSupportVersion: CatalogDeviceSupportVersion?
     public var status: ResolvedFeatureStatus
     public var localFileURL: URL?
+    public var legacyGuestAppVersion: CatalogLegacyGuestAppVersion?
 
     public var name: String { image.name }
     public var build: String { image.build }
@@ -47,7 +48,7 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel, DownloadableCatalogCon
     public var downloadSize: Int64 { Int64(image.downloadSize ?? 0) }
     public var isDownloaded: Bool { localFileURL != nil }
 
-    public init(image: RestoreImage, channel: CatalogChannel, features: [ResolvedVirtualizationFeature], requirements: ResolvedRequirementSet, status: ResolvedFeatureStatus, localFileURL: URL?, deviceSupportVersion: CatalogDeviceSupportVersion?) {
+    public init(image: RestoreImage, channel: CatalogChannel, features: [ResolvedVirtualizationFeature], requirements: ResolvedRequirementSet, status: ResolvedFeatureStatus, localFileURL: URL?, deviceSupportVersion: CatalogDeviceSupportVersion?, legacyGuestAppVersion: CatalogLegacyGuestAppVersion?) {
         self.image = image
         self.channel = channel
         self.features = features
@@ -55,6 +56,7 @@ public struct ResolvedRestoreImage: ResolvedCatalogModel, DownloadableCatalogCon
         self.status = status
         self.localFileURL = localFileURL
         self.deviceSupportVersion = deviceSupportVersion
+        self.legacyGuestAppVersion = legacyGuestAppVersion
     }
 }
 
@@ -100,6 +102,7 @@ public struct ResolvedRequirementSet: ResolvedCatalogModel {
     public var id: RequirementSet.ID { requirements.id }
     public var requirements: RequirementSet
     public var status: ResolvedFeatureStatus
+    public var shouldForceVirtualInstallationBackend: Bool { requirements.virtualInstallationBackend }
 
     public init(requirements: RequirementSet, status: ResolvedFeatureStatus) {
         self.requirements = requirements
@@ -217,7 +220,8 @@ public extension ResolvedRestoreImage {
             requirements: ResolvedRequirementSet(requirements: catalog.requirementSet(with: image.requirements), status: .supported),
             status: .supported,
             localFileURL: environment.downloadsProvider?.localFileURL(for: image),
-            deviceSupportVersion: catalog.deviceSupportVersion(for: image)
+            deviceSupportVersion: catalog.deviceSupportVersion(for: image),
+            legacyGuestAppVersion: catalog.legacyGuestAppVersion(for: image)
         )
 
         update(with: environment)
@@ -255,6 +259,40 @@ extension SoftwareCatalog {
             || $0.osVersion.major == image.version.major
         })
     }
+
+    func legacyGuestAppVersion(for image: RestoreImage) -> CatalogLegacyGuestAppVersion? {
+        legacyGuestAppVersions.first(where: {
+            $0.isCompatibleWithCurrentVirtualBuddyVersion
+            && $0.minGuestVersion >= image.version
+            && $0.maxGuestVersion < image.version
+        })
+    }
+}
+
+extension CatalogLegacyGuestAppVersion {
+    var isCompatibleWithCurrentVirtualBuddyVersion: Bool {
+        if let minAppVersion, let maxAppVersion {
+            minAppVersion >= SoftwareVersion.currentApp
+            && maxAppVersion < SoftwareVersion.currentApp
+        } else if let minAppVersion {
+            minAppVersion >= SoftwareVersion.currentApp
+        } else if let maxAppVersion {
+            maxAppVersion < SoftwareVersion.currentApp
+        } else {
+            true
+        }
+    }
+}
+
+public extension CatalogLegacyGuestAppVersion {
+    /// Run `defaults write codes.rambo.VirtualBuddy VBAllowAllGuestAppVersions -bool YES` to force-enable all guest app versions in the override UI.
+    private static var allowAllGuestAppVersions: Bool { UserDefaults.standard.bool(forKey: "VBAllowAllGuestAppVersions") }
+
+    func supports(_ image: ResolvedRestoreImage?) -> Bool {
+        guard let image, !Self.allowAllGuestAppVersions else { return true }
+        return image.version >= minGuestVersion
+        && image.version < maxGuestVersion
+    }
 }
 
 public extension ResolvedVirtualizationFeature {
@@ -274,7 +312,11 @@ public extension ResolvedVirtualizationFeature {
         }
 
         guard environment.guestVersion >= self.feature.minVersionGuest else {
-            if self.feature.minVersionGuest == self.feature.minVersionHost {
+            /// Only use aligned host and guest message when host does not support the feature and the version requirement is the same between guest and host,
+            /// otherwise use the more explicit guest-specific message.
+            if environment.hostVersion < self.feature.minVersionHost,
+               self.feature.minVersionHost == self.feature.minVersionGuest
+            {
                 self.status = .unsupportedHostAndGuestAligned(feature)
             } else {
                 self.status = .unsupportedGuest(feature)

@@ -26,7 +26,7 @@ struct InstallConfigurationStepView: View {
             self.vm = updatedVM
             onSave(updatedVM)
         })
-            .environmentObject(viewModel)
+        .environmentObject(viewModel)
     }
 }
 

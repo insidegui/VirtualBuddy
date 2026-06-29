@@ -13,6 +13,18 @@ public extension VBMacConfiguration {
         "\(hardware.cpuCount) CPUs / \(hardware.memorySize / 1024 / 1024 / 1024) GB"
     }
 
+    var provisioningSummary: String {
+        if provisioningEnabled {
+            if provisioningSetup {
+                "Enabled"
+            } else {
+                "Not Set Up"
+            }
+        } else {
+            "Disabled"
+        }
+    }
+
     var storageSummary: String {
         if hardware.storageDevices.count > 1 {
             return "\(hardware.storageDevices.count) Devices"

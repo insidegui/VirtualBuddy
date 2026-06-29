@@ -125,8 +125,8 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
         .disabled(actionTask != nil)
     }
 
-    private func runToolbarAction(alertForErrors: Bool = false, action: @escaping () async throws -> Void) {
-        actionTask = Task {
+    private func runToolbarAction(alertForErrors: Bool = false, action: @escaping @MainActor () async throws -> Void) {
+        actionTask = Task { @MainActor in
             defer { actionTask = nil }
 
             do {
@@ -139,6 +139,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
         }
     }
 
+    @MainActor
     private func saveState() async throws {
         do {
             try await controller.saveState(snapshotName: textFieldContent)

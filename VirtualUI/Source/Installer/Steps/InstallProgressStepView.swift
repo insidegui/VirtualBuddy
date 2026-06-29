@@ -40,25 +40,12 @@ struct InstallProgressStepView: View {
             VirtualBuddyMonoProgressView(progress: progress, status: status, style: style)
                 .textSelection(.enabled)
         } else if let virtualMachine = viewModel.virtualMachine {
-            InstallerVirtualMachineView(virtualMachine: virtualMachine)
+            SwiftUIVMView(controllerState: .constant(.running(virtualMachine)), captureSystemKeys: false, isDFUModeVM: false, automaticallyReconfiguresDisplay: .constant(false))
+                .virtualMachineInteractionDisabled()
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             VirtualBuddyMonoProgressView(progress: progress, status: Text(""), style: style)
         }
-    }
-}
-
-private struct InstallerVirtualMachineView: NSViewRepresentable {
-    typealias NSViewType = VZVirtualMachineView
-
-    let virtualMachine: VZVirtualMachine
-
-    func makeNSView(context: Context) -> VZVirtualMachineView {
-        VZVirtualMachineView(frame: .zero)
-    }
-
-    func updateNSView(_ nsView: VZVirtualMachineView, context: Context) {
-        nsView.virtualMachine = virtualMachine
     }
 }
 

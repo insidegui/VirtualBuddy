@@ -32,6 +32,7 @@ enum CatalogFeatureID {
     static let stateRestoration = "state_restoration"
     static let displayResize = "display_resize"
     static let rosettaSharing = "rosetta_sharing"
+    static let provisioning = "provisioning"
 }
 
 extension ResolvedRestoreImage {
@@ -64,13 +65,18 @@ extension ResolvedFeatureStatus {
 
 struct VMConfigurationView: View {
     @EnvironmentObject private var viewModel: VMConfigurationViewModel
-    
+
+    @Environment(VMTemplatesController.self) private var templatesController
+
     var initialConfiguration: VBMacConfiguration
 
     static var labelSpacing: CGFloat { 2 }
 
     @AppStorage("config.general.collapsed")
     private var generalCollapsed = true
+
+    @AppStorage("config.provisioning.collapsed")
+    private var provisioningCollapsed = true
 
     @AppStorage("config.storage.collapsed")
     private var storageCollapsed = true
@@ -108,13 +114,25 @@ struct VMConfigurationView: View {
 
     private var showGuestAppSection: Bool { systemType.supportsGuestApp }
 
+    private var showProvisioningSection: Bool { systemType.supportsProvisioning }
+
+    private var showTemplatePicker: Bool { templatesController.hasTemplates(for: viewModel.config.systemType) }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            if showTemplatePicker {
+                templatePicker
+            }
+
             if showBootDiskSection {
                 bootDisk
             }
 
             general
+
+            if showProvisioningSection {
+                provisioning
+            }
 
             storage
 
@@ -145,6 +163,23 @@ struct VMConfigurationView: View {
     }
 
     @ViewBuilder
+    private var templatePicker: some View {
+        ConfigurationSection(.constant(false)) {
+            VMConfigurationTemplatePicker(
+                controller: templatesController,
+                context: viewModel.context,
+                configuration: $viewModel.config
+            ) { updatedConfiguration in
+                if let image = viewModel.config.hardware.storageDevices.first(where: { $0.isBootVolume })?.managedImage {
+                    viewModel.updateBootStorageDevice(with: image)
+                }
+            }
+        } header: {
+            SummaryHeader("Copy Configuration", systemImage: "square.on.square")
+        }
+    }
+
+    @ViewBuilder
     private var general: some View {
         ConfigurationSection($generalCollapsed) {
             HardwareConfigurationView(device: $viewModel.config.hardware)
@@ -153,6 +188,22 @@ struct VMConfigurationView: View {
                 "General",
                 systemImage: "memorychip",
                 summary: viewModel.config.generalSummary
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var provisioning: some View {
+        ConfigurationSection($provisioningCollapsed) {
+            ProvisioningConfigurationView(
+                configuration: $viewModel.config,
+                contextForbidden: viewModel.context != .preInstall && viewModel.vm.hasBootedNonRecoveryAtLeastOnce
+            )
+        } header: {
+            SummaryHeader(
+                "Skip Setup Assistant",
+                systemImage: "person.crop.circle",
+                summary: viewModel.config.provisioningSummary
             )
         }
     }
@@ -304,6 +355,73 @@ struct VMConfigurationView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 15)
             }
+        }
+    }
+}
+
+struct VMConfigurationTemplatePicker: View {
+    let controller: VMTemplatesController
+    let context: VMConfigurationContext
+    @Binding var configuration: VBMacConfiguration
+    var onApply: (_ configuration: VBMacConfiguration) -> ()
+
+    var templates: [VBConfigurationTemplate] {
+        switch configuration.systemType {
+        case .mac: controller.templatesForMacGuest
+        case .linux: controller.templatesForLinuxGuest
+        }
+    }
+
+    @State private var selectedTemplateID: VBConfigurationTemplate.ID?
+    @State private var buttonNeedsAttention = false
+
+    private var selectedTemplate: VBConfigurationTemplate? {
+        selectedTemplateID.flatMap { controller.template(id: $0) }
+    }
+
+    var body: some View {
+        HStack {
+            Picker("Copy configuration", selection: $selectedTemplateID) {
+                Text("Choose existing configuration…")
+                    .tag(Optional<VBConfigurationTemplate.ID>.none)
+
+                ForEach(templates) { template in
+                    Text(template.name)
+                        .tag(Optional<VBConfigurationTemplate.ID>.some(template.id))
+                }
+            }
+            .labelsHidden()
+
+            Spacer()
+
+            Button("Apply") {
+                applySelection()
+            }
+            .modifier(AttentionBounceViewModifier(enabled: buttonNeedsAttention))
+            .disabled(selectedTemplate == nil)
+        }
+        .onChange(of: selectedTemplateID) { _, newValue in
+            buttonNeedsAttention = newValue != nil
+        }
+    }
+
+    private func applySelection() {
+        guard let selectedTemplate else { return }
+
+        do {
+            var updatedConfiguration = configuration
+            try updatedConfiguration.apply(
+                template: selectedTemplate,
+                includingStorageDevices: context == .preInstall
+            )
+
+            configuration = updatedConfiguration
+
+            onApply(updatedConfiguration)
+
+            buttonNeedsAttention = false
+        } catch {
+            NSApp.presentError(error)
         }
     }
 }

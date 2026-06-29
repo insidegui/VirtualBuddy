@@ -1,0 +1,5 @@
+#!/usr/bin/env zsh
+
+echo "Finding and deleting restore bundles extracted by MobileDevice..."
+
+sudo find /private/var/folders -maxdepth 4 -iname 'restore_bundle_*' -exec rm -Rf {} \;

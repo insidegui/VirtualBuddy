@@ -37,20 +37,22 @@ import SwiftUI
     private var cancellables = Set<AnyCancellable>()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        GuestAdditionsDiskImage.current.$state.sink { state in
+        GuestAdditionsDiskImage.default.$state.sink { state in
             switch state {
             case .ready:
-                self.logger.debug("Guest disk image ready")
+                self.logger.debug("Default guest disk image ready")
+            case .downloading:
+                self.logger.debug("Default guest disk image downloading")
             case .installing:
-                self.logger.debug("Guest disk image installing")
+                self.logger.debug("Default guest disk image installing")
             case .installFailed(let error):
-                self.logger.debug("Guest disk image installation failed - \(error, privacy: .public)")
+                self.logger.debug("Default guest disk image installation failed - \(error, privacy: .public)")
             }
         }
         .store(in: &cancellables)
 
         Task {
-            try? await GuestAdditionsDiskImage.current.installIfNeeded()
+            try? await GuestAdditionsDiskImage.default.installIfNeeded()
         }
 
         #if DEBUG

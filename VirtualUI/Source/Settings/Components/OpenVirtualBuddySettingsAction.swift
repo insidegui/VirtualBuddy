@@ -8,7 +8,7 @@
 import SwiftUI
 import VirtualCore
 import DeepLinkSecurity
-import BuddyKit
+import BuddyUI
 
 public struct OpenVirtualBuddySettingsAction {
     public var run: @MainActor () -> ()

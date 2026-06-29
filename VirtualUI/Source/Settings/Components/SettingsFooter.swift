@@ -1,5 +1,5 @@
 import SwiftUI
-import BuddyKit
+import BuddyUI
 
 struct SettingsFooter: View {
     var summaryText: () -> Text

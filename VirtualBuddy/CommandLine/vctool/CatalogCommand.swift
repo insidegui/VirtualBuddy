@@ -9,7 +9,8 @@ struct CatalogCommand: AsyncParsableCommand {
         subcommands: [
             ImageCommand.self,
             GroupCommand.self,
-            MigrateCommand.self
+            MigrateCommand.self,
+            LegacyGuestAppCommand.self
         ]
     )
 }

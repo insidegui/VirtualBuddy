@@ -23,7 +23,7 @@ public final class VBAPIClient {
         )
 
         public static let development = Environment(
-            baseURL: URL(string: "https://virtualbuddy-api-dev.bestbuddyapps3496.workers.dev/v2")!,
+            baseURL: URL(string: "https://localhost:8787/v2")!,
             apiKey: "15A25D48-4A34-4EE4-A293-C22B0DE1B54E"
         )
         #endif

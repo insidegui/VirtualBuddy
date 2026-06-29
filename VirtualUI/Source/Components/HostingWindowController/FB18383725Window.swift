@@ -7,7 +7,7 @@
 
 import SwiftUI
 import Combine
-import BuddyKit
+import BuddyUI
 
 /// Implements a workaround for a crash that occurs in macOS 26 when built with the macOS 26 SDK.
 class FB18383725Window: NSWindow {
