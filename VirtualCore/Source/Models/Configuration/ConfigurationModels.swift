@@ -111,6 +111,15 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
                 }
             }
         }
+
+        public var displayName: String {
+            switch self {
+            case .raw: "Raw Image"
+            case .dmg: "Disk Image (DMG)"
+            case .sparse: "Sparse Image"
+            case .asif: "Apple Sparse Image Format (ASIF)"
+            }
+        }
     }
     
     public var id: String = UUID().uuidString
@@ -134,6 +143,47 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
             size: VBManagedDiskImage.minimumExtraDiskImageSize,
             format: .raw
         )
+    }
+
+    public var canBeResized: Bool {
+        switch format {
+        case .raw, .sparse:
+            true
+        case .asif:
+            if #available(macOS 26, *) {
+                true
+            } else {
+                false
+            }
+        case .dmg:
+            false
+        }
+    }
+
+    public static func maximumSelectableSize(
+        configuredMaximum: UInt64,
+        minimumSize: UInt64,
+        existingImageSize: UInt64?,
+        availableSpace: UInt64?,
+        volumeCapacity: UInt64?
+    ) -> UInt64 {
+        let availableLimit = availableSpace.map { available in
+            (existingImageSize ?? 0) + available
+        } ?? configuredMaximum
+
+        let capacityLimit = volumeCapacity ?? configuredMaximum
+        let storageLimit = min(availableLimit, capacityLimit)
+
+        return max(minimumSize, min(configuredMaximum, storageLimit))
+    }
+
+    public static func requiresResizeConfirmation(
+        isExistingDiskImage: Bool,
+        canResize: Bool,
+        originalSize: UInt64,
+        proposedSize: UInt64
+    ) -> Bool {
+        isExistingDiskImage && canResize && proposedSize > originalSize
     }
 }
 
@@ -202,6 +252,11 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
         )
     }
     
+    public var canBeResized: Bool {
+        guard case .managedImage(let image) = backing else { return false }
+        return image.canBeResized
+    }
+
     public var displayName: String {
         guard !isBootVolume else { return "Boot" }
         

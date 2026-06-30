@@ -22,9 +22,13 @@ struct StorageDeviceDetailView: View {
     }
     
     @State private var isLoading = false
+    @State private var showResizeConfirmation = false
+    @State private var showFileVaultError = false
+    @State private var fileVaultErrorMessage = ""
+    @State private var isPreparingDiskResize = false
     
     private var canSave: Bool {
-        guard !isLoading else { return false }
+        guard !isLoading, !isPreparingDiskResize else { return false }
         
         if imageType == .managed {
             return device.managedImage != nil
@@ -63,7 +67,7 @@ struct StorageDeviceDetailView: View {
 
             HStack {
                 Button("Cancel") {
-                    dismiss()
+                    cancel()
                 }
                 .keyboardShortcut(.cancelAction)
 
@@ -77,9 +81,68 @@ struct StorageDeviceDetailView: View {
             }
             .padding(.top)
         }
+        .alert("Resize Disk Image", isPresented: $showResizeConfirmation) {
+            Button("Cancel", role: .cancel) { }
+            Button("Resize") {
+                confirmDiskResizeAndSave()
+            }
+        } message: {
+            Text(viewModel.diskImageResizeConfirmationMessage(for: device.managedImage, formatter: diskResizeFormatter))
+        }
+        .alert("FileVault Enabled", isPresented: $showFileVaultError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(fileVaultErrorMessage)
+        }
     }
     
+    private let diskResizeFormatter: ByteCountFormatter = {
+        let formatter = ByteCountFormatter()
+        formatter.allowedUnits = [.useGB, .useMB, .useTB]
+        formatter.formattingContext = .standalone
+        formatter.countStyle = .binary
+        return formatter
+    }()
+
+    private func cancel() {
+        if let image = device.managedImage {
+            viewModel.clearPendingDiskImageResize(for: image)
+        }
+
+        dismiss()
+    }
+
     private func save() {
+        if viewModel.hasPendingDiskImageResizeConfirmation(for: device.managedImage) {
+            showResizeConfirmation = true
+            return
+        }
+
+        saveDevice()
+    }
+
+    private func confirmDiskResizeAndSave() {
+        isPreparingDiskResize = true
+
+        Task {
+            if let deviceName = await viewModel.firstFileVaultProtectedPendingResizeName(for: device.managedImage) {
+                await MainActor.run {
+                    fileVaultErrorMessage = "The \(deviceName) disk has FileVault encryption enabled. To resize the disk, you must first disable FileVault in the guest operating system's System Settings, then restart the virtual machine before attempting to resize again."
+                    showFileVaultError = true
+                    isPreparingDiskResize = false
+                }
+                return
+            }
+
+            await MainActor.run {
+                viewModel.confirmPendingDiskImageResizes(for: device.managedImage)
+                isPreparingDiskResize = false
+                saveDevice()
+            }
+        }
+    }
+
+    private func saveDevice() {
         isLoading = true
         
         Task {
@@ -202,6 +265,7 @@ struct StorageDeviceDetailView: View {
             case .managedImage(let image):
                 ManagedDiskImageEditor(
                     image: image,
+                    virtualMachine: viewModel.vm,
                     isExistingDiskImage: device.diskImageExists(for: viewModel.vm),
                     isForBootVolume: device.isBootVolume,
                     onSave: { device.update(with: $0, type: .size) }

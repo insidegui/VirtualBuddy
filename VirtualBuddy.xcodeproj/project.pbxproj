@@ -352,6 +352,10 @@
 		F4FC98392BB386A000E511C9 /* ContinuousProgressIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */; };
 		F4FC983B2BB386B500E511C9 /* MaskProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */; };
 		F4FC983D2BB386DD00E511C9 /* VMProgressOverlay.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */; };
+		VB02ASIFTEST00001A0101 /* DiskResizeSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB02ASIFTEST00002A0102 /* DiskResizeSupportTests.swift */; };
+		VB02ASIFTEST00003A0103 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
+		VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */; };
+		VB01DISKRESIZ00004A0104 /* VBVirtualMachine+DiskResize.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -438,6 +442,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
 			remoteInfo = VirtualWormhole;
+		};
+		VB02ASIFTEST00004A0104 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
+			remoteInfo = VirtualCore;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -873,6 +884,9 @@
 		F4FC98382BB386A000E511C9 /* ContinuousProgressIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContinuousProgressIndicator.swift; sourceTree = "<group>"; };
 		F4FC983A2BB386B500E511C9 /* MaskProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MaskProgressView.swift; sourceTree = "<group>"; };
 		F4FC983C2BB386DD00E511C9 /* VMProgressOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMProgressOverlay.swift; sourceTree = "<group>"; };
+		VB02ASIFTEST00002A0102 /* DiskResizeSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskResizeSupportTests.swift; sourceTree = "<group>"; };
+		VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBDiskResizer.swift; sourceTree = "<group>"; };
+		VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBVirtualMachine+DiskResize.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -950,6 +964,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				VB02ASIFTEST00003A0103 /* VirtualCore.framework in Frameworks */,
 				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1629,6 +1644,7 @@
 				F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */,
 				F46FFBA72804F07400D61023 /* VBNVRAMVariable.swift */,
 				F4D725FD286677B8001818F7 /* VBVirtualMachine+Metadata.swift */,
+				VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */,
 				F4D0F71428667984004D5782 /* VBVirtualMachine+Screenshot.swift */,
 			);
 			path = Models;
@@ -1922,6 +1938,7 @@
 				F485B91E2BB2F4AC004B3C2B /* Bundle+Version.swift */,
 				F444D1332BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift */,
 				F453C4BA2DF231B7007EAD5F /* PreventTerminationAssertion.swift */,
+				VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -1952,6 +1969,7 @@
 			isa = PBXGroup;
 			children = (
 				F4D305A829B8E70A0006E748 /* Resources */,
+				VB02ASIFTEST00002A0102 /* DiskResizeSupportTests.swift */,
 				F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */,
 			);
 			path = VirtualWormholeTests;
@@ -2272,6 +2290,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				VB02ASIFTEST00005A0105 /* PBXTargetDependency */,
 				F4D305A229B8DB700006E748 /* PBXTargetDependency */,
 			);
 			name = VirtualWormholeTests;
@@ -2701,6 +2720,7 @@
 				F453C4A22DF1D7F6007EAD5F /* SimulatedRestoreBackend.swift in Sources */,
 				F4DE1C0B2D6F54E700603527 /* VBSavedStateMetadata+Clone.swift in Sources */,
 				F4D725FE286677B8001818F7 /* VBVirtualMachine+Metadata.swift in Sources */,
+				VB01DISKRESIZ00004A0104 /* VBVirtualMachine+DiskResize.swift in Sources */,
 				F4A21BF428033102001072B8 /* VBError.swift in Sources */,
 				F4D0F71F2867517A004D5782 /* AppUpdateChannel.swift in Sources */,
 				F49FD8842DFB727B0019D638 /* VMImporter+Helpers.swift in Sources */,
@@ -2725,6 +2745,7 @@
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
 				F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
+				VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,
 				F4B5C5D728870619005AA632 /* ConfigurationModels+Validation.swift in Sources */,
 				F4A7FB3B2BB5E79100E4C12A /* DirectoryObserver.swift in Sources */,
@@ -2801,6 +2822,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				VB02ASIFTEST00001A0101 /* DiskResizeSupportTests.swift in Sources */,
 				F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2871,6 +2893,11 @@
 			isa = PBXTargetDependency;
 			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
 			targetProxy = F4D305A129B8DB700006E748 /* PBXContainerItemProxy */;
+		};
+		VB02ASIFTEST00005A0105 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
+			targetProxy = VB02ASIFTEST00004A0104 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
