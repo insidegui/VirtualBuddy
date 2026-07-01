@@ -4,6 +4,9 @@ import BuddyKit
 
 struct InstallProgressDisplayView: View {
     @EnvironmentObject private var viewModel: VMInstallationViewModel
+    @EnvironmentObject private var library: VMLibraryController
+    @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         VirtualDisplayView {
@@ -14,10 +17,7 @@ struct InstallProgressDisplayView: View {
                 case .install:
                     InstallProgressStepView()
                 case .done:
-                    VirtualBuddyMonoProgressView(
-                        status: Text(viewModel.data.systemType.installFinishedMessage),
-                        style: .success
-                    )
+                    InstallProgressDoneView()
                 default:
                     EmptyView()
                 }
