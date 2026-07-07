@@ -298,6 +298,18 @@
       "version" : "27.0.0"
     },
     {
+      "build" : "25G5057c",
+      "channel" : "devbeta",
+      "downloadSize" : 19772261857,
+      "group" : "tahoe",
+      "id" : "25G5057c",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 26.6 Developer Beta 4",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SpringSeed\/fullrestores\/140-31192\/A19E7612-3A2E-4716-82DD-39E624B1D4D8\/UniversalMac_26.6_25G5057c_Restore.ipsw",
+      "version" : "26.6.0"
+    },
+    {
       "build" : "25G5043d",
       "channel" : "devbeta",
       "downloadSize" : 19906521059,
