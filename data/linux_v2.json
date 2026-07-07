@@ -193,6 +193,30 @@
   ],
   "restoreImages" : [
         {
+            "build": "26.04 LTS",
+            "channel": "lts",
+            "downloadSize": 4161089536,
+            "group": "ubuntu",
+            "id": "26.04_Desktop",
+            "mobileDeviceMinVersion": "0.0.0",
+            "name": "Ubuntu Desktop 26.04 LTS",
+            "requirements": "min_host_13",
+            "url": "https://cdimage.ubuntu.com/releases/26.04/release/ubuntu-26.04-desktop-arm64.iso",
+            "version": "26.04"
+        },
+        {
+            "build": "26.04 LTS",
+            "channel": "lts",
+            "downloadSize": 3068473344,
+            "group": "ubuntu",
+            "id": "26.04_Server",
+            "mobileDeviceMinVersion": "0.0.0",
+            "name": "Ubuntu Server 26.04 LTS",
+            "requirements": "min_host_13",
+            "url": "https://cdimage.ubuntu.com/releases/26.04/release/ubuntu-26.04-live-server-arm64.iso",
+            "version": "26.04"
+        },
+        {
             "build": "25.10",
             "channel": "regular",
             "downloadSize": 4981665792,
