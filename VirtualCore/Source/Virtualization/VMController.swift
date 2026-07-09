@@ -174,16 +174,18 @@ public final class VMController: ObservableObject {
 
         // Check and resize disk images if needed
         do {
-            state = .resizingDisk("Preparing disk resize...")
-            try await virtualMachineModel.checkAndResizeDiskImages { message in
+            state = .resizingDisk("Checking disk images...")
+            let didResize = try await virtualMachineModel.checkAndResizeDiskImages { message in
                 self.state = .resizingDisk(message)
             }
-            state = .starting("Starting virtual machine...")
+            if didResize {
+                presentDiskResizeCompletedAlert()
+            }
         } catch {
             logger.warning("Failed to resize disk images: \(error, privacy: .public)")
             presentDiskResizeError(error)
-            state = .starting("Starting virtual machine...")
         }
+        state = .starting("Starting virtual machine...")
 
         try await updatingState {
             let newInstance = try createInstance()
@@ -215,19 +217,20 @@ public final class VMController: ObservableObject {
         }
     }
 
+    private func presentDiskResizeCompletedAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Disk Image Expanded"
+        alert.informativeText = "The disk image now has more space, but the guest operating system still needs to claim it. In a macOS guest, run 'diskutil apfs resizeContainer disk0s2 0' in Terminal after starting up. In other guests, use the system's partitioning tools."
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+
     private func presentDiskResizeError(_ error: Error) {
         let alert = NSAlert()
-
-        if case let VBDiskResizeError.apfsVolumesLocked(container) = error {
-            alert.messageText = "Unlock FileVault to Finish Resizing"
-            alert.informativeText = "VirtualBuddy enlarged the disk image, but the APFS container \(container) is still locked. Start the guest, sign in to unlock FileVault, then use Disk Utility (or run 'diskutil apfs resizeContainer disk0s2 0') inside the guest to claim the newly added space."
-            alert.alertStyle = .informational
-        } else {
-            alert.messageText = "Disk Resize Failed"
-            alert.informativeText = "VirtualBuddy couldn't resize disk images before startup. The virtual machine will continue starting.\n\n\(error.localizedDescription)"
-            alert.alertStyle = .warning
-        }
-
+        alert.messageText = "Disk Resize Failed"
+        alert.informativeText = "VirtualBuddy couldn't resize disk images before startup. The virtual machine will continue starting.\n\n\(error.localizedDescription)"
+        alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
         alert.runModal()
     }

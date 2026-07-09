@@ -202,7 +202,6 @@ struct StorageDeviceDetailView: View {
             case .managedImage(let image):
                 ManagedDiskImageEditor(
                     image: image,
-                    virtualMachine: viewModel.vm,
                     isExistingDiskImage: device.diskImageExists(for: viewModel.vm),
                     isForBootVolume: device.isBootVolume,
                     onSave: { device.update(with: $0, type: .size) }
