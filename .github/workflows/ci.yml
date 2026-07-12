@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - "ci/**"
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build and test
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.5.app/Contents/Developer
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v5
+
+      - name: Show build environment
+        run: |
+          sw_vers
+          xcodebuild -version
+
+      - name: Resolve package dependencies
+        run: |
+          xcodebuild \
+            -project VirtualBuddy.xcodeproj \
+            -resolvePackageDependencies
+
+      - name: Build products
+        run: |
+          for scheme in VirtualBuddy VirtualBuddyGuest vctool; do
+            xcodebuild \
+              -project VirtualBuddy.xcodeproj \
+              -scheme "$scheme" \
+              -configuration Debug \
+              -destination "platform=macOS,arch=arm64" \
+              -derivedDataPath "$RUNNER_TEMP/VirtualBuddyDerivedData" \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              build
+          done
+
+      - name: Run tests
+        run: |
+          xcodebuild \
+            -project VirtualBuddy.xcodeproj \
+            -scheme VirtualWormhole \
+            -configuration Debug \
+            -destination "platform=macOS,arch=arm64" \
+            -derivedDataPath "$RUNNER_TEMP/VirtualBuddyDerivedData" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            test

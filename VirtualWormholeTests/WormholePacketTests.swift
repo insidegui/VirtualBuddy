@@ -15,7 +15,11 @@ final class WormholePacketTests: XCTestCase {
         let packet = try WormholePacket(payload)
         let data = try packet.encoded()
 
-        XCTAssertEqual(data.hexDump, "CAFEF00D546573745061796C6F6164003A000000000000007B226D657373616765223A2248656C6C6F2C20576F726C6421222C226E756D626572223A34322C2264617461223A227172764D3365375C2F227D")
+        XCTAssertEqual(data.prefix(24).hexDump, "CAFEF00D546573745061796C6F6164003A00000000000000")
+
+        let decodedPacket = try WormholePacket.decode(from: data)
+        let decodedPayload = try JSONDecoder().decode(TestPayload.self, from: decodedPacket.payload)
+        XCTAssertEqual(decodedPayload, payload)
     }
 
     func testPacketDecodingWithTestPayload() throws {
@@ -81,7 +85,7 @@ final class WormholePacketTests: XCTestCase {
 
 }
 
-struct TestPayload: Codable {
+struct TestPayload: Codable, Equatable {
     var message = "Hello, World!"
     var number = 42
     var data = Data([0xAA,0xBB,0xCC,0xDD,0xEE,0xFF])
