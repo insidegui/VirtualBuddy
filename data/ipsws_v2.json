@@ -322,6 +322,18 @@
       "version" : "27.0.0"
     },
     {
+      "build" : "25G70",
+      "channel" : "devbeta",
+      "downloadSize" : 19772219794,
+      "group" : "tahoe",
+      "id" : "25G70",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 26.6 RC",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SummerFCS\/fullrestores\/140-56823\/1C29995E-8C11-4384-B9C0-B00145B84F51\/UniversalMac_26.6_25G70_Restore.ipsw",
+      "version" : "26.6.0"
+    },
+    {
       "build" : "25G5065a",
       "channel" : "devbeta",
       "downloadSize" : 19769079764,
