@@ -108,6 +108,15 @@ public struct VirtualMachineWindowCommands: View {
                 focusedSession?.resizeWindow.send(.fitScreen)
             }
             .keyboardShortcut("3", modifiers: .command)
+
+            Divider()
+
+            if let controller = focusedSession?.controller {
+                ReconnectNetworkCommand(controller: controller)
+            } else {
+                Button("Reconnect Network") { }
+                    .disabled(true)
+            }
         }
         .disabled(focusedSession == nil)
         .onReceive(manager.focusedSessionChanged) { ref in
@@ -121,4 +130,19 @@ public struct VirtualMachineWindowCommands: View {
         Divider()
     }
 
+}
+
+private struct ReconnectNetworkCommand: View {
+    @ObservedObject var controller: VMController
+
+    var body: some View {
+        Button("Reconnect Network") {
+            do {
+                try controller.reconnectNetwork()
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
+        .disabled(!controller.canReconnectNetwork)
+    }
 }

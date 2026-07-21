@@ -372,6 +372,12 @@ public final class VMController: ObservableObject {
         unhideCursor()
     }
 
+    /// Replaces the running virtual machine's network attachments and starts automatic retries for
+    /// any host interfaces that are not available yet.
+    public func reconnectNetwork() throws {
+        try ensureInstance().reconnectNetwork()
+    }
+
     @available(macOS 14.0, *)
     public func saveState(snapshotName name: String) async throws {
         try await updatingState {
@@ -542,6 +548,8 @@ public extension VMController {
     var canResume: Bool { state.canResume }
 
     var canPause: Bool { state.canPause }
+
+    var canReconnectNetwork: Bool { state.isRunning || state.isPaused }
 
 }
 
