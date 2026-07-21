@@ -13,14 +13,6 @@ import os
         super.init()
     }
 
-    private let backend: any DeviceRestoreBackend = {
-        if ProcessInfo.virtualInstallationTestModeEnabled {
-            TestDeviceRestoreBackend()
-        } else {
-            AppleMobileDeviceRestoreBackend()
-        }
-    }()
-
     private let _driver = OSAllocatedUnfairLock<DeviceRestoreDriver?>(initialState: nil)
     private var driver: DeviceRestoreDriver? {
         get { _driver.withLock { $0 } }
@@ -57,8 +49,13 @@ import os
 
     // MARK: - Client -> Service
 
-    public func startVirtualMachineInstallation(ecid: ECID, restoreBundleURL: URL, reply: @escaping @Sendable ((any Error)?) -> ()) {
-        logger.notice("Installation requested for ECID \(ecid), bundle \(restoreBundleURL.safePath)")
+    public func startVirtualMachineInstallation(
+        ecid: ECID,
+        restoreBundleURL: URL,
+        simulateFailure: Bool,
+        reply: @escaping @Sendable ((any Error)?) -> ()
+    ) {
+        logger.notice("Installation requested for ECID \(ecid), bundle \(restoreBundleURL.safePath), simulate failure: \(simulateFailure)")
 
         do {
             guard !cancelled else {
@@ -69,6 +66,7 @@ import os
             }
 
             do {
+                let backend = makeRestoreBackend(simulateFailure: simulateFailure)
                 let newDriver = try DeviceRestoreDriver(ecid: ecid, bundleURL: restoreBundleURL, backend: backend)
 
                 self.driver = newDriver
@@ -90,6 +88,20 @@ import os
 
             reply(error)
         }
+    }
+
+    private func makeRestoreBackend(simulateFailure: Bool) -> any DeviceRestoreBackend {
+        #if DEBUG
+        if simulateFailure {
+            return TestDeviceRestoreBackend(simulatingFailure: true)
+        }
+
+        if ProcessInfo.virtualInstallationTestModeEnabled {
+            return TestDeviceRestoreBackend()
+        }
+        #endif
+
+        return AppleMobileDeviceRestoreBackend()
     }
 
     public func cancelVirtualMachineInstallation(ecid: ECID, reply: @escaping @Sendable ((any Error)?) -> ()) {

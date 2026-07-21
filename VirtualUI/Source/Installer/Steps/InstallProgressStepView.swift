@@ -73,7 +73,7 @@ private struct InstallationFailureView: View {
                 Button(action: exportLogs) {
                     Label {
                         Text(
-                            "Export MobileDevice Logs…",
+                            "Export Logs…",
                             bundle: #bundle,
                             comment: "Button shown after a virtual machine restore fails."
                         )
@@ -81,6 +81,7 @@ private struct InstallationFailureView: View {
                         Image(systemName: "square.and.arrow.up")
                     }
                 }
+                .padding()
             }
         }
     }

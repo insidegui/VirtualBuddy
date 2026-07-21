@@ -7,6 +7,15 @@ import VirtualInstallation
 public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRestoreBackend {
     private let logger = Logger(subsystem: kVirtualInstallationSubsystem, category: String(describing: VirtualInstallationRestoreBackend.self))
 
+    #if DEBUG
+    /// Enables an end-to-end VirtualInstallation failure using `-VBSimulateInstallFailure YES`.
+    public static var isFailureSimulationEnabled: Bool {
+        UserDefaults.standard.bool(forKey: "VBSimulateInstallFailure")
+    }
+
+    private static let failureSimulationECID: ECID = 0xF411_0000_0000_0001
+    #endif
+
     public var consolePredicate: LogStreamer.Predicate { .custom(kVirtualInstallationUnifiedLogPredicate) }
 
     public let model: VBVirtualMachine
@@ -28,6 +37,14 @@ public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRes
     public var virtualMachine: AnyPublisher<VZVirtualMachine?, Never> { virtualMachineSubject.eraseToAnyPublisher() }
 
     public func install() async throws {
+        #if DEBUG
+        if Self.isFailureSimulationEnabled {
+            logger.notice("Running debug-only end-to-end install failure simulation")
+            try await runInstaller(ecid: Self.failureSimulationECID, simulateFailure: true)
+            return
+        }
+        #endif
+
         logger.debug("Install - creating configuration")
 
         let installModel = model.forInstallation()
@@ -52,7 +69,15 @@ public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRes
 
         logger.debug("Activating installer")
 
-        let installer = VIVirtualMachineInstaller(ecid: ecid, bundleURL: restoreImageFileURL)
+        try await runInstaller(ecid: ecid, simulateFailure: false)
+    }
+
+    private func runInstaller(ecid: ECID, simulateFailure: Bool) async throws {
+        let installer = VIVirtualMachineInstaller(
+            ecid: ecid,
+            bundleURL: restoreImageFileURL,
+            simulateFailure: simulateFailure
+        )
 
         _installer = installer
 

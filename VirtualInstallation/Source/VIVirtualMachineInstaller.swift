@@ -5,13 +5,21 @@ import os
 public final class VIVirtualMachineInstaller: @unchecked Sendable {
     public let ecid: ECID
     public let bundleURL: URL
+    private let simulateFailure: Bool
     private let client: VirtualInstallationClient
     public let progress: Progress
     private let logger = Logger(subsystem: kVirtualInstallationSubsystem, category: String(describing: VIVirtualMachineInstaller.self))
 
-    public init(ecid: ECID, bundleURL: URL) {
+    /// - Parameter simulateFailure: In debug builds, requests an end-to-end simulated failure from the XPC service.
+    /// Ignored in release builds.
+    public init(ecid: ECID, bundleURL: URL, simulateFailure: Bool = false) {
         self.ecid = ecid
         self.bundleURL = bundleURL
+        #if DEBUG
+        self.simulateFailure = simulateFailure
+        #else
+        self.simulateFailure = false
+        #endif
         self.client = VirtualInstallationClient()
         self.progress = Progress()
         progress.totalUnitCount = 100
@@ -46,7 +54,11 @@ public final class VIVirtualMachineInstaller: @unchecked Sendable {
                 }
             }
 
-            client.startVirtualMachineInstallation(ecid: ecid, restoreBundleURL: bundleURL) { error in
+            client.startVirtualMachineInstallation(
+                ecid: ecid,
+                restoreBundleURL: bundleURL,
+                simulateFailure: simulateFailure
+            ) { error in
                 if let error {
                     continuation.resume(throwing: error)
                 }

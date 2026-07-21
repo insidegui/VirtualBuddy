@@ -105,14 +105,23 @@ final class VirtualInstallationClient: NSObject, VirtualInstallationClientProtoc
 
     // MARK: - Client -> Server
 
-    func startVirtualMachineInstallation(ecid: ECID, restoreBundleURL: URL, completion: @escaping @Sendable (_ error: Error?) -> ()) {
-        logger.debug("Start for ECID \(ecid), bundle \(restoreBundleURL.safePath)")
+    func startVirtualMachineInstallation(
+        ecid: ECID,
+        restoreBundleURL: URL,
+        simulateFailure: Bool,
+        completion: @escaping @Sendable (_ error: Error?) -> ()
+    ) {
+        logger.debug("Start for ECID \(ecid), bundle \(restoreBundleURL.safePath), simulate failure: \(simulateFailure)")
 
         withService { [weak self] result in
             do {
                 let service = try result.get()
 
-                service.startVirtualMachineInstallation(ecid: ecid, restoreBundleURL: restoreBundleURL) { [weak self] error in
+                service.startVirtualMachineInstallation(
+                    ecid: ecid,
+                    restoreBundleURL: restoreBundleURL,
+                    simulateFailure: simulateFailure
+                ) { [weak self] error in
                     if let error {
                         self?.logger.error("Received startVirtualMachineInstallation reply with error: \(error, privacy: .public)")
                     } else {

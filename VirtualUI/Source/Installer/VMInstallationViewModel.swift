@@ -540,7 +540,10 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL, forceVirtualInstallation: Bool) -> RestoreBackend {
         let Backend: RestoreBackend.Type
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
+        if VirtualInstallationRestoreBackend.isFailureSimulationEnabled {
+            UILog("Using VirtualInstallation restore backend to simulate an install failure")
+            Backend = VirtualInstallationRestoreBackend.self
+        } else if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
             Backend = SimulatedRestoreBackend.self
         } else if restoreURL == SimulatedDownloadBackend.localFileURL {
             UILog("⚠️ Using simulated installer because the download was also simulated.")

@@ -59,6 +59,10 @@
             argument = "-VBSimulateNonAPFSVolume YES"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateInstallFailure YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
       </CommandLineArguments>
    </LaunchAction>
    <ProfileAction
