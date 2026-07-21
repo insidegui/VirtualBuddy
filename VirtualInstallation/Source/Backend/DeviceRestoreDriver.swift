@@ -10,6 +10,7 @@ final class DeviceRestoreDriver: @unchecked Sendable {
     private let backend: any DeviceRestoreBackend
 
     private let personalizedBundleURL: URL
+    private let logDirectoryURL: URL
 
     let artifactStorageURL: URL
     let loggers: DeviceRestoreLoggers
@@ -26,9 +27,15 @@ final class DeviceRestoreDriver: @unchecked Sendable {
             .appending(path: "Personalized_\(bundleURL.deletingPathExtension().lastPathComponent)_\(ecid)_\(Int(Date.now.timeIntervalSinceReferenceDate))", directoryHint: .isDirectory)
             .ensureExistingDirectory(createIfNeeded: true)
 
-        let logBaseURL = try artifactStorageURL
+        let logRootURL = try artifactStorageURL
             .appending(path: "Logs", directoryHint: .isDirectory)
             .ensureExistingDirectory(createIfNeeded: true)
+
+        let logBaseURL = try logRootURL
+            .appending(path: "Restore_\(ecid)_\(UUID().uuidString)", directoryHint: .isDirectory)
+            .ensureExistingDirectory(createIfNeeded: true)
+
+        self.logDirectoryURL = logBaseURL
 
         let loggers = DeviceRestoreLoggers(
             global: RestoreLog(fileURL: logBaseURL.appending(path: "global.log")),
@@ -52,11 +59,31 @@ final class DeviceRestoreDriver: @unchecked Sendable {
 
         try backend.restore(deviceECID: ecid, options: options, loggers: loggers) { [weak self] info in
             do {
-                let state = try DeviceRestoreState(info: info)
+                var state = try DeviceRestoreState(info: info)
+
+                if case .failure(let reportedError) = state.outcome {
+                    let error = reportedError ?? self?.loggers.mostRecentRestoreError.map(CodableError.init)
+                    state = state.replacingFailure(error: error, logFileURLs: self?.loggers.fileURLs ?? [])
+                }
+
                 progressHandler(state)
+
+                if case .success = state.outcome {
+                    self?.discardLogs()
+                }
             } catch {
                 self?.logger.error("Failed to parse progress info: \(error, privacy: .public). Info:\n\(info, privacy: .public)")
             }
+        }
+    }
+
+    private func discardLogs() {
+        guard FileManager.default.fileExists(atPath: logDirectoryURL.path) else { return }
+
+        do {
+            try FileManager.default.removeItem(at: logDirectoryURL)
+        } catch {
+            logger.error("Failed to discard logs for a successful restore: \(error, privacy: .public)")
         }
     }
 

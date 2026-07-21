@@ -64,7 +64,14 @@ public final class VirtualInstallationRestoreBackend: VirtualMachineProvidingRes
 
         try Task.checkCancellation()
 
-        try await installer.install()
+        do {
+            try await installer.install()
+        } catch let error as DeviceRestoreFailure {
+            throw RestoreFailure(
+                message: error.localizedDescription,
+                diagnosticFileURLs: error.logFileURLs
+            )
+        }
     }
 
     public func cancel() async {

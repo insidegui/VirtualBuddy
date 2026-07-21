@@ -36,7 +36,10 @@ public final class VIVirtualMachineInstaller: @unchecked Sendable {
                             case .success:
                                 continuation.resume()
                             case .failure(let error):
-                                continuation.resume(throwing: error ?? CocoaError(.coderValueNotFound))
+                                continuation.resume(throwing: DeviceRestoreFailure(
+                                    underlyingError: error,
+                                    logFileURLs: state.logFileURLs
+                                ))
                             }
                         }
                     }
