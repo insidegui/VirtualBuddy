@@ -108,17 +108,6 @@ public struct VirtualMachineWindowCommands: View {
                 focusedSession?.resizeWindow.send(.fitScreen)
             }
             .keyboardShortcut("3", modifiers: .command)
-
-            Divider()
-
-            if let controller = focusedSession?.controller {
-                VirtualMachineNetworkCommands(controller: controller)
-            } else {
-                Menu("Network") {
-                    Button("Reconnect") { }
-                }
-                .disabled(true)
-            }
         }
         .disabled(focusedSession == nil)
         .onReceive(manager.focusedSessionChanged) { ref in
@@ -134,15 +123,128 @@ public struct VirtualMachineWindowCommands: View {
 
 }
 
+public struct VirtualMachineGuestCommands: View {
+    @EnvironmentObject private var manager: VirtualMachineSessionUIManager
+
+    @State private var focusedSessionReference: WeakReference<VirtualMachineSessionUI>?
+    private var focusedSession: VirtualMachineSessionUI? { focusedSessionReference?.object }
+
+    public init() { }
+
+    public var body: some View {
+        Group {
+            if let controller = focusedSession?.controller {
+                VirtualMachineGuestActions(controller: controller)
+            } else {
+                /// Dummy item for when session is not available.
+                Button {
+                } label: {
+                    Label("Start", systemImage: "play.fill")
+                }
+            }
+        }
+        .disabled(focusedSession == nil)
+        .onReceive(manager.focusedSessionChanged) { ref in
+            focusedSessionReference = ref
+        }
+    }
+}
+
+private struct VirtualMachineGuestActions: View {
+    @ObservedObject var controller: VMController
+
+    @State private var actionTask: Task<Void, Never>?
+
+    var body: some View {
+        Group {
+            if controller.state.isRunning {
+                stopButton
+                    .modifier { button in
+                        if #available(macOS 15.0, *) {
+                            button.modifierKeyAlternate(.option) {
+                                forceStopButton
+                            }
+                        } else {
+                            button
+                        }
+                    }
+            } else {
+                Button {
+                    runGuestAction {
+                        if controller.canResume {
+                            try await controller.resume()
+                        } else {
+                            try await controller.start()
+                        }
+                    }
+                } label: {
+                    Label("Start", systemImage: "play.fill")
+                }
+                .keyboardShortcut("r", modifiers: .command)
+                .disabled(actionTask != nil || !(controller.canStart || controller.canResume))
+            }
+
+            Button {
+                runGuestAction {
+                    try await controller.pause()
+                }
+            } label: {
+                Label("Pause", systemImage: "pause.fill")
+            }
+            .disabled(actionTask != nil || !controller.canPause)
+
+            Divider()
+
+            VirtualMachineNetworkCommands(controller: controller)
+        }
+    }
+
+    private var stopButton: some View {
+        Button {
+            runGuestAction {
+                try await controller.stop()
+            }
+        } label: {
+            Label("Stop", systemImage: "stop.fill")
+        }
+        .disabled(actionTask != nil)
+    }
+
+    private var forceStopButton: some View {
+        Button {
+            runGuestAction {
+                try await controller.forceStop()
+            }
+        } label: {
+            Label("Force Stop", systemImage: "stop.circle.fill")
+        }
+        .disabled(actionTask != nil)
+    }
+
+    private func runGuestAction(_ action: @escaping @MainActor () async throws -> Void) {
+        actionTask = Task { @MainActor in
+            defer { actionTask = nil }
+
+            do {
+                try await action()
+            } catch {
+                NSApp.presentError(error)
+            }
+        }
+    }
+}
+
 private struct VirtualMachineNetworkCommands: View {
     @ObservedObject var controller: VMController
 
     var body: some View {
-        Menu("Network") {
-            Button("Reconnect") {
+        Menu {
+            Button {
                 performNetworkAction {
                     try controller.reconnectNetwork()
                 }
+            } label: {
+                Label("Reconnect", systemImage: "arrow.clockwise")
             }
             .disabled(!controller.canReconnectNetwork)
 
@@ -151,8 +253,11 @@ private struct VirtualMachineNetworkCommands: View {
             let availableInterfaces = controller.availableBridgeInterfaces
 
             if availableInterfaces.isEmpty {
-                Button("No Host Interfaces Available") { }
-                    .disabled(true)
+                Button {
+                } label: {
+                    Label("No Host Interfaces Available", systemImage: "network.slash")
+                }
+                .disabled(true)
             } else {
                 ForEach(availableInterfaces) { interface in
                     Button {
@@ -160,15 +265,16 @@ private struct VirtualMachineNetworkCommands: View {
                             try controller.changeBridgeInterface(to: interface.id)
                         }
                     } label: {
-                        if isActive(interface) {
-                            Label(interfaceDisplayName(interface), systemImage: "checkmark")
-                        } else {
-                            Text(interfaceDisplayName(interface))
-                        }
+                        Label(
+                            interfaceDisplayName(interface),
+                            systemImage: isActive(interface) ? "checkmark" : "network"
+                        )
                     }
                     .disabled(!controller.canChangeBridgeInterface || isActive(interface))
                 }
             }
+        } label: {
+            Label("Network", systemImage: "network")
         }
     }
 
@@ -185,7 +291,7 @@ private struct VirtualMachineNetworkCommands: View {
         do {
             try action()
         } catch {
-            NSAlert(error: error).runModal()
+            NSApp.presentError(error)
         }
     }
 }

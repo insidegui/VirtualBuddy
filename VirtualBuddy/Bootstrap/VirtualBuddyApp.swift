@@ -61,6 +61,11 @@ struct VirtualBuddyApp: App {
                 .keyboardShortcut(",", modifiers: .command)
             }
 
+            CommandMenu("Guest") {
+                VirtualMachineGuestCommands()
+                    .environmentObject(sessionManager)
+            }
+
             CommandGroup(before: .windowSize) {
                 VirtualMachineWindowCommands()
                     .environmentObject(sessionManager)
