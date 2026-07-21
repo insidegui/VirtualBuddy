@@ -338,6 +338,7 @@
 		F4DE1C0F2D6F603300603527 /* VBSavedStatePackage+VM.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */; };
 		F4DE1C112D6F642E00603527 /* VBStorageDeviceContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */; };
 		F4DF12ED2FDC824800540CF4 /* VirtualInstallation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		F4E4D5DD300FB2F8004A6235 /* VMNetworkAttachmentHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4D5DC300FB2F3004A6235 /* VMNetworkAttachmentHelper.swift */; };
 		F4E4F6C52DEF96C200B3B8BA /* ChromeBorderModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */; };
 		F4E4F7202DF080FC00B3B8BA /* RestoreImageSelectionController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */; };
 		F4E7680A29B64C590075A897 /* GuestTypePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E7680929B64C590075A897 /* GuestTypePicker.swift */; };
@@ -911,6 +912,7 @@
 		F4DE1C0A2D6F54E000603527 /* VBSavedStateMetadata+Clone.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSavedStateMetadata+Clone.swift"; sourceTree = "<group>"; };
 		F4DE1C0E2D6F603300603527 /* VBSavedStatePackage+VM.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VBSavedStatePackage+VM.swift"; sourceTree = "<group>"; };
 		F4DE1C102D6F642E00603527 /* VBStorageDeviceContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VBStorageDeviceContainer.swift; sourceTree = "<group>"; };
+		F4E4D5DC300FB2F3004A6235 /* VMNetworkAttachmentHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VMNetworkAttachmentHelper.swift; sourceTree = "<group>"; };
 		F4E4F6C42DEF96C200B3B8BA /* ChromeBorderModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChromeBorderModifier.swift; sourceTree = "<group>"; };
 		F4E4F71F2DF080FC00B3B8BA /* RestoreImageSelectionController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RestoreImageSelectionController.swift; sourceTree = "<group>"; };
 		F4E7680929B64C590075A897 /* GuestTypePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GuestTypePicker.swift; sourceTree = "<group>"; };
@@ -1760,6 +1762,7 @@
 				F46FFBAB28059FF600D61023 /* VMInstance.swift */,
 				F4BE9C7927FF05B900B648F8 /* VMController.swift */,
 				F44C00FA2889CE1600640BF5 /* VBVirtualMachine+Virtualization.swift */,
+				F4E4D5DC300FB2F3004A6235 /* VMNetworkAttachmentHelper.swift */,
 			);
 			path = Virtualization;
 			sourceTree = "<group>";
@@ -2949,6 +2952,7 @@
 				F485B91F2BB2F4AC004B3C2B /* Bundle+Version.swift in Sources */,
 				F49A68E12884917E00A17582 /* ConfigurationModels.swift in Sources */,
 				F485B91D2BB2F0D9004B3C2B /* ProcessInfo+ECID.swift in Sources */,
+				F4E4D5DD300FB2F8004A6235 /* VMNetworkAttachmentHelper.swift in Sources */,
 				F444D1342BB478AD00AB786F /* VBMemoryLeakDebugAssertions.swift in Sources */,
 				F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */,
 				F4F9B41A284CE37C00F21737 /* Logging.swift in Sources */,

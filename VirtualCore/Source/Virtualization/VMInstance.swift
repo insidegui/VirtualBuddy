@@ -15,48 +15,6 @@ import VirtualWormhole
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
 
-    private struct NetworkAttachmentRecoveryConfiguration {
-        enum Kind {
-            case NAT
-            case bridge(interfaceIdentifier: String)
-        }
-
-        let kind: Kind
-        let macAddress: String
-
-        var description: String {
-            switch kind {
-            case .NAT:
-                return "NAT"
-            case .bridge(let interfaceIdentifier):
-                return "bridge(\(interfaceIdentifier))"
-            }
-        }
-
-        func makeAttachment() throws -> VZNetworkDeviceAttachment {
-            switch kind {
-            case .NAT:
-                return VZNATNetworkDeviceAttachment()
-            case .bridge(let interfaceIdentifier):
-                guard let interface = VZBridgedNetworkInterface.networkInterfaces.first(where: {
-                    $0.identifier == interfaceIdentifier
-                }) else {
-                    throw Failure("The bridged network interface \(interfaceIdentifier.quoted) is not currently available.")
-                }
-
-                return VZBridgedNetworkDeviceAttachment(interface: interface)
-            }
-        }
-    }
-
-    private struct NetworkAttachmentRecoveryTask {
-        let id: UUID
-        let task: Task<Void, Never>
-    }
-
-    private static let networkAttachmentRecoveryDelays: [TimeInterval] = [1, 2, 4, 8, 15, 30]
-    private static let networkAttachmentStabilizationDelay: TimeInterval = 1
-
     private let library: VMLibraryController
 
     private let logger: Logger
@@ -65,8 +23,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
     private var _virtualMachine: VZVirtualMachine?
 
-    private var networkAttachmentRecoveryConfigurations: [NetworkAttachmentRecoveryConfiguration?] = []
-    private var networkAttachmentRecoveryTasks: [Int: NetworkAttachmentRecoveryTask] = [:]
+    private var networkAttachmentHelper: VMNetworkAttachmentHelper?
     
     var virtualMachine: VZVirtualMachine {
         get throws {
@@ -207,37 +164,15 @@ public final class VMInstance: NSObject, ObservableObject {
             throw Failure("Failed to validate configuration: \(String(describing: error))")
         }
 
+        networkAttachmentHelper?.stop()
+
         let virtualMachine = VZVirtualMachine(configuration: config)
         _virtualMachine = virtualMachine
-        configureNetworkAttachmentRecovery(with: config)
-    }
-
-    private func configureNetworkAttachmentRecovery(with configuration: VZVirtualMachineConfiguration) {
-        cancelNetworkAttachmentRecovery()
-
-        networkAttachmentRecoveryConfigurations = configuration.networkDevices.enumerated().map { index, device in
-            guard let attachment = device.attachment else {
-                logger.error("Network device \(index) has no attachment; automatic recovery will be unavailable for this device")
-                return nil
-            }
-
-            let recoveryKind: NetworkAttachmentRecoveryConfiguration.Kind
-
-            switch attachment {
-            case is VZNATNetworkDeviceAttachment:
-                recoveryKind = .NAT
-            case let bridge as VZBridgedNetworkDeviceAttachment:
-                recoveryKind = .bridge(interfaceIdentifier: bridge.interface.identifier)
-            default:
-                logger.error("Network device \(index) uses unsupported attachment type \(String(describing: type(of: attachment)), privacy: .public); automatic recovery will be unavailable for this device")
-                return nil
-            }
-
-            return NetworkAttachmentRecoveryConfiguration(
-                kind: recoveryKind,
-                macAddress: device.macAddress.string.uppercased()
-            )
-        }
+        networkAttachmentHelper = VMNetworkAttachmentHelper(
+            virtualMachine: virtualMachine,
+            configuration: config,
+            logger: logger
+        )
     }
 
     private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
@@ -350,6 +285,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
         try await vm.start(options: startOptions)
 
+        networkAttachmentHelper?.startMonitoringHostInterfaces()
+
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(afterStart: vm)
         #endif
@@ -400,7 +337,7 @@ public final class VMInstance: NSObject, ObservableObject {
         
         try await vm.stop()
 
-        cancelNetworkAttachmentRecovery()
+        networkAttachmentHelper?.stop()
 
         library.unregisterBootedVM(self)
     }
@@ -410,27 +347,11 @@ public final class VMInstance: NSObject, ObservableObject {
     /// Automatic bridge configurations remain pinned to the interface selected when the VM was
     /// created. This avoids unexpectedly moving the guest's MAC address to a different network.
     func reconnectNetwork() throws {
-        let virtualMachine = try ensureVM()
-        var scheduledDeviceCount = 0
-
-        for index in virtualMachine.networkDevices.indices {
-            guard networkAttachmentRecoveryConfigurations.indices.contains(index),
-                  networkAttachmentRecoveryConfigurations[index] != nil
-            else { continue }
-
-            scheduleNetworkAttachmentRecovery(
-                forDeviceAt: index,
-                in: virtualMachine,
-                replacingCurrentAttachment: true
-            )
-            scheduledDeviceCount += 1
+        guard let networkAttachmentHelper else {
+            throw Failure("The virtual machine's network attachment manager is unavailable.")
         }
 
-        guard scheduledDeviceCount > 0 else {
-            throw Failure("This virtual machine has no network attachments that can be reconnected.")
-        }
-
-        logger.info("Manual network reconnection scheduled for \(scheduledDeviceCount) device(s)")
+        try networkAttachmentHelper.reconnectAll()
     }
 
     @available(macOS 14.0, *)
@@ -534,6 +455,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
             try await resume()
 
+            networkAttachmentHelper?.startMonitoringHostInterfaces()
+
             #if DEBUG
             VBDebugUtil.debugVirtualMachine(afterStart: vm)
             #endif
@@ -620,7 +543,7 @@ extension VMInstance: VZVirtualMachineDelegate {
     
     public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
         MainActor.assumeIsolated {
-            handleNetworkAttachmentDisconnection(
+            networkAttachmentHelper?.attachmentWasDisconnected(
                 in: virtualMachine,
                 networkDevice: networkDevice,
                 error: error
@@ -628,139 +551,8 @@ extension VMInstance: VZVirtualMachineDelegate {
         }
     }
 
-    private func handleNetworkAttachmentDisconnection(
-        in virtualMachine: VZVirtualMachine,
-        networkDevice: VZNetworkDevice,
-        error: Error
-    ) {
-        let nsError = error as NSError
-        let attachmentDescription = String(describing: networkDevice.attachment)
-
-        guard let deviceIndex = virtualMachine.networkDevices.firstIndex(where: { $0 === networkDevice }) else {
-            logger.error("A network attachment disconnected but its device is not part of the VM: domain=\(nsError.domain, privacy: .public) code=\(nsError.code) error=\(nsError.localizedDescription, privacy: .public) userInfo=\(String(describing: nsError.userInfo), privacy: .public) attachment=\(attachmentDescription, privacy: .public)")
-            return
-        }
-
-        let macAddress = networkAttachmentRecoveryConfigurations.indices.contains(deviceIndex)
-            ? networkAttachmentRecoveryConfigurations[deviceIndex]?.macAddress ?? "unknown"
-            : "unknown"
-
-        logger.error("Network attachment disconnected: device=\(deviceIndex) MAC=\(macAddress, privacy: .public) domain=\(nsError.domain, privacy: .public) code=\(nsError.code) error=\(nsError.localizedDescription, privacy: .public) userInfo=\(String(describing: nsError.userInfo), privacy: .public) attachment=\(attachmentDescription, privacy: .public)")
-
-        guard _virtualMachine === virtualMachine else {
-            logger.info("Ignoring network disconnection from a stale VM instance")
-            return
-        }
-
-        guard networkAttachmentRecoveryConfigurations.indices.contains(deviceIndex),
-              networkAttachmentRecoveryConfigurations[deviceIndex] != nil
-        else {
-            logger.error("No recovery configuration is available for network device \(deviceIndex)")
-            return
-        }
-
-        guard networkAttachmentRecoveryTasks[deviceIndex] == nil else {
-            logger.debug("Network recovery is already active for device \(deviceIndex)")
-            return
-        }
-
-        scheduleNetworkAttachmentRecovery(forDeviceAt: deviceIndex, in: virtualMachine)
-    }
-
-    private func scheduleNetworkAttachmentRecovery(
-        forDeviceAt deviceIndex: Int,
-        in virtualMachine: VZVirtualMachine,
-        replacingCurrentAttachment: Bool = false
-    ) {
-        guard virtualMachine.networkDevices.indices.contains(deviceIndex),
-              networkAttachmentRecoveryConfigurations.indices.contains(deviceIndex),
-              let recoveryConfiguration = networkAttachmentRecoveryConfigurations[deviceIndex]
-        else {
-            logger.error("Unable to schedule recovery for network device \(deviceIndex): recovery configuration is unavailable")
-            return
-        }
-
-        if let existingTask = networkAttachmentRecoveryTasks.removeValue(forKey: deviceIndex) {
-            existingTask.task.cancel()
-        }
-
-        let networkDevice = virtualMachine.networkDevices[deviceIndex]
-        let taskID = UUID()
-        let initialDelay: TimeInterval = replacingCurrentAttachment ? 0 : Self.networkAttachmentRecoveryDelays[0]
-
-        let task = Task { @MainActor [weak self, weak virtualMachine, weak networkDevice] in
-            var attempt = 0
-            var shouldReplaceCurrentAttachment = replacingCurrentAttachment
-            var nextDelay = initialDelay
-
-            defer {
-                self?.networkAttachmentRecoveryDidFinish(forDeviceAt: deviceIndex, taskID: taskID)
-            }
-
-            while !Task.isCancelled {
-                do {
-                    try await Task.sleep(for: .seconds(nextDelay))
-                } catch {
-                    return
-                }
-
-                guard let self, let virtualMachine, let networkDevice,
-                      self._virtualMachine === virtualMachine
-                else { return }
-
-                if networkDevice.attachment != nil && !shouldReplaceCurrentAttachment {
-                    self.logger.info("Network device \(deviceIndex) recovered before retry was necessary")
-                    return
-                }
-
-                shouldReplaceCurrentAttachment = false
-                attempt += 1
-
-                self.logger.info("Attempting to reconnect network device \(deviceIndex) (\(recoveryConfiguration.description, privacy: .public), MAC=\(recoveryConfiguration.macAddress, privacy: .public), attempt=\(attempt))")
-
-                do {
-                    let newAttachment = try recoveryConfiguration.makeAttachment()
-                    networkDevice.attachment = newAttachment
-
-                    self.logger.debug("Assigned new attachment to network device \(deviceIndex): \(String(describing: newAttachment), privacy: .public)")
-
-                    try await Task.sleep(for: .seconds(Self.networkAttachmentStabilizationDelay))
-
-                    guard self._virtualMachine === virtualMachine else { return }
-
-                    if networkDevice.attachment != nil {
-                        self.logger.info("Successfully reconnected network device \(deviceIndex) (\(recoveryConfiguration.description, privacy: .public), MAC=\(recoveryConfiguration.macAddress, privacy: .public))")
-                        return
-                    }
-
-                    self.logger.error("Network device \(deviceIndex) rejected the replacement attachment; retrying")
-                } catch is CancellationError {
-                    return
-                } catch {
-                    self.logger.error("Failed to reconnect network device \(deviceIndex) on attempt \(attempt): \(error, privacy: .public)")
-                }
-
-                let delayIndex = min(attempt, Self.networkAttachmentRecoveryDelays.count - 1)
-                nextDelay = Self.networkAttachmentRecoveryDelays[delayIndex]
-            }
-        }
-
-        networkAttachmentRecoveryTasks[deviceIndex] = NetworkAttachmentRecoveryTask(id: taskID, task: task)
-    }
-
-    private func networkAttachmentRecoveryDidFinish(forDeviceAt deviceIndex: Int, taskID: UUID) {
-        guard networkAttachmentRecoveryTasks[deviceIndex]?.id == taskID else { return }
-
-        networkAttachmentRecoveryTasks.removeValue(forKey: deviceIndex)
-    }
-
-    private func cancelNetworkAttachmentRecovery() {
-        networkAttachmentRecoveryTasks.values.forEach { $0.task.cancel() }
-        networkAttachmentRecoveryTasks.removeAll()
-    }
-
     private func handleGuestStopped(with error: Error?) {
-        cancelNetworkAttachmentRecovery()
+        networkAttachmentHelper?.stop()
 
         guestIOTasks.forEach { $0.cancel() }
         guestIOTasks.removeAll()
