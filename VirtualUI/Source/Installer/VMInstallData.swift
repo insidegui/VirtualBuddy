@@ -47,7 +47,15 @@ struct VMInstallData: Hashable, Codable {
     var resolvedRestoreImage: ResolvedRestoreImage? = nil {
         didSet {
             restoreImage = resolvedRestoreImage?.image
-            localRestoreImageURL = resolvedRestoreImage?.localFileURL
+
+            /// A local file selected by the user is the authoritative source for its URL.
+            /// Catalog resolution can be refreshed independently and may not include a local file URL,
+            /// so it must not clear or replace the explicit local file selection.
+            if case .localFile(let selectedFileURL) = installMethodSelection {
+                localRestoreImageURL = selectedFileURL
+            } else {
+                localRestoreImageURL = resolvedRestoreImage?.localFileURL
+            }
         }
     }
 
