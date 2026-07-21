@@ -112,10 +112,12 @@ public struct VirtualMachineWindowCommands: View {
             Divider()
 
             if let controller = focusedSession?.controller {
-                ReconnectNetworkCommand(controller: controller)
+                VirtualMachineNetworkCommands(controller: controller)
             } else {
-                Button("Reconnect Network") { }
-                    .disabled(true)
+                Menu("Network") {
+                    Button("Reconnect") { }
+                }
+                .disabled(true)
             }
         }
         .disabled(focusedSession == nil)
@@ -132,17 +134,58 @@ public struct VirtualMachineWindowCommands: View {
 
 }
 
-private struct ReconnectNetworkCommand: View {
+private struct VirtualMachineNetworkCommands: View {
     @ObservedObject var controller: VMController
 
     var body: some View {
-        Button("Reconnect Network") {
-            do {
-                try controller.reconnectNetwork()
-            } catch {
-                NSAlert(error: error).runModal()
+        Menu("Network") {
+            Button("Reconnect") {
+                performNetworkAction {
+                    try controller.reconnectNetwork()
+                }
+            }
+            .disabled(!controller.canReconnectNetwork)
+
+            Divider()
+
+            let availableInterfaces = controller.availableBridgeInterfaces
+
+            if availableInterfaces.isEmpty {
+                Button("No Host Interfaces Available") { }
+                    .disabled(true)
+            } else {
+                ForEach(availableInterfaces) { interface in
+                    Button {
+                        performNetworkAction {
+                            try controller.changeBridgeInterface(to: interface.id)
+                        }
+                    } label: {
+                        if isActive(interface) {
+                            Label(interfaceDisplayName(interface), systemImage: "checkmark")
+                        } else {
+                            Text(interfaceDisplayName(interface))
+                        }
+                    }
+                    .disabled(!controller.canChangeBridgeInterface || isActive(interface))
+                }
             }
         }
-        .disabled(!controller.canReconnectNetwork)
+    }
+
+    private func isActive(_ interface: VBNetworkDeviceInterface) -> Bool {
+        controller.activeBridgeInterfaceIdentifiers == [interface.id]
+    }
+
+    private func interfaceDisplayName(_ interface: VBNetworkDeviceInterface) -> String {
+        guard interface.name != interface.id else { return interface.name }
+        return "\(interface.name) (\(interface.id))"
+    }
+
+    private func performNetworkAction(_ action: () throws -> Void) {
+        do {
+            try action()
+        } catch {
+            NSAlert(error: error).runModal()
+        }
     }
 }

@@ -25,7 +25,7 @@ final class VMNetworkAttachmentHelper {
             case bridge(interfaceIdentifier: String)
         }
 
-        let kind: Kind
+        var kind: Kind
         let macAddress: String
 
         var bridgeInterfaceIdentifier: String? {
@@ -65,6 +65,7 @@ final class VMNetworkAttachmentHelper {
 
     private enum RecoveryReason: String {
         case attachmentDisconnected
+        case bridgeInterfaceChanged
         case hostInterfaceBecameActive
         case manualRequest
     }
@@ -75,7 +76,7 @@ final class VMNetworkAttachmentHelper {
 
     private let virtualMachine: VZVirtualMachine
     private let logger: Logger
-    private let attachmentConfigurations: [AttachmentConfiguration?]
+    private var attachmentConfigurations: [AttachmentConfiguration?]
 
     private var recoveryTasks: [Int: RecoveryTask] = [:]
 
@@ -200,6 +201,51 @@ final class VMNetworkAttachmentHelper {
         }
 
         logger.info("Manual network reconnection scheduled for \(scheduledDeviceCount) device(s)")
+    }
+
+    var bridgeInterfaceIdentifiers: Set<String> {
+        Set(attachmentConfigurations.compactMap { $0?.bridgeInterfaceIdentifier })
+    }
+
+    var hasBridgedAttachments: Bool {
+        !bridgeInterfaceIdentifiers.isEmpty
+    }
+
+    func changeBridgeInterface(to interfaceIdentifier: String) throws {
+        guard VZBridgedNetworkInterface.networkInterfaces.contains(where: {
+            $0.identifier == interfaceIdentifier
+        }) else {
+            throw Failure("The bridged network interface \(interfaceIdentifier.quoted) is not currently available.")
+        }
+
+        let bridgedDeviceIndices = attachmentConfigurations.indices.filter {
+            attachmentConfigurations[$0]?.bridgeInterfaceIdentifier != nil
+        }
+
+        guard !bridgedDeviceIndices.isEmpty else {
+            throw Failure("This virtual machine has no bridged network attachments.")
+        }
+
+        for deviceIndex in bridgedDeviceIndices {
+            guard var configuration = attachmentConfigurations[deviceIndex] else { continue }
+
+            configuration.kind = .bridge(interfaceIdentifier: interfaceIdentifier)
+            attachmentConfigurations[deviceIndex] = configuration
+        }
+
+        stopMonitoringHostInterfaces()
+        startMonitoringHostInterfaces()
+
+        for deviceIndex in bridgedDeviceIndices {
+            scheduleRecovery(
+                forDeviceAt: deviceIndex,
+                replacingCurrentAttachment: true,
+                initialDelay: 0,
+                reason: .bridgeInterfaceChanged
+            )
+        }
+
+        logger.info("Changed \(bridgedDeviceIndices.count) bridged network device(s) to host interface \(interfaceIdentifier, privacy: .public)")
     }
 
     func attachmentWasDisconnected(

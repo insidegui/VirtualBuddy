@@ -354,6 +354,22 @@ public final class VMInstance: NSObject, ObservableObject {
         try networkAttachmentHelper.reconnectAll()
     }
 
+    var activeBridgeInterfaceIdentifiers: Set<String> {
+        networkAttachmentHelper?.bridgeInterfaceIdentifiers ?? []
+    }
+
+    var hasBridgedNetworkAttachments: Bool {
+        networkAttachmentHelper?.hasBridgedAttachments == true
+    }
+
+    func changeBridgeInterface(to interfaceIdentifier: String) throws {
+        guard let networkAttachmentHelper else {
+            throw Failure("The virtual machine's network attachment manager is unavailable.")
+        }
+
+        try networkAttachmentHelper.changeBridgeInterface(to: interfaceIdentifier)
+    }
+
     @available(macOS 14.0, *)
     @discardableResult
     func saveState(snapshotName name: String, onStart: () -> ()) async throws -> VBSavedStatePackage {

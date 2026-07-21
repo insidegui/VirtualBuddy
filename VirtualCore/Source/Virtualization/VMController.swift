@@ -378,6 +378,23 @@ public final class VMController: ObservableObject {
         try ensureInstance().reconnectNetwork()
     }
 
+    public var availableBridgeInterfaces: [VBNetworkDeviceInterface] {
+        VBNetworkDevice.bridgeInterfaces.sorted { lhs, rhs in
+            let nameOrder = lhs.name.localizedStandardCompare(rhs.name)
+            return nameOrder == .orderedSame ? lhs.id < rhs.id : nameOrder == .orderedAscending
+        }
+    }
+
+    public var activeBridgeInterfaceIdentifiers: Set<String> {
+        instance?.activeBridgeInterfaceIdentifiers ?? []
+    }
+
+    public func changeBridgeInterface(to interfaceIdentifier: String) throws {
+        let instance = try ensureInstance()
+        objectWillChange.send()
+        try instance.changeBridgeInterface(to: interfaceIdentifier)
+    }
+
     @available(macOS 14.0, *)
     public func saveState(snapshotName name: String) async throws {
         try await updatingState {
@@ -550,6 +567,10 @@ public extension VMController {
     var canPause: Bool { state.canPause }
 
     var canReconnectNetwork: Bool { state.isRunning || state.isPaused }
+
+    var canChangeBridgeInterface: Bool {
+        canReconnectNetwork && instance?.hasBridgedNetworkAttachments == true
+    }
 
 }
 
