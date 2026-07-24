@@ -1,5 +1,4 @@
 import Cocoa
-import BuddyKit
 import Vision
 
 @available(macOS 15.0, *)
@@ -15,7 +14,7 @@ extension NSImage {
     ///
     /// See: https://github.com/insidegui/VirtualBuddy/discussions/533
     func detectDRMProtectedVideoBug() async -> Bool {
-        guard let cgImage else { return false }
+        guard let cgImage = vb_cgImage else { return false }
 
         var request = RecognizeTextRequest()
         request.automaticallyDetectsLanguage = false
@@ -26,6 +25,14 @@ extension NSImage {
         guard let observations = try? await request.perform(on: cgImage) else { return false }
 
         return observations.contains(where: { $0.text.localizedCaseInsensitiveContains("DRM Protected") })
+    }
+}
+
+@available(macOS 15.0, *)
+private extension NSImage {
+    var vb_cgImage: CGImage? {
+        var proposedRect = CGRect(origin: .zero, size: size)
+        return cgImage(forProposedRect: &proposedRect, context: nil, hints: nil)
     }
 }
 

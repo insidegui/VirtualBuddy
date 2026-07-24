@@ -8,7 +8,7 @@
 import SwiftUI
 import VirtualCore
 import DeepLinkSecurity
-import BuddyKit
+import BuddyUI
 
 public enum SettingsTab: Int, Identifiable, CaseIterable {
     public var id: RawValue { rawValue }

@@ -22,6 +22,8 @@ public final class VMInstance: NSObject, ObservableObject {
     var options = VMSessionOptions.default
 
     private var _virtualMachine: VZVirtualMachine?
+
+    private var networkAttachmentHelper: VMNetworkAttachmentHelper?
     
     var virtualMachine: VZVirtualMachine {
         get throws {
@@ -36,7 +38,8 @@ public final class VMInstance: NSObject, ObservableObject {
     let wormhole: WormholeManager = .sharedHost
     
     private var isLoadingNVRAM = false
-    
+    private(set) var isRecoveryBoot = false
+
     var virtualMachineModel: VBVirtualMachine {
         didSet {
             precondition(oldValue.id == virtualMachineModel.id, "Can't change the virtual machine identity after initializing the controller")
@@ -161,7 +164,15 @@ public final class VMInstance: NSObject, ObservableObject {
             throw Failure("Failed to validate configuration: \(String(describing: error))")
         }
 
-        _virtualMachine = VZVirtualMachine(configuration: config)
+        networkAttachmentHelper?.stop()
+
+        let virtualMachine = VZVirtualMachine(configuration: config)
+        _virtualMachine = virtualMachine
+        networkAttachmentHelper = VMNetworkAttachmentHelper(
+            virtualMachine: virtualMachine,
+            configuration: config,
+            logger: logger
+        )
     }
 
     private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
@@ -255,7 +266,26 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = try ensureVM()
 
+        let configuration = virtualMachineModel.configuration
+        let startOptions: VZVirtualMachineStartOptions
+
+        switch configuration.systemType {
+        case .mac:
+            let macOptions = VZMacOSVirtualMachineStartOptions(options: options)
+            if #available(macOS 27.0, *),
+               let provisioning = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(for: virtualMachineModel)
+            {
+                try macOptions.setGuestProvisioning(provisioning)
+            }
+            startOptions = macOptions
+            isRecoveryBoot = macOptions.startUpFromMacOSRecovery
+        case .linux:
+            startOptions = VZVirtualMachineStartOptions()
+        }
+
         try await vm.start(options: startOptions)
+
+        networkAttachmentHelper?.startMonitoringHostInterfaces()
 
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(afterStart: vm)
@@ -276,16 +306,6 @@ public final class VMInstance: NSObject, ObservableObject {
         #endif
     }
 
-    @available(macOS 13, *)
-    private var startOptions: VZVirtualMachineStartOptions {
-        switch virtualMachineModel.configuration.systemType {
-        case .mac:
-            return VZMacOSVirtualMachineStartOptions(options: options)
-        case .linux:
-            return VZVirtualMachineStartOptions()
-        }
-    }
-    
     func pause() async throws {
         logger.debug(#function)
 
@@ -317,7 +337,37 @@ public final class VMInstance: NSObject, ObservableObject {
         
         try await vm.stop()
 
+        networkAttachmentHelper?.stop()
+
         library.unregisterBootedVM(self)
+    }
+
+    /// Replaces every supported network attachment on the running VM.
+    ///
+    /// Automatic bridge configurations remain pinned to the interface selected when the VM was
+    /// created. This avoids unexpectedly moving the guest's MAC address to a different network.
+    func reconnectNetwork() throws {
+        guard let networkAttachmentHelper else {
+            throw Failure("The virtual machine's network attachment manager is unavailable.")
+        }
+
+        try networkAttachmentHelper.reconnectAll()
+    }
+
+    var activeBridgeInterfaceIdentifiers: Set<String> {
+        networkAttachmentHelper?.bridgeInterfaceIdentifiers ?? []
+    }
+
+    var hasBridgedNetworkAttachments: Bool {
+        networkAttachmentHelper?.hasBridgedAttachments == true
+    }
+
+    func changeBridgeInterface(to interfaceIdentifier: String) throws {
+        guard let networkAttachmentHelper else {
+            throw Failure("The virtual machine's network attachment manager is unavailable.")
+        }
+
+        try networkAttachmentHelper.changeBridgeInterface(to: interfaceIdentifier)
     }
 
     @available(macOS 14.0, *)
@@ -421,6 +471,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
             try await resume()
 
+            networkAttachmentHelper?.startMonitoringHostInterfaces()
+
             #if DEBUG
             VBDebugUtil.debugVirtualMachine(afterStart: vm)
             #endif
@@ -506,10 +558,18 @@ extension VMInstance: VZVirtualMachineDelegate {
     }
     
     public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, networkDevice: VZNetworkDevice, attachmentWasDisconnectedWithError error: Error) {
-
+        MainActor.assumeIsolated {
+            networkAttachmentHelper?.attachmentWasDisconnected(
+                in: virtualMachine,
+                networkDevice: networkDevice,
+                error: error
+            )
+        }
     }
 
     private func handleGuestStopped(with error: Error?) {
+        networkAttachmentHelper?.stop()
+
         guestIOTasks.forEach { $0.cancel() }
         guestIOTasks.removeAll()
 

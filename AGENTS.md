@@ -1,0 +1,4 @@
+- Always use Xcode MCP tools for building the project, DO NOT use xcodebuild unless explicitly instructed to do so
+- Always write production-quality code, hacks and shortcuts are not allowed unless explicitly requested 
+- Private API usage is allowed in this project when necessary since it is a Mac app that's not distributed in the App Store, but avoid it if at all possible
+- Some files in the project have the traditional Xcode copyright header comment, but any new files you create should have no file header comment
