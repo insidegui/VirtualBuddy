@@ -127,7 +127,7 @@ struct StorageDeviceListItem: View {
             }
             .help("Device settings")
             .buttonStyle(.plain)
-            .disabled(device.isBootVolume)
+            .disabled(device.isBootVolume && !device.canBeResized)
         }
         .padding(.leading, 6)
         .opacity(device.isEnabled ? 1 : 0.8)

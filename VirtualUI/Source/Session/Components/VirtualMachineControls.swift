@@ -36,7 +36,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
     var body: some View {
         Group {
             switch controller.state {
-            case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted:
+            case .idle, .paused, .stopped, .savingState, .restoringState, .stateSaveCompleted, .resizingDisk:
                 Button {
                     runToolbarAction {
                         if controller.state.canResume {
@@ -48,7 +48,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 } label: {
                     Image(systemName: "play")
                 }
-                .disabled(controller.state.isSavingState || controller.state.isRestoringState)
+                .disabled(controller.state.isSavingState || controller.state.isRestoringState || controller.state.isResizingDisk)
             case .starting, .running:
                 if #available(macOS 14.0, *), controller.virtualMachineModel.supportsStateRestoration {
                     Button {

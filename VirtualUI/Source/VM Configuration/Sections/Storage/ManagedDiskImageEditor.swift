@@ -14,6 +14,7 @@ struct ManagedDiskImageEditor: View {
     var isExistingDiskImage: Bool
     var onSave: (VBManagedDiskImage) -> Void
     var isBootVolume: Bool
+    var canResize: Bool
 
     init(image: VBManagedDiskImage, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
         self._image = .init(wrappedValue: image)
@@ -22,17 +23,21 @@ struct ManagedDiskImageEditor: View {
         let fallbackMinimumSize = isForBootVolume ? VBManagedDiskImage.minimumBootDiskImageSize : VBManagedDiskImage.minimumExtraDiskImageSize
         self.minimumSize = isExistingDiskImage ? image.size : fallbackMinimumSize
         self.isBootVolume = isForBootVolume
+        self.canResize = isExistingDiskImage && image.canBeResized
     }
 
     private let formatter: ByteCountFormatter = {
         let f = ByteCountFormatter()
         f.allowedUnits = [.useGB, .useMB, .useTB]
         f.formattingContext = .standalone
-        f.countStyle = .file
+        f.countStyle = .binary
         return f
     }()
 
     @State private var nameError: String?
+    @State private var showResizeConfirmation = false
+    @State private var newSize: UInt64 = 0
+    @State private var sliderTimer: Timer?
 
     @Environment(\.dismiss)
     private var dismiss
@@ -54,17 +59,22 @@ struct ManagedDiskImageEditor: View {
             NumericPropertyControl(
                 value: $image.size.gbStorageValue,
                 range: minimumSize.gbStorageValue...maximumSize.gbStorageValue,
-                hideSlider: isExistingDiskImage,
+                hideSlider: isExistingDiskImage && !canResize,
                 label: isBootVolume ? "Boot Disk Size (GB)" : "Disk Image Size (GB)",
                 formatter: NumberFormatter.numericPropertyControlDefault
             )
-            .disabled(isExistingDiskImage)
+            .disabled(isExistingDiskImage && !canResize)
             .foregroundColor(sizeWarning != nil ? .yellow : .primary)
 
             VStack(alignment: .leading, spacing: 8) {
                 if !isExistingDiskImage, !isBootVolume {
                     Text("You'll have to use Disk Utility in the guest operating system to initialize the disk image. If you see an error after it boots up, choose the \"Initialize\" option.")
                         .foregroundColor(.yellow)
+                }
+
+                if isExistingDiskImage && canResize {
+                    Text("This \(image.format.displayName) can be expanded. After resizing, the added space must be claimed inside the guest operating system.")
+                        .foregroundColor(.blue)
                 }
 
                 if let sizeWarning {
@@ -89,7 +99,28 @@ struct ManagedDiskImageEditor: View {
                 .lineLimit(nil)
         }
         .onChange(of: image) { _, newValue in
-            onSave(newValue)
+            if isExistingDiskImage && canResize && newValue.size != minimumSize {
+                // Debounce so the confirmation only shows after the user stops sliding.
+                sliderTimer?.invalidate()
+                sliderTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                    newSize = newValue.size
+                    showResizeConfirmation = true
+                }
+            } else {
+                onSave(newValue)
+            }
+        }
+        .alert("Resize Disk Image", isPresented: $showResizeConfirmation) {
+            Button("Cancel", role: .cancel) {
+                image.size = minimumSize
+            }
+            Button("Resize") {
+                image.size = newSize
+                image.resizePending = true
+                onSave(image)
+            }
+        } message: {
+            Text("This will resize the disk image from \(formatter.string(fromByteCount: Int64(minimumSize))) to \(formatter.string(fromByteCount: Int64(newSize))). The resize will run automatically the next time the virtual machine starts and may take some time. This operation cannot be undone.")
         }
     }
 
@@ -98,18 +129,23 @@ struct ManagedDiskImageEditor: View {
     }
 
     private var sizeChangeInfo: String {
-        if isBootVolume {
-            return "Be sure to reserve enough space, since it won't be possible to change the size of the disk later."
-        } else {
-            return "It's not possible to change the size of an existing storage device."
+        switch (isBootVolume, canResize) {
+        case (true, true):
+            "Boot disk can be expanded, but not shrunk. Choose your size carefully."
+        case (true, false):
+            "Be sure to reserve enough space, since it won't be possible to change the size of the disk later."
+        case (false, true):
+            "This disk can be expanded to a larger size, but cannot be shrunk."
+        case (false, false):
+            "It's not possible to change the size of an existing storage device."
         }
     }
     
     private var sizeMessage: String {
         if isExistingDiskImage {
-            return sizeChangeInfo
+            sizeChangeInfo
         } else {
-            return "\(sizeMessagePrefix ?? "")After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
+            "\(sizeMessagePrefix ?? "")After adding the storage device, it won't be possible to change the size of its disk image with VirtualBuddy."
         }
     }
 
