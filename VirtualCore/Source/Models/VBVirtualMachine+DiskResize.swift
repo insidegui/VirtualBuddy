@@ -33,19 +33,23 @@ public extension VBVirtualMachine {
         for (index, name, image) in resizableImages {
             let imageURL = diskImageURL(for: image)
 
-            guard FileManager.default.fileExists(atPath: imageURL.path) else { continue }
+            guard FileManager.default.fileExists(atPath: imageURL.path) else {
+                throw VBDiskResizeError.diskImageNotFound(imageURL)
+            }
 
             let actualSize = try await VBDiskResizer.currentImageSize(at: imageURL, format: image.format)
-            guard image.size > actualSize else {
+            guard image.size >= actualSize else {
                 var image = image
                 image.resizePending = false
                 configuration.hardware.storageDevices[index].backing = .managedImage(image)
                 continue
             }
 
-            let targetDescription = formatter.string(fromByteCount: Int64(image.size))
-            if let progressHandler {
-                await progressHandler("Expanding \(name) to \(targetDescription)...")
+            if image.size > actualSize {
+                let targetDescription = formatter.string(fromByteCount: Int64(image.size))
+                if let progressHandler {
+                    await progressHandler("Expanding \(name) to \(targetDescription)...")
+                }
             }
 
             diskResizeLogger.debug("Resizing disk image at \(imageURL.path, privacy: .public) to \(image.size, privacy: .public) bytes")
@@ -54,7 +58,7 @@ public extension VBVirtualMachine {
             var image = image
             image.resizePending = false
             configuration.hardware.storageDevices[index].backing = .managedImage(image)
-            didResize = true
+            didResize = didResize || image.size > actualSize
         }
 
         return didResize

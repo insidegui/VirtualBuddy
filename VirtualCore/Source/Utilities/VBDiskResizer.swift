@@ -5,6 +5,7 @@
 //  Created by VirtualBuddy on 22/08/25.
 //
 
+import Darwin
 import Foundation
 import OSLog
 import zlib
@@ -12,7 +13,6 @@ import zlib
 public enum VBDiskResizeError: LocalizedError {
     case diskImageNotFound(URL)
     case unsupportedImageFormat(VBManagedDiskImage.Format)
-    case insufficientSpace(required: UInt64, available: UInt64)
     case cannotShrinkDisk
     case systemCommandFailed(String, Int32)
 
@@ -22,12 +22,6 @@ public enum VBDiskResizeError: LocalizedError {
             return "Disk image not found at path: \(url.path)"
         case .unsupportedImageFormat(let format):
             return "Resizing is not supported for \(format.displayName) format"
-        case .insufficientSpace(let required, let available):
-            let formatter = ByteCountFormatter()
-            formatter.countStyle = .file
-            let requiredStr = formatter.string(fromByteCount: Int64(required))
-            let availableStr = formatter.string(fromByteCount: Int64(available))
-            return "Insufficient disk space. Required: \(requiredStr), Available: \(availableStr)"
         case .cannotShrinkDisk:
             return "Cannot shrink disk image. Only expansion is supported for safety reasons."
         case .systemCommandFailed(let command, let exitCode):
@@ -68,33 +62,57 @@ public struct VBDiskResizer {
         }
 
         let currentSize = try await currentImageSize(at: url, format: format)
-        guard newSize > currentSize else {
+        guard newSize >= currentSize else {
             throw VBDiskResizeError.cannotShrinkDisk
-        }
-
-        let additionalSpaceNeeded = newSize - currentSize
-        let resourceValues = try url.deletingLastPathComponent().resourceValues(forKeys: [.volumeAvailableCapacityKey])
-        let availableSpace = UInt64(resourceValues.volumeAvailableCapacity ?? 0)
-        guard availableSpace >= additionalSpaceNeeded else {
-            throw VBDiskResizeError.insufficientSpace(required: additionalSpaceNeeded, available: availableSpace)
         }
 
         switch format {
         case .sparse:
+            guard newSize > currentSize else { return }
             let result = run("/usr/bin/hdiutil", ["resize", "-size", "\(newSize / 512)s", url.path])
             guard result.status == 0 else {
                 throw VBDiskResizeError.systemCommandFailed("hdiutil resize: \(result.outputString)", result.status)
             }
 
         case .raw:
-            let fileHandle = try FileHandle(forWritingTo: url)
-            defer { try? fileHandle.close() }
-
-            guard ftruncate(fileHandle.fileDescriptor, Int64(newSize)) == 0 else {
-                throw VBDiskResizeError.systemCommandFailed("ftruncate", errno)
+            let imageURL = url.resolvingSymlinksInPath()
+            let temporaryURL = imageURL.deletingLastPathComponent()
+                .appendingPathComponent(".\(imageURL.lastPathComponent).resize-\(UUID().uuidString)")
+            var replacedOriginal = false
+            defer {
+                if !replacedOriginal {
+                    try? FileManager.default.removeItem(at: temporaryURL)
+                }
             }
 
-            try GPTLayoutAdjuster(imageURL: url, newSize: newSize).perform()
+            guard copyfile(
+                imageURL.path,
+                temporaryURL.path,
+                nil,
+                copyfile_flags_t(COPYFILE_CLONE | COPYFILE_ACL | COPYFILE_DATA_SPARSE)
+            ) == 0 else {
+                throw VBDiskResizeError.systemCommandFailed("copyfile", errno)
+            }
+
+            do {
+                let fileHandle = try FileHandle(forWritingTo: temporaryURL)
+                defer { try? fileHandle.close() }
+
+                if newSize > currentSize {
+                    guard ftruncate(fileHandle.fileDescriptor, Int64(newSize)) == 0 else {
+                        throw VBDiskResizeError.systemCommandFailed("ftruncate", errno)
+                    }
+                }
+
+                try fileHandle.synchronize()
+            }
+
+            try GPTLayoutAdjuster(imageURL: temporaryURL, newSize: newSize).perform()
+
+            guard rename(temporaryURL.path, imageURL.path) == 0 else {
+                throw VBDiskResizeError.systemCommandFailed("rename", errno)
+            }
+            replacedOriginal = true
 
         case .dmg, .asif:
             throw VBDiskResizeError.unsupportedImageFormat(format)
@@ -173,11 +191,48 @@ public struct VBDiskResizer {
             let headerData = try readExactly(fileHandle: fileHandle, length: Int(sectorSize))
 
             var header = GPTHeader(data: headerData)
-            let entriesOffset = UInt64(header.partitionEntriesLBA) * sectorSize
-            let entriesLength = Int(header.numberOfEntries) * Int(header.entrySize)
+            let (entriesOffset, entriesOffsetOverflow) = header.partitionEntriesLBA.multipliedReportingOverflow(by: sectorSize)
+            let (entriesLength, entriesLengthOverflow) = UInt64(header.numberOfEntries).multipliedReportingOverflow(by: UInt64(header.entrySize))
+            let (entriesEnd, entriesEndOverflow) = entriesOffset.addingReportingOverflow(entriesLength)
+            let (firstUsableOffset, firstUsableOffsetOverflow) = header.firstUsableLBA.multipliedReportingOverflow(by: sectorSize)
+            let totalSectors = newSize / sectorSize
+            guard
+                header.signature == 0x5452_4150_2049_4645,
+                header.headerSize >= 92,
+                header.headerSize <= sectorSize,
+                header.currentLBA == 1,
+                header.entrySize >= 128,
+                header.entrySize.isMultiple(of: 8),
+                header.numberOfEntries > 0,
+                !entriesOffsetOverflow,
+                !entriesLengthOverflow,
+                !entriesEndOverflow,
+                !firstUsableOffsetOverflow,
+                entriesLength <= 32 * sectorSize,
+                header.partitionEntriesLBA >= 2,
+                header.firstUsableLBA <= header.lastUsableLBA,
+                header.lastUsableLBA < header.backupLBA,
+                header.backupLBA < totalSectors,
+                entriesEnd <= firstUsableOffset,
+                let entriesLengthInt = Int(exactly: entriesLength)
+            else {
+                logger.debug("No valid GPT header; leaving partition table for the guest to adjust")
+                return
+            }
+
+            var headerForCRC = Data(headerData.prefix(Int(header.headerSize)))
+            writeUInt32LittleEndian(&headerForCRC, offset: 16, value: 0)
+            guard crc32(of: headerForCRC) == header.headerCRC32 else {
+                logger.debug("GPT header checksum is invalid; leaving partition table for the guest to adjust")
+                return
+            }
 
             try fileHandle.seek(toOffset: entriesOffset)
-            var entries = try readExactly(fileHandle: fileHandle, length: entriesLength)
+            var entries = try readExactly(fileHandle: fileHandle, length: entriesLengthInt)
+            guard crc32(of: entries) == header.partitionEntriesCRC32 else {
+                logger.debug("GPT partition table checksum is invalid; leaving partition table for the guest to adjust")
+                return
+            }
 
             guard
                 let mainIndex = findPartitionIndex(in: entries, guid: mainContainerGUID, entrySize: Int(header.entrySize), preferLargest: true),
@@ -187,16 +242,35 @@ public struct VBDiskResizer {
                 return
             }
 
+            let mainFirst = readUInt64LittleEndian(from: entries, offset: mainIndex * Int(header.entrySize) + 32)
             let mainLast = readUInt64LittleEndian(from: entries, offset: mainIndex * Int(header.entrySize) + 40)
             let recoveryFirst = readUInt64LittleEndian(from: entries, offset: recoveryIndex * Int(header.entrySize) + 32)
             let recoveryLast = readUInt64LittleEndian(from: entries, offset: recoveryIndex * Int(header.entrySize) + 40)
 
+            guard
+                mainFirst >= header.firstUsableLBA,
+                mainFirst <= mainLast,
+                mainLast < recoveryFirst,
+                recoveryFirst <= recoveryLast,
+                recoveryLast == header.lastUsableLBA
+            else {
+                logger.debug("Unexpected macOS GPT geometry; leaving partition table for the guest to adjust")
+                return
+            }
+
             let recoveryLength = recoveryLast - recoveryFirst + 1
 
-            let totalSectors = newSize / sectorSize
+            guard totalSectors > 41 else {
+                logger.debug("Disk is too small for GPT relocation; leaving partition table for the guest to adjust")
+                return
+            }
             let newBackupLBA = totalSectors - 1
             let backupEntriesLBA = newBackupLBA - 32
             var newLastUsable = backupEntriesLBA - 8
+            guard newLastUsable >= recoveryLength - 1 else {
+                logger.debug("Disk has no room for the recovery partition; leaving partition table for the guest to adjust")
+                return
+            }
             var newRecoveryFirst = newLastUsable - (recoveryLength - 1)
 
             let alignment: UInt64 = 8
@@ -208,7 +282,7 @@ public struct VBDiskResizer {
 
             let newMainLast = newRecoveryFirst - 1
 
-            guard newMainLast > mainLast else {
+            guard newRecoveryFirst > recoveryFirst, newMainLast > mainLast else {
                 // Nothing to do if the main container already occupies the space
                 return
             }
@@ -217,13 +291,6 @@ public struct VBDiskResizer {
                 fileHandle: fileHandle,
                 from: recoveryFirst,
                 to: newRecoveryFirst,
-                count: recoveryLength,
-                sectorSize: sectorSize
-            )
-
-            try zeroSectors(
-                fileHandle: fileHandle,
-                start: recoveryFirst,
                 count: recoveryLength,
                 sectorSize: sectorSize
             )
@@ -250,13 +317,6 @@ public struct VBDiskResizer {
             header.lastUsableLBA = newLastUsable
             header.partitionEntriesCRC32 = crc32(of: entries)
 
-            try fileHandle.seek(toOffset: entriesOffset)
-            try fileHandle.write(contentsOf: entries)
-
-            let primaryHeaderData = header.serialized(sectorSize: sectorSize, isBackup: false)
-            try fileHandle.seek(toOffset: headerOffset)
-            try fileHandle.write(contentsOf: primaryHeaderData)
-
             let backupEntriesOffset = backupEntriesLBA * sectorSize
             try fileHandle.seek(toOffset: backupEntriesOffset)
             try fileHandle.write(contentsOf: entries)
@@ -264,6 +324,22 @@ public struct VBDiskResizer {
             let backupHeaderData = header.serialized(sectorSize: sectorSize, isBackup: true)
             try fileHandle.seek(toOffset: newBackupLBA * sectorSize)
             try fileHandle.write(contentsOf: backupHeaderData)
+
+            try fileHandle.seek(toOffset: entriesOffset)
+            try fileHandle.write(contentsOf: entries)
+
+            let primaryHeaderData = header.serialized(sectorSize: sectorSize, isBackup: false)
+            try fileHandle.seek(toOffset: headerOffset)
+            try fileHandle.write(contentsOf: primaryHeaderData)
+
+            try fileHandle.synchronize()
+
+            try zeroSectors(
+                fileHandle: fileHandle,
+                start: recoveryFirst,
+                count: min(recoveryLength, newRecoveryFirst - recoveryFirst),
+                sectorSize: sectorSize
+            )
 
             try fileHandle.synchronize()
         }
@@ -306,11 +382,15 @@ public struct VBDiskResizer {
         private func copySectors(fileHandle: FileHandle, from: UInt64, to: UInt64, count: UInt64, sectorSize: UInt64) throws {
             let bufferSize: UInt64 = 4 * 1024 * 1024
             var remaining = count * sectorSize
-            var readOffset = from * sectorSize
-            var writeOffset = to * sectorSize
+            let sourceOffset = from * sectorSize
+            let destinationOffset = to * sectorSize
+            let copyBackwards = destinationOffset > sourceOffset && destinationOffset < sourceOffset + remaining
 
             while remaining > 0 {
                 let chunk = Int(min(bufferSize, remaining))
+                let offset = copyBackwards ? remaining - UInt64(chunk) : count * sectorSize - remaining
+                let readOffset = sourceOffset + offset
+                let writeOffset = destinationOffset + offset
                 try fileHandle.seek(toOffset: readOffset)
                 let data = try readExactly(fileHandle: fileHandle, length: chunk)
 
@@ -318,8 +398,6 @@ public struct VBDiskResizer {
                 try fileHandle.write(contentsOf: data)
 
                 remaining -= UInt64(chunk)
-                readOffset += UInt64(chunk)
-                writeOffset += UInt64(chunk)
             }
         }
 

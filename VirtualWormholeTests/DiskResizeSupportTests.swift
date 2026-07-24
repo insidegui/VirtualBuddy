@@ -49,6 +49,18 @@ final class DiskResizeSupportTests: XCTestCase {
     }
 
     @MainActor
+    func testMissingPendingDiskAbortsResize() async throws {
+        var vm = try makeVM(format: .raw, resizePending: true)
+
+        do {
+            _ = try await vm.checkAndResizeDiskImages()
+            XCTFail("Expected missing requested image to fail")
+        } catch {
+            XCTAssertTrue(try managedImage(from: vm).resizePending)
+        }
+    }
+
+    @MainActor
     func testSatisfiedResizeClearsPendingRequest() async throws {
         var vm = try makeVM(format: .raw, resizePending: true)
         let image = try managedImage(from: vm)
