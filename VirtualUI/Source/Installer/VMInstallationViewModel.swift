@@ -540,7 +540,10 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     private func createRestoreBackend(for model: VBVirtualMachine, restoreURL: URL, forceVirtualInstallation: Bool) -> RestoreBackend {
         let Backend: RestoreBackend.Type
         #if DEBUG
-        if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
+        if VirtualInstallationRestoreBackend.isFailureSimulationEnabled {
+            UILog("Using VirtualInstallation restore backend to simulate an install failure")
+            Backend = VirtualInstallationRestoreBackend.self
+        } else if UserDefaults.standard.bool(forKey: "VBSimulateInstall") || ProcessInfo.isSwiftUIPreview {
             Backend = SimulatedRestoreBackend.self
         } else if restoreURL == SimulatedDownloadBackend.localFileURL {
             UILog("⚠️ Using simulated installer because the download was also simulated.")
@@ -564,6 +567,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     @Published private(set) var virtualMachine: VZVirtualMachine? = nil
     @Published private(set) var consolePredicate: LogStreamer.Predicate? = ProcessInfo.isSwiftUIPreview ? .process("Xcode") : nil
     @Published private(set) var installationStartTime = Date.now
+    @Published private(set) var installationLogFiles = [URL]()
 
     private var installationTask: Task<Void, Never>?
 
@@ -572,6 +576,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     }
 
     private func _runMacInstallation() async {
+        installationLogFiles = []
+
         guard let restoreURL = data.localRestoreImageURL else {
             state = .error("Missing local restore image URL")
             return
@@ -652,6 +658,11 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
                 UILog("Installation task finished successfully")
             } catch is CancellationError {
+            } catch let error as RestoreFailure {
+                UILog("Installation task finished with restore error \(error)")
+
+                installationLogFiles = error.diagnosticFileURLs
+                state = .error(error.localizedDescription)
             } catch let error as VZError {
                 handleVirtualMachineValidationError(error)
             } catch {
@@ -718,6 +729,57 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         downloader = nil
         await installer?.cancel()
         installationTask?.cancel()
+    }
+
+    func exportInstallationLogs() {
+        let existingLogFiles = installationLogFiles.filter {
+            FileManager.default.fileExists(atPath: $0.path)
+        }
+
+        guard !existingLogFiles.isEmpty else {
+            NSAlert(error: CocoaError(
+                .fileNoSuchFile,
+                userInfo: [NSLocalizedDescriptionKey: "The MobileDevice log files are no longer available."]
+            )).runModal()
+            return
+        }
+
+        guard let parentDirectoryURL = NSOpenPanel.run(
+            accepting: [.folder],
+            defaultDirectoryKey: "mobileDeviceLogs",
+            prompt: String(localized: "Export", bundle: #bundle, comment: "Button in a folder picker that exports MobileDevice restore logs.")
+        ) else { return }
+
+        do {
+            let exportDirectoryURL = uniqueLogExportDirectory(in: parentDirectoryURL)
+            try FileManager.default.createDirectory(at: exportDirectoryURL, withIntermediateDirectories: false)
+
+            for sourceURL in existingLogFiles {
+                let destinationURL = exportDirectoryURL.appending(component: sourceURL.lastPathComponent)
+                try FileManager.default.copyItem(at: sourceURL, to: destinationURL)
+            }
+
+            NSWorkspace.shared.activateFileViewerSelecting([exportDirectoryURL])
+        } catch {
+            NSAlert(error: error).runModal()
+        }
+    }
+
+    private func uniqueLogExportDirectory(in parentDirectoryURL: URL) -> URL {
+        let baseName = String(
+            localized: "VirtualBuddy MobileDevice Logs",
+            bundle: #bundle,
+            comment: "Name of a folder containing exported MobileDevice restore logs."
+        )
+        var candidateURL = parentDirectoryURL.appending(path: baseName, directoryHint: .isDirectory)
+        var suffix = 2
+
+        while FileManager.default.fileExists(atPath: candidateURL.path) {
+            candidateURL = parentDirectoryURL.appending(path: "\(baseName) \(suffix)", directoryHint: .isDirectory)
+            suffix += 1
+        }
+
+        return candidateURL
     }
 
     private var needsConfirmationBeforeClosing: Bool {

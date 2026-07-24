@@ -8,14 +8,16 @@ public typealias RestoreOptionsDictionary = [String : AnyHashable]
 public typealias RestoreOperation = Int32
 
 /// A type that can be used to wrap any `Error` as a `Codable` and `Hashable` container that can be stored as part of another type.
-public nonisolated struct CodableError: LocalizedError, CustomNSError, Codable, Hashable, Sendable {
+public nonisolated struct CodableError: LocalizedError, Codable, Hashable, Sendable {
     public private(set) var domain: String
     public private(set) var code: Int
-    public private(set) var errorDescription: String
+    public private(set) var message: String
     public private(set) var failureReason: String?
     public private(set) var helpAnchor: String?
     public private(set) var recoverySuggestion: String?
     public private(set) var info: [String: String]
+
+    public var errorDescription: String? { message }
 }
 
 public nonisolated extension CodableError {
@@ -23,7 +25,7 @@ public nonisolated extension CodableError {
         let nsError = error as NSError
         self.domain = nsError.domain
         self.code = nsError.code
-        self.errorDescription = nsError.localizedDescription
+        self.message = nsError.localizedDescription
         self.failureReason = nsError.localizedFailureReason
         self.helpAnchor = nsError.helpAnchor
         self.recoverySuggestion = nsError.localizedRecoverySuggestion
@@ -37,7 +39,7 @@ public nonisolated extension CodableError {
     init(message: String) {
         self.domain = kVirtualInstallationSubsystem
         self.code = 0
-        self.errorDescription = message
+        self.message = message
         self.info = [NSLocalizedFailureReasonErrorKey : message]
     }
 }
@@ -63,6 +65,21 @@ public struct DeviceRestoreState: Hashable, Codable, Sendable {
     public let operationName: String?
     public let status: String?
     public private(set) var outcome: DeviceRestoreOutcome?
+    public private(set) var logFileURLs: [URL] = []
+}
+
+public struct DeviceRestoreFailure: LocalizedError, Hashable, Codable, Sendable {
+    public let underlyingError: CodableError?
+    public let logFileURLs: [URL]
+
+    public var errorDescription: String? {
+        underlyingError?.errorDescription ?? "The virtual machine restore failed."
+    }
+
+    init(underlyingError: CodableError?, logFileURLs: [URL]) {
+        self.underlyingError = underlyingError
+        self.logFileURLs = logFileURLs
+    }
 }
 
 // MARK: - AMD Serialization
@@ -110,9 +127,10 @@ extension DeviceRestoreState {
         }
     }
 
-    func replacingOutcome(with error: NSError) -> Self {
+    func replacingFailure(error: CodableError?, logFileURLs: [URL]) -> Self {
         var mSelf = self
-        mSelf.outcome = .failure(CodableError(error))
+        mSelf.outcome = .failure(error)
+        mSelf.logFileURLs = logFileURLs
         return mSelf
     }
 }

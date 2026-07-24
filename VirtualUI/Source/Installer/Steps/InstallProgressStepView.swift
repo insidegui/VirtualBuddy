@@ -36,7 +36,13 @@ struct InstallProgressStepView: View {
     }
 
     var body: some View {
-        if let status {
+        if case .error(let message) = viewModel.state {
+            InstallationFailureView(
+                message: message,
+                hasMobileDeviceLogs: !viewModel.installationLogFiles.isEmpty,
+                exportLogs: viewModel.exportInstallationLogs
+            )
+        } else if let status {
             VirtualBuddyMonoProgressView(progress: progress, status: status, style: style)
                 .textSelection(.enabled)
         } else if let virtualMachine = viewModel.virtualMachine {
@@ -45,6 +51,38 @@ struct InstallProgressStepView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             VirtualBuddyMonoProgressView(progress: progress, status: Text(""), style: style)
+        }
+    }
+}
+
+private struct InstallationFailureView: View {
+    let message: String
+    let hasMobileDeviceLogs: Bool
+    let exportLogs: () -> Void
+
+    var body: some View {
+        VStack(spacing: 20) {
+            VirtualBuddyMonoProgressView(
+                progress: nil,
+                status: Text(message),
+                style: .failure
+            )
+            .textSelection(.enabled)
+
+            if hasMobileDeviceLogs {
+                Button(action: exportLogs) {
+                    Label {
+                        Text(
+                            "Export Logs…",
+                            bundle: #bundle,
+                            comment: "Button shown after a virtual machine restore fails."
+                        )
+                    } icon: {
+                        Image(systemName: "square.and.arrow.up")
+                    }
+                }
+                .padding()
+            }
         }
     }
 }

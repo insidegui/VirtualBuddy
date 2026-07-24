@@ -80,6 +80,10 @@
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
+            argument = "-VBSimulateInstallFailure YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
             argument = "-VBSimulateDownload YES"
             isEnabled = "NO">
          </CommandLineArgument>

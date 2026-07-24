@@ -77,6 +77,10 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceVirtualInstallationBackend YES"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateInstallFailure YES"
             isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
