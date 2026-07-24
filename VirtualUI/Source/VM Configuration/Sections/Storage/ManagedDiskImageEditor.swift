@@ -116,6 +116,7 @@ struct ManagedDiskImageEditor: View {
             }
             Button("Resize") {
                 image.size = newSize
+                image.resizePending = true
                 onSave(image)
             }
         } message: {

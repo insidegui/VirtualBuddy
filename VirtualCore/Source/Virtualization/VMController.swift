@@ -172,18 +172,23 @@ public final class VMController: ObservableObject {
 
         await waitForGuestDiskImageReadyIfNeeded()
 
-        // Check and resize disk images if needed
-        do {
+        if virtualMachineModel.hasPendingDiskImageResizes {
             state = .resizingDisk("Checking disk images...")
-            let didResize = try await virtualMachineModel.checkAndResizeDiskImages { message in
-                self.state = .resizingDisk(message)
+            do {
+                var updatedModel = virtualMachineModel
+                let didResize = try await updatedModel.checkAndResizeDiskImages { message in
+                    self.state = .resizingDisk(message)
+                }
+                virtualMachineModel = updatedModel
+                if didResize {
+                    presentDiskResizeCompletedAlert()
+                }
+            } catch {
+                logger.warning("Failed to resize disk images: \(error, privacy: .public)")
+                presentDiskResizeError(error)
+                state = .stopped(error)
+                throw error
             }
-            if didResize {
-                presentDiskResizeCompletedAlert()
-            }
-        } catch {
-            logger.warning("Failed to resize disk images: \(error, privacy: .public)")
-            presentDiskResizeError(error)
         }
         state = .starting("Starting virtual machine...")
 
@@ -229,7 +234,7 @@ public final class VMController: ObservableObject {
     private func presentDiskResizeError(_ error: Error) {
         let alert = NSAlert()
         alert.messageText = "Disk Resize Failed"
-        alert.informativeText = "VirtualBuddy couldn't resize disk images before startup. The virtual machine will continue starting.\n\n\(error.localizedDescription)"
+        alert.informativeText = "VirtualBuddy couldn't resize disk images before startup. The virtual machine was not started.\n\n\(error.localizedDescription)"
         alert.alertStyle = .warning
         alert.addButton(withTitle: "OK")
         alert.runModal()

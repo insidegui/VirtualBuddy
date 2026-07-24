@@ -308,6 +308,8 @@
 		F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374F2888AF67001FF286 /* LogStreamer.swift */; };
 		VB01DISKRESIZ00002A0102 /* VBDiskResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00001A0101 /* VBDiskResizer.swift */; };
 		VB01DISKRESIZ00004A0104 /* VBVirtualMachine+DiskResize.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB01DISKRESIZ00003A0103 /* VBVirtualMachine+DiskResize.swift */; };
+		VB02DISKTEST00001A0101 /* DiskResizeSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = VB02DISKTEST00002A0102 /* DiskResizeSupportTests.swift */; };
+		VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
 		F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */; };
 		F4C947D62E0B12D0001ACC91 /* String+AppleOSBuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */; };
 		F4C947DA2E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */; };
@@ -440,6 +442,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = F4C189DF2848F59F00335EC7;
 			remoteInfo = VirtualWormhole;
+		};
+		VB02DISKTEST00004A0104 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = F4BE9C4627FF052100B648F8 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = F4BE9C6427FF053A00B648F8;
+			remoteInfo = VirtualCore;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -850,6 +859,7 @@
 		F4D3059629B8D9D30006E748 /* WormholePacket.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacket.swift; sourceTree = "<group>"; };
 		F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirtualWormholeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WormholePacketTests.swift; sourceTree = "<group>"; };
+		VB02DISKTEST00002A0102 /* DiskResizeSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiskResizeSupportTests.swift; sourceTree = "<group>"; };
 		F4D305A929B8E7120006E748 /* TestStream.bin */ = {isa = PBXFileReference; lastKnownFileType = archive.macbinary; path = TestStream.bin; sourceTree = "<group>"; };
 		F4D305AB29B8FEE90006E748 /* WHDarwinNotificationsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WHDarwinNotificationsService.swift; sourceTree = "<group>"; };
 		F4D305AF29B900860006E748 /* SystemNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SystemNotification.swift; sourceTree = "<group>"; };
@@ -954,6 +964,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */,
 				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1958,6 +1969,7 @@
 			isa = PBXGroup;
 			children = (
 				F4D305A829B8E70A0006E748 /* Resources */,
+				VB02DISKTEST00002A0102 /* DiskResizeSupportTests.swift */,
 				F4D3059E29B8DB700006E748 /* WormholePacketTests.swift */,
 			);
 			path = VirtualWormholeTests;
@@ -2278,6 +2290,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				VB02DISKTEST00005A0105 /* PBXTargetDependency */,
 				F4D305A229B8DB700006E748 /* PBXTargetDependency */,
 			);
 			name = VirtualWormholeTests;
@@ -2809,6 +2822,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				VB02DISKTEST00001A0101 /* DiskResizeSupportTests.swift in Sources */,
 				F4D3059F29B8DB700006E748 /* WormholePacketTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2879,6 +2893,11 @@
 			isa = PBXTargetDependency;
 			target = F4C189DF2848F59F00335EC7 /* VirtualWormhole */;
 			targetProxy = F4D305A129B8DB700006E748 /* PBXContainerItemProxy */;
+		};
+		VB02DISKTEST00005A0105 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = F4BE9C6427FF053A00B648F8 /* VirtualCore */;
+			targetProxy = VB02DISKTEST00004A0104 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

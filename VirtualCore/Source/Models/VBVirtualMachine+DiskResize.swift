@@ -17,10 +17,11 @@ public extension VBVirtualMachine {
     /// Expands managed disk images whose configured size is larger than the image on disk.
     /// Returns `true` if any disk image was expanded.
     @discardableResult
-    func checkAndResizeDiskImages(progressHandler: DiskResizeProgressHandler? = nil) async throws -> Bool {
-        let resizableImages = configuration.hardware.storageDevices.compactMap { device -> (name: String, image: VBManagedDiskImage)? in
-            guard case .managedImage(let image) = device.backing, image.canBeResized else { return nil }
-            return (device.displayName, image)
+    mutating func checkAndResizeDiskImages(progressHandler: DiskResizeProgressHandler? = nil) async throws -> Bool {
+        let resizableImages = configuration.hardware.storageDevices.indices.compactMap { index -> (index: Int, name: String, image: VBManagedDiskImage)? in
+            let device = configuration.hardware.storageDevices[index]
+            guard case .managedImage(let image) = device.backing, image.resizePending else { return nil }
+            return (index, device.displayName, image)
         }
 
         let formatter = ByteCountFormatter()
@@ -29,13 +30,18 @@ public extension VBVirtualMachine {
 
         var didResize = false
 
-        for (name, image) in resizableImages {
+        for (index, name, image) in resizableImages {
             let imageURL = diskImageURL(for: image)
 
             guard FileManager.default.fileExists(atPath: imageURL.path) else { continue }
 
             let actualSize = try await VBDiskResizer.currentImageSize(at: imageURL, format: image.format)
-            guard image.size > actualSize else { continue }
+            guard image.size > actualSize else {
+                var image = image
+                image.resizePending = false
+                configuration.hardware.storageDevices[index].backing = .managedImage(image)
+                continue
+            }
 
             let targetDescription = formatter.string(fromByteCount: Int64(image.size))
             if let progressHandler {
@@ -45,9 +51,19 @@ public extension VBVirtualMachine {
             diskResizeLogger.debug("Resizing disk image at \(imageURL.path, privacy: .public) to \(image.size, privacy: .public) bytes")
             try await VBDiskResizer.resizeDiskImage(at: imageURL, format: image.format, newSize: image.size)
 
+            var image = image
+            image.resizePending = false
+            configuration.hardware.storageDevices[index].backing = .managedImage(image)
             didResize = true
         }
 
         return didResize
+    }
+
+    var hasPendingDiskImageResizes: Bool {
+        configuration.hardware.storageDevices.contains {
+            guard case .managedImage(let image) = $0.backing else { return false }
+            return image.resizePending
+        }
     }
 }

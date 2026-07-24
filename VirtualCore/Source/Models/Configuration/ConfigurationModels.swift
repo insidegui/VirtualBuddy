@@ -126,6 +126,8 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
     public var filename: String
     public var size: UInt64
     public var format: Format = .sparse
+    @DecodableDefault.False
+    public var resizePending = false
 
     // Not a stored property because Format.defaultBootDisk can change based on user preferences.
     public static var managedBootImage: VBManagedDiskImage {
