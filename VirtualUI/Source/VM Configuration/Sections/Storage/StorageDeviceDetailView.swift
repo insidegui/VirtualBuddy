@@ -297,6 +297,7 @@ extension VBStorageDevice {
             managedImage.filename = image.filename
         case .size:
             managedImage.size = image.size
+            managedImage.resizePending = image.resizePending
         }
         backing = .managedImage(managedImage)
     }
