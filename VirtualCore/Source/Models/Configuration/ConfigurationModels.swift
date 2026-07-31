@@ -111,12 +111,23 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
                 }
             }
         }
+
+        public var displayName: String {
+            switch self {
+            case .raw: "Raw Image"
+            case .dmg: "Disk Image (DMG)"
+            case .sparse: "Sparse Image"
+            case .asif: "Apple Sparse Image Format (ASIF)"
+            }
+        }
     }
     
     public var id: String = UUID().uuidString
     public var filename: String
     public var size: UInt64
     public var format: Format = .sparse
+    @DecodableDefault.False
+    public var resizePending = false
 
     // Not a stored property because Format.defaultBootDisk can change based on user preferences.
     public static var managedBootImage: VBManagedDiskImage {
@@ -134,6 +145,13 @@ public struct VBManagedDiskImage: Identifiable, Hashable, Codable {
             size: VBManagedDiskImage.minimumExtraDiskImageSize,
             format: .raw
         )
+    }
+
+    public var canBeResized: Bool {
+        switch format {
+        case .raw, .sparse: true
+        case .dmg, .asif: false
+        }
     }
 }
 
@@ -202,6 +220,11 @@ public struct VBStorageDevice: Identifiable, Hashable, Codable {
         )
     }
     
+    public var canBeResized: Bool {
+        guard case .managedImage(let image) = backing else { return false }
+        return image.canBeResized
+    }
+
     public var displayName: String {
         guard !isBootVolume else { return "Boot" }
         

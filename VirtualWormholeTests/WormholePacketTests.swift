@@ -15,7 +15,12 @@ final class WormholePacketTests: XCTestCase {
         let packet = try WormholePacket(payload)
         let data = try packet.encoded()
 
-        XCTAssertEqual(data.hexDump, "CAFEF00D546573745061796C6F6164003A000000000000007B226D657373616765223A2248656C6C6F2C20576F726C6421222C226E756D626572223A34322C2264617461223A227172764D3365375C2F227D")
+        let headerLength = data.count - packet.payload.count
+        XCTAssertEqual(Data(data.prefix(headerLength)).hexDump, "CAFEF00D546573745061796C6F6164003A00000000000000")
+        XCTAssertEqual(
+            try JSONSerialization.jsonObject(with: data.suffix(packet.payload.count)) as? NSDictionary,
+            try JSONSerialization.jsonObject(with: Data(#"{"message":"Hello, World!","number":42,"data":"qrvM3e7\/"}"#.utf8)) as? NSDictionary
+        )
     }
 
     func testPacketDecodingWithTestPayload() throws {

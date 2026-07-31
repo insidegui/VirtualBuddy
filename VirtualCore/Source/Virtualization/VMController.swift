@@ -62,6 +62,7 @@ public struct VMSessionOptions: Hashable, Codable {
 public enum VMState: Equatable {
     case idle
     case starting(_ message: String?)
+    case resizingDisk(_ message: String?)
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
     case savingState(VZVirtualMachine)
@@ -171,6 +172,26 @@ public final class VMController: ObservableObject {
 
         await waitForGuestDiskImageReadyIfNeeded()
 
+        if virtualMachineModel.hasPendingDiskImageResizes {
+            state = .resizingDisk("Checking disk images...")
+            do {
+                var updatedModel = virtualMachineModel
+                let didResize = try await updatedModel.checkAndResizeDiskImages { message in
+                    self.state = .resizingDisk(message)
+                }
+                virtualMachineModel = updatedModel
+                if didResize {
+                    presentDiskResizeCompletedAlert()
+                }
+            } catch {
+                logger.warning("Failed to resize disk images: \(error, privacy: .public)")
+                presentDiskResizeError(error)
+                state = .stopped(error)
+                throw error
+            }
+        }
+        state = .starting("Starting virtual machine...")
+
         try await updatingState {
             let newInstance = try createInstance()
             self.instance = newInstance
@@ -199,6 +220,24 @@ public final class VMController: ObservableObject {
             state = .running(vm)
             virtualMachineModel.metadata.installFinished = true
         }
+    }
+
+    private func presentDiskResizeCompletedAlert() {
+        let alert = NSAlert()
+        alert.messageText = "Disk Image Expanded"
+        alert.informativeText = "The disk image now has more space, but the guest operating system still needs to claim it. In a macOS guest, run 'diskutil apfs resizeContainer disk0s2 0' in Terminal after starting up. In other guests, use the system's partitioning tools."
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
+    }
+
+    private func presentDiskResizeError(_ error: Error) {
+        let alert = NSAlert()
+        alert.messageText = "Disk Resize Failed"
+        alert.informativeText = "VirtualBuddy couldn't resize disk images before startup. The virtual machine was not started.\n\n\(error.localizedDescription)"
+        alert.alertStyle = .warning
+        alert.addButton(withTitle: "OK")
+        alert.runModal()
     }
 
     /// Checks whether this virtual machine's network devices share a MAC address with any running virtual machine,
@@ -437,6 +476,7 @@ public extension VMState {
         switch lhs {
         case .idle: return rhs.isIdle
         case .starting: return rhs.isStarting
+        case .resizingDisk: return rhs.isResizingDisk
         case .running: return rhs.isRunning
         case .paused: return rhs.isPaused
         case .stopped: return rhs.isStopped
@@ -453,6 +493,10 @@ public extension VMState {
 
     var isStarting: Bool {
         guard case .starting = self else { return false }
+        return true
+    }
+    var isResizingDisk: Bool {
+        guard case .resizingDisk = self else { return false }
         return true
     }
 
