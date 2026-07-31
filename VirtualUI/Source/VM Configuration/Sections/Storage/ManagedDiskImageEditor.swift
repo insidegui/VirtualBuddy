@@ -9,7 +9,7 @@ import SwiftUI
 import VirtualCore
 
 struct ManagedDiskImageEditor: View {
-    private var image: VBManagedDiskImage
+    @State private var image: VBManagedDiskImage
     var minimumSize: UInt64
     var isExistingDiskImage: Bool
     var onSave: (VBManagedDiskImage) -> Void
@@ -57,7 +57,7 @@ struct ManagedDiskImageEditor: View {
 
             let maximumSize = isBootVolume ? VBManagedDiskImage.maximumBootDiskImageSize : VBManagedDiskImage.maximumExtraDiskImageSize
             NumericPropertyControl(
-                value: $size.gbStorageValue,
+                value: $image.size.gbStorageValue,
                 range: minimumSize.gbStorageValue...maximumSize.gbStorageValue,
                 hideSlider: isExistingDiskImage && !canResize,
                 label: isBootVolume ? "Boot Disk Size (GB)" : "Disk Image Size (GB)",
