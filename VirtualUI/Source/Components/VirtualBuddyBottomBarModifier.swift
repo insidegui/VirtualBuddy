@@ -1,4 +1,5 @@
 import SwiftUI
+import BuddyPlatform
 
 extension View {
     func virtualBuddyBottomBar<Content>(hidden: Bool = false, @ViewBuilder content: () -> Content) -> some View where Content : View {

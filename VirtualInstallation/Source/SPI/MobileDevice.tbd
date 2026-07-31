@@ -1,0 +1,19 @@
+--- !tapi-tbd
+tbd-version:     4
+targets:         [ arm64-macos, arm64e-macos, x86_64-macos ]
+install-name:    '/System/Library/PrivateFrameworks/MobileDevice.framework/Versions/A/MobileDevice'
+current-version: 1857.0
+exports:         
+  - targets:         [ arm64-macos, arm64e-macos, x86_64-macos ]
+    symbols:         [ '_AMRestorableDeviceRegisterForNotifications',
+                        '_AMRestorableDeviceUnregisterForNotifications',
+                        '_kAMRestorableInvalidClientID',
+                        '_AMRestorableDeviceGetDeviceClass',
+                        '_AMRestorableDeviceGetDeviceClass',
+                        '_AMRestorableDeviceGetECID',
+                        '_AMRestorableDeviceGetState',
+                        '_AMRestorableSetGlobalLogFileURL',
+                        '_AMRestorableDeviceSetLogFileURL',
+                        '_AMRestorableDeviceRestore',
+                        '_AMRLocalizedCopyStringForAMROperation' ]
+...

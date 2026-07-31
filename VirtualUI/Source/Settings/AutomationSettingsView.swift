@@ -7,7 +7,7 @@
 
 import SwiftUI
 import VirtualCore
-import BuddyKit
+import BuddyUI
 import DeepLinkSecurity
 
 struct AutomationSettingsView: View {

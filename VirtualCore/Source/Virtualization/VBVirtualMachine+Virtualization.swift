@@ -111,10 +111,12 @@ extension VBVirtualMachine {
 }
 
 public extension VBVirtualMachine {
+    var ECID: UInt64? { (try? self.fetchExistingMachineIdentifier())?.ECID }
+}
+
+public extension VZMacMachineIdentifier {
     var ECID: UInt64? {
-        guard let machineIdentifier = try? self.fetchExistingMachineIdentifier() else { return nil }
-        let data = machineIdentifier.dataRepresentation
-        guard let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any] else { return nil }
+        guard let dict = try? PropertyListSerialization.propertyList(from: dataRepresentation, format: nil) as? [String: Any] else { return nil }
         return dict["ECID"] as? UInt64
     }
 }

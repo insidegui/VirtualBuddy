@@ -1,6 +1,7 @@
 import SwiftUI
 import VirtualCore
-import BuddyKit
+import BuddyPlatform
+import BuddyUI
 
 enum VirtualBuddyMonoStyle: Hashable {
     case `default`

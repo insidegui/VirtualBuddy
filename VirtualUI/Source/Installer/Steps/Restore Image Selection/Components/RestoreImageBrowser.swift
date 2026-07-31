@@ -8,7 +8,8 @@
 import SwiftUI
 import VirtualCore
 import Combine
-import BuddyKit
+import AppKit
+import BuddyUI
 
 struct ChannelGroup: Identifiable, Hashable {
     var id: CatalogChannel.ID { channel.id }
@@ -184,11 +185,11 @@ private struct RestoreImageButton: View {
         .monospacedDigit()
         .contextMenu {
             Button("Copy Download Link") {
-                Pasteboard.general.string = image.url.absoluteString
+                NSPasteboard.general.vb_setString(image.url.absoluteString)
             }
 
             Button("Copy Build Number") {
-                Pasteboard.general.string = image.build
+                NSPasteboard.general.vb_setString(image.build)
             }
 
             if image.isDownloaded {
@@ -236,6 +237,13 @@ private struct RestoreImageButton: View {
     @ViewBuilder
     private var supportState: some View {
         RestoreImageFeatureStatusButton(image: image)
+    }
+}
+
+private extension NSPasteboard {
+    func vb_setString(_ string: String) {
+        clearContents()
+        setString(string, forType: .string)
     }
 }
 

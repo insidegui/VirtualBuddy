@@ -1,6 +1,7 @@
 import SwiftUI
 import VirtualCore
-import BuddyKit
+import BuddyPlatform
+import BuddyUI
 
 private extension EnvironmentValues {
     @Entry var fullBleedBackgroundTransitionDuration: TimeInterval = BlurHashFullBleedBackground.defaultTransitionDuration

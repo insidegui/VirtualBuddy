@@ -10,6 +10,16 @@ import Cocoa
 import Virtualization
 import VirtualCore
 
+private extension EnvironmentValues {
+    @Entry var virtualMachineInteractionDisabled = false
+}
+
+extension View {
+    func virtualMachineInteractionDisabled(_ disabled: Bool = true) -> some View {
+        environment(\.virtualMachineInteractionDisabled, disabled)
+    }
+}
+
 struct SwiftUIVMView: NSViewControllerRepresentable {
     
     typealias NSViewControllerType = VMViewController
@@ -34,6 +44,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
 
         nsViewController.vmECID = vmECID
         nsViewController.isDFUModeVM = isDFUModeVM
+        nsViewController.interactionDisabled = context.environment.virtualMachineInteractionDisabled
 
         if case .running(let vm) = controllerState {
             nsViewController.virtualMachine = vm
@@ -91,8 +102,13 @@ final class VMViewController: NSViewController {
         #endif
     }
 
-    private lazy var vmView: VZVirtualMachineView = {
-        VZVirtualMachineView(frame: .zero)
+    var interactionDisabled: Bool {
+        get { vmView.isViewOnly }
+        set { vmView.isViewOnly = newValue }
+    }
+
+    private lazy var vmView: VirtualBuddyVMView = {
+        VirtualBuddyVMView(frame: .zero)
     }()
     
     override func loadView() {
@@ -212,6 +228,65 @@ struct DFUStatusView: View {
                 }
             }
         }
+    }
+}
+
+final class VirtualBuddyVMView: VZVirtualMachineView {
+    var isViewOnly = false
+
+    override func hitTest(_ point: NSPoint) -> NSView? {
+        guard !isViewOnly else { return nil }
+        return super.hitTest(point)
+    }
+
+    override func isMousePoint(_ point: NSPoint, in rect: NSRect) -> Bool {
+        guard !isViewOnly else { return false }
+        return super.isMousePoint(point, in: rect)
+    }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        guard !isViewOnly else { return false }
+        return super.acceptsFirstMouse(for: event)
+    }
+
+    override func mouseDown(with event: NSEvent) {
+        guard !isViewOnly else { return }
+        super.mouseDown(with: event)
+    }
+
+    override var acceptsFirstResponder: Bool {
+        guard !isViewOnly else { return false }
+        return super.acceptsFirstResponder
+    }
+
+    override func updateTrackingAreas() {
+        guard !isViewOnly else { return }
+        super.updateTrackingAreas()
+    }
+
+    override func cursorUpdate(with event: NSEvent) {
+        guard !isViewOnly else { return }
+        super.cursorUpdate(with: event)
+    }
+
+    override func resetCursorRects() {
+        guard !isViewOnly else { return }
+        super.resetCursorRects()
+    }
+
+    override func discardCursorRects() {
+        guard !isViewOnly else { return }
+        super.discardCursorRects()
+    }
+
+    override func addCursorRect(_ rect: NSRect, cursor object: NSCursor) {
+        guard !isViewOnly else { return }
+        super.addCursorRect(rect, cursor: object)
+    }
+
+    override func removeCursorRect(_ rect: NSRect, cursor object: NSCursor) {
+        guard !isViewOnly else { return }
+        super.removeCursorRect(rect, cursor: object)
     }
 }
 

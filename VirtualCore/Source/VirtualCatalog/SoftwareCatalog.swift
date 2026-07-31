@@ -14,12 +14,15 @@ public struct RequirementSet: CatalogModel {
     public var minMemorySizeMB: Int
     /// The minimum host operating system version required to run the system.
     public var minVersionHost: SoftwareVersion
+    /// Whether restore images with this requirement set should be restored using our custom VirtualInstallation backend.
+    public var virtualInstallationBackend: Bool
 
-    public init(id: String, minCPUCount: Int, minMemorySizeMB: Int, minVersionHost: SoftwareVersion) {
+    public init(id: String, minCPUCount: Int, minMemorySizeMB: Int, minVersionHost: SoftwareVersion, virtualInstallationBackend: Bool = false) {
         self.id = id
         self.minCPUCount = minCPUCount
         self.minMemorySizeMB = minMemorySizeMB
         self.minVersionHost = minVersionHost
+        self.virtualInstallationBackend = virtualInstallationBackend
     }
 }
 
@@ -140,6 +143,44 @@ public struct CatalogDeviceSupportVersion: CatalogModel {
     public var instructions: String
 }
 
+/// Describes an archive of the VirtualBuddyGuest app that supports an older OS version no longer supported by the built-in guest app.
+///
+/// Individual releases in the catalog do not reference this directly. VirtualBuddy determines the need to use a legacy version of the guest app
+/// by analyzing the version of the guest operating system being booted and the deployment target of the bundled guest app.
+///
+/// If the bundled guest app has a deployment target that's higher than the version of the guest OS being installed,
+/// the app looks up a legacy version of the guest app in the catalog that can support the legacy guest OS.
+public struct CatalogLegacyGuestAppVersion: CatalogModel {
+    public var id: String
+    /// URL to downloadable Apple Archive.
+    public var url: URL
+    /// SHA384 digest of the archive.
+    public var sha384: String
+    /// The version of the guest app itself as declared in its Info.plist.
+    public var guestAppVersion: SoftwareVersion
+    /// The minimum guest OS version supported by this legacy guest app build.
+    public var minGuestVersion: SoftwareVersion
+    /// The maximum guest OS version supported by this legacy guest app build.
+    public var maxGuestVersion: SoftwareVersion
+    /// The minimum host VirtualBuddy app version supported by this legacy guest app build.
+    /// `nil` means all VirtualBuddy versions are supported (gated only by guest OS version).
+    public var minAppVersion: SoftwareVersion?
+    /// The maximum host VirtualBuddy app version supported by this legacy guest app build.
+    /// `nil` means all VirtualBuddy versions are supported (gated only by guest OS version).
+    public var maxAppVersion: SoftwareVersion?
+
+    public init(id: String, url: URL, sha384: String, guestAppVersion: SoftwareVersion, minGuestVersion: SoftwareVersion, maxGuestVersion: SoftwareVersion, minAppVersion: SoftwareVersion? = nil, maxAppVersion: SoftwareVersion? = nil) {
+        self.id = id
+        self.url = url
+        self.sha384 = sha384
+        self.guestAppVersion = guestAppVersion
+        self.minGuestVersion = minGuestVersion
+        self.maxGuestVersion = maxGuestVersion
+        self.minAppVersion = minAppVersion
+        self.maxAppVersion = maxAppVersion
+    }
+}
+
 /// Adopted by both ``RestoreImage`` and ``ResolvedRestoreImage`` to make download lookup more convenient to implement.
 public protocol DownloadableCatalogContent: Identifiable, Hashable, Sendable {
     var build: String { get }
@@ -203,8 +244,10 @@ public struct SoftwareCatalog: Codable, Sendable {
     public var requirementSets: [RequirementSet]
     /// Device support files definitions.
     public var deviceSupportVersions: [CatalogDeviceSupportVersion]
+    /// Legacy VirtualBuddyGuest app archive definitions.
+    public var legacyGuestAppVersions: [CatalogLegacyGuestAppVersion]
 
-    public init(apiVersion: Int, minAppVersion: SoftwareVersion, channels: [CatalogChannel], groups: [CatalogGroup], restoreImages: [RestoreImage], features: [VirtualizationFeature], requirementSets: [RequirementSet], deviceSupportVersions: [CatalogDeviceSupportVersion]) {
+    public init(apiVersion: Int, minAppVersion: SoftwareVersion, channels: [CatalogChannel], groups: [CatalogGroup], restoreImages: [RestoreImage], features: [VirtualizationFeature], requirementSets: [RequirementSet], deviceSupportVersions: [CatalogDeviceSupportVersion], legacyGuestAppVersions: [CatalogLegacyGuestAppVersion]) {
         self.apiVersion = apiVersion
         self.minAppVersion = minAppVersion
         self.channels = channels
@@ -213,9 +256,10 @@ public struct SoftwareCatalog: Codable, Sendable {
         self.features = features
         self.requirementSets = requirementSets
         self.deviceSupportVersions = deviceSupportVersions
+        self.legacyGuestAppVersions = legacyGuestAppVersions
     }
 
-    public static let empty = SoftwareCatalog(apiVersion: 0, minAppVersion: .empty, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [], deviceSupportVersions: [])
+    public static let empty = SoftwareCatalog(apiVersion: 0, minAppVersion: .empty, channels: [], groups: [], restoreImages: [], features: [], requirementSets: [], deviceSupportVersions: [], legacyGuestAppVersions: [])
 }
 
 public extension SoftwareCatalog {
@@ -259,5 +303,16 @@ public extension VirtualizationFeature {
         self.name = try container.decode(String.self, forKey: .name)
         self.detail = try container.decodeIfPresent(String.self, forKey: .detail)
         self.unsupportedPlatform = (try? container.decodeIfPresent(Bool.self, forKey: .unsupportedPlatform)) ?? false
+    }
+}
+
+public extension RequirementSet {
+    init(from decoder: any Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.id = try container.decode(String.self, forKey: .id)
+        self.minCPUCount = try container.decode(Int.self, forKey: .minCPUCount)
+        self.minMemorySizeMB = try container.decode(Int.self, forKey: .minMemorySizeMB)
+        self.minVersionHost = try container.decode(SoftwareVersion.self, forKey: .minVersionHost)
+        self.virtualInstallationBackend = try container.decodeIfPresent(Bool.self, forKey: .virtualInstallationBackend) ?? false
     }
 }

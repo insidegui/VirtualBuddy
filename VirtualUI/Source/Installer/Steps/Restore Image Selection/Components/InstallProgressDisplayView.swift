@@ -1,6 +1,6 @@
 import SwiftUI
 import VirtualCore
-import BuddyKit
+import BuddyUI
 
 struct InstallProgressDisplayView: View {
     @EnvironmentObject private var viewModel: VMInstallationViewModel

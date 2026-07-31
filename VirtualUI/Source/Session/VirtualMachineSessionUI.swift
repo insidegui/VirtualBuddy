@@ -122,3 +122,208 @@ public struct VirtualMachineWindowCommands: View {
     }
 
 }
+
+public struct VirtualMachineGuestCommands: View {
+    @EnvironmentObject private var manager: VirtualMachineSessionUIManager
+
+    @State private var focusedSessionReference: WeakReference<VirtualMachineSessionUI>?
+    private var focusedSession: VirtualMachineSessionUI? { focusedSessionReference?.object }
+
+    public init() { }
+
+    public var body: some View {
+        Group {
+            if let controller = focusedSession?.controller {
+                VirtualMachineGuestActions(controller: controller)
+                    .id(ObjectIdentifier(controller))
+            } else {
+                /// Dummy item for when session is not available.
+                Button {
+                } label: {
+                    Label("Start", systemImage: "play.fill")
+                }
+            }
+        }
+        .disabled(focusedSession == nil)
+        .onReceive(manager.focusedSessionChanged) { ref in
+            focusedSessionReference = ref
+        }
+    }
+}
+
+@MainActor
+private final class WeakVMControllerObserver: ObservableObject {
+    private(set) weak var controller: VMController?
+
+    private var cancellable: AnyCancellable?
+
+    init(controller: VMController) {
+        self.controller = controller
+        self.cancellable = controller.objectWillChange.sink { [weak self] in
+            self?.objectWillChange.send()
+        }
+    }
+}
+
+private struct VirtualMachineGuestActions: View {
+    /// Commands are installed in the app-wide main menu and may outlive the session window.
+    /// This observer forwards updates without retaining the VM controller.
+    @StateObject private var observer: WeakVMControllerObserver
+
+    @State private var actionTask: Task<Void, Never>?
+
+    private var controller: VMController? { observer.controller }
+
+    init(controller: VMController) {
+        _observer = StateObject(wrappedValue: WeakVMControllerObserver(controller: controller))
+    }
+
+    var body: some View {
+        Group {
+            if controller?.state.isRunning == true {
+                stopButton
+                    .modifier { button in
+                        if #available(macOS 15.0, *) {
+                            button.modifierKeyAlternate(.option) {
+                                forceStopButton
+                            }
+                        } else {
+                            button
+                        }
+                    }
+            } else {
+                Button { [observer] in
+                    runGuestAction {
+                        guard let controller = observer.controller else { return }
+
+                        if controller.canResume {
+                            try await controller.resume()
+                        } else {
+                            try await controller.start()
+                        }
+                    }
+                } label: {
+                    Label("Start", systemImage: "play.fill")
+                }
+                .keyboardShortcut("r", modifiers: .command)
+                .disabled(actionTask != nil || !((controller?.canStart == true) || (controller?.canResume == true)))
+            }
+
+            Button { [observer] in
+                runGuestAction {
+                    guard let controller = observer.controller else { return }
+                    try await controller.pause()
+                }
+            } label: {
+                Label("Pause", systemImage: "pause.fill")
+            }
+            .disabled(actionTask != nil || controller?.canPause != true)
+
+            Divider()
+
+            VirtualMachineNetworkCommands(observer: observer)
+        }
+    }
+
+    private var stopButton: some View {
+        Button { [observer] in
+            runGuestAction {
+                guard let controller = observer.controller else { return }
+                try await controller.stop()
+            }
+        } label: {
+            Label("Stop", systemImage: "stop.fill")
+        }
+        .disabled(actionTask != nil)
+    }
+
+    private var forceStopButton: some View {
+        Button { [observer] in
+            runGuestAction {
+                guard let controller = observer.controller else { return }
+                try await controller.forceStop()
+            }
+        } label: {
+            Label("Force Stop", systemImage: "stop.circle.fill")
+        }
+        .disabled(actionTask != nil)
+    }
+
+    private func runGuestAction(_ action: @escaping @MainActor () async throws -> Void) {
+        actionTask = Task { @MainActor in
+            defer { actionTask = nil }
+
+            do {
+                try await action()
+            } catch {
+                NSApp.presentError(error)
+            }
+        }
+    }
+}
+
+private struct VirtualMachineNetworkCommands: View {
+    @ObservedObject var observer: WeakVMControllerObserver
+
+    private var controller: VMController? { observer.controller }
+
+    var body: some View {
+        Menu {
+            Button { [observer] in
+                performNetworkAction {
+                    guard let controller = observer.controller else { return }
+                    try controller.reconnectNetwork()
+                }
+            } label: {
+                Label("Reconnect", systemImage: "arrow.clockwise")
+            }
+            .disabled(controller?.canReconnectNetwork != true)
+
+            Divider()
+
+            let availableInterfaces = controller?.availableBridgeInterfaces ?? []
+
+            if availableInterfaces.isEmpty {
+                Button {
+                } label: {
+                    Label("No Host Interfaces Available", systemImage: "network.slash")
+                }
+                .disabled(true)
+            } else {
+                ForEach(availableInterfaces) { interface in
+                    Button { [observer] in
+                        performNetworkAction {
+                            guard let controller = observer.controller else { return }
+                            try controller.changeBridgeInterface(to: interface.id)
+                        }
+                    } label: {
+                        Label(
+                            interfaceDisplayName(interface),
+                            systemImage: isActive(interface) ? "checkmark" : "network"
+                        )
+                    }
+                    .disabled(controller?.canChangeBridgeInterface != true || isActive(interface))
+                }
+            }
+        } label: {
+            Label("Network", systemImage: "network")
+        }
+    }
+
+    private func isActive(_ interface: VBNetworkDeviceInterface) -> Bool {
+        controller?.activeBridgeInterfaceIdentifiers == [interface.id]
+    }
+
+    private func interfaceDisplayName(_ interface: VBNetworkDeviceInterface) -> String {
+        guard interface.name != interface.id else { return interface.name }
+        return "\(interface.name) (\(interface.id))"
+    }
+
+    private func performNetworkAction(_ action: () throws -> Void) {
+        do {
+            try action()
+        } catch {
+            NSApp.presentError(error)
+        }
+    }
+}

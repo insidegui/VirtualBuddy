@@ -1,5 +1,5 @@
 import SwiftUI
-import BuddyKit
+import BuddyUI
 
 struct VirtualBuddyMonoIcon: View {
     var size: Double = 90

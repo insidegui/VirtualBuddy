@@ -3,5 +3,6 @@
 #include "Signing.xcconfig"
 #include "Features.xcconfig"
 #include "InfoPlist.xcconfig"
+#include "Security.xcconfig"
 
 ARCHS=arm64

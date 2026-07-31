@@ -6,11 +6,20 @@
 //
 
 import SwiftUI
+import Combine
 import VirtualCore
 
 public enum VMConfigurationContext: Int {
     case preInstall
     case postInstall
+
+    /// Whether the configuration should be saved continuously as it's changed by the user.
+    var shouldAutoSave: Bool {
+        switch self {
+        case .preInstall: true
+        case .postInstall: false
+        }
+    }
 }
 
 public final class VMConfigurationViewModel: ObservableObject {
@@ -40,7 +49,9 @@ public final class VMConfigurationViewModel: ObservableObject {
     @Published private(set) var vm: VBVirtualMachine
 
     public let context: VMConfigurationContext
-    
+
+    private var cancellables = Set<AnyCancellable>()
+
     public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall, resolvedRestoreImage: ResolvedRestoreImage? = nil) {
         self.config = vm.configuration
         self.vm = vm
@@ -50,6 +61,23 @@ public final class VMConfigurationViewModel: ObservableObject {
         applyResolvedFeatureDefaultsIfNeeded()
 
         Task { await validate() }
+
+        /// Automatically save configuration as it changes when in a pre-install context.
+        /// In a post-install context, configuration is only saved when the user confirms it.
+        if context.shouldAutoSave {
+            $config
+                .removeDuplicates()
+                .debounce(for: .milliseconds(500), scheduler: DispatchQueue.main)
+                .sink { [weak self] config in
+                    do {
+                        self?.vm.configuration = config
+                        try self?.vm.saveMetadata()
+                    } catch {
+                        assert(ProcessInfo.isSwiftUIPreview, "Unexpected metadata write failure: \(error)")
+                    }
+                }
+                .store(in: &cancellables)
+        }
     }
 
     @discardableResult

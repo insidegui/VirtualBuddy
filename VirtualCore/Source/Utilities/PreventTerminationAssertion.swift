@@ -1,5 +1,5 @@
 import Cocoa
-import BuddyKit
+import BuddyFoundation
 import OSLog
 
 /// An assertion that prevents the app from being terminated during its lifetime.

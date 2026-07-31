@@ -1,5 +1,5 @@
 import Foundation
-import BuddyKit
+import BuddyFoundation
 import OSLog
 
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VBSettings+CatalogDownload")

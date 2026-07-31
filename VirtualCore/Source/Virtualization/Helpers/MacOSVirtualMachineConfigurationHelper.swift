@@ -31,8 +31,14 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
         var devices = try storageDeviceContainer.additionalBlockDevices(guestType: vm.configuration.systemType)
 
-        if vm.configuration.guestAdditionsEnabled, let disk = try? VZVirtioBlockDeviceConfiguration.guestAdditionsDisk {
-            devices.append(disk)
+        if vm.configuration.guestAdditionsEnabled {
+            do {
+                if let disk = try await VZVirtioBlockDeviceConfiguration.guestAdditionsDisk(for: vm.configuration) {
+                    devices.append(disk)
+                }
+            } catch {
+                assertionFailure("VZVirtioBlockDeviceConfiguration initialization failed for guest additions disk: \(error)")
+            }
         }
 
         return devices
@@ -59,6 +65,26 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     func createUSBControllers() -> [VZUSBControllerConfiguration] {
         let xhci = VZXHCIControllerConfiguration()
         return [xhci]
+    }
+
+    @available(macOS 27.0, *)
+    static func createProvisioningOptions(for vm: VBVirtualMachine) -> VZMacGuestProvisioningOptions? {
+        guard vm.configuration.provisioningEnabled, let provisioning = vm.configuration.provisioning else { return nil }
+
+        return createProvisioningOptions(with: provisioning)
+    }
+
+    @available(macOS 27.0, *)
+    static func createProvisioningOptions(with provisioning: VBMacProvisioningConfiguration) -> VZMacGuestProvisioningOptions {
+        let options = VZMacGuestProvisioningOptions()
+
+        options.enablesRemoteLogin = provisioning.enablesRemoteLogin
+        options.fullName = provisioning.fullName
+        options.username = provisioning.username
+        options.password = provisioning.password
+        options.logsInAutomatically = provisioning.logsInAutomatically
+
+        return options
     }
 }
 

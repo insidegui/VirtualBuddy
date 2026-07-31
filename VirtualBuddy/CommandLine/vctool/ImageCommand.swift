@@ -73,7 +73,13 @@ extension CatalogCommand {
 
                 let requirementSet: RequirementSet
 
-                if let existingSet = catalog.requirementSets.first(where: { $0.matches(info: identity.info) }) {
+                if let existingImage = catalog.mostRecentImage(matchingMajorMinorVersionOf: manifest.productVersion, excludingBuild: manifest.productBuildVersion, in: group) {
+                    let existingSet = try catalog.requirementSet(with: existingImage.requirements)
+
+                    fputs("Using requirement set \(existingSet.id) from \(existingImage.name) (\(existingImage.build))\n", stderr)
+
+                    requirementSet = existingSet
+                } else if let existingSet = catalog.requirementSets.first(where: { $0.matches(info: identity.info) }) {
                     fputs("Found existing requirement set \(existingSet.id)\n", stderr)
 
                     requirementSet = existingSet
@@ -132,6 +138,12 @@ extension CatalogCommand {
 }
 
 private extension SoftwareCatalog {
+    func mostRecentImage(matchingMajorMinorVersionOf version: SoftwareVersion, excludingBuild build: String, in group: CatalogGroup) -> RestoreImage? {
+        restoreImages.first(where: {
+            $0.group == group.id && $0.build != build && $0.version.matchesMajorMinor(of: version)
+        })
+    }
+
     func index(forInserting image: RestoreImage) -> Int {
         if let existingIndex = restoreImages.firstIndex(where: { $0.id == image.id }) {
             existingIndex /// Replace image at its current index (client must delete existing one before replacing)
@@ -140,5 +152,11 @@ private extension SoftwareCatalog {
         } else {
             0 /// Place image in first slot
         }
+    }
+}
+
+private extension SoftwareVersion {
+    func matchesMajorMinor(of version: SoftwareVersion) -> Bool {
+        major == version.major && minor == version.minor
     }
 }

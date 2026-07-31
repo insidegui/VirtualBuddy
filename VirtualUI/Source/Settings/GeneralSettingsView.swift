@@ -7,7 +7,7 @@
 
 import SwiftUI
 import VirtualCore
-import BuddyKit
+import BuddyUI
 
 struct GeneralSettingsView: View {
     @Binding var settings: VBSettings

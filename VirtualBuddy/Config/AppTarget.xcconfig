@@ -31,9 +31,6 @@ CODE_SIGN_STYLE[config=Dev_Release][sdk=*][arch=*] = Manual
 CODE_SIGN_STYLE[config=Beta_Debug][sdk=*][arch=*] = Manual
 CODE_SIGN_STYLE[config=Beta_Release][sdk=*][arch=*] = Manual
 
-OTHER_SWIFT_FLAGS[config=Release][sdk=*][arch=*] = -D BUILDING_NON_MANAGED_RELEASE
-OTHER_SWIFT_FLAGS[config=Dev_Release][sdk=*][arch=*] = -D BUILDING_DEV_RELEASE
-
 // Release Train Settings
 
 // Special app icon for development releases. Note that Xcode uses the first icon when sorted alphabetically, hence why the default icon has the -Default suffix.

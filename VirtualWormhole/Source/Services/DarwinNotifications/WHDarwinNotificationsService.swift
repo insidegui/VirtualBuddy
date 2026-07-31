@@ -38,8 +38,12 @@ final class WHDarwinNotificationsService: WormholeService {
         logger.debug(#function)
 
         Task {
-            for try await message in connection.stream(for: DarwinNotificationMessage.self) {
-                handle(message.payload, from: message.senderID)
+            do {
+                for try await message in connection.stream(for: DarwinNotificationMessage.self) {
+                    handle(message.payload, from: message.senderID)
+                }
+            } catch {
+                logger.info("Connection stream terminated: \(error, privacy: .public)")
             }
         }
     }

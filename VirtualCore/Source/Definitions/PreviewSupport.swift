@@ -7,7 +7,7 @@ let previewLibraryDirName = "PreviewLibrary"
 
 public extension VBVirtualMachine {
     static func previewMachine(named name: String) -> VBVirtualMachine {
-        try! VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
+        VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
     }
     static let preview = VBVirtualMachine.previewMachine(named: "PreviewMac")
     static let previewBlurHash = VBVirtualMachine.previewMachine(named: "PreviewMacBlurHash")
@@ -139,5 +139,8 @@ public extension ResolvedCatalogGroup {
 public extension ResolvedRestoreImage {
     static let previewMac = ResolvedCatalog.previewMac.groups[0].restoreImages[0]
     static let previewLinux = ResolvedCatalog.previewLinux.groups[0].restoreImages[0]
+
+    static let previewMacLegacyVentura = ResolvedCatalog.previewMac.groups.first(where: { $0.id == "ventura" })!.restoreImages[0]
+    static let previewMacLegacyMonterey = ResolvedCatalog.previewMac.groups.first(where: { $0.id == "monterey" })!.restoreImages[0]
 }
 #endif

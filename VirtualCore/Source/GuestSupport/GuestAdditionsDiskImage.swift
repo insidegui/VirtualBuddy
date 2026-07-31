@@ -11,35 +11,129 @@ import CryptoKit
 import UniformTypeIdentifiers
 import OSLog
 import Combine
+import BuddyFoundation
 
 public final class GuestAdditionsDiskImage: ObservableObject {
 
-    private lazy var logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: Self.self))
+    private let logger: Logger
 
-    public static let current = GuestAdditionsDiskImage()
+    public static let `default` = GuestAdditionsDiskImage(source: .embedded)
 
     public enum State: CustomStringConvertible {
         case ready
+        case downloading
         case installing
         case installFailed(Error)
 
         public var description: String {
             switch self {
             case .ready: "Ready"
+            case .downloading: "Downloading"
             case .installing: "Installing"
             case .installFailed(let error): "Failed: \(error)"
             }
         }
     }
 
-    @MainActor
-    @Published public private(set) var state = State.ready
+    public enum Source {
+        case embedded
+        case catalog(_ id: CatalogLegacyGuestAppVersion.ID)
+
+        var imageBaseName: String {
+            switch self {
+            case .embedded: "VirtualBuddyGuest"
+            case .catalog(let id): id
+            }
+        }
+
+        var loggerName: String {
+            switch self {
+            case .embedded: "Embedded"
+            case .catalog(let id): id
+            }
+        }
+
+        var initialState: State {
+            switch self {
+            case .embedded: .ready
+            case .catalog: .downloading
+            }
+        }
+    }
+
+    private let source: Source
+    private var imageBaseName: String { source.imageBaseName }
+
+    @Published public private(set) var state: State
+
+    public init(source: Source) {
+        self.source = source
+        self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "\(Self.self)\(source.loggerName)")
+        self.state = source.initialState
+    }
 
     public func installIfNeeded() async throws {
         #if DEBUG
         if await simulateInstall() { return }
         #endif
 
+        switch source {
+        case .embedded: try await generateAndInstallEmbeddedGuestDiskImage()
+        case .catalog(let id): do {
+            try await installCatalogDiskImage(id)
+            await MainActor.run { self.state = .ready }
+        } catch {
+            await MainActor.run { self.state = .installFailed(error) }
+        }
+        }
+    }
+
+    private func installCatalogDiskImage(_ id: CatalogLegacyGuestAppVersion.ID) async throws {
+        let app = try await SoftwareCatalog.currentMacCatalog.legacyGuestAppVersions
+            .first(where: { $0.id == id })
+            .require("Guest app image not found: \(id.quoted).")
+
+        let imagePath = FilePath(installedImageURL)
+
+        if imagePath.exists {
+            logger.debug("Catalog disk image already installed at \(imagePath)")
+
+            if let digest = try? imagePath.sha384Digest {
+                guard digest.hexString.caseInsensitiveCompare(app.sha384) != .orderedSame else {
+                    await MainActor.run { self.state = .ready }
+                    return
+                }
+
+                logger.debug("Local disk image digest doesn't match catalog, will redownload")
+
+                do {
+                    try imagePath.delete()
+                } catch {
+                    logger.error("Error removing cached local disk image: \(error, privacy: .public)")
+                }
+            }
+        }
+
+        logger.debug("Downloading image from \(app.url, privacy: .public)")
+
+        await MainActor.run { self.state = .downloading }
+
+        let request = URLRequest(url: app.url)
+        let (fileURL, response) = try await URLSession.shared.download(for: request)
+
+        let status = (response as! HTTPURLResponse).statusCode
+        try (status == 200).require("HTTP \(status).")
+
+        await MainActor.run { self.state = .installing }
+
+        logger.debug("Copying image to \(imagePath)")
+
+        try FilePath(fileURL).copy(imagePath)
+
+        logger.notice("Image installed for \(id, privacy: .public): \(imagePath, privacy: .public)")
+    }
+
+    private func generateAndInstallEmbeddedGuestDiskImage() async throws {
         do {
             logger.debug(#function)
 
@@ -51,12 +145,12 @@ public final class GuestAdditionsDiskImage: ObservableObject {
                 await MainActor.run { state = .ready }
             }
 
-            let embeddedDigest = try computeEmbeddedGuestDigest()
+            let digest = try computeGuestDigest()
 
             if let currentlyInstalledGuestImageDigest {
-                logger.debug("Embedded guest app digest: \(embeddedDigest, privacy: .public) / Library guest app digest: \(currentlyInstalledGuestImageDigest, privacy: .public)")
+                logger.debug("Guest app digest: \(digest, privacy: .public) / Library guest app digest: \(currentlyInstalledGuestImageDigest, privacy: .public)")
 
-                guard embeddedDigest != currentlyInstalledGuestImageDigest else {
+                guard digest != currentlyInstalledGuestImageDigest else {
                     logger.debug("Guest digests match, skipping guest image generation")
 
                     await MainActor.run { state = .ready }
@@ -64,13 +158,13 @@ public final class GuestAdditionsDiskImage: ObservableObject {
                     return
                 }
 
-                logger.debug("Guest digests don't match, generating new guest image with embedded guest")
+                logger.debug("Guest digests don't match, generating new guest image")
 
-                try await performInstall(with: embeddedDigest)
+                try await performInstall(with: digest)
             } else {
-                logger.debug("No digest for currently installed image, assuming not installed. Embedded guest app digest: \(embeddedDigest, privacy: .public)")
+                logger.debug("No digest for currently installed image, assuming not installed. Guest app digest: \(digest, privacy: .public)")
 
-                try await performInstall(with: embeddedDigest)
+                try await performInstall(with: digest)
             }
         } catch {
             logger.error("Guest disk image installation failed. \(error, privacy: .public)")
@@ -82,20 +176,6 @@ public final class GuestAdditionsDiskImage: ObservableObject {
     }
 
     // MARK: File Paths
-
-    private var embeddedGuestAppURL: URL {
-        get throws {
-            guard let url = Bundle.main.sharedSupportURL?.appendingPathComponent("VirtualBuddyGuest.app") else {
-                throw Failure("Couldn't get VirtualBuddyGuest.app URL within main app bundle")
-            }
-
-            guard FileManager.default.fileExists(atPath: url.path) else {
-                throw Failure("VirtualBuddyGuest.app doesn't exist at \(url.path)")
-            }
-
-            return url
-        }
-    }
 
     private var generatorScriptURL: URL {
         get throws {
@@ -111,13 +191,11 @@ public final class GuestAdditionsDiskImage: ObservableObject {
         }
     }
 
-    private var _imageBaseName: String { "VirtualBuddyGuest" }
-
     private var imageName: String {
         if let suffix = VBBuildType.current.guestAdditionsImageSuffix {
-            _imageBaseName + suffix
+            imageBaseName + suffix
         } else {
-            _imageBaseName
+            imageBaseName
         }
     }
 
@@ -132,9 +210,16 @@ public final class GuestAdditionsDiskImage: ObservableObject {
     }
 
     public var installedImageURL: URL {
-        imagesRootURL
-            .appendingPathComponent(imageName)
-            .appendingPathExtension("dmg")
+        switch source {
+        case .embedded:
+            imagesRootURL
+                .appendingPathComponent(imageName)
+                .appendingPathExtension("dmg")
+        case .catalog(let id):
+            imagesRootURL
+                .appendingPathComponent(id)
+                .appendingPathExtension("dmg")
+        }
     }
 
     // MARK: Digest
@@ -153,9 +238,8 @@ public final class GuestAdditionsDiskImage: ObservableObject {
         }
     }
 
-    private func computeEmbeddedGuestDigest() throws -> String {
-        let url = try embeddedGuestAppURL
-        guard let enumerator = FileManager.default.enumerator(at: url, includingPropertiesForKeys: [.contentTypeKey]) else {
+    private func computeGuestDigest() throws -> String {
+        guard let enumerator = FileManager.default.enumerator(at: Bundle.embeddedGuestApp.bundleURL, includingPropertiesForKeys: [.contentTypeKey]) else {
             throw Failure("Couldn't instantiate file enumerator for computing guest app bundle digest")
         }
 
@@ -193,9 +277,8 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
     private func writeGuestImage(with digest: String) async throws {
         let scriptPath = try generatorScriptURL.path
-        let guestURL = try embeddedGuestAppURL
-        let guestPath = guestURL.path
-        let size = computeImageSizeInMB(guestAppURL: guestURL)
+        let guestPath = Bundle.embeddedGuestApp.bundlePath
+        let size = computeImageSizeInMB(guestAppURL: Bundle.embeddedGuestApp.bundleURL)
 
         var args: [String] = [
             scriptPath,
@@ -246,20 +329,57 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
 }
 
+public extension Bundle {
+    /// Bundle of the VirtualBuddyGuest app embedded in the app's main bundle.
+    static let embeddedGuestApp: Bundle = {
+        #if DEBUG
+        /// Allow using SwiftUI previews with VirtualUI target selected without having to embed VirtualBuddyGuest.app inside VirtualUI.
+        guard !ProcessInfo.isSwiftUIPreview else { return Bundle.main }
+        #endif
+        do {
+            guard let url = Bundle.main.sharedSupportURL?.appendingPathComponent("VirtualBuddyGuest.app") else {
+                throw Failure("Couldn't get VirtualBuddyGuest.app URL within main app bundle")
+            }
+
+            guard FileManager.default.fileExists(atPath: url.path) else {
+                throw Failure("VirtualBuddyGuest.app doesn't exist at \(url.path)")
+            }
+
+            guard let bundle = Bundle(url: url) else {
+                throw Failure("Failed to construct bundle for embedded guest app at \(url.path(percentEncoded: false)).")
+            }
+
+            return bundle
+        } catch {
+            preconditionFailure("\(error)")
+        }
+    }()
+
+    var minimumSystemVersion: SoftwareVersion {
+        guard let versionString: String = self.infoPlistValue(for: "LSMinimumSystemVersion") else { return .empty }
+        return SoftwareVersion(string: versionString) ?? .empty
+    }
+}
+
+public extension SoftwareVersion {
+    /// Version of the VirtualBuddyGuest app embedded in the app's main bundle.
+    static let embeddedGuestApp = Bundle.embeddedGuestApp.softwareVersion
+}
+
 // MARK: - Virtualization Extensions
 
 extension VZVirtioBlockDeviceConfiguration {
 
-    static var guestAdditionsDisk: VZVirtioBlockDeviceConfiguration? {
-        get throws {
-            let guestImageURL = GuestAdditionsDiskImage.current.installedImageURL
+    static func guestAdditionsDisk(for configuration: VBMacConfiguration) async throws -> VZVirtioBlockDeviceConfiguration? {
+        let image = GuestAdditionsDiskImage(source: configuration.guestAppDiskImageSource)
 
-            guard FileManager.default.fileExists(atPath: guestImageURL.path) else { return nil }
+        let guestImagePath = FilePath(image.installedImageURL)
 
-            let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImageURL, readOnly: true)
+        guard guestImagePath.exists else { return nil }
 
-            return VZVirtioBlockDeviceConfiguration(attachment: guestAttachment)
-        }
+        let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImagePath.url, readOnly: true)
+
+        return VZVirtioBlockDeviceConfiguration(attachment: guestAttachment)
     }
 
 }
@@ -331,6 +451,16 @@ extension VBBuildType {
         case .devRelease: "_Dev"
         }
     }
+}
+
+extension FilePath {
+    var sha384Digest: Data {
+        get throws { try Data(contentsOf: url, options: .mappedIfSafe).sha384Digest }
+    }
+}
+
+extension Data {
+    var sha384Digest: Data { Data(SHA384.hash(data: self)) }
 }
 
 // MARK: - Debug Simulation

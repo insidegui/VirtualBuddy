@@ -1,5 +1,6 @@
 import SwiftUI
-import BuddyKit
+import AppKit
+import BuddyUI
 import VirtualCore
 import UniformTypeIdentifiers
 
@@ -22,7 +23,7 @@ struct FileSystemPathFormControl: View {
                     .help(url.path)
 
                 Button {
-                    url.revealInFinder()
+                    NSWorkspace.shared.activateFileViewerSelecting([url])
                 } label: {
                     Image(systemName: "arrow.right")
                 }

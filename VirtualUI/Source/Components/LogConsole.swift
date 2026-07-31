@@ -3,11 +3,13 @@ import VirtualCore
 import UniformTypeIdentifiers
 
 struct LogConsole: View {
-    
+
+    static var padding: CGFloat { 16 }
+
     @StateObject private var streamer: LogStreamer
 
-    init(predicate: LogStreamer.Predicate) {
-        self._streamer = .init(wrappedValue: LogStreamer(predicate: predicate))
+    init(predicate: LogStreamer.Predicate, startTime: Date = .now) {
+        self._streamer = .init(wrappedValue: LogStreamer(predicate: predicate, startTime: startTime))
     }
 
     init(streamer: LogStreamer) {
@@ -15,44 +17,58 @@ struct LogConsole: View {
     }
 
     @State private var searchTerm = ""
+    @AppStorage("LogConsole.ScrollAutomatically") private var autoscroll = true
+
+    @State private var throttledEvents = [LogEntry]()
 
     private var filteredEvents: [LogEntry] {
-        guard searchTerm.count >= 3 else { return streamer.events }
-        return streamer.events.filter {
+        guard searchTerm.count >= 3 else { return throttledEvents }
+        return throttledEvents.filter {
             $0.message.localizedCaseInsensitiveContains(searchTerm)
         }
     }
 
     var body: some View {
-        ScrollView(.vertical) {
-            LazyVStack(alignment: .leading, spacing: 8) {
-                ForEach(filteredEvents) { entry in
-                    Text(entry.formattedTime + " ")
-                        .foregroundColor(.secondary)
-                    + Text(entry.message)
-                        .foregroundColor(entry.level.color)
-                }
-            }
-            .font(.system(.body).monospaced())
-            .padding(.horizontal)
-            .padding(.top, 6)
-            .textSelection(.enabled)
-        }
-        .safeAreaInset(edge: .top, content: { searchBar })
-        .safeAreaInset(edge: .bottom, content: { bottomBar })
-        .onAppear(perform: streamer.activate)
-    }
+        ScrollViewReader { proxy in
+            ScrollView(.vertical) {
+                LazyVStack(alignment: .leading, spacing: 8) {
+                    ForEach(filteredEvents) { entry in
+                        Text(entry.formattedTime + " ")
+                            .foregroundColor(.secondary)
+                        + Text(entry.message)
+                            .foregroundColor(entry.level.color)
+                    }
 
-    @ViewBuilder
-    private var searchBar: some View {
-        ZStack {
-            searchField
+                    Color.clear.frame(height: 1).id("BOTTOM")
+                }
+                .font(.system(.body).monospaced())
+                .textSelection(.enabled)
+            }
+            .onChange(of: filteredEvents.count) {
+                guard autoscroll else { return }
+                proxy.scrollTo("BOTTOM", anchor: .bottom)
+            }
+            .onChange(of: autoscroll) { oldValue, newValue in
+                guard !oldValue, newValue else { return }
+                proxy.scrollTo("BOTTOM", anchor: .bottom)
+            }
+            .virtualBuddyBottomBar { bottomBar }
+            .overlay(alignment: .topTrailing) {
+                Toggle(isOn: $autoscroll) {
+                    Label("Scroll automatically", systemImage: "chevron.up.chevron.down")
+                        .labelStyle(.iconOnly)
+                        .padding(3)
+                }
+                .toggleStyle(.button)
+                .airGlassButtonStyle()
+                .buttonBorderShape(.circle)
+                .help("Scroll automatically")
+                .padding([.top, .trailing], Self.padding)
+            }
         }
-        .frame(maxWidth: .infinity)
-        .padding()
-        .background(Material.thick, in: Rectangle())
-        .overlay(alignment: .bottom) {
-            Divider()
+        .onAppear(perform: streamer.activate)
+        .onReceive(streamer.$events.throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)) { events in
+            throttledEvents = events
         }
     }
 
@@ -66,7 +82,7 @@ struct LogConsole: View {
                 if searchTerm == "" { searchFieldFocused = false }
                 searchTerm = ""
             }
-            .textFieldStyle(.roundedBorder)
+            .textFieldStyle(.plain)
     }
 
     private var fullLogText: String {
@@ -77,26 +93,35 @@ struct LogConsole: View {
 
     @ViewBuilder
     private var bottomBar: some View {
-        ZStack {
-            HStack(spacing: 16) {
-                Button {
-                    NSPasteboard.general.clearContents()
-                    NSPasteboard.general.setString(fullLogText, forType: .string)
-                } label: {
-                    Text("Copy Text")
-                }
+        AirGlassEffectContainer {
+            HStack {
+                searchField
+                    .frame(height: 32)
+                    .frame(maxWidth: 240)
+                    .padding(.horizontal, 14)
+                    .airMaterialBackground(visualEffect: .menu, glassEffect: .regular, in: Capsule())
 
-                Button {
-                    NSSavePanel.run(saving: Data(fullLogText.utf8), as: .logFile)
-                } label: {
-                    Text("Save to File…")
+                Spacer()
+
+                HStack(spacing: 16) {
+                    Button {
+                        NSPasteboard.general.clearContents()
+                        NSPasteboard.general.setString(fullLogText, forType: .string)
+                    } label: {
+                        Text("Copy Text")
+                    }
+
+                    Button {
+                        NSSavePanel.run(saving: Data(fullLogText.utf8), as: .logFile)
+                    } label: {
+                        Text("Save to File…")
+                    }
                 }
+                .frame(height: 32)
+                .padding(.horizontal, 14)
+                .airMaterialBackground(visualEffect: .menu, glassEffect: .regular, in: Capsule())
             }
-            .padding(.vertical, 8)
-            .padding(.horizontal, 14)
-            .controlGroup(Capsule(style: .continuous), level: .secondary)
         }
-        .padding()
         .frame(maxWidth: .infinity, alignment: .bottomTrailing)
         .controlSize(.small)
         .buttonStyle(.link)

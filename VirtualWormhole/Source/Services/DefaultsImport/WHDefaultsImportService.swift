@@ -43,8 +43,12 @@ public final class WHDefaultsImportService: WormholeService {
         logger.debug(#function)
 
         Task {
-            for try await message in connection.stream(for: DefaultsImportMessage.self) {
-                await handle(message.payload, from: message.senderID)
+            do {
+                for try await message in connection.stream(for: DefaultsImportMessage.self) {
+                    await handle(message.payload, from: message.senderID)
+                }
+            } catch {
+                logger.info("Connection stream terminated: \(error, privacy: .public)")
             }
         }
     }

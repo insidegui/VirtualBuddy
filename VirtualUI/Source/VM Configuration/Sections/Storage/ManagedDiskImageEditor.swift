@@ -17,7 +17,7 @@ struct ManagedDiskImageEditor: View {
     var canResize: Bool
 
     init(image: VBManagedDiskImage, isExistingDiskImage: Bool, isForBootVolume: Bool, onSave: @escaping (VBManagedDiskImage) -> Void) {
-        self._image = .init(wrappedValue: image)
+        self.image = image
         self.isExistingDiskImage = isExistingDiskImage
         self.onSave = onSave
         let fallbackMinimumSize = isForBootVolume ? VBManagedDiskImage.minimumBootDiskImageSize : VBManagedDiskImage.minimumExtraDiskImageSize
