@@ -13,11 +13,32 @@ struct SelfSizingGroupedForm<Content: View>: View {
 
     var body: some View {
         ZStack {
-            Form {
-                content()
+            form
+        }
+        .frame(height: max(minHeight, contentHeight))
+    }
+
+    @ViewBuilder
+    private var form: some View {
+        let form = Form {
+            content()
+        }
+        .formStyle(.grouped)
+
+        if #available(macOS 15.0, *) {
+            form.onScrollGeometryChange(for: CGFloat.self) { geometry in
+                geometry.contentSize.height
+            } action: { _, newHeight in
+                guard !disabled else { return }
+                guard newHeight != contentHeight else { return }
+                guard newHeight > 0, newHeight.isFinite else { return }
+                contentHeight = newHeight
             }
-            .formStyle(.grouped)
-            .introspect(.scrollView, on: .macOS(.v13, .v14, .v15, .v26, .v27)) { scrollView in
+        } else {
+            /// The grouped `Form` is no longer backed by an introspectable `NSScrollView`
+            /// on modern macOS, so introspection is only used where the native
+            /// scroll geometry API is unavailable.
+            form.introspect(.scrollView, on: .macOS(.v13, .v14)) { scrollView in
                 guard !disabled else { return }
                 guard let frame = scrollView.documentView?.frame else { return }
                 guard frame.height != contentHeight else { return }
@@ -28,7 +49,6 @@ struct SelfSizingGroupedForm<Content: View>: View {
                 }
             }
         }
-        .frame(height: max(minHeight, contentHeight))
     }
 }
 
