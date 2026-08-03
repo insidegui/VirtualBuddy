@@ -76,6 +76,7 @@ private extension EnvironmentValues {
 struct LibraryItemView: View {
 
     @EnvironmentObject var library: VMLibraryController
+    @EnvironmentObject var sessionManager: VirtualMachineSessionUIManager
 
     var vm: VBVirtualMachine
     @State var name: String
@@ -85,7 +86,11 @@ struct LibraryItemView: View {
 
     var nameFieldFocus = BoolSubject()
 
+    @State private var configurationVM: VBVirtualMachine?
+
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
+
+    private var hasOpenSession: Bool { sessionManager.session(for: vm) != nil }
 
     var body: some View {
         VStack(spacing: 12) {
@@ -116,6 +121,11 @@ struct LibraryItemView: View {
         .shadow(color: Color.black.opacity(0.56), radius: 1)
         .scaleEffect(isPressed ? 0.98 : 1)
         .contextMenu { contextMenuItems }
+        .sheet(item: $configurationVM) { configurationVM in
+            LibraryVMConfigurationSheet(vm: configurationVM)
+                .environmentObject(library)
+                .environment(library.templatesController)
+        }
         .task(id: vm.name) { self.name = vm.name }
         .animation(isPressed ? .linear(duration: 0) : .snappy, value: isPressed)
     }
@@ -143,6 +153,13 @@ struct LibraryItemView: View {
         }
 
         Divider()
+
+        Button {
+            configurationVM = vm
+        } label: {
+            Text("Configure…")
+        }
+        .disabled(hasOpenSession)
 
         Button {
             duplicate()
@@ -235,6 +252,37 @@ struct HighlightBorderModifier<Shape: InsettableShape>: ViewModifier {
 extension View {
     func highlightBorder<Shape: InsettableShape>(_ shape: Shape, color: Color = .white, opacity: Double = 0.14) -> some View {
         modifier(HighlightBorderModifier(shape: shape, color: color, opacity: opacity))
+    }
+}
+
+/// Presents ``VMConfigurationSheet`` for a VM that doesn't have an open session window,
+/// saving the configuration directly to the VM's bundle when the user confirms.
+private struct LibraryVMConfigurationSheet: View {
+
+    @State private var vm: VBVirtualMachine
+    @StateObject private var viewModel: VMConfigurationViewModel
+
+    init(vm: VBVirtualMachine) {
+        self._vm = State(initialValue: vm)
+        self._viewModel = StateObject(wrappedValue: VMConfigurationViewModel(vm, context: .postInstall))
+    }
+
+    var body: some View {
+        VMConfigurationSheet(configuration: Binding(
+            get: { vm.configuration },
+            set: { save($0) }
+        ))
+        .environmentObject(viewModel)
+    }
+
+    private func save(_ configuration: VBMacConfiguration) {
+        vm.configuration = configuration
+
+        do {
+            try vm.saveMetadata()
+        } catch {
+            NSAlert(error: error).runModal()
+        }
     }
 }
 
