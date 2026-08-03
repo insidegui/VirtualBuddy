@@ -291,6 +291,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		F41818723020F717001EB084 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = F4C18A4128491B8500335EC7 /* VirtualBuddyGuest */;
+		};
 		F4EFB5AD2FDB2A7600AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			attributesByRelativePath = {
@@ -449,7 +456,7 @@
 		F4FFEF72301D13BB00620720 /* DeepLinkSecurity */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFEF81301D13BC00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = DeepLinkSecurity; sourceTree = "<group>"; };
 		F4FFEF87301D13BE00620720 /* VirtualWormholeTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VirtualWormholeTests; sourceTree = "<group>"; };
 		F4FFEF91301D13C200620720 /* VirtualBuddyGuestHelper */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VirtualBuddyGuestHelper; sourceTree = "<group>"; };
-		F4FFEFA4301D13C500620720 /* VirtualBuddyGuest */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VirtualBuddyGuest; sourceTree = "<group>"; };
+		F4FFEFA4301D13C500620720 /* VirtualBuddyGuest */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F41818723020F717001EB084 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualBuddyGuest; sourceTree = "<group>"; };
 		F4FFEFCE301D13C700620720 /* VirtualWormhole */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFEFE4301D13C800620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualWormhole; sourceTree = "<group>"; };
 		F4FFF064301D13FD00620720 /* VirtualCore */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF0DA301D13FE00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, F43F8FBB3020D60E0002C08D /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, F4FFF0DC301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualCore; sourceTree = "<group>"; };
 		F4FFF110301D141200620720 /* data */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF112301D142A00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = data; sourceTree = "<group>"; };
@@ -1399,7 +1406,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -1679,7 +1686,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2327,7 +2334,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2609,7 +2616,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -2808,7 +2815,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -3197,7 +3204,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
@@ -3228,7 +3235,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "$(DERIVED_FILE_DIR)/VBGenerated-Info.plist";
+				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
