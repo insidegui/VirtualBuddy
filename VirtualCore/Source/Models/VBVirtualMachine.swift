@@ -99,8 +99,21 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
 
 }
 
+/// Use ``VBVirtualMachine/bundleExtension`` to access at runtime.
+private let kVBVirtualMachineBundleExtension = "vbvm"
+
 public extension VBVirtualMachine {
-    static let bundleExtension = "vbvm"
+    static let bundleExtension: String = {
+        #if DEBUG
+        if ProcessInfo.isSwiftUIPreview {
+            previewBundleExtension
+        } else {
+            kVBVirtualMachineBundleExtension
+        }
+        #else
+        kVBVirtualMachineBundleExtension
+        #endif
+    }()
     static let screenshotFileName = "Screenshot.heic"
     static let thumbnailFileName = "Thumbnail.heic"
     

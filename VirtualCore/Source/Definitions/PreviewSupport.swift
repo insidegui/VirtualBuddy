@@ -6,6 +6,10 @@ import Virtualization
 let previewLibraryDirName = "PreviewLibrary"
 
 public extension VBVirtualMachine {
+    /// Preview bundles use the default `.bundle` extension so that VirtualBuddy can be built on a machine without VirtualBuddy installed and therefore the `.vbvm` package format registered.
+    /// Builds with Xcode 27 started failing with "Multiple commands produce..." errors in Xcode Cloud because it treats each `vbvm` as a folder rather than a package.
+    static let previewBundleExtension = "bundle"
+
     static func previewMachine(named name: String) -> VBVirtualMachine {
         VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
     }
