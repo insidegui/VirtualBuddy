@@ -1380,7 +1380,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -1409,7 +1408,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -1438,7 +1436,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1470,7 +1467,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1529,7 +1525,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -1571,7 +1566,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -1661,7 +1655,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -1689,7 +1682,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -1717,7 +1709,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1748,7 +1739,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -1805,7 +1795,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -1846,7 +1835,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -1875,7 +1863,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1904,7 +1891,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1933,7 +1919,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1961,7 +1946,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -1992,7 +1976,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -2028,7 +2011,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -2064,7 +2046,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -2099,7 +2080,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -2193,7 +2173,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2221,7 +2200,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2309,7 +2287,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -2337,7 +2314,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -2365,7 +2341,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSBackgroundOnly = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
@@ -2396,7 +2371,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
@@ -2453,7 +2427,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2494,7 +2467,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2590,7 +2562,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -2619,7 +2590,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -2674,7 +2644,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2700,7 +2669,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2790,7 +2758,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -2818,7 +2785,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -2871,7 +2837,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -2896,7 +2861,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3048,7 +3012,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -3074,7 +3037,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualBuddy/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2023 Buddy Software LTD";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
 				OTHER_LDFLAGS = "";
@@ -3149,7 +3111,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3176,7 +3137,6 @@
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				ENABLE_MODULE_VERIFIER = NO;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_FRAMEWORK_RUNPATH_SEARCH_PATHS)";
 				MODULE_VERIFIER_SUPPORTED_LANGUAGES = "objective-c objective-c++";
@@ -3207,7 +3167,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -3238,7 +3197,6 @@
 				INFOPLIST_FILE = VirtualBuddyGuest/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_LSUIElement = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMainStoryboardFile = Main;
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = "$(VB_APP_RUNPATH_SEARCH_PATHS)";
@@ -3333,7 +3291,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3375,7 +3332,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3417,7 +3373,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3459,7 +3414,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3501,7 +3455,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3543,7 +3496,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3585,7 +3537,6 @@
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3623,7 +3574,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
@@ -3659,7 +3609,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
@@ -3695,7 +3644,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
@@ -3729,7 +3677,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
@@ -3764,7 +3711,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
@@ -3799,7 +3745,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
@@ -3834,7 +3779,6 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = VirtualInstallationService/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = VirtualInstallationService;
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Enable audio input for your virtual machines. Without this permission, virtual machines won't be able to record any audio.";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(LD_RUNPATH_SEARCH_PATHS_$(IS_MACCATALYST)_$(_BOOL_$(SKIP_INSTALL)))",
