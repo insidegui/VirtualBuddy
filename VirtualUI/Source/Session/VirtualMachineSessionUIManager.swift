@@ -14,7 +14,7 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
     private let openWindow = OpenCocoaWindowAction.default
 
-    private var sessions = [VBVirtualMachine.ID: VirtualMachineSessionUI]()
+    @Published private(set) var sessions = [VBVirtualMachine.ID: VirtualMachineSessionUI]()
 
     private init() { }
 
