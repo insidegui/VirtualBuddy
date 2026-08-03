@@ -221,16 +221,6 @@
 			name = "Copy Software Catalog Feeds";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = PreviewLibrary/_SavedStates;
-			dstSubfolderSpec = 7;
-			files = (
-			);
-			name = "Copy Preview Saved States";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
@@ -348,17 +338,12 @@
 				Source/Resources/Preview/_Downloads/UniversalMac_14.5_23F79_Restore.ipsw,
 				Source/Resources/Preview/_Downloads/UniversalMac_15.3_24D60_Restore.ipsw,
 				Source/Resources/Preview/_Downloads/UniversalMac_15.5_24F74_Restore.ipsw,
-				Source/Resources/Preview/PreviewLinux.vbvm,
-				Source/Resources/Preview/PreviewLinuxBlurHash.vbvm,
-				Source/Resources/Preview/PreviewLinuxNoArtwork.vbvm,
-				Source/Resources/Preview/PreviewMac.vbvm,
-				Source/Resources/Preview/PreviewMacBlurHash.vbvm,
-				Source/Resources/Preview/PreviewMacNoArtwork.vbvm,
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;06;24.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;07;04.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;08;06.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;08;28.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;08;51.vbst",
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinux.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinuxBlurHash.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinuxNoArtwork.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMac.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMacBlurHash.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMacNoArtwork.bundle,
 			);
 			publicHeaders = (
 				Source/Headers/VirtualizationPrivate.h,
@@ -395,16 +380,36 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
-		F4FFF0DB301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
+		F43F8FBB3020D60E0002C08D /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			attributesByRelativePath = {
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinux.bundle = (
+					RemoveHeadersOnCopy,
+				);
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinuxBlurHash.bundle = (
+					RemoveHeadersOnCopy,
+				);
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinuxNoArtwork.bundle = (
+					RemoveHeadersOnCopy,
+				);
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMac.bundle = (
+					RemoveHeadersOnCopy,
+				);
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMacBlurHash.bundle = (
+					RemoveHeadersOnCopy,
+				);
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMacNoArtwork.bundle = (
+					RemoveHeadersOnCopy,
+				);
+			};
 			buildPhase = F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */;
 			membershipExceptions = (
-				Source/Resources/Preview/PreviewLinux.vbvm,
-				Source/Resources/Preview/PreviewLinuxBlurHash.vbvm,
-				Source/Resources/Preview/PreviewLinuxNoArtwork.vbvm,
-				Source/Resources/Preview/PreviewMac.vbvm,
-				Source/Resources/Preview/PreviewMacBlurHash.vbvm,
-				Source/Resources/Preview/PreviewMacNoArtwork.vbvm,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinux.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinuxBlurHash.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewLinuxNoArtwork.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMac.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMacBlurHash.bundle,
+				Source/Resources/Preview/PreviewVirtualMachines/PreviewMacNoArtwork.bundle,
 			);
 		};
 		F4FFF0DC301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
@@ -416,17 +421,6 @@
 				Source/Resources/Preview/_Downloads/UniversalMac_14.5_23F79_Restore.ipsw,
 				Source/Resources/Preview/_Downloads/UniversalMac_15.3_24D60_Restore.ipsw,
 				Source/Resources/Preview/_Downloads/UniversalMac_15.5_24F74_Restore.ipsw,
-			);
-		};
-		F4FFF0DD301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
-			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
-			buildPhase = F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */;
-			membershipExceptions = (
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;06;24.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;07;04.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;08;06.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;08;28.vbst",
-				"Source/Resources/Preview/PreviewSavedStates/Save-2024-03-27_16;08;51.vbst",
 			);
 		};
 		F4FFF112301D142A00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */ = {
@@ -456,7 +450,7 @@
 		F4FFEF91301D13C200620720 /* VirtualBuddyGuestHelper */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VirtualBuddyGuestHelper; sourceTree = "<group>"; };
 		F4FFEFA4301D13C500620720 /* VirtualBuddyGuest */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = VirtualBuddyGuest; sourceTree = "<group>"; };
 		F4FFEFCE301D13C700620720 /* VirtualWormhole */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFEFE4301D13C800620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualWormhole; sourceTree = "<group>"; };
-		F4FFF064301D13FD00620720 /* VirtualCore */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF0DA301D13FE00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, F4FFF0DB301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, F4FFF0DC301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, F4FFF0DD301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualCore; sourceTree = "<group>"; };
+		F4FFF064301D13FD00620720 /* VirtualCore */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF0DA301D13FE00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, F43F8FBB3020D60E0002C08D /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, F4FFF0DC301D13FE00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualCore; sourceTree = "<group>"; };
 		F4FFF110301D141200620720 /* data */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF112301D142A00620720 /* PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = data; sourceTree = "<group>"; };
 		F4FFF142301D143900620720 /* VirtualBuddy */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF166301D143A00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualBuddy; sourceTree = "<group>"; };
 		F4FFF206301D143D00620720 /* VirtualUI */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFF287301D143E00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualUI; sourceTree = "<group>"; };
@@ -762,7 +756,6 @@
 				F47BCD9C2C5BE89E00165191 /* Copy Software Catalog Feeds */,
 				F4A7FB4C2BB5F0B700E4C12A /* Copy Preview Library */,
 				F45502222DF46386005582A4 /* Copy Preview Library Downloads */,
-				F4A7FB462BB5ED6400E4C12A /* Copy Preview Saved States */,
 				F4A277142BF51C480011B626 /* Strip Preview Content in Release Builds */,
 			);
 			buildRules = (
