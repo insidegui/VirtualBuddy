@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>VBGuestBuildID</key>
+	<string>No longer used but kept here for compatibility with legacy guest app builds (see #731)</string>
 	<key>NSUpdateSecurityPolicy</key>
 	<dict>
 		<key>AllowProcesses</key>
