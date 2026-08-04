@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+LIBRARY_PATH="${HOME}/Library/Application Support/VirtualBuddy"
+
+CUSTOM_PATH=$(defaults read codes.rambo.VirtualBuddy libraryPath || true)
+
+if [ ! -z "${CUSTOM_PATH}" ]; then
+    LIBRARY_PATH="${CUSTOM_PATH}"
+fi
+
+echo "Opening library at ${LIBRARY_PATH}"
+
+open "${LIBRARY_PATH}"
