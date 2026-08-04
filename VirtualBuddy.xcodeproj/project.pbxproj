@@ -808,7 +808,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = F4C18A4E28491B8500335EC7 /* Build configuration list for PBXNativeTarget "VirtualBuddyGuest" */;
 			buildPhases = (
-				F4552F4729BA60C7002A21D8 /* Set VBGuestBuildID in Info.plist */,
 				F4C18A3E28491B8500335EC7 /* Sources */,
 				F4C18A3F28491B8500335EC7 /* Frameworks */,
 				F4C18A4028491B8500335EC7 /* Resources */,
@@ -1099,26 +1098,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# Go into the VirtualBuddy.app/Contents/MacOS path\ncd \"$BUILT_PRODUCTS_DIR/$CONTENTS_FOLDER_PATH/MacOS\"\n\n# Symlink VirtualBuddy as vctool for VirtualCatalog command-line tool\nln -fs $EXECUTABLE_NAME vctool\n";
-		};
-		F4552F4729BA60C7002A21D8 /* Set VBGuestBuildID in Info.plist */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Set VBGuestBuildID in Info.plist";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/VBGenerated-Info.plist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Ensures VirtualBuddyGuest has a VBGuestBuildID entry in its Info.plist file\n# This entry is used by the app itself when running in a VM to determine when it needs to be updated.\nTEMPLATE=\"<?xml version=\\\"1.0\\\" encoding=\\\"UTF-8\\\"?><!DOCTYPE plist PUBLIC \\\"-//Apple//DTD PLIST 1.0//EN\\\" \\\"http://www.apple.com/DTDs/PropertyList-1.0.dtd\\\"><plist version=\\\"1.0\\\"><dict/></plist>\"\nPLISTPATH=\"$DERIVED_FILE_DIR/VBGenerated-Info.plist\"\n\necho $TEMPLATE > \"$PLISTPATH\"\n\n/usr/libexec/PlistBuddy -c \"Add :VBGuestBuildID string xxxxxx\" \"$PLISTPATH\" 2>/dev/null || echo \"\"\n\n/usr/libexec/PlistBuddy -c \"Set :VBGuestBuildID `uuidgen`\" \"$PLISTPATH\"\n";
 		};
 		F4A277142BF51C480011B626 /* Strip Preview Content in Release Builds */ = {
 			isa = PBXShellScriptBuildPhase;

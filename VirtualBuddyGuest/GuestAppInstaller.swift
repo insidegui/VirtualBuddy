@@ -69,7 +69,7 @@ final class GuestAppInstaller {
 
     /// `true` if there's a VirtualBuddyGuest image mounted at `/Volumes/Guest`
     /// for which the following conditions are true:
-    /// 1 - The guest in the volume has a different `VBGuestBuildID` from this process
+    /// 1 - The guest executable in the volume has a different CDHash from this process
     /// 2 - The guest in the volume has a `CFBundleVersion` that's **greater than or equal to** the `CFBundleVersion` of this process
     private var mountedGuestImageNeedsInstall: Bool {
         guard FileManager.default.fileExists(atPath: "/Volumes/Guest") else { return false }
@@ -88,18 +88,21 @@ final class GuestAppInstaller {
             return false
         }
 
-        guard let imageBuildID = imageBundle.vbGuestBuildID else {
-            logger.error("Couldn't find VBGuestBuildID in image bundle")
-            return false
+        /// Fail open when trying to read CDHashes fails. Reinstalling the same build is better than
+        /// potentially skipping install of a different build just because this check has failed.
+        if let imageHash = cdHash(for: imageBundle),
+           let currentHash = cdHash(for: .main)
+        {
+            guard currentHash != imageHash else {
+                logger.debug("Image CDHash is same as current CDHash")
+                return false
+            }
+
+            logger.notice("Image CDHash differs from current CDHash (image: \(imageHash.hexString.quoted, privacy: .public); current: \(currentHash.hexString.quoted, privacy: .public))")
         }
 
         guard let imageBundleVersion = imageBundle.bundleVersion else {
             logger.error("Couldn't find CFBundleVersion in image bundle")
-            return false
-        }
-
-        guard let currentBuildID = Bundle.main.vbGuestBuildID else {
-            logger.error("Couldn't find VBGuestBuildID in current bundle")
             return false
         }
 
@@ -108,19 +111,23 @@ final class GuestAppInstaller {
             return false
         }
 
-        guard imageBuildID != currentBuildID else {
-            logger.debug("Image build ID is same as current build ID (\(currentBuildID, privacy: .public)), update won't be performed")
-            return false
-        }
-
         guard imageBundleVersion >= currentBundleVersion else {
             logger.debug("Image build ID differs from current build ID, but image has a lower CFBundleVersion (\(imageBundleVersion, privacy: .public)), ignoring")
             return false
         }
 
-        logger.notice("Mounted image qualifies for update with CFBundleVersion \(imageBundleVersion, privacy: .public), VBGuestBuildID \(imageBuildID, privacy: .public)")
+        logger.notice("Mounted image qualifies for update with CFBundleVersion \(imageBundleVersion, privacy: .public)")
 
         return true
+    }
+
+    private func cdHash(for bundle: Bundle) -> Data? {
+        do {
+            return try bundle.executableCDHash()
+        } catch {
+            logger.error("Error reading CDHash for bundle at \(bundle.bundleURL.path(percentEncoded: false), privacy: .public) - \(error, privacy: .public)")
+            return nil
+        }
     }
 
 }
@@ -129,9 +136,6 @@ extension Bundle {
     var bundleVersion: Int? {
         guard let str = infoDictionary?[kCFBundleVersionKey as String] as? String else { return nil }
         return Int(str)
-    }
-    var vbGuestBuildID: String? {
-        infoDictionary?["VBGuestBuildID"] as? String
     }
 }
 
