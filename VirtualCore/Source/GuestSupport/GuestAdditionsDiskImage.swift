@@ -147,6 +147,15 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
             let digest = try computeGuestDigest()
 
+            /// Migrate installed image digest file from hidden file to visible file (changed in version 2.2 beta 3).
+            if FileManager.default.fileExists(atPath: _legacyInstalledImageDigestURL.path(percentEncoded: false)) {
+                do {
+                    try FileManager.default.moveItem(at: _legacyInstalledImageDigestURL, to: installedImageDigestURL)
+                } catch {
+                    logger.warning("Error moving legacy installed image digest file - \(error, privacy: .public)")
+                }
+            }
+
             if let currentlyInstalledGuestImageDigest {
                 logger.debug("Guest app digest: \(digest, privacy: .public) / Library guest app digest: \(currentlyInstalledGuestImageDigest, privacy: .public)")
 
@@ -203,9 +212,17 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
     private var imagesRootURL: URL { Self.imagesRootURL }
 
-    private var installedImageDigestURL: URL {
+    /// Before version 2.2 beta 3, guest image digests were hidden files, but this was changed to make
+    /// it easier for users and developers to delete all existing guest images alongside their digests in Finder.
+    private var _legacyInstalledImageDigestURL: URL {
         imagesRootURL
             .appendingPathComponent("." + imageName)
+            .appendingPathExtension("digest")
+    }
+
+    private var installedImageDigestURL: URL {
+        imagesRootURL
+            .appendingPathComponent(imageName)
             .appendingPathExtension("digest")
     }
 
@@ -225,7 +242,13 @@ public final class GuestAdditionsDiskImage: ObservableObject {
     // MARK: Digest
 
     private var currentlyInstalledGuestImageDigest: String? {
-        guard FileManager.default.fileExists(atPath: installedImageDigestURL.path) else {
+        /// Ignore installed image digest unless the image itself exists.
+        guard FileManager.default.fileExists(atPath: installedImageURL.path(percentEncoded: false)) else {
+            logger.notice("Ignoring installed guest image digest because the guest image itself doesn't exist")
+            return nil
+        }
+
+        guard FileManager.default.fileExists(atPath: installedImageDigestURL.path(percentEncoded: false)) else {
             return nil
         }
         do {
