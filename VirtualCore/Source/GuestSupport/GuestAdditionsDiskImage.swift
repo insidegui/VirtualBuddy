@@ -121,7 +121,11 @@ public final class GuestAdditionsDiskImage: ObservableObject {
         let request = URLRequest(url: app.url)
         let (fileURL, response) = try await URLSession.shared.download(for: request)
 
-        let status = (response as! HTTPURLResponse).statusCode
+        guard let response = response as? HTTPURLResponse else {
+            throw Failure("Expected HTTPURLResponse while downloading guest app image")
+        }
+
+        let status = response.statusCode
         try (status == 200).require("HTTP \(status).")
 
         await MainActor.run { self.state = .installing }

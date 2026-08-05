@@ -133,7 +133,11 @@ public final class VBAPIClient {
 
         let (data, res) = try await URLSession.shared.data(for: req)
 
-        let code = (res as! HTTPURLResponse).statusCode
+        guard let response = res as? HTTPURLResponse else {
+            throw "Unexpected non-HTTP response while fetching restore catalog"
+        }
+
+        let code = response.statusCode
 
         guard code == 200 else {
             throw "HTTP \(code)"
@@ -189,7 +193,11 @@ public final class VBAPIClient {
 
             let (data, res) = try await URLSession.shared.data(for: req)
 
-            let code = (res as! HTTPURLResponse).statusCode
+            guard let response = res as? HTTPURLResponse else {
+                throw "Unexpected non-HTTP response while fetching signing status"
+            }
+
+            let code = response.statusCode
 
             guard code == 200 else {
                 throw "HTTP \(code)"
