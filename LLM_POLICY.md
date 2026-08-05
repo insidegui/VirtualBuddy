@@ -1,0 +1,99 @@
+# LLM Usage Policy
+
+This is a policy for how LLMs can (and can't) be used in the development of VirtualBuddy.
+It’s based on the policy [adopted by the Rust project](https://github.com/rust-lang/rust-forge/blob/master/src/policies/llm-usage.md).
+
+## Overview
+
+Using LLMs while contributing to VirtualBuddy is conditionally allowed, when done with care.
+LLMs are not a substitute for thought, and I do not allow them to be used in ways that risk losing our shared social and technical understanding of the project.
+
+The policy's guidelines are roughly as follows:
+
+1 - It's fine to use LLMs to answer questions, analyze, distill, refine, check, suggest, review. But not to **create**.
+2 - LLMs work best when used as a tool to write *better*, not *faster*.
+
+## Rules
+
+### Legend
+
+- ✅ Allowed.
+- ❌ Banned.
+- ⚠️ Allowed with caveats. Must disclose that an LLM was used.
+- ℹ️ Adds additional detail to the policy. These bullets are normative.
+
+### Summary
+
+- ✅ Allowed: Private use.
+- ❌ Banned: LLM-created comments, docs, or diagnostics. Replacing human judgement with LLM judgement. Requiring people to use an LLM to contribute.
+- ⚠️ Conditionally allowed: Trivial changes, machine translation.
+
+### Non-exhaustive policy
+
+This policy does not aim to be exhaustive.
+
+If you have a use of LLMs in mind that isn't on this list, talk about it in the discussions, and judge it in the spirit of this overview:
+
+- Using an LLM for your own personal use is likely allowed ✅
+- Showing LLM output to another human without solicitation is likely banned ❌
+- Making a decision that affects others based on LLM output requires disclosure ⚠️
+
+### ✅ Allowed
+
+The following are allowed:
+
+- ✅ Any use of an LLM where **you are the only one who sees the output**. For example:
+  - Asking an LLM questions about the existing codebase.
+  - Asking an LLM to summarize comments on a discussion or pull request.
+    - ℹ️ This does not allow reposting the summary publicly. This only includes your own personal use.
+  - Asking an LLM to privately review your code or prose.
+  - Writing tools for your own personal use using an LLM.
+  - Using an LLM to generate possible solutions to an issue, learning from them, and then writing something from scratch in your own style.
+
+### ❌ Banned
+
+The following are banned:
+
+- ❌ Comments from a personal user account that are originally created by an LLM.
+  - ℹ️ This also applies to pull request descriptions and posts/comments in discussions.
+  - ℹ️ This does not apply if the LLM content is clearly quoted and marked; you can post that. However, the content of the comment must stand on its own even without the LLM content; it's not a substitute for your own words.
+  - ℹ️ See also "machine-translation" in ⚠️ below.
+- ❌ Documentation that is originally created by an LLM.
+  - ℹ️ This includes non-trivial source comments, such as doc-comments, safety comments, or multiple paragraphs of non-doc-comments.
+  - ℹ️ This does not include "trivial" changes (see ⚠️ below).
+- ❌ Treating an LLM review as a sufficient condition to merge a change.
+  LLM reviews **must** be advisory-only.
+  - ℹ️ An LLM review does not substitute for self-review. Authors are expected to review their own code before posting and after each change.
+
+### ⚠️ Allowed with caveats
+
+These uses are allowed on a case-by-case basis, under the rules below.
+If you are a new contributor, you should expect to be scrutinized more heavily than existing contributors, since you haven't yet established trust with your reviewers.
+
+All uses under "⚠️ Allowed with caveats" **must** disclose that an LLM was used.
+
+- ⚠️ Using machine-translation (e.g. Google Translate) from your native language without posting your original message is allowed but discouraged.
+  Doing so can introduce new miscommunications that weren't there originally, and prevents someone who speaks the language from providing a better translation.
+  - ℹ️ Posting both your original message and the translated version is always ok, but you must still disclose that machine-translation was used.
+- ⚠️ "Trivial" code or prose changes.
+  - ℹ️ Changes are trivial if there is no other way to write them, or the other ways to write them are nearly identical. For example, the following are all trivial:
+    - Typo fixes
+    - Markdown links
+    - Changing a word to a synonym
+    - Type signatures for a trait implementation
+  - ℹ️ Be cautious about PRs that consist solely of trivial changes.
+- ⚠️ Using an LLM to discover bugs, as long as you personally verify the bug.
+  - ℹ️ This also includes reviewers who use LLMs to discover flaws in unmerged code.
+  - ℹ️ See also "Comments from a personal user account" under ❌ above.
+
+## Appendix
+
+### Responsibility
+
+Your contributions are your responsibility; you cannot place any blame on an LLM.
+
+### The meaning of "originally created by an LLM"
+
+This document uses the phrase "originally created by an LLM" to mean "text that was generated by an LLM (and then possibly edited by a human)". No amount of editing can change how it was originally created; the origin sets the initial style, and that style is very hard to change once it's set.
+
+This policy makes no distinction between LLM output that comes from a chat interface and output that comes from editor auto-completion. In most cases the output is "trivial" (see above under ⚠️), but regardless, it is not treated specially by this policy.
