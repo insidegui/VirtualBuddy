@@ -241,7 +241,7 @@
       "maxGuestVersion" : "12.99.99",
       "minGuestVersion" : "12.3.0",
       "sha384" : "8b4797ad33b40fc939a532c28d121c63bebcd7bb36c0fdd0de1db54174652c18fb3da4a2cea298a2efd1984ead37ac77",
-      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_12.3.dmg"
+      "url" : "https:\/\/raw.githubusercontent.com\/insidegui\/VirtualBuddy\/refs\/heads\/legacy-guest-support\/data\/LegacyGuestApp\/VirtualBuddyGuest_minOS_12.3.dmg"
     },
     {
       "guestAppVersion" : "2.1.0",
@@ -249,7 +249,7 @@
       "maxGuestVersion" : "13.99.99",
       "minGuestVersion" : "13.0.0",
       "sha384" : "ccb6c968eff880dd2e2a1b91d9d1be373b95cfb3bb2072042c0af3be0fc0962fb22d56516d2ca2b05a51935ad5a63f8c",
-      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_13.0.dmg"
+      "url" : "https:\/\/raw.githubusercontent.com\/insidegui\/VirtualBuddy\/refs\/heads\/legacy-guest-support\/data\/LegacyGuestApp\/VirtualBuddyGuest_minOS_13.0.dmg"
     },
     {
       "guestAppVersion" : "2.2.0",
@@ -257,7 +257,7 @@
       "maxGuestVersion" : "14.99.99",
       "minGuestVersion" : "14.0.0",
       "sha384" : "ccb6c968eff880dd2e2a1b91d9d1be373b95cfb3bb2072042c0af3be0fc0962fb22d56516d2ca2b05a51935ad5a63f8c",
-      "url" : "https://raw.githubusercontent.com/insidegui/VirtualBuddy/refs/heads/legacy-guest-support/data/LegacyGuestApp/VirtualBuddyGuest_minOS_14.0.dmg"
+      "url" : "https:\/\/raw.githubusercontent.com\/insidegui\/VirtualBuddy\/refs\/heads\/legacy-guest-support\/data\/LegacyGuestApp\/VirtualBuddyGuest_minOS_14.0.dmg"
     }
   ],
   "minAppVersion" : "2.0.0",
@@ -358,6 +358,18 @@
       "requirements" : "min_host_26_virtual_installation",
       "url" : "https:\/\/updates.cdn-apple.com\/2026SummerSeed\/fullrestores\/122-99636\/BB03A927-E303-44C1-BB94-6197F130A163\/UniversalMac_27.0_26A5353q_Restore.ipsw",
       "version" : "27.0.0"
+    },
+    {
+      "build" : "25G76",
+      "channel" : "regular",
+      "downloadSize" : 19772153977,
+      "group" : "tahoe",
+      "id" : "25G76",
+      "mobileDeviceMinVersion" : "1827.100.14",
+      "name" : "macOS 26.6.1",
+      "requirements" : "min_host_13",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SummerFCS\/fullrestores\/140-83079\/25315EF6-AEAB-4588-9774-A3723774C47F\/UniversalMac_26.6.1_25G76_Restore.ipsw",
+      "version" : "26.6.1"
     },
     {
       "build" : "25G72",
