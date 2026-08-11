@@ -75,6 +75,13 @@ struct ManagedDiskImageEditor: View {
                 if isExistingDiskImage && canResize {
                     Text("This \(image.format.displayName) can be expanded. After resizing, the added space must be claimed inside the guest operating system.")
                         .foregroundColor(.blue)
+
+                    if !image.resizePending {
+                        Button("Retry Disk Resize") {
+                            image.resizePending = true
+                            onSave(image)
+                        }
+                    }
                 }
 
                 if let sizeWarning {
