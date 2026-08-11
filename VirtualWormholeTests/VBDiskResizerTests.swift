@@ -134,6 +134,75 @@ final class VBDiskResizerTests: XCTestCase {
         )
     }
 
+    func testRawGrowthPreservesTrailingGPTGap() async throws {
+        let url = temporaryURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let oldTotalSectors = 1_024
+        let growthSectors = 128
+        let trailingGap = 7
+        let recoverySectors = 64
+        let oldLastUsable = oldTotalSectors - 41
+        let oldRecoveryLast = oldLastUsable - trailingGap
+        let oldRecoveryFirst = oldRecoveryLast - recoverySectors + 1
+        try makeGPTImage(
+            totalSectors: oldTotalSectors,
+            mainLast: oldRecoveryFirst - 1,
+            recoveryFirst: oldRecoveryFirst,
+            recoveryLast: oldRecoveryLast
+        ).write(to: url)
+
+        try await VBDiskResizer.resizeDiskImage(
+            at: url,
+            format: .raw,
+            newSize: UInt64((oldTotalSectors + growthSectors) * 512)
+        )
+
+        let newTotalSectors = oldTotalSectors + growthSectors
+        let newLastUsable = newTotalSectors - 41
+        let newRecoveryLast = newLastUsable - trailingGap
+        let newRecoveryFirst = newRecoveryLast - recoverySectors + 1
+        let header = try read(url, offset: 512, count: 512)
+        let entries = try read(url, offset: 2 * 512, count: 2 * 128)
+        XCTAssertEqual(readUInt64(header, offset: 32), UInt64(newTotalSectors - 1))
+        XCTAssertEqual(readUInt64(header, offset: 48), UInt64(newLastUsable))
+        XCTAssertEqual(readUInt64(entries, offset: 40), UInt64(newRecoveryFirst - 1))
+        XCTAssertEqual(readUInt64(entries, offset: 160), UInt64(newRecoveryFirst))
+        XCTAssertEqual(readUInt64(entries, offset: 168), UInt64(newRecoveryLast))
+        XCTAssertEqual(readUInt64(header, offset: 48) - readUInt64(entries, offset: 168), UInt64(trailingGap))
+    }
+
+    func testRawGrowthRejectsIntermediateGPTPartitionTransactionally() async throws {
+        let url = temporaryURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let oldTotalSectors = 1_024
+        let oldLastUsable = oldTotalSectors - 41
+        let recoveryLast = oldLastUsable - 7
+        let recoveryFirst = recoveryLast - 64 + 1
+        let image = makeGPTImage(
+            totalSectors: oldTotalSectors,
+            mainLast: recoveryFirst - 14,
+            recoveryFirst: recoveryFirst,
+            recoveryLast: recoveryLast,
+            intermediatePartition: (recoveryFirst - 13)...(recoveryFirst - 1)
+        )
+        try image.write(to: url)
+
+        do {
+            try await VBDiskResizer.resizeDiskImage(
+                at: url,
+                format: .raw,
+                newSize: UInt64((oldTotalSectors + 128) * 512)
+            )
+            XCTFail("Expected unsafe GPT layout to fail")
+        } catch {
+            // Expected.
+        }
+
+        XCTAssertEqual(try Data(contentsOf: url), image)
+    }
+
     func testCorruptGPTHeaderIsIgnored() async throws {
         try await assertCorruptGPTIsIgnored(at: 512 + 56)
     }
@@ -187,6 +256,10 @@ final class VBDiskResizerTests: XCTestCase {
         return try XCTUnwrap(handle.read(upToCount: count))
     }
 
+    private func readUInt64(_ data: Data, offset: Int) -> UInt64 {
+        data.subdata(in: offset..<(offset + 8)).withUnsafeBytes { $0.load(as: UInt64.self) }.littleEndian
+    }
+
     private func write(_ data: Data, to url: URL, offset: Int) throws {
         let handle = try FileHandle(forWritingTo: url)
         defer { try? handle.close() }
@@ -230,10 +303,12 @@ final class VBDiskResizerTests: XCTestCase {
         mainLast: Int,
         recoveryFirst: Int,
         recoveryLast: Int,
-        entryCount: Int = 2
+        entryCount: Int = 2,
+        intermediatePartition: ClosedRange<Int>? = nil
     ) -> Data {
         let sectorSize = 512
         var image = Data(count: totalSectors * sectorSize)
+        let entryCount = max(entryCount, intermediatePartition == nil ? 2 : 3)
         var entries = Data(count: entryCount * 128)
         writeGPTUUID("7C3457EF-0000-11AA-AA11-00306543ECAC", to: &entries, offset: 0)
         writeUInt64(40, to: &entries, offset: 32)
@@ -241,6 +316,11 @@ final class VBDiskResizerTests: XCTestCase {
         writeGPTUUID("52637672-7900-11AA-AA11-00306543ECAC", to: &entries, offset: 128)
         writeUInt64(UInt64(recoveryFirst), to: &entries, offset: 160)
         writeUInt64(UInt64(recoveryLast), to: &entries, offset: 168)
+        if let intermediatePartition {
+            writeGPTUUID("48465300-0000-11AA-AA11-00306543ECAC", to: &entries, offset: 256)
+            writeUInt64(UInt64(intermediatePartition.lowerBound), to: &entries, offset: 288)
+            writeUInt64(UInt64(intermediatePartition.upperBound), to: &entries, offset: 296)
+        }
         image.replaceSubrange((2 * sectorSize)..<(2 * sectorSize + entries.count), with: entries)
 
         var header = Data(count: sectorSize)

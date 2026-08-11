@@ -107,7 +107,7 @@ public struct VBDiskResizer {
                 try fileHandle.synchronize()
             }
 
-            try GPTLayoutAdjuster(imageURL: temporaryURL, newSize: newSize).perform()
+            _ = try GPTLayoutAdjuster(imageURL: temporaryURL, newSize: newSize).perform()
 
             guard rename(temporaryURL.path, imageURL.path) == 0 else {
                 throw VBDiskResizeError.systemCommandFailed("rename", errno)
@@ -171,6 +171,12 @@ public struct VBDiskResizer {
     /// If the image doesn't contain the expected macOS layout (main APFS container followed by
     /// a recovery partition), this is a no-op: the guest OS can claim the space by itself.
     private struct GPTLayoutAdjuster {
+        enum Outcome {
+            case notApplicable
+            case unchanged
+            case adjusted
+        }
+
         let imageURL: URL
         let newSize: UInt64
 
@@ -178,7 +184,7 @@ public struct VBDiskResizer {
         private let mainContainerGUID = UUID(uuidString: "7C3457EF-0000-11AA-AA11-00306543ECAC")!
         private let recoveryGUID = UUID(uuidString: "52637672-7900-11AA-AA11-00306543ECAC")!
 
-        func perform() throws {
+        func perform() throws -> Outcome {
             guard newSize % sectorSize == 0 else {
                 throw VBDiskResizeError.systemCommandFailed("New disk size must be 512-byte aligned", -1)
             }
@@ -217,21 +223,21 @@ public struct VBDiskResizer {
                 let entriesLengthInt = Int(exactly: entriesLength)
             else {
                 logger.debug("No valid GPT header; leaving partition table for the guest to adjust")
-                return
+                return .notApplicable
             }
 
             var headerForCRC = Data(headerData.prefix(Int(header.headerSize)))
             writeUInt32LittleEndian(&headerForCRC, offset: 16, value: 0)
             guard crc32(of: headerForCRC) == header.headerCRC32 else {
                 logger.debug("GPT header checksum is invalid; leaving partition table for the guest to adjust")
-                return
+                return .notApplicable
             }
 
             try fileHandle.seek(toOffset: entriesOffset)
             var entries = try readExactly(fileHandle: fileHandle, length: entriesLengthInt)
             guard crc32(of: entries) == header.partitionEntriesCRC32 else {
                 logger.debug("GPT partition table checksum is invalid; leaving partition table for the guest to adjust")
-                return
+                return .notApplicable
             }
 
             guard
@@ -239,7 +245,7 @@ public struct VBDiskResizer {
                 let recoveryIndex = findPartitionIndex(in: entries, guid: recoveryGUID, entrySize: Int(header.entrySize), preferLargest: false)
             else {
                 logger.debug("No macOS APFS + recovery layout in GPT; leaving partition table for the guest to adjust")
-                return
+                return .notApplicable
             }
 
             let mainFirst = readUInt64LittleEndian(from: entries, offset: mainIndex * Int(header.entrySize) + 32)
@@ -252,39 +258,55 @@ public struct VBDiskResizer {
                 mainFirst <= mainLast,
                 mainLast < recoveryFirst,
                 recoveryFirst <= recoveryLast,
-                recoveryLast == header.lastUsableLBA
+                recoveryLast <= header.lastUsableLBA
             else {
-                logger.debug("Unexpected macOS GPT geometry; leaving partition table for the guest to adjust")
-                return
+                throw VBDiskResizeError.systemCommandFailed("Unexpected macOS GPT geometry", -1)
             }
 
+            let trailingGap = header.lastUsableLBA - recoveryLast
             let recoveryLength = recoveryLast - recoveryFirst + 1
+
+            for index in 0..<(entries.count / Int(header.entrySize)) {
+                let offset = index * Int(header.entrySize)
+                let type = entries[offset..<(offset + 16)]
+                guard type.contains(where: { $0 != 0 }) else { continue }
+
+                let first = readUInt64LittleEndian(from: entries, offset: offset + 32)
+                let last = readUInt64LittleEndian(from: entries, offset: offset + 40)
+                guard
+                    first >= header.firstUsableLBA,
+                    first <= last,
+                    last <= header.lastUsableLBA,
+                    index == mainIndex || index == recoveryIndex || last < mainFirst
+                else {
+                    throw VBDiskResizeError.systemCommandFailed("Unexpected macOS GPT geometry", -1)
+                }
+            }
 
             guard totalSectors > 41 else {
                 logger.debug("Disk is too small for GPT relocation; leaving partition table for the guest to adjust")
-                return
+                return .notApplicable
             }
             let newBackupLBA = totalSectors - 1
             let backupEntriesLBA = newBackupLBA - 32
-            var newLastUsable = backupEntriesLBA - 8
-            guard newLastUsable >= recoveryLength - 1 else {
+            let newLastUsable = backupEntriesLBA - 8
+            let (requiredLastUsable, requiredLastUsableOverflow) = trailingGap.addingReportingOverflow(recoveryLength - 1)
+            guard !requiredLastUsableOverflow, newLastUsable >= requiredLastUsable else {
                 logger.debug("Disk has no room for the recovery partition; leaving partition table for the guest to adjust")
-                return
+                return .notApplicable
             }
-            var newRecoveryFirst = newLastUsable - (recoveryLength - 1)
+            let newRecoveryLast = newLastUsable - trailingGap
+            let newRecoveryFirst = newRecoveryLast - (recoveryLength - 1)
 
-            let alignment: UInt64 = 8
-            let remainder = newRecoveryFirst % alignment
-            if remainder != 0 {
-                newRecoveryFirst -= remainder
-                newLastUsable = newRecoveryFirst + recoveryLength - 1
+            guard newRecoveryFirst > 0 else {
+                return .notApplicable
             }
 
             let newMainLast = newRecoveryFirst - 1
 
             guard newRecoveryFirst > recoveryFirst, newMainLast > mainLast else {
                 // Nothing to do if the main container already occupies the space
-                return
+                return .unchanged
             }
 
             try copySectors(
@@ -310,7 +332,7 @@ public struct VBDiskResizer {
             writeUInt64LittleEndian(
                 &entries,
                 offset: recoveryIndex * Int(header.entrySize) + 40,
-                value: newLastUsable
+                value: newRecoveryLast
             )
 
             header.backupLBA = newBackupLBA
@@ -334,6 +356,23 @@ public struct VBDiskResizer {
 
             try fileHandle.synchronize()
 
+            try verify(
+                fileHandle: fileHandle,
+                headerOffset: headerOffset,
+                entriesOffset: entriesOffset,
+                entriesLength: entriesLengthInt,
+                backupLBA: newBackupLBA,
+                lastUsableLBA: newLastUsable,
+                entriesCRC32: header.partitionEntriesCRC32,
+                mainIndex: mainIndex,
+                mainLast: newMainLast,
+                recoveryIndex: recoveryIndex,
+                recoveryFirst: newRecoveryFirst,
+                recoveryLast: newRecoveryLast,
+                trailingGap: trailingGap,
+                entrySize: Int(header.entrySize)
+            )
+
             try zeroSectors(
                 fileHandle: fileHandle,
                 start: recoveryFirst,
@@ -342,6 +381,41 @@ public struct VBDiskResizer {
             )
 
             try fileHandle.synchronize()
+            return .adjusted
+        }
+
+        private func verify(
+            fileHandle: FileHandle,
+            headerOffset: UInt64,
+            entriesOffset: UInt64,
+            entriesLength: Int,
+            backupLBA: UInt64,
+            lastUsableLBA: UInt64,
+            entriesCRC32: UInt32,
+            mainIndex: Int,
+            mainLast: UInt64,
+            recoveryIndex: Int,
+            recoveryFirst: UInt64,
+            recoveryLast: UInt64,
+            trailingGap: UInt64,
+            entrySize: Int
+        ) throws {
+            try fileHandle.seek(toOffset: headerOffset)
+            let header = GPTHeader(data: try readExactly(fileHandle: fileHandle, length: Int(sectorSize)))
+            try fileHandle.seek(toOffset: entriesOffset)
+            let entries = try readExactly(fileHandle: fileHandle, length: entriesLength)
+            guard
+                header.backupLBA == backupLBA,
+                header.lastUsableLBA == lastUsableLBA,
+                header.partitionEntriesCRC32 == entriesCRC32,
+                crc32(of: entries) == entriesCRC32,
+                readUInt64LittleEndian(from: entries, offset: mainIndex * entrySize + 40) == mainLast,
+                readUInt64LittleEndian(from: entries, offset: recoveryIndex * entrySize + 32) == recoveryFirst,
+                readUInt64LittleEndian(from: entries, offset: recoveryIndex * entrySize + 40) == recoveryLast,
+                header.lastUsableLBA - recoveryLast == trailingGap
+            else {
+                throw VBDiskResizeError.systemCommandFailed("Failed to verify adjusted GPT", -1)
+            }
         }
 
         private func readExactly(fileHandle: FileHandle, length: Int) throws -> Data {
