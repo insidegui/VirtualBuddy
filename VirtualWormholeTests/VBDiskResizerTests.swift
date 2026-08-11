@@ -291,7 +291,7 @@ final class VBDiskResizerTests: XCTestCase {
     }
 
     private func readUInt64(_ data: Data, offset: Int) -> UInt64 {
-        data.subdata(in: offset..<(offset + 8)).withUnsafeBytes { $0.load(as: UInt64.self) }.littleEndian
+        data.withUnsafeBytes { $0.loadUnaligned(fromByteOffset: offset, as: UInt64.self) }.littleEndian
     }
 
     private func write(_ data: Data, to url: URL, offset: Int) throws {
