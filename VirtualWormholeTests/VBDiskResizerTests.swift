@@ -151,6 +151,8 @@ final class VBDiskResizerTests: XCTestCase {
             recoveryFirst: oldRecoveryFirst,
             recoveryLast: oldRecoveryLast
         ).write(to: url)
+        let originalRecovery = Data(repeating: 0xA5, count: recoverySectors * 512)
+        try write(originalRecovery, to: url, offset: oldRecoveryFirst * 512)
 
         try await VBDiskResizer.resizeDiskImage(
             at: url,
@@ -164,12 +166,44 @@ final class VBDiskResizerTests: XCTestCase {
         let newRecoveryFirst = newRecoveryLast - recoverySectors + 1
         let header = try read(url, offset: 512, count: 512)
         let entries = try read(url, offset: 2 * 512, count: 2 * 128)
+        let backupHeader = try read(url, offset: (newTotalSectors - 1) * 512, count: 512)
+        let backupEntries = try read(url, offset: (newTotalSectors - 33) * 512, count: 2 * 128)
         XCTAssertEqual(readUInt64(header, offset: 32), UInt64(newTotalSectors - 1))
         XCTAssertEqual(readUInt64(header, offset: 48), UInt64(newLastUsable))
         XCTAssertEqual(readUInt64(entries, offset: 40), UInt64(newRecoveryFirst - 1))
         XCTAssertEqual(readUInt64(entries, offset: 160), UInt64(newRecoveryFirst))
         XCTAssertEqual(readUInt64(entries, offset: 168), UInt64(newRecoveryLast))
         XCTAssertEqual(readUInt64(header, offset: 48) - readUInt64(entries, offset: 168), UInt64(trailingGap))
+        XCTAssertEqual(try read(url, offset: newRecoveryFirst * 512, count: originalRecovery.count), originalRecovery)
+        XCTAssertEqual(try read(url, offset: oldRecoveryFirst * 512, count: originalRecovery.count), Data(count: originalRecovery.count))
+        XCTAssertEqual(readUInt64(backupHeader, offset: 24), UInt64(newTotalSectors - 1))
+        XCTAssertEqual(readUInt64(backupHeader, offset: 32), 1)
+        XCTAssertEqual(readUInt64(backupHeader, offset: 72), UInt64(newTotalSectors - 33))
+        XCTAssertEqual(backupEntries, entries)
+    }
+
+    func testRawGrowthRejectsRecognizedDiskTooSmallTransactionally() async throws {
+        let url = temporaryURL()
+        defer { try? FileManager.default.removeItem(at: url) }
+
+        let image = makeGPTImage(
+            totalSectors: 41,
+            mainFirst: 34,
+            mainLast: 35,
+            recoveryFirst: 36,
+            recoveryLast: 39,
+            lastUsable: 39
+        )
+        try image.write(to: url)
+
+        do {
+            try await VBDiskResizer.resizeDiskImage(at: url, format: .raw, newSize: UInt64(41 * 512))
+            XCTFail("Expected recognized unsafe GPT geometry to fail")
+        } catch {
+            // Expected.
+        }
+
+        XCTAssertEqual(try Data(contentsOf: url), image)
     }
 
     func testRawGrowthRejectsIntermediateGPTPartitionTransactionally() async throws {
@@ -300,18 +334,20 @@ final class VBDiskResizerTests: XCTestCase {
 
     private func makeGPTImage(
         totalSectors: Int,
+        mainFirst: Int = 40,
         mainLast: Int,
         recoveryFirst: Int,
         recoveryLast: Int,
         entryCount: Int = 2,
-        intermediatePartition: ClosedRange<Int>? = nil
+        intermediatePartition: ClosedRange<Int>? = nil,
+        lastUsable: Int? = nil
     ) -> Data {
         let sectorSize = 512
         var image = Data(count: totalSectors * sectorSize)
         let entryCount = max(entryCount, intermediatePartition == nil ? 2 : 3)
         var entries = Data(count: entryCount * 128)
         writeGPTUUID("7C3457EF-0000-11AA-AA11-00306543ECAC", to: &entries, offset: 0)
-        writeUInt64(40, to: &entries, offset: 32)
+        writeUInt64(UInt64(mainFirst), to: &entries, offset: 32)
         writeUInt64(UInt64(mainLast), to: &entries, offset: 40)
         writeGPTUUID("52637672-7900-11AA-AA11-00306543ECAC", to: &entries, offset: 128)
         writeUInt64(UInt64(recoveryFirst), to: &entries, offset: 160)
@@ -331,7 +367,7 @@ final class VBDiskResizerTests: XCTestCase {
         writeUInt64(UInt64(totalSectors - 1), to: &header, offset: 32)
         let entrySectors = (entryCount * 128 + sectorSize - 1) / sectorSize
         writeUInt64(UInt64(max(34, 2 + entrySectors)), to: &header, offset: 40)
-        writeUInt64(UInt64(totalSectors - 41), to: &header, offset: 48)
+        writeUInt64(UInt64(lastUsable ?? totalSectors - 41), to: &header, offset: 48)
         writeUInt64(2, to: &header, offset: 72)
         writeUInt32(UInt32(entryCount), to: &header, offset: 80)
         writeUInt32(128, to: &header, offset: 84)

@@ -284,22 +284,20 @@ public struct VBDiskResizer {
             }
 
             guard totalSectors > 41 else {
-                logger.debug("Disk is too small for GPT relocation; leaving partition table for the guest to adjust")
-                return .notApplicable
+                throw VBDiskResizeError.systemCommandFailed("Disk is too small for GPT relocation", -1)
             }
             let newBackupLBA = totalSectors - 1
             let backupEntriesLBA = newBackupLBA - 32
             let newLastUsable = backupEntriesLBA - 8
             let (requiredLastUsable, requiredLastUsableOverflow) = trailingGap.addingReportingOverflow(recoveryLength - 1)
             guard !requiredLastUsableOverflow, newLastUsable >= requiredLastUsable else {
-                logger.debug("Disk has no room for the recovery partition; leaving partition table for the guest to adjust")
-                return .notApplicable
+                throw VBDiskResizeError.systemCommandFailed("Disk has no room for the recovery partition", -1)
             }
             let newRecoveryLast = newLastUsable - trailingGap
             let newRecoveryFirst = newRecoveryLast - (recoveryLength - 1)
 
             guard newRecoveryFirst > 0 else {
-                return .notApplicable
+                throw VBDiskResizeError.systemCommandFailed("Invalid relocated recovery partition", -1)
             }
 
             let newMainLast = newRecoveryFirst - 1
