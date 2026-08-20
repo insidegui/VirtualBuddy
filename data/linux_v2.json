@@ -182,6 +182,8 @@
       "name" : "Kali"
     }
   ],
+    "legacyGuestAppVersions": [
+    ],
   "minAppVersion" : "2.0.0",
   "requirementSets" : [
     {
