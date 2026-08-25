@@ -24,6 +24,8 @@ public final class VMInstance: NSObject, ObservableObject {
     private var _virtualMachine: VZVirtualMachine?
 
     private var networkAttachmentHelper: VMNetworkAttachmentHelper?
+
+    private var fileTransferServer: HostFileTransferServer?
     
     var virtualMachine: VZVirtualMachine {
         get throws {
@@ -126,6 +128,9 @@ public final class VMInstance: NSObject, ObservableObject {
         c.entropyDevices = helper.createEntropyDevices()
         c.audioDevices = model.configuration.vzAudioDevices
         c.directorySharingDevices = try model.configuration.vzSharedFoldersFileSystemDevices
+        if model.configuration.systemType == .mac {
+            c.socketDevices = [VZVirtioSocketDeviceConfiguration()]
+        }
         if let spiceAgent = helper.createSpiceAgentConsoleDeviceConfiguration() {
             c.consoleDevices = [spiceAgent]
         }
@@ -168,11 +173,23 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let virtualMachine = VZVirtualMachine(configuration: config)
         _virtualMachine = virtualMachine
+        configureFileTransfer(for: virtualMachine)
         networkAttachmentHelper = VMNetworkAttachmentHelper(
             virtualMachine: virtualMachine,
             configuration: config,
             logger: logger
         )
+    }
+
+    private func configureFileTransfer(for virtualMachine: VZVirtualMachine) {
+        guard let socketDevice = virtualMachine.socketDevices.compactMap({ $0 as? VZVirtioSocketDevice }).first else {
+            fileTransferServer = nil
+            return
+        }
+
+        let server = HostFileTransferServer()
+        server.listen(on: socketDevice)
+        fileTransferServer = server
     }
 
     private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
@@ -203,9 +220,63 @@ public final class VMInstance: NSObject, ObservableObject {
 
         streamGuestNotifications()
         streamGuestDesktopPictureMessages()
+        streamGuestFileDragMessages()
     }
 
     private lazy var guestIOTasks = [Task<Void, Never>]()
+
+    var acceptsHostFileDrops: Bool {
+        fileTransferServer?.isConnected == true
+    }
+
+    func stageHostFiles(_ sourceURLs: [URL], for sessionID: UUID) async throws {
+        guard let fileTransferServer else {
+            throw CocoaError(.serviceApplicationNotFound)
+        }
+
+        try await fileTransferServer.send(sessionID: sessionID, sourceURLs: sourceURLs)
+    }
+
+    func sendFileDragMessage(_ message: FileDragMessage) async {
+        await wormhole.send(message, to: virtualMachineModel.wormholeID)
+    }
+
+    private func streamGuestFileDragMessages() {
+        let guestID = virtualMachineModel.wormholeID
+        let task = Task {
+            do {
+                for try await message in wormhole.stream(for: FileDragMessage.self) {
+                    guard message.senderID == guestID else { continue }
+
+                    switch message.payload.action {
+                    case .status:
+                        guard let status = message.payload.status else { continue }
+                        if let location = message.payload.location {
+                            logger.notice(
+                                "Guest file drag \(message.payload.sessionID, privacy: .public) reached \(status.rawValue, privacy: .public) at \(location.x, privacy: .public), \(location.y, privacy: .public)"
+                            )
+                        } else {
+                            logger.notice(
+                                "Guest file drag \(message.payload.sessionID, privacy: .public) reached \(status.rawValue, privacy: .public)"
+                            )
+                        }
+
+                    case .result:
+                        guard let operation = message.payload.operation else { continue }
+                        logger.notice(
+                            "Guest file drag \(message.payload.sessionID, privacy: .public) ended with operation \(operation, privacy: .public)"
+                        )
+
+                    case .begin, .update, .drop, .cancel:
+                        continue
+                    }
+                }
+            } catch {
+                logger.error("File drag message stream ended: \(error, privacy: .public)")
+            }
+        }
+        guestIOTasks.append(task)
+    }
 
     public func streamGuestNotifications() {
         logger.debug(#function)
@@ -338,6 +409,8 @@ public final class VMInstance: NSObject, ObservableObject {
         try await vm.stop()
 
         networkAttachmentHelper?.stop()
+        fileTransferServer?.invalidate()
+        fileTransferServer = nil
 
         library.unregisterBootedVM(self)
     }

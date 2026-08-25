@@ -4,6 +4,7 @@ import VirtualUI
 import VirtualWormhole
 import OSLog
 
+@MainActor
 @NSApplicationMain
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
@@ -12,6 +13,8 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
     private lazy var sharedFolders = GuestSharedFoldersManager()
+
+    private lazy var fileDragController = GuestRemoteFileDragController()
 
     private lazy var dashboardItem: StatusItemManager = {
         StatusItemManager(
@@ -50,6 +53,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         launchAtLoginManager.autoEnableIfNeeded()
 
         WormholeManager.sharedGuest.activate()
+        fileDragController.activate()
 
         Task {
             try? await sharedFolders.mount()

@@ -10,6 +10,17 @@ import Foundation
 import Virtualization
 import Combine
 import OSLog
+import VirtualWormhole
+
+public struct VMHostFileDragLocation: Hashable, Sendable {
+    public var x: Double
+    public var y: Double
+
+    public init(x: Double, y: Double) {
+        self.x = min(max(x, 0), 1)
+        self.y = min(max(y, 0), 1)
+    }
+}
 
 public struct VMSessionOptions: Hashable, Codable {
     @DecodableDefault.False
@@ -426,6 +437,55 @@ public final class VMController: ObservableObject {
 
     public var activeBridgeInterfaceIdentifiers: Set<String> {
         instance?.activeBridgeInterfaceIdentifiers ?? []
+    }
+
+    public var acceptsHostFileDrops: Bool {
+        instance?.acceptsHostFileDrops == true
+    }
+
+    public func stageHostFiles(_ sourceURLs: [URL], for sessionID: UUID) async throws {
+        try await ensureInstance().stageHostFiles(sourceURLs, for: sessionID)
+    }
+
+    public func beginHostFileDrag(_ sessionID: UUID, at location: VMHostFileDragLocation) async throws {
+        try await sendFileDragMessage(
+            FileDragMessage(
+                action: .begin,
+                sessionID: sessionID,
+                location: FileDragLocation(x: location.x, y: location.y)
+            )
+        )
+    }
+
+    public func updateHostFileDrag(_ sessionID: UUID, location: VMHostFileDragLocation) async throws {
+        try await sendFileDragMessage(
+            FileDragMessage(
+                action: .update,
+                sessionID: sessionID,
+                location: FileDragLocation(x: location.x, y: location.y)
+            )
+        )
+    }
+
+    public func dropHostFiles(_ sessionID: UUID, at location: VMHostFileDragLocation) async throws {
+        try await sendFileDragMessage(
+            FileDragMessage(
+                action: .drop,
+                sessionID: sessionID,
+                location: FileDragLocation(x: location.x, y: location.y)
+            )
+        )
+    }
+
+    public func cancelHostFileDrag(_ sessionID: UUID) async throws {
+        try await sendFileDragMessage(
+            FileDragMessage(action: .cancel, sessionID: sessionID)
+        )
+    }
+
+    private func sendFileDragMessage(_ message: FileDragMessage) async throws {
+        let instance = try ensureInstance()
+        await instance.sendFileDragMessage(message)
     }
 
     public func changeBridgeInterface(to interfaceIdentifier: String) throws {

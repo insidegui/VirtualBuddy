@@ -29,6 +29,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     var isDFUModeVM: Bool
     var vmECID: UInt64?
     @Binding var automaticallyReconfiguresDisplay: Bool
+    var fileDropController: VMController? = nil
 
     func makeNSViewController(context: Context) -> VMViewController {
         let controller = VMViewController()
@@ -36,6 +37,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
         controller.isDFUModeVM = isDFUModeVM
         controller.captureSystemKeys = captureSystemKeys
         controller.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
+        controller.fileDropController = fileDropController
         return controller
     }
     
@@ -45,6 +47,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
         nsViewController.vmECID = vmECID
         nsViewController.isDFUModeVM = isDFUModeVM
         nsViewController.interactionDisabled = context.environment.virtualMachineInteractionDisabled
+        nsViewController.fileDropController = fileDropController
 
         if case .running(let vm) = controllerState {
             nsViewController.virtualMachine = vm
@@ -91,6 +94,12 @@ final class VMViewController: NSViewController {
     var virtualMachine: VZVirtualMachine? {
         didSet {
             vmView.virtualMachine = virtualMachine
+        }
+    }
+
+    weak var fileDropController: VMController? {
+        didSet {
+            vmView.fileDragCoordinator.controller = fileDropController
         }
     }
 
@@ -232,7 +241,42 @@ struct DFUStatusView: View {
 }
 
 final class VirtualBuddyVMView: VZVirtualMachineView {
+    let fileDragCoordinator = HostFileDragCoordinator()
+
     var isViewOnly = false
+
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect)
+        registerForDraggedTypes([.fileURL])
+    }
+
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        registerForDraggedTypes([.fileURL])
+    }
+
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation {
+        guard !isViewOnly else { return [] }
+        return fileDragCoordinator.draggingEntered(sender, in: self)
+    }
+
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation {
+        guard !isViewOnly else { return [] }
+        return fileDragCoordinator.draggingUpdated(sender, in: self)
+    }
+
+    override func draggingExited(_ sender: NSDraggingInfo?) {
+        fileDragCoordinator.draggingExited()
+    }
+
+    override func prepareForDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        !isViewOnly
+    }
+
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        guard !isViewOnly else { return false }
+        return fileDragCoordinator.performDragOperation(sender, in: self)
+    }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
         guard !isViewOnly else { return nil }
