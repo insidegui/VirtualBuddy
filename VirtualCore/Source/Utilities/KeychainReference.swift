@@ -3,7 +3,7 @@ import OSLog
 
 /// A type that can be stored in an encodable parent that wants one of its properties to reference a Keychain item.
 @propertyWrapper
-public struct KeychainReference: Codable, Hashable, Sendable {
+public struct KeychainReference: Codable, Sendable {
     private let logger = Logger(subsystem: "codes.rambo.VirtualCore", category: String(describing: KeychainReference.self))
 
     public var wrappedValue: String {
@@ -110,16 +110,5 @@ public struct KeychainReference: Codable, Hashable, Sendable {
         let string = encodableString()
 
         try container.encode(string)
-    }
-
-    // MARK: - Hashable
-
-    public func hash(into hasher: inout Hasher) {
-        let value = read() ?? ""
-        hasher.combine(value)
-    }
-
-    public static func ==(lhs: Self, rhs: Self) -> Bool {
-        lhs.read() == rhs.read()
     }
 }
