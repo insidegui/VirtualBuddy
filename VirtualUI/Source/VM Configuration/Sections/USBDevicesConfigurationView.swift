@@ -14,8 +14,14 @@ private final class USBDeviceBrowserModel {
     var devices = [VBHostUSBDevice]()
     var selectedDeviceID: VBHostUSBDevice.ID?
 
+    @ObservationIgnored private let deviceProvider: () -> [VBHostUSBDevice]
+
+    init(deviceProvider: @escaping () -> [VBHostUSBDevice] = VBHostUSBDeviceDiscovery.connectedDevices) {
+        self.deviceProvider = deviceProvider
+    }
+
     func refresh() {
-        devices = VBHostUSBDeviceDiscovery.connectedDevices()
+        devices = deviceProvider()
 
         if let selectedDeviceID, !devices.contains(where: { $0.id == selectedDeviceID }) {
             self.selectedDeviceID = nil
@@ -150,7 +156,7 @@ private struct USBDeviceBrowserSheet: View {
     let existingDeviceIDs: Set<VBUSBDevice.ID>
     let onAdd: (VBUSBDevice) -> Void
 
-    @State private var model = USBDeviceBrowserModel()
+    @State private var model: USBDeviceBrowserModel
 
     @Environment(\.dismiss)
     private var dismiss
@@ -158,6 +164,16 @@ private struct USBDeviceBrowserSheet: View {
     private var selectedDevice: VBHostUSBDevice? {
         guard let selectedDeviceID = model.selectedDeviceID else { return nil }
         return model.devices.first { $0.id == selectedDeviceID }
+    }
+
+    init(
+        existingDeviceIDs: Set<VBUSBDevice.ID>,
+        deviceProvider: @escaping () -> [VBHostUSBDevice] = VBHostUSBDeviceDiscovery.connectedDevices,
+        onAdd: @escaping (VBUSBDevice) -> Void
+    ) {
+        self.existingDeviceIDs = existingDeviceIDs
+        self.onAdd = onAdd
+        self._model = State(initialValue: USBDeviceBrowserModel(deviceProvider: deviceProvider))
     }
 
     var body: some View {
@@ -292,19 +308,21 @@ private struct USBDeviceManualEntrySheet: View {
         NavigationStack {
             Form {
                 LabeledContent("Vendor ID") {
-                    TextField("Decimal or hexadecimal", text: $vendorIDInput)
+                    TextField("Decimal or hexadecimal", text: $vendorIDInput, prompt: Text("1234 / 0x12AB"))
                         .textFieldStyle(.roundedBorder)
+                        .labelsHidden()
                 }
 
                 LabeledContent("Product ID") {
-                    TextField("Decimal or hexadecimal", text: $productIDInput)
+                    TextField("Decimal or hexadecimal", text: $productIDInput, prompt: Text("1234 / 0x12AB"))
                         .textFieldStyle(.roundedBorder)
+                        .labelsHidden()
                 }
 
                 Text("Enter decimal values such as 1452, or hexadecimal values such as 0x05AC. IDs must be between 0 and 65535.")
                     .foregroundStyle(.secondary)
 
-                if (!vendorIDInput.isEmpty && vendorID == nil) || (!productIDInput.isEmpty && productID == nil) {
+                if (!vendorIDInput.isEmpty && vendorID == nil && vendorIDInput != "0x") || (!productIDInput.isEmpty && productID == nil && productIDInput != "0x") {
                     Text("Enter a valid USB vendor ID and product ID.")
                         .foregroundStyle(.red)
                 } else if isDuplicate {
@@ -338,3 +356,62 @@ private struct USBDeviceManualEntrySheet: View {
 private func usbIdentifierDescription(vendorID: UInt16, productID: UInt16) -> String {
     String(format: "0x%04X : 0x%04X  (%u : %u)", vendorID, productID, vendorID, productID)
 }
+
+#if DEBUG
+private enum USBDevicePreviewData {
+    static let configuredDevices = [
+        VBUSBDevice(vendorID: 0x0781, productID: 0x55AE, name: "SanDisk Extreme SSD"),
+        VBUSBDevice(vendorID: 0x1050, productID: 0x0407, name: "USB Security Key"),
+    ]
+
+    static let hostDevices = [
+        VBHostUSBDevice(
+            id: 1,
+            vendorID: 0x0781,
+            productID: 0x55AE,
+            productName: "Extreme SSD",
+            manufacturerName: "SanDisk"
+        ),
+        VBHostUSBDevice(
+            id: 2,
+            vendorID: 0x1235,
+            productID: 0x8218,
+            productName: "USB Audio Interface",
+            manufacturerName: "Focusrite"
+        ),
+    ]
+
+    static var configuration: VBMacConfiguration {
+        var configuration = VBMacConfiguration.preview
+        configuration.hardware.usbDevices = configuredDevices
+        return configuration
+    }
+}
+
+#Preview("Configuration — Populated") {
+    _ConfigurationSectionPreview(USBDevicePreviewData.configuration) {
+        USBDevicesConfigurationView(hardware: $0.hardware)
+    }
+}
+
+#Preview("Configuration — Empty") {
+    _ConfigurationSectionPreview {
+        USBDevicesConfigurationView(hardware: $0.hardware)
+    }
+}
+
+#Preview("Connected Device Browser") {
+    USBDeviceBrowserSheet(
+        existingDeviceIDs: [USBDevicePreviewData.configuredDevices[0].id],
+        deviceProvider: { USBDevicePreviewData.hostDevices },
+        onAdd: { _ in }
+    )
+}
+
+#Preview("Manual Entry") {
+    USBDeviceManualEntrySheet(
+        existingDeviceIDs: Set(USBDevicePreviewData.configuredDevices.map(\.id)),
+        onAdd: { _ in }
+    )
+}
+#endif
