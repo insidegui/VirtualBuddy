@@ -351,10 +351,60 @@ public struct VBSoundDevice: Identifiable, Hashable, Codable {
     public var enableInput = true
 }
 
+/// Identifies a host USB device that may be attached to a virtual machine.
+/// **Read the note at the top of this file before modifying this**
+public struct VBUSBDevice: Identifiable, Hashable, Codable, Sendable {
+    public struct ID: Hashable, Codable, Sendable {
+        public let vendorID: UInt16
+        public let productID: UInt16
+
+        public init(vendorID: UInt16, productID: UInt16) {
+            self.vendorID = vendorID
+            self.productID = productID
+        }
+    }
+
+    public let vendorID: UInt16
+    public let productID: UInt16
+    public var name: String?
+
+    public var id: ID { ID(vendorID: vendorID, productID: productID) }
+
+    public init(vendorID: UInt16, productID: UInt16, name: String? = nil) {
+        self.vendorID = vendorID
+        self.productID = productID
+        self.name = name
+    }
+}
+
+public extension VBUSBDevice {
+    static func parseIdentifier(_ input: String) -> UInt16? {
+        let value = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return nil }
+
+        let radix: Int
+        let digits: Substring
+
+        if value.hasPrefix("0x") || value.hasPrefix("0X") {
+            radix = 16
+            digits = value.dropFirst(2)
+        } else if value.contains(where: { $0.isHexDigit && !$0.isNumber }) {
+            radix = 16
+            digits = value[...]
+        } else {
+            radix = 10
+            digits = value[...]
+        }
+
+        guard !digits.isEmpty, digits.allSatisfy(\.isHexDigit) else { return nil }
+        return UInt16(digits, radix: radix)
+    }
+}
+
 /// Describes a Mac VM with its associated hardware configuration.
 /// **Read the note at the top of this file before modifying this**
 public struct VBMacDevice: Hashable, Codable {
-    public init(cpuCount: Int, memorySize: UInt64, pointingDevice: VBPointingDevice, keyboardDevice: VBKeyboardDevice, displayDevices: [VBDisplayDevice], networkDevices: [VBNetworkDevice], soundDevices: [VBSoundDevice], storageDevices: [VBStorageDevice], NVRAM: [VBNVRAMVariable] = [VBNVRAMVariable]()) {
+    public init(cpuCount: Int, memorySize: UInt64, pointingDevice: VBPointingDevice, keyboardDevice: VBKeyboardDevice, displayDevices: [VBDisplayDevice], networkDevices: [VBNetworkDevice], soundDevices: [VBSoundDevice], storageDevices: [VBStorageDevice], usbDevices: [VBUSBDevice] = [], NVRAM: [VBNVRAMVariable] = [VBNVRAMVariable]()) {
         self.cpuCount = cpuCount
         self.memorySize = memorySize
         self.pointingDevice = pointingDevice
@@ -363,6 +413,7 @@ public struct VBMacDevice: Hashable, Codable {
         self.networkDevices = networkDevices
         self.soundDevices = soundDevices
         self.storageDevices = storageDevices
+        self.usbDevices = usbDevices
         self.NVRAM = NVRAM
     }
     
@@ -374,6 +425,8 @@ public struct VBMacDevice: Hashable, Codable {
     public var displayDevices: [VBDisplayDevice]
     public var networkDevices: [VBNetworkDevice]
     public var soundDevices: [VBSoundDevice]
+    @DecodableDefault.EmptyList
+    public var usbDevices: [VBUSBDevice]
     public var NVRAM = [VBNVRAMVariable]()
     
     public var storageDevices: [VBStorageDevice] {

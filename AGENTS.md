@@ -2,3 +2,4 @@
 - Always write production-quality code, hacks and shortcuts are not allowed unless explicitly requested 
 - Private API usage is allowed in this project when necessary since it is a Mac app that's not distributed in the App Store, but avoid it if at all possible
 - Some files in the project have the traditional Xcode copyright header comment, but any new files you create should have no file header comment
+- **NEVER** try to use the Computer Use skill as a workaround for a broken MCP integration; ask the user to fix the integration before continuing

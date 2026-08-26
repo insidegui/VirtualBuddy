@@ -24,6 +24,14 @@ public final class VMInstance: NSObject, ObservableObject {
     private var _virtualMachine: VZVirtualMachine?
 
     private var networkAttachmentHelper: VMNetworkAttachmentHelper?
+
+    private var usbDeviceControllerStorage: AnyObject?
+
+    @available(macOS 27.0, *)
+    private(set) var usbDeviceController: VMUSBDeviceController? {
+        get { usbDeviceControllerStorage as? VMUSBDeviceController }
+        set { usbDeviceControllerStorage = newValue }
+    }
     
     var virtualMachine: VZVirtualMachine {
         get throws {
@@ -286,6 +294,7 @@ public final class VMInstance: NSObject, ObservableObject {
         try await vm.start(options: startOptions)
 
         networkAttachmentHelper?.startMonitoringHostInterfaces()
+        startUSBDeviceMonitoring(for: vm)
 
         #if DEBUG
         VBDebugUtil.debugVirtualMachine(afterStart: vm)
@@ -338,6 +347,7 @@ public final class VMInstance: NSObject, ObservableObject {
         try await vm.stop()
 
         networkAttachmentHelper?.stop()
+        stopUSBDeviceMonitoring()
 
         library.unregisterBootedVM(self)
     }
@@ -472,6 +482,7 @@ public final class VMInstance: NSObject, ObservableObject {
             try await resume()
 
             networkAttachmentHelper?.startMonitoringHostInterfaces()
+            startUSBDeviceMonitoring(for: vm)
 
             #if DEBUG
             VBDebugUtil.debugVirtualMachine(afterStart: vm)
@@ -538,6 +549,27 @@ public final class VMInstance: NSObject, ObservableObject {
         
         return vm
     }
+
+    private func startUSBDeviceMonitoring(for virtualMachine: VZVirtualMachine) {
+        guard #available(macOS 27.0, *) else { return }
+
+        usbDeviceController?.stop()
+
+        let controller = VMUSBDeviceController(
+            virtualMachine: virtualMachine,
+            configuredDevices: virtualMachineModel.configuration.hardware.usbDevices,
+            logger: logger
+        )
+        usbDeviceController = controller
+        controller.start()
+    }
+
+    private func stopUSBDeviceMonitoring() {
+        guard #available(macOS 27.0, *) else { return }
+
+        usbDeviceController?.stop()
+        usbDeviceController = nil
+    }
     
 }
 
@@ -569,6 +601,7 @@ extension VMInstance: VZVirtualMachineDelegate {
 
     private func handleGuestStopped(with error: Error?) {
         networkAttachmentHelper?.stop()
+        stopUSBDeviceMonitoring()
 
         guestIOTasks.forEach { $0.cancel() }
         guestIOTasks.removeAll()

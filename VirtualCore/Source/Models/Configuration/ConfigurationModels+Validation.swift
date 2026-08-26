@@ -52,6 +52,9 @@ public extension VBMacConfiguration {
         if provisioningEnabled, provisioningSetup, !VBMacConfiguration.hostSupportsProvisioning {
             warnings.append(VBMacConfiguration.provisioningUnsupportedHostNotice)
         }
+        if !hardware.usbDevices.isEmpty, !VBMacConfiguration.hostSupportsUSBPassthrough {
+            warnings.append(VBMacConfiguration.usbPassthroughUnsupportedHostNotice)
+        }
 
         return SupportState(errors: errors, warnings: warnings)
     }
@@ -75,6 +78,16 @@ public extension VBMacConfiguration {
     static let fileSharingNotice = "File sharing requires the virtual machine to be running macOS 13 or later. For older versions, you can use the standard macOS file sharing feature in System Preferences > Sharing."
 
     static let provisioningUnsupportedHostNotice = "Skip Setup Assistant requires macOS 27 or later."
+
+    static let hostSupportsUSBPassthrough: Bool = {
+        if #available(macOS 27.0, *) {
+            true
+        } else {
+            false
+        }
+    }()
+
+    static let usbPassthroughUnsupportedHostNotice = "USB device passthrough requires macOS 27 or later."
 
     static func rosettaSharingNotice() -> String? {
         if rosettaSupported {

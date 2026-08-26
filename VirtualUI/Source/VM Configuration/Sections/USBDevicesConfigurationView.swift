@@ -1,0 +1,340 @@
+import SwiftUI
+import VirtualCore
+
+private enum USBDeviceAdditionMode: String, Identifiable {
+    case browse
+    case manual
+
+    var id: Self { self }
+}
+
+@Observable
+@MainActor
+private final class USBDeviceBrowserModel {
+    var devices = [VBHostUSBDevice]()
+    var selectedDeviceID: VBHostUSBDevice.ID?
+
+    func refresh() {
+        devices = VBHostUSBDeviceDiscovery.connectedDevices()
+
+        if let selectedDeviceID, !devices.contains(where: { $0.id == selectedDeviceID }) {
+            self.selectedDeviceID = nil
+        }
+    }
+}
+
+struct USBDevicesConfigurationView: View {
+    @Binding var hardware: VBMacDevice
+
+    @Environment(\.resolvedRestoreImage)
+    private var resolvedRestoreImage
+
+    @State private var additionMode: USBDeviceAdditionMode?
+
+    private var feature: ResolvedVirtualizationFeature? {
+        resolvedRestoreImage?.feature(id: CatalogFeatureID.usbPassthrough)
+    }
+
+    private var isUnsupported: Bool {
+        !VBMacConfiguration.hostSupportsUSBPassthrough || feature?.status.isUnsupported == true
+    }
+
+    private var supportMessage: String? {
+        if !VBMacConfiguration.hostSupportsUSBPassthrough {
+            return VBMacConfiguration.usbPassthroughUnsupportedHostNotice
+        }
+
+        return feature?.status.supportMessage
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            if hardware.usbDevices.isEmpty {
+                Text("No host USB devices are configured for this virtual machine.")
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(hardware.usbDevices) { device in
+                        USBConfiguredDeviceRow(device: device) {
+                            hardware.usbDevices.removeAll { $0.id == device.id }
+                        }
+
+                        if device.id != hardware.usbDevices.last?.id {
+                            Divider()
+                        }
+                    }
+                }
+            }
+
+            HStack {
+                Menu {
+                    Button("Choose Connected Device…") {
+                        additionMode = .browse
+                    }
+
+                    Button("Enter Vendor and Product IDs…") {
+                        additionMode = .manual
+                    }
+                } label: {
+                    Label("Add Device", systemImage: "plus")
+                }
+                .menuStyle(.borderlessButton)
+                .fixedSize()
+
+                Spacer()
+            }
+
+            Text("When the virtual machine is running, use the Accessory Access menu in the menu bar to grant VirtualBuddy access to a device.")
+                .foregroundStyle(.secondary)
+
+            if isUnsupported, let supportMessage {
+                Text(supportMessage)
+                    .foregroundStyle(VBMacConfiguration.hostSupportsUSBPassthrough ? .yellow : .red)
+            }
+        }
+        .disabled(isUnsupported)
+        .sheet(item: $additionMode) { mode in
+            switch mode {
+            case .browse:
+                USBDeviceBrowserSheet(
+                    existingDeviceIDs: Set(hardware.usbDevices.map(\.id)),
+                    onAdd: add
+                )
+            case .manual:
+                USBDeviceManualEntrySheet(
+                    existingDeviceIDs: Set(hardware.usbDevices.map(\.id)),
+                    onAdd: add
+                )
+            }
+        }
+    }
+
+    private func add(_ device: VBUSBDevice) {
+        guard !hardware.usbDevices.contains(where: { $0.id == device.id }) else { return }
+        hardware.usbDevices.append(device)
+    }
+}
+
+private struct USBConfiguredDeviceRow: View {
+    let device: VBUSBDevice
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                if let name = device.name {
+                    Text(name)
+                } else {
+                    Text("USB Device")
+                }
+
+                Text(verbatim: usbIdentifierDescription(vendorID: device.vendorID, productID: device.productID))
+                    .font(.caption.monospaced())
+                    .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            Button(role: .destructive, action: onRemove) {
+                Label("Remove Device", systemImage: "minus.circle")
+                    .labelStyle(.iconOnly)
+            }
+            .buttonStyle(.plain)
+            .help("Remove USB device")
+        }
+        .padding(.vertical, 6)
+    }
+}
+
+private struct USBDeviceBrowserSheet: View {
+    let existingDeviceIDs: Set<VBUSBDevice.ID>
+    let onAdd: (VBUSBDevice) -> Void
+
+    @State private var model = USBDeviceBrowserModel()
+
+    @Environment(\.dismiss)
+    private var dismiss
+
+    private var selectedDevice: VBHostUSBDevice? {
+        guard let selectedDeviceID = model.selectedDeviceID else { return nil }
+        return model.devices.first { $0.id == selectedDeviceID }
+    }
+
+    var body: some View {
+        @Bindable var model = model
+
+        NavigationStack {
+            VStack(spacing: 0) {
+                if model.devices.isEmpty {
+                    ContentUnavailableView(
+                        "No USB Devices Found",
+                        systemImage: "cable.connector.slash",
+                        description: Text("Connect a USB device to this Mac, then reload the list.")
+                    )
+                } else {
+                    List(model.devices, selection: $model.selectedDeviceID) { device in
+                        USBHostDeviceRow(
+                            device: device,
+                            isAlreadyAdded: existingDeviceIDs.contains(
+                                VBUSBDevice.ID(vendorID: device.vendorID, productID: device.productID)
+                            )
+                        )
+                        .tag(device.id)
+                    }
+                }
+            }
+            .navigationTitle("Choose USB Device")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem {
+                    Button {
+                        model.refresh()
+                    } label: {
+                        Label("Reload Devices", systemImage: "arrow.clockwise")
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") {
+                        guard let selectedDevice else { return }
+
+                        onAdd(
+                            VBUSBDevice(
+                                vendorID: selectedDevice.vendorID,
+                                productID: selectedDevice.productID,
+                                name: selectedDevice.productName
+                            )
+                        )
+                        dismiss()
+                    }
+                    .disabled(selectedDevice.map(isAlreadyAdded) != false)
+                }
+            }
+        }
+        .frame(minWidth: 520, minHeight: 360)
+        .task {
+            model.refresh()
+        }
+    }
+
+    private func isAlreadyAdded(_ device: VBHostUSBDevice) -> Bool {
+        existingDeviceIDs.contains(
+            VBUSBDevice.ID(vendorID: device.vendorID, productID: device.productID)
+        )
+    }
+}
+
+private struct USBHostDeviceRow: View {
+    let device: VBHostUSBDevice
+    let isAlreadyAdded: Bool
+
+    var body: some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 2) {
+                if let productName = device.productName {
+                    Text(productName)
+                } else {
+                    Text("USB Device")
+                }
+
+                HStack(spacing: 6) {
+                    if let manufacturerName = device.manufacturerName {
+                        Text(manufacturerName)
+                    }
+
+                    Text(verbatim: usbIdentifierDescription(vendorID: device.vendorID, productID: device.productID))
+                        .monospaced()
+                }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
+
+            Spacer()
+
+            if isAlreadyAdded {
+                Text("Added")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .contentShape(.rect)
+        .disabled(isAlreadyAdded)
+    }
+}
+
+private struct USBDeviceManualEntrySheet: View {
+    let existingDeviceIDs: Set<VBUSBDevice.ID>
+    let onAdd: (VBUSBDevice) -> Void
+
+    @State private var vendorIDInput = ""
+    @State private var productIDInput = ""
+
+    @Environment(\.dismiss)
+    private var dismiss
+
+    private var vendorID: UInt16? { VBUSBDevice.parseIdentifier(vendorIDInput) }
+    private var productID: UInt16? { VBUSBDevice.parseIdentifier(productIDInput) }
+
+    private var deviceID: VBUSBDevice.ID? {
+        guard let vendorID, let productID else { return nil }
+        return VBUSBDevice.ID(vendorID: vendorID, productID: productID)
+    }
+
+    private var isDuplicate: Bool {
+        deviceID.map(existingDeviceIDs.contains) == true
+    }
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                LabeledContent("Vendor ID") {
+                    TextField("Decimal or hexadecimal", text: $vendorIDInput)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                LabeledContent("Product ID") {
+                    TextField("Decimal or hexadecimal", text: $productIDInput)
+                        .textFieldStyle(.roundedBorder)
+                }
+
+                Text("Enter decimal values such as 1452, or hexadecimal values such as 0x05AC. IDs must be between 0 and 65535.")
+                    .foregroundStyle(.secondary)
+
+                if (!vendorIDInput.isEmpty && vendorID == nil) || (!productIDInput.isEmpty && productID == nil) {
+                    Text("Enter a valid USB vendor ID and product ID.")
+                        .foregroundStyle(.red)
+                } else if isDuplicate {
+                    Text("This USB device is already in the configuration.")
+                        .foregroundStyle(.yellow)
+                }
+            }
+            .formStyle(.grouped)
+            .navigationTitle("Enter USB Device IDs")
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
+                        dismiss()
+                    }
+                }
+
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Add") {
+                        guard let vendorID, let productID else { return }
+                        onAdd(VBUSBDevice(vendorID: vendorID, productID: productID))
+                        dismiss()
+                    }
+                    .disabled(deviceID == nil || isDuplicate)
+                }
+            }
+        }
+        .frame(width: 480, height: 280)
+    }
+}
+
+private func usbIdentifierDescription(vendorID: UInt16, productID: UInt16) -> String {
+    String(format: "0x%04X : 0x%04X  (%u : %u)", vendorID, productID, vendorID, productID)
+}
