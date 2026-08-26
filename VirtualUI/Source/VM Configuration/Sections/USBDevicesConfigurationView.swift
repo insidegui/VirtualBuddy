@@ -318,6 +318,7 @@ private struct USBDeviceManualEntrySheet: View {
     @State private var productIDInput = ""
     @State private var vendorIDValidation = Validation.unvalidated
     @State private var productIDValidation = Validation.unvalidated
+    @State private var isAddingDevice = false
 
     @FocusState private var focusedField: Field?
 
@@ -384,13 +385,9 @@ private struct USBDeviceManualEntrySheet: View {
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
-                        guard let vendorID, let productID else { return }
-                        onAdd(VBUSBDevice(vendorID: vendorID, productID: productID))
-                        dismiss()
-                    }
-                    .keyboardShortcut(.defaultAction)
-                    .disabled(deviceID == nil || isDuplicate)
+                    Button("Add", action: addValidatedDevice)
+                        .keyboardShortcut(.defaultAction)
+                        .disabled(deviceID == nil || isDuplicate || isAddingDevice)
                 }
             }
         }
@@ -407,7 +404,26 @@ private struct USBDeviceManualEntrySheet: View {
     }
 
     private func validateProductID() {
-        productIDValidation = Validation(productIDInput)
+        let validation = Validation(productIDInput)
+        productIDValidation = validation
+
+        guard let vendorID, let productID = validation.value else { return }
+        guard !existingDeviceIDs.contains(VBUSBDevice.ID(vendorID: vendorID, productID: productID)) else { return }
+
+        addDevice(vendorID: vendorID, productID: productID)
+    }
+
+    private func addValidatedDevice() {
+        guard let vendorID, let productID, !isDuplicate else { return }
+        addDevice(vendorID: vendorID, productID: productID)
+    }
+
+    private func addDevice(vendorID: UInt16, productID: UInt16) {
+        guard !isAddingDevice else { return }
+        isAddingDevice = true
+
+        onAdd(VBUSBDevice(vendorID: vendorID, productID: productID))
+        dismiss()
     }
 }
 
