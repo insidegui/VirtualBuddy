@@ -283,17 +283,49 @@ private struct USBHostDeviceRow: View {
 }
 
 private struct USBDeviceManualEntrySheet: View {
+    private enum Field: Hashable {
+        case vendorID
+        case productID
+    }
+
+    private enum Validation: Equatable {
+        case unvalidated
+        case valid(UInt16)
+        case invalid
+
+        init(_ input: String) {
+            if let identifier = VBUSBDevice.parseIdentifier(input) {
+                self = .valid(identifier)
+            } else {
+                self = .invalid
+            }
+        }
+
+        var value: UInt16? {
+            guard case .valid(let identifier) = self else { return nil }
+            return identifier
+        }
+
+        var isInvalid: Bool {
+            self == .invalid
+        }
+    }
+
     let existingDeviceIDs: Set<VBUSBDevice.ID>
     let onAdd: (VBUSBDevice) -> Void
 
     @State private var vendorIDInput = ""
     @State private var productIDInput = ""
+    @State private var vendorIDValidation = Validation.unvalidated
+    @State private var productIDValidation = Validation.unvalidated
+
+    @FocusState private var focusedField: Field?
 
     @Environment(\.dismiss)
     private var dismiss
 
-    private var vendorID: UInt16? { VBUSBDevice.parseIdentifier(vendorIDInput) }
-    private var productID: UInt16? { VBUSBDevice.parseIdentifier(productIDInput) }
+    private var vendorID: UInt16? { vendorIDValidation.value }
+    private var productID: UInt16? { productIDValidation.value }
 
     private var deviceID: VBUSBDevice.ID? {
         guard let vendorID, let productID else { return nil }
@@ -311,18 +343,30 @@ private struct USBDeviceManualEntrySheet: View {
                     TextField("Decimal or hexadecimal", text: $vendorIDInput, prompt: Text("1234 / 0x12AB"))
                         .textFieldStyle(.roundedBorder)
                         .labelsHidden()
+                        .focused($focusedField, equals: .vendorID)
+                        .submitLabel(.next)
+                        .onSubmit(validateVendorID)
+                        .onChange(of: vendorIDInput) { _, _ in
+                            vendorIDValidation = .unvalidated
+                        }
                 }
 
                 LabeledContent("Product ID") {
                     TextField("Decimal or hexadecimal", text: $productIDInput, prompt: Text("1234 / 0x12AB"))
                         .textFieldStyle(.roundedBorder)
                         .labelsHidden()
+                        .focused($focusedField, equals: .productID)
+                        .submitLabel(.done)
+                        .onSubmit(validateProductID)
+                        .onChange(of: productIDInput) { _, _ in
+                            productIDValidation = .unvalidated
+                        }
                 }
 
                 Text("Enter decimal values such as 1452, or hexadecimal values such as 0x05AC. IDs must be between 0 and 65535.")
                     .foregroundStyle(.secondary)
 
-                if (!vendorIDInput.isEmpty && vendorID == nil && vendorIDInput != "0x") || (!productIDInput.isEmpty && productID == nil && productIDInput != "0x") {
+                if vendorIDValidation.isInvalid || productIDValidation.isInvalid {
                     Text("Enter a valid USB vendor ID and product ID.")
                         .foregroundStyle(.red)
                 } else if isDuplicate {
@@ -345,11 +389,25 @@ private struct USBDeviceManualEntrySheet: View {
                         onAdd(VBUSBDevice(vendorID: vendorID, productID: productID))
                         dismiss()
                     }
+                    .keyboardShortcut(.defaultAction)
                     .disabled(deviceID == nil || isDuplicate)
                 }
             }
         }
         .frame(width: 480, height: 280)
+    }
+
+    private func validateVendorID() {
+        let validation = Validation(vendorIDInput)
+        vendorIDValidation = validation
+
+        if validation.value != nil {
+            focusedField = .productID
+        }
+    }
+
+    private func validateProductID() {
+        productIDValidation = Validation(productIDInput)
     }
 }
 
