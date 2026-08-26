@@ -76,6 +76,13 @@
             "minVersionHost": "27.0.0",
             "name": "Skip Setup Assistant",
             "unsupportedPlatform": true
+        },
+        {
+            "id": "usb_passthrough",
+            "minVersionGuest": "0.0.0",
+            "minVersionHost": "27.0.0",
+            "name": "USB device passthrough",
+            "unsupportedPlatform": true
         }
   ],
     "deviceSupportVersions": [

@@ -54,6 +54,11 @@ struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
 
         return consoleDevice
     }
+
+    @available(macOS 15.0, *)
+    func createUSBControllers() -> [VZUSBControllerConfiguration] {
+        [VZXHCIControllerConfiguration()]
+    }
 }
 
 // MARK: - Configuration Models -> Virtualization

@@ -33,6 +33,7 @@ enum CatalogFeatureID {
     static let displayResize = "display_resize"
     static let rosettaSharing = "rosetta_sharing"
     static let provisioning = "provisioning"
+    static let usbPassthrough = "usb_passthrough"
 }
 
 extension ResolvedRestoreImage {
@@ -80,6 +81,9 @@ struct VMConfigurationView: View {
 
     @AppStorage("config.storage.collapsed")
     private var storageCollapsed = true
+
+    @AppStorage("config.usbDevices.collapsed")
+    private var usbDevicesCollapsed = true
 
     @AppStorage("config.display.collapsed")
     private var displayCollapsed = true
@@ -135,6 +139,8 @@ struct VMConfigurationView: View {
             }
 
             storage
+
+            usbDevices
 
             display
 
@@ -252,6 +258,19 @@ struct VMConfigurationView: View {
                 viewModel.config.hardware.cpuCount = initialConfiguration.hardware.cpuCount
                 viewModel.config.hardware.memorySize = initialConfiguration.hardware.memorySize
             }
+        }
+    }
+
+    @ViewBuilder
+    private var usbDevices: some View {
+        ConfigurationSection($usbDevicesCollapsed) {
+            USBDevicesConfigurationView(hardware: $viewModel.config.hardware)
+        } header: {
+            SummaryHeader(
+                "USB Devices",
+                systemImage: "cable.connector",
+                summary: viewModel.config.usbDevicesSummary
+            )
         }
     }
 

@@ -428,6 +428,11 @@ public final class VMController: ObservableObject {
         instance?.activeBridgeInterfaceIdentifiers ?? []
     }
 
+    @available(macOS 27.0, *)
+    public var usbDeviceController: VMUSBDeviceController? {
+        instance?.usbDeviceController
+    }
+
     public func changeBridgeInterface(to interfaceIdentifier: String) throws {
         let instance = try ensureInstance()
         objectWillChange.send()

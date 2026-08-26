@@ -60,6 +60,14 @@ public extension VBMacConfiguration {
         guard let network = hardware.networkDevices.first else { return "No Network" }
         return network.kind.name
     }
+
+    var usbDevicesSummary: String {
+        switch hardware.usbDevices.count {
+        case 0: "None"
+        case 1: "One Device"
+        default: "\(hardware.usbDevices.count) Devices"
+        }
+    }
     
     var pointingDeviceSummary: String { hardware.pointingDevice.kind.name }
 

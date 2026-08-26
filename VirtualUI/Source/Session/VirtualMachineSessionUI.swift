@@ -222,6 +222,10 @@ private struct VirtualMachineGuestActions: View {
             Divider()
 
             VirtualMachineNetworkCommands(observer: observer)
+
+            if #available(macOS 27.0, *) {
+                VirtualMachineUSBCommands(observer: observer)
+            }
         }
     }
 
@@ -325,5 +329,88 @@ private struct VirtualMachineNetworkCommands: View {
         } catch {
             NSApp.presentError(error)
         }
+    }
+}
+
+@available(macOS 27.0, *)
+private struct VirtualMachineUSBCommands: View {
+    @ObservedObject var observer: WeakVMControllerObserver
+
+    @State private var actionDeviceID: VMUSBDeviceController.Device.ID?
+
+    private var controller: VMController? { observer.controller }
+    private var deviceController: VMUSBDeviceController? { controller?.usbDeviceController }
+    private var isGuestActive: Bool {
+        controller?.state.isRunning == true || controller?.state.isPaused == true
+    }
+
+    var body: some View {
+        Menu {
+            if let registrationErrorMessage = deviceController?.registrationErrorMessage {
+                Button {
+                } label: {
+                    Label("USB Access Unavailable", systemImage: "exclamationmark.triangle")
+                }
+                .disabled(true)
+                .help(registrationErrorMessage)
+            } else if let devices = deviceController?.devices, !devices.isEmpty {
+                ForEach(devices) { device in
+                    Button {
+                        toggleAttachment(for: device)
+                    } label: {
+                        Label {
+                            if let productName = device.productName {
+                                Text(productName)
+                            } else {
+                                Text("USB Device")
+                            }
+                        } icon: {
+                            Image(systemName: device.isAttached ? "checkmark" : "cable.connector")
+                        }
+                    }
+                    .disabled(actionDeviceID != nil || device.isBusy)
+                    .help(device.errorMessage ?? usbIdentifierDescription(for: device))
+                }
+            } else {
+                Button {
+                } label: {
+                    Label("No USB Devices Available", systemImage: "cable.connector.slash")
+                }
+                .disabled(true)
+
+                Button {
+                } label: {
+                    Text("Grant access from the menu bar")
+                }
+                .disabled(true)
+            }
+        } label: {
+            Label("USB Devices", systemImage: "cable.connector")
+        }
+        .disabled(!isGuestActive || deviceController == nil)
+    }
+
+    private func toggleAttachment(for device: VMUSBDeviceController.Device) {
+        guard let deviceController else { return }
+
+        actionDeviceID = device.id
+
+        Task { @MainActor in
+            defer { actionDeviceID = nil }
+
+            do {
+                try await deviceController.toggleAttachment(for: device.id)
+            } catch {
+                NSApp.presentError(error)
+            }
+        }
+    }
+
+    private func usbIdentifierDescription(for device: VMUSBDeviceController.Device) -> String {
+        String(
+            format: "Vendor 0x%04X, Product 0x%04X",
+            device.vendorID,
+            device.productID
+        )
     }
 }
