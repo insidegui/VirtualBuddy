@@ -124,44 +124,47 @@ struct VMConfigurationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            if showTemplatePicker {
-                templatePicker
+            Group {
+                if showTemplatePicker {
+                    templatePicker
+                }
+    
+                if showBootDiskSection {
+                    bootDisk
+                }
+    
+                general
+    
+                if showProvisioningSection {
+                    provisioning
+                }
+    
+                storage
+
+                usbDevices
+
+                display
+
+                if showPointingDeviceSection {
+                    pointingDevice
+                }
+
+                if showKeyboardDeviceSection {
+                    keyboardDevice
+                }
+
+                network
+
+                sound
+
+                if showGuestAppSection {
+                    guestApp
+                }
+
+                sharing
             }
-
-            if showBootDiskSection {
-                bootDisk
-            }
-
-            general
-
-            if showProvisioningSection {
-                provisioning
-            }
-
-            storage
-
-            usbDevices
-
-            display
-
-            if showPointingDeviceSection {
-                pointingDevice
-            }
-
-            if showKeyboardDeviceSection {
-                keyboardDevice
-            }
-
-            network
-
-            sound
-
-            if showGuestAppSection {
-                guestApp
-            }
-
-            sharing
-                .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
+            /// This is required so that contents that have long text content won't cause the width to expand automatically.
+            .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
         }
         .font(.system(size: 12))
         .environment(\.configurationGuestType, viewModel.config.systemType)

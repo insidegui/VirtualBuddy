@@ -462,6 +462,20 @@ public struct VBMacProvisioningConfiguration: Hashable, Codable, Sendable {
         self.username = username
         self._password = password
     }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(enablesRemoteLogin)
+        hasher.combine(logsInAutomatically)
+        hasher.combine(fullName)
+        hasher.combine(username)
+    }
+
+    public static func ==(lhs: VBMacProvisioningConfiguration, rhs: VBMacProvisioningConfiguration) -> Bool {
+        lhs.enablesRemoteLogin == rhs.enablesRemoteLogin
+        && lhs.logsInAutomatically == rhs.logsInAutomatically
+        && lhs.fullName == rhs.fullName
+        && lhs.username == rhs.username
+    }
 }
 
 public extension VBMacProvisioningConfiguration {
