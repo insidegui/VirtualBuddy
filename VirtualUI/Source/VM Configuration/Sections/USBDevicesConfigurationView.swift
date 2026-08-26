@@ -358,7 +358,7 @@ private struct USBDeviceManualEntrySheet: View {
                         .labelsHidden()
                         .focused($focusedField, equals: .productID)
                         .submitLabel(.done)
-                        .onSubmit(validateProductID)
+                        .onSubmit { validateProductID(submit: true) }
                         .onChange(of: productIDInput) { _, _ in
                             productIDValidation = .unvalidated
                         }
@@ -390,6 +390,13 @@ private struct USBDeviceManualEntrySheet: View {
                         .disabled(deviceID == nil || isDuplicate || isAddingDevice)
                 }
             }
+            .onChange(of: focusedField) { oldValue, newValue in
+                switch oldValue {
+                case .vendorID: validateVendorID()
+                case .productID: validateProductID()
+                case nil: break
+                }
+            }
         }
         .frame(width: 480, height: 280)
     }
@@ -403,9 +410,11 @@ private struct USBDeviceManualEntrySheet: View {
         }
     }
 
-    private func validateProductID() {
+    private func validateProductID(submit: Bool = false) {
         let validation = Validation(productIDInput)
         productIDValidation = validation
+
+        guard submit else { return }
 
         guard let vendorID, let productID = validation.value else { return }
         guard !existingDeviceIDs.contains(VBUSBDevice.ID(vendorID: vendorID, productID: productID)) else { return }
