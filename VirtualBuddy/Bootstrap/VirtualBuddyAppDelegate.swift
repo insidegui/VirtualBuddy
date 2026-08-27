@@ -55,6 +55,8 @@ import SwiftUI
             try? await GuestAdditionsDiskImage.default.installIfNeeded()
         }
 
+        VBUSBDeviceRepository.shared.updateIfNeeded()
+
         #if DEBUG
         runLaunchDebugTasks()
         #endif

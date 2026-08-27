@@ -89,6 +89,7 @@ struct GroupedList<Content: View, HeaderAccessory: View, FooterAccessory: View, 
                     
                     if let removeButton = removeButton(removeLabel) {
                         removeButton
+                            .keyboardShortcut(.delete)
                     }
                 }
                 .labelStyle(.iconOnly)

@@ -25,6 +25,7 @@
 /* Begin PBXBuildFile section */
 		CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422E82FE9B99300DD1670 /* BuddyFoundation */; };
 		CD4422ED2FE9B9D900DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422EC2FE9B9D900DD1670 /* BuddyFoundation */; };
+		F40F5DA53040AF22005C19FD /* USBIDKit in Frameworks */ = {isa = PBXBuildFile; productRef = F40F5DA43040AF22005C19FD /* USBIDKit */; };
 		F413699A299179F8002CE8D3 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
 		F413699B299179F8002CE8D3 /* VirtualCore.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F41369BF2991863A002CE8D3 /* VirtualBuddyGuestHelper.app in Embed Login Item */ = {isa = PBXBuildFile; fileRef = F41369AB29918576002CE8D3 /* VirtualBuddyGuestHelper.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -483,6 +484,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F40F5DA53040AF22005C19FD /* USBIDKit in Frameworks */,
 				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
 				F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
@@ -714,6 +716,7 @@
 			packageProductDependencies = (
 				F453C4622DF0E609007EAD5F /* BuddyKit */,
 				F43076E22FD8B19B002BB1EC /* SwiftUIIntrospect */,
+				F40F5DA43040AF22005C19FD /* USBIDKit */,
 			);
 			productName = VirtualUI;
 			productReference = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */;
@@ -966,6 +969,7 @@
 				F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */,
 				F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */,
+				F40F5DA33040AF22005C19FD /* XCRemoteSwiftPackageReference "USBIDKit" */,
 			);
 			preferredProjectObjectVersion = 55;
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
@@ -3951,6 +3955,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F40F5DA33040AF22005C19FD /* XCRemoteSwiftPackageReference "USBIDKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/USBIDKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		F43B01452AD85A7D00164CD1 /* XCRemoteSwiftPackageReference "URLQueryItemCoder" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/kylehughes/URLQueryItemCoder.git";
@@ -4011,6 +4023,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
 			productName = BuddyFoundation;
+		};
+		F40F5DA43040AF22005C19FD /* USBIDKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F40F5DA33040AF22005C19FD /* XCRemoteSwiftPackageReference "USBIDKit" */;
+			productName = USBIDKit;
 		};
 		F41804F43020E59A001EB084 /* BuddyFoundation */ = {
 			isa = XCSwiftPackageProductDependency;

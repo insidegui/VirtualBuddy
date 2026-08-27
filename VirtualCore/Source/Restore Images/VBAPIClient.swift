@@ -51,6 +51,8 @@ public final class VBAPIClient {
             return .production
             #endif
         }
+
+        public var usbIDURL: URL { baseURL.appending(path: "v2/usb.ids") }
     }
 
     public let environment: Environment
