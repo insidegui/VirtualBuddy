@@ -12,7 +12,14 @@ private enum USBDeviceAdditionMode: String, Identifiable {
 @MainActor
 private final class USBDeviceBrowserModel {
     var devices = [VBHostUSBDevice]()
-    var selectedDeviceID: VBHostUSBDevice.ID?
+    var selectedIdentifiers = Set<VBHostUSBDevice.ID>() {
+        didSet {
+            selectedDevices = Set(selectedIdentifiers.compactMap { id in
+                devices.first(where: { $0.id == id })
+            })
+        }
+    }
+    private(set) var selectedDevices = Set<VBHostUSBDevice>()
 
     @ObservationIgnored private let deviceProvider: () -> [VBHostUSBDevice]
 
@@ -23,8 +30,8 @@ private final class USBDeviceBrowserModel {
     func refresh() {
         devices = deviceProvider()
 
-        if let selectedDeviceID, !devices.contains(where: { $0.id == selectedDeviceID }) {
-            self.selectedDeviceID = nil
+        selectedIdentifiers = selectedIdentifiers.filter { id in
+            !devices.contains(where: { $0.id == id })
         }
     }
 }
@@ -179,6 +186,16 @@ private struct USBConfiguredDeviceRow: View {
     }
 }
 
+extension VBUSBDevice {
+    init(_ device: VBHostUSBDevice) {
+        self.init(
+            vendorID: device.vendorID,
+            productID: device.productID,
+            name: device.productName
+        )
+    }
+}
+
 private struct USBDeviceBrowserSheet: View {
     let existingDeviceIDs: Set<VBUSBDevice.ID>
     let onAdd: (VBUSBDevice) -> Void
@@ -187,11 +204,6 @@ private struct USBDeviceBrowserSheet: View {
 
     @Environment(\.dismiss)
     private var dismiss
-
-    private var selectedDevice: VBHostUSBDevice? {
-        guard let selectedDeviceID = model.selectedDeviceID else { return nil }
-        return model.devices.first { $0.id == selectedDeviceID }
-    }
 
     init(
         existingDeviceIDs: Set<VBUSBDevice.ID>,
@@ -215,13 +227,18 @@ private struct USBDeviceBrowserSheet: View {
                         description: Text("Connect a USB device to this Mac, then reload the list.")
                     )
                 } else {
-                    List(model.devices, selection: $model.selectedDeviceID) { device in
+                    List(model.devices, selection: $model.selectedIdentifiers) { device in
                         USBHostDeviceRow(
                             device: device,
                             isAlreadyAdded: existingDeviceIDs.contains(
                                 VBUSBDevice.ID(vendorID: device.vendorID, productID: device.productID)
                             )
                         )
+                        .highPriorityGesture(TapGesture(count: 2).onEnded {
+                            guard !isAlreadyAdded(device) else { return }
+                            onAdd(VBUSBDevice(device))
+                            dismiss()
+                        })
                         .tag(device.id)
                     }
                 }
@@ -244,18 +261,17 @@ private struct USBDeviceBrowserSheet: View {
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Add") {
-                        guard let selectedDevice else { return }
+                        guard !model.selectedIdentifiers.isEmpty else { return }
 
-                        onAdd(
-                            VBUSBDevice(
-                                vendorID: selectedDevice.vendorID,
-                                productID: selectedDevice.productID,
-                                name: selectedDevice.productName
-                            )
-                        )
+                        for device in model.selectedDevices {
+                            guard !isAlreadyAdded(device) else { continue }
+
+                            onAdd(VBUSBDevice(device))
+                        }
+
                         dismiss()
                     }
-                    .disabled(selectedDevice.map(isAlreadyAdded) != false)
+                    .disabled(!model.selectedDevices.contains(where: { !isAlreadyAdded($0) }))
                 }
             }
         }
@@ -299,8 +315,9 @@ private struct USBHostDeviceRow: View {
             Spacer()
 
             if isAlreadyAdded {
-                Text("Added")
-                    .foregroundStyle(.secondary)
+                Image(systemName: "checkmark.circle.fill")
+                    .imageScale(.large)
+                    .foregroundStyle(.green)
             }
         }
         .contentShape(.rect)
