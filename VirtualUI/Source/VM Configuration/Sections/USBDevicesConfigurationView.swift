@@ -511,7 +511,9 @@ private struct USBDeviceManualEntrySheet: View {
         guard !isAddingDevice else { return }
         isAddingDevice = true
 
-        onAdd(VBUSBDevice(vendorID: vendorID, productID: productID))
+        let device = VBUSBDeviceRepository.shared.device(vendorID: vendorID, productID: productID)
+
+        onAdd(device)
         dismiss()
     }
 }

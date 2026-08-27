@@ -1,5 +1,5 @@
 {
-  "originHash" : "3fd24967a48b127010a1cab40c41fd70176878f897a946d6404561fee4decff1",
+  "originHash" : "4f601ef463814f8125ce94139ffcec51c2dc63c8d26aca793f89ab6406ed9d7d",
   "pins" : [
     {
       "identity" : "buddykit",
@@ -53,6 +53,15 @@
       "state" : {
         "revision" : "a828b3bb5b273adf85a3ca95d9705987cb2de7c7",
         "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "usbidkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/USBIDKit.git",
+      "state" : {
+        "revision" : "561f6f6268e8edb98dfb34168d766b3dc0c2fc9c",
+        "version" : "1.1.0"
       }
     }
   ],
