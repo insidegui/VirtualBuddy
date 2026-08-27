@@ -240,7 +240,7 @@ private struct RestoreImageButton: View {
     }
 }
 
-private extension NSPasteboard {
+public extension NSPasteboard {
     func vb_setString(_ string: String) {
         clearContents()
         setString(string, forType: .string)

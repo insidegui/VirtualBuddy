@@ -53,41 +53,53 @@ struct USBDevicesConfigurationView: View {
         return feature?.status.supportMessage
     }
 
+    @State private var selectedIdentifiers = Set<VBUSBDevice.ID>()
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            if hardware.usbDevices.isEmpty {
-                Text("No host USB devices are configured for this virtual machine.")
-                    .foregroundStyle(.secondary)
-            } else {
-                VStack(spacing: 0) {
+        VStack(alignment: .leading, spacing: 16) {
+            GroupedList {
+                List(selection: $selectedIdentifiers) {
                     ForEach(hardware.usbDevices) { device in
-                        USBConfiguredDeviceRow(device: device) {
-                            hardware.usbDevices.removeAll { $0.id == device.id }
-                        }
-
-                        if device.id != hardware.usbDevices.last?.id {
-                            Divider()
-                        }
+                        USBConfiguredDeviceRow(device: device)
+                            .tag(device.id)
                     }
                 }
-            }
-
-            HStack {
+            } headerAccessory: {
+                headerAccessory
+            } footerAccessory: {
+                EmptyView()
+            } emptyOverlay: {
+                emptyOverlay
+            } addButton: { label in
                 Menu {
-                    Button("Choose Connected Device…") {
-                        additionMode = .browse
-                    }
-
-                    Button("Enter Vendor and Product IDs…") {
-                        additionMode = .manual
-                    }
+                    addDeviceMenuOptions
+                        .groupedListButtonLabel()
                 } label: {
-                    Label("Add Device", systemImage: "plus")
+                    label.groupedListButtonLabel()
                 }
-                .menuStyle(.borderlessButton)
-                .fixedSize()
-
-                Spacer()
+                .help("Add USB device")
+            } removeButton: { label in
+                Button {
+                    removeSelectedDevices()
+                } label: {
+                    label.groupedListButtonLabel()
+                }
+                .disabled(selectedIdentifiers.isEmpty)
+            }
+            .disabled(isUnsupported)
+            .sheet(item: $additionMode) { mode in
+                switch mode {
+                case .browse:
+                    USBDeviceBrowserSheet(
+                        existingDeviceIDs: Set(hardware.usbDevices.map(\.id)),
+                        onAdd: add
+                    )
+                case .manual:
+                    USBDeviceManualEntrySheet(
+                        existingDeviceIDs: Set(hardware.usbDevices.map(\.id)),
+                        onAdd: add
+                    )
+                }
             }
 
             Text("When the virtual machine is running, use the Accessory Access menu in the menu bar to grant VirtualBuddy access to a device.")
@@ -98,57 +110,72 @@ struct USBDevicesConfigurationView: View {
                     .foregroundStyle(VBMacConfiguration.hostSupportsUSBPassthrough ? .yellow : .red)
             }
         }
-        .disabled(isUnsupported)
-        .sheet(item: $additionMode) { mode in
-            switch mode {
-            case .browse:
-                USBDeviceBrowserSheet(
-                    existingDeviceIDs: Set(hardware.usbDevices.map(\.id)),
-                    onAdd: add
-                )
-            case .manual:
-                USBDeviceManualEntrySheet(
-                    existingDeviceIDs: Set(hardware.usbDevices.map(\.id)),
-                    onAdd: add
-                )
+    }
+
+    @ViewBuilder
+    private var emptyOverlay: some View {
+        if hardware.usbDevices.isEmpty {
+            Text("No host USB devices are configured\nfor this virtual machine.")
+                .multilineTextAlignment(.center)
+
+            Menu {
+                addDeviceMenuOptions
+            } label: {
+                Text("Add…")
             }
+            .menuIndicator(.hidden)
         }
+    }
+
+    @ViewBuilder
+    private var addDeviceMenuOptions: some View {
+        Button("Choose Connected Device…") {
+            additionMode = .browse
+        }
+
+        Button("Enter Vendor and Product IDs…") {
+            additionMode = .manual
+        }
+    }
+
+    @ViewBuilder
+    private var headerAccessory: some View {
+        Text("USB Devices")
+            .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     private func add(_ device: VBUSBDevice) {
         guard !hardware.usbDevices.contains(where: { $0.id == device.id }) else { return }
         hardware.usbDevices.append(device)
     }
+
+    private func removeSelectedDevices() {
+        hardware.usbDevices.removeAll {
+            selectedIdentifiers.contains($0.id)
+        }
+        selectedIdentifiers.removeAll()
+    }
 }
 
 private struct USBConfiguredDeviceRow: View {
     let device: VBUSBDevice
-    let onRemove: () -> Void
 
     var body: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 2) {
-                if let name = device.name {
-                    Text(name)
-                } else {
-                    Text("USB Device")
-                }
-
-                Text(verbatim: usbIdentifierDescription(vendorID: device.vendorID, productID: device.productID))
-                    .font(.caption.monospaced())
-                    .foregroundStyle(.secondary)
+        VStack(alignment: .leading, spacing: 2) {
+            if let name = device.name {
+                Text(name)
+            } else {
+                Text("USB Device")
             }
 
-            Spacer()
-
-            Button(role: .destructive, action: onRemove) {
-                Label("Remove Device", systemImage: "minus.circle")
-                    .labelStyle(.iconOnly)
-            }
-            .buttonStyle(.plain)
-            .help("Remove USB device")
+            Text(verbatim: String(formattedUSBVendorID: device.vendorID, productID: device.productID))
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
+        .contentShape(.rect)
         .padding(.vertical, 6)
+        .monospacedDigit()
+        .usbDeviceContextMenu(vendorID: device.vendorID, productID: device.productID)
     }
 }
 
@@ -263,8 +290,7 @@ private struct USBHostDeviceRow: View {
                         Text(manufacturerName)
                     }
 
-                    Text(verbatim: usbIdentifierDescription(vendorID: device.vendorID, productID: device.productID))
-                        .monospaced()
+                    Text(verbatim: String(formattedUSBVendorID: device.vendorID, productID: device.productID))
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -279,6 +305,43 @@ private struct USBHostDeviceRow: View {
         }
         .contentShape(.rect)
         .disabled(isAlreadyAdded)
+        .monospacedDigit()
+        .usbDeviceContextMenu(vendorID: device.vendorID, productID: device.productID)
+    }
+}
+
+private extension View {
+    func usbDeviceContextMenu(vendorID: UInt16, productID: UInt16) -> some View {
+        contextMenu {
+            Menu {
+                let id16 = String(formattedUSBVendorID: vendorID, productID: productID)
+                let id10 = String(formattedUSBVendorID: vendorID, productID: productID, radix: 10)
+                Button(id16) { NSPasteboard.general.vb_setString(id16) }
+                Button(id10) { NSPasteboard.general.vb_setString(id10) }
+            } label: {
+                Text("Copy ID")
+            }
+
+            Divider()
+
+            Menu {
+                let id16 = String(formattedUSBID: vendorID)
+                let id10 = String(formattedUSBID: vendorID, radix: 10)
+                Button(id16) { NSPasteboard.general.vb_setString(id16) }
+                Button(id10) { NSPasteboard.general.vb_setString(id10) }
+            } label: {
+                Text("Copy Vendor ID")
+            }
+
+            Menu {
+                let id16 = String(formattedUSBID: productID)
+                let id10 = String(formattedUSBID: productID, radix: 10)
+                Button(id16) { NSPasteboard.general.vb_setString(id16) }
+                Button(id10) { NSPasteboard.general.vb_setString(id10) }
+            } label: {
+                Text("Copy Product ID")
+            }
+        }
     }
 }
 
@@ -436,8 +499,20 @@ private struct USBDeviceManualEntrySheet: View {
     }
 }
 
-private func usbIdentifierDescription(vendorID: UInt16, productID: UInt16) -> String {
-    String(format: "0x%04X : 0x%04X  (%u : %u)", vendorID, productID, vendorID, productID)
+extension String {
+    init(formattedUSBID id: UInt16, radix: Int = 16) {
+        self = switch radix {
+        case 16: String(format: "0x%04X", id)
+        default: String(format: "%u", id)
+        }
+    }
+
+    init(formattedUSBVendorID vendorID: UInt16, productID: UInt16, radix: Int = 16) {
+        self = switch radix {
+        case 16: String(format: "0x%04X : 0x%04X", vendorID, productID)
+        default: String(format: "%u : %u", vendorID, productID)
+        }
+    }
 }
 
 #if DEBUG
