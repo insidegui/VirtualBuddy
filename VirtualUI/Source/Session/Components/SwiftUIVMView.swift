@@ -268,6 +268,10 @@ final class VirtualBuddyVMView: VZVirtualMachineView {
 
                 updateCaptureSystemKeysState()
             }
+
+            if oldValue.allowsMouseEvents != eventDeliveryMask.allowsMouseEvents {
+                window?.invalidateCursorRects(for: self)
+            }
         }
     }
 
@@ -365,34 +369,29 @@ final class VirtualBuddyVMView: VZVirtualMachineView {
         super.otherMouseUp(with: event)
     }
 
-    override func updateTrackingAreas() {
+    override func scrollWheel(with event: NSEvent) {
         guard eventDeliveryMask.allowsMouseEvents else { return }
-        super.updateTrackingAreas()
+        super.scrollWheel(with: event)
+    }
+
+    override func magnify(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.magnify(with: event)
+    }
+
+    override func smartMagnify(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.smartMagnify(with: event)
+    }
+
+    override func rotate(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.rotate(with: event)
     }
 
     override func cursorUpdate(with event: NSEvent) {
         guard eventDeliveryMask.allowsMouseEvents else { return }
         super.cursorUpdate(with: event)
-    }
-
-    override func resetCursorRects() {
-        guard eventDeliveryMask.allowsMouseEvents else { return }
-        super.resetCursorRects()
-    }
-
-    override func discardCursorRects() {
-        guard eventDeliveryMask.allowsMouseEvents else { return }
-        super.discardCursorRects()
-    }
-
-    override func addCursorRect(_ rect: NSRect, cursor object: NSCursor) {
-        guard eventDeliveryMask.allowsMouseEvents else { return }
-        super.addCursorRect(rect, cursor: object)
-    }
-
-    override func removeCursorRect(_ rect: NSRect, cursor object: NSCursor) {
-        guard eventDeliveryMask.allowsMouseEvents else { return }
-        super.removeCursorRect(rect, cursor: object)
     }
 
     override func keyDown(with event: NSEvent) {
