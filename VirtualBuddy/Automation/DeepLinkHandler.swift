@@ -6,6 +6,11 @@ import DeepLinkSecurity
 
 typealias WindowUpdatingClosure = (_ perform: () -> Void) -> Void
 
+extension Notification.Name {
+    /// Notification sent from ``DeepLinkHandler`` when it wants the SwiftUI app to open the library window.
+    static let openVirtualBuddyLibraryWindow = Notification.Name("codes.rambo.VirtualBuddy.OpenLibraryWindow")
+}
+
 final class DeepLinkHandler {
 
     private let settingsContainer: VBSettingsContainer
@@ -102,6 +107,8 @@ final class DeepLinkHandler {
         func run(_ action: DeepLinkAction) async {
             do {
                 switch action {
+                case .library:
+                    NotificationCenter.default.post(name: .openVirtualBuddyLibraryWindow, object: action)
                 case .open(let params):
                     try openVM(named: params.name, options: nil)
                 case .boot(let params):

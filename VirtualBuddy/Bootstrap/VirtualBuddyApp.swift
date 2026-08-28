@@ -43,6 +43,9 @@ struct VirtualBuddyApp: App {
                 }
                 .environment(\.openVirtualBuddySettings, appDelegate.openSettingsAction)
                 .background { TransparentWindowTitleBarView() }
+                .onReceive(NotificationCenter.default.publisher(for: .openVirtualBuddyLibraryWindow)) { _ in
+                    openLibraryWindow()
+                }
         }
         .windowToolbarStyle(.unified)
         .commands {
@@ -73,12 +76,16 @@ struct VirtualBuddyApp: App {
 
             CommandGroup(after: .windowArrangement) {
                 Button("Library") {
-                    openWindow(id: .vb_libraryWindowID)
+                    openLibraryWindow()
                 }
                 .keyboardShortcut(KeyEquivalent("0"), modifiers: .command)
             }
         }
         .handlesExternalEvents(matching: ["*"])
+    }
+
+    private func openLibraryWindow() {
+        openWindow(id: .vb_libraryWindowID)
     }
 }
 
