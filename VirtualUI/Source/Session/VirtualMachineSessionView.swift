@@ -68,7 +68,7 @@ public struct VirtualMachineSessionView: View {
         .onReceive(ui.makeWindowKey) {
             window?.makeKeyAndOrderFront(nil)
         }
-        .task {
+        .task(id: controller.options.autoBoot) {
             if controller.options.autoBoot {
                 Task { try? await controller.start() }
             }
