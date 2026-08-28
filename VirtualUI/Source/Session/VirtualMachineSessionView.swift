@@ -74,8 +74,10 @@ public struct VirtualMachineSessionView: View {
             }
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                VirtualMachineUserControls()
+            if controller.isRunning {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    VirtualMachineUserControls()
+                }
             }
 
             if #available(macOS 26, *) {
