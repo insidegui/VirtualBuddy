@@ -24,6 +24,7 @@ struct VirtualMachineUserControls: View {
 // MARK: - Helpers
 
 extension VBVirtualMachine {
+    var pointingDeviceKind: VBPointingDevice.Kind { configuration.hardware.pointingDevice.kind }
     var pointingDeviceName: String { configuration.pointingDeviceName }
     var pointingDeviceSFSymbol: String { configuration.pointingDeviceSFSymbol }
     var keyboardDeviceSFSymbol: String { configuration.keyboardDeviceSFSymbol }

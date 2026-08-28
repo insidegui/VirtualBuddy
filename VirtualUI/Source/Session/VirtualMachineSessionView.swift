@@ -136,6 +136,11 @@ public struct VirtualMachineSessionView: View {
             automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false)
         )
         .virtualMachineEventDeliveryMask(ui.eventDeliveryMask)
+        .overlay {
+            if !UserDefaults.standard.bool(forKey: "DisableEventDeliveryStateOverlay") {
+                EventDeliveryStateOverlay()
+            }
+        }
     }
     
     @ViewBuilder
@@ -244,6 +249,40 @@ public struct VirtualMachineSessionView: View {
             try? await controller.forceStop()
 
             return true
+        }
+    }
+
+    private struct EventDeliveryStateOverlay: View {
+        @EnvironmentObject private var ui: VirtualMachineSessionUI
+
+        @State private var notification: VirtualHUDNotification?
+
+        var body: some View {
+            ZStack {
+                if let notification {
+                    VirtualHUDOverlay(notification: notification)
+                }
+            }
+            .onChange(of: ui.eventDeliveryMask) { oldValue, newValue in
+                if newValue.allowsMouseEvents != oldValue.allowsMouseEvents {
+                    switch ui.virtualMachine.pointingDeviceKind {
+                    case .mouse: notification = .mouse(disabled: !newValue.allowsMouseEvents, systemImage: ui.virtualMachine.pointingDeviceSFSymbol)
+                    case .trackpad: notification = .trackpad(disabled: !newValue.allowsMouseEvents)
+                    }
+                } else if newValue.allowsKeyboardEvents != oldValue.allowsKeyboardEvents {
+                    notification = .keyboard(disabled: !newValue.allowsKeyboardEvents)
+                }
+            }
+            /// Automatically discard notification after it's finished so that the overlay doesn't stay around unless needed.
+            .task(id: notification?.id) {
+                do {
+                    guard notification != nil else { return }
+
+                    try await Task.sleep(for: .seconds(5))
+
+                    notification = nil
+                } catch { }
+            }
         }
     }
 
