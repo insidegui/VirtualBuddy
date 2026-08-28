@@ -67,6 +67,17 @@ public final class VirtualMachineSessionUI: ObservableObject {
 
         /// The VM is currently in a state where it's safe to change the options, just update the options for the controller.
         controller.options = newOptions
+
+        /// This takes care of booting when the session is already open and a deep link that wants auto-boot is activated.
+        if newOptions.autoBoot, controller.canStart {
+            Task {
+                do {
+                    try await controller.start()
+                } catch {
+                    NSApp.presentError(error)
+                }
+            }
+        }
     }
 
     @MainActor

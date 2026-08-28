@@ -68,7 +68,9 @@ public struct VirtualMachineSessionView: View {
         .onReceive(ui.makeWindowKey) {
             window?.makeKeyAndOrderFront(nil)
         }
-        .task(id: controller.options.autoBoot) {
+        /// This takes care of booting when initially opening a session with a deep link that wants auto-boot.
+        /// Booting after the session is already open is handled by ``VirtualMachineSessionUI``.
+        .task {
             if controller.options.autoBoot {
                 Task { try? await controller.start() }
             }
