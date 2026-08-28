@@ -18,6 +18,7 @@ struct StopVMParameters: Codable {
 }
 
 enum DeepLinkAction  {
+    case library
     case open(OpenVMParameters)
     case boot(BootVMParameters)
     case stop(StopVMParameters)
@@ -33,6 +34,8 @@ extension DeepLinkAction {
         }
 
         switch host {
+        case "library":
+            self = .library
         case "open":
             let params = try Self.decodeParameters(OpenVMParameters.self, from: components)
             self = .open(params)
