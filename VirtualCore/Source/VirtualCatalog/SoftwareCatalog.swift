@@ -280,7 +280,11 @@ public extension SoftwareCatalog {
     }
 
     func write(to url: URL) throws {
-        try Self.encoder.encode(self).write(to: url)
+        var data = try Self.encoder.encode(self)
+        if data.last != 0x0A {
+            data.append(0x0A)
+        }
+        try data.write(to: url)
     }
 }
 
