@@ -13,6 +13,11 @@ public final class VirtualMachineSessionUI: ObservableObject {
 
     @Published public var lockProportions = false
 
+    @Published private(set) var eventDeliveryMask = VMEventDeliveryMask.all
+
+    @Published var captureMouseEvents = true
+    @Published var captureKeyboardEvents = true
+
     let setWindowAspectRatio = PassthroughSubject<CGSize?, Never>()
     let resizeWindow = PassthroughSubject<WindowSize, Never>()
     let makeWindowKey = PassthroughSubject<Void, Never>()
@@ -20,7 +25,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
     public let controller: VMController
     public let virtualMachine: VBVirtualMachine
 
-    private lazy var cancellables = Set<AnyCancellable>()
+    private var cancellables = Set<AnyCancellable>()
 
     @MainActor
     public convenience init(with virtualMachine: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
@@ -43,6 +48,24 @@ public final class VirtualMachineSessionUI: ObservableObject {
             let ratio = newValue ? CGSize(width: display.width, height: display.height) : nil
 
             self.setWindowAspectRatio.send(ratio)
+        }
+        .store(in: &cancellables)
+
+        $captureMouseEvents.sink { [weak self] captureMouse in
+            if captureMouse {
+                self?.eventDeliveryMask.insert(.mouse)
+            } else {
+                self?.eventDeliveryMask.remove(.mouse)
+            }
+        }
+        .store(in: &cancellables)
+
+        $captureKeyboardEvents.sink { [weak self] captureKeyboard in
+            if captureKeyboard {
+                self?.eventDeliveryMask.insert(.keyboard)
+            } else {
+                self?.eventDeliveryMask.remove(.keyboard)
+            }
         }
         .store(in: &cancellables)
     }

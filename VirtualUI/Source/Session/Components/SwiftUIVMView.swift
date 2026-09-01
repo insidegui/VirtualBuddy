@@ -7,16 +7,38 @@
 
 import SwiftUI
 import Cocoa
+import BuddyUI
 import Virtualization
 import VirtualCore
 
+/// Controls the input events that are delivered to the virtual machine.
+struct VMEventDeliveryMask: OptionSet, Sendable, CustomStringConvertible {
+    let rawValue: UInt32
+
+    static let keyboard = VMEventDeliveryMask(rawValue: 1 << 0)
+    static let mouse = VMEventDeliveryMask(rawValue: 1 << 1)
+
+    static let all: VMEventDeliveryMask = [.keyboard, .mouse]
+    static let none: VMEventDeliveryMask = []
+
+    var description: String {
+        guard !isEmpty else { return "<empty>" }
+
+        var elements = [String]()
+        if contains(.mouse) { elements.append("mouse") }
+        if contains(.keyboard) { elements.append("keyboard") }
+        return elements.joined(separator: "|")
+    }
+}
+
+
 private extension EnvironmentValues {
-    @Entry var virtualMachineInteractionDisabled = false
+    @Entry var virtualMachineEventDeliveryMask = VMEventDeliveryMask.all
 }
 
 extension View {
-    func virtualMachineInteractionDisabled(_ disabled: Bool = true) -> some View {
-        environment(\.virtualMachineInteractionDisabled, disabled)
+    func virtualMachineEventDeliveryMask(_ mask: VMEventDeliveryMask) -> some View {
+        environment(\.virtualMachineEventDeliveryMask, mask)
     }
 }
 
@@ -25,7 +47,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     typealias NSViewControllerType = VMViewController
     
     @Binding var controllerState: VMController.State
-    let captureSystemKeys: Bool
+    let captureSystemKeysEnabled: Bool
     var isDFUModeVM: Bool
     var vmECID: UInt64?
     @Binding var automaticallyReconfiguresDisplay: Bool
@@ -34,7 +56,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
         let controller = VMViewController()
         controller.vmECID = vmECID
         controller.isDFUModeVM = isDFUModeVM
-        controller.captureSystemKeys = captureSystemKeys
+        controller.captureSystemKeysEnabled = captureSystemKeysEnabled
         controller.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
         return controller
     }
@@ -44,7 +66,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
 
         nsViewController.vmECID = vmECID
         nsViewController.isDFUModeVM = isDFUModeVM
-        nsViewController.interactionDisabled = context.environment.virtualMachineInteractionDisabled
+        nsViewController.eventDeliveryMask = context.environment.virtualMachineEventDeliveryMask
 
         if case .running(let vm) = controllerState {
             nsViewController.virtualMachine = vm
@@ -52,7 +74,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
             nsViewController.virtualMachine = nil
         }
     }
-    
+
 }
 
 final class VMViewController: NSViewController {
@@ -71,13 +93,6 @@ final class VMViewController: NSViewController {
 
             /// Force update of DFU state to display the ECID.
             handleDFUTransition(.enter)
-        }
-    }
-
-    var captureSystemKeys: Bool = false {
-        didSet {
-            guard captureSystemKeys != oldValue, isViewLoaded else { return }
-            vmView.capturesSystemKeys = captureSystemKeys
         }
     }
 
@@ -102,9 +117,14 @@ final class VMViewController: NSViewController {
         #endif
     }
 
-    var interactionDisabled: Bool {
-        get { vmView.isViewOnly }
-        set { vmView.isViewOnly = newValue }
+    var captureSystemKeysEnabled: Bool {
+        get { vmView.capturesSystemKeysEnabled }
+        set { vmView.capturesSystemKeysEnabled = newValue }
+    }
+
+    var eventDeliveryMask: VMEventDeliveryMask {
+        get { vmView.eventDeliveryMask }
+        set { vmView.eventDeliveryMask = newValue }
     }
 
     private lazy var vmView: VirtualBuddyVMView = {
@@ -116,8 +136,6 @@ final class VMViewController: NSViewController {
         view.wantsLayer = true
         view.layer?.backgroundColor = NSColor.black.cgColor
         
-        vmView.capturesSystemKeys = captureSystemKeys
-
         if #available(macOS 14.0, *) {
             vmView.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
         }
@@ -231,62 +249,164 @@ struct DFUStatusView: View {
     }
 }
 
+extension VMEventDeliveryMask {
+    var allowsMouseEvents: Bool { contains(.mouse) }
+    var allowsKeyboardEvents: Bool { contains(.keyboard) }
+}
+
 final class VirtualBuddyVMView: VZVirtualMachineView {
-    var isViewOnly = false
+    var eventDeliveryMask = VMEventDeliveryMask.all {
+        didSet {
+            guard eventDeliveryMask != oldValue else { return }
+
+            if oldValue.allowsKeyboardEvents != eventDeliveryMask.allowsKeyboardEvents {
+                if eventDeliveryMask.allowsKeyboardEvents {
+                    window?.makeFirstResponder(self)
+                } else {
+                    window?.makeFirstResponder(nextResponder)
+                }
+
+                updateCaptureSystemKeysState()
+            }
+
+            if oldValue.allowsMouseEvents != eventDeliveryMask.allowsMouseEvents {
+                window?.invalidateCursorRects(for: self)
+            }
+        }
+    }
+
+    var capturesSystemKeysEnabled: Bool = false {
+        didSet {
+            guard capturesSystemKeysEnabled != oldValue else { return }
+            updateCaptureSystemKeysState()
+        }
+    }
+
+    private func updateCaptureSystemKeysState() {
+        /// We only want to enable capture system keys when the explicit setting is enabled and when keyboard event capture is also enabled.
+        capturesSystemKeys = capturesSystemKeysEnabled && eventDeliveryMask.contains(.keyboard)
+
+        UILog("eventDeliveryMask = \(eventDeliveryMask); capturesSystemKeysEnabled = \(capturesSystemKeysEnabled); capturesSystemKeys = \(capturesSystemKeys)")
+    }
+
+    override var acceptsFirstResponder: Bool {
+        guard eventDeliveryMask.allowsKeyboardEvents else { return false }
+        return super.acceptsFirstResponder
+    }
+
+    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
+        guard eventDeliveryMask.allowsMouseEvents else { return false }
+        return super.acceptsFirstMouse(for: event)
+    }
 
     override func hitTest(_ point: NSPoint) -> NSView? {
-        guard !isViewOnly else { return nil }
+        guard eventDeliveryMask.allowsMouseEvents else { return nil }
         return super.hitTest(point)
     }
 
     override func isMousePoint(_ point: NSPoint, in rect: NSRect) -> Bool {
-        guard !isViewOnly else { return false }
+        guard eventDeliveryMask.allowsMouseEvents else { return false }
         return super.isMousePoint(point, in: rect)
     }
 
-    override func acceptsFirstMouse(for event: NSEvent?) -> Bool {
-        guard !isViewOnly else { return false }
-        return super.acceptsFirstMouse(for: event)
-    }
-
     override func mouseDown(with event: NSEvent) {
-        guard !isViewOnly else { return }
+        guard eventDeliveryMask.allowsMouseEvents else { return }
         super.mouseDown(with: event)
     }
 
-    override var acceptsFirstResponder: Bool {
-        guard !isViewOnly else { return false }
-        return super.acceptsFirstResponder
+    override func mouseDragged(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.mouseDragged(with: event)
     }
 
-    override func updateTrackingAreas() {
-        guard !isViewOnly else { return }
-        super.updateTrackingAreas()
+    override func mouseEntered(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.mouseEntered(with: event)
+    }
+
+    override func mouseExited(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.mouseExited(with: event)
+    }
+
+    override func mouseMoved(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.mouseMoved(with: event)
+    }
+
+    override func mouseUp(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.mouseUp(with: event)
+    }
+
+    override func rightMouseDown(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.rightMouseDown(with: event)
+    }
+
+    override func rightMouseDragged(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.rightMouseDragged(with: event)
+    }
+
+    override func rightMouseUp(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.rightMouseUp(with: event)
+    }
+
+    override func otherMouseDown(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.otherMouseDown(with: event)
+    }
+
+    override func otherMouseDragged(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.otherMouseDragged(with: event)
+    }
+
+    override func otherMouseUp(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.otherMouseUp(with: event)
+    }
+
+    override func scrollWheel(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.scrollWheel(with: event)
+    }
+
+    override func magnify(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.magnify(with: event)
+    }
+
+    override func smartMagnify(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.smartMagnify(with: event)
+    }
+
+    override func rotate(with event: NSEvent) {
+        guard eventDeliveryMask.allowsMouseEvents else { return }
+        super.rotate(with: event)
     }
 
     override func cursorUpdate(with event: NSEvent) {
-        guard !isViewOnly else { return }
+        guard eventDeliveryMask.allowsMouseEvents else { return }
         super.cursorUpdate(with: event)
     }
 
-    override func resetCursorRects() {
-        guard !isViewOnly else { return }
-        super.resetCursorRects()
+    override func keyDown(with event: NSEvent) {
+        guard eventDeliveryMask.allowsKeyboardEvents else { return }
+        super.keyDown(with: event)
     }
 
-    override func discardCursorRects() {
-        guard !isViewOnly else { return }
-        super.discardCursorRects()
+    override func keyUp(with event: NSEvent) {
+        guard eventDeliveryMask.allowsKeyboardEvents else { return }
+        super.keyUp(with: event)
     }
 
-    override func addCursorRect(_ rect: NSRect, cursor object: NSCursor) {
-        guard !isViewOnly else { return }
-        super.addCursorRect(rect, cursor: object)
-    }
-
-    override func removeCursorRect(_ rect: NSRect, cursor object: NSCursor) {
-        guard !isViewOnly else { return }
-        super.removeCursorRect(rect, cursor: object)
+    override func flagsChanged(with event: NSEvent) {
+        guard eventDeliveryMask.allowsKeyboardEvents else { return }
+        super.flagsChanged(with: event)
     }
 }
 
@@ -294,7 +414,7 @@ final class VirtualBuddyVMView: VZVirtualMachineView {
 #Preview("VM View - DFU") {
     SwiftUIVMView(
         controllerState: .constant(.starting(nil)),
-        captureSystemKeys: false,
+        captureSystemKeysEnabled: false,
         isDFUModeVM: true,
         vmECID: 7788022887768653863,
         automaticallyReconfiguresDisplay: .constant(false)

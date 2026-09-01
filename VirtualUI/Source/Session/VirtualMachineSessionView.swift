@@ -76,9 +76,18 @@ public struct VirtualMachineSessionView: View {
             }
         }
         .toolbar {
-            if #available(macOS 14.0, *) {
-                VirtualMachineControls<VMController>()
-                    .environmentObject(controller)
+            if controller.isRunning {
+                ToolbarItemGroup(placement: .primaryAction) {
+                    VirtualMachineUserControls()
+                }
+            }
+
+            if #available(macOS 26, *) {
+                ToolbarSpacer(.fixed)
+            }
+
+            ToolbarItemGroup(placement: .primaryAction) {
+                VirtualMachineStateControls()
             }
         }
     }
@@ -125,11 +134,12 @@ public struct VirtualMachineSessionView: View {
     private func vmView(with vm: VZVirtualMachine) -> some View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
-            captureSystemKeys: controller.virtualMachineModel.configuration.captureSystemKeys,
+            captureSystemKeysEnabled: controller.virtualMachineModel.configuration.captureSystemKeys,
             isDFUModeVM: controller.options.bootInDFUMode,
             vmECID: controller.virtualMachineModel.ECID,
             automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false)
         )
+        .virtualMachineEventDeliveryMask(ui.eventDeliveryMask)
     }
     
     @ViewBuilder
