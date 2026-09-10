@@ -1,5 +1,5 @@
 //
-//  VirtualMachineControls.swift
+//  VirtualMachineStateControls.swift
 //  VirtualUI
 //
 //  Created by Guilherme Rambo on 24/10/23.
@@ -8,26 +8,8 @@
 import SwiftUI
 import VirtualCore
 
-@MainActor
-protocol VirtualMachineStateController: ObservableObject {
-    var state: VMState { get }
-    
-    func start() async throws
-    func stop() async throws
-    func pause() async throws
-    func resume() async throws
-    
-    @available(macOS 14.0, *)
-    func saveState(snapshotName: String) async throws
-
-    var virtualMachineModel: VBVirtualMachine { get }
-}
-
-extension VMController: VirtualMachineStateController { }
-
-@available(macOS 14.0, *)
-struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
-    @EnvironmentObject private var controller: Controller
+struct VirtualMachineStateControls: View {
+    @EnvironmentObject private var controller: VMController
 
     @State private var actionTask: Task<Void, Never>?
     @State private var isPopoverPresented = false
@@ -50,7 +32,7 @@ struct VirtualMachineControls<Controller: VirtualMachineStateController>: View {
                 }
                 .disabled(controller.state.isSavingState || controller.state.isRestoringState || controller.state.isResizingDisk)
             case .starting, .running:
-                if #available(macOS 14.0, *), controller.virtualMachineModel.supportsStateRestoration {
+                if controller.virtualMachineModel.supportsStateRestoration {
                     Button {
                         /**
                          Ability to save new states has been temporarily disabled in version 2 due to issues with its implementation.
@@ -158,65 +140,3 @@ private extension DateFormatter {
         return f
     }()
 }
-
-
-#if DEBUG
-private final class PreviewVirtualMachineStateController: VirtualMachineStateController {
-    @MainActor
-    @Published var state: VMState = .idle
-
-    @Published var virtualMachineModel = VBVirtualMachine.preview
-
-    @MainActor
-    func start() async throws {
-        state = .starting(nil)
-
-        try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
-
-        state = .running(.preview)
-    }
-
-    @MainActor
-    func stop() async throws {
-        try await Task.sleep(nanoseconds: 1 * NSEC_PER_SEC)
-
-        state = .stopped(nil)
-    }
-
-    @MainActor
-    func pause() async throws {
-        state = .paused(.preview)
-    }
-
-    @MainActor
-    func resume() async throws {
-        state = .running(.preview)
-    }
-
-    @available(macOS 14.0, *)
-    @MainActor
-    func saveState(snapshotName: String) async throws {
-        state = .paused(.preview)
-    }
-
-}
-
-@available(macOS 14.0, *)
-private struct _VirtualMachineControlsPreview: View {
-    var body: some View {
-        Text("Preview")
-            .frame(minWidth: 200, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
-            .toolbar {
-                ToolbarItemGroup(placement: .primaryAction) {
-                    VirtualMachineControls<PreviewVirtualMachineStateController>()
-                        .environmentObject(PreviewVirtualMachineStateController())
-                }
-            }
-    }
-}
-
-@available(macOS 14.0, *)
-#Preview {
-    _VirtualMachineControlsPreview()
-}
-#endif
