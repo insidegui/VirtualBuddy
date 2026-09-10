@@ -46,6 +46,7 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     private var guestSession: HostGuestSession?
+    private var legacyClipboard: LegacyClipboardSession?
     private var guestRunTask: Task<Void, Never>?
     private var didHandleStop = false
 
@@ -129,7 +130,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         let c = VZVirtualMachineConfiguration()
 
-        if model.configuration.systemType == .mac {
+        if model.configuration.systemType == .mac, !model.requiresLegacyClipboard {
             c.socketDevices = [VZVirtioSocketDeviceConfiguration()]
         }
         c.platform = platform
@@ -162,6 +163,7 @@ public final class VMInstance: NSObject, ObservableObject {
         logger.debug(#function)
 
         await stopGuestCommunication()
+        legacyClipboard = nil
         let installImage: URL?
         if options.bootOnInstallDevice {
             installImage = virtualMachineModel.metadata.installImageURL
@@ -170,11 +172,20 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage, savedState: savedState) // add install iso here for linux (hack)
 
+        if virtualMachineModel.requiresLegacyClipboard {
+            let clipboard = LegacyClipboardSession()
+            let port = VZVirtioConsoleDeviceSerialPortConfiguration()
+            port.attachment = clipboard.attachment
+            config.serialPorts = [port]
+            legacyClipboard = clipboard
+        }
+
         do {
             try config.validate()
 
             logger.info("Configuration validated")
         } catch {
+            legacyClipboard = nil
             logger.fault("Invalid configuration: \(String(describing: error))")
             
             throw Failure("Failed to validate configuration: \(String(describing: error))")
@@ -194,6 +205,10 @@ public final class VMInstance: NSObject, ObservableObject {
 
     private func startGuestCommunication() throws {
         guard virtualMachineModel.configuration.systemType == .mac else { return }
+        if let legacyClipboard {
+            guestRunTask = try legacyClipboard.start()
+            return
+        }
         let vm = try virtualMachine
         guard let device = vm.socketDevices.first as? VZVirtioSocketDevice else {
             throw Failure("The guest communication socket device is unavailable.")
@@ -224,6 +239,7 @@ public final class VMInstance: NSObject, ObservableObject {
         guestSession = nil
         guestRunTask?.cancel()
         await session?.stop()
+        await legacyClipboard?.stop()
         guestRunTask = nil
     }
 
