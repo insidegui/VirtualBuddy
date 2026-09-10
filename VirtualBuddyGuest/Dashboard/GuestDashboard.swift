@@ -10,7 +10,7 @@ import VirtualWormhole
 
 struct GuestDashboard: View {
     @EnvironmentObject private var launchAtLoginManager: GuestLaunchAtLoginManager
-    @EnvironmentObject private var hostConnection: WormholeManager
+    @Environment(GuestHostSession.self) private var hostConnection
     @EnvironmentObject private var sharedFolders: GuestSharedFoldersManager
 
     @State var activated = false
@@ -35,7 +35,7 @@ struct GuestDashboard: View {
                     showingDefaultsPopover.toggle()
                 }
                 .popover(isPresented: $showingDefaultsPopover) {
-                    GuestDefaultsImportView()
+                    GuestDefaultsImportView(connection: hostConnection)
                 }
                 #endif
             }
@@ -104,12 +104,9 @@ struct GuestDashboard_Previews: PreviewProvider {
     static var previews: some View {
         GuestDashboard()
             .environmentObject(GuestLaunchAtLoginManager())
-            .environmentObject(WormholeManager.sharedGuest)
+            .environment(GuestHostSession())
             .environmentObject(GuestSharedFoldersManager())
     }
 }
 
-final class MockHostConnectionStateProvider: HostConnectionStateProvider {
-    var isConnected: Bool = false
-}
 #endif

@@ -5,42 +5,32 @@ import VirtualUI
 import VirtualWormhole
 import Combine
 
+@MainActor
 final class DefaultsImportViewModel: ObservableObject {
 
-    let connection: WormholeManager
+    let connection: GuestHostSession
     let controller = DefaultsImportController()
 
     @Published private(set) var domains = [DefaultsDomainDescriptor]()
 
-    init(connection: WormholeManager = .sharedGuest) {
+    init(connection: GuestHostSession) {
         self.connection = connection
 
         controller.$sortedDomains.assign(to: &$domains)
     }
 
-    private var _client: WHDefaultsImportClient?
-    private var client: WHDefaultsImportClient {
-        get throws {
-            if let _client { return _client }
-
-            let newClient = try connection.makeClient(WHDefaultsImportClient.self)
-
-            _client = newClient
-
-            return newClient
-        }
-    }
-
     func importDomain(with id: DefaultsDomainDescriptor.ID) async throws {
-        let defaultsClient = try client
-
-        try await defaultsClient.importDomain(with: id)
+        try await connection.importDomain(with: id)
     }
 
 }
 
 struct GuestDefaultsImportView: View {
-    @StateObject var viewModel = DefaultsImportViewModel()
+    @StateObject private var viewModel: DefaultsImportViewModel
+
+    init(connection: GuestHostSession) {
+        _viewModel = StateObject(wrappedValue: DefaultsImportViewModel(connection: connection))
+    }
 
     var body: some View {
         List {
@@ -101,7 +91,7 @@ struct DefaultsItemView: View {
 #if DEBUG
 struct GuestDefaultsImportView_Previews: PreviewProvider {
     static var previews: some View {
-        GuestDefaultsImportView()
+        GuestDefaultsImportView(connection: GuestHostSession())
     }
 }
 #endif

@@ -5,11 +5,17 @@ import VirtualWormhole
 import OSLog
 
 @NSApplicationMain
+@MainActor
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private let logger = Logger(subsystem: Bundle.main.bundleIdentifier ?? "Guest", category: "GuestAppDelegate")
 
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
+
+    private let hostConnection = GuestHostSession()
+    private var connectionTask: Task<Void, Never>?
+
+    deinit { connectionTask?.cancel() }
 
     private lazy var sharedFolders = GuestSharedFoldersManager()
 
@@ -19,7 +25,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
             statusItem: .button(label: { Image("StatusItem") }),
             content: GuestDashboard()
                 .environmentObject(self.launchAtLoginManager)
-                .environmentObject(WormholeManager.sharedGuest)
+                .environment(self.hostConnection)
                 .environmentObject(self.sharedFolders)
         )
     }()
@@ -49,7 +55,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
         launchAtLoginManager.autoEnableIfNeeded()
 
-        WormholeManager.sharedGuest.activate()
+        connectionTask = hostConnection.start()
 
         Task {
             try? await sharedFolders.mount()
@@ -92,13 +98,7 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         startedDesktopPictureSendBeforeTermination = true
 
         Task {
-            logger.notice("Requesting WH send desktop picture")
-
-            try? await Task.sleep(for: .milliseconds(500))
-
-            await WormholeManager.sharedGuest.sendDesktopPicture()
-
-            try? await Task.sleep(for: .seconds(500))
+            await hostConnection.prepareForTermination()
 
             NSApp.reply(toApplicationShouldTerminate: true)
         }

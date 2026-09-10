@@ -11,6 +11,8 @@ import Virtualization
 import Combine
 import OSLog
 import VirtualWormhole
+import VMBridge
+import VMBridgeVirtualization
 
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
@@ -43,7 +45,11 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
     
-    let wormhole: WormholeManager = .sharedHost
+    private var guestSession: HostGuestSession?
+    private var guestRunTask: Task<Void, Never>?
+    private var didHandleStop = false
+
+    deinit { guestRunTask?.cancel() }
     
     private var isLoadingNVRAM = false
     private(set) var isRecoveryBoot = false
@@ -123,6 +129,9 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         let c = VZVirtualMachineConfiguration()
 
+        if model.configuration.systemType == .mac {
+            c.socketDevices = [VZVirtioSocketDeviceConfiguration()]
+        }
         c.platform = platform
         c.bootLoader = try helper.createBootLoader()
         c.cpuCount = model.configuration.hardware.cpuCount
@@ -152,6 +161,7 @@ public final class VMInstance: NSObject, ObservableObject {
     private func createVirtualMachine(savedState: VBSavedStatePackage?) async throws {
         logger.debug(#function)
 
+        await stopGuestCommunication()
         let installImage: URL?
         if options.bootOnInstallDevice {
             installImage = virtualMachineModel.metadata.installImageURL
@@ -159,8 +169,6 @@ public final class VMInstance: NSObject, ObservableObject {
             installImage = nil
         }
         let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage, savedState: savedState) // add install iso here for linux (hack)
-
-        await setupWormhole(for: config)
 
         do {
             try config.validate()
@@ -175,6 +183,7 @@ public final class VMInstance: NSObject, ObservableObject {
         networkAttachmentHelper?.stop()
 
         let virtualMachine = VZVirtualMachine(configuration: config)
+        didHandleStop = false
         _virtualMachine = virtualMachine
         networkAttachmentHelper = VMNetworkAttachmentHelper(
             virtualMachine: virtualMachine,
@@ -183,122 +192,77 @@ public final class VMInstance: NSObject, ObservableObject {
         )
     }
 
-    private func setupWormhole(for config: VZVirtualMachineConfiguration) async {
+    private func startGuestCommunication() throws {
         guard virtualMachineModel.configuration.systemType == .mac else { return }
-
-        wormhole.activate()
-
-        let guestPort = VZVirtioConsoleDeviceSerialPortConfiguration()
-
-        let inputPipe = Pipe()
-        let outputPipe = Pipe()
-
-        let inputHandle = inputPipe.fileHandleForWriting
-        let outputHandle = outputPipe.fileHandleForReading
-
-        guestPort.attachment = VZFileHandleSerialPortAttachment(
-            fileHandleForReading: outputHandle,
-            fileHandleForWriting: inputHandle
-        )
-
-        config.serialPorts = [guestPort]
-
-        await wormhole.register(
-            input: inputPipe.fileHandleForReading,
-            output: outputPipe.fileHandleForWriting,
-            for: virtualMachineModel.wormholeID
-        )
-
-        streamGuestNotifications()
-        streamGuestDesktopPictureMessages()
-    }
-
-    private lazy var guestIOTasks = [Task<Void, Never>]()
-
-    public func streamGuestNotifications() {
-        logger.debug(#function)
-        
-        let notificationNames: Set<String> = [
-            "com.apple.shieldWindowRaised",
-            "com.apple.shieldWindowLowered"
-        ]
-
-        let task = Task {
+        let vm = try virtualMachine
+        guard let device = vm.socketDevices.first as? VZVirtioSocketDevice else {
+            throw Failure("The guest communication socket device is unavailable.")
+        }
+        let session = HostGuestSession(connection: .host(socketDevice: device, port: GuestCommunication.port))
+        session.onNotification = { [weak self] name in
+            self?.logger.debug("Guest system notification: \(name, privacy: .public)")
+        }
+        session.onDesktopPicture = { [weak self] picture in
+            guard let self, let image = NSImage(data: picture.content) else { return }
             do {
-                for await notification in try await wormhole.darwinNotifications(matching: notificationNames, from: virtualMachineModel.wormholeID) {
-                    if notification == "com.apple.shieldWindowRaised" {
-                        logger.debug("🔒 Guest locked")
-                    } else if notification == "com.apple.shieldWindowLowered" {
-                        logger.debug("🔓 Guest unlocked")
-                    }
+                let url = self.virtualMachineModel.metadataFileURL(VBVirtualMachine.thumbnailFileName)
+                try picture.content.write(to: url, options: .atomic)
+                if let hash = image.blurHash(numberOfComponents: (Int.vbBlurHashSize, Int.vbBlurHashSize)) {
+                    self.virtualMachineModel.metadata.backgroundHash = BlurHashToken(value: hash, size: .vbBlurHashSize)
                 }
+                try self.virtualMachineModel.saveMetadata()
             } catch {
-                logger.error("Error subscribing to Darwin notifications: \(error, privacy: .public)")
+                self.logger.error("Error saving guest desktop picture: \(error, privacy: .public)")
             }
         }
-        guestIOTasks.append(task)
+        guestSession = session
+        guestRunTask = session.start()
     }
 
-    public func streamGuestDesktopPictureMessages() {
-        logger.debug(#function)
-
-        let task = Task {
-            do {
-                for await message in try await wormhole.desktopPictureMessages(from: virtualMachineModel.wormholeID) {
-                    do {
-                        let fileURL = virtualMachineModel.metadataFileURL(VBVirtualMachine.thumbnailFileName)
-
-                        try message.content.write(to: fileURL, options: .atomic)
-
-                        if let image = NSImage(data: message.content),
-                           let blurHash = image.blurHash(numberOfComponents: (Int.vbBlurHashSize, Int.vbBlurHashSize))
-                        {
-                            virtualMachineModel.metadata.backgroundHash = BlurHashToken(value: blurHash, size: .vbBlurHashSize)
-                        }
-
-                        try virtualMachineModel.saveMetadata()
-                    } catch {
-                        logger.error("Error handling desktop picture message: \(error, privacy: .public)")
-                    }
-                }
-            } catch {
-                logger.error("Error subscribing to desktop picture messages: \(error, privacy: .public)")
-            }
-        }
-
-        guestIOTasks.append(task)
+    func stopGuestCommunication() async {
+        let session = guestSession
+        guestSession = nil
+        guestRunTask?.cancel()
+        await session?.stop()
+        guestRunTask = nil
     }
 
     func startVM() async throws {
         try await bootstrap()
 
-        let vm = try ensureVM()
+        do {
+            let vm = try ensureVM()
 
-        let configuration = virtualMachineModel.configuration
-        let startOptions: VZVirtualMachineStartOptions
+            let configuration = virtualMachineModel.configuration
+            let startOptions: VZVirtualMachineStartOptions
 
-        switch configuration.systemType {
-        case .mac:
-            let macOptions = VZMacOSVirtualMachineStartOptions(options: options)
-            if #available(macOS 27.0, *),
-               let provisioning = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(for: virtualMachineModel)
-            {
-                try macOptions.setGuestProvisioning(provisioning)
+            switch configuration.systemType {
+            case .mac:
+                let macOptions = VZMacOSVirtualMachineStartOptions(options: options)
+                if #available(macOS 27.0, *),
+                   let provisioning = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(for: virtualMachineModel)
+                {
+                    try macOptions.setGuestProvisioning(provisioning)
+                }
+                startOptions = macOptions
+                isRecoveryBoot = macOptions.startUpFromMacOSRecovery
+            case .linux:
+                startOptions = VZVirtualMachineStartOptions()
             }
-            startOptions = macOptions
-            isRecoveryBoot = macOptions.startUpFromMacOSRecovery
-        case .linux:
-            startOptions = VZVirtualMachineStartOptions()
+
+            try await vm.start(options: startOptions)
+
+            networkAttachmentHelper?.startMonitoringHostInterfaces()
+            startUSBDeviceMonitoring(for: vm)
+
+            #if DEBUG
+            VBDebugUtil.debugVirtualMachine(afterStart: vm)
+            #endif
+        } catch {
+            await stopGuestCommunication()
+            library.unregisterBootedVM(self)
+            throw error
         }
-
-        try await vm.start(options: startOptions)
-
-        networkAttachmentHelper?.startMonitoringHostInterfaces()
-        startUSBDeviceMonitoring(for: vm)
-
-        #if DEBUG
-        VBDebugUtil.debugVirtualMachine(afterStart: vm)
-        #endif
     }
 
     private func bootstrap(savedState: VBSavedStatePackage? = nil) async throws {
@@ -307,6 +271,7 @@ public final class VMInstance: NSObject, ObservableObject {
         let vm = try ensureVM()
 
         vm.delegate = self
+        try startGuestCommunication()
 
         library.registerBootedVM(self)
 
@@ -344,7 +309,13 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = try ensureVM()
         
-        try await vm.stop()
+        await stopGuestCommunication()
+        do {
+            try await vm.stop()
+        } catch {
+            try? startGuestCommunication()
+            throw error
+        }
 
         networkAttachmentHelper?.stop()
         stopUSBDeviceMonitoring()
@@ -488,6 +459,8 @@ public final class VMInstance: NSObject, ObservableObject {
             VBDebugUtil.debugVirtualMachine(afterStart: vm)
             #endif
         } catch {
+            await stopGuestCommunication()
+            library.unregisterBootedVM(self)
             logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(package.dataFileURL.path)")
 
             throw error
@@ -579,12 +552,14 @@ extension VMInstance: VZVirtualMachineDelegate {
     
     public nonisolated func virtualMachine(_ virtualMachine: VZVirtualMachine, didStopWithError error: Error) {
         MainActor.assumeIsolated {
+            guard virtualMachine === self._virtualMachine else { return }
             handleGuestStopped(with: error)
         }
     }
 
     public nonisolated func guestDidStop(_ virtualMachine: VZVirtualMachine) {
         MainActor.assumeIsolated {
+            guard virtualMachine === self._virtualMachine else { return }
             handleGuestStopped(with: nil)
         }
     }
@@ -603,8 +578,8 @@ extension VMInstance: VZVirtualMachineDelegate {
         networkAttachmentHelper?.stop()
         stopUSBDeviceMonitoring()
 
-        guestIOTasks.forEach { $0.cancel() }
-        guestIOTasks.removeAll()
+        guard !didHandleStop else { return }
+        didHandleStop = true
 
         if let error {
             logger.error("Guest stopped with error: \(String(describing: error), privacy: .public)")
@@ -612,13 +587,9 @@ extension VMInstance: VZVirtualMachineDelegate {
             logger.debug("Guest stopped")
         }
 
-        DispatchQueue.main.async { [self] in
+        Task { [self] in
+            await stopGuestCommunication()
             library.unregisterBootedVM(self)
-
-            Task {
-                await wormhole.unregister(virtualMachineModel.wormholeID)
-            }
-
             onVMStop(error)
         }
     }
@@ -640,17 +611,6 @@ extension NSApplication {
         entitlementValue(for: entitlement) == true
     }
     
-}
-
-private extension VBVirtualMachine {
-    /// ``VBVirtualMachine/id`` uses the VM's filesystem URL,
-    /// but that looks ugly in logs and whatnot, so this returns a cleaned up version.
-    var wormholeID: WHPeerID {
-        let cleanID = URL(fileURLWithPath: id)
-            .deletingPathExtension()
-            .lastPathComponent
-        return cleanID.removingPercentEncoding ?? cleanID
-    }
 }
 
 extension VZMacOSVirtualMachineStartOptions {

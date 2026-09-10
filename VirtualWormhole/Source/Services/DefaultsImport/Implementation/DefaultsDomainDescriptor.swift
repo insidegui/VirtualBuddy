@@ -8,15 +8,15 @@
 import Cocoa
 import UniformTypeIdentifiers
 
-public struct DefaultsDomainDescriptor: Identifiable, Codable {
-    public struct Target: Identifiable, Codable {
+public struct DefaultsDomainDescriptor: Identifiable, Codable, Sendable {
+    public struct Target: Identifiable, Codable, Sendable {
         public var id: String { bundleIdentifier }
         public var bundleIdentifier: String
         public var name: String
         public var isSystemService: Bool
     }
 
-    public struct Restart: Codable {
+    public struct Restart: Codable, Sendable {
         public var command: String
         public var needsConfirmation = true
         public var shouldRelaunch = true

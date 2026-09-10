@@ -537,6 +537,16 @@ public extension VMLibraryController {
             }
         }
     }
+
+    /// Closes guest connections before the application exits.
+    func stopGuestCommunication() async {
+        let instances = Array(bootedInstances.dictionaryRepresentation().values)
+        await withTaskGroup(of: Void.self) { group in
+            for instance in instances {
+                group.addTask { await instance.stopGuestCommunication() }
+            }
+        }
+    }
 }
 
 // MARK: - App Termination Assertion
