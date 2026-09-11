@@ -23,6 +23,7 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		35C9D84FABD14D5A9535F0EF /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 91FC62A28F764E37BFFAA951 /* VMBridge */; };
 		781FD61DBFAD4B389CB9682E /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 252AC97268424F96B307D189 /* VMBridge */; };
 		AE3D052420DE463B85CE31B2 /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = D7B6E9E58E03491A8DA72A9B /* VMBridge */; };
 		CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422E82FE9B99300DD1670 /* BuddyFoundation */; };
@@ -551,6 +552,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35C9D84FABD14D5A9535F0EF /* VMBridge in Frameworks */,
 				VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */,
 				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
 			);
@@ -868,6 +870,9 @@
 				F4FFEF87301D13BE00620720 /* VirtualWormholeTests */,
 			);
 			name = VirtualWormholeTests;
+			packageProductDependencies = (
+				91FC62A28F764E37BFFAA951 /* VMBridge */,
+			);
 			productName = VirtualWormholeTests;
 			productReference = F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -4038,6 +4043,10 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		91FC62A28F764E37BFFAA951 /* VMBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VMBridge;
+		};
 		252AC97268424F96B307D189 /* VMBridge */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VMBridge;
