@@ -18,76 +18,87 @@ struct GuestAppConfigurationView: View {
         resolvedRestoreImage?.feature(id: CatalogFeatureID.guestApp)?.status
     }
 
-    private var guestAppUnsupported: Bool { guestAppStatus?.isUnsupported == true }
-    private var guestAppHelp: String? {
-        guestAppUnsupported ? (guestAppStatus?.supportMessage ?? "Not supported.") : nil
-    }    
+    private var support: GuestAppSupport {
+        configuration.guestAppSupport(for: resolvedRestoreImage?.version)
+    }
+
+    private var guestAppUnsupported: Bool {
+        support == .unsupported || guestAppStatus?.isUnsupported == true
+    }
 
     private var availableGuestAppVersions: [CatalogLegacyGuestAppVersion] {
         SoftwareCatalog.currentMacCatalog.legacyGuestAppVersions
-            .filter { $0.supports(resolvedRestoreImage) }
+            .filter {
+                // Preserve an existing override so imported VMs can display its
+                // support status and let the user choose a supported version.
+                $0.id == configuration.guestAppVersion
+                    || ($0.maxGuestVersion > GuestAppSupport.minimumSystemVersion && $0.supports(resolvedRestoreImage))
+            }
             .sorted(by: { $0.minGuestVersion > $1.minGuestVersion })
     }
 
-    private var disableVersionPicker: Bool { availableGuestAppVersions.count <= 1 }
+    private var supportsLatest: Bool {
+        CatalogLegacyGuestAppVersion.default.supports(resolvedRestoreImage)
+    }
+
+    private var disableVersionPicker: Bool {
+        availableGuestAppVersions.count + (supportsLatest ? 1 : 0) <= 1
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Group {
-                if let guestAppHelp {
-                    Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
-                        .disabled(true)
-                        .help(guestAppHelp)
+            Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
+                .disabled(guestAppUnsupported)
+                .onChange(of: guestAppUnsupported, initial: true) { _, isUnsupported in
+                    if isUnsupported {
+                        configuration.guestAdditionsEnabled = false
+                    }
+                }
+
+            // The override also identifies the OS for imported VMs without
+            // restore-image metadata. Keep it available for those VMs.
+            if !guestAppUnsupported || resolvedRestoreImage == nil {
+                Picker("Override Guest App Version", selection: $configuration.guestAppVersion) {
+                    if supportsLatest {
+                        Text(CatalogLegacyGuestAppVersion.default.title)
+                            .tag(Optional<CatalogLegacyGuestAppVersion.ID>.none)
+                    }
+
+                    ForEach(availableGuestAppVersions) { option in
+                        Text(option.title)
+                            .tag(Optional<CatalogLegacyGuestAppVersion.ID>.some(option.id))
+                    }
+                }
+                .onChange(of: resolvedRestoreImage, initial: true) { _, _ in
+                    if !guestAppUnsupported, !supportsLatest, configuration.guestAppVersion == nil {
+                        configuration.guestAppVersion = availableGuestAppVersions.first?.id
+                    }
+                }
+                .disabled(disableVersionPicker)
+                .help("Choose a compatible guest app version for an older version of macOS. Legacy guest apps support automatic mounting of shared folders only.")
+            }
+
+            VStack(alignment: .leading, spacing: 12) {
+                if support == .unsupported {
+                    Text("VirtualBuddyGuest is not supported on macOS 12 or earlier. Clipboard sharing and automatic mounting of shared folders are unavailable.")
+                } else if guestAppUnsupported {
+                    Text(guestAppStatus?.supportMessage ?? "VirtualBuddyGuest is not supported for this virtual machine.")
                 } else {
-                    Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
+                    switch support {
+                    case .sharedFoldersOnly:
+                        Text("This legacy version of VirtualBuddyGuest only mounts shared folders automatically. Clipboard sharing requires the latest VirtualBuddyGuest app and macOS \(Bundle.embeddedGuestApp.minimumSystemVersion.shortDescription) or later in the virtual machine.")
+                    case .full:
+                        Text("VirtualBuddyGuest mounts shared folders automatically and shares the clipboard between your Mac and the virtual machine.")
+                    case .unsupported:
+                        EmptyView()
+                    }
+
+                    Text("To install the app in your virtual machine, select the “Guest” disk in the Finder sidebar, then double-click the VirtualBuddyGuest app icon.")
                 }
             }
-            .onChange(of: guestAppUnsupported) { _, isUnsupported in
-                if isUnsupported {
-                    configuration.guestAdditionsEnabled = false
-                }
-            }
-            .onAppear {
-                if guestAppUnsupported {
-                    configuration.guestAdditionsEnabled = false
-                }
-            }
-
-            /**
-             The ability to pick a custom VirtualBuddyGuest app version exists to allow users running legacy OSes that don't have restore image
-             metadata to manually override the version of the guest app that's used when starting the guest.
-             */
-            Picker("Override Guest App Version", selection: $configuration.guestAppVersion) {
-                if CatalogLegacyGuestAppVersion.default.supports(resolvedRestoreImage) {
-                    Text(CatalogLegacyGuestAppVersion.default.title)
-                        .tag(Optional<CatalogLegacyGuestAppVersion.ID>.none)
-
-                    Divider()
-                }
-
-                ForEach(availableGuestAppVersions) { option in
-                    Text(option.title)
-                        .tag(Optional<CatalogLegacyGuestAppVersion.ID>.some(option.id))
-                }
-            }
-            .task {
-                if !CatalogLegacyGuestAppVersion.default.supports(resolvedRestoreImage), configuration.guestAppVersion == nil {
-                    configuration.guestAppVersion = availableGuestAppVersions.first(where: { $0.supports(resolvedRestoreImage) })?.id
-                }
-            }
-            /// No point in enabling picker if there are no alternate versions available.
-            .disabled(disableVersionPicker)
-            .help(disableVersionPicker ? "This option is only available for guests running older versions of macOS that don’t support the latest VirtualBuddyGuest app." : "If you’re running an older version of macOS, you can choose a version of the VirtualBuddyGuest app that works with the version of macOS you’re using on the guest.")
-
-            Text("""
-            The guest app mounts shared directories and shares the clipboard between your Mac and virtual machines.
-
-            To install the app in your virtual machine, look for a disk image named “Guest” in the Finder sidebar. \
-            Double-click the VirtualBuddyGuest app icon to install the app. 
-            """)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .textSelection(.enabled)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .textSelection(.enabled)
         }
     }
 }
@@ -113,8 +124,18 @@ extension CatalogLegacyGuestAppVersion {
 }
 
 #if DEBUG
-#Preview {
+#Preview("Latest Guest App") {
     _ConfigurationSectionPreview { GuestAppConfigurationView(configuration: $0) }
-//        .environment(\.resolvedRestoreImage, ResolvedRestoreImage.previewMac)
+        .environment(\.resolvedRestoreImage, ResolvedRestoreImage.previewMac)
+}
+
+#Preview("macOS 13") {
+    _ConfigurationSectionPreview { GuestAppConfigurationView(configuration: $0) }
+        .environment(\.resolvedRestoreImage, ResolvedRestoreImage.previewMacLegacyVentura)
+}
+
+#Preview("macOS 12") {
+    _ConfigurationSectionPreview { GuestAppConfigurationView(configuration: $0) }
+        .environment(\.resolvedRestoreImage, ResolvedRestoreImage.previewMacLegacyMonterey)
 }
 #endif

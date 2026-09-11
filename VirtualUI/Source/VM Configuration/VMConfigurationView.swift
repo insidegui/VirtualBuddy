@@ -370,7 +370,7 @@ struct VMConfigurationView: View {
         } header: {
             SummaryHeader(
                 "Guest App",
-                summary: viewModel.config.guestAppSummary
+                summary: viewModel.config.guestAppSummary(for: viewModel.resolvedRestoreImage?.version)
             ) {
                 Image(.guestSymbol)
                     .resizable()

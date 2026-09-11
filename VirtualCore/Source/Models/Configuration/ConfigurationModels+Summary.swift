@@ -73,8 +73,11 @@ public extension VBMacConfiguration {
 
     var keyboardDeviceSummary: String { hardware.keyboardDevice.kind.name }
 
-    var guestAppSummary: String {
-        guestAdditionsEnabled ? "Enabled" : "Disabled"
+    @MainActor func guestAppSummary(for guestVersion: SoftwareVersion?) -> String {
+        let support = guestAppSupport(for: guestVersion)
+        if support == .unsupported { return "Not Supported" }
+        guard guestAdditionsEnabled else { return "Disabled" }
+        return support == .sharedFoldersOnly ? "Shared Folders Only" : "Enabled"
     }
 
 }
