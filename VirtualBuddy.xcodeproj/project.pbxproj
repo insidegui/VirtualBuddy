@@ -991,7 +991,7 @@
 				F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */,
 				F40F5DA33040AF22005C19FD /* XCRemoteSwiftPackageReference "USBIDKit" */,
-				F4F0F4953053041E00D25236 /* XCLocalSwiftPackageReference "../VMBridge" */,
+				F4F0F4953053041E00D25236 /* XCRemoteSwiftPackageReference "VMBridge" */,
 			);
 			preferredProjectObjectVersion = 55;
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
@@ -3976,13 +3976,6 @@
 		};
 /* End XCConfigurationList section */
 
-/* Begin XCLocalSwiftPackageReference section */
-		F4F0F4953053041E00D25236 /* XCLocalSwiftPackageReference "../VMBridge" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../VMBridge;
-		};
-/* End XCLocalSwiftPackageReference section */
-
 /* Begin XCRemoteSwiftPackageReference section */
 		F40F5DA33040AF22005C19FD /* XCRemoteSwiftPackageReference "USBIDKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -4040,14 +4033,22 @@
 				minimumVersion = 2.9.4;
 			};
 		};
+		F4F0F4953053041E00D25236 /* XCRemoteSwiftPackageReference "VMBridge" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/VMBridge.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		91FC62A28F764E37BFFAA951 /* VMBridge */ = {
+		252AC97268424F96B307D189 /* VMBridge */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VMBridge;
 		};
-		252AC97268424F96B307D189 /* VMBridge */ = {
+		91FC62A28F764E37BFFAA951 /* VMBridge */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VMBridge;
 		};
