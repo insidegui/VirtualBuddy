@@ -25,6 +25,7 @@ public final class VMInstance: NSObject, ObservableObject {
     var options = VMSessionOptions.default
 
     private var _virtualMachine: VZVirtualMachine?
+    private var runtimeConfiguration: VZVirtualMachineConfiguration?
 
     private var sharedFoldersPolicyObservation: ManagedPreferenceObservation?
 
@@ -188,6 +189,7 @@ public final class VMInstance: NSObject, ObservableObject {
         let virtualMachine = VZVirtualMachine(configuration: config)
         didHandleStop = false
         _virtualMachine = virtualMachine
+        runtimeConfiguration = config
         sharedFoldersPolicyObservation = VirtualBuddyManagedPreferences.schema.reader()
             .observeChanges(for: .disableSharedFolders) { [weak self] in
                 self?.enforceSharedFoldersPolicy()
@@ -259,6 +261,9 @@ public final class VMInstance: NSObject, ObservableObject {
             }
 
             enforceSharedFoldersPolicy()
+            networkAttachmentHelper?.enforcePolicy()
+            try runtimeConfiguration.require("The VM configuration is unavailable.")
+                .validateMicrophonePolicy(preferences: VirtualBuddyManagedPreferences.schema.reader())
             try await vm.start(options: startOptions)
             enforceSharedFoldersPolicy()
 
@@ -304,6 +309,10 @@ public final class VMInstance: NSObject, ObservableObject {
         let vm = try ensureVM()
         
         enforceSharedFoldersPolicy()
+        networkAttachmentHelper?.enforcePolicy()
+        if #available(macOS 27.0, *) { await usbDeviceController?.enforcePolicy() }
+        try runtimeConfiguration.require("The VM configuration is unavailable.")
+            .validateMicrophonePolicy(preferences: VirtualBuddyManagedPreferences.schema.reader())
         try await vm.resume()
         enforceSharedFoldersPolicy()
     }

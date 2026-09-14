@@ -1,5 +1,6 @@
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 
 private enum USBDeviceAdditionMode: String, Identifiable {
     case browse
@@ -38,6 +39,9 @@ private final class USBDeviceBrowserModel {
 
 struct USBDevicesConfigurationView: View {
     @Binding var hardware: VBMacDevice
+
+    @ManagedValue(for: .disableUSBPassthrough, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var usbPassthroughDisabled: Bool
 
     @Environment(\.resolvedRestoreImage)
     private var resolvedRestoreImage
@@ -93,7 +97,7 @@ struct USBDevicesConfigurationView: View {
                 }
                 .disabled(selectedIdentifiers.isEmpty)
             }
-            .disabled(isUnsupported)
+            .disabled(isUnsupported || usbPassthroughDisabled)
             .sheet(item: $additionMode) { mode in
                 switch mode {
                 case .browse:
@@ -109,6 +113,12 @@ struct USBDevicesConfigurationView: View {
                 }
             }
 
+            if usbPassthroughDisabled {
+                Label("USB passthrough is disabled by your organization.", systemImage: "building.2.crop.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
             Text("""
             When the virtual machine is running, use the Accessory Access menu in the menu bar to grant VirtualBuddy access to a device.
             
@@ -120,6 +130,9 @@ struct USBDevicesConfigurationView: View {
                 Text(supportMessage)
                     .foregroundStyle(VBMacConfiguration.hostSupportsUSBPassthrough ? .yellow : .red)
             }
+        }
+        .onChange(of: usbPassthroughDisabled) { _, disabled in
+            if disabled { additionMode = nil }
         }
     }
 
@@ -156,6 +169,7 @@ struct USBDevicesConfigurationView: View {
     }
 
     private func add(_ device: VBUSBDevice) {
+        guard !usbPassthroughDisabled else { return }
         guard !hardware.usbDevices.contains(where: { $0.id == device.id }) else { return }
         hardware.usbDevices.append(device)
     }

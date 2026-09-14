@@ -1,5 +1,6 @@
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 import Combine
 import AVFoundation
 
@@ -301,6 +302,9 @@ private struct VirtualMachineGuestActions: View {
 }
 
 private struct VirtualMachineNetworkCommands: View {
+    @ManagedValue(for: .disableBridgedNetworking, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var bridgedNetworkingDisabled: Bool
+
     @ObservedObject var observer: WeakVMControllerObserver
 
     private var controller: VMController? { observer.controller }
@@ -318,6 +322,10 @@ private struct VirtualMachineNetworkCommands: View {
             .disabled(controller?.canReconnectNetwork != true)
 
             Divider()
+
+            if bridgedNetworkingDisabled {
+                Text("Bridged networking is disabled by your organization.")
+            }
 
             let availableInterfaces = controller?.availableBridgeInterfaces ?? []
 
@@ -340,7 +348,7 @@ private struct VirtualMachineNetworkCommands: View {
                             systemImage: isActive(interface) ? "checkmark" : "network"
                         )
                     }
-                    .disabled(controller?.canChangeBridgeInterface != true || isActive(interface))
+                    .disabled(bridgedNetworkingDisabled || controller?.canChangeBridgeInterface != true || isActive(interface))
                 }
             }
         } label: {
@@ -368,6 +376,9 @@ private struct VirtualMachineNetworkCommands: View {
 
 @available(macOS 27.0, *)
 private struct VirtualMachineUSBCommands: View {
+    @ManagedValue(for: .disableUSBPassthrough, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var usbPassthroughDisabled: Bool
+
     @ObservedObject var observer: WeakVMControllerObserver
 
     @State private var actionDeviceID: VMUSBDeviceController.Device.ID?
@@ -380,6 +391,9 @@ private struct VirtualMachineUSBCommands: View {
 
     var body: some View {
         Menu {
+            if usbPassthroughDisabled {
+                Text("USB passthrough is disabled by your organization.")
+            }
             if let registrationErrorMessage = deviceController?.registrationErrorMessage {
                 Button {
                 } label: {
@@ -402,7 +416,7 @@ private struct VirtualMachineUSBCommands: View {
                             Image(systemName: device.isAttached ? "checkmark" : "cable.connector")
                         }
                     }
-                    .disabled(actionDeviceID != nil || device.isBusy)
+                    .disabled(actionDeviceID != nil || device.isBusy || (usbPassthroughDisabled && !device.isAttached))
                     .help(device.errorMessage ?? usbIdentifierDescription(for: device))
                 }
             } else {

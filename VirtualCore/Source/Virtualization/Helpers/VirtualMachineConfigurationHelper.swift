@@ -138,15 +138,23 @@ extension VBNetworkDevice {
         }
     }
 
-    private var vzAttachment: VZNetworkDeviceAttachment {
+    private var vzAttachment: VZNetworkDeviceAttachment? {
         get throws {
-            switch kind {
-            case .NAT:
-                return VZNATNetworkDeviceAttachment()
-            case .bridge:
-                let interface = try resolveBridge(with: id)
-                return VZBridgedNetworkDeviceAttachment(interface: interface)
+            try makeAttachment(preferences: VirtualBuddyManagedPreferences.schema.reader())
+        }
+    }
+
+    func makeAttachment(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) throws -> VZNetworkDeviceAttachment? {
+        switch kind {
+        case .NAT:
+            return VZNATNetworkDeviceAttachment()
+        case .bridge:
+            guard !preferences.value(for: .disableBridgedNetworking, default: false) else {
+                VirtualBuddyManagedPreferences.logger.notice("Bridged network adapter disconnected by DisableBridgedNetworking")
+                return nil
             }
+            let interface = try resolveBridge(with: id)
+            return VZBridgedNetworkDeviceAttachment(interface: interface)
         }
     }
 
@@ -181,11 +189,20 @@ extension VBPointingDevice {
 extension VBSoundDevice {
 
     var vzConfiguration: VZAudioDeviceConfiguration {
+        makeConfiguration(preferences: VirtualBuddyManagedPreferences.schema.reader())
+    }
+
+    func makeConfiguration(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) -> VZAudioDeviceConfiguration {
         let audioConfiguration = VZVirtioSoundDeviceConfiguration()
 
         if enableInput {
             let inputStream = VZVirtioSoundDeviceInputStreamConfiguration()
-            inputStream.source = VZHostAudioInputStreamSource()
+            if preferences.value(for: .disableMicrophoneInput, default: false) {
+                // A nil source produces silence, preserving the device topology for snapshots.
+                VirtualBuddyManagedPreferences.logger.notice("Host microphone source omitted by DisableMicrophoneInput")
+            } else {
+                inputStream.source = VZHostAudioInputStreamSource()
+            }
             audioConfiguration.streams.append(inputStream)
         }
 
@@ -252,4 +269,16 @@ extension VBSharedFolder {
         return VZSharedDirectory(url: url, readOnly: isReadOnly)
     }
     
+}
+
+extension VZVirtualMachineConfiguration {
+    func validateMicrophonePolicy(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) throws {
+        guard preferences.value(for: .disableMicrophoneInput, default: false) else { return }
+        let inputs = audioDevices.compactMap { $0 as? VZVirtioSoundDeviceConfiguration }
+            .flatMap(\.streams).compactMap { $0 as? VZVirtioSoundDeviceInputStreamConfiguration }
+        guard !inputs.contains(where: { $0.source != nil }) else {
+            VirtualBuddyManagedPreferences.logger.notice("VM start or resume denied by DisableMicrophoneInput; a cold start is required")
+            throw Failure("Microphone input is disabled by your organization. Shut down and start this virtual machine to apply the restriction.")
+        }
+    }
 }

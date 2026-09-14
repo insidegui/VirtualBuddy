@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import ManagedPreferencesKit
 import Virtualization
 import CryptoKit
 import UniformTypeIdentifiers
@@ -393,7 +394,11 @@ public extension SoftwareVersion {
 
 extension VZVirtioBlockDeviceConfiguration {
 
-    static func guestAdditionsDisk(for configuration: VBMacConfiguration) async throws -> VZVirtioBlockDeviceConfiguration? {
+    static func guestAdditionsDisk(for configuration: VBMacConfiguration, preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences> = VirtualBuddyManagedPreferences.schema.reader()) async throws -> VZVirtioBlockDeviceConfiguration? {
+        guard !preferences.value(for: .disableGuestApp, default: false) else {
+            VirtualBuddyManagedPreferences.logger.notice("Guest app installer disk omitted by DisableGuestApp")
+            return nil
+        }
         let image = GuestAdditionsDiskImage(source: configuration.guestAppDiskImageSource)
 
         let guestImagePath = FilePath(image.installedImageURL)

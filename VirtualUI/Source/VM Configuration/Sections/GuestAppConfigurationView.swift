@@ -7,9 +7,13 @@
 
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 
 struct GuestAppConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
+
+    @ManagedValue(for: .disableGuestApp, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var guestAppDisabled: Bool
 
     @Environment(\.resolvedRestoreImage)
     private var resolvedRestoreImage
@@ -47,13 +51,19 @@ struct GuestAppConfigurationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Toggle("Enable VirtualBuddy Guest App", isOn: $configuration.guestAdditionsEnabled)
-                .disabled(guestAppUnsupported)
+            Toggle("Enable VirtualBuddy Guest App", isOn: guestAppDisabled ? .constant(false) : $configuration.guestAdditionsEnabled)
+                .disabled(guestAppUnsupported || guestAppDisabled)
                 .onChange(of: guestAppUnsupported, initial: true) { _, isUnsupported in
                     if isUnsupported {
                         configuration.guestAdditionsEnabled = false
                     }
                 }
+
+            if guestAppDisabled {
+                Label("Guest app mounting is disabled by your organization. Restart the VM to apply. An already installed guest app is unaffected.", systemImage: "building.2.crop.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             // The override also identifies the OS for imported VMs without
             // restore-image metadata. Keep it available for those VMs.

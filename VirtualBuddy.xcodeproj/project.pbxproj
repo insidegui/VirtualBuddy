@@ -302,6 +302,13 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		AA50670721F846A6934EA39B /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				generate_restricted_profile.swift,
+			);
+			target = F4EFB5622FDB2A0D00AF2A63 /* VirtualInstallation */;
+		};
 		F41818723020F717001EB084 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -461,7 +468,7 @@
 /* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		F43EC1962FDD8233001D143B /* Scripts */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Scripts; sourceTree = "<group>"; };
+		F43EC1962FDD8233001D143B /* Scripts */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (AA50670721F846A6934EA39B /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = Scripts; sourceTree = "<group>"; };
 		F4EFB5642FDB2A0D00AF2A63 /* VirtualInstallation */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5AD2FDB2A7600AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallation; sourceTree = "<group>"; };
 		F4EFB5B52FDB2BD400AF2A63 /* VirtualInstallationService */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4EFB5C02FDB2BD400AF2A63 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = VirtualInstallationService; sourceTree = "<group>"; };
 		F4FFEF72301D13BB00620720 /* DeepLinkSecurity */ = {isa = PBXFileSystemSynchronizedRootGroup; exceptions = (F4FFEF81301D13BC00620720 /* PBXFileSystemSynchronizedBuildFileExceptionSet */, ); explicitFileTypes = {}; explicitFolders = (); path = DeepLinkSecurity; sourceTree = "<group>"; };
