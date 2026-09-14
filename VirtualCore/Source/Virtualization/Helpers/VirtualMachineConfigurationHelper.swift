@@ -8,6 +8,7 @@ Helper that creates various configuration objects exposed in the `VZVirtualMachi
 import Foundation
 import Virtualization
 import BuddyFoundation
+import ManagedPreferencesKit
 
 protocol VirtualMachineConfigurationHelper {
     var vm: VBVirtualMachine { get }
@@ -203,36 +204,44 @@ extension VBMacConfiguration {
     
     var vzSharedFoldersFileSystemDevices: [VZDirectorySharingDeviceConfiguration] {
         get throws {
-            var directories: [String: VZSharedDirectory] = [:]
-            
+            try makeSharedFoldersFileSystemDevices(preferences: VirtualBuddyManagedPreferences.schema.reader())
+        }
+    }
+
+    func makeSharedFoldersFileSystemDevices(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) throws -> [VZDirectorySharingDeviceConfiguration] {
+        var directories: [String: VZSharedDirectory] = [:]
+
+        if preferences.value(for: .disableSharedFolders, default: false) {
+            VirtualBuddyManagedPreferences.logger.notice("Host folder mappings ignored by DisableSharedFolders")
+        } else {
             for folder in sharedFolders {
                 guard let dir = folder.vzSharedFolder else { continue }
-                
+
                 directories[folder.effectiveMountPointName] = dir
             }
-
-            var devices: [VZDirectorySharingDeviceConfiguration] = []
-
-            // standard directory share
-            try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.virtualBuddyShareName)
-            do {
-                let share = VZMultipleDirectoryShare(directories: directories)
-                let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.virtualBuddyShareName)
-                device.share = share
-                devices.append(device)
-            }
-
-            if self.systemType == .linux && self.rosettaSharingEnabled {
-                // Rosetta directory share for Linux VMs
-                try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.rosettaShareName)
-                let share = try VZLinuxRosettaDirectoryShare()
-                let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.rosettaShareName)
-                device.share = share
-                devices.append(device)
-            }
-
-            return devices
         }
+
+        var devices: [VZDirectorySharingDeviceConfiguration] = []
+
+        // Keep the device topology stable for snapshots, even when policy leaves the share empty.
+        try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.virtualBuddyShareName)
+        do {
+            let share = VZMultipleDirectoryShare(directories: directories)
+            let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.virtualBuddyShareName)
+            device.share = share
+            devices.append(device)
+        }
+
+        if self.systemType == .linux && self.rosettaSharingEnabled {
+            // Rosetta directory share for Linux VMs
+            try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.rosettaShareName)
+            let share = try VZLinuxRosettaDirectoryShare()
+            let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.rosettaShareName)
+            device.share = share
+            devices.append(device)
+        }
+
+        return devices
     }
 }
 

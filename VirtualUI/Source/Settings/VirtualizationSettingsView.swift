@@ -8,9 +8,12 @@
 import SwiftUI
 import VirtualCore
 import BuddyUI
+import ManagedPreferencesUI
 
 struct VirtualizationSettingsView: View {
     @Binding var settings: VBSettings
+
+    @State private var showingManagedPreferences = false
 
     #if DEBUG
     private var _forceShowBootImageFormatSettings: Bool { false }
@@ -69,13 +72,40 @@ struct VirtualizationSettingsView: View {
                     }
                 }
             }
+            Section {
+                Button("Managed Preferences…") {
+                    showingManagedPreferences = true
+                }
+            } header: {
+                Text("Device Management")
+            } footer: {
+                Text("View the controls available to administrators and export their documentation or profile manifest.")
+            }
         }
         .navigationTitle(Text("Virtualization"))
+        .sheet(isPresented: $showingManagedPreferences) {
+            VStack(spacing: 0) {
+                ManagedPreferencesDocumentationView(VirtualBuddyManagedPreferences.schema)
+                Divider()
+                HStack {
+                    Spacer()
+                    Button("Done") { showingManagedPreferences = false }
+                        .keyboardShortcut(.defaultAction)
+                }
+                .padding()
+            }
+            .frame(width: 760, height: 520)
+        }
     }
 }
 
 #if DEBUG
 #Preview("Virtualization Settings") {
     SettingsScreen.preview(.virtualization)
+}
+
+#Preview("Managed Preferences") {
+    ManagedPreferencesDocumentationView(VirtualBuddyManagedPreferences.schema)
+        .frame(width: 760, height: 460)
 }
 #endif

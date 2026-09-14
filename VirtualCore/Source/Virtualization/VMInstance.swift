@@ -13,6 +13,7 @@ import OSLog
 import VirtualWormhole
 import VMBridge
 import VMBridgeVirtualization
+import ManagedPreferencesKit
 
 @MainActor
 public final class VMInstance: NSObject, ObservableObject {
@@ -24,6 +25,8 @@ public final class VMInstance: NSObject, ObservableObject {
     var options = VMSessionOptions.default
 
     private var _virtualMachine: VZVirtualMachine?
+
+    private var sharedFoldersPolicyObservation: ManagedPreferenceObservation?
 
     private var networkAttachmentHelper: VMNetworkAttachmentHelper?
 
@@ -185,6 +188,11 @@ public final class VMInstance: NSObject, ObservableObject {
         let virtualMachine = VZVirtualMachine(configuration: config)
         didHandleStop = false
         _virtualMachine = virtualMachine
+        sharedFoldersPolicyObservation = VirtualBuddyManagedPreferences.schema.reader()
+            .observeChanges(for: .disableSharedFolders) { [weak self] in
+                self?.enforceSharedFoldersPolicy()
+            }
+        enforceSharedFoldersPolicy()
         networkAttachmentHelper = VMNetworkAttachmentHelper(
             virtualMachine: virtualMachine,
             configuration: config,
@@ -250,7 +258,9 @@ public final class VMInstance: NSObject, ObservableObject {
                 startOptions = VZVirtualMachineStartOptions()
             }
 
+            enforceSharedFoldersPolicy()
             try await vm.start(options: startOptions)
+            enforceSharedFoldersPolicy()
 
             networkAttachmentHelper?.startMonitoringHostInterfaces()
             startUSBDeviceMonitoring(for: vm)
@@ -293,7 +303,19 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let vm = try ensureVM()
         
+        enforceSharedFoldersPolicy()
         try await vm.resume()
+        enforceSharedFoldersPolicy()
+    }
+
+    private func enforceSharedFoldersPolicy() {
+        guard VirtualBuddyManagedPreferences.sharedFoldersDisabled, let vm = _virtualMachine else { return }
+
+        for case let device as VZVirtioFileSystemDevice in vm.directorySharingDevices {
+            guard device.tag == VBSharedFolder.virtualBuddyShareName, device.share != nil else { continue }
+            device.share = nil
+            logger.notice("Host folder sharing disconnected by DisableSharedFolders")
+        }
     }
     
     func stop() async throws {
@@ -446,6 +468,7 @@ public final class VMInstance: NSObject, ObservableObject {
         logger.debug("Restoring state from \(package.dataFileURL.path)")
 
         do {
+            enforceSharedFoldersPolicy()
             try await vm.restoreMachineStateFrom(url: package.dataFileURL)
 
             logger.log("Successfully restored state from \(package.dataFileURL.path), resuming VM")

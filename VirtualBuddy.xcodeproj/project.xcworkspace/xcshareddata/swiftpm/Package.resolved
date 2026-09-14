@@ -1,5 +1,5 @@
 {
-  "originHash" : "be13290b58e4b62a7a7beb8d2e31972ce95303287855ae90d0c1d3c646a7bfe3",
+  "originHash" : "36c900096800bbe4da43bdbaf98760910bf485bddbd5d7eda88c0276eaac6e4b",
   "pins" : [
     {
       "identity" : "buddykit",
@@ -16,6 +16,15 @@
       "location" : "https://github.com/insidegui/libfragmentzip.git",
       "state" : {
         "revision" : "9f72ba6706fe4a16413d463a79eae52c374f3c29",
+        "version" : "1.0.0"
+      }
+    },
+    {
+      "identity" : "managedpreferenceskit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/ManagedPreferencesKit.git",
+      "state" : {
+        "revision" : "6ae92a9521cd260fe1563aa711ded3e79d6f2148",
         "version" : "1.0.0"
       }
     },
