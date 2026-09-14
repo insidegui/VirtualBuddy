@@ -26,7 +26,9 @@
 		2357DA22D96A4B6D968DE12B /* ManagedPreferencesUI in Frameworks */ = {isa = PBXBuildFile; productRef = A804CC73699A45659B8AD372 /* ManagedPreferencesUI */; };
 		35C9D84FABD14D5A9535F0EF /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 91FC62A28F764E37BFFAA951 /* VMBridge */; };
 		781FD61DBFAD4B389CB9682E /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 252AC97268424F96B307D189 /* VMBridge */; };
+		9A742EB6286A43F3BC8FD041 /* ManagedPreferencesKit in Frameworks */ = {isa = PBXBuildFile; productRef = F531E7FF33DF4AB1A35263CD /* ManagedPreferencesKit */; };
 		AE3D052420DE463B85CE31B2 /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = D7B6E9E58E03491A8DA72A9B /* VMBridge */; };
+		B8CDCB883D2E4A3AA12CA10C /* ManagedPreferencesKit in Frameworks */ = {isa = PBXBuildFile; productRef = C1D5290DD06D402E82849B27 /* ManagedPreferencesKit */; };
 		CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422E82FE9B99300DD1670 /* BuddyFoundation */; };
 		CD4422ED2FE9B9D900DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422EC2FE9B9D900DD1670 /* BuddyFoundation */; };
 		F40F5DA53040AF22005C19FD /* USBIDKit in Frameworks */ = {isa = PBXBuildFile; productRef = F40F5DA43040AF22005C19FD /* USBIDKit */; };
@@ -69,10 +71,8 @@
 		F4F0F4973053041E00D25236 /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = F4F0F4963053041E00D25236 /* VMBridge */; };
 		F4F0F4993053041E00D25236 /* VMBridgeVirtualization in Frameworks */ = {isa = PBXBuildFile; productRef = F4F0F4983053041E00D25236 /* VMBridgeVirtualization */; };
 		F74CC46F962C46509C74A70E /* ManagedPreferencesKit in Frameworks */ = {isa = PBXBuildFile; productRef = 9EA7F976A40640F794176157 /* ManagedPreferencesKit */; };
-		VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
-		9A742EB6286A43F3BC8FD041 /* ManagedPreferencesKit in Frameworks */ = {isa = PBXBuildFile; productRef = F531E7FF33DF4AB1A35263CD /* ManagedPreferencesKit */; };
 		FE67148B8A0E485E97EFEB46 /* ManagedPreferencesKit in Frameworks */ = {isa = PBXBuildFile; productRef = DFA3BC83F380438A918691C5 /* ManagedPreferencesKit */; };
-		B8CDCB883D2E4A3AA12CA10C /* ManagedPreferencesKit in Frameworks */ = {isa = PBXBuildFile; productRef = C1D5290DD06D402E82849B27 /* ManagedPreferencesKit */; };
+		VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -4093,6 +4093,11 @@
 			package = AAB4DF862F58409F821DFACC /* XCRemoteSwiftPackageReference "ManagedPreferencesKit" */;
 			productName = ManagedPreferencesUI;
 		};
+		C1D5290DD06D402E82849B27 /* ManagedPreferencesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAB4DF862F58409F821DFACC /* XCRemoteSwiftPackageReference "ManagedPreferencesKit" */;
+			productName = ManagedPreferencesKit;
+		};
 		CD4422E82FE9B99300DD1670 /* BuddyFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
@@ -4106,6 +4111,11 @@
 		D7B6E9E58E03491A8DA72A9B /* VMBridge */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = VMBridge;
+		};
+		DFA3BC83F380438A918691C5 /* ManagedPreferencesKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = AAB4DF862F58409F821DFACC /* XCRemoteSwiftPackageReference "ManagedPreferencesKit" */;
+			productName = ManagedPreferencesKit;
 		};
 		F40F5DA43040AF22005C19FD /* USBIDKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4156,16 +4166,6 @@
 			productName = VMBridgeVirtualization;
 		};
 		F531E7FF33DF4AB1A35263CD /* ManagedPreferencesKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AAB4DF862F58409F821DFACC /* XCRemoteSwiftPackageReference "ManagedPreferencesKit" */;
-			productName = ManagedPreferencesKit;
-		};
-		DFA3BC83F380438A918691C5 /* ManagedPreferencesKit */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = AAB4DF862F58409F821DFACC /* XCRemoteSwiftPackageReference "ManagedPreferencesKit" */;
-			productName = ManagedPreferencesKit;
-		};
-		C1D5290DD06D402E82849B27 /* ManagedPreferencesKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = AAB4DF862F58409F821DFACC /* XCRemoteSwiftPackageReference "ManagedPreferencesKit" */;
 			productName = ManagedPreferencesKit;

@@ -60,7 +60,8 @@ struct GuestAppConfigurationView: View {
                 }
 
             if guestAppDisabled {
-                Label("Guest app mounting is disabled by your organization. Restart the VM to apply. An already installed guest app is unaffected.", systemImage: "building.2.crop.circle")
+                ManagedRestrictionBannerView(title: "Guest app mounting is disabled by your organization.")
+                Text("Restart the VM to apply. An already installed guest app is unaffected.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

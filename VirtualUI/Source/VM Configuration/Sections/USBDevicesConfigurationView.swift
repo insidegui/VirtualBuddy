@@ -114,9 +114,7 @@ struct USBDevicesConfigurationView: View {
             }
 
             if usbPassthroughDisabled {
-                Label("USB passthrough is disabled by your organization.", systemImage: "building.2.crop.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                ManagedRestrictionBannerView(title: "USB passthrough is disabled by your organization.")
             }
 
             Text("""
@@ -587,6 +585,7 @@ private enum USBDevicePreviewData {
     _ConfigurationSectionPreview(USBDevicePreviewData.configuration) {
         USBDevicesConfigurationView(hardware: $0.hardware)
     }
+    .frame(height: 600)
 }
 
 #Preview("Configuration — Empty") {

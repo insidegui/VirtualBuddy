@@ -36,7 +36,8 @@ struct NetworkConfigurationView: View {
             NetworkDevicePicker(hardware: $hardware, bridgedNetworkingDisabled: bridgedNetworkingDisabled)
 
             if bridgedNetworkingDisabled {
-                Label("Bridged networking is disabled by your organization. Bridged adapters remain disconnected; select NAT to use networking.", systemImage: "building.2.crop.circle")
+                ManagedRestrictionBannerView(title: "Bridged networking is disabled by your organization.")
+                Text("Bridged adapters remain disconnected; select NAT to use networking.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }

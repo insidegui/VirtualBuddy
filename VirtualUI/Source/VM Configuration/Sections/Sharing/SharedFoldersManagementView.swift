@@ -101,9 +101,7 @@ struct SharedFoldersManagementView: View {
             .disabled(fileSharingUnsupported || sharedFoldersDisabled)
 
             if sharedFoldersDisabled {
-                Label("Shared folders are disabled by your organization.", systemImage: "building.2.crop.circle")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                ManagedRestrictionBannerView(title: "Shared folders are disabled by your organization.")
             }
 
             if configuration.systemType == .mac, fileSharingUnsupported {

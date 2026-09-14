@@ -26,7 +26,8 @@ struct SoundConfigurationView: View {
                 Toggle("Enable Sound Input", isOn: $hardware.soundDevices[0].enableInput)
             }
             if microphoneInputDisabled {
-                Label("Microphone input is disabled by your organization. Restart the VM to apply.", systemImage: "building.2.crop.circle")
+                ManagedRestrictionBannerView(title: "Microphone input is disabled by your organization.")
+                Text("Restart the VM to apply.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
