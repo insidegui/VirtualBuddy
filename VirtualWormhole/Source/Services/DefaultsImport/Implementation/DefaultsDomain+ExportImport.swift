@@ -23,18 +23,12 @@ public extension DefaultsDomainDescriptor {
     }
 
     private func runDefaults(_ verb: String, domainName: String, plistPath: String) async throws {
-        let proc = Process()
-        proc.executableURL = URL(fileURLWithPath: "/usr/bin/defaults")
-        proc.arguments = [
-            verb,
-            domainName,
-            plistPath
-        ]
-
-        try proc.checkRun()
+        try await DefaultsCommand().run(executable: "/usr/bin/defaults", arguments: [verb, domainName, plistPath])
     }
 
+    @MainActor
     func performRestartIfNeeded() async throws {
+        try Task.checkCancellation()
         guard let restart else { return }
         
         guard target.isRunning else { return }
@@ -53,13 +47,7 @@ public extension DefaultsDomainDescriptor {
             guard shouldRestart else { return }
         }
 
-        let proc = Process()
-        proc.executableURL = URL(fileURLWithPath: "/bin/sh")
-        proc.arguments = [
-            "-c",
-            restart.command
-        ]
-        try proc.checkRun()
+        try await DefaultsCommand().run(executable: "/bin/sh", arguments: ["-c", restart.command])
 
         guard restart.shouldRelaunch, let url = target.bundleURL else { return }
 
@@ -86,42 +74,48 @@ public extension DefaultsDomainDescriptor {
 
 }
 
-extension Pipe {
-    func readString() -> String? {
-        guard let data = try? fileHandleForReading.readToEnd() else { return nil }
-        guard !data.isEmpty else { return nil }
-        return String(decoding: data, as: UTF8.self)
-    }
-}
+// A separate actor owns each subprocess. Output goes to files so a full pipe
+// cannot deadlock a command, and suspension leaves cancellation free to run.
+private actor DefaultsCommand {
+    private var process: Process?
 
-extension Process {
-
-    private static let logger = Logger(subsystem: VirtualWormholeConstants.subsystemName, category: "Process")
-
-    @discardableResult
-    func checkRun(expectedStatus: Int32 = 0) throws -> Data? {
-        let errPipe = Pipe()
-        let outPipe = Pipe()
-        standardError = errPipe
-        standardOutput = outPipe
-
-        try run()
-        waitUntilExit()
-
-        let errStr = errPipe.readString()
-
-        guard terminationStatus == expectedStatus else {
-            var info: [String: Any] = [
-                NSLocalizedDescriptionKey: "Command failed with exit code \(terminationStatus)"
-            ]
-            if let errStr {
-                Self.logger.error("Command \(self.executableURL?.lastPathComponent ?? "<nil>", privacy: .public) failed with exit code \(self.terminationStatus, privacy: .public): \(errStr, privacy: .public)")
-                info[NSLocalizedFailureReasonErrorKey] = errStr
+    func run(executable: String, arguments: [String]) async throws {
+        try Task.checkCancellation()
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let output = directory.appendingPathComponent("output")
+        let errors = directory.appendingPathComponent("errors")
+        try Data().write(to: output)
+        try Data().write(to: errors)
+        let outHandle = try FileHandle(forWritingTo: output)
+        defer { try? outHandle.close() }
+        let errHandle = try FileHandle(forWritingTo: errors)
+        defer { try? errHandle.close() }
+        let command = Process()
+        command.executableURL = URL(fileURLWithPath: executable)
+        command.arguments = arguments
+        command.standardOutput = outHandle
+        command.standardError = errHandle
+        process = command
+        defer { command.terminationHandler = nil; process = nil }
+        let status: Int32 = try await withTaskCancellationHandler {
+            try Task.checkCancellation()
+            return try await withCheckedThrowingContinuation { continuation in
+                command.terminationHandler = { process in continuation.resume(returning: process.terminationStatus) }
+                do { try command.run() } catch { continuation.resume(throwing: error) }
             }
-            throw CocoaError(.coderReadCorrupt, userInfo: info)
+        } onCancel: {
+            Task { await self.cancel() }
         }
-
-        return try? outPipe.fileHandleForReading.readToEnd()
+        try Task.checkCancellation()
+        guard status == 0 else {
+            let reason = String(decoding: try Data(contentsOf: errors).prefix(4096), as: UTF8.self)
+            throw CocoaError(.coderInvalidValue, userInfo: [NSLocalizedDescriptionKey: "Defaults command failed (exit \(status)). \(reason)"])
+        }
     }
 
+    private func cancel() {
+        if let process, process.isRunning { process.terminate() }
+    }
 }

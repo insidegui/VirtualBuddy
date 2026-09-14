@@ -23,6 +23,9 @@
 /* End PBXAggregateTarget section */
 
 /* Begin PBXBuildFile section */
+		35C9D84FABD14D5A9535F0EF /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 91FC62A28F764E37BFFAA951 /* VMBridge */; };
+		781FD61DBFAD4B389CB9682E /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = 252AC97268424F96B307D189 /* VMBridge */; };
+		AE3D052420DE463B85CE31B2 /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = D7B6E9E58E03491A8DA72A9B /* VMBridge */; };
 		CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422E82FE9B99300DD1670 /* BuddyFoundation */; };
 		CD4422ED2FE9B9D900DD1670 /* BuddyFoundation in Frameworks */ = {isa = PBXBuildFile; productRef = CD4422EC2FE9B9D900DD1670 /* BuddyFoundation */; };
 		F40F5DA53040AF22005C19FD /* USBIDKit in Frameworks */ = {isa = PBXBuildFile; productRef = F40F5DA43040AF22005C19FD /* USBIDKit */; };
@@ -62,6 +65,8 @@
 		F4EFB5BF2FDB2BD400AF2A63 /* VirtualInstallationService.xpc in Embed XPC Services */ = {isa = PBXBuildFile; fileRef = F4EFB5B42FDB2BD300AF2A63 /* VirtualInstallationService.xpc */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		F4EFB5CA2FDB2BEF00AF2A63 /* VirtualInstallation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; };
 		F4EFB5D12FDB2CD200AF2A63 /* VirtualInstallation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4EFB5632FDB2A0D00AF2A63 /* VirtualInstallation.framework */; };
+		F4F0F4973053041E00D25236 /* VMBridge in Frameworks */ = {isa = PBXBuildFile; productRef = F4F0F4963053041E00D25236 /* VMBridge */; };
+		F4F0F4993053041E00D25236 /* VMBridgeVirtualization in Frameworks */ = {isa = PBXBuildFile; productRef = F4F0F4983053041E00D25236 /* VMBridgeVirtualization */; };
 		VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -496,6 +501,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				781FD61DBFAD4B389CB9682E /* VMBridge in Frameworks */,
 				F453C44C2DF0B835007EAD5F /* libcurl.tbd in Frameworks */,
 				F43B01472AD85A7D00164CD1 /* URLQueryItemCoder in Frameworks */,
 				F498AD042884BF13006F1C00 /* VirtualUI.framework in Frameworks */,
@@ -517,6 +523,7 @@
 				F4EFB5D12FDB2CD200AF2A63 /* VirtualInstallation.framework in Frameworks */,
 				CD4422E92FE9B99300DD1670 /* BuddyFoundation in Frameworks */,
 				F4C189F22848F5F500335EC7 /* VirtualWormhole.framework in Frameworks */,
+				F4F0F4993053041E00D25236 /* VMBridgeVirtualization in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -524,6 +531,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F4F0F4973053041E00D25236 /* VMBridge in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -531,6 +539,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AE3D052420DE463B85CE31B2 /* VMBridge in Frameworks */,
 				F453C4242DF0B602007EAD5F /* VirtualUI.framework in Frameworks */,
 				F4C18A5228491B9D00335EC7 /* VirtualWormhole.framework in Frameworks */,
 				F428622E2AE87D7E0052F029 /* DeepLinkSecurity.framework in Frameworks */,
@@ -543,6 +552,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				35C9D84FABD14D5A9535F0EF /* VMBridge in Frameworks */,
 				VB02DISKTEST00003A0103 /* VirtualCore.framework in Frameworks */,
 				F4D305A029B8DB700006E748 /* VirtualWormhole.framework in Frameworks */,
 			);
@@ -747,6 +757,7 @@
 			);
 			name = VirtualBuddy;
 			packageProductDependencies = (
+				252AC97268424F96B307D189 /* VMBridge */,
 				F4D0F71728674E4B004D5782 /* Sparkle */,
 				F43B01462AD85A7D00164CD1 /* URLQueryItemCoder */,
 				F453C42A2DF0B792007EAD5F /* ArgumentParser */,
@@ -780,6 +791,9 @@
 				F4FFF064301D13FD00620720 /* VirtualCore */,
 			);
 			name = VirtualCore;
+			packageProductDependencies = (
+				F4F0F4983053041E00D25236 /* VMBridgeVirtualization */,
+			);
 			productName = VirtualCore;
 			productReference = F4BE9C6527FF053A00B648F8 /* VirtualCore.framework */;
 			productType = "com.apple.product-type.framework";
@@ -802,6 +816,7 @@
 			);
 			name = VirtualWormhole;
 			packageProductDependencies = (
+				F4F0F4963053041E00D25236 /* VMBridge */,
 			);
 			productName = VirtualWormhole;
 			productReference = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */;
@@ -831,6 +846,9 @@
 				F4FFEFA4301D13C500620720 /* VirtualBuddyGuest */,
 			);
 			name = VirtualBuddyGuest;
+			packageProductDependencies = (
+				D7B6E9E58E03491A8DA72A9B /* VMBridge */,
+			);
 			productName = VirtualBuddyGuest;
 			productReference = F4C18A4228491B8500335EC7 /* VirtualBuddyGuest.app */;
 			productType = "com.apple.product-type.application";
@@ -852,6 +870,9 @@
 				F4FFEF87301D13BE00620720 /* VirtualWormholeTests */,
 			);
 			name = VirtualWormholeTests;
+			packageProductDependencies = (
+				91FC62A28F764E37BFFAA951 /* VMBridge */,
+			);
 			productName = VirtualWormholeTests;
 			productReference = F4D3059C29B8DB700006E748 /* VirtualWormholeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -970,6 +991,7 @@
 				F453C4012DF0AEF5007EAD5F /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
 				F453C4482DF0B7F6007EAD5F /* XCRemoteSwiftPackageReference "libfragmentzip" */,
 				F40F5DA33040AF22005C19FD /* XCRemoteSwiftPackageReference "USBIDKit" */,
+				F4F0F4953053041E00D25236 /* XCRemoteSwiftPackageReference "VMBridge" */,
 			);
 			preferredProjectObjectVersion = 55;
 			productRefGroup = F4BE9C4F27FF052100B648F8 /* Products */;
@@ -4011,9 +4033,25 @@
 				minimumVersion = 2.9.4;
 			};
 		};
+		F4F0F4953053041E00D25236 /* XCRemoteSwiftPackageReference "VMBridge" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/insidegui/VMBridge.git";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		252AC97268424F96B307D189 /* VMBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VMBridge;
+		};
+		91FC62A28F764E37BFFAA951 /* VMBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VMBridge;
+		};
 		CD4422E82FE9B99300DD1670 /* BuddyFoundation */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
@@ -4023,6 +4061,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
 			productName = BuddyFoundation;
+		};
+		D7B6E9E58E03491A8DA72A9B /* VMBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VMBridge;
 		};
 		F40F5DA43040AF22005C19FD /* USBIDKit */ = {
 			isa = XCSwiftPackageProductDependency;
@@ -4063,6 +4105,14 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */;
 			productName = Sparkle;
+		};
+		F4F0F4963053041E00D25236 /* VMBridge */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VMBridge;
+		};
+		F4F0F4983053041E00D25236 /* VMBridgeVirtualization */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = VMBridgeVirtualization;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

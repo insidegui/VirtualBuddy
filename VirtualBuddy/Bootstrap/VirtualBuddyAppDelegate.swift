@@ -103,6 +103,7 @@ import SwiftUI
                 logger.info("User cancelled termination request. Good.")
             case .terminateNow:
                 logger.info("User decided to terminate now despite assertions :(")
+                return finishTerminationAfterGuestTeardown()
             case .terminateLater:
                 logger.info("User wants app to terminate when assertions preventing termination are invalidated.")
 
@@ -115,8 +116,20 @@ import SwiftUI
 
             return reply
         } else {
-            return .terminateNow
+            return finishTerminationAfterGuestTeardown()
         }
+    }
+
+    private var terminationTask: Task<Void, Never>?
+
+    private func finishTerminationAfterGuestTeardown() -> NSApplication.TerminateReply {
+        if terminationTask == nil {
+            terminationTask = Task {
+                await library.stopGuestCommunication()
+                NSApp.reply(toApplicationShouldTerminate: true)
+            }
+        }
+        return .terminateLater
     }
 
     private var settingsWindow: NSWindow?

@@ -122,7 +122,8 @@ private extension VMConfigurationViewModel {
 
         var updated = config
 
-        if resolvedRestoreImage.feature(id: CatalogFeatureID.guestApp)?.status.isUnsupported == true {
+        if resolvedRestoreImage.version < GuestAppSupport.minimumSystemVersion
+            || resolvedRestoreImage.feature(id: CatalogFeatureID.guestApp)?.status.isUnsupported == true {
             updated.guestAdditionsEnabled = false
         }
 

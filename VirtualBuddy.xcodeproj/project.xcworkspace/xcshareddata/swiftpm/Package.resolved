@@ -1,5 +1,5 @@
 {
-  "originHash" : "4f601ef463814f8125ce94139ffcec51c2dc63c8d26aca793f89ab6406ed9d7d",
+  "originHash" : "be13290b58e4b62a7a7beb8d2e31972ce95303287855ae90d0c1d3c646a7bfe3",
   "pins" : [
     {
       "identity" : "buddykit",
@@ -62,6 +62,15 @@
       "state" : {
         "revision" : "561f6f6268e8edb98dfb34168d766b3dc0c2fc9c",
         "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "vmbridge",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/insidegui/VMBridge.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "a6ea8b99d63c02b901087180733e33f393acefc9"
       }
     }
   ],
