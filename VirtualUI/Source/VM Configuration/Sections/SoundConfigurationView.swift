@@ -7,19 +7,29 @@
 
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 
 struct SoundConfigurationView: View {
     @Binding var hardware: VBMacDevice
+
+    @ManagedValue(for: .disableMicrophoneInput, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var microphoneInputDisabled: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             Toggle("Enable Sound", isOn: soundEnabled)
 
-            if hardware.soundDevices.isEmpty {
+            if hardware.soundDevices.isEmpty || microphoneInputDisabled {
                 Toggle("Enable Sound Input", isOn: .constant(false))
                     .disabled(true)
             } else {
                 Toggle("Enable Sound Input", isOn: $hardware.soundDevices[0].enableInput)
+            }
+            if microphoneInputDisabled {
+                ManagedRestrictionBannerView(title: "Microphone input is disabled by your organization.")
+                Text("Restart the VM to apply.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
         }
     }

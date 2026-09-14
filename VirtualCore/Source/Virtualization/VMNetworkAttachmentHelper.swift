@@ -2,6 +2,7 @@ import Foundation
 import OSLog
 import SystemConfiguration
 import Virtualization
+import ManagedPreferencesKit
 
 private func vmNetworkAttachmentDynamicStoreCallback(
     _ store: SCDynamicStore,
@@ -47,6 +48,9 @@ final class VMNetworkAttachmentHelper {
             case .NAT:
                 return VZNATNetworkDeviceAttachment()
             case .bridge(let interfaceIdentifier):
+                guard !VirtualBuddyManagedPreferences.bridgedNetworkingDisabled else {
+                    throw Failure("Bridged networking is disabled by your organization.")
+                }
                 guard let interface = VZBridgedNetworkInterface.networkInterfaces.first(where: {
                     $0.identifier == interfaceIdentifier
                 }) else {
@@ -81,6 +85,7 @@ final class VMNetworkAttachmentHelper {
     private var recoveryTasks: [Int: RecoveryTask] = [:]
 
     private var dynamicStore: SCDynamicStore?
+    private var policyObservation: ManagedPreferenceObservation?
     private var interfaceIdentifierByLinkKey: [String: String] = [:]
     private var interfaceLinkStates: [String: Bool] = [:]
 
@@ -118,9 +123,32 @@ final class VMNetworkAttachmentHelper {
         if virtualMachine.networkDevices.count != configuration.networkDevices.count {
             logger.error("Runtime network device count \(virtualMachine.networkDevices.count) does not match configuration count \(configuration.networkDevices.count)")
         }
+        policyObservation = VirtualBuddyManagedPreferences.schema.reader()
+            .observeChanges(for: .disableBridgedNetworking) { [weak self] in
+                self?.enforcePolicy()
+            }
+        enforcePolicy()
+    }
+
+    func enforcePolicy() {
+        guard VirtualBuddyManagedPreferences.bridgedNetworkingDisabled else { return }
+        for (index, device) in virtualMachine.networkDevices.enumerated() {
+            guard attachmentConfigurations.indices.contains(index),
+                  attachmentConfigurations[index]?.bridgeInterfaceIdentifier != nil else { continue }
+            recoveryTasks.removeValue(forKey: index)?.task.cancel()
+            if device.attachment != nil {
+                device.attachment = nil
+                logger.notice("Bridged network adapter disconnected by DisableBridgedNetworking")
+            }
+        }
+        stopMonitoringHostInterfaces()
     }
 
     func startMonitoringHostInterfaces() {
+        guard !VirtualBuddyManagedPreferences.bridgedNetworkingDisabled else {
+            enforcePolicy()
+            return
+        }
         guard dynamicStore == nil else { return }
 
         let interfaceIdentifiers = Set(attachmentConfigurations.compactMap { $0?.bridgeInterfaceIdentifier })
@@ -212,6 +240,10 @@ final class VMNetworkAttachmentHelper {
     }
 
     func changeBridgeInterface(to interfaceIdentifier: String) throws {
+        guard !VirtualBuddyManagedPreferences.bridgedNetworkingDisabled else {
+            logger.notice("Bridge interface change denied by DisableBridgedNetworking")
+            throw Failure("Bridged networking is disabled by your organization.")
+        }
         guard VZBridgedNetworkInterface.networkInterfaces.contains(where: {
             $0.identifier == interfaceIdentifier
         }) else {
@@ -348,6 +380,10 @@ final class VMNetworkAttachmentHelper {
         }
 
         let networkDevice = virtualMachine.networkDevices[deviceIndex]
+        if attachmentConfiguration.bridgeInterfaceIdentifier != nil, VirtualBuddyManagedPreferences.bridgedNetworkingDisabled {
+            enforcePolicy()
+            return
+        }
         let taskID = UUID()
 
         let task = Task { @MainActor [weak self, weak virtualMachine, weak networkDevice] in
@@ -369,6 +405,11 @@ final class VMNetworkAttachmentHelper {
                 guard let self, let virtualMachine, let networkDevice,
                       self.virtualMachine === virtualMachine
                 else { return }
+
+                if attachmentConfiguration.bridgeInterfaceIdentifier != nil, VirtualBuddyManagedPreferences.bridgedNetworkingDisabled {
+                    self.enforcePolicy()
+                    return
+                }
 
                 if networkDevice.attachment != nil && !shouldReplaceCurrentAttachment {
                     self.logger.info("Network device \(deviceIndex) recovered before retry was necessary")

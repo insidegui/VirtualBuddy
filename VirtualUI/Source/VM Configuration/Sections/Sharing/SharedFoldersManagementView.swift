@@ -7,10 +7,14 @@
 
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 
 struct SharedFoldersManagementView: View {
     
     @Binding var configuration: VBMacConfiguration
+
+    @ManagedValue(for: .disableSharedFolders, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var sharedFoldersDisabled: Bool
 
     @Environment(\.resolvedRestoreImage)
     private var resolvedRestoreImage
@@ -94,7 +98,11 @@ struct SharedFoldersManagementView: View {
                     sharedFoldersList
                 }
             }
-            .disabled(fileSharingUnsupported)
+            .disabled(fileSharingUnsupported || sharedFoldersDisabled)
+
+            if sharedFoldersDisabled {
+                ManagedRestrictionBannerView(title: "Shared folders are disabled by your organization.")
+            }
 
             if configuration.systemType == .mac, fileSharingUnsupported {
                 Text(VBMacConfiguration.fileSharingNotice)
@@ -152,6 +160,11 @@ struct SharedFoldersManagementView: View {
                     showTip = true
                 }
             }
+        }
+        .alert("Unable to Add Shared Folder", isPresented: $isShowingError) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(errorMessage)
         }
         .confirmationDialog("Remove Folders", isPresented: $isShowingRemovalConfirmation, titleVisibility: .visible, presenting: selectionBeingRemoved) { folders in
             Button(role: .cancel) {

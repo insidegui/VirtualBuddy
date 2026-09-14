@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 import BuddyFoundation
 
 enum NetworkDeviceSelection: Identifiable, Hashable {
@@ -27,9 +28,19 @@ struct NetworkConfigurationView: View {
     
     @Binding var hardware: VBMacDevice
 
+    @ManagedValue(for: .disableBridgedNetworking, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var bridgedNetworkingDisabled: Bool
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            NetworkDevicePicker(hardware: $hardware)
+            NetworkDevicePicker(hardware: $hardware, bridgedNetworkingDisabled: bridgedNetworkingDisabled)
+
+            if bridgedNetworkingDisabled {
+                ManagedRestrictionBannerView(title: "Bridged networking is disabled by your organization.")
+                Text("Bridged adapters remain disconnected; select NAT to use networking.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
 
             if hardware.networkDevices.isEmpty {
                 Text("This virtual machine will have no internet or local network access.")
@@ -112,6 +123,7 @@ extension VBNetworkDevice {
 
 struct NetworkDevicePicker: View {
     @Binding var hardware: VBMacDevice
+    var bridgedNetworkingDisabled: Bool
 
     @State private var selectedOption: VBNetworkDeviceInterface?
 
@@ -129,6 +141,7 @@ struct NetworkDevicePicker: View {
                         ForEach(interfaces) { interface in
                             Text(interface.name)
                                 .tag(NetworkDeviceSelection.bridge(interface.id))
+                                .disabled(bridgedNetworkingDisabled)
                         }
                     }
                 }

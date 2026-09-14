@@ -3,6 +3,7 @@ import Foundation
 import Observation
 import OSLog
 import Virtualization
+import ManagedPreferencesKit
 
 @available(macOS 27.0, *)
 @Observable
@@ -46,6 +47,8 @@ public final class VMUSBDeviceController {
     @ObservationIgnored private let configuredDevices: [VBUSBDevice]
     @ObservationIgnored private let logger: Logger
     @ObservationIgnored private var eventTask: Task<Void, Never>?
+    @ObservationIgnored private var policyObservation: ManagedPreferenceObservation?
+    @ObservationIgnored private var isActive = false
     @ObservationIgnored private var accessories = [UInt64: AAUSBAccessory]()
     @ObservationIgnored private var passthroughDevices = [UInt64: VZUSBPassthroughDevice]()
 
@@ -64,6 +67,19 @@ public final class VMUSBDeviceController {
     }
 
     public func start() {
+        isActive = true
+        if policyObservation == nil {
+            policyObservation = VirtualBuddyManagedPreferences.schema.reader()
+                .observeChanges(for: .disableUSBPassthrough) { [weak self] in
+                    Task { [weak self] in
+                        await self?.enforcePolicy()
+                    }
+                }
+        }
+        guard !VirtualBuddyManagedPreferences.usbPassthroughDisabled else {
+            logger.notice("USB accessory monitoring blocked by DisableUSBPassthrough")
+            return
+        }
         guard eventTask == nil else { return }
         registrationErrorMessage = nil
 
@@ -94,6 +110,8 @@ public final class VMUSBDeviceController {
     }
 
     public func stop() {
+        isActive = false
+        policyObservation = nil
         eventTask?.cancel()
         eventTask = nil
         accessories.removeAll()
@@ -142,6 +160,10 @@ public final class VMUSBDeviceController {
     }
 
     private func attach(deviceID: Device.ID) async throws {
+        guard !VirtualBuddyManagedPreferences.usbPassthroughDisabled else {
+            logger.notice("USB attachment denied by DisableUSBPassthrough")
+            throw Failure("USB passthrough is disabled by your organization.")
+        }
         guard let accessory = accessories[deviceID] else {
             throw Failure("The USB device is no longer available.")
         }
@@ -173,6 +195,11 @@ public final class VMUSBDeviceController {
             updateDevice(deviceID) {
                 $0.isAttached = true
                 $0.isBusy = false
+            }
+            // Policy may have changed while the framework was attaching the device.
+            if VirtualBuddyManagedPreferences.usbPassthroughDisabled {
+                try await detach(deviceID: deviceID)
+                logger.notice("In-flight USB attachment revoked by DisableUSBPassthrough")
             }
         } catch {
             updateDevice(deviceID) {
@@ -219,6 +246,24 @@ public final class VMUSBDeviceController {
                 $0.errorMessage = error.localizedDescription
             }
             throw error
+        }
+    }
+
+    func enforcePolicy() async {
+        guard isActive else { return }
+        guard VirtualBuddyManagedPreferences.usbPassthroughDisabled else {
+            start()
+            return
+        }
+        for deviceID in Array(passthroughDevices.keys) {
+            guard isActive else { return }
+            guard devices.first(where: { $0.id == deviceID })?.isBusy != true else { continue }
+            do {
+                try await detach(deviceID: deviceID)
+                logger.notice("USB device detached by DisableUSBPassthrough")
+            } catch {
+                logger.error("Failed to detach USB device for managed policy: \(error, privacy: .public)")
+            }
         }
     }
 

@@ -633,6 +633,11 @@ public extension VBMacConfiguration {
 
     @discardableResult
     mutating func addSharedFolder(with url: URL) throws -> VBSharedFolder {
+        guard !VirtualBuddyManagedPreferences.sharedFoldersDisabled else {
+            VirtualBuddyManagedPreferences.logger.notice("Adding a shared folder denied by DisableSharedFolders")
+            throw Failure("Shared folders are disabled by your organization.")
+        }
+
         guard url.isReadableDirectory else {
             throw Failure("VirtualBuddy couldn't access the selected location, or it is not a directory.")
         }
