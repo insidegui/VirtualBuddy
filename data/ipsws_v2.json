@@ -307,6 +307,18 @@
   ],
   "restoreImages" : [
     {
+      "build" : "26B5086k",
+      "channel" : "devbeta",
+      "downloadSize" : 26538648422,
+      "group" : "goldengate",
+      "id" : "26B5086k",
+      "mobileDeviceMinVersion" : "1853.0.0",
+      "name" : "macOS 27.2 Developer Beta 1",
+      "requirements" : "min_host_26_virtual_installation",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026SummerSeed\/82ade468-c7d1-4334-ba2a-83b21dfe9f46\/UniversalMac_27.2_26B5086k_Restore.ipsw",
+      "version" : "27.2.0"
+    },
+    {
       "build" : "26A428",
       "channel" : "regular",
       "downloadSize" : 26626436228,
