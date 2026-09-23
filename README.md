@@ -33,6 +33,8 @@ VirtualBuddy is free and open-source. If you’d like to support its development
 
 If you’d just like to download the latest version, [go to GitHub releases](https://github.com/insidegui/VirtualBuddy/releases/latest).
 
+If you use [homebrew](https://brew.sh), install with `brew install --cask virtualbuddy`.
+
 ### Feature Checklist
 
 - [x] Ability to boot any version of macOS 12 or macOS 13, including betas
@@ -55,7 +57,7 @@ If you’d just like to download the latest version, [go to GitHub releases](htt
 
 #### VirtualBuddyGuest app
 
-VirtualBuddy automatically mounts a disk image with the VirtualBuddyGuest app when you boot a supported macOS virtual machine with the guest app enabled. To install the VirtualBuddyGuest app, just select the “Guest” disk on Finder’s side bar then double-click the “VirtualBuddyGuest” app icon.
+VirtualBuddy automatically mounts a disk image with the VirtualBuddyGuest app when you boot a supported macOS virtual machine with the guest app enabled. To install the VirtualBuddyGuest app, just select the “Guest” disk on Finder’s sidebar, then double-click the “VirtualBuddyGuest” app icon.
 
 The latest VirtualBuddyGuest app requires macOS 14 or later and supports clipboard sharing and automatic mounting of shared folders. On macOS 13, the legacy guest app only mounts shared folders automatically; clipboard sharing is unavailable. VirtualBuddyGuest is not supported on macOS 12 or earlier.
 
@@ -65,11 +67,11 @@ The latest VirtualBuddyGuest app requires macOS 14 or later and supports clipboa
 
 Sometimes when trying things out in the OS installed in one of the virtual machines, things might break, requiring a full install of the guest operating system again, which is a pain.
 
-Thanks to APFS cloning though, you can just duplicate a virtual machine within your library folder (using Command + D in Finder), and the copy will take almost no additional disk space. This way you can have a “clean” copy of your VM, do whatever you want with a duplicate of it, and then throw the copy away and re-duplicate the clean version if things break.
+Thanks to APFS cloning, though, you can just duplicate a virtual machine within your library folder (using Command + D in Finder), and the copy will take almost no additional disk space. This way you can have a “clean” copy of your VM, do whatever you want with a duplicate of it, and then throw the copy away and re-duplicate the clean version if things break.
 
 #### Sharing Folders Between Host and Virtual Machine
 
-You can share folders from your Mac to the Virtual Machine and vice-versa using regular macOS file sharing that can be configured in System Preferences/Settings.
+You can share folders from your Mac to the Virtual Machine and vice versa using regular macOS file sharing that can be configured in System Preferences/Settings.
 
 When both the Virtual Machine and the host are running macOS 13 or later, it’s possible to share folders directly by configuring them in the VM settings within VirtualBuddy before booting up the VM.
 
