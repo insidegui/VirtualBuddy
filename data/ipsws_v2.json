@@ -331,6 +331,18 @@
       "version" : "27.2.0"
     },
     {
+      "build" : "26A434",
+      "channel" : "regular",
+      "downloadSize" : 26637307067,
+      "group" : "goldengate",
+      "id" : "26A434",
+      "mobileDeviceMinVersion" : "1853.0.0",
+      "name" : "macOS 27.0.1",
+      "requirements" : "min_host_26_virtual_installation",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026FallFCS\/59241290-5d51-4ca8-9df4-31624b9a4eac\/UniversalMac_27.0.1_26A434_Restore.ipsw",
+      "version" : "27.0.1"
+    },
+    {
       "build" : "26A428",
       "channel" : "regular",
       "downloadSize" : 26626436228,
