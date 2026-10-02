@@ -10,23 +10,33 @@ import VirtualCore
 
 struct VirtualMachineNameInputView: View {
     @Binding var name: String
+    var validationError: String?
 
     var body: some View {
         VirtualBuddyInstallerInputView {
-            HStack {
-                TextField("Virtual Machine Name", text: $name)
+            VStack(alignment: .leading, spacing: 12) {
+                HStack {
+                    TextField("Virtual Machine Name", text: $name)
 
-                Spacer()
+                    Spacer()
 
-                Button {
-                    name = RandomNameGenerator.shared.newName()
-                } label: {
-                    Image(systemName: "arrow.clockwise")
-                        .help("Generate new name")
+                    Button {
+                        name = RandomNameGenerator.shared.newName()
+                    } label: {
+                        Image(systemName: "arrow.clockwise")
+                            .help("Generate new name")
+                    }
+                    .buttonStyle(.borderless)
+                    .font(.system(size: 15, weight: .medium, design: .rounded))
+                    .keyboardShortcut(.init("r", modifiers: .command))
                 }
-                .buttonStyle(.borderless)
-                .font(.system(size: 15, weight: .medium, design: .rounded))
-                .keyboardShortcut(.init("r", modifiers: .command))
+
+                if let validationError {
+                    Text(validationError)
+                        .font(.subheadline)
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
