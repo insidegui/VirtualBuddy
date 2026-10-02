@@ -138,6 +138,9 @@ struct SharedFoldersManagementView: View {
                     }
                 }
 
+                Toggle("Share Clipboard", isOn: $configuration.clipboardSharingEnabled)
+                    .help("Share the clipboard between your Mac and the virtual machine. Requires a compatible clipboard agent in the guest.")
+
                 if !rosettaUnsupported, let rosettaSharingNotice = VBMacConfiguration.rosettaSharingNotice() {
                     Text(try! AttributedString(markdown: rosettaSharingNotice))
                         .font(.caption)

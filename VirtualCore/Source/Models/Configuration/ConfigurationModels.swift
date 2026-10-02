@@ -52,6 +52,9 @@ public struct VBMacConfiguration: Hashable, Codable {
     @DecodableDefault.False
     public var rosettaSharingEnabled = false
 
+    @DecodableDefault.True
+    public var clipboardSharingEnabled = true
+
     @DecodableDefault.True public var captureSystemKeys = true
 
     @DecodableDefault.False public var provisioningEnabled = false

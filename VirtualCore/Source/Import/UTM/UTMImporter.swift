@@ -125,6 +125,7 @@ private extension VBMacConfiguration {
             sharedFolders: [],
             guestAdditionsEnabled: true,
             rosettaSharingEnabled: utm.virtualization.hasRosetta == true,
+            clipboardSharingEnabled: utm.virtualization.hasClipboardSharing,
             captureSystemKeys: true
         )
     }

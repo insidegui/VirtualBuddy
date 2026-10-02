@@ -133,7 +133,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         let c = VZVirtualMachineConfiguration()
 
-        if model.guestAppSupport == .full {
+        if model.configuration.guestAdditionsEnabled, model.guestAppSupport == .full {
             c.socketDevices = [VZVirtioSocketDeviceConfiguration()]
         }
         c.platform = platform
@@ -203,7 +203,8 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     private func startGuestCommunication() throws {
-        guard virtualMachineModel.guestAppSupport == .full else { return }
+        guard virtualMachineModel.configuration.guestAdditionsEnabled,
+              virtualMachineModel.guestAppSupport == .full else { return }
         let vm = try virtualMachine
         guard let device = vm.socketDevices.first as? VZVirtioSocketDevice else {
             throw Failure("The guest communication socket device is unavailable.")
