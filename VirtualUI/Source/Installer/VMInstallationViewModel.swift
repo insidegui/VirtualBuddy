@@ -96,6 +96,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     @Published private(set) var buttonTitle = "Continue"
     @Published private(set) var showNextButton = true
     @Published  var disableNextButton = false
+    @Published private(set) var nameValidationError: String?
 
     private let library: VMLibraryController
 
@@ -107,6 +108,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         if let restoreVM {
             restoreInstallation(with: restoreVM)
         }
+
+        validate()
     }
 
     init(library: VMLibraryController, restoringAt restoreURL: URL?, initialStep: Step? = nil) {
@@ -117,6 +120,8 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
         if let restoreURL {
             restoreInstallation(with: restoreURL)
         }
+
+        validate()
     }
 
     private func restoreInstallation(with url: URL) {
@@ -180,7 +185,17 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
     @SubjectPublisher private(set) var downloadState: DownloadState = .idle
 
     private func validate() {
-        disableNextButton = !data.canContinue(from: step)
+        nameValidationError = nil
+        if step == .name, machine == nil, FileManager.default.fileExists(atPath: newMachineURL.path) {
+            nameValidationError = VBVirtualMachine.BundleAlreadyExistsError().localizedDescription
+        }
+        disableNextButton = !data.canContinue(from: step) || nameValidationError != nil
+    }
+
+    private var newMachineURL: URL {
+        library.libraryURL
+            .appendingPathComponent(data.name)
+            .appendingPathExtension(VBVirtualMachine.bundleExtension)
     }
 
     func next() {
@@ -206,7 +221,19 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
 
             goNextAfterRestoreImageSelection()
         case .name:
-            step = .configuration
+            validate()
+            guard !disableNextButton else { return }
+
+            do {
+                try prepareModel()
+                state = .idle
+                step = .configuration
+            } catch let error as VBVirtualMachine.BundleAlreadyExistsError {
+                nameValidationError = error.localizedDescription
+                disableNextButton = true
+            } catch {
+                state = .error("Failed to prepare VM model: \(error.localizedDescription)")
+            }
         case .configuration:
             step = data.needsDownload ? .download : .install
         case .download:
@@ -444,9 +471,7 @@ final class VMInstallationViewModel: ObservableObject, @unchecked Sendable {
             return
         }
         
-        let vmURL = library.libraryURL
-            .appendingPathComponent(data.name)
-            .appendingPathExtension(VBVirtualMachine.bundleExtension)
+        let vmURL = newMachineURL
 
         var model: VBVirtualMachine
 

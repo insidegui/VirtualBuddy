@@ -1,3 +1,4 @@
+import Darwin
 import Foundation
 import UniformTypeIdentifiers
 import Combine
@@ -171,6 +172,28 @@ public extension VBVirtualMachine {
 
     struct BundleDirectoryMissingError: Error { }
 
+    struct BundleAlreadyExistsError: LocalizedError {
+        public var errorDescription: String? {
+            "Another virtual machine is already using this name. Please choose a different name."
+        }
+
+        public init() { }
+    }
+
+    /// Reserve the destination atomically so a new installation can never open an existing bundle.
+    private static func createNewBundleDirectory(at url: URL) throws {
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+
+        try url.withUnsafeFileSystemRepresentation { path in
+            guard let path else { throw CocoaError(.fileWriteInvalidFileName) }
+            guard mkdir(path, S_IRWXU) == 0 else {
+                let code = errno
+                if code == EEXIST { throw BundleAlreadyExistsError() }
+                throw NSError(domain: NSPOSIXErrorDomain, code: Int(code), userInfo: [NSFilePathErrorKey: url.path])
+            }
+        }
+    }
+
     init(bundleURL: URL, isNewInstall: Bool = false, createIfNeeded: Bool = true) throws {
         /// If we're not allowed to create the bundle and its metadata directory doesn't exist, throw a specific error type that's caught in ``VMLibraryController``.
         /// This is to prevent the app from creating a dummy VM bundle after a VM is deleted from the library.
@@ -181,7 +204,9 @@ public extension VBVirtualMachine {
             }
         }
 
-        if !FileManager.default.fileExists(atPath: bundleURL.path) {
+        if isNewInstall {
+            try Self.createNewBundleDirectory(at: bundleURL)
+        } else if !FileManager.default.fileExists(atPath: bundleURL.path) {
             #if DEBUG
             guard !ProcessInfo.isSwiftUIPreview else {
                 fatalError("Missing SwiftUI preview VM at \(bundleURL.path)")
@@ -223,8 +248,7 @@ public extension VBVirtualMachine {
 
     @available(macOS 13, *)
     init(creatingLinuxMachineAt bundleURL: URL) throws {
-        guard !FileManager.default.fileExists(atPath: bundleURL.path) else { fatalError() }
-        try FileManager.default.createDirectory(at: bundleURL, withIntermediateDirectories: true)
+        try Self.createNewBundleDirectory(at: bundleURL)
         self.bundleURL = bundleURL
 
         var hardware = VBMacDevice.default

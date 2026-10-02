@@ -250,7 +250,7 @@ public struct VMInstallationWizard: View {
 
     @ViewBuilder
     private var renameVM: some View {
-        VirtualMachineNameInputView(name: $viewModel.data.name)
+        VirtualMachineNameInputView(name: $viewModel.data.name, validationError: viewModel.nameValidationError)
     }
 
     @ViewBuilder
