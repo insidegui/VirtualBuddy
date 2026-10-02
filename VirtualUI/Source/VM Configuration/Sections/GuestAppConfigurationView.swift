@@ -51,8 +51,11 @@ struct GuestAppConfigurationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Toggle("Enable VirtualBuddy Guest App", isOn: guestAppDisabled ? .constant(false) : $configuration.guestAdditionsEnabled)
+            Toggle("Enable VirtualBuddyGuest App", isOn: guestAppDisabled ? .constant(false) : $configuration.guestAdditionsEnabled)
                 .disabled(guestAppUnsupported || guestAppDisabled)
+                .help(guestAppDisabled
+                      ? "Guest app mounting is disabled by your organization. An already installed guest app is unaffected."
+                      : "Disabling this setting also disables communication with an already installed VirtualBuddyGuest app.")
                 .onChange(of: guestAppUnsupported, initial: true) { _, isUnsupported in
                     if isUnsupported {
                         configuration.guestAdditionsEnabled = false

@@ -45,6 +45,8 @@ struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
 
     @available(macOS 13.0, *)
     func createSpiceAgentConsoleDeviceConfiguration() -> VZVirtioConsoleDeviceConfiguration? {
+        guard vm.configuration.clipboardSharingEnabled else { return nil }
+
         let consoleDevice = VZVirtioConsoleDeviceConfiguration()
 
         let spiceAgentPort = VZVirtioConsolePortConfiguration()
