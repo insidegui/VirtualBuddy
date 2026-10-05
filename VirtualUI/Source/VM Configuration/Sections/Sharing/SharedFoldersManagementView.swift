@@ -16,6 +16,9 @@ struct SharedFoldersManagementView: View {
     @ManagedValue(for: .disableSharedFolders, schema: VirtualBuddyManagedPreferences.schema, default: false)
     private var sharedFoldersDisabled: Bool
 
+    @ManagedValue(for: .disableGuestApp, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var guestAppDisabled: Bool
+
     @Environment(\.resolvedRestoreImage)
     private var resolvedRestoreImage
     
@@ -42,6 +45,12 @@ struct SharedFoldersManagementView: View {
     private var fileSharingUnsupported: Bool { fileSharingStatus?.isUnsupported == true }
     private var fileSharingHelp: String? {
         fileSharingUnsupported ? (fileSharingStatus?.supportMessage ?? "Not supported.") : nil
+    }
+
+    /// Whether the guest's system type and OS version can run VirtualBuddyGuest.
+    private var guestAppSupported: Bool {
+        configuration.guestAppSupport(for: resolvedRestoreImage?.version) != .unsupported
+            && resolvedRestoreImage?.feature(id: CatalogFeatureID.guestApp)?.status.isUnsupported != true
     }
 
     private var rosettaStatus: ResolvedFeatureStatus? {
@@ -108,6 +117,10 @@ struct SharedFoldersManagementView: View {
                 Text(VBMacConfiguration.fileSharingNotice)
                     .font(.caption)
                     .foregroundColor(.yellow)
+            }
+
+            if guestAppSupported, !fileSharingUnsupported, !sharedFoldersDisabled {
+                guestAppNote
             }
 
             if configuration.systemType == .linux {
@@ -283,6 +296,27 @@ struct SharedFoldersManagementView: View {
         .foregroundColor(.white)
         .padding()
         .multilineTextAlignment(.leading)
+    }
+
+    @ViewBuilder
+    private var guestAppNote: some View {
+        if configuration.guestAdditionsEnabled {
+            Text("VirtualBuddyGuest is required for mounting shared folders automatically in the virtual machine.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        } else {
+            VStack(alignment: .leading, spacing: 8) {
+                Label("VirtualBuddyGuest is required for mounting shared folders automatically, but it’s not enabled for this virtual machine.", systemImage: "exclamationmark.triangle.fill")
+                    .foregroundColor(.yellow)
+
+                if !guestAppDisabled {
+                    Button("Enable VirtualBuddyGuest") {
+                        configuration.guestAdditionsEnabled = true
+                    }
+                    .controlSize(.small)
+                }
+            }
+        }
     }
 
     @ViewBuilder

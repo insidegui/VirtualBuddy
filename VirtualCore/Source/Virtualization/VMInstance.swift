@@ -60,6 +60,9 @@ public final class VMInstance: NSObject, ObservableObject {
     }
     
     private var guestSession: HostGuestSession?
+
+    /// Whether the guest app running in the virtual machine is currently connected to the host.
+    @Published private(set) var isGuestAppConnected = false
     private var guestRunTask: Task<Void, Never>?
     private var didHandleStop = false
 
@@ -272,11 +275,24 @@ public final class VMInstance: NSObject, ObservableObject {
         }
         guestSession = session
         guestRunTask = session.start()
+        observeGuestConnection(in: session)
+    }
+
+    private func observeGuestConnection(in session: HostGuestSession) {
+        isGuestAppConnected = withObservationTracking {
+            session.isConnected
+        } onChange: { [weak self, weak session] in
+            Task { @MainActor in
+                guard let self, let session, self.guestSession === session else { return }
+                self.observeGuestConnection(in: session)
+            }
+        }
     }
 
     func stopGuestCommunication() async {
         let session = guestSession
         guestSession = nil
+        isGuestAppConnected = false
         guestRunTask?.cancel()
         await session?.stop()
         guestRunTask = nil

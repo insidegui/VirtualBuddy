@@ -34,6 +34,25 @@ public enum GuestAppSupport: Hashable, Sendable {
     }
 }
 
+/// What the host knows about the guest app in a running virtual machine.
+public enum GuestAppConnectionStatus: Hashable, Sendable {
+    /// The guest app is turned off in the virtual machine's settings.
+    case disabled
+    /// Legacy guest apps can't communicate with the host, so there's no way to tell whether they're running.
+    case unknown
+    case disconnected
+    case connected
+
+    /// Returns `nil` when the guest can't run the guest app.
+    static func resolve(support: GuestAppSupport, isEnabled: Bool, isConnected: Bool) -> Self? {
+        switch support {
+        case .unsupported: nil
+        case .sharedFoldersOnly: isEnabled ? .unknown : .disabled
+        case .full: isEnabled ? (isConnected ? .connected : .disconnected) : .disabled
+        }
+    }
+}
+
 public extension VBMacConfiguration {
     @MainActor
     func guestAppSupport(for guestVersion: SoftwareVersion?) -> GuestAppSupport {
