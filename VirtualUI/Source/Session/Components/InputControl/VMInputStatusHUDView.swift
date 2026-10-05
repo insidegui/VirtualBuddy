@@ -9,16 +9,29 @@ struct VMInputStatusHUDOverlay: View {
     @Environment(\.accessibilityReduceMotion)
     private var reduceMotion
 
+    @Environment(\.isLiquidGlassSupported)
+    private var isLiquidGlassSupported
+
     var body: some View {
-        ZStack {
-            if let hud = presenter.hud {
-                VMInputStatusHUDView(hud: hud, configuration: configuration)
-                    .transition(reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: 0.86, anchor: .bottom)))
+        AirGlassEffectContainer {
+            ZStack {
+                if let hud = presenter.hud {
+                    VMInputStatusHUDView(hud: hud, configuration: configuration)
+                        .airGlassEffectTransition(.materialize)
+                        .modifier { view in
+                            if #available(macOS 26, *) {
+                                view
+                            } else {
+                                view.transition(.opacity.combined(with: .scale(scale: 0.86, anchor: .top)))
+                            }
+                        }
+                }
             }
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-        .padding(28)
-        .animation(.snappy(duration: 0.4, extraBounce: 0.1), value: presenter.hud == nil)
+        /// The HUD sits at the top so that it's close to the toolbar, where the input device toggles are.
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+        .padding(20)
+        .animation(.default, value: presenter.hud == nil)
         /// The HUD is purely informative and must not get in the way of events meant for the guest.
         .allowsHitTesting(false)
     }
@@ -35,11 +48,11 @@ struct VMInputStatusHUDView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(title)
                     .font(.headline)
-                    .contentTransition(.interpolate)
+                    .transition(.blurReplace)
 
                 HStack(spacing: 5) {
                     Text(coachingPrefix)
-                        .contentTransition(.interpolate)
+                        .transition(.blurReplace)
 
                     HStack(spacing: 2) {
                         ForEach(hud.device.toggleShortcutSymbols, id: \.self) { symbol in
@@ -50,11 +63,12 @@ struct VMInputStatusHUDView: View {
                         }
                     }
                     .foregroundStyle(.primary)
+                    /// Prevent each item from animating independently.
+                    .geometryGroup()
 
                     if let coachingSuffix {
                         Text(coachingSuffix)
-                            .contentTransition(.interpolate)
-                            .transition(.opacity)
+                            .transition(.blurReplace)
                     }
                 }
                 .font(.subheadline)
@@ -73,7 +87,7 @@ struct VMInputStatusHUDView: View {
             in: Capsule(style: .continuous)
         )
         .environment(\.colorScheme, .dark)
-        .animation(.snappy(duration: 0.4), value: hud)
+        .animation(.default, value: hud)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(accessibilityDescription)
         .onChange(of: hud, initial: true) {
