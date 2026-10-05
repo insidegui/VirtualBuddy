@@ -47,10 +47,14 @@ struct VirtualMachineStateControls: View {
                 }
                 .help("Resume")
 
-                saveAndCloseButton
+                if controller.saveEligibility.isApplicable {
+                    saveAndCloseButton
+                }
 
             case .running:
-                saveAndCloseButton
+                if controller.saveEligibility.isApplicable {
+                    saveAndCloseButton
+                }
 
                 Button {
                     runToolbarAction { try? await controller.pause() }

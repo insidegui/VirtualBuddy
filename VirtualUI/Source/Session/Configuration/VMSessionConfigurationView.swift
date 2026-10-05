@@ -99,7 +99,8 @@ struct VMSessionConfigurationView: View {
 
     /// Why saving the session isn't available for this virtual machine, shown before the user depends on it.
     private var saveEligibilityIssue: SavedSessionEligibility.Issue? {
-        controller.saveEligibility.primaryIssue
+        guard controller.saveEligibility.isApplicable else { return nil }
+        return controller.saveEligibility.primaryIssue
     }
 }
 

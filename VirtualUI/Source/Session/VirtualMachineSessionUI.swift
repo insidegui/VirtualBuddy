@@ -271,15 +271,17 @@ private struct VirtualMachineGuestActions: View {
             }
             .disabled(actionTask != nil || controller?.canPause != true)
 
-            Button {
-                runGuestAction {
-                    await session?.saveAndClose()
+            if controller?.saveEligibility.isApplicable != false {
+                Button {
+                    runGuestAction {
+                        await session?.saveAndClose()
+                    }
+                } label: {
+                    Label("Save & Close", systemImage: "tray.and.arrow.down.fill")
                 }
-            } label: {
-                Label("Save & Close", systemImage: "tray.and.arrow.down.fill")
+                .keyboardShortcut("w", modifiers: [.command, .option])
+                .disabled(actionTask != nil || controller?.state.canSaveAndClose != true)
             }
-            .keyboardShortcut("w", modifiers: [.command, .option])
-            .disabled(actionTask != nil || controller?.state.canSaveAndClose != true)
 
             Divider()
 

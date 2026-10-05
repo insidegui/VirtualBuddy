@@ -38,6 +38,17 @@ public struct SavedSessionEligibility: Hashable, Sendable {
 
     public var primaryIssue: Issue? { issues.first }
 
+    /// `false` for virtual machines that can't have their state saved at all, such as Linux guests.
+    /// Nothing about saving should be shown for those.
+    public var isApplicable: Bool { issues != [.unsupportedGuest] }
+
+    /// The reason to give the user when saving isn't available, or `nil` when saving isn't something that applies to the
+    /// virtual machine at all (such as Linux guests), in which case saving must not be mentioned.
+    public var explanationForUser: String? {
+        guard isApplicable else { return nil }
+        return primaryIssue?.explanation ?? "Saving isn’t available for this virtual machine."
+    }
+
     public static let supported = SavedSessionEligibility(issues: [])
 
     public init(issues: [Issue]) {
