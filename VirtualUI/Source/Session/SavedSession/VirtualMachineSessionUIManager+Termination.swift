@@ -60,7 +60,7 @@ final class TerminationPresenter: SessionTerminationPresenting {
     var closeBehavior: VMCloseBehavior { SavedSessionPrompts.closeBehavior }
 
     func chooseCloseAction() async -> SessionCloseChoice? {
-        await SavedSessionPrompts.chooseCloseAction(name: "", quittingMachines: machineNames, from: nil)
+        await SavedSessionPrompts.chooseCloseAction(machines: machineNames, quitting: true, from: nil)
     }
 
     func confirmShutDown(of machines: [(name: String, reason: String?)]) async -> Bool {

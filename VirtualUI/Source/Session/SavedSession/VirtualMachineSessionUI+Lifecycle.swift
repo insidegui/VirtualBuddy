@@ -24,7 +24,7 @@ final class SessionAlertPrompts: SessionClosePrompting {
     var closeBehavior: VMCloseBehavior { SavedSessionPrompts.closeBehavior }
 
     func chooseCloseAction(context: SessionCloseContext) async -> SessionCloseChoice? {
-        await SavedSessionPrompts.chooseCloseAction(name: name, from: window)
+        await SavedSessionPrompts.chooseCloseAction(machines: [name], quitting: context.isQuitting, from: window)
     }
 
     func confirmShutDownInsteadOfSaving(reason: String?, context: SessionCloseContext) async -> Bool {

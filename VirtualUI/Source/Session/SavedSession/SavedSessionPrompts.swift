@@ -10,41 +10,22 @@ enum SavedSessionPrompts {
     /// The user's preference for closing running virtual machines.
     static var closeBehavior: VMCloseBehavior { VBSettingsContainer.current.settings.closeBehavior }
 
-    /// Asks whether to save the state or shut down, and remembers the answer as the default if the user asks for it.
-    /// - Parameter machines: The names of the virtual machines the answer applies to when quitting. Empty when closing a single window.
+    /// Introduces saving the state of a virtual machine and asks whether to save it or shut down.
+    /// The answer is remembered as the default if the user asks for it.
+    /// - Parameter machines: The names of the virtual machines the answer applies to.
     /// - Returns: `nil` if the user cancelled.
-    static func chooseCloseAction(name: String, quittingMachines machines: [String] = [], from window: NSWindow?) async -> SessionCloseChoice? {
-        let quitting = !machines.isEmpty
-
-        let alert = NSAlert()
-        alert.messageText = quitting ? "Quit VirtualBuddy?" : "Close “\(name)”?"
-        alert.informativeText = """
-        Save State keeps the virtual machine exactly as it is, including open apps and unsaved work, so that it picks up where you left off next time.
-
-        Shutdown asks the guest to shut down. The virtual machine starts up from scratch next time.
-        """
-        if quitting {
-            alert.informativeText = "Running: \(machines.formatted(.list(type: .and))).\n\n" + alert.informativeText
-        }
-        alert.addButton(withTitle: "Save State")
-        alert.addButton(withTitle: "Shutdown")
-        alert.addButton(withTitle: "Cancel")
-        alert.showsSuppressionButton = true
-        alert.suppressionButton?.title = "Always do this. You can change it later in Settings."
-
-        let choice: SessionCloseChoice
-
-        switch await alert.present(from: window) {
-        case .alertFirstButtonReturn: choice = .saveState
-        case .alertSecondButtonReturn: choice = .shutDown
-        default: return nil
+    static func chooseCloseAction(machines: [String], quitting: Bool, from window: NSWindow?) async -> SessionCloseChoice? {
+        let result: CloseChoiceSheet.Result? = await presentSheet(from: window) { finish in
+            CloseChoiceSheet(machines: machines, isQuitting: quitting, onFinish: finish)
         }
 
-        if alert.suppressionButton?.state == .on {
-            VBSettingsContainer.current.settings.closeBehavior = choice == .saveState ? .saveState : .shutDown
+        guard let result else { return nil }
+
+        if result.makeDefault {
+            VBSettingsContainer.current.settings.closeBehavior = result.choice == .saveState ? .saveState : .shutDown
         }
 
-        return choice
+        return result.choice
     }
 
     /// Saving isn't available: the only way to close is to shut down. A slow shutdown is waited for, never forced.
