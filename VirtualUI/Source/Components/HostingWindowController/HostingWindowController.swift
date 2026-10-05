@@ -146,10 +146,18 @@ fileprivate final class HostingWindow: VBRestorableWindow {
         close()
     }
 
+    /// Repeated requests to close while one is waiting for its confirmation (which may involve saving) are ignored.
+    private var isWaitingForCloseConfirmation = false
+
     override func close() {
+        guard !isWaitingForCloseConfirmation else { return }
+        isWaitingForCloseConfirmation = true
+
         Task { @MainActor in
+            defer { isWaitingForCloseConfirmation = false }
+
             guard await confirmBeforeClosingCallback() else { return }
-            await MainActor.run { closeWithoutConfirmation() }
+            closeWithoutConfirmation()
         }
     }
 
