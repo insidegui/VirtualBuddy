@@ -11,11 +11,10 @@ import Virtualization
 @available(macOS 13.0, *)
 struct LinuxVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper {
     let vm: VBVirtualMachine
-    let savedState: VBSavedStatePackage?
+    let restoration: SavedSessionRestoration? = nil
 
     init(vm: VBVirtualMachine) {
         self.vm = vm
-        self.savedState = nil
     }
 
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration {

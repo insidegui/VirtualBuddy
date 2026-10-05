@@ -47,12 +47,6 @@ public extension VMLibraryController {
     }()
 }
 
-public extension VMSavedStatesController {
-    static var preview: VMSavedStatesController {
-        VMSavedStatesController(library: .preview, virtualMachine: .preview)
-    }
-}
-
 @MainActor
 public extension VMController {
     static let preview = VMController(with: .preview, library: .preview)

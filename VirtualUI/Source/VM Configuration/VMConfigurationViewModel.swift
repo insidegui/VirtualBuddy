@@ -50,6 +50,13 @@ public final class VMConfigurationViewModel: ObservableObject {
 
     public let context: VMConfigurationContext
 
+    /// A saved session belongs to the hardware the virtual machine had when it was saved,
+    /// so none of it can be changed until the session is resumed and the virtual machine is shut down, or the session is discarded.
+    @Published public private(set) var isLockedBySavedSession: Bool
+
+    /// Discards the saved session. Set when something else (such as a controller) owns the virtual machine's lifecycle.
+    public var discardSavedSessionHandler: (() async throws -> Void)?
+
     private var cancellables = Set<AnyCancellable>()
 
     public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall, resolvedRestoreImage: ResolvedRestoreImage? = nil) {
@@ -57,6 +64,7 @@ public final class VMConfigurationViewModel: ObservableObject {
         self.vm = vm
         self.context = context
         self.resolvedRestoreImage = resolvedRestoreImage
+        self.isLockedBySavedSession = vm.savedSession != nil
         
         applyResolvedFeatureDefaultsIfNeeded()
 
@@ -99,6 +107,51 @@ public final class VMConfigurationViewModel: ObservableObject {
         let settings = DiskImageGenerator.ImageSettings(for: image, in: vm)
         
         try await DiskImageGenerator.generateImage(with: settings)
+    }
+
+    /// Discards the saved session, unlocking the configuration.
+    @MainActor
+    public func discardSavedSession() async throws {
+        if let discardSavedSessionHandler {
+            try await discardSavedSessionHandler()
+        } else {
+            try await vm.discardSavedSession()
+        }
+
+        vm.reloadSavedSession()
+        isLockedBySavedSession = vm.savedSession != nil
+    }
+
+    var vmName: String { vm.name }
+
+    /// Whether some of the virtual machine's disk images live outside of it.
+    var hasExternalDiskImages: Bool {
+        !ExternalDiskImageCopier.externalDevices(of: vm).isEmpty
+    }
+
+    /// Copies disk images that live outside of the virtual machine into it, so that they can be part of its saved session.
+    ///
+    /// The copies are made first and the configuration is only updated once all of them succeeded,
+    /// so a failure leaves the configuration the way it was.
+    @MainActor
+    func copyExternalDiskImagesIntoVirtualMachine() async throws {
+        let result = try await ExternalDiskImageCopier().copyExternalDiskImages(of: vm)
+
+        var updatedVM = vm
+        updatedVM.configuration.hardware.storageDevices = result.devices
+
+        do {
+            try updatedVM.saveMetadata()
+        } catch {
+            result.discardCopies()
+            throw error
+        }
+
+        vm = updatedVM
+
+        /// Edits that haven't been saved yet are kept, only the disk images that were copied change.
+        let converted = Dictionary(uniqueKeysWithValues: result.devices.map { ($0.id, $0) })
+        config.hardware.storageDevices = config.hardware.storageDevices.map { converted[$0.id] ?? $0 }
     }
 
     public func updateBootStorageDevice(with image: VBManagedDiskImage) {

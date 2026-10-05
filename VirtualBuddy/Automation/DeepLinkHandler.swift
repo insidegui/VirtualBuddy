@@ -134,7 +134,7 @@ final class DeepLinkHandler {
             let controller = try getController(forVMNamed: name)
 
             switch controller.state {
-            case .idle, .stopped:
+            case .idle, .stopped, .saved, .recoveryRequired:
                 throw Failure("Can't stop virtual machine \(name.wrappedInSmartQuotes) because it's not running.")
             default:
                 try await controller.stop()

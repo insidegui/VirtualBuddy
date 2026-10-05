@@ -10,7 +10,12 @@ import Virtualization
 
 struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper {
     let vm: VBVirtualMachine
-    let savedState: VBSavedStatePackage?
+    let restoration: SavedSessionRestoration?
+
+    init(vm: VBVirtualMachine, restoration: SavedSessionRestoration? = nil) {
+        self.vm = vm
+        self.restoration = restoration
+    }
 
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration {
         fatalError()
@@ -31,17 +36,24 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     func createAdditionalBlockDevices() async throws -> [VZVirtioBlockDeviceConfiguration] {
         var devices = try storageDeviceContainer.additionalBlockDevices(guestType: vm.configuration.systemType)
 
-        if vm.configuration.guestAdditionsEnabled, await vm.guestAppSupport != .unsupported {
+        if let mediaURL = await guestAdditionsMediaURL() {
             do {
-                if let disk = try await VZVirtioBlockDeviceConfiguration.guestAdditionsDisk(for: vm.configuration) {
-                    devices.append(disk)
-                }
+                devices.append(try VZVirtioBlockDeviceConfiguration.guestAdditionsDisk(imageURL: mediaURL))
             } catch {
                 assertionFailure("VZVirtioBlockDeviceConfiguration initialization failed for guest additions disk: \(error)")
             }
         }
 
         return devices
+    }
+
+    func guestAdditionsMediaURL() async -> URL? {
+        guard vm.configuration.guestAdditionsEnabled, await vm.guestAppSupport != .unsupported else { return nil }
+
+        /// A restored session keeps the exact image that was attached when it was saved.
+        if let restoration { return restoration.guestAdditionsMediaURL }
+
+        return VZVirtioBlockDeviceConfiguration.guestAdditionsImageURL(for: vm.configuration)
     }
 
     func createKeyboardConfiguration() -> VZKeyboardConfiguration {

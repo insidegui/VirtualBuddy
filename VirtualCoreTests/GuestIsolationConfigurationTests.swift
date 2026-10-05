@@ -3,7 +3,6 @@ import Testing
 import Virtualization
 @testable import VirtualCore
 
-@available(macOS 13, *)
 struct GuestIsolationConfigurationTests {
     @Test func olderConfigurationsKeepClipboardSharingEnabled() throws {
         let data = try PropertyListEncoder().encode(VBMacConfiguration())

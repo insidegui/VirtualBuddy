@@ -26,6 +26,16 @@ public final class VirtualMachineSessionUI: ObservableObject {
     public let controller: VMController
     public let virtualMachine: VBVirtualMachine
 
+    /// What the session is waiting for while the window stays open, when that isn't visible in the controller state.
+    @Published private(set) var activity: SessionActivity?
+
+    /// The window that presents this session. Alerts are presented as sheets on it.
+    weak var hostWindow: NSWindow?
+
+    /// Decides what closing the session involves. Repeated requests to close join the one that's already in progress.
+    private(set) var closer: SessionCloseCoordinator!
+    private var prompts: SessionAlertPrompts!
+
     private var cancellables = Set<AnyCancellable>()
 
     @MainActor
@@ -37,6 +47,9 @@ public final class VirtualMachineSessionUI: ObservableObject {
     public init(controller: VMController) {
         self.controller = controller
         self.virtualMachine = controller.virtualMachineModel
+
+        self.prompts = SessionAlertPrompts(ui: self)
+        self.closer = SessionCloseCoordinator(controller: controller, prompts: prompts)
 
         $lockProportions.dropFirst().removeDuplicates().sink { [weak self] newValue in
             guard let self = self else { return }
@@ -94,14 +107,13 @@ public final class VirtualMachineSessionUI: ObservableObject {
 
         /// This takes care of booting when the session is already open and a deep link that wants auto-boot is activated.
         if newOptions.autoBoot, controller.canStart {
-            Task {
-                do {
-                    try await controller.start()
-                } catch {
-                    NSApp.presentError(error)
-                }
-            }
+            Task { await startOrResume() }
         }
+    }
+
+    @MainActor
+    func setActivity(_ activity: SessionActivity?) {
+        self.activity = activity
     }
 
     @MainActor
@@ -168,9 +180,9 @@ public struct VirtualMachineGuestCommands: View {
 
     public var body: some View {
         Group {
-            if let controller = focusedSession?.controller {
-                VirtualMachineGuestActions(controller: controller)
-                    .id(ObjectIdentifier(controller))
+            if let session = focusedSession {
+                VirtualMachineGuestActions(session: session)
+                    .id(ObjectIdentifier(session.controller))
             } else {
                 /// Dummy item for when session is not available.
                 Button {
@@ -209,8 +221,13 @@ private struct VirtualMachineGuestActions: View {
 
     private var controller: VMController? { observer.controller }
 
-    init(controller: VMController) {
-        _observer = StateObject(wrappedValue: WeakVMControllerObserver(controller: controller))
+    /// Held weakly for the same reason as the controller.
+    private let sessionReference: WeakReference<VirtualMachineSessionUI>
+    private var session: VirtualMachineSessionUI? { sessionReference.object }
+
+    init(session: VirtualMachineSessionUI) {
+        sessionReference = WeakReference(session)
+        _observer = StateObject(wrappedValue: WeakVMControllerObserver(controller: session.controller))
     }
 
     var body: some View {
@@ -234,11 +251,11 @@ private struct VirtualMachineGuestActions: View {
                         if controller.canResume {
                             try await controller.resume()
                         } else {
-                            try await controller.start()
+                            await session?.startOrResume()
                         }
                     }
                 } label: {
-                    Label("Start", systemImage: "play.fill")
+                    Label(controller?.state.isSaved == true ? "Resume" : "Start", systemImage: "play.fill")
                 }
                 .keyboardShortcut("r", modifiers: .command)
                 .disabled(actionTask != nil || !((controller?.canStart == true) || (controller?.canResume == true)))
@@ -253,6 +270,18 @@ private struct VirtualMachineGuestActions: View {
                 Label("Pause", systemImage: "pause.fill")
             }
             .disabled(actionTask != nil || controller?.canPause != true)
+
+            if controller?.saveEligibility.isApplicable != false {
+                Button {
+                    runGuestAction {
+                        await session?.saveAndClose()
+                    }
+                } label: {
+                    Label("Save & Close", systemImage: "tray.and.arrow.down.fill")
+                }
+                .keyboardShortcut("w", modifiers: [.command, .option])
+                .disabled(actionTask != nil || controller?.state.canSaveAndClose != true)
+            }
 
             Divider()
 
@@ -271,19 +300,18 @@ private struct VirtualMachineGuestActions: View {
                 try await controller.stop()
             }
         } label: {
-            Label("Stop", systemImage: "stop.fill")
+            Label("Shut Down", systemImage: "power")
         }
         .disabled(actionTask != nil)
     }
 
     private var forceStopButton: some View {
-        Button { [observer] in
+        Button {
             runGuestAction {
-                guard let controller = observer.controller else { return }
-                try await controller.forceStop()
+                await session?.forceStopAfterConfirmation()
             }
         } label: {
-            Label("Force Stop", systemImage: "stop.circle.fill")
+            Label("Force Stop…", systemImage: "stop.circle.fill")
         }
         .disabled(actionTask != nil)
     }

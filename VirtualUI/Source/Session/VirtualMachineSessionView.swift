@@ -38,6 +38,10 @@ public struct VirtualMachineSessionView: View {
             }
 
             controllerStateView
+
+            if ui.activity == .shuttingDown {
+                ShuttingDownOverlay()
+            }
         }
         .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
         .environmentObject(controller)
@@ -45,6 +49,7 @@ public struct VirtualMachineSessionView: View {
         .windowTitleBarTransparent(!controller.state.isRunning)
         .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
         .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
+        .task { ui.hostWindow = window }
         .onWindowKeyChange { [weak sessionManager, weak ui] isKey in
             guard let sessionManager, let ui else { return }
             sessionManager.focusedSessionChanged.send(isKey ? .init(ui) : nil)
@@ -72,7 +77,7 @@ public struct VirtualMachineSessionView: View {
         /// Booting after the session is already open is handled by ``VirtualMachineSessionUI``.
         .task {
             if controller.options.autoBoot {
-                Task { try? await controller.start() }
+                Task { await ui.startOrResume() }
             }
         }
         .toolbar {
@@ -125,8 +130,26 @@ public struct VirtualMachineSessionView: View {
             }
         case .running(let vm):
             vmView(with: vm)
-        case .paused(let vm), .savingState(let vm), .restoringState(let vm, _), .stateSaveCompleted(let vm, _):
-            pausedView(with: vm)
+        case .paused(let vm):
+            pausedView(with: vm) {
+                circularStartButton
+            }
+        case .saving(let vm, let phase):
+            pausedView(with: vm) {
+                SavedSessionProgressOverlay(title: "Saving…", phase: phase)
+            }
+        case .restoring(let vm, let phase):
+            if let vm {
+                pausedView(with: vm) {
+                    SavedSessionProgressOverlay(title: "Resuming…", phase: phase)
+                }
+            } else {
+                SavedSessionProgressOverlay(title: "Resuming…", phase: phase)
+            }
+        case .saved(let descriptor):
+            startableStateView(with: nil, savedSession: descriptor)
+        case .recoveryRequired(let issue):
+            recoveryRequiredView(issue: issue)
         }
     }
 
@@ -143,38 +166,19 @@ public struct VirtualMachineSessionView: View {
     }
     
     @ViewBuilder
-    private func pausedView(with vm: VZVirtualMachine) -> some View {
+    private func pausedView<Overlay: View>(with vm: VZVirtualMachine, @ViewBuilder overlay: () -> Overlay) -> some View {
         ZStack {
             vmView(with: vm)
 
             Rectangle()
                 .foregroundStyle(Material.regular)
 
-            ZStack {
-                switch controller.state {
-                case .paused:
-                    circularStartButton
-                case .resizingDisk(let message):
-                    VMProgressOverlay(
-                        message: message ?? "Resizing Disk Image",
-                        duration: 30
-                    )
-                case .savingState, .stateSaveCompleted:
-                    VMProgressOverlay(
-                        message: controller.state.isStateSaveCompleted ? "State Saved!" : "Saving Virtual Machine State",
-                        duration: controller.state.isStateSaveCompleted ? 0 : 14
-                    )
-                case .restoringState:
-                    VMProgressOverlay(message: "Restoring Virtual Machine State", duration: 14)
-                default:
-                    EmptyView()
-                }
-            }
-            .animation(.bouncy, value: controller.state)
+            overlay()
         }
+        .animation(.bouncy, value: controller.state)
     }
     
-    private func startableStateView(with error: Error?) -> some View {
+    private func startableStateView(with error: Error?, savedSession: VBSavedSessionDescriptor? = nil) -> some View {
         VStack(spacing: 28) {
             if let error = error {
                 Text(startupErrorMessage(for: error))
@@ -182,6 +186,10 @@ public struct VirtualMachineSessionView: View {
                     .foregroundStyle(.secondary)
                     .lineLimit(nil)
                     .font(.caption)
+            }
+
+            if let savedSession {
+                SavedSessionBadge(descriptor: savedSession)
             }
             
             circularStartButton
@@ -191,6 +199,24 @@ public struct VirtualMachineSessionView: View {
                 .environmentObject(controller)
                 .environment(library.templatesController)
                 .frame(maxWidth: 400)
+        }
+    }
+
+    private func recoveryRequiredView(issue: SavedSessionIssue) -> some View {
+        VStack(spacing: 20) {
+            Label("Saved", systemImage: "exclamationmark.triangle.fill")
+                .font(.headline)
+
+            Text(issue.explanation)
+                .multilineTextAlignment(.center)
+                .foregroundStyle(.secondary)
+                .font(.subheadline)
+                .frame(maxWidth: 420)
+
+            Button("Review Recovery Options…") {
+                Task { await ui.reviewRecoveryOptions() }
+            }
+            .controlSize(.large)
         }
     }
 
@@ -209,7 +235,7 @@ public struct VirtualMachineSessionView: View {
     private var circularStartButton: some View {
         Button {
             if controller.canStart {
-                Task { try? await controller.start() }
+                Task { await ui.startOrResume() }
             } else if controller.canResume {
                 Task {
                     try? await controller.resume()
@@ -219,6 +245,7 @@ public struct VirtualMachineSessionView: View {
             Image(systemName: "play")
         }
         .buttonStyle(VMCircularButtonStyle())
+        .help(controller.state.isSaved ? "Resume" : "Start")
     }
 
     @ViewBuilder
@@ -230,24 +257,12 @@ public struct VirtualMachineSessionView: View {
         .ignoresSafeArea()
     }
 
+    /// Closing the window saves the virtual machine (or shuts it down when it can't be saved) before the window goes away.
     private var confirmBeforeClosing: () async -> Bool {
-        { [weak controller] in
-            guard let controller else { return true }
+        { [weak ui] in
+            guard let ui else { return true }
 
-            if controller.isIdle || controller.isStopped { return true }
-
-            let confirmed = await NSAlert.runConfirmationAlert(
-                title: "Stop Virtual Machine?",
-                message: "If you close the window now, the virtual machine will be stopped.",
-                continueButtonTitle: "Stop VM",
-                cancelButtonTitle: "Cancel"
-            )
-
-            guard confirmed else { return false }
-
-            try? await controller.forceStop()
-
-            return true
+            return await ui.requestClose()
         }
     }
 
@@ -316,7 +331,9 @@ extension VMController {
 
 extension VBVirtualMachine {
     var blurHashBackgroundContent: BlurHashFullBleedBackground.Content {
-        if let thumbnail {
+        if let savedScreenshot {
+            .customImage(savedScreenshot)
+        } else if let thumbnail {
             .customImage(thumbnail)
         } else {
             .blurHash(metadata.backgroundHash)

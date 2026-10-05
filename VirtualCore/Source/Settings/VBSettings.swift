@@ -10,6 +10,26 @@ import OSLog
 
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
 
+/// What happens when the window of a running virtual machine is closed.
+public enum VMCloseBehavior: String, CaseIterable, Identifiable, Sendable {
+    /// Asks every time, offering to save the state or shut down.
+    case ask
+    /// Saves the state of virtual machines that support it.
+    case saveState
+    /// Shuts the virtual machine down.
+    case shutDown
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
+        case .ask: "Ask every time"
+        case .saveState: "Save state"
+        case .shutDown: "Shutdown"
+        }
+    }
+}
+
 public struct VBSettings: Hashable, Sendable {
 
     public static var current: VBSettings { VBSettingsContainer.current.settings }
@@ -37,6 +57,9 @@ public struct VBSettings: Hashable, Sendable {
     /// Currently not exposed in the UI.
     public var showDesktopPictureThumbnails: Bool
 
+    /// What to do when the window of a running virtual machine is closed.
+    public var closeBehavior: VMCloseBehavior
+
     /// Enables using the new ASIF format for boot disk images (requires macOS 26+ host).
     public var bootDiskImagesUseASIF: Bool
 
@@ -52,6 +75,7 @@ extension VBSettings {
     static let defaultUpdateChannel: AppUpdateChannel = .release
     static let defaultEnableTSSCheck = true
     static let defaultShowDesktopPictureThumbnails = false
+    static let defaultCloseBehavior = VMCloseBehavior.ask
     static let defaultBootDiskImagesUseASIF: Bool = {
         if #available(macOS 26, *) {
             true
@@ -66,6 +90,7 @@ extension VBSettings {
         self.enableTSSCheck = Self.defaultEnableTSSCheck
         self.showDesktopPictureThumbnails = Self.defaultShowDesktopPictureThumbnails
         self.bootDiskImagesUseASIF = Self.defaultBootDiskImagesUseASIF
+        self.closeBehavior = Self.defaultCloseBehavior
         self.isLibraryInRemovableVolume = false
     }
 
@@ -82,6 +107,7 @@ extension VBSettings {
         static let enableTSSCheck = "enableTSSCheck"
         static let showDesktopPictureThumbnails = "showDesktopPictureThumbnails"
         static let bootDiskImagesUseASIF = "bootDiskImagesUseASIF"
+        static let closeBehavior = "closeBehavior"
         static let isLibraryInRemovableVolume = "isLibraryInRemovableVolume"
     }
 
@@ -94,6 +120,7 @@ extension VBSettings {
         self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
         self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
         self.bootDiskImagesUseASIF = defaults.bool(forKey: Keys.bootDiskImagesUseASIF)
+        self.closeBehavior = defaults.string(forKey: Keys.closeBehavior).flatMap(VMCloseBehavior.init(rawValue:)) ?? Self.defaultCloseBehavior
         self.isLibraryInRemovableVolume = defaults.bool(forKey: Keys.isLibraryInRemovableVolume)
 
         if let path = defaults.string(forKey: Keys.libraryPath) {
@@ -141,6 +168,7 @@ extension VBSettings {
         defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
         defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
         defaults.set(bootDiskImagesUseASIF, forKey: Keys.bootDiskImagesUseASIF)
+        defaults.set(closeBehavior.rawValue, forKey: Keys.closeBehavior)
         defaults.set(isLibraryInRemovableVolume, forKey: Keys.isLibraryInRemovableVolume)
     }
 

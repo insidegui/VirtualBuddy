@@ -16,7 +16,17 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
     @Published private(set) var sessions = [VBVirtualMachine.ID: VirtualMachineSessionUI]()
 
-    private init() { }
+    private let terminationPresenter = TerminationPresenter()
+
+    /// Decides whether the app may quit while virtual machines are running. See `prepareForTermination()`.
+    private(set) lazy var terminationCoordinator = SessionTerminationCoordinator(
+        presenter: terminationPresenter,
+        holdTermination: { Self.holdTermination() }
+    )
+
+    private init() {
+        terminationPresenter.manager = self
+    }
 
     private func createSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) -> VirtualMachineSessionUI {
         let ui = VirtualMachineSessionUI(with: vm, library: library, options: options)
@@ -27,6 +37,8 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     }
 
     public func session(for vm: VBVirtualMachine) -> VirtualMachineSessionUI? { sessions[vm.id] }
+
+    func sessionIfAvailable(withID id: VBVirtualMachine.ID) -> VirtualMachineSessionUI? { sessions[id] }
 
     public func launch(_ vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         guard !vm.needsInstall else {
@@ -226,25 +238,9 @@ private extension VirtualMachineSessionUIManager {
         }
     }
 
+    /// Saved states created by earlier versions can't be resumed safely, so they're only ever shown, never opened.
     func handleOpenSavedStateFile(_ url: URL, library: VMLibraryController) {
-        guard #available(macOS 14.0, *) else {
-            let alert = NSAlert()
-            alert.messageText = "State Restoration Not Supported"
-            alert.informativeText = "Virtual machine state restoration requires macOS 14 or later."
-            alert.addButton(withTitle: "OK")
-            alert.runModal()
-            return
-        }
-
-        do {
-            let model = try library.virtualMachine(forSavedStatePackageURL: url)
-
-            let options = VMSessionOptions(stateRestorationPackageURL: url)
-
-            launch(model, library: library, options: options)
-        } catch {
-            NSAlert(error: error).runModal()
-        }
+        SavedSessionPrompts.presentLegacySavedState(at: url)
     }
 }
 

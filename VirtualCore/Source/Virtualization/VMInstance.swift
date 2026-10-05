@@ -27,6 +27,16 @@ public final class VMInstance: NSObject, ObservableObject {
     private var _virtualMachine: VZVirtualMachine?
     private var runtimeConfiguration: VZVirtualMachineConfiguration?
 
+    /// The model that was used to construct the virtual machine. When restoring a saved session, its configuration
+    /// is the one that was captured when the session was saved rather than the current one.
+    private var runtimeModel: VBVirtualMachine
+
+    /// The guest additions image that's attached to the running virtual machine.
+    private(set) var guestAdditionsMediaURL: URL?
+
+    /// The model the virtual machine is running with.
+    var effectiveModel: VBVirtualMachine { runtimeModel }
+
     private var sharedFoldersPolicyObservation: ManagedPreferenceObservation?
 
     private var networkAttachmentHelper: VMNetworkAttachmentHelper?
@@ -68,6 +78,7 @@ public final class VMInstance: NSObject, ObservableObject {
     
     init(with vm: VBVirtualMachine, library: VMLibraryController, onVMStop: @escaping (Error?) -> Void) {
         self.virtualMachineModel = vm
+        self.runtimeModel = vm
         self.library = library
         self.onVMStop = onVMStop
         self.logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VMInstance(\(vm.name))")
@@ -84,6 +95,18 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     public static func createMacPlatform(for model: VBVirtualMachine, installImageURL: URL?) async throws -> VZMacPlatformConfiguration {
+        try await createMacPlatform(for: model, installImageURL: installImageURL, requiresExistingIdentity: false)
+    }
+
+    /// - Parameter requiresExistingIdentity: When `true`, the hardware model, machine identifier and auxiliary storage
+    /// must already exist. Their absence is an error because generating them would give the guest a different identity.
+    static func createMacPlatform(for model: VBVirtualMachine, installImageURL: URL?, requiresExistingIdentity: Bool) async throws -> VZMacPlatformConfiguration {
+        if requiresExistingIdentity {
+            for url in [model.hardwareModelURL, model.machineIdentifierURL, model.auxiliaryStorageURL] where !FileManager.default.fileExists(atPath: url.path) {
+                throw SavedSessionError.missingResource(url.lastPathComponent)
+            }
+        }
+
         let image: VZMacOSRestoreImage?
 
         if let installImageURL = installImageURL {
@@ -113,14 +136,23 @@ public final class VMInstance: NSObject, ObservableObject {
 
     // MARK: Create the Virtual Machine Configuration and instantiate the Virtual Machine
 
-    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil, savedState: VBSavedStatePackage? = nil) async throws -> VZVirtualMachineConfiguration {
+    public static func makeConfiguration(for model: VBVirtualMachine, installImageURL: URL? = nil) async throws -> VZVirtualMachineConfiguration {
+        try await makeRuntimeConfiguration(for: model, installImageURL: installImageURL, restoration: nil).configuration
+    }
+
+    struct RuntimeConfiguration {
+        let configuration: VZVirtualMachineConfiguration
+        let guestAdditionsMediaURL: URL?
+    }
+
+    static func makeRuntimeConfiguration(for model: VBVirtualMachine, installImageURL: URL?, restoration: SavedSessionRestoration?) async throws -> RuntimeConfiguration {
         let helper: VirtualMachineConfigurationHelper
         let platform: VZPlatformConfiguration
         let installDevice: [VZStorageDeviceConfiguration]
         switch model.configuration.systemType {
         case .mac:
-            helper = MacOSVirtualMachineConfigurationHelper(vm: model, savedState: savedState)
-            platform = try await Self.createMacPlatform(for: model, installImageURL: installImageURL)
+            helper = MacOSVirtualMachineConfigurationHelper(vm: model, restoration: restoration)
+            platform = try await Self.createMacPlatform(for: model, installImageURL: installImageURL, requiresExistingIdentity: restoration != nil)
             installDevice = []
         case .linux:
             helper = LinuxVirtualMachineConfigurationHelper(vm: model)
@@ -158,21 +190,30 @@ public final class VMInstance: NSObject, ObservableObject {
         let additionalBlockDevices = try await helper.createAdditionalBlockDevices()
 
         c.storageDevices = installDevice + [bootDevice] + additionalBlockDevices
-        
-        return c
+
+        return RuntimeConfiguration(configuration: c, guestAdditionsMediaURL: await helper.guestAdditionsMediaURL())
     }
-    
-    private func createVirtualMachine(savedState: VBSavedStatePackage?) async throws {
+
+    private func createVirtualMachine(restoration: SavedSessionRestoration?) async throws {
         logger.debug(#function)
 
         await stopGuestCommunication()
         let installImage: URL?
-        if options.bootOnInstallDevice {
+        if options.bootOnInstallDevice, restoration == nil {
             installImage = virtualMachineModel.metadata.installImageURL
         } else {
             installImage = nil
         }
-        let config = try await Self.makeConfiguration(for: virtualMachineModel, installImageURL: installImage, savedState: savedState) // add install iso here for linux (hack)
+
+        /// A restored virtual machine is constructed from the configuration that was captured when the session was saved,
+        /// so that later changes to the settings can't make it differ from the saved memory.
+        var model = virtualMachineModel
+        if let restoration {
+            model.configuration = restoration.configuration
+        }
+
+        let runtime = try await Self.makeRuntimeConfiguration(for: model, installImageURL: installImage, restoration: restoration)
+        let config = runtime.configuration
 
         do {
             try config.validate()
@@ -183,6 +224,9 @@ public final class VMInstance: NSObject, ObservableObject {
             
             throw Failure("Failed to validate configuration: \(String(describing: error))")
         }
+
+        runtimeModel = model
+        guestAdditionsMediaURL = runtime.guestAdditionsMediaURL
 
         networkAttachmentHelper?.stop()
 
@@ -203,8 +247,8 @@ public final class VMInstance: NSObject, ObservableObject {
     }
 
     private func startGuestCommunication() throws {
-        guard virtualMachineModel.configuration.guestAdditionsEnabled,
-              virtualMachineModel.guestAppSupport == .full else { return }
+        guard runtimeModel.configuration.guestAdditionsEnabled,
+              runtimeModel.guestAppSupport == .full else { return }
         let vm = try virtualMachine
         guard let device = vm.socketDevices.first as? VZVirtioSocketDevice else {
             throw Failure("The guest communication socket device is unavailable.")
@@ -281,8 +325,8 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
 
-    private func bootstrap(savedState: VBSavedStatePackage? = nil) async throws {
-        try await createVirtualMachine(savedState: savedState)
+    private func bootstrap(restoration: SavedSessionRestoration? = nil) async throws {
+        try await createVirtualMachine(restoration: restoration)
 
         let vm = try ensureVM()
 
@@ -351,6 +395,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         networkAttachmentHelper?.stop()
         stopUSBDeviceMonitoring()
+        removeWorkingGuestAdditionsMedia()
 
         library.unregisterBootedVM(self)
     }
@@ -383,163 +428,189 @@ public final class VMInstance: NSObject, ObservableObject {
         try networkAttachmentHelper.changeBridgeInterface(to: interfaceIdentifier)
     }
 
-    @available(macOS 14.0, *)
-    @discardableResult
-    func saveState(snapshotName name: String, onStart: () -> ()) async throws -> VBSavedStatePackage {
-        logger.debug(#function)
+    // MARK: Saved Sessions
 
-        let vm = try ensureVM()
+    /// Eligibility determined from the configuration the virtual machine is actually running with.
+    var runtimeSaveEligibility: SavedSessionEligibility {
+        guard let runtimeConfiguration else { return .supported }
 
-        guard confirmSaveStateIfNotOnAPFSVolume() else {
-            logger.info("State save denied by user.")
-            throw CancellationError()
+        var eligibility = SavedSessionEligibility.evaluate(runtimeConfiguration: runtimeConfiguration)
+
+        if #available(macOS 27.0, *), usbDeviceController?.devices.contains(where: \.isAttached) == true {
+            eligibility.issues.append(.usbDeviceAttached)
         }
 
-        /// Callback so that caller may update UI to indicate that saving has actually started,
-        /// but only after the user has performed pre-save confirmation steps.
-        onStart()
+        return eligibility
+    }
 
-        logger.debug("Pausing to save state")
+    /// Pauses the virtual machine if it's running.
+    /// - Returns: `true` if the virtual machine was running, `false` if it was already paused.
+    func pauseForSaving() async throws -> Bool {
+        let vm = try ensureVM()
 
-        try await pause()
-
-        logger.debug("VM paused, requesting state save")
-
-        let package = try virtualMachineModel.createSavedStatePackage(in: library, snapshotName: name)
-
-        logger.debug("VM state package will be written to \(package.url.path)")
-
-        do {
-            try await package.createStorageDeviceClones(model: virtualMachineModel)
-
-            try await vm.saveMachineStateTo(url: package.dataFileURL)
-
-            logger.log("VM state saved to \(package.dataFileURL.path)")
-
-            return package
-        } catch {
-            try? FileManager.default.removeItem(at: package.url)
-
-            logger.error("VM state save failed: \(error, privacy: .public)")
-
-            throw error
+        switch vm.state {
+        case .running:
+            try await pause()
+            return true
+        case .paused:
+            return false
+        default:
+            throw Failure("The virtual machine can't be saved in its current state.")
         }
     }
 
-    /// Asks user for confirmation before saving state if the volume where the VirtualBuddy library
-    /// resides is not an APFS volume, meaning that cloning is not available.
-    @available(macOS 14.0, *)
-    private func confirmSaveStateIfNotOnAPFSVolume() -> Bool {
-        guard !library.isInAPFSVolume else { return true }
+    /// Describes everything that has to be captured for the virtual machine's session. Must be called while the virtual machine is paused.
+    func makeSavedSessionCapturePlan(wasPausedBeforeSave: Bool) throws -> SavedSessionCapturePlan {
+        let model = runtimeModel
+        let runtimeConfiguration = try runtimeConfiguration.require("The VM configuration is unavailable.")
 
-        let suppressionKey = "SuppressConfirmSaveStateNonAPFSVolumeAlert"
-        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
+        var resources = [SavedSessionCapturePlan.ResourceSource]()
 
-        let alert = NSAlert()
-        alert.messageText = "Disk Space Warning"
-        alert.informativeText = """
-        It seems like your virtual machine data can’t be cloned because your library isn’t in an APFS volume.
-        
-        Creating this snapshot might take up several gigabytes of storage space.
-        
-        Would you like to continue?
-        """
-        alert.addButton(withTitle: "Create Snapshot")
-        alert.addButton(withTitle: "Cancel")
-        alert.showsSuppressionButton = true
+        for device in model.configuration.hardware.storageDevices where device.isEnabled {
+            guard case .managedImage(let image) = device.backing else {
+                throw SavedSessionError.notEligible(.externalDiskImage(device.displayName))
+            }
 
-        guard alert.runModal() == .alertFirstButtonReturn else { return false }
+            let url = model.diskImageURL(for: image)
 
-        if alert.suppressionButton?.state == .on {
-            UserDefaults.standard.set(true, forKey: suppressionKey)
+            resources.append(.init(id: device.id, role: .disk, sourceURL: url, workingPath: url.lastPathComponent))
         }
 
-        return true
+        resources.append(.init(id: "auxiliaryStorage", role: .auxiliaryStorage, sourceURL: model.auxiliaryStorageURL, workingPath: model.auxiliaryStorageURL.lastPathComponent))
+        resources.append(.init(id: "machineIdentifier", role: .machineIdentifier, sourceURL: model.machineIdentifierURL, workingPath: model.machineIdentifierURL.lastPathComponent))
+        resources.append(.init(id: "hardwareModel", role: .hardwareModel, sourceURL: model.hardwareModelURL, workingPath: model.hardwareModelURL.lastPathComponent))
+
+        if let guestAdditionsMediaURL {
+            resources.append(.init(id: "guestAdditionsMedia", role: .guestAdditionsMedia, sourceURL: guestAdditionsMediaURL, workingPath: SavedSessionLayout.guestAdditionsMediaWorkingPath))
+        }
+
+        let screenshotURL = [VBVirtualMachine.screenshotFileName, VBVirtualMachine.thumbnailFileName]
+            .map { virtualMachineModel.metadataFileURL($0) }
+            .first { FileManager.default.fileExists(atPath: $0.path) }
+
+        return SavedSessionCapturePlan(
+            resources: resources,
+            configuration: model.configuration,
+            runtimeDescription: SavedSessionRuntimeDescription(configuration: runtimeConfiguration),
+            screenshotSourceURL: screenshotURL,
+            wasPausedBeforeSave: wasPausedBeforeSave,
+            memorySize: runtimeConfiguration.memorySize
+        )
     }
 
-    @available(macOS 14.0, *)
-    func restoreState(from package: VBSavedStatePackage, updateHandler: (_ vm: VZVirtualMachine, _ package: VBSavedStatePackage) async -> Void) async throws {
-        logger.debug("Restore state requested with package \(package.url.path)")
-
-        try await runSavedStateMigrationIfNeeded(for: package)
-
-        try package.validate(for: virtualMachineModel)
-
-        if _virtualMachine == nil {
-            logger.debug("Bootstrapping VM for state restoration")
-
-            try await bootstrap(savedState: package)
-        }
-
+    func saveMachineState(to url: URL) async throws {
         let vm = try ensureVM()
 
-        await updateHandler(vm, package)
+        logger.debug("Saving machine state to \(url.path)")
 
-        logger.debug("Restoring state from \(package.dataFileURL.path)")
+        try await vm.saveMachineStateTo(url: url)
+    }
+
+    /// Stops the virtual machine and releases it after its session has been saved. Only the framework's stop is
+    /// used because the saved session already holds everything that matters.
+    func tearDownAfterSave() async throws {
+        let vm = try ensureVM()
+
+        try await vm.stop()
+
+        await releaseStoppedVirtualMachine()
+    }
+
+    /// Releases a virtual machine that's not running anymore.
+    func releaseStoppedVirtualMachine() async {
+        didHandleStop = true
+        networkAttachmentHelper?.stop()
+        stopUSBDeviceMonitoring()
+        await stopGuestCommunication()
+        library.unregisterBootedVM(self)
+        sharedFoldersPolicyObservation = nil
+        _virtualMachine = nil
+        runtimeConfiguration = nil
+        removeWorkingGuestAdditionsMedia()
+    }
+
+    /// Constructs the virtual machine from a saved session and restores its memory and device state, leaving it paused.
+    ///
+    /// Nothing is generated or replaced during restoration: the identity and storage have been installed by the saved session
+    /// transaction and the configuration is the one that was captured when the session was saved.
+    func restoreSession(_ preparation: SavedSessionRestorePreparation, onConstructed: (VZVirtualMachine) -> Void) async throws {
+        if preparation.guestAdditionsMediaURL != nil, VirtualBuddyManagedPreferences.guestAppDisabled {
+            throw SavedSessionError.policyBlocksResume("The guest app disk image was attached when this session was saved, but it's now disabled by your organization. Discard the saved session to start this virtual machine.")
+        }
+
+        let restoration = SavedSessionRestoration(
+            configuration: preparation.configuration,
+            guestAdditionsMediaURL: preparation.guestAdditionsMediaURL
+        )
+
+        try await bootstrap(restoration: restoration)
 
         do {
+            let vm = try ensureVM()
+            let configuration = try runtimeConfiguration.require("The VM configuration is unavailable.")
+
+            if let difference = SavedSessionRuntimeDescription(configuration: configuration).firstDifference(from: preparation.manifest.runtimeDescription) {
+                throw SavedSessionError.configurationChanged(difference)
+            }
+
+            try configuration.validateSaveRestoreSupport()
+
+            /// Policies that can't be applied to a session that's already running have to be found out now, while the saved session is still intact.
+            do {
+                try configuration.validateMicrophonePolicy(preferences: VirtualBuddyManagedPreferences.schema.reader())
+            } catch {
+                throw SavedSessionError.policyBlocksResume("Microphone input is disabled by your organization, but it was enabled when this session was saved and can't be turned off without restarting. Discard the saved session to start this virtual machine without microphone input.")
+            }
+
+            onConstructed(vm)
+
             enforceSharedFoldersPolicy()
-            try await vm.restoreMachineStateFrom(url: package.dataFileURL)
 
-            logger.log("Successfully restored state from \(package.dataFileURL.path), resuming VM")
+            logger.debug("Restoring state from \(preparation.stateFileURL.path)")
 
-            try await resume()
+            try await vm.restoreMachineStateFrom(url: preparation.stateFileURL)
 
-            networkAttachmentHelper?.startMonitoringHostInterfaces()
-            startUSBDeviceMonitoring(for: vm)
-
-            #if DEBUG
-            VBDebugUtil.debugVirtualMachine(afterStart: vm)
-            #endif
+            logger.log("Restored machine state, virtual machine is paused")
         } catch {
-            await stopGuestCommunication()
-            library.unregisterBootedVM(self)
-            logger.error("VM state restoration failed: \(error, privacy: .public). State file: \(package.dataFileURL.path)")
+            await releaseStoppedVirtualMachine()
+
+            logger.error("VM state restoration failed: \(error, privacy: .public)")
 
             throw error
         }
     }
 
-    @available(macOS 14.0, *)
-    private func runSavedStateMigrationIfNeeded(for package: VBSavedStatePackage) async throws {
-        guard package.needsStorageCloneMigration else { return }
+    /// Resumes a virtual machine whose state was restored, then reconnects everything that depends on the guest running.
+    func resumeRestoredSession() async throws {
+        let vm = try ensureVM()
 
-        guard confirmSavedStateMigration() else {
-            throw CancellationError()
-        }
+        try await resume()
 
-        guard confirmSaveStateIfNotOnAPFSVolume() else {
-            throw CancellationError()
-        }
+        await stopGuestCommunication()
+        try startGuestCommunication()
 
-        try await package.createStorageDeviceClones(model: virtualMachineModel)
+        networkAttachmentHelper?.startMonitoringHostInterfaces()
+        startUSBDeviceMonitoring(for: vm)
+
+        #if DEBUG
+        VBDebugUtil.debugVirtualMachine(afterStart: vm)
+        #endif
     }
 
-    @available(macOS 14.0, *)
-    private func confirmSavedStateMigration() -> Bool {
-        let suppressionKey = "SuppressConfirmSavedStateMigrationAlert"
-
-        guard !UserDefaults.standard.bool(forKey: suppressionKey) else { return true }
-
-        let alert = NSAlert()
-        alert.messageText = "Migration Required"
-        alert.informativeText = """
-        The virtual machine’s state was saved in an older version of VirtualBuddy that didn’t create clones of the storage devices. \
-        This could lead to data corruption over time.
-
-        To use this saved state, we need to migrate it to include storage device clones.
-        """
-        alert.addButton(withTitle: "Migrate and Restore")
-        alert.addButton(withTitle: "Cancel")
-        alert.showsSuppressionButton = true
-
-        guard alert.runModal() == .alertFirstButtonReturn else { return false }
-
-        if alert.suppressionButton?.state == .on {
-            UserDefaults.standard.set(true, forKey: suppressionKey)
+    /// Reconnects the services that were stopped when the virtual machine was torn down for saving
+    /// but wasn't actually released.
+    func restartGuestCommunication() async {
+        await stopGuestCommunication()
+        do {
+            try startGuestCommunication()
+        } catch {
+            logger.error("Failed to restart guest communication: \(error, privacy: .public)")
         }
+    }
 
-        return true
+    func removeWorkingGuestAdditionsMedia() {
+        try? SavedSessionStorage(bundleURL: virtualMachineModel.bundleURL).removeWorkingMedia()
+        guestAdditionsMediaURL = nil
     }
 
     private func ensureVM() throws -> VZVirtualMachine {
@@ -563,7 +634,7 @@ public final class VMInstance: NSObject, ObservableObject {
 
         let controller = VMUSBDeviceController(
             virtualMachine: virtualMachine,
-            configuredDevices: virtualMachineModel.configuration.hardware.usbDevices,
+            configuredDevices: runtimeModel.configuration.hardware.usbDevices,
             logger: logger
         )
         usbDeviceController = controller
@@ -622,6 +693,7 @@ extension VMInstance: VZVirtualMachineDelegate {
 
         Task { [self] in
             await stopGuestCommunication()
+            removeWorkingGuestAdditionsMedia()
             library.unregisterBootedVM(self)
             onVMStop(error)
         }
