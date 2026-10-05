@@ -7,6 +7,7 @@ import Darwin
 protocol SavedSessionFileSystem: Sendable {
     func exists(_ url: URL) -> Bool
     func byteCount(of url: URL) -> UInt64?
+    func isSymbolicLink(_ url: URL) -> Bool
     func contentsOfDirectory(at url: URL) throws -> [URL]
     func read(_ url: URL) throws -> Data
 
@@ -36,6 +37,11 @@ struct DefaultSavedSessionFileSystem: SavedSessionFileSystem {
         var info = stat()
         guard lstat(url.path, &info) == 0 else { return nil }
         return UInt64(info.st_size)
+    }
+
+    func isSymbolicLink(_ url: URL) -> Bool {
+        var info = stat()
+        return lstat(url.path, &info) == 0 && (info.st_mode & S_IFMT) == S_IFLNK
     }
 
     func contentsOfDirectory(at url: URL) throws -> [URL] {

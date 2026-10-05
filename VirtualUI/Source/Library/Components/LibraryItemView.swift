@@ -135,7 +135,7 @@ struct LibraryItemView: View {
                 }
             }
             .font(.system(size: 16, weight: .medium, design: .rounded))
-            .disabled(isVMBooted)
+            .disabled(isVMBooted || isDuplicating)
         }
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
@@ -184,7 +184,7 @@ struct LibraryItemView: View {
         } label: {
             Text("Configure…")
         }
-        .disabled(hasOpenSession)
+        .disabled(hasOpenSession || isDuplicating)
 
         Button {
             duplicate()
@@ -199,7 +199,7 @@ struct LibraryItemView: View {
         } label: {
             Text("Rename")
         }
-        .disabled(isVMBooted)
+        .disabled(isVMBooted || isDuplicating)
 
         #if DEBUG
         Button {
@@ -216,7 +216,7 @@ struct LibraryItemView: View {
         } label: {
             Text("Move to Trash")
         }
-        .disabled(isVMBooted)
+        .disabled(isVMBooted || isDuplicating)
     }
 
     private var duplicateHelp: String {

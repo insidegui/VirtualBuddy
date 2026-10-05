@@ -317,6 +317,9 @@ public final class VMController: ObservableObject {
         /// Requests that arrive while another one is starting the virtual machine have nothing left to do.
         guard state.canStart else { return }
 
+        /// The bundle can't change while it's being copied.
+        await library.waitForDuplication(of: virtualMachineModel.id)
+
         /// A virtual machine that was saved but couldn't be stopped is still around. Only the recovery options can resolve that.
         if case .recoveryRequired(let issue) = state, issue.isStopFailure {
             throw SavedSessionError.recoveryRequired(issue)
@@ -706,7 +709,8 @@ public final class VMController: ObservableObject {
     }
 
     /// Asks the guest to shut down and waits until it has. This never turns into a force stop,
-    /// however long the guest takes. Cancelling the calling task stops waiting without affecting the guest.
+    /// however long the guest takes (a guest may refuse to shut down, for example because of unsaved documents).
+    /// Cancelling the calling task stops waiting right away, without affecting the guest, and throws `CancellationError`.
     public func shutDownAndWait() async throws {
         if state.isPaused {
             try await resume()
@@ -714,11 +718,21 @@ public final class VMController: ObservableObject {
 
         try await stop()
 
-        for await state in $state.values {
-            try Task.checkCancellation()
-
-            if state.isStopped || state.isIdle || state.isSavedSessionPresentation { return }
+        let waiter = Task { @MainActor [self] in
+            for await state in $state.values {
+                if state.isStopped || state.isIdle || state.isSavedSessionPresentation { return }
+            }
         }
+
+        /// Waiting for the next change of state would never end for a guest that doesn't change state,
+        /// so cancelling has to end the wait itself.
+        await withTaskCancellationHandler {
+            await waiter.value
+        } onCancel: {
+            waiter.cancel()
+        }
+
+        try Task.checkCancellation()
     }
     
     /// Terminates the virtual machine immediately. The guest doesn't get a chance to shut down, which can lose data.
@@ -741,6 +755,11 @@ public final class VMController: ObservableObject {
         }
 
         unhideCursor()
+    }
+
+    /// Runs work that nothing else may do anything to the virtual machine during. Operations requested in the meantime wait their turn.
+    func performExclusively<T>(_ work: () async throws -> T) async rethrows -> T {
+        try await lease.perform(work)
     }
 
     /// Waits until every operation that's currently in progress or queued has finished.
@@ -914,6 +933,8 @@ public final class VMController: ObservableObject {
     /// is lost, along with any unsaved work in it.
     public func discardSavedSession() async throws {
         try await lease.perform {
+            await library.waitForDuplication(of: virtualMachineModel.id)
+
             try await discardSavedSessionLocked()
         }
     }
@@ -938,6 +959,8 @@ public final class VMController: ObservableObject {
     /// Makes a session that was interrupted after resuming restorable again. Anything that happened since is lost when it's restored.
     public func reinstateInterruptedSavedSession() async throws {
         try await lease.perform {
+            await library.waitForDuplication(of: virtualMachineModel.id)
+
             let storage = self.storage
 
             try await performOffMainActor { try storage.reinstateConsumedSession() }

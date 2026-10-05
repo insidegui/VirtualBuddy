@@ -13,6 +13,8 @@ private final class FakeController: VMLifecycleControlling {
     var saveOutcomes = [Error?]()
     var retryStopOutcomes = [Error?]()
     var shutDownError: Error?
+    /// A guest that never finishes shutting down. Only cancelling ends the wait.
+    var shutDownHangs = false
     /// What becomes of the eligibility when saving fails because it changed.
     var eligibilityAfterNotEligible: SavedSessionEligibility?
 
@@ -52,6 +54,10 @@ private final class FakeController: VMLifecycleControlling {
 
     func shutDownAndWait() async throws {
         shutDownCalls += 1
+        if shutDownHangs {
+            while !Task.isCancelled { await Task.yield() }
+            throw CancellationError()
+        }
         if let shutDownError { throw shutDownError }
         lifecycleStage = .notRunning
     }
@@ -690,5 +696,30 @@ final class SessionTerminationCoordinatorTests {
         #expect(presenter.chooseCount == 0, "there's nothing to choose between")
         #expect(presenter.confirmedMachines == [["Linux"] as [String]])
         #expect(linux.shutDownCalls == 1)
+    }
+
+    @Test func cancellingEndsTheWaitForAGuestThatRefusesToShutDown() async {
+        let hold = Hold()
+        let presenter = FakePresenter()
+        presenter.closeBehavior = .shutDown
+        let stubborn = FakeController(name: "Stubborn")
+        stubborn.shutDownHangs = true
+        let coordinator = makeCoordinator(presenter: presenter, hold: hold)
+
+        let quitting = Task { await coordinator.prepareForTermination(participants: [participant(stubborn).0]) }
+        for _ in 0..<10 { await Task.yield() }
+
+        #expect(coordinator.isTerminating)
+        #expect(stubborn.shutDownCalls == 1)
+
+        coordinator.cancel()
+
+        let result = await quitting.value
+
+        #expect(!result, "quitting must be cancelled, not forced")
+        #expect(stubborn.lifecycleStage == .running, "the guest is left alone")
+        #expect(presenter.dismissedCount == 1)
+        #expect(hold.releases == 1)
+        #expect(!coordinator.isTerminating)
     }
 }

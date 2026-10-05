@@ -277,13 +277,13 @@ struct SavedSessionStorage: Sendable {
 
         let configuration = try readConfiguration(of: manifest)
 
-        let entries = manifest.resources.enumerated().map { index, resource in
+        let entries = try manifest.resources.enumerated().map { index, resource in
             SavedSessionJournal.Entry(
                 resourceID: resource.id,
                 workingPath: resource.workingPath,
                 stagedName: "\(index)",
                 backupName: "\(index)",
-                hadOriginal: fileSystem.exists(layout.workingURL(for: resource.workingPath))
+                hadOriginal: fileSystem.exists(try layout.workingURL(for: resource.workingPath))
             )
         }
 
@@ -311,7 +311,7 @@ struct SavedSessionStorage: Sendable {
             try writeJournal(journal)
 
             for entry in entries {
-                let workingURL = layout.workingURL(for: entry.workingPath)
+                let workingURL = try layout.workingURL(for: entry.workingPath)
 
                 if entry.hadOriginal {
                     try fileSystem.move(from: workingURL, to: layout.backupURL.appending(path: entry.backupName), replacingExisting: false)
@@ -331,7 +331,7 @@ struct SavedSessionStorage: Sendable {
             throw error
         }
 
-        let mediaURL = manifest.resource(with: .guestAdditionsMedia).map { layout.workingURL(for: $0.workingPath) }
+        let mediaURL = try manifest.resource(with: .guestAdditionsMedia).map { try layout.workingURL(for: $0.workingPath) }
 
         return SavedSessionRestorePreparation(
             manifest: manifest,
@@ -389,6 +389,10 @@ struct SavedSessionStorage: Sendable {
     func recover() throws -> RecoveryOutcome {
         try removeTransientDirectories()
 
+        guard !fileSystem.isSymbolicLink(layout.transactionURL) else {
+            throw SavedSessionError.invalidManifest("The saved session is not stored inside the virtual machine.")
+        }
+
         guard fileSystem.exists(layout.transactionURL) else { return .nothingToRecover }
 
         guard let journal = try readJournal() else {
@@ -413,6 +417,11 @@ struct SavedSessionStorage: Sendable {
 
     /// Keeps the virtual machine's disks as they are and forgets the saved session.
     func discard() throws {
+        /// A link in place of the transaction directory is removed as it is. Following it could lead anywhere.
+        if fileSystem.isSymbolicLink(layout.transactionURL) {
+            try fileSystem.remove(layout.transactionURL)
+        }
+
         try recover()
 
         if let manifest = try? readManifest() {
@@ -439,6 +448,11 @@ struct SavedSessionStorage: Sendable {
     // MARK: Internals
 
     private func readManifest() throws -> SavedSessionManifest {
+        /// The directories this works in must be real directories, or everything in them could be somewhere else.
+        guard !fileSystem.isSymbolicLink(layout.packageURL), !fileSystem.isSymbolicLink(layout.transactionURL) else {
+            throw SavedSessionError.invalidManifest("The saved session is not stored inside the virtual machine.")
+        }
+
         let manifest: SavedSessionManifest
         do {
             manifest = try Self.decoder.decode(SavedSessionManifest.self, from: fileSystem.read(layout.manifestURL))
@@ -457,6 +471,21 @@ struct SavedSessionStorage: Sendable {
     private func validate(_ manifest: SavedSessionManifest, in packageURL: URL) throws {
         if let savedECID = manifest.hostECID, let hostECID, savedECID != hostECID {
             throw SavedSessionError.hostMismatch
+        }
+
+        /// Nothing in the manifest may point anywhere but inside the package and the virtual machine.
+        guard SavedSessionLayout.isPermittedPackagePath(manifest.stateFileName),
+              SavedSessionLayout.isPermittedPackagePath(manifest.configurationFileName),
+              manifest.screenshotFileName.map(SavedSessionLayout.isPermittedPackagePath) ?? true
+        else {
+            throw SavedSessionError.invalidManifest("The manifest refers to files outside of the saved session.")
+        }
+
+        for resource in manifest.resources {
+            guard SavedSessionLayout.isPermittedPackagePath(resource.packagePath) else {
+                throw SavedSessionError.invalidManifest("The manifest refers to files outside of the saved session.")
+            }
+            _ = try layout.workingURL(for: resource.workingPath)
         }
 
         func requireFile(_ name: String, byteCount: UInt64?) throws {
@@ -478,11 +507,19 @@ struct SavedSessionStorage: Sendable {
 
     private func readJournal() throws -> SavedSessionJournal? {
         guard fileSystem.exists(layout.journalURL) else { return nil }
+
+        let journal: SavedSessionJournal
         do {
-            return try Self.decoder.decode(SavedSessionJournal.self, from: fileSystem.read(layout.journalURL))
+            journal = try Self.decoder.decode(SavedSessionJournal.self, from: fileSystem.read(layout.journalURL))
         } catch {
             throw SavedSessionError.invalidManifest("The restore journal could not be read.")
         }
+
+        guard journal.isValid else {
+            throw SavedSessionError.invalidManifest("The restore journal refers to files outside of the virtual machine.")
+        }
+
+        return journal
     }
 
     private func writeJournal(_ journal: SavedSessionJournal) throws {
@@ -493,7 +530,7 @@ struct SavedSessionStorage: Sendable {
     private func rollback() throws {
         if let journal = try readJournal() {
             for entry in journal.entries {
-                let workingURL = layout.workingURL(for: entry.workingPath)
+                let workingURL = try layout.workingURL(for: entry.workingPath)
                 let backupURL = layout.backupURL.appending(path: entry.backupName)
 
                 if fileSystem.exists(backupURL) {

@@ -127,6 +127,19 @@ struct SavedSessionJournal: Codable, Hashable, Sendable {
     var phase: Phase
     var entries: [Entry]
     var startedAt: Date
+
+    /// Whether every name in the journal is one that this implementation could have written.
+    var isValid: Bool {
+        entries.allSatisfy { entry in
+            SavedSessionLayout.isPermittedWorkingPath(entry.workingPath)
+                && Self.isIndex(entry.stagedName)
+                && Self.isIndex(entry.backupName)
+        }
+    }
+
+    private static func isIndex(_ name: String) -> Bool {
+        !name.isEmpty && name.allSatisfy(\.isASCII) && name.allSatisfy(\.isNumber)
+    }
 }
 
 // MARK: - Layout
@@ -168,8 +181,51 @@ struct SavedSessionLayout: Sendable {
         bundleURL.appending(path: Self.obsoletePrefix + id.uuidString, directoryHint: .isDirectory)
     }
 
-    func workingURL(for relativePath: String) -> URL {
-        bundleURL.appending(path: relativePath, directoryHint: .notDirectory)
+    /// The location of a working resource. Paths come from the manifest and journal, which live inside the
+    /// virtual machine's bundle and can't be trusted, so the path has to be one that's permitted and must not lead out of the bundle.
+    func workingURL(for relativePath: String) throws -> URL {
+        guard Self.isPermittedWorkingPath(relativePath) else {
+            throw SavedSessionError.invalidManifest("The saved session refers to a file outside of the virtual machine.")
+        }
+
+        let url = bundleURL.appending(path: relativePath, directoryHint: .notDirectory)
+
+        /// A directory in the path may be a symbolic link, so where it actually leads has to be inside the bundle too.
+        let bundlePath = bundleURL.resolvingSymlinksInPath().standardizedFileURL.path
+        let parentPath = url.deletingLastPathComponent().resolvingSymlinksInPath().standardizedFileURL.path
+
+        guard parentPath == bundlePath || parentPath.hasPrefix(bundlePath + "/") else {
+            throw SavedSessionError.invalidManifest("The saved session refers to a file outside of the virtual machine.")
+        }
+
+        return url
+    }
+
+    /// A single path component that can't refer to anything but an item in the directory it's in.
+    static func isSimpleName(_ name: String) -> Bool {
+        !name.isEmpty && name != "." && name != ".." && !name.contains("/") && !name.contains("\0")
+    }
+
+    /// Where a resource may live while the virtual machine runs: directly in the bundle, with a name that
+    /// doesn't collide with the saved session machinery or the virtual machine's own data, or the guest additions image location.
+    static func isPermittedWorkingPath(_ path: String) -> Bool {
+        if path == guestAdditionsMediaWorkingPath { return true }
+
+        return isSimpleName(path)
+            && path != packageName
+            && path != VBVirtualMachine.metadataDirectoryName
+            && !isTransientName(path)
+    }
+
+    /// A path inside a saved session package: a file in the package, or in its resources directory.
+    static func isPermittedPackagePath(_ path: String) -> Bool {
+        let components = path.split(separator: "/", omittingEmptySubsequences: false).map(String.init)
+
+        switch components.count {
+        case 1: return isSimpleName(components[0])
+        case 2: return components[0] == resourcesDirectoryName && isSimpleName(components[1])
+        default: return false
+        }
     }
 
     /// Names of items in a virtual machine bundle that must never be copied when duplicating it.

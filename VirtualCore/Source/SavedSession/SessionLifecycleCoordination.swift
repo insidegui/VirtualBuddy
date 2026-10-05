@@ -115,6 +115,13 @@ public final class SessionCloseCoordinator {
         }
     }
 
+    /// Stops waiting for whatever closing is waiting for, including a guest that doesn't shut down. The virtual machine
+    /// is left as it is: nothing is forced. A save in progress is asked to stop at its next safe point.
+    public func cancelClose() {
+        closeTask?.cancel()
+        controller.cancelSave()
+    }
+
     /// - Returns: `true` if the virtual machine isn't running anymore and closing can proceed.
     public func requestClose(context: SessionCloseContext = .window) async -> Bool {
         if let closeTask {
@@ -254,6 +261,9 @@ public final class SessionCloseCoordinator {
 
         do {
             try await controller.shutDownAndWait()
+        } catch is CancellationError {
+            logger.info("Stopped waiting for the guest to shut down")
+            return false
         } catch {
             logger.error("Shut down failed: \(error, privacy: .public)")
             prompts.reportShutDownFailure(error)
@@ -336,12 +346,13 @@ public final class SessionTerminationCoordinator {
         return result
     }
 
-    /// Stops what's in progress. Takes effect once the virtual machine that's being saved reaches a safe point.
+    /// Stops what's in progress: saves stop at their next safe point, and waiting for a guest to shut down ends right away
+    /// (the guest isn't forced to stop). The app keeps running.
     public func cancel() {
         isCancelled = true
 
         for participant in participants {
-            participant.controller.cancelSave()
+            participant.closer.cancelClose()
         }
     }
 

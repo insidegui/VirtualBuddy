@@ -319,6 +319,45 @@ extension VMControllerSavedSessionTests {
     }
 }
 
+extension VMControllerSavedSessionTests {
+    /// Nothing may change a virtual machine's bundle while it's being copied.
+    @Test func duplicationHoldsBackEverythingThatChangesTheBundle() async throws {
+        let model = try makeVirtualMachine()
+        try saveSession(in: model)
+        let controller = try makeController(for: model)
+        let library = VMLibraryController.preview
+
+        /// Keeps the controller busy so that the duplication has to wait for its turn, with its exclusion already in place.
+        var releaseController: CheckedContinuation<Void, Never>?
+        let busy = Task { @MainActor in
+            await controller.performExclusively {
+                await withCheckedContinuation { releaseController = $0 }
+            }
+        }
+        for _ in 0..<5 { await Task.yield() }
+
+        let duplicating = Task { @MainActor in try await library.duplicate(model) }
+        for _ in 0..<5 { await Task.yield() }
+
+        #expect(library.isBeingDuplicated(model))
+        #expect(throws: Failure.self) { try library.rename(model, to: "Renamed VM") }
+
+        /// Queued behind the duplication, so it can only happen after the copy is complete.
+        let discarding = Task { @MainActor in try await controller.discardSavedSession() }
+        for _ in 0..<5 { await Task.yield() }
+
+        releaseController?.resume()
+        await busy.value
+
+        let copy = try await duplicating.value
+        try await discarding.value
+
+        #expect(copy.savedSession?.status == .ready, "the copy must have been made before the session was discarded")
+        #expect(controller.savedSession == nil)
+        #expect(!library.isBeingDuplicated(model))
+    }
+}
+
 private extension URL {
     var isDirectory: Bool {
         var isDirectory: ObjCBool = false

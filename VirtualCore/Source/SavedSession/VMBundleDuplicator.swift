@@ -4,7 +4,9 @@ import Foundation
 ///
 /// The copy is built under a hidden name next to its destination, finished there, and only then moved into place.
 /// A saved session is copied along with everything else, so the copy resumes independently from the original.
-/// Temporary data from operations that were in progress on the original is never copied.
+/// Temporary data from operations that were in progress on the original is never copied, with one exception:
+/// a saved session that was interrupted after it was resumed keeps that fact in the copy. The copy's disks may be newer than
+/// the session, so resuming the copy has to ask first, exactly like the original.
 struct VMBundleDuplicator: Sendable {
     let fileSystem: SavedSessionFileSystem
 
@@ -19,9 +21,16 @@ struct VMBundleDuplicator: Sendable {
             .appending(path: ".duplicating-\(UUID().uuidString).\(VBVirtualMachine.bundleExtension)", directoryHint: .isDirectory)
 
         do {
+            /// Operations that were interrupted before the virtual machine could have run are finished (rolled back) on the original first,
+            /// so that the copy never starts from files that are halfway through being replaced. What's left is only
+            /// the record of a session that was resumed, which the copy has to keep.
+            try SavedSessionStorage(bundleURL: sourceURL, fileSystem: fileSystem).recover()
+
             try fileSystem.copy(from: sourceURL, to: workURL)
 
-            for url in try fileSystem.contentsOfDirectory(at: workURL) where SavedSessionLayout.isTransientName(url.lastPathComponent) {
+            for url in try fileSystem.contentsOfDirectory(at: workURL) {
+                let name = url.lastPathComponent
+                guard SavedSessionLayout.isTransientName(name), name != SavedSessionLayout.transactionName else { continue }
                 try fileSystem.remove(url)
             }
 

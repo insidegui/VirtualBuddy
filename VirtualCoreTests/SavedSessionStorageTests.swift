@@ -39,6 +39,7 @@ final class FaultInjectingFileSystem: SavedSessionFileSystem, @unchecked Sendabl
 
     func exists(_ url: URL) -> Bool { base.exists(url) }
     func byteCount(of url: URL) -> UInt64? { base.byteCount(of: url) }
+    func isSymbolicLink(_ url: URL) -> Bool { base.isSymbolicLink(url) }
     func contentsOfDirectory(at url: URL) throws -> [URL] { try base.contentsOfDirectory(at: url) }
     func read(_ url: URL) throws -> Data { try base.read(url) }
 
@@ -475,5 +476,135 @@ final class SavedSessionStorageTests: XCTestCase {
 
     func testVirtualMachineWithoutSavedSessionHasNoDescriptor() {
         XCTAssertNil(makeStorage().inspect())
+    }
+
+    // MARK: Untrusted Paths
+
+    private var outsideURL: URL { bundleURL.deletingLastPathComponent().appending(path: "outside-\(bundleURL.lastPathComponent)", directoryHint: .isDirectory) }
+
+    private func makeOutsideFile(named name: String = "precious.txt") throws -> URL {
+        try FileManager.default.createDirectory(at: outsideURL, withIntermediateDirectories: true)
+        let url = outsideURL.appending(path: name)
+        try Data("must survive".utf8).write(to: url)
+        addTeardownBlock { [outsideURL] in try? FileManager.default.removeItem(at: outsideURL) }
+        return url
+    }
+
+    private func writeJournal(_ journal: SavedSessionJournal, to storage: SavedSessionStorage) throws {
+        try FileManager.default.createDirectory(at: storage.layout.transactionURL, withIntermediateDirectories: true)
+        try PropertyListEncoder().encode(journal).write(to: storage.layout.journalURL)
+    }
+
+    func testJournalPathsCannotDeleteFilesOutsideTheBundle() throws {
+        let storage = makeStorage()
+        let outside = try makeOutsideFile()
+
+        let traversal = "../\(outsideURL.lastPathComponent)/\(outside.lastPathComponent)"
+
+        for workingPath in [traversal, outside.path, "a/b", "..", ""] {
+            let journal = SavedSessionJournal(
+                sessionID: UUID(),
+                phase: .promoting,
+                entries: [.init(resourceID: "x", workingPath: workingPath, stagedName: "0", backupName: "0", hadOriginal: false)],
+                startedAt: .now
+            )
+            try writeJournal(journal, to: storage)
+
+            XCTAssertThrowsError(try storage.recover(), "\(workingPath)")
+            XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path), "\(workingPath) must not reach outside the bundle")
+
+            try? FileManager.default.removeItem(at: storage.layout.transactionURL)
+        }
+    }
+
+    func testJournalBackupAndStagedNamesMustBeIndexes() throws {
+        let storage = makeStorage()
+        let outside = try makeOutsideFile()
+
+        let journal = SavedSessionJournal(
+            sessionID: UUID(),
+            phase: .promoting,
+            entries: [.init(resourceID: "x", workingPath: "Disk.img", stagedName: "0", backupName: "../../\(outsideURL.lastPathComponent)/\(outside.lastPathComponent)", hadOriginal: true)],
+            startedAt: .now
+        )
+        try writeJournal(journal, to: storage)
+
+        XCTAssertThrowsError(try storage.recover())
+        XCTAssertEqual(try readWorking("Disk.img"), originalDisk)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path))
+    }
+
+    func testSymbolicLinkedMediaDirectoryCannotRedirectRollbackOutsideTheBundle() throws {
+        let storage = makeStorage()
+        let outside = try makeOutsideFile(named: "GuestAdditions.img")
+
+        try FileManager.default.createSymbolicLink(at: storage.layout.mediaDirectoryURL, withDestinationURL: outsideURL)
+
+        let journal = SavedSessionJournal(
+            sessionID: UUID(),
+            phase: .promoting,
+            entries: [.init(resourceID: "media", workingPath: SavedSessionLayout.guestAdditionsMediaWorkingPath, stagedName: "0", backupName: "0", hadOriginal: false)],
+            startedAt: .now
+        )
+        try writeJournal(journal, to: storage)
+
+        XCTAssertThrowsError(try storage.recover())
+        XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path))
+    }
+
+    func testManifestPathsCannotLeaveThePackageOrTheBundle() throws {
+        let storage = makeStorage()
+        try capture(with: storage)
+        let outside = try makeOutsideFile()
+
+        let original = try Data(contentsOf: storage.layout.manifestURL)
+
+        func tamper(_ change: (inout SavedSessionManifest) -> Void) throws {
+            var manifest = try PropertyListDecoder().decode(SavedSessionManifest.self, from: original)
+            change(&manifest)
+            try PropertyListEncoder().encode(manifest).write(to: storage.layout.manifestURL)
+        }
+
+        let traversal = "../\(outsideURL.lastPathComponent)/\(outside.lastPathComponent)"
+
+        let changes: [(String, (inout SavedSessionManifest) -> Void)] = [
+            ("working path", { $0.resources[0].workingPath = traversal }),
+            ("absolute working path", { $0.resources[0].workingPath = outside.path }),
+            ("package path", { $0.resources[0].packagePath = traversal }),
+            ("state file", { $0.stateFileName = traversal }),
+            ("metadata directory", { $0.resources[0].workingPath = ".vbdata" }),
+            ("session package", { $0.resources[0].workingPath = SavedSessionLayout.packageName })
+        ]
+
+        for (name, change) in changes {
+            try tamper(change)
+
+            guard case .recoveryRequired(.unavailable)? = storage.inspect()?.status else {
+                XCTFail("\(name): a manifest that points elsewhere must make the session unavailable")
+                continue
+            }
+            XCTAssertThrowsError(try storage.prepareRestore(), name)
+            XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path), name)
+            XCTAssertEqual(try readWorking("Disk.img"), originalDisk, name)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: storage.layout.transactionURL.path), "\(name) must not start a transaction")
+        }
+    }
+
+    func testSymbolicLinkInPlaceOfPackageIsNotFollowed() throws {
+        let storage = makeStorage()
+        try capture(with: storage)
+
+        let moved = outsideURL
+        try FileManager.default.moveItem(at: storage.layout.packageURL, to: moved)
+        addTeardownBlock { try? FileManager.default.removeItem(at: moved) }
+        try FileManager.default.createSymbolicLink(at: storage.layout.packageURL, withDestinationURL: moved)
+
+        guard case .recoveryRequired(.unavailable)? = storage.inspect()?.status else { return XCTFail("a linked package must be unavailable") }
+        XCTAssertThrowsError(try storage.prepareRestore())
+
+        /// Discarding removes the link, never what it points to.
+        try storage.discard()
+        XCTAssertNil(storage.inspect())
+        XCTAssertTrue(FileManager.default.fileExists(atPath: moved.path))
     }
 }

@@ -451,28 +451,58 @@ public extension VMLibraryController {
         bootedMachineIdentifiers.contains(vm.id) || activeController(for: vm.id)?.state.isActive == true
     }
 
+    /// Whether the virtual machine's bundle is being copied, which makes it unavailable for anything that would change it.
+    func isBeingDuplicated(_ vm: VBVirtualMachine) -> Bool {
+        duplicatingMachineIdentifiers.contains(vm.id)
+    }
+
+    /// Returns once the virtual machine isn't being duplicated, immediately if it isn't.
+    /// Starting, resuming and everything else that changes a virtual machine's bundle waits for this.
+    func waitForDuplication(of id: VBVirtualMachine.ID) async {
+        guard duplicatingMachineIdentifiers.contains(id) else { return }
+
+        for await identifiers in $duplicatingMachineIdentifiers.values where !identifiers.contains(id) {
+            return
+        }
+    }
+
     /// Duplicates a virtual machine without opening or resuming it.
     ///
     /// A virtual machine with a saved session is duplicated along with it, and the copy continues independently.
     /// The copy only becomes visible once it's complete.
+    ///
+    /// The virtual machine can't be started, resumed, discarded, renamed or trashed while it's being copied.
     @discardableResult
     func duplicate(_ vm: VBVirtualMachine) async throws -> VBVirtualMachine {
-        guard !isExecuting(vm) else {
-            throw Failure("\"\(vm.name)\" is in use. Use Save & Close or shut it down before duplicating it.")
-        }
-
-        guard !duplicatingMachineIdentifiers.contains(vm.id) else {
+        guard !isBeingDuplicated(vm) else {
             throw Failure("\"\(vm.name)\" is already being duplicated.")
         }
 
+        /// From here on, nothing new can start working on the virtual machine until the copy is done.
         duplicatingMachineIdentifiers.insert(vm.id)
         defer { duplicatingMachineIdentifiers.remove(vm.id) }
 
         let copyURL = try urlForRenaming(vm, to: "Copy of " + vm.name)
         let sourceURL = vm.bundleURL
 
-        let duplicate = try await performOffMainActor {
-            try VMBundleDuplicator().duplicate(bundleAt: sourceURL, to: copyURL)
+        func copy() async throws -> VBVirtualMachine {
+            /// Checked again inside the exclusion, since it could have been started while this was waiting for its turn.
+            guard !isExecuting(vm) else {
+                throw Failure("\"\(vm.name)\" is in use. Use Save & Close or shut it down before duplicating it.")
+            }
+
+            return try await performOffMainActor {
+                try VMBundleDuplicator().duplicate(bundleAt: sourceURL, to: copyURL)
+            }
+        }
+
+        let duplicate: VBVirtualMachine
+
+        if let controller = activeController(for: vm.id) {
+            /// Anything the virtual machine's controller is asked to do is held back until the copy is complete.
+            duplicate = try await controller.performExclusively { try await copy() }
+        } else {
+            duplicate = try await copy()
         }
 
         reload()
@@ -483,12 +513,20 @@ public extension VMLibraryController {
     }
 
     func moveToTrash(_ vm: VBVirtualMachine) async throws {
+        guard !isBeingDuplicated(vm) else {
+            throw Failure("\"\(vm.name)\" is being duplicated. Wait for that to finish before moving it to the trash.")
+        }
+
         try await NSWorkspace.shared.recycle([vm.bundleURL])
 
         reload()
     }
 
     func rename(_ vm: VBVirtualMachine, to newName: String) throws {
+        guard !isBeingDuplicated(vm) else {
+            throw Failure("\"\(vm.name)\" is being duplicated. Wait for that to finish before renaming it.")
+        }
+
         let newURL = try urlForRenaming(vm, to: newName)
 
         try fileManager.moveItem(at: vm.bundleURL, to: newURL)

@@ -134,6 +134,39 @@ final class SavedSessionDuplicationTests: XCTestCase {
         }
     }
 
+    func testDuplicateOfInterruptedSessionStillRequiresRecovery() throws {
+        let created = try makeVirtualMachine()
+        try saveSession(in: created)
+
+        let storage = SavedSessionStorage(bundleURL: created.bundleURL)
+        try storage.markConsumed(try storage.prepareRestore())
+        try Data("newer disk".utf8).write(to: created.bundleURL.appending(path: "Disk.img"))
+
+        let copy = try VMBundleDuplicator().duplicate(bundleAt: created.bundleURL, to: bundleURL("Copy of Original"))
+
+        XCTAssertEqual(copy.savedSession?.status, .recoveryRequired(.interruptedAfterResume), "the copy must not look ready")
+
+        let copyStorage = SavedSessionStorage(bundleURL: copy.bundleURL)
+        XCTAssertThrowsError(try copyStorage.prepareRestore(), "resuming the copy must not silently rewind its newer disks")
+        XCTAssertEqual(try Data(contentsOf: copy.bundleURL.appending(path: "Disk.img")), Data("newer disk".utf8))
+    }
+
+    func testDuplicateOfVirtualMachineWithUnfinishedRestoreStartsFromRolledBackFiles() throws {
+        let created = try makeVirtualMachine()
+        try saveSession(in: created)
+        try Data("diverged".utf8).write(to: created.bundleURL.appending(path: "Disk.img"))
+
+        /// An interruption halfway through installing the saved resources.
+        let storage = SavedSessionStorage(bundleURL: created.bundleURL)
+        _ = try storage.prepareRestore()
+
+        let copy = try VMBundleDuplicator().duplicate(bundleAt: created.bundleURL, to: bundleURL("Copy of Original"))
+
+        XCTAssertEqual(try Data(contentsOf: copy.bundleURL.appending(path: "Disk.img")), Data("diverged".utf8))
+        XCTAssertEqual(copy.savedSession?.status, .ready)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: SavedSessionLayout(bundleURL: copy.bundleURL).transactionURL.path))
+    }
+
     func testDuplicationRefusesExistingDestination() throws {
         let original = try makeVirtualMachine()
         let existing = try makeVirtualMachine(named: "Copy of Original")
