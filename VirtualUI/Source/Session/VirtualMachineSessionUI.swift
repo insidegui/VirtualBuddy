@@ -19,6 +19,10 @@ public final class VirtualMachineSessionUI: ObservableObject {
     @Published var captureMouseEvents = true
     @Published var captureKeyboardEvents = true
 
+    /// Presents the HUD that tells the user when an input device is connected or disconnected,
+    /// and about the shortcut that can be held down to do so.
+    let inputStatusHUD: VMInputStatusHUDPresenter
+
     let setWindowAspectRatio = PassthroughSubject<CGSize?, Never>()
     let resizeWindow = PassthroughSubject<WindowSize, Never>()
     let makeWindowKey = PassthroughSubject<Void, Never>()
@@ -47,6 +51,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
     public init(controller: VMController) {
         self.controller = controller
         self.virtualMachine = controller.virtualMachineModel
+        self.inputStatusHUD = VMInputStatusHUDPresenter()
 
         self.prompts = SessionAlertPrompts(ui: self)
         self.closer = SessionCloseCoordinator(controller: controller, prompts: prompts)
@@ -82,6 +87,36 @@ public final class VirtualMachineSessionUI: ObservableObject {
             }
         }
         .store(in: &cancellables)
+
+        $captureMouseEvents.dropFirst().removeDuplicates().sink { [weak self] captureMouse in
+            self?.inputStatusHUD.statusChanged(for: .pointingDevice, isConnected: captureMouse)
+        }
+        .store(in: &cancellables)
+
+        $captureKeyboardEvents.dropFirst().removeDuplicates().sink { [weak self] captureKeyboard in
+            self?.inputStatusHUD.statusChanged(for: .keyboard, isConnected: captureKeyboard)
+        }
+        .store(in: &cancellables)
+    }
+
+    /// Responds to the user holding down the shortcut that toggles an input device.
+    @MainActor
+    func handleInputToggleHold(_ event: VMInputToggleHoldEvent) {
+        switch event {
+        case .began(let device, let remaining):
+            inputStatusHUD.holdBegan(
+                for: device,
+                isConnected: eventDeliveryMask.contains(device.deliveryMask),
+                remaining: remaining
+            )
+        case .cancelled:
+            inputStatusHUD.holdCancelled()
+        case .completed(let device):
+            switch device {
+            case .keyboard: captureKeyboardEvents.toggle()
+            case .pointingDevice: captureMouseEvents.toggle()
+            }
+        }
     }
 
     @MainActor
