@@ -13,6 +13,7 @@ struct CloseChoiceSheet: View {
     var isQuitting: Bool
     var onFinish: (Result?) -> Void
 
+    @State private var selection = SessionCloseChoice.saveState
     @State private var makeDefault = false
 
     private var subtitle: String {
@@ -20,37 +21,48 @@ struct CloseChoiceSheet: View {
             if machines.count == 1, let name = machines.first {
                 return "“\(name)” is running."
             }
-            return "\(machines.count) virtual machines are running: \(machines.formatted(.list(type: .and)))."
+            return "\(machines.count) virtual machines are running."
         } else {
             return "“\(machines.first ?? "")” is running."
         }
     }
 
+    private var confirmTitle: String {
+        selection == .saveState ? "Save State" : "Shutdown"
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            header
+            Header(subtitle: Text(subtitle))
 
             VStack(spacing: 10) {
                 ChoiceCard(
                     symbol: "tray.and.arrow.down.fill",
-                    tint: .accentColor,
                     title: "Save State",
                     badge: "Recommended",
-                    detail: "Pick up exactly where you left off. Open apps and unsaved work are kept, and starting again resumes in moments.",
-                    isDefault: true
+                    detail: "Pick up exactly where you left off. Unsaved work is preserved, and starting again takes a few seconds.",
+                    isSelected: selection == .saveState
                 ) {
-                    onFinish(Result(choice: .saveState, makeDefault: makeDefault))
+                    selection = .saveState
                 }
 
                 ChoiceCard(
                     symbol: "power",
-                    tint: .secondary,
                     title: "Shutdown",
                     badge: nil,
                     detail: "Ask the guest to shut down normally. Next time, the virtual machine starts up from scratch.",
-                    isDefault: false
+                    isSelected: selection == .shutDown
                 ) {
-                    onFinish(Result(choice: .shutDown, makeDefault: makeDefault))
+                    selection = .shutDown
+                }
+            }
+
+            Toggle(isOn: $makeDefault) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Set as default")
+                    Text("You can change it later in Settings.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
             }
 
@@ -61,43 +73,47 @@ struct CloseChoiceSheet: View {
 
             Divider()
 
-            HStack(alignment: .center) {
-                Toggle(isOn: $makeDefault) {
-                    VStack(alignment: .leading, spacing: 1) {
-                        Text("Always do this")
-                        Text("You can change it later in Settings.")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                }
-
-                Spacer()
-
+            HStack {
                 Button("Cancel") {
                     onFinish(nil)
                 }
                 .keyboardShortcut(.cancelAction)
+                .airGlassButtonStyle()
+
+                Spacer()
+
+                Button(confirmTitle) {
+                    onFinish(Result(choice: selection, makeDefault: makeDefault))
+                }
+                .keyboardShortcut(.defaultAction)
+                .airGlassButtonStyle(prominent: true)
             }
+            .controlSize(.large)
         }
         .padding(24)
         .frame(width: 460)
     }
 
-    private var header: some View {
-        HStack(alignment: .center, spacing: 14) {
-            Image(systemName: "tray.and.arrow.down.fill")
-                .font(.system(size: 26, weight: .semibold))
-                .foregroundStyle(.white)
-                .frame(width: 52, height: 52)
-                .background(Color.accentColor.gradient, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+    private struct Header: View {
+        var subtitle: Text
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text("Close now. Continue later.")
-                    .font(.title2.weight(.semibold))
+        var body: some View {
+            HStack(alignment: .center, spacing: 14) {
+                Image(systemName: "tray.and.arrow.down.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.2), radius: 2)
+                    .frame(width: 52, height: 52)
+                    .background(Color.accentColor.gradient, in: RoundedRectangle(cornerRadius: 14))
 
-                Text(subtitle)
-                    .foregroundStyle(.secondary)
-                    .fixedSize(horizontal: false, vertical: true)
+                VStack(alignment: .leading, spacing: 3) {
+                    Text("Close now. Continue later.")
+                        .font(.title2.weight(.semibold))
+
+                    subtitle
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
             }
         }
     }
@@ -105,20 +121,21 @@ struct CloseChoiceSheet: View {
 
 private struct ChoiceCard: View {
     var symbol: String
-    var tint: Color
     var title: String
     var badge: String?
     var detail: String
-    var isDefault: Bool
+    var isSelected: Bool
     var action: () -> Void
 
     @State private var isHovering = false
 
+    var tint: Color { isSelected ? .accentColor : .secondary }
+
     var body: some View {
         Button(action: action) {
-            HStack(alignment: .top, spacing: 12) {
+            HStack(alignment: .center, spacing: 12) {
                 Image(systemName: symbol)
-                    .font(.system(size: 17, weight: .semibold))
+                    .font(.system(size: 22, weight: .medium))
                     .foregroundStyle(tint)
                     .frame(width: 28, height: 28)
 
@@ -145,21 +162,25 @@ private struct ChoiceCard: View {
                 }
 
                 Spacer(minLength: 0)
+
+                Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 18))
+                    .foregroundStyle(isSelected ? Color.accentColor : Color.secondary.opacity(0.6))
             }
             .padding(14)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(Color.primary.opacity(isHovering ? 0.09 : 0.05))
+                    .fill(Color.primary.opacity(isHovering && !isSelected ? 0.09 : 0.05))
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .strokeBorder(isDefault ? Color.accentColor.opacity(0.7) : Color.primary.opacity(0.12), lineWidth: isDefault ? 1.5 : 1)
+                    .strokeBorder(isSelected ? Color.accentColor.opacity(0.7) : Color.primary.opacity(0.12), lineWidth: isSelected ? 1.5 : 1)
             )
             .contentShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
         }
         .buttonStyle(.plain)
-        .keyboardShortcut(isDefault ? .defaultAction : nil)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
         .onHover { isHovering = $0 }
     }
 }
