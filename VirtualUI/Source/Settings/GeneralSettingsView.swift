@@ -32,6 +32,20 @@ struct GeneralSettingsView: View {
             }
 
             Section {
+                Picker("When closing a running virtual machine", selection: $settings.closeBehavior) {
+                    ForEach(VMCloseBehavior.allCases) { behavior in
+                        Text(behavior.title)
+                            .tag(behavior)
+                    }
+                }
+            } header: {
+                Text("Closing Virtual Machines")
+            } footer: {
+                Text("Save state keeps the virtual machine as it is so that it continues where you left off. This feature is only available for macOS guests.")
+                    .settingsFooterStyle()
+            }
+
+            Section {
                 Toggle("Automatically check for updates", isOn: $enableAutomaticUpdates)
 
                 betaSection

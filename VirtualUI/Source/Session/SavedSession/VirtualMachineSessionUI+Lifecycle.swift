@@ -21,13 +21,13 @@ final class SessionAlertPrompts: SessionClosePrompting {
     private var name: String { ui?.virtualMachine.name ?? "Virtual Machine" }
     private var window: NSWindow? { ui?.hostWindow }
 
-    var hasAcknowledgedIntroduction: Bool { SavedSessionPrompts.hasAcknowledgedIntroduction }
+    var closeBehavior: VMCloseBehavior { SavedSessionPrompts.closeBehavior }
 
-    func confirmIntroduction(context: SessionCloseContext) async -> Bool {
-        await SavedSessionPrompts.confirmIntroduction(quitting: context.isQuitting, from: window)
+    func chooseCloseAction(context: SessionCloseContext) async -> SessionCloseChoice? {
+        await SavedSessionPrompts.chooseCloseAction(name: name, from: window)
     }
 
-    func confirmShutDownInsteadOfSaving(reason: String, context: SessionCloseContext) async -> Bool {
+    func confirmShutDownInsteadOfSaving(reason: String?, context: SessionCloseContext) async -> Bool {
         await SavedSessionPrompts.confirmShutDownInsteadOfSaving(name: name, reason: reason, quitting: context.isQuitting, from: window)
     }
 
@@ -68,7 +68,7 @@ extension VirtualMachineSessionUI {
 
     /// Saves the session and closes the window.
     func saveAndClose() async {
-        guard await requestClose() else { return }
+        guard await requestClose(context: .saveAndClose) else { return }
 
         hostWindow?.close()
     }

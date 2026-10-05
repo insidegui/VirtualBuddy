@@ -34,6 +34,7 @@ public extension VirtualMachineSessionUIManager {
 @MainActor
 final class TerminationPresenter: SessionTerminationPresenting {
     private var panel: TerminationProgressPanel?
+    private var machineNames = [String]()
 
     weak var manager: VirtualMachineSessionUIManager?
 
@@ -41,6 +42,7 @@ final class TerminationPresenter: SessionTerminationPresenting {
         guard let manager else { return }
 
         let sessions = manager.sessionsInProgress(for: participants)
+        machineNames = participants.map(\.name)
 
         let panel = TerminationProgressPanel(sessions: sessions) { [weak manager] in
             manager?.cancelTermination()
@@ -55,7 +57,13 @@ final class TerminationPresenter: SessionTerminationPresenting {
         panel = nil
     }
 
-    func confirmShutDown(of machines: [(name: String, reason: String)]) async -> Bool {
+    var closeBehavior: VMCloseBehavior { SavedSessionPrompts.closeBehavior }
+
+    func chooseCloseAction() async -> SessionCloseChoice? {
+        await SavedSessionPrompts.chooseCloseAction(name: "", quittingMachines: machineNames, from: nil)
+    }
+
+    func confirmShutDown(of machines: [(name: String, reason: String?)]) async -> Bool {
         await SavedSessionPrompts.confirmShutDownInsteadOfSaving(names: machines, from: nil)
     }
 }

@@ -7,55 +7,85 @@ enum SavedSessionPrompts {
 
     // MARK: Closing and Quitting
 
-    private static let introductionAcknowledgedKey = "VBSavedSessionIntroductionAcknowledged"
+    /// The user's preference for closing running virtual machines.
+    static var closeBehavior: VMCloseBehavior { VBSettingsContainer.current.settings.closeBehavior }
 
-    static var hasAcknowledgedIntroduction: Bool {
-        UserDefaults.standard.bool(forKey: introductionAcknowledgedKey)
-    }
+    /// Asks whether to save the state or shut down, and remembers the answer as the default if the user asks for it.
+    /// - Parameter machines: The names of the virtual machines the answer applies to when quitting. Empty when closing a single window.
+    /// - Returns: `nil` if the user cancelled.
+    static func chooseCloseAction(name: String, quittingMachines machines: [String] = [], from window: NSWindow?) async -> SessionCloseChoice? {
+        let quitting = !machines.isEmpty
 
-    /// Explains that closing saves the virtual machine. Only accepting counts as acknowledging it.
-    static func confirmIntroduction(quitting: Bool, from window: NSWindow?) async -> Bool {
         let alert = NSAlert()
-        alert.messageText = "Close now. Continue later."
+        alert.messageText = quitting ? "Quit VirtualBuddy?" : "Close “\(name)”?"
         alert.informativeText = """
-        Closing a virtual machine saves it exactly as it is, including open apps and unsaved work. \
-        The next time you start it, it picks up where you left off.
+        Save State keeps the virtual machine exactly as it is, including open apps and unsaved work, so that it picks up where you left off next time.
 
-        You can still use Shut Down to turn off the virtual machine completely instead.
+        Shutdown asks the guest to shut down. The virtual machine starts up from scratch next time.
         """
-        alert.addButton(withTitle: quitting ? "Save & Quit" : "Save & Close")
+        if quitting {
+            alert.informativeText = "Running: \(machines.formatted(.list(type: .and))).\n\n" + alert.informativeText
+        }
+        alert.addButton(withTitle: "Save State")
+        alert.addButton(withTitle: "Shutdown")
         alert.addButton(withTitle: "Cancel")
+        alert.showsSuppressionButton = true
+        alert.suppressionButton?.title = "Always do this. You can change it later in Settings."
 
-        guard await alert.present(from: window) == .alertFirstButtonReturn else { return false }
+        let choice: SessionCloseChoice
 
-        UserDefaults.standard.set(true, forKey: introductionAcknowledgedKey)
+        switch await alert.present(from: window) {
+        case .alertFirstButtonReturn: choice = .saveState
+        case .alertSecondButtonReturn: choice = .shutDown
+        default: return nil
+        }
 
-        return true
+        if alert.suppressionButton?.state == .on {
+            VBSettingsContainer.current.settings.closeBehavior = choice == .saveState ? .saveState : .shutDown
+        }
+
+        return choice
     }
 
     /// Saving isn't available: the only way to close is to shut down. A slow shutdown is waited for, never forced.
-    static func confirmShutDownInsteadOfSaving(name: String, reason: String, quitting: Bool, from window: NSWindow?) async -> Bool {
+    /// - Parameter reason: Why saving isn't available. `nil` for virtual machines that can't be saved at all, so that saving isn't even mentioned.
+    static func confirmShutDownInsteadOfSaving(name: String, reason: String?, quitting: Bool, from window: NSWindow?) async -> Bool {
         let alert = NSAlert()
-        alert.messageText = "Can’t Save “\(name)”"
-        alert.informativeText = """
-        \(reason)
 
-        The virtual machine has to be shut down before it can be \(quitting ? "left" : "closed"). VirtualBuddy waits for the guest to shut down.
-        """
-        alert.addButton(withTitle: quitting ? "Shut Down & Quit" : "Shut Down & Close")
+        if let reason {
+            alert.messageText = "Can’t Save “\(name)”"
+            alert.informativeText = """
+            \(reason)
+
+            The virtual machine has to be shut down before it can be \(quitting ? "left" : "closed"). VirtualBuddy waits for the guest to shut down.
+            """
+        } else {
+            alert.messageText = "Shut Down “\(name)”?"
+            alert.informativeText = "The virtual machine has to be shut down before it can be \(quitting ? "left" : "closed"). VirtualBuddy waits for the guest to shut down."
+        }
+
+        alert.addButton(withTitle: "Shutdown")
         alert.addButton(withTitle: "Cancel")
 
         return await alert.present(from: window) == .alertFirstButtonReturn
     }
 
-    static func confirmShutDownInsteadOfSaving(names: [(name: String, reason: String)], from window: NSWindow?) async -> Bool {
+    static func confirmShutDownInsteadOfSaving(names: [(name: String, reason: String?)], from window: NSWindow?) async -> Bool {
         let alert = NSAlert()
-        alert.messageText = names.count == 1 ? "Can’t Save “\(names[0].name)”" : "Can’t Save \(names.count) Virtual Machines"
-        alert.informativeText = names
-            .map { "“\($0.name)”: \($0.reason)" }
-            .joined(separator: "\n\n")
-            + "\n\nThey have to be shut down before VirtualBuddy can quit. VirtualBuddy waits for the guests to shut down."
-        alert.addButton(withTitle: "Shut Down & Quit")
+        let canMentionSaving = names.contains { $0.reason != nil }
+
+        if canMentionSaving {
+            alert.messageText = names.count == 1 ? "Can’t Save “\(names[0].name)”" : "Can’t Save \(names.count) Virtual Machines"
+            alert.informativeText = names
+                .map { item in item.reason.map { "“\(item.name)”: \($0)" } ?? "“\(item.name)” has to be shut down." }
+                .joined(separator: "\n\n")
+                + "\n\nThey have to be shut down before VirtualBuddy can quit. VirtualBuddy waits for the guests to shut down."
+        } else {
+            alert.messageText = names.count == 1 ? "Shut Down “\(names[0].name)”?" : "Shut Down \(names.count) Virtual Machines?"
+            alert.informativeText = "They have to be shut down before VirtualBuddy can quit. VirtualBuddy waits for the guests to shut down."
+        }
+
+        alert.addButton(withTitle: "Shutdown")
         alert.addButton(withTitle: "Cancel")
 
         return await alert.present(from: window) == .alertFirstButtonReturn

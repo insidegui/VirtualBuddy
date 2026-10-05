@@ -48,11 +48,21 @@ public enum SessionSaveFailureChoice: Sendable {
     case shutDown
 }
 
+/// What closing a running virtual machine does.
+public enum SessionCloseChoice: Equatable, Sendable {
+    case saveState
+    case shutDown
+}
+
 /// Why a session is being asked to close.
 public enum SessionCloseContext: Equatable, Sendable {
+    /// The window is being closed. What happens follows the user's preference.
     case window
-    /// The app is quitting. When `shutdownConfirmed` is `true`, shutting down virtual machines that can't be saved has already been confirmed.
-    case quit(shutdownConfirmed: Bool)
+    /// The user explicitly asked to save the state and close.
+    case saveAndClose
+    /// The app is quitting. What to do was decided once for every virtual machine, and shutting down
+    /// virtual machines that can't be saved has already been confirmed.
+    case quit(SessionCloseChoice)
 
     public var isQuitting: Bool {
         if case .quit = self { true } else { false }
@@ -62,10 +72,15 @@ public enum SessionCloseContext: Equatable, Sendable {
 /// The questions that closing a session may need to ask.
 @MainActor
 public protocol SessionClosePrompting: AnyObject {
-    var hasAcknowledgedIntroduction: Bool { get }
+    /// What the user prefers to happen when closing a running virtual machine.
+    var closeBehavior: VMCloseBehavior { get }
 
-    func confirmIntroduction(context: SessionCloseContext) async -> Bool
-    func confirmShutDownInsteadOfSaving(reason: String, context: SessionCloseContext) async -> Bool
+    /// Asks whether to save the state or shut down. The answer may become the new ``closeBehavior``.
+    /// - Returns: `nil` if the user cancelled.
+    func chooseCloseAction(context: SessionCloseContext) async -> SessionCloseChoice?
+    /// Asks whether to shut down because saving isn't available. The reason is `nil` when saving isn't a concept
+    /// that applies to the virtual machine at all, in which case saving must not be mentioned.
+    func confirmShutDownInsteadOfSaving(reason: String?, context: SessionCloseContext) async -> Bool
     func presentSaveFailure(_ error: Error, context: SessionCloseContext) async -> SessionSaveFailureChoice
     func confirmShutDown() async -> Bool
     func reportShutDownFailure(_ error: Error)
@@ -125,6 +140,8 @@ public final class SessionCloseCoordinator {
         /// Starting, saving and restoring are never interrupted. Closing waits for them to finish.
         await controller.waitForPendingOperations()
 
+        var chosen: SessionCloseChoice?
+
         while true {
             switch controller.lifecycleStage {
             case .notRunning:
@@ -144,12 +161,19 @@ public final class SessionCloseCoordinator {
                 return false
 
             case .running, .paused:
-                guard controller.saveEligibility.isSupported else {
-                    return await shutDownInsteadOfSaving(context: context, prompts: prompts)
+                /// Saving was chosen, but it's not possible anymore: ask again what to do.
+                if chosen == .saveState, !controller.saveEligibility.isSupported {
+                    chosen = nil
                 }
 
-                if !prompts.hasAcknowledgedIntroduction {
-                    guard await prompts.confirmIntroduction(context: context) else { return false }
+                if chosen == nil {
+                    chosen = await resolveCloseAction(context: context, prompts: prompts)
+                }
+
+                guard let action = chosen else { return false }
+
+                if action == .shutDown {
+                    return await shutDownAndWait(prompts: prompts)
                 }
 
                 do {
@@ -189,16 +213,38 @@ public final class SessionCloseCoordinator {
         }
     }
 
-    private func shutDownInsteadOfSaving(context: SessionCloseContext, prompts: SessionClosePrompting) async -> Bool {
-        if case .quit(shutdownConfirmed: true) = context {
-            return await shutDownAndWait(prompts: prompts)
+    /// Decides what closing does, asking the user only when the preference calls for it.
+    /// - Returns: `nil` if the user cancelled.
+    private func resolveCloseAction(context: SessionCloseContext, prompts: SessionClosePrompting) async -> SessionCloseChoice? {
+        let eligibility = controller.saveEligibility
+
+        switch context {
+        case .quit(let choice):
+            /// Virtual machines that can't be saved were confirmed for shutdown before quitting started.
+            return choice == .saveState && eligibility.isSupported ? .saveState : .shutDown
+
+        case .saveAndClose:
+            guard eligibility.isSupported else { return await confirmShutDown(because: eligibility, context: context, prompts: prompts) }
+            return .saveState
+
+        case .window:
+            guard eligibility.isSupported else {
+                /// A preference to shut down needs no questions, and there's nothing to save anyway.
+                if prompts.closeBehavior == .shutDown { return .shutDown }
+                return await confirmShutDown(because: eligibility, context: context, prompts: prompts)
+            }
+
+            switch prompts.closeBehavior {
+            case .saveState: return .saveState
+            case .shutDown: return .shutDown
+            case .ask: return await prompts.chooseCloseAction(context: context)
+            }
         }
+    }
 
-        let reason = controller.saveEligibility.primaryIssue?.explanation ?? "Saving isn’t available for this virtual machine."
-
-        guard await prompts.confirmShutDownInsteadOfSaving(reason: reason, context: context) else { return false }
-
-        return await shutDownAndWait(prompts: prompts)
+    private func confirmShutDown(because eligibility: SavedSessionEligibility, context: SessionCloseContext, prompts: SessionClosePrompting) async -> SessionCloseChoice? {
+        let reason = eligibility.explanationForUser
+        return await prompts.confirmShutDownInsteadOfSaving(reason: reason, context: context) ? .shutDown : nil
     }
 
     /// Waits for the guest to shut down, however long that takes.
@@ -239,8 +285,14 @@ public protocol SessionTerminationPresenting: AnyObject {
     /// Presents the progress of every participant in one place.
     func showProgress(for participants: [SessionTerminationParticipant])
     func dismissProgress()
+    /// What the user prefers to happen when closing a running virtual machine.
+    var closeBehavior: VMCloseBehavior { get }
+    /// Asks whether to save the state or shut down, for every virtual machine that's running. The answer may become the new ``closeBehavior``.
+    /// - Returns: `nil` if the user cancelled.
+    func chooseCloseAction() async -> SessionCloseChoice?
     /// Asks whether virtual machines that can't be saved may be shut down so that the app can quit.
-    func confirmShutDown(of machines: [(name: String, reason: String)]) async -> Bool
+    /// A reason is `nil` when saving isn't a concept that applies to the virtual machine, in which case saving must not be mentioned.
+    func confirmShutDown(of machines: [(name: String, reason: String?)]) async -> Bool
 }
 
 /// Saves or shuts down every active virtual machine before the app quits.
@@ -322,14 +374,45 @@ public final class SessionTerminationCoordinator {
         }
         let saveable = stillActive.filter { participant in !unsupported.contains { $0.controller === participant.controller } }
 
-        if !unsupported.isEmpty {
-            let reasons = unsupported.map {
-                (name: $0.name, reason: $0.controller.saveEligibility.primaryIssue?.explanation ?? "Saving isn’t available for this virtual machine.")
-            }
+        func confirmUnsupported() async -> Bool {
+            guard !unsupported.isEmpty else { return true }
+
+            let reasons = unsupported.map { (name: $0.name, reason: $0.controller.saveEligibility.explanationForUser) }
 
             guard await presenter.confirmShutDown(of: reasons) else {
                 logger.info("Quit cancelled: user declined to shut down virtual machines that can't be saved")
                 return false
+            }
+            return true
+        }
+
+        /// What to do is decided once, for every virtual machine.
+        let canSave = saveable.contains { participant in
+            let stage = participant.controller.lifecycleStage
+            return (stage == .running || stage == .paused) && participant.controller.saveEligibility.isSupported
+        }
+
+        let choice: SessionCloseChoice
+
+        switch presenter.closeBehavior {
+        case .shutDown:
+            choice = .shutDown
+        case .saveState:
+            guard await confirmUnsupported() else { return false }
+            choice = .saveState
+        case .ask:
+            if canSave {
+                guard let answer = await presenter.chooseCloseAction() else {
+                    logger.info("Quit cancelled: user cancelled the choice between saving and shutting down")
+                    return false
+                }
+                if answer == .saveState {
+                    guard await confirmUnsupported() else { return false }
+                }
+                choice = answer
+            } else {
+                guard await confirmUnsupported() else { return false }
+                choice = .shutDown
             }
         }
 
@@ -340,7 +423,7 @@ public final class SessionTerminationCoordinator {
                 return false
             }
 
-            guard await participant.closer.requestClose(context: .quit(shutdownConfirmed: true)) else {
+            guard await participant.closer.requestClose(context: .quit(choice)) else {
                 logger.info("Quit cancelled: \(participant.name, privacy: .public) is staying open")
                 return false
             }

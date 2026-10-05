@@ -55,7 +55,7 @@ public struct SettingsScreen: View {
     private var selectedTab: SettingsTab = .general
 
     public static var width: CGFloat { 640 }
-    public static var minHeight: CGFloat { 420 }
+    public static var minHeight: CGFloat { 430 }
 
     public var body: some View {
         NavigationSplitView {
