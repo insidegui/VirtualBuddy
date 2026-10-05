@@ -4,19 +4,22 @@ import VirtualCore
 struct VirtualMachineUserControls: View {
     @EnvironmentObject private var ui: VirtualMachineSessionUI
 
+    private var keyboardShortcut: String { VMInputDevice.keyboard.toggleShortcutSymbols.joined() }
+    private var pointingDeviceShortcut: String { VMInputDevice.pointingDevice.toggleShortcutSymbols.joined() }
+
     var body: some View {
         Group {
             Toggle(isOn: $ui.captureKeyboardEvents) {
                 Label("Capture keyboard", systemImage: ui.virtualMachine.keyboardDeviceSFSymbol)
                     .labelStyle(.iconOnly)
             }
-            .help(ui.captureKeyboardEvents ? "Click to disconnect keyboard from virtual machine" : "Click to connect keyboard to virtual machine")
+            .help(ui.captureKeyboardEvents ? "Click or hold \(keyboardShortcut) to disconnect keyboard from virtual machine" : "Click or hold \(keyboardShortcut) to connect keyboard to virtual machine")
 
             Toggle(isOn: $ui.captureMouseEvents) {
                 Label("Capture mouse", systemImage: ui.virtualMachine.pointingDeviceSFSymbol)
                     .labelStyle(.iconOnly)
             }
-            .help(ui.captureMouseEvents ? "Click to disconnect \(ui.virtualMachine.pointingDeviceName) from virtual machine" : "Click to connect \(ui.virtualMachine.pointingDeviceName) to virtual machine")
+            .help(ui.captureMouseEvents ? "Click or hold \(pointingDeviceShortcut) to disconnect \(ui.virtualMachine.pointingDeviceName) from virtual machine" : "Click or hold \(pointingDeviceShortcut) to connect \(ui.virtualMachine.pointingDeviceName) to virtual machine")
         }
     }
 }

@@ -42,6 +42,11 @@ public struct VirtualMachineSessionView: View {
             if ui.activity == .shuttingDown {
                 ShuttingDownOverlay()
             }
+
+            VMInputStatusHUDOverlay(
+                presenter: ui.inputStatusHUD,
+                configuration: controller.virtualMachineModel.configuration
+            )
         }
         .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
         .environmentObject(controller)
@@ -145,7 +150,9 @@ public struct VirtualMachineSessionView: View {
                 }
             }
         case .running(let vm):
-            vmView(with: vm)
+            vmView(with: vm) { [weak ui] event in
+                ui?.handleInputToggleHold(event)
+            }
         case .paused(let vm):
             pausedView(with: vm) {
                 circularStartButton
@@ -170,13 +177,14 @@ public struct VirtualMachineSessionView: View {
     }
 
     @ViewBuilder
-    private func vmView(with vm: VZVirtualMachine) -> some View {
+    private func vmView(with vm: VZVirtualMachine, onInputToggleHold: ((VMInputToggleHoldEvent) -> Void)? = nil) -> some View {
         SwiftUIVMView(
             controllerState: .constant(.running(vm)),
             captureSystemKeysEnabled: controller.virtualMachineModel.configuration.captureSystemKeys,
             isDFUModeVM: controller.options.bootInDFUMode,
             vmECID: controller.virtualMachineModel.ECID,
-            automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false)
+            automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
+            onInputToggleHold: onInputToggleHold
         )
         .virtualMachineEventDeliveryMask(ui.eventDeliveryMask)
     }

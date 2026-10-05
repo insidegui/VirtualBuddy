@@ -51,6 +51,9 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
     var isDFUModeVM: Bool
     var vmECID: UInt64?
     @Binding var automaticallyReconfiguresDisplay: Bool
+    /// Called with the progress of the shortcuts that toggle input devices when held down.
+    /// The shortcuts are only enabled when a handler is provided.
+    var onInputToggleHold: ((VMInputToggleHoldEvent) -> Void)? = nil
 
     func makeNSViewController(context: Context) -> VMViewController {
         let controller = VMViewController()
@@ -67,6 +70,7 @@ struct SwiftUIVMView: NSViewControllerRepresentable {
         nsViewController.vmECID = vmECID
         nsViewController.isDFUModeVM = isDFUModeVM
         nsViewController.eventDeliveryMask = context.environment.virtualMachineEventDeliveryMask
+        nsViewController.inputToggleHoldHandler = onInputToggleHold
 
         if case .running(let vm) = controllerState {
             nsViewController.virtualMachine = vm
@@ -125,6 +129,11 @@ final class VMViewController: NSViewController {
     var eventDeliveryMask: VMEventDeliveryMask {
         get { vmView.eventDeliveryMask }
         set { vmView.eventDeliveryMask = newValue }
+    }
+
+    var inputToggleHoldHandler: ((VMInputToggleHoldEvent) -> Void)? {
+        get { vmView.inputToggleHoldHandler }
+        set { vmView.inputToggleHoldHandler = newValue }
     }
 
     private lazy var vmView: VirtualBuddyVMView = {
@@ -288,6 +297,88 @@ final class VirtualBuddyVMView: VZVirtualMachineView {
 
         UILog("eventDeliveryMask = \(eventDeliveryMask); capturesSystemKeysEnabled = \(capturesSystemKeysEnabled); capturesSystemKeys = \(capturesSystemKeys)")
     }
+
+    // MARK: Input Toggle Shortcuts
+
+    /// Called with the progress of the shortcuts that toggle input devices when held down.
+    /// The shortcuts are only enabled when a handler is set.
+    var inputToggleHoldHandler: ((VMInputToggleHoldEvent) -> Void)? {
+        didSet {
+            inputToggleHoldRecognizer.handler = inputToggleHoldHandler
+            updateInputToggleMonitoring()
+        }
+    }
+
+    private lazy var inputToggleHoldRecognizer = VMInputToggleHoldRecognizer()
+
+    private var inputToggleEventMonitor: Any?
+
+    private func updateInputToggleMonitoring() {
+        let shouldMonitor = window != nil && inputToggleHoldHandler != nil
+
+        guard shouldMonitor != (inputToggleEventMonitor != nil) else { return }
+
+        if shouldMonitor {
+            startInputToggleMonitoring()
+        } else {
+            stopInputToggleMonitoring()
+        }
+    }
+
+    private func startInputToggleMonitoring() {
+        /// The shortcuts must be recognized even when the view is not the first responder, which is the case when
+        /// keyboard events are not being delivered to the guest, so the events are observed before they're dispatched.
+        inputToggleEventMonitor = NSEvent.addLocalMonitorForEvents(
+            matching: [.flagsChanged, .keyDown, .leftMouseDown, .rightMouseDown, .otherMouseDown, .scrollWheel]
+        ) { [weak self] event in
+            self?.observeInputToggleEvent(event)
+            return event
+        }
+
+        NotificationCenter.default.addObserver(self, selector: #selector(windowDidResignKey), name: NSWindow.didResignKeyNotification, object: window)
+    }
+
+    private func stopInputToggleMonitoring() {
+        if let inputToggleEventMonitor {
+            NSEvent.removeMonitor(inputToggleEventMonitor)
+            self.inputToggleEventMonitor = nil
+        }
+
+        NotificationCenter.default.removeObserver(self, name: NSWindow.didResignKeyNotification, object: nil)
+
+        inputToggleHoldRecognizer.reset()
+    }
+
+    private func observeInputToggleEvent(_ event: NSEvent) {
+        guard let window, event.window === window, window.isKeyWindow else { return }
+
+        switch event.type {
+        case .flagsChanged:
+            /// Modifier keys pressed while a mouse button is down are part of a click or drag in the guest.
+            inputToggleHoldRecognizer.modifiersChanged(to: NSEvent.pressedMouseButtons == 0 ? event.modifierFlags : [])
+        default:
+            /// Any other key or mouse button means the modifier keys are being held down for something else.
+            inputToggleHoldRecognizer.interrupt()
+        }
+    }
+
+    @objc private func windowDidResignKey(_ notification: Notification) {
+        inputToggleHoldRecognizer.reset()
+    }
+
+    override func viewWillMove(toWindow newWindow: NSWindow?) {
+        super.viewWillMove(toWindow: newWindow)
+
+        stopInputToggleMonitoring()
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+
+        updateInputToggleMonitoring()
+    }
+
+    // MARK: Event Filtering
 
     override var acceptsFirstResponder: Bool {
         guard eventDeliveryMask.allowsKeyboardEvents else { return false }
