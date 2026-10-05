@@ -82,6 +82,16 @@ public struct VirtualMachineSessionView: View {
         }
         .toolbar {
             if controller.isRunning {
+                if let guestAppStatus {
+                    ToolbarItem(placement: .primaryAction) {
+                        GuestAppStatusControl(status: guestAppStatus)
+                    }
+
+                    if #available(macOS 26, *) {
+                        ToolbarSpacer(.fixed)
+                    }
+                }
+
                 ToolbarItemGroup(placement: .primaryAction) {
                     VirtualMachineUserControls()
                 }
@@ -97,6 +107,12 @@ public struct VirtualMachineSessionView: View {
         }
     }
     
+    /// The guest app can't run when the virtual machine starts up in recovery, DFU, or from its install media.
+    private var guestAppStatus: GuestAppConnectionStatus? {
+        guard !controller.options.requestsSpecialBoot else { return nil }
+        return controller.guestAppConnectionStatus
+    }
+
     @ViewBuilder
     private var controllerStateView: some View {
         switch controller.state {

@@ -52,6 +52,28 @@ struct GuestAppSupportTests {
             guestAppVersion: nil, legacyApps: Self.legacyApps) == .unsupported)
     }
 
+    @Test func connectionStatusIsOnlyReportedForGuestsThatCanRunTheApp() {
+        for isEnabled in [true, false] {
+            for isConnected in [true, false] {
+                #expect(GuestAppConnectionStatus.resolve(support: .unsupported, isEnabled: isEnabled, isConnected: isConnected) == nil)
+            }
+        }
+    }
+
+    @Test func connectionStatusFollowsHostConnection() {
+        #expect(GuestAppConnectionStatus.resolve(support: .full, isEnabled: true, isConnected: true) == .connected)
+        #expect(GuestAppConnectionStatus.resolve(support: .full, isEnabled: true, isConnected: false) == .disconnected)
+    }
+
+    @Test func legacyAppsCanNotReportConnectionStatus() {
+        #expect(GuestAppConnectionStatus.resolve(support: .sharedFoldersOnly, isEnabled: true, isConnected: false) == .unknown)
+    }
+
+    @Test func disabledGuestAppIsReportedAsDisabled() {
+        #expect(GuestAppConnectionStatus.resolve(support: .full, isEnabled: false, isConnected: false) == .disabled)
+        #expect(GuestAppConnectionStatus.resolve(support: .sharedFoldersOnly, isEnabled: false, isConnected: false) == .disabled)
+    }
+
     private func resolve(version: SoftwareVersion?, override: String? = nil) -> GuestAppSupport {
         GuestAppSupport.resolve(guestType: .mac, guestVersion: version, latestMinimumVersion: "14",
             guestAppVersion: override, legacyApps: Self.legacyApps)

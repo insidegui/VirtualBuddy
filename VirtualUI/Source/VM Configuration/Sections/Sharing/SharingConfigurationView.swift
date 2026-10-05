@@ -58,6 +58,13 @@ struct SharingConfigurationView_Previews: PreviewProvider {
             SharingConfigurationView(configuration: $0) }
             .previewDisplayName("Linux Sharing Configuration View")
 
+        _ConfigurationSectionPreview({
+            var configuration = VBMacConfiguration.preview
+            configuration.guestAdditionsEnabled = false
+            return configuration
+        }()) { SharingConfigurationView(configuration: $0) }
+            .previewDisplayName("Guest App Disabled")
+
         _ConfigurationSectionPreview(.preview.removingSharedFolders) { SharingConfigurationView(configuration: $0) }
             .previewDisplayName("Empty")
     }

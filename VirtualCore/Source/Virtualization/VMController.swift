@@ -219,8 +219,33 @@ public final class VMController: ObservableObject {
         })
         
         newInstance.options = options
+
+        guestConnectionObservation = newInstance.$isGuestAppConnected
+            .removeDuplicates()
+            .sink { [weak self] isConnected in
+                self?.isGuestAppConnected = isConnected
+            }
         
         return newInstance
+    }
+
+    // MARK: Guest App
+
+    private var guestConnectionObservation: AnyCancellable?
+
+    /// Whether the guest app running in the virtual machine is currently connected to VirtualBuddy.
+    @Published
+    public private(set) var isGuestAppConnected = false
+
+    /// The status of the guest app in this virtual machine, `nil` if its guest can't run the guest app.
+    public var guestAppConnectionStatus: GuestAppConnectionStatus? {
+        let model = instance?.effectiveModel ?? virtualMachineModel
+
+        return GuestAppConnectionStatus.resolve(
+            support: model.guestAppSupport,
+            isEnabled: model.configuration.guestAdditionsEnabled,
+            isConnected: isGuestAppConnected
+        )
     }
 
     // MARK: Saved Session State
