@@ -121,21 +121,29 @@ public struct LibraryView: View {
 
     @ViewBuilder
     private func grid(_ machines: [VBVirtualMachine]) -> some View {
-        ScrollView(.vertical) {
-            LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
-                ForEach(machines) { vm in
-                    Button {
-                        sessionManager.launch(vm, library: library, options: nil)
-                    } label: {
-                        LibraryItemView(vm: vm, name: vm.name)
+        ScrollViewReader { proxy in
+            ScrollView(.vertical) {
+                LazyVGrid(columns: gridColumns, spacing: gridSpacing) {
+                    ForEach(machines) { vm in
+                        Button {
+                            sessionManager.launch(vm, library: library, options: nil)
+                        } label: {
+                            LibraryItemView(vm: vm, name: vm.name)
+                        }
+                        .buttonStyle(.vbLibraryItem)
+                        .environmentObject(library)
+                        .transition(.scale(scale: 0.3).combined(with: .opacity))
+                        .id(vm.id)
                     }
-                    .buttonStyle(.vbLibraryItem)
-                    .environmentObject(library)
-                    .transition(.scale(scale: 0.3).combined(with: .opacity))
                 }
+                .padding()
+                .padding(.top)
             }
-            .padding()
-            .padding(.top)
+            /// Brings a virtual machine that was just duplicated into view.
+            .onChange(of: library.recentlyDuplicatedMachineIdentifier) { _, identifier in
+                guard let identifier else { return }
+                withAnimation { proxy.scrollTo(identifier, anchor: .center) }
+            }
         }
         .environment(\.virtualBuddyShowDesktopPictureThumbnails, settingsContainer.settings.showDesktopPictureThumbnails)
     }

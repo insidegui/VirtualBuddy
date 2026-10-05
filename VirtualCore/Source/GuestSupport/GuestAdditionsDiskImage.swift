@@ -395,6 +395,14 @@ public extension SoftwareVersion {
 extension VZVirtioBlockDeviceConfiguration {
 
     static func guestAdditionsDisk(for configuration: VBMacConfiguration, preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences> = VirtualBuddyManagedPreferences.schema.reader()) async throws -> VZVirtioBlockDeviceConfiguration? {
+        guard let url = guestAdditionsImageURL(for: configuration, preferences: preferences) else { return nil }
+
+        return try guestAdditionsDisk(imageURL: url)
+    }
+
+    /// The installed guest additions image that should be attached for the configuration,
+    /// or `nil` if the policy forbids it or the image isn't available.
+    static func guestAdditionsImageURL(for configuration: VBMacConfiguration, preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences> = VirtualBuddyManagedPreferences.schema.reader()) -> URL? {
         guard !preferences.value(for: .disableGuestApp, default: false) else {
             VirtualBuddyManagedPreferences.logger.notice("Guest app installer disk omitted by DisableGuestApp")
             return nil
@@ -405,7 +413,11 @@ extension VZVirtioBlockDeviceConfiguration {
 
         guard guestImagePath.exists else { return nil }
 
-        let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: guestImagePath.url, readOnly: true)
+        return guestImagePath.url
+    }
+
+    static func guestAdditionsDisk(imageURL: URL) throws -> VZVirtioBlockDeviceConfiguration {
+        let guestAttachment = try VZDiskImageStorageDeviceAttachment(url: imageURL, readOnly: true)
 
         return VZVirtioBlockDeviceConfiguration(attachment: guestAttachment)
     }

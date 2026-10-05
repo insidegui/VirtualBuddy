@@ -28,7 +28,60 @@ struct StorageConfigurationView: View {
         }
     }
 
+    @State private var isCopyingDiskImages = false
+
     var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            list
+
+            if viewModel.context == .postInstall, viewModel.hasExternalDiskImages {
+                externalDiskImagesNotice
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var externalDiskImagesNotice: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Some disk images are stored outside of this virtual machine. Its session can’t be saved until they’re copied into it. The originals are not changed.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+
+            Button {
+                copyExternalDiskImages()
+            } label: {
+                if isCopyingDiskImages {
+                    ProgressView().controlSize(.small)
+                } else {
+                    Text("Copy into Virtual Machine…")
+                }
+            }
+            .disabled(isCopyingDiskImages)
+        }
+    }
+
+    private func copyExternalDiskImages() {
+        Task { @MainActor in
+            let confirmed = await NSAlert.runConfirmationAlert(
+                title: "Copy Disk Images Into the Virtual Machine?",
+                message: "The disk images stored outside of this virtual machine are copied into it. The originals are not changed, and nothing is modified if copying fails. This can take a while and use a lot of disk space on volumes that don’t support cloning.",
+                continueButtonTitle: "Copy",
+                cancelButtonTitle: "Cancel"
+            )
+            guard confirmed else { return }
+
+            isCopyingDiskImages = true
+            defer { isCopyingDiskImages = false }
+
+            do {
+                try await viewModel.copyExternalDiskImagesIntoVirtualMachine()
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+        }
+    }
+
+    private var list: some View {
         GroupedList {
             List(selection: $selection) {
                 ForEach($hardware.storageDevices.filter({ !shouldHide($0.wrappedValue) })) { $device in

@@ -34,19 +34,20 @@ public struct VMSessionOptions: Hashable, Codable {
     @DecodableDefault.False
     public var autoBoot = false
 
-    /// Used when restoring from a previously-saved state.
-    public var stateRestorationPackageURL: URL?
-
     public static let `default` = VMSessionOptions()
 
-    public init(bootInRecoveryMode: Bool = false, bootInDFUMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false, stateRestorationPackageURL: URL? = nil) {
+    public init(bootInRecoveryMode: Bool = false, bootInDFUMode: Bool = false, bootOnInstallDevice: Bool = false, autoBoot: Bool = false) {
         self.bootInRecoveryMode = bootInRecoveryMode
         self.bootInDFUMode = bootInDFUMode
         self.bootOnInstallDevice = bootOnInstallDevice
         self.autoBoot = autoBoot
-        self.stateRestorationPackageURL = stateRestorationPackageURL
 
         resolveMutuallyExclusiveOptions()
+    }
+
+    /// Whether these options boot the virtual machine in a way that can't continue a saved session.
+    public var requestsSpecialBoot: Bool {
+        bootInRecoveryMode || bootInDFUMode || bootOnInstallDevice
     }
 
     private mutating func resolveMutuallyExclusiveOptions() {
@@ -59,15 +60,66 @@ public struct VMSessionOptions: Hashable, Codable {
     }
 }
 
+/// The step a save or restore operation is currently performing.
+public enum SavedSessionPhase: Equatable {
+    case preparing
+    case pausing
+    case cloningStorage
+    case savingMemory
+    case finalizing
+    case stopping
+
+    case validating
+    case installingStorage
+    case restoringMemory
+    case resuming
+
+    /// How far along the operation is, based on which of its steps is running.
+    public var fractionCompleted: Double {
+        switch self {
+        case .preparing: 0.0 / 6
+        case .pausing: 1.0 / 6
+        case .cloningStorage: 2.0 / 6
+        case .savingMemory: 3.0 / 6
+        case .finalizing: 4.0 / 6
+        case .stopping: 5.0 / 6
+        case .validating: 0.0 / 4
+        case .installingStorage: 1.0 / 4
+        case .restoringMemory: 2.0 / 4
+        case .resuming: 3.0 / 4
+        }
+    }
+
+    public var title: String {
+        switch self {
+        case .preparing: "Preparing"
+        case .pausing: "Pausing"
+        case .cloningStorage: "Cloning disks"
+        case .savingMemory: "Saving memory"
+        case .finalizing: "Finishing"
+        case .stopping: "Stopping"
+        case .validating: "Checking saved session"
+        case .installingStorage: "Restoring disks"
+        case .restoringMemory: "Restoring memory"
+        case .resuming: "Resuming"
+        }
+    }
+}
+
 public enum VMState: Equatable {
     case idle
     case starting(_ message: String?)
     case resizingDisk(_ message: String?)
     case running(VZVirtualMachine)
     case paused(VZVirtualMachine)
-    case savingState(VZVirtualMachine)
-    case stateSaveCompleted(VZVirtualMachine, VBSavedStatePackage)
-    case restoringState(VZVirtualMachine, VBSavedStatePackage)
+    /// The virtual machine's session is being saved. It's paused while this happens.
+    case saving(VZVirtualMachine, SavedSessionPhase)
+    /// A saved session is being restored. The virtual machine is constructed during this operation.
+    case restoring(VZVirtualMachine?, SavedSessionPhase)
+    /// Not running, with a session saved and ready to be resumed.
+    case saved(VBSavedSessionDescriptor)
+    /// A saved session exists, but it can't be resumed without a decision from the user.
+    case recoveryRequired(SavedSessionIssue)
     case stopped(Error?)
 }
 
@@ -107,23 +159,25 @@ public final class VMController: ObservableObject {
     @Published
     public var virtualMachineModel: VBVirtualMachine
 
-    public private(set) var savedStatesController: VMSavedStatesController
-
     private var cancellables = Set<AnyCancellable>()
 
     private let guestAppDiskImage: GuestAdditionsDiskImage
+
+    /// Serializes everything that changes the virtual machine's lifecycle.
+    private let lease = VMOperationLease()
+
+    /// Repeated requests to save join the one that's already running.
+    private var inFlightSave: Task<Void, Error>?
+
+    /// `true` between resuming a restored session and cleaning up the package it was restored from.
+    private var isRestoreCompletionPending = false
 
     public init(with vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions? = nil) {
         self.id = vm.id
         self.name = vm.name
         self.virtualMachineModel = vm
         self.library = library
-        self.savedStatesController = VMSavedStatesController(library: library, virtualMachine: vm)
         self.guestAppDiskImage = GuestAdditionsDiskImage(source: vm.configuration.guestAppDiskImageSource)
-
-        #if DEBUG
-        if ProcessInfo.isSwiftUIPreview { self.savedStatesController = .preview }
-        #endif
 
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
@@ -133,6 +187,8 @@ public final class VMController: ObservableObject {
         if let options {
             self.options = options
         }
+
+        self.state = restingState
 
         /// Ensure configuration is persisted whenever it changes.
         $virtualMachineModel
@@ -159,7 +215,7 @@ public final class VMController: ObservableObject {
     
     private func createInstance() throws -> VMInstance {
         let newInstance = VMInstance(with: virtualMachineModel, library: library, onVMStop: { [weak self] error in
-            self?.state = .stopped(error)
+            self?.handleInstanceStopped(error)
         })
         
         newInstance.options = options
@@ -167,7 +223,133 @@ public final class VMController: ObservableObject {
         return newInstance
     }
 
-    public func start() async throws {
+    // MARK: Saved Session State
+
+    /// The saved session that belongs to this virtual machine, if any.
+    public var savedSession: VBSavedSessionDescriptor? { virtualMachineModel.savedSession }
+
+    /// Whether this virtual machine's session can be saved, with the reason if it can't.
+    ///
+    /// Everything that can be determined without constructing the virtual machine is checked before it's started.
+    /// While it's running, the configuration it's actually running with is checked too.
+    public var saveEligibility: SavedSessionEligibility {
+        let staticEligibility = SavedSessionEligibility.evaluate(
+            model: instance?.effectiveModel ?? virtualMachineModel,
+            options: options,
+            supportsCloning: bundleSupportsCloning
+        )
+
+        guard let instance, state.isRunning || state.isPaused else { return staticEligibility }
+
+        return staticEligibility.merging(instance.runtimeSaveEligibility)
+    }
+
+    /// Whether the volume where the virtual machine lives supports cloning, which saving a session depends on.
+    /// Asked once because this is consulted every time a view that depends on it is updated.
+    private lazy var bundleSupportsCloning = virtualMachineModel.bundleURL.volumeSupportsFileCloning
+
+    /// The state the controller is in when nothing is running.
+    private var restingState: State {
+        guard let savedSession else { return .idle }
+
+        switch savedSession.status {
+        case .ready: return .saved(savedSession)
+        case .recoveryRequired(let issue): return .recoveryRequired(issue)
+        }
+    }
+
+    /// Re-reads the saved session from the virtual machine's bundle.
+    public func reloadSavedSession() {
+        virtualMachineModel.reloadSavedSession()
+
+        guard state.isSavedSessionPresentation || state.isIdle else { return }
+
+        state = restingState
+    }
+
+    private var storage: SavedSessionStorage { SavedSessionStorage(bundleURL: virtualMachineModel.bundleURL) }
+
+    /// Sets the state to match what's actually happening to the virtual machine instead of assuming that a failure stopped it.
+    private func reconcileState(after error: Error? = nil) {
+        if let vm = try? instance?.virtualMachine {
+            switch vm.state {
+            case .running:
+                state = .running(vm)
+                return
+            case .paused:
+                state = .paused(vm)
+                return
+            default:
+                break
+            }
+        }
+
+        virtualMachineModel.reloadSavedSession()
+
+        if savedSession != nil {
+            state = restingState
+        } else {
+            state = .stopped(error)
+        }
+    }
+
+    private func handleInstanceStopped(_ error: Error?) {
+        /// Stop notifications that arrive when nothing is running (for example, from an instance that was already released) are not news.
+        guard state.isRunning || state.isPaused || state.isStarting || state.isRestoring else { return }
+
+        state = .stopped(error)
+
+        Task { await finishRestoreIfPending() }
+    }
+
+    // MARK: Starting
+
+    /// Starts the virtual machine, resuming its saved session if it has one, or booting it otherwise.
+    ///
+    /// - Parameter discardingSavedSession: Must only be `true` after the user has confirmed that the saved session will be lost.
+    ///
+    /// Starting in a way that can't continue a saved session (recovery, DFU, or the install device) throws
+    /// ``SavedSessionError/discardConfirmationRequired`` unless the saved session is being discarded.
+    public func start(discardingSavedSession: Bool = false) async throws {
+        await lease.acquire()
+        defer { lease.release() }
+
+        /// Requests that arrive while another one is starting the virtual machine have nothing left to do.
+        guard state.canStart else { return }
+
+        /// A virtual machine that was saved but couldn't be stopped is still around. Only the recovery options can resolve that.
+        if case .recoveryRequired(let issue) = state, issue.isStopFailure {
+            throw SavedSessionError.recoveryRequired(issue)
+        }
+
+        if let session = lookUpSavedSession(), !discardingSavedSession {
+            guard !options.requestsSpecialBoot else { throw SavedSessionError.discardConfirmationRequired }
+
+            if let issue = session.issue {
+                state = .recoveryRequired(issue)
+                throw SavedSessionError.recoveryRequired(issue)
+            }
+
+            try await resumeSavedSession()
+        } else {
+            if discardingSavedSession {
+                try await discardSavedSessionLocked()
+            }
+
+            try await bootVirtualMachine()
+        }
+    }
+
+    /// Cleans up after interrupted operations and returns the current saved session.
+    private func lookUpSavedSession() -> VBSavedSessionDescriptor? {
+        _ = try? storage.recover()
+
+        virtualMachineModel.reloadSavedSession()
+
+        return savedSession
+    }
+
+    private func bootVirtualMachine() async throws {
         // Check for MAC address collisions with running VMs before changing state.
         guard await resolveMACAddressConflictsIfNeeded() else { return }
 
@@ -195,28 +377,11 @@ public final class VMController: ObservableObject {
         }
         state = .starting("Starting virtual machine...")
 
-        try await updatingState {
+        do {
             let newInstance = try createInstance()
             self.instance = newInstance
 
-            if #available(macOS 14.0, *), let restorePackageURL = options.stateRestorationPackageURL {
-                do {
-                    let package = try VBSavedStatePackage(url: restorePackageURL)
-                    try await newInstance.restoreState(from: package) { vm, package in
-                        try? await updatingState {
-                            state = .restoringState(vm, package)
-                        }
-                    }
-                } catch {
-                    guard !(error is CancellationError) else {
-                        state = .idle
-                        return
-                    }
-                    throw error
-                }
-            } else {
-                try await newInstance.startVM()
-            }
+            try await newInstance.startVM()
 
             let vm = try newInstance.virtualMachine
 
@@ -232,7 +397,120 @@ public final class VMController: ObservableObject {
             }
 
             virtualMachineModel.metadata.installFinished = true
+        } catch {
+            reconcileState(after: error)
+            throw error
         }
+    }
+
+    // MARK: Resuming a Saved Session
+
+    /// Restores the saved session and resumes the virtual machine.
+    ///
+    /// The saved memory and the disks always belong together: the disks are replaced with clones from the saved session
+    /// before the virtual machine is constructed, and the session is marked as consumed before execution can begin.
+    /// If anything fails before that point, the saved session is left as it was.
+    private func resumeSavedSession() async throws {
+        let storage = self.storage
+
+        state = .restoring(nil, .validating)
+
+        let preparation: SavedSessionRestorePreparation
+
+        do {
+            let captured = try await performOffMainActor { try storage.capturedConfiguration() }
+
+            let conflicts = library.activeCopyConflicts(
+                for: virtualMachineModel,
+                macAddresses: captured.hardware.networkDevices.map(\.macAddress)
+            )
+            guard conflicts.isEmpty else { throw SavedSessionError.activeCopyConflict(conflicts) }
+
+            state = .restoring(nil, .installingStorage)
+
+            preparation = try await performOffMainActor { try storage.prepareRestore() }
+        } catch {
+            reconcileState()
+            throw wrapRestoreError(error)
+        }
+
+        let newInstance: VMInstance
+
+        do {
+            newInstance = try createInstance()
+            instance = newInstance
+
+            try await newInstance.restoreSession(preparation) { [self] vm in
+                state = .restoring(vm, .restoringMemory)
+            }
+        } catch {
+            /// Nothing has executed, so putting the files back keeps the saved session exactly as it was.
+            instance = nil
+            try? await performOffMainActor { try storage.cancelRestore() }
+            reconcileState()
+            throw wrapRestoreError(error)
+        }
+
+        let vm = try newInstance.virtualMachine
+
+        state = .restoring(vm, .resuming)
+
+        do {
+            /// This has to be durable before resuming. The guest can start writing to the disks before the framework tells us it resumed.
+            try await performOffMainActor { try storage.markConsumed(preparation) }
+        } catch {
+            await newInstance.releaseStoppedVirtualMachine()
+            instance = nil
+            try? await performOffMainActor { try storage.cancelRestore() }
+            reconcileState()
+            throw wrapRestoreError(error)
+        }
+
+        isRestoreCompletionPending = true
+
+        do {
+            try await newInstance.resumeRestoredSession()
+        } catch {
+            /// The virtual machine holds the restored state, paused. Resuming can be tried again,
+            /// and the saved session stays consumed either way.
+            state = .paused(vm)
+            throw wrapRestoreError(error)
+        }
+
+        state = .running(vm)
+
+        virtualMachineModel.metadata.lastBootDate = .now
+
+        await finishRestoreIfPending()
+
+        unhideCursor()
+    }
+
+    private func wrapRestoreError(_ error: Error) -> Error {
+        switch error {
+        case is CancellationError, SavedSessionError.activeCopyConflict, SavedSessionError.recoveryRequired, SavedSessionError.restoreFailed:
+            error
+        default:
+            SavedSessionError.restoreFailed(error)
+        }
+    }
+
+    /// Removes the package a session was restored from, once the virtual machine is running on its own.
+    private func finishRestoreIfPending() async {
+        guard isRestoreCompletionPending else { return }
+        isRestoreCompletionPending = false
+
+        let storage = self.storage
+
+        do {
+            try await performOffMainActor { try storage.completeRestore() }
+        } catch {
+            /// The consumed marker keeps the package from being restored again, so this is only housekeeping.
+            logger.warning("Failed to clean up restored session: \(error, privacy: .public)")
+        }
+
+        virtualMachineModel.reloadSavedSession()
+        library.reload(animated: false)
     }
 
     private func presentDiskResizeCompletedAlert() {
@@ -364,52 +642,110 @@ public final class VMController: ObservableObject {
         }
     }
 
+    // MARK: Pausing, Stopping
+
     public func pause() async throws {
-        try await updatingState {
-            let instance = try ensureInstance()
+        try await lease.perform {
+            guard state.canPause else { return }
 
-            try await instance.pause()
-            let vm = try instance.virtualMachine
+            do {
+                let instance = try ensureInstance()
 
-            state = .paused(vm)
+                try await instance.pause()
+                let vm = try instance.virtualMachine
+
+                state = .paused(vm)
+            } catch {
+                reconcileState(after: error)
+                throw error
+            }
         }
 
         unhideCursor()
     }
     
+    /// Resumes a paused virtual machine. Starting a virtual machine that has a saved session is done by ``start(discardingSavedSession:)``.
     public func resume() async throws {
-        try await updatingState {
-            let instance = try ensureInstance()
+        try await lease.perform {
+            guard state.canResume else { return }
 
-            try await instance.resume()
-            let vm = try instance.virtualMachine
+            do {
+                let instance = try ensureInstance()
 
-            state = .running(vm)
+                try await instance.resume()
+                let vm = try instance.virtualMachine
+
+                state = .running(vm)
+            } catch {
+                reconcileState(after: error)
+                throw error
+            }
+
+            await finishRestoreIfPending()
         }
 
         unhideCursor()
     }
-    
+
+    /// Asks the guest to shut down. The state changes once the guest has actually stopped.
     public func stop() async throws {
-        try await updatingState {
-            let instance = try ensureInstance()
+        try await lease.perform {
+            guard state.isRunning else { return }
 
-            try await instance.stop()
+            do {
+                let instance = try ensureInstance()
+
+                try await instance.stop()
+            } catch {
+                reconcileState(after: error)
+                throw error
+            }
         }
 
         unhideCursor()
     }
+
+    /// Asks the guest to shut down and waits until it has. This never turns into a force stop,
+    /// however long the guest takes. Cancelling the calling task stops waiting without affecting the guest.
+    public func shutDownAndWait() async throws {
+        if state.isPaused {
+            try await resume()
+        }
+
+        try await stop()
+
+        for await state in $state.values {
+            try Task.checkCancellation()
+
+            if state.isStopped || state.isIdle || state.isSavedSessionPresentation { return }
+        }
+    }
     
+    /// Terminates the virtual machine immediately. The guest doesn't get a chance to shut down, which can lose data.
     public func forceStop() async throws {
-        try await updatingState {
-            let instance = try ensureInstance()
+        try await lease.perform {
+            guard instance != nil else { return }
 
-            try await instance.forceStop()
+            do {
+                let instance = try ensureInstance()
 
-            state = .stopped(nil)
+                try await instance.forceStop()
+
+                state = .stopped(nil)
+            } catch {
+                reconcileState(after: error)
+                throw error
+            }
+
+            await finishRestoreIfPending()
         }
 
         unhideCursor()
+    }
+
+    /// Waits until every operation that's currently in progress or queued has finished.
+    public func waitForPendingOperations() async {
+        await lease.perform { }
     }
 
     /// Replaces the running virtual machine's network attachments and starts automatic retries for
@@ -440,48 +776,174 @@ public final class VMController: ObservableObject {
         try instance.changeBridgeInterface(to: interfaceIdentifier)
     }
 
-    @available(macOS 14.0, *)
-    public func saveState(snapshotName name: String) async throws {
-        try await updatingState {
-            let instance = try ensureInstance()
-            let vm = try instance.virtualMachine
+    // MARK: Saving
+
+    /// Saves the virtual machine's session, then stops it.
+    ///
+    /// The virtual machine keeps running (or stays paused) if saving fails before the session is complete.
+    /// Calling this while a save is already in progress joins it instead of starting another one.
+    public func saveAndStop() async throws {
+        if let inFlightSave {
+            return try await inFlightSave.value
+        }
+
+        let task = Task { @MainActor [self] in
+            try await lease.perform { try await performSaveAndStop() }
+        }
+
+        inFlightSave = task
+
+        defer { inFlightSave = nil }
+
+        try await task.value
+    }
+
+    /// Stops a save that hasn't published its session yet. Takes effect at the next safe point.
+    public func cancelSave() {
+        inFlightSave?.cancel()
+    }
+
+    private func performSaveAndStop() async throws {
+        guard state.isRunning || state.isPaused else {
+            /// A repeated request after the session was saved has nothing left to do.
+            if state.isSavedSessionPresentation { return }
+            throw SavedSessionError.operationInProgress
+        }
+
+        let instance = try ensureInstance()
+        let vm = try instance.virtualMachine
+
+        /// Eligibility includes what's known about the running configuration, which is only checked while the virtual machine is running or paused.
+        if let issue = saveEligibility.primaryIssue {
+            throw SavedSessionError.notEligible(issue)
+        }
+
+        state = .saving(vm, .preparing)
+
+        await finishRestoreIfPending()
+
+        let storage = self.storage
+        var wasRunning = false
+        let descriptor: VBSavedSessionDescriptor
+
+        do {
+            try Task.checkCancellation()
+
+            state = .saving(vm, .pausing)
+            wasRunning = try await instance.pauseForSaving()
+
+            try Task.checkCancellation()
+
+            let plan = try instance.makeSavedSessionCapturePlan(wasPausedBeforeSave: !wasRunning)
+
+            state = .saving(vm, .cloningStorage)
+            let staged = try await performOffMainActor { try storage.stageCapture(plan) }
 
             do {
-                let package = try await instance.saveState(snapshotName: name) {
-                    state = .savingState(vm)
-                }
+                state = .saving(vm, .savingMemory)
+                try await instance.saveMachineState(to: staged.stateFileURL)
 
-                state = .stateSaveCompleted(vm, package)
-            } catch is CancellationError {
-                /// User cancellation is not an error, it may just be ignored here.
-                /// As of the current implementation of `VMInstance.saveState`, the VM won't be paused
-                /// because the only cancellation point is before that happens, but check for pause in here just in
-                /// case that behavior changes in the future.
-                try await resumeIfNeeded()
+                try Task.checkCancellation()
+
+                state = .saving(vm, .finalizing)
+                descriptor = try await performOffMainActor { try storage.publish(staged) }
             } catch {
+                storage.abandon(staged)
                 throw error
             }
+        } catch {
+            logger.error("Saving session failed: \(error, privacy: .public)")
 
-            try await resumeIfNeeded()
+            await returnToConditionBeforeSave(instance: instance, wasRunning: wasRunning)
+
+            throw error
         }
+
+        /// The session is complete and published from here on. It must survive whatever happens next.
+        state = .saving(vm, .stopping)
+
+        do {
+            try await instance.tearDownAfterSave()
+        } catch {
+            logger.error("Stopping after save failed: \(error, privacy: .public)")
+
+            virtualMachineModel.reloadSavedSession()
+            state = .recoveryRequired(.stopFailedAfterSave(error.localizedDescription))
+
+            throw SavedSessionError.stopFailedAfterSave(error)
+        }
+
+        self.instance = nil
+        virtualMachineModel.reloadSavedSession()
+        state = .saved(virtualMachineModel.savedSession ?? descriptor)
+        library.reload(animated: false)
 
         unhideCursor()
     }
 
-    private func resumeIfNeeded() async throws {
-        guard !state.isRunning else { return }
+    private func returnToConditionBeforeSave(instance: VMInstance, wasRunning: Bool) async {
+        if wasRunning, let vm = try? instance.virtualMachine, vm.state == .paused {
+            do {
+                try await instance.resume()
+            } catch {
+                /// The state reported below is the actual one: paused.
+                logger.error("Failed to resume after failed save: \(error, privacy: .public)")
+            }
+        }
 
-        try await Task.sleep(for: .seconds(1.5))
-
-        try await resume()
+        reconcileState()
     }
 
-    private func updatingState(perform block: () async throws -> Void) async throws {
-        do {
-            try await block()
-        } catch {
-            state = .stopped(error)
-            throw error
+    /// Tries again to stop a virtual machine whose session was saved but which couldn't be stopped.
+    public func retryStopAfterSave() async throws {
+        try await lease.perform {
+            guard case .recoveryRequired(.stopFailedAfterSave) = state else { return }
+
+            let instance = try ensureInstance()
+            try await instance.tearDownAfterSave()
+
+            self.instance = nil
+            virtualMachineModel.reloadSavedSession()
+            state = restingState
+        }
+    }
+
+    // MARK: Discarding a Saved Session
+
+    /// Forgets the saved session. The virtual machine's disks are kept as they are, but the running session
+    /// is lost, along with any unsaved work in it.
+    public func discardSavedSession() async throws {
+        try await lease.perform {
+            try await discardSavedSessionLocked()
+        }
+    }
+
+    private func discardSavedSessionLocked() async throws {
+        let storage = self.storage
+
+        try await performOffMainActor { try storage.discard() }
+
+        virtualMachineModel.reloadSavedSession()
+        library.reload(animated: false)
+
+        if let instance, let vm = try? instance.virtualMachine, vm.state == .paused {
+            /// The virtual machine was saved but couldn't be stopped. It's usable again now that the session is gone.
+            await instance.restartGuestCommunication()
+            state = .paused(vm)
+        } else {
+            state = restingState
+        }
+    }
+
+    /// Makes a session that was interrupted after resuming restorable again. Anything that happened since is lost when it's restored.
+    public func reinstateInterruptedSavedSession() async throws {
+        try await lease.perform {
+            let storage = self.storage
+
+            try await performOffMainActor { try storage.reinstateConsumedSession() }
+
+            virtualMachineModel.reloadSavedSession()
+            state = restingState
         }
     }
 
@@ -529,9 +991,10 @@ public extension VMState {
         case .running: return rhs.isRunning
         case .paused: return rhs.isPaused
         case .stopped: return rhs.isStopped
-        case .savingState: return rhs.isSavingState
-        case .restoringState: return rhs.isRestoringState
-        case .stateSaveCompleted: return rhs.isStateSaveCompleted
+        case .saving: return rhs.isSaving
+        case .restoring: return rhs.isRestoring
+        case .saved: return rhs.isSaved
+        case .recoveryRequired: return rhs.isRecoveryRequired
         }
     }
 
@@ -564,24 +1027,52 @@ public extension VMState {
         return true
     }
 
-    var isSavingState: Bool {
-        guard case .savingState = self else { return false }
+    var isSaving: Bool {
+        guard case .saving = self else { return false }
         return true
     }
 
-    var isRestoringState: Bool {
-        guard case .restoringState = self else { return false }
+    var isRestoring: Bool {
+        guard case .restoring = self else { return false }
         return true
     }
 
-    var isStateSaveCompleted: Bool {
-        guard case .stateSaveCompleted = self else { return false }
+    var isSaved: Bool {
+        guard case .saved = self else { return false }
         return true
+    }
+
+    var isRecoveryRequired: Bool {
+        guard case .recoveryRequired = self else { return false }
+        return true
+    }
+
+    /// `true` while a save or restore operation is in progress.
+    var isPerformingSessionOperation: Bool { isSaving || isRestoring }
+
+    /// `true` when the virtual machine isn't running and has a saved session, which can be ready to resume or need a decision.
+    var isSavedSessionPresentation: Bool { isSaved || isRecoveryRequired }
+
+    /// `true` when the virtual machine is running, paused, or in the middle of an operation that involves its execution.
+    var isActive: Bool {
+        switch self {
+        case .starting, .resizingDisk, .running, .paused, .saving, .restoring: true
+        case .idle, .saved, .recoveryRequired, .stopped: false
+        }
     }
 
     var canStart: Bool {
         switch self {
-        case .idle, .stopped:
+        case .idle, .stopped, .saved, .recoveryRequired:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var canSaveAndClose: Bool {
+        switch self {
+        case .running, .paused:
             return true
         default:
             return false

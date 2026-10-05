@@ -68,6 +68,12 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
     private var _metadata: Metadata?
     private var _installRestoreData: Data?
 
+    /// The saved session that belongs to this virtual machine, if any.
+    ///
+    /// This is read from the virtual machine's bundle when it's loaded and isn't part of its metadata,
+    /// the saved session package is the only source of truth.
+    public internal(set) var savedSession: VBSavedSessionDescriptor?
+
     public var configuration: VBMacConfiguration {
         /// Masking private `_configuration` since it's initialized dynamically from a file.
         get { _configuration ?? .default }
@@ -244,6 +250,8 @@ public extension VBVirtualMachine {
         }
 
         self.installRestoreData = installRestore
+
+        reloadSavedSession()
     }
 
     @available(macOS 13, *)
@@ -325,6 +333,22 @@ public extension VBVirtualMachine {
         self.metadata = metadata ?? .init()
         self.configuration = config
         self.installRestoreData = installRestore
+
+        reloadSavedSession()
+    }
+
+    /// Forgets the saved session while keeping the virtual machine's disks as they are.
+    ///
+    /// Use ``VMController/discardSavedSession()`` instead for a virtual machine that has a controller.
+    func discardSavedSession() async throws {
+        let storage = SavedSessionStorage(bundleURL: bundleURL)
+
+        try await performOffMainActor { try storage.discard() }
+    }
+
+    /// Reads the condition of the saved session from the bundle.
+    mutating func reloadSavedSession() {
+        savedSession = SavedSessionStorage(bundleURL: bundleURL).inspect()
     }
 
 }

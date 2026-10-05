@@ -1,7 +1,6 @@
 import Foundation
 
-/// Adopted by ``VMVirtualMachine`` and ``VBSavedStatePackage``
-/// in order to help resolve storage devices when bootstrapping a VM.
+/// Adopted by ``VBVirtualMachine`` in order to help resolve storage devices when bootstrapping a VM.
 public protocol VBStorageDeviceContainer {
     var bundleURL: URL { get }
     var storageDevices: [VBStorageDevice] { get }
@@ -14,8 +13,7 @@ public protocol VBStorageDeviceContainer {
 
 // MARK: - Default Implementations
 
-/// These default implementations take care of resolving disk images for both ``VBVirtualMachine`` and ``VBSavedStatePackage``.
-/// Which one is used will be determine in `VirtualMachineConfigurationHelper` when bootstrapping the VM.
+/// These default implementations take care of resolving disk images.
 public extension VBStorageDeviceContainer {
     var allowDiskImageCreation: Bool { false }
 

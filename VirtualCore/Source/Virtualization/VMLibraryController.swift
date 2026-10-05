@@ -43,8 +43,7 @@ public final class VMLibraryController: ObservableObject {
         var isVolumeNotMounted: Bool { id == .volumeNotMounted }
     }
 
-    /// ``reload(animated:)`` exits early if this lock is not available, preventing race conditions caused by virtual machine
-    /// bundles being loaded from the filesystem during critical library operations (such as when duplicating a virtual machine).
+    /// ``reload(animated:)`` exits early if this lock is not available, preventing the library from being loaded twice at the same time.
     private let transactionLock = NSLock()
 
     @Published public private(set) var state = State.loading {
@@ -58,6 +57,12 @@ public final class VMLibraryController: ObservableObject {
     }
     
     @Published public private(set) var virtualMachines: [VBVirtualMachine] = []
+
+    /// Virtual machines that are currently being duplicated.
+    @Published public private(set) var duplicatingMachineIdentifiers = Set<VBVirtualMachine.ID>()
+
+    /// The most recent virtual machine that was created by duplicating another one, so that it can be brought into view.
+    @Published public private(set) var recentlyDuplicatedMachineIdentifier: VBVirtualMachine.ID?
 
     /// Identifiers for all VMs that are currently in a "booted" state (starting, booted, or paused).
     @Published public private(set) var bootedMachineIdentifiers = Set<VBVirtualMachine.ID>()
@@ -426,34 +431,53 @@ public extension VMLibraryController {
     }
 }
 
+// MARK: - Active Copies
+
+public extension VMLibraryController {
+    /// Finds running virtual machines that can't run at the same time as one that's about to resume a saved session.
+    func activeCopyConflicts(for vm: VBVirtualMachine, macAddresses: [String]) -> [SavedSessionActiveCopyConflict] {
+        let running = bootedMachineIdentifiers.compactMap { id in virtualMachines.first { $0.id == id } }
+
+        return SavedSessionActiveCopyConflict.conflicts(for: vm, macAddresses: macAddresses, among: running)
+    }
+}
+
 // MARK: - Management Actions
 
 public extension VMLibraryController {
 
+    /// Whether the virtual machine is running, paused, or in the middle of saving or restoring.
+    func isExecuting(_ vm: VBVirtualMachine) -> Bool {
+        bootedMachineIdentifiers.contains(vm.id) || activeController(for: vm.id)?.state.isActive == true
+    }
+
+    /// Duplicates a virtual machine without opening or resuming it.
+    ///
+    /// A virtual machine with a saved session is duplicated along with it, and the copy continues independently.
+    /// The copy only becomes visible once it's complete.
     @discardableResult
-    func duplicate(_ vm: VBVirtualMachine) throws -> VBVirtualMachine {
-        /// Prevent ``reload(animated:)`` from reloading virtual machines due to filesystem changes
-        /// before we've had a chance to finish setting up and saving the duplicated virtual machine.
-        /// This addresses an issue that could cause some metadata to be lost when duplicating a virtual machine
-        /// because it was being reloaded from the filesystem before the duplication process could finish.
-        let duplicate = try transactionLock.withLock {
-            let newName = "Copy of " + vm.name
+    func duplicate(_ vm: VBVirtualMachine) async throws -> VBVirtualMachine {
+        guard !isExecuting(vm) else {
+            throw Failure("\"\(vm.name)\" is in use. Use Save & Close or shut it down before duplicating it.")
+        }
 
-            let copyURL = try urlForRenaming(vm, to: newName)
+        guard !duplicatingMachineIdentifiers.contains(vm.id) else {
+            throw Failure("\"\(vm.name)\" is already being duplicated.")
+        }
 
-            try fileManager.copyItem(at: vm.bundleURL, to: copyURL)
+        duplicatingMachineIdentifiers.insert(vm.id)
+        defer { duplicatingMachineIdentifiers.remove(vm.id) }
 
-            var newVM = try VBVirtualMachine(bundleURL: copyURL, isNewInstall: false, createIfNeeded: false)
+        let copyURL = try urlForRenaming(vm, to: "Copy of " + vm.name)
+        let sourceURL = vm.bundleURL
 
-            newVM.bundleURL.creationDate = .now
-            newVM.uuid = UUID()
-
-            try newVM.saveMetadata()
-
-            return newVM
+        let duplicate = try await performOffMainActor {
+            try VMBundleDuplicator().duplicate(bundleAt: sourceURL, to: copyURL)
         }
 
         reload()
+
+        recentlyDuplicatedMachineIdentifier = duplicate.id
 
         return duplicate
     }
@@ -521,23 +545,6 @@ public extension VMLibraryController {
         stopPreventingAppTerminationIfNeeded()
     }
 
-    func shutdownAll() {
-        logger.debug(#function)
-
-        for instance in bootedInstances.dictionaryRepresentation().values {
-            let id = instance.virtualMachineModel.id
-            Task {
-                do {
-                    logger.debug("Requesting stop for \(id.shortID, privacy: .public)")
-                    
-                    try await instance.stop()
-                } catch {
-                    logger.error("Error requesting stop for \(id.shortID, privacy: .public) - \(error, privacy: .public)")
-                }
-            }
-        }
-    }
-
     /// Closes guest connections before the application exits.
     func stopGuestCommunication() async {
         let instances = Array(bootedInstances.dictionaryRepresentation().values)
@@ -551,6 +558,14 @@ public extension VMLibraryController {
 
 // MARK: - App Termination Assertion
 
+public extension VMLibraryController {
+    /// Identifies the assertion that's held while virtual machines are running.
+    ///
+    /// The assertion has no handler of its own: what happens to running virtual machines when the app quits
+    /// is decided in one place, by the app's termination sequence, which saves or shuts them down.
+    nonisolated static let runningMachinesAssertionID = "codes.rambo.VirtualBuddy.runningMachines"
+}
+
 private extension VMLibraryController {
     func startPreventingAppTerminationIfNeeded() {
         guard !bootedMachineIdentifiers.isEmpty else { return }
@@ -558,9 +573,7 @@ private extension VMLibraryController {
 
         logger.notice("Start preventing app termination")
 
-        preventTerminationAssertion = NSApp.preventTermination(reason: "virtual machines are currently running", shouldTerminate: { [weak self] _ in
-            self?.handleAppTerminationAttempt() ?? .terminateNow
-        })
+        preventTerminationAssertion = NSApp.preventTermination(id: Self.runningMachinesAssertionID, reason: "virtual machines are currently running")
     }
 
     func stopPreventingAppTerminationIfNeeded() {
@@ -571,33 +584,6 @@ private extension VMLibraryController {
 
         preventTerminationAssertion?.invalidate()
         preventTerminationAssertion = nil
-    }
-
-    func handleAppTerminationAttempt() -> NSApplication.TerminateReply {
-        let alert = NSAlert()
-        alert.messageText = "Quit VirtualBuddy?"
-        alert.informativeText = "VirtualBuddy is currently running virtual machines. Quitting the app without shutting them down first can result in data loss."
-
-        let button = alert.addButton(withTitle: "Quit Now")
-        button.hasDestructiveAction = true
-
-        let button2 = alert.addButton(withTitle: "Shutdown")
-        button2.keyEquivalent = "\r"
-
-        alert.addButton(withTitle: "Cancel")
-
-        let response = alert.runModal()
-
-        switch response {
-        case .alertFirstButtonReturn:
-            return .terminateNow
-        case .alertSecondButtonReturn:
-            defer { shutdownAll() }
-            
-            return .terminateLater
-        default:
-            return .terminateCancel
-        }
     }
 }
 

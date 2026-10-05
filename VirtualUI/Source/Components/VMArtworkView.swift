@@ -60,7 +60,9 @@ public struct VMArtworkView: View {
 
 private extension VBVirtualMachine {
     var artworkContent: VMArtworkView.Content {
-        if let thumbnail {
+        if let savedScreenshot {
+            .image(Image(nsImage: savedScreenshot))
+        } else if let thumbnail {
             .image(Image(nsImage: thumbnail))
         } else {
             .blurHash(metadata.backgroundHash)

@@ -92,9 +92,34 @@ struct LibraryItemView: View {
 
     private var hasOpenSession: Bool { sessionManager.session(for: vm) != nil }
 
+    private var isDuplicating: Bool { library.duplicatingMachineIdentifiers.contains(vm.id) }
+
+    /// Copying a virtual machine that's in use would copy a moving target, so it has to be saved or shut down first.
+    private var canDuplicate: Bool { !library.isExecuting(vm) && !isDuplicating }
+
+    private var isHighlighted: Bool { library.recentlyDuplicatedMachineIdentifier == vm.id }
+
     var body: some View {
         VStack(spacing: 12) {
             ArtworkView(virtualMachine: vm)
+                .overlay(alignment: .bottomLeading) {
+                    if let savedSession = vm.savedSession {
+                        SavedSessionLibraryBadge(descriptor: savedSession)
+                            .padding(8)
+                    }
+                }
+                .overlay {
+                    if isDuplicating {
+                        ZStack {
+                            Rectangle().fill(.ultraThinMaterial)
+                            VStack(spacing: 8) {
+                                ProgressView()
+                                Text("Duplicating…").font(.caption)
+                            }
+                        }
+                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    }
+                }
 
             EphemeralTextField($name, alignment: .leading, setFocus: nameFieldFocus) { name in
                 Text(name)
@@ -115,7 +140,7 @@ struct LibraryItemView: View {
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
         .background(Material.regular, in: backgroundShape)
-        .highlightBorder(backgroundShape, color: .accentColor, opacity: 0.2)
+        .highlightBorder(backgroundShape, color: .accentColor, opacity: isHighlighted ? 0.9 : 0.2)
         .clipShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
@@ -166,6 +191,8 @@ struct LibraryItemView: View {
         } label: {
             Text("Duplicate")
         }
+        .disabled(!canDuplicate)
+        .help(duplicateHelp)
 
         Button {
             nameFieldFocus.send(true)
@@ -192,10 +219,20 @@ struct LibraryItemView: View {
         .disabled(isVMBooted)
     }
 
+    private var duplicateHelp: String {
+        if library.isExecuting(vm) {
+            "Use Save & Close or shut down the virtual machine to duplicate it."
+        } else if vm.savedSession != nil {
+            "To keep this point for later, duplicate the saved VM before resuming it. Resuming a copy continues that copy."
+        } else {
+            "Duplicate this virtual machine."
+        }
+    }
+
     private func duplicate() {
         Task {
             do {
-                try library.duplicate(vm)
+                try await library.duplicate(vm)
             } catch {
                 NSAlert(error: error).runModal()
             }
@@ -252,6 +289,33 @@ struct HighlightBorderModifier<Shape: InsettableShape>: ViewModifier {
 extension View {
     func highlightBorder<Shape: InsettableShape>(_ shape: Shape, color: Color = .white, opacity: Double = 0.14) -> some View {
         modifier(HighlightBorderModifier(shape: shape, color: color, opacity: opacity))
+    }
+}
+
+/// Marks a saved virtual machine in the library.
+private struct SavedSessionLibraryBadge: View {
+    var descriptor: VBSavedSessionDescriptor
+
+    var body: some View {
+        Label {
+            switch descriptor.status {
+            case .ready:
+                if let date = descriptor.date {
+                    Text("Saved \(date, format: .dateTime.month().day().hour().minute())")
+                } else {
+                    Text("Saved")
+                }
+            case .recoveryRequired:
+                Text("Saved – Needs Attention")
+            }
+        } icon: {
+            Image(systemName: descriptor.isReady ? "tray.and.arrow.down.fill" : "exclamationmark.triangle.fill")
+        }
+        .font(.caption.weight(.medium))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.regularMaterial, in: Capsule())
+        .help(descriptor.issue?.explanation ?? "This virtual machine is saved. Opening it and pressing Resume continues where you left off.")
     }
 }
 

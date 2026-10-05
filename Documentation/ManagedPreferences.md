@@ -17,7 +17,7 @@ Deploy the following setting in a custom settings payload for the VirtualBuddy p
 
 - Shared folder controls are disabled with an organization policy message.
 - Attempts to add a folder are rejected and logged.
-- Existing mappings are ignored when constructing a VM's runtime configuration, including snapshot restoration. The saved VM configuration is preserved.
+- Existing mappings are ignored when constructing a VM's runtime configuration, including when a saved session is resumed. The saved VM configuration is preserved. Shared folders are live resources, so a saved session doesn't preserve or roll back their contents.
 - When VirtualBuddy observes a preference change, it disconnects the host folder share from existing VM instances. Policy is also checked before and after starting or resuming a VM.
 
 This applies globally to macOS and Linux VMs. Rosetta for Linux remains available because its separate share exposes Apple's translation runtime rather than user-selected host folders. Clipboard sharing, USB passthrough, and networking are separate features and are not controlled by this preference.
@@ -38,7 +38,7 @@ All five managed preferences are Booleans, with a default of `false`. Missing or
 | `DisableBridgedNetworking` | Leaves bridged adapters disconnected, including on startup and automatic reconnection. NAT remains available and can be explicitly selected by the user. |
 | `DisableMicrophoneInput` | Supplies silence instead of host microphone input when constructing the VM. Sound output is unaffected. |
 
-Shut down and start VMs to apply guest-app and microphone restrictions. Virtualization does not expose a public runtime switch for microphone input, so a running VM keeps its current audio configuration until shutdown. Resuming an existing VM configured with microphone input is denied while restricted; cold-start it instead. A snapshot may require a compatible device configuration, particularly if its guest app installer disk is now omitted.
+Shut down and start VMs to apply guest-app and microphone restrictions. Virtualization does not expose a public runtime switch for microphone input, so a running VM keeps its current audio configuration until shutdown. Resuming a saved session of a VM configured with microphone input is denied while restricted. Discard the saved session, which loses its running state, and cold-start the VM instead. A saved session also needs the guest app installer disk it was saved with: if the policy now omits that disk, resuming is blocked with an explanation.
 
 USB detachment failures are logged and shown on the device in the USB menu, where manual detachment remains available. Remove the profile and restart VMs to restore all saved feature selections.
 
@@ -76,4 +76,4 @@ defaults delete codes.rambo.VirtualBuddy DisableSharedFolders
 
 An MDM-forced value takes precedence over user defaults. Builds with a custom bundle identifier read that build's own defaults domain.
 
-For an MDM deployment, verify on an enrolled Mac with an existing shared folder: check disabled controls, a cold VM start, snapshot restoration, and applying the policy while the guest has the share mounted. Remove the policy and restart the VM to confirm its saved mappings are available again.
+For an MDM deployment, verify on an enrolled Mac with an existing shared folder: check disabled controls, a cold VM start, resuming a saved session, and applying the policy while the guest has the share mounted. Remove the policy and restart the VM to confirm its saved mappings are available again.

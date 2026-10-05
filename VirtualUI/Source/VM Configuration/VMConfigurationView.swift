@@ -124,6 +124,10 @@ struct VMConfigurationView: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
+            if viewModel.isLockedBySavedSession {
+                savedSessionNotice
+            }
+
             Group {
                 if showTemplatePicker {
                     templatePicker
@@ -165,10 +169,37 @@ struct VMConfigurationView: View {
             }
             /// This is required so that contents that have long text content won't cause the width to expand automatically.
             .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
+            .disabled(viewModel.isLockedBySavedSession)
         }
         .font(.system(size: 12))
         .environment(\.configurationGuestType, viewModel.config.systemType)
         .environment(\.resolvedRestoreImage, viewModel.resolvedRestoreImage)
+    }
+
+    @ViewBuilder
+    private var savedSessionNotice: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Resume and shut down this VM to change its hardware.", systemImage: "lock.fill")
+                .font(.headline)
+
+            Text("This virtual machine has a saved session, which only works with the hardware it was saved with. You can also discard the saved session to unlock these settings.")
+                .foregroundStyle(.secondary)
+
+            Button("Discard Saved Session…", role: .destructive) {
+                Task { @MainActor in
+                    guard await SavedSessionPrompts.confirmDiscard(name: viewModel.vmName, startsAfterwards: false, from: nil) else { return }
+
+                    do {
+                        try await viewModel.discardSavedSession()
+                    } catch {
+                        NSAlert(error: error).runModal()
+                    }
+                }
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.quaternary, in: RoundedRectangle(cornerRadius: 8, style: .continuous))
     }
 
     @ViewBuilder

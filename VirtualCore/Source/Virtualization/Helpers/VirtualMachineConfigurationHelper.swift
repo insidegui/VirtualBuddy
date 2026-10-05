@@ -12,7 +12,9 @@ import ManagedPreferencesKit
 
 protocol VirtualMachineConfigurationHelper {
     var vm: VBVirtualMachine { get }
-    var savedState: VBSavedStatePackage? { get }
+    var restoration: SavedSessionRestoration? { get }
+    /// The guest additions image that's attached to the virtual machine, if any.
+    func guestAdditionsMediaURL() async -> URL?
     func createInstallDevice(installImageURL: URL) throws -> VZStorageDeviceConfiguration
     func createBootLoader() throws -> VZBootLoader
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration
@@ -41,7 +43,12 @@ func createVZDiskImageStorageDeviceAttachment(url: URL, readOnly: Bool, guestTyp
 
 extension VirtualMachineConfigurationHelper {
 
-    var storageDeviceContainer: VBStorageDeviceContainer { savedState ?? vm }
+    /// When restoring a saved session, disk images must already exist. They are never created.
+    var storageDeviceContainer: VBStorageDeviceContainer {
+        restoration == nil ? vm : ExistingStorageDeviceContainer(bundleURL: vm.bundleURL, storageDevices: vm.storageDevices)
+    }
+
+    func guestAdditionsMediaURL() async -> URL? { nil }
 
     func createBootBlockDevice() async throws -> VZVirtioBlockDeviceConfiguration {
         do {
@@ -84,6 +91,12 @@ extension VirtualMachineConfigurationHelper {
     @available(macOS 15.0, *)
     func createUSBControllers() -> [VZUSBControllerConfiguration] { [] }
 
+}
+
+/// Resolves the storage devices of a virtual machine without ever allowing disk image creation.
+struct ExistingStorageDeviceContainer: VBStorageDeviceContainer {
+    let bundleURL: URL
+    let storageDevices: [VBStorageDevice]
 }
 
 extension VBStorageDeviceContainer {
