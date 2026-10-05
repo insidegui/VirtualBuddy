@@ -289,7 +289,7 @@ final class SavedSessionStorageTests: XCTestCase {
         XCTAssertNil(storage.inspect())
         XCTAssertFalse(storage.hasPendingConsumedRestore())
         /// The guest additions image stays installed while the restored virtual machine runs.
-        XCTAssertEqual(try bundleEntries().filter { $0.hasPrefix(".vbsession") }, [SavedSessionLayout.mediaDirectoryName])
+        XCTAssertEqual(try bundleEntries().filter { $0.hasPrefix(SavedSessionLayout.packageName) }, [SavedSessionLayout.mediaDirectoryName])
 
         try storage.removeWorkingMedia()
         try assertNoTransientLeftovers()

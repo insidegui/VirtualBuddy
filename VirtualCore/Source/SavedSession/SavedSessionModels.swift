@@ -133,11 +133,12 @@ struct SavedSessionJournal: Codable, Hashable, Sendable {
 
 /// Locations of every file the saved session machinery manages inside a virtual machine bundle.
 struct SavedSessionLayout: Sendable {
-    static let packageName = ".vbsession"
-    static let stagingPrefix = ".vbsession-staging-"
-    static let obsoletePrefix = ".vbsession-obsolete-"
-    static let transactionName = ".vbsession-transaction"
-    static let mediaDirectoryName = ".vbsession-media"
+    /// These are deliberately not hidden so that the state of a saved session can be inspected in Finder.
+    static let packageName = "SavedSession"
+    static let stagingPrefix = "SavedSession-staging-"
+    static let obsoletePrefix = "SavedSession-obsolete-"
+    static let transactionName = "SavedSession-transaction"
+    static let mediaDirectoryName = "SavedSession-media"
 
     static let manifestFileName = "Manifest.plist"
     static let stateFileName = "State.vzvmsave"
