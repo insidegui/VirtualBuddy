@@ -146,7 +146,8 @@ extension EnvironmentValues {
         get { self[WindowTitleEnvironmentKey.self] }
         set {
             self[WindowTitleEnvironmentKey.self] = newValue
-            cocoaWindow?.title = newValue
+            guard let cocoaWindow, cocoaWindow.title != newValue else { return }
+            cocoaWindow.title = newValue
         }
     }
 
@@ -154,7 +155,8 @@ extension EnvironmentValues {
         get { self[WindowTitleVisibilityEnvironmentKey.self] }
         set {
             self[WindowTitleVisibilityEnvironmentKey.self] = newValue
-            cocoaWindow?.titleVisibility = newValue
+            guard let cocoaWindow, cocoaWindow.titleVisibility != newValue else { return }
+            cocoaWindow.titleVisibility = newValue
         }
     }
 
@@ -162,7 +164,8 @@ extension EnvironmentValues {
         get { self[WindowTitleBarTransparentEnvironmentKey.self] }
         set {
             self[WindowTitleBarTransparentEnvironmentKey.self] = newValue
-            cocoaWindow?.titlebarAppearsTransparent = newValue
+            guard let cocoaWindow, cocoaWindow.titlebarAppearsTransparent != newValue else { return }
+            cocoaWindow.titlebarAppearsTransparent = newValue
         }
     }
     
@@ -170,7 +173,8 @@ extension EnvironmentValues {
         get { self[RendersWindowChromeEnvironmentKey.self] }
         set {
             self[RendersWindowChromeEnvironmentKey.self] = newValue
-            windowChromeConsumer?.viewRendersWindowChrome = newValue
+            guard let windowChromeConsumer, windowChromeConsumer.viewRendersWindowChrome != newValue else { return }
+            windowChromeConsumer.viewRendersWindowChrome = newValue
         }
     }
     
@@ -178,8 +182,13 @@ extension EnvironmentValues {
         get { self[WindowMovableEnvironmentKey.self] }
         set {
             self[WindowMovableEnvironmentKey.self] = newValue
-            cocoaWindow?.isMovable = newValue
-            cocoaWindow?.isMovableByWindowBackground = newValue
+            guard let cocoaWindow else { return }
+            if cocoaWindow.isMovable != newValue {
+                cocoaWindow.isMovable = newValue
+            }
+            if cocoaWindow.isMovableByWindowBackground != newValue {
+                cocoaWindow.isMovableByWindowBackground = newValue
+            }
         }
     }
     
@@ -187,7 +196,8 @@ extension EnvironmentValues {
         get { self[WindowLevelEnvironmentKey.self] }
         set {
             self[WindowLevelEnvironmentKey.self] = newValue
-            cocoaWindow?.level = newValue
+            guard let cocoaWindow, cocoaWindow.level != newValue else { return }
+            cocoaWindow.level = newValue
         }
     }
     
@@ -212,6 +222,7 @@ extension EnvironmentValues {
                     effectiveNewValue.insert(.fullScreen)
                 }
 
+                guard cocoaWindow.styleMask != effectiveNewValue else { return }
                 cocoaWindow.styleMask = effectiveNewValue
             }
         }

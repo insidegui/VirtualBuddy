@@ -16,6 +16,12 @@ class FB18383725Window: NSWindow {
     private var cancellables = Set<AnyCancellable>()
 
     override func toggleFullScreen(_ sender: Any?) {
+        /// The issue this works around no longer occurs in macOS 27.
+        /// It's possible that it got fixed during the macOS 26 release cycle, but confirming that would be too much work.
+        guard #unavailable(macOS 27) else {
+            return super.toggleFullScreen(sender)
+        }
+
         guard #available(macOS 26, *) else {
             return super.toggleFullScreen(sender)
         }

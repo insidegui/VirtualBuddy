@@ -51,7 +51,6 @@ public struct VirtualMachineSessionView: View {
         .frame(minWidth: 400, maxWidth: .infinity, minHeight: 400, maxHeight: .infinity)
         .environmentObject(controller)
         .windowTitle(controller.virtualMachineModel.name)
-        .windowTitleBarTransparent(!controller.state.isRunning)
         .windowStyleMask([.titled, .miniaturizable, .closable, .resizable])
         .confirmBeforeClosingWindow(callback: confirmBeforeClosing)
         .task { ui.hostWindow = window }
