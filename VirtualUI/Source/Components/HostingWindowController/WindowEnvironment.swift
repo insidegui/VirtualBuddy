@@ -199,18 +199,19 @@ extension EnvironmentValues {
                 return
             }
 
-            var effectiveNewValue = newValue
-            
-            // Can't remove .fullScreen when the window is in full screen (causes crash).
-            if cocoaWindow.styleMask.contains(.fullScreen) {
-                effectiveNewValue.insert(.fullScreen)
-            }
-            
             // TODO: HACK!
             /// Setting styleMask without this dispatch results in a crash when
             /// built with the macOS 15 SDK and running under macOS 15.
             /// The crash is a precondition failure: `setting value during update: 360192`.
             DispatchQueue.main.async {
+                var effectiveNewValue = newValue
+
+                // Read the current state here because fullscreen may change before this block runs.
+                // Can't remove .fullScreen when the window is in full screen (causes crash).
+                if cocoaWindow.styleMask.contains(.fullScreen) {
+                    effectiveNewValue.insert(.fullScreen)
+                }
+
                 cocoaWindow.styleMask = effectiveNewValue
             }
         }
