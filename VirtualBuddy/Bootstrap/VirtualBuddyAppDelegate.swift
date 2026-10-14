@@ -57,6 +57,10 @@ import SwiftUI
 
         VBUSBDeviceRepository.shared.updateIfNeeded()
 
+        Task { [self] in
+            await sessionManager.autoBootVirtualMachinesInBackground(library: library)
+        }
+
         #if DEBUG
         runLaunchDebugTasks()
         #endif

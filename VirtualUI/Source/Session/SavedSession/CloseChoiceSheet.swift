@@ -1,39 +1,41 @@
 import SwiftUI
 import VirtualCore
 
-/// Introduces saving the state of a virtual machine and asks what closing it should do.
+/// Introduces saving the state of a virtual machine and asks what closing its window should do.
 struct CloseChoiceSheet: View {
     struct Result {
         var choice: SessionCloseChoice
         var makeDefault: Bool
     }
 
-    /// The virtual machines this applies to. A single name when closing a window, several when quitting.
-    var machines: [String]
-    var isQuitting: Bool
+    /// The name of the virtual machine whose window is being closed.
+    var machine: String
+    /// Whether "set as default" changes this virtual machine's own close behavior rather than the global setting.
+    var defaultAppliesToMachineOnly: Bool
     var onFinish: (Result?) -> Void
 
     @State private var selection = SessionCloseChoice.saveState
     @State private var makeDefault = false
 
-    private var subtitle: String {
-        if isQuitting {
-            if machines.count == 1, let name = machines.first {
-                return "“\(name)” is running."
-            }
-            return "\(machines.count) virtual machines are running."
-        } else {
-            return "“\(machines.first ?? "")” is running."
+    private var confirmTitle: String {
+        switch selection {
+        case .saveState: "Save State"
+        case .shutDown: "Shutdown"
+        case .keepRunning: "Keep Running"
         }
     }
 
-    private var confirmTitle: String {
-        selection == .saveState ? "Save State" : "Shutdown"
+    private var makeDefaultExplanation: String {
+        if defaultAppliesToMachineOnly {
+            "Applies to this virtual machine. You can change it later in its settings."
+        } else {
+            "You can change it later in Settings."
+        }
     }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
-            Header(subtitle: Text(subtitle))
+            Header(subtitle: Text("“\(machine)” is running."))
 
             VStack(spacing: 10) {
                 ChoiceCard(
@@ -55,12 +57,22 @@ struct CloseChoiceSheet: View {
                 ) {
                     selection = .shutDown
                 }
+
+                ChoiceCard(
+                    symbol: "play.fill",
+                    title: "Keep Running",
+                    badge: nil,
+                    detail: "Close the window and leave the virtual machine running in the background. Open it again from the library.",
+                    isSelected: selection == .keepRunning
+                ) {
+                    selection = .keepRunning
+                }
             }
 
             Toggle(isOn: $makeDefault) {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Set as default")
-                    Text("You can change it later in Settings.")
+                    Text(makeDefaultExplanation)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -241,11 +253,11 @@ extension SavedSessionPrompts {
 }
 
 #if DEBUG
-#Preview("Close") {
-    CloseChoiceSheet(machines: ["macOS 27 Hackable"], isQuitting: false) { _ in }
+#Preview("Global Default") {
+    CloseChoiceSheet(machine: "macOS 27 Hackable", defaultAppliesToMachineOnly: false) { _ in }
 }
 
-#Preview("Quit") {
-    CloseChoiceSheet(machines: ["macOS 27 Hackable", "Sequoia Test"], isQuitting: true) { _ in }
+#Preview("Per-Machine Default") {
+    CloseChoiceSheet(machine: "macOS 27 Hackable", defaultAppliesToMachineOnly: true) { _ in }
 }
 #endif

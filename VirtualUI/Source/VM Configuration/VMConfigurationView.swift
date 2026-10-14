@@ -106,7 +106,13 @@ struct VMConfigurationView: View {
     @AppStorage("config.guestApp.collapsed")
     private var guestAppCollapsed = true
 
+    @AppStorage("config.behavior.collapsed")
+    private var behaviorCollapsed = true
+
     private var systemType: VBGuestType { viewModel.config.systemType }
+
+    /// How the virtual machine behaves when its window closes and when the app quits or launches only matters once it's installed.
+    private var showBehaviorSection: Bool { viewModel.context == .postInstall }
 
     private var showBootDiskSection: Bool { viewModel.context == .preInstall }
 
@@ -170,6 +176,12 @@ struct VMConfigurationView: View {
             /// This is required so that contents that have long text content won't cause the width to expand automatically.
             .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
             .disabled(viewModel.isLockedBySavedSession)
+
+            /// None of this is hardware, so a saved session doesn't lock it.
+            if showBehaviorSection {
+                behavior
+                    .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
+            }
         }
         .font(.system(size: 12))
         .environment(\.configurationGuestType, viewModel.config.systemType)
@@ -408,6 +420,19 @@ struct VMConfigurationView: View {
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 15)
             }
+        }
+    }
+
+    @ViewBuilder
+    private var behavior: some View {
+        ConfigurationSection($behaviorCollapsed) {
+            BehaviorConfigurationView(configuration: $viewModel.config)
+        } header: {
+            SummaryHeader(
+                "Behavior",
+                systemImage: "macwindow.on.rectangle",
+                summary: viewModel.config.behaviorSummary
+            )
         }
     }
 }
