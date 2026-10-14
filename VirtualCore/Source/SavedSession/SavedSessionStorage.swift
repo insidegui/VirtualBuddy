@@ -115,7 +115,7 @@ struct SavedSessionStorage: Sendable {
 
     // MARK: Capture
 
-    /// Creates the staging directory and clones every resource into it.
+    /// Creates the staging directory and captures every resource into it.
     func stageCapture(_ plan: SavedSessionCapturePlan) throws -> SavedSessionStagedCapture {
         guard !fileSystem.exists(layout.packageURL), !fileSystem.exists(layout.transactionURL) else {
             throw SavedSessionError.activeSessionConflict
@@ -152,7 +152,13 @@ struct SavedSessionStorage: Sendable {
                     throw SavedSessionError.missingResource(source.sourceURL.lastPathComponent)
                 }
 
-                try fileSystem.clone(from: source.sourceURL, to: destination)
+                if source.role == .guestAdditionsMedia {
+                    /// Guest additions live in the default library, which may be on a different volume.
+                    /// Preserve the attached image using a copy that can fall back when cloning isn't possible.
+                    try fileSystem.copy(from: source.sourceURL, to: destination)
+                } else {
+                    try fileSystem.clone(from: source.sourceURL, to: destination)
+                }
 
                 guard fileSystem.byteCount(of: destination) == sourceSize else {
                     throw SavedSessionError.resourceSizeMismatch(source.sourceURL.lastPathComponent)

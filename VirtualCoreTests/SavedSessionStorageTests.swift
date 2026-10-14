@@ -20,6 +20,7 @@ final class FaultInjectingFileSystem: SavedSessionFileSystem, @unchecked Sendabl
     var failingOperation: Int?
     var mode = Mode.transient
     var failure: Error = InjectedFailure()
+    var unclonableURLs = Set<URL>()
 
     /// How many mutating operations have been attempted.
     var operationCount: Int { lock.withLock { counter } }
@@ -45,7 +46,11 @@ final class FaultInjectingFileSystem: SavedSessionFileSystem, @unchecked Sendabl
 
     func createDirectory(_ url: URL) throws { try mutate(); try base.createDirectory(url) }
     func copy(from source: URL, to destination: URL) throws { try mutate(); try base.copy(from: source, to: destination) }
-    func clone(from source: URL, to destination: URL) throws { try mutate(); try base.clone(from: source, to: destination) }
+    func clone(from source: URL, to destination: URL) throws {
+        try mutate()
+        guard !unclonableURLs.contains(source) else { throw SavedSessionError.cloneUnsupported(source) }
+        try base.clone(from: source, to: destination)
+    }
     func move(from source: URL, to destination: URL, replacingExisting: Bool) throws {
         try mutate()
         try base.move(from: source, to: destination, replacingExisting: replacingExisting)
@@ -164,6 +169,39 @@ final class SavedSessionStorageTests: XCTestCase {
 
         let manifest = try PropertyListDecoder().decode(SavedSessionManifest.self, from: Data(contentsOf: storage.layout.manifestURL))
         XCTAssertEqual(try Data(contentsOf: storage.layout.packageURL.appending(path: manifest.resource(with: .disk)!.packagePath)), originalDisk)
+    }
+
+    func testGuestAdditionsThatCannotBeClonedAreCopiedAndRestored() throws {
+        let plan = makePlan(withMedia: true)
+        let media = try XCTUnwrap(plan.resources.first { $0.role == .guestAdditionsMedia })
+        defer { try? FileManager.default.removeItem(at: media.sourceURL) }
+        let originalMedia = try Data(contentsOf: media.sourceURL)
+        let fileSystem = FaultInjectingFileSystem()
+        fileSystem.unclonableURLs = [media.sourceURL]
+        let storage = makeStorage(fileSystem)
+
+        try capture(with: storage, plan: plan)
+        try Data("updated guest additions".utf8).write(to: media.sourceURL)
+
+        let preparation = try storage.prepareRestore()
+        let restoredMediaURL = try XCTUnwrap(preparation.guestAdditionsMediaURL)
+        XCTAssertEqual(try Data(contentsOf: restoredMediaURL), originalMedia)
+    }
+
+    func testDiskThatCannotBeClonedStillFailsCapture() throws {
+        let fileSystem = FaultInjectingFileSystem()
+        fileSystem.unclonableURLs = [path("Disk.img")]
+        let storage = makeStorage(fileSystem)
+
+        XCTAssertThrowsError(try storage.stageCapture(makePlan())) { error in
+            guard case SavedSessionError.cloneUnsupported = error else {
+                return XCTFail("unexpected error \(error)")
+            }
+        }
+
+        XCTAssertNil(storage.inspect())
+        XCTAssertEqual(try readWorking("Disk.img"), originalDisk)
+        try assertNoTransientLeftovers()
     }
 
     func testMissingResourceFailsWithoutLeavingAnything() throws {
