@@ -99,12 +99,21 @@ struct LibraryItemView: View {
 
     private var isHighlighted: Bool { library.recentlyDuplicatedMachineIdentifier == vm.id }
 
+    /// Whether the virtual machine is running, paused, or in the middle of saving or restoring.
+    private var isExecuting: Bool { library.isExecuting(vm) }
+
     var body: some View {
         VStack(spacing: 12) {
             ArtworkView(virtualMachine: vm)
                 .overlay(alignment: .bottomLeading) {
                     if let savedSession = vm.savedSession {
                         SavedSessionLibraryBadge(descriptor: savedSession)
+                            .padding(8)
+                    }
+                }
+                .overlay(alignment: .topTrailing) {
+                    if isExecuting {
+                        RunningLibraryBadge(isInBackground: sessionManager.isRunningInBackground(vm))
                             .padding(8)
                     }
                 }
@@ -316,6 +325,31 @@ private struct SavedSessionLibraryBadge: View {
         .padding(.vertical, 4)
         .background(.regularMaterial, in: Capsule())
         .help(descriptor.issue?.explanation ?? "This virtual machine is saved. Opening it and pressing Resume continues where you left off.")
+    }
+}
+
+/// Marks a running virtual machine in the library.
+private struct RunningLibraryBadge: View {
+    /// Whether the virtual machine is running without a window.
+    var isInBackground: Bool
+
+    private var explanation: String {
+        if isInBackground {
+            "This virtual machine is running in the background. Open it to show its window."
+        } else {
+            "This virtual machine is running."
+        }
+    }
+
+    var body: some View {
+        Image(systemName: "play.fill")
+            .font(.caption.weight(.semibold))
+            .foregroundStyle(.green)
+            .frame(width: 14, height: 14)
+            .padding(6)
+            .background(.regularMaterial, in: Circle())
+            .help(explanation)
+            .accessibilityLabel(isInBackground ? "Running in background" : "Running")
     }
 }
 
