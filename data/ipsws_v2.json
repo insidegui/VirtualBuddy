@@ -307,6 +307,18 @@
   ],
   "restoreImages" : [
     {
+      "build" : "26B118",
+      "channel" : "devbeta",
+      "downloadSize" : 25597756384,
+      "group" : "goldengate",
+      "id" : "26B118",
+      "mobileDeviceMinVersion" : "1853.0.0",
+      "name" : "macOS 27.2 RC",
+      "requirements" : "min_host_26_virtual_installation",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026FallFCS\/12a80ce1-2aac-4d92-8880-c307f01e39b5\/UniversalMac_27.2_26B118_Restore.ipsw",
+      "version" : "27.2.0"
+    },
+    {
       "build" : "26B5091g",
       "channel" : "devbeta",
       "downloadSize" : 26540491105,
