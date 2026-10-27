@@ -6,6 +6,7 @@ Helper that creates various configuration objects exposed in the `VZVirtualMachi
 */
 
 import Foundation
+import ManagedPreferencesKit
 import Virtualization
 
 struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper {
@@ -87,14 +88,14 @@ struct MacOSVirtualMachineConfigurationHelper: VirtualMachineConfigurationHelper
     }
 
     @available(macOS 27.0, *)
-    static func createProvisioningOptions(with provisioning: VBMacProvisioningConfiguration) -> VZMacGuestProvisioningOptions {
+    static func createProvisioningOptions(with provisioning: VBMacProvisioningConfiguration, preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences> = VirtualBuddyManagedPreferences.schema.reader()) -> VZMacGuestProvisioningOptions {
         let options = VZMacGuestProvisioningOptions()
 
-        options.enablesRemoteLogin = provisioning.enablesRemoteLogin
+        options.enablesRemoteLogin = provisioning.enablesRemoteLogin && !preferences.value(for: .disableProvisioningRemoteLogin, default: false)
         options.fullName = provisioning.fullName
         options.username = provisioning.username
         options.password = provisioning.password
-        options.logsInAutomatically = provisioning.logsInAutomatically
+        options.logsInAutomatically = provisioning.logsInAutomatically && !preferences.value(for: .disableProvisioningAutomaticLogin, default: false)
 
         return options
     }

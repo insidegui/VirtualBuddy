@@ -5,6 +5,29 @@ import Virtualization
 @testable import VirtualCore
 
 struct ManagedDevicePreferencesTests {
+    @Test func provisioningRestrictionsAreIndependentAndPreserveSavedSettings() throws {
+        guard #available(macOS 27.0, *) else { return }
+        let provisioning = VBMacProvisioningConfiguration(
+            enablesRemoteLogin: true, logsInAutomatically: true,
+            fullName: "Example User", username: "example",
+            password: KeychainReference(service: "VirtualBuddyTests", account: UUID().uuidString)
+        )
+        let saved = provisioning
+        for (values, remoteLogin, automaticLogin) in [
+            ([:], true, true),
+            (["DisableProvisioningRemoteLogin": true], false, true),
+            (["DisableProvisioningAutomaticLogin": true], true, false),
+            (["DisableProvisioningRemoteLogin": true, "DisableProvisioningAutomaticLogin": true], false, false)
+        ] as [([String: Any], Bool, Bool)] {
+            let options = MacOSVirtualMachineConfigurationHelper.createProvisioningOptions(with: provisioning, preferences: reader(values))
+            #expect(options.enablesRemoteLogin == remoteLogin)
+            #expect(options.logsInAutomatically == automaticLogin)
+            #expect(options.fullName == provisioning.fullName)
+            #expect(options.username == provisioning.username)
+        }
+        #expect(provisioning == saved)
+    }
+
     @Test func restrictedBridgeDoesNotResolveHostInterfaceOrChangeSavedSelection() throws {
         let device = VBNetworkDevice(id: "unavailable-interface", kind: .bridge)
         let saved = device
@@ -62,12 +85,14 @@ struct ManagedDevicePreferencesTests {
         let schema = VirtualBuddyManagedPreferences.schema
         let expectedKeys: Set<String> = [
             "DisableSharedFolders", "DisableGuestApp", "DisableUSBPassthrough",
-            "DisableBridgedNetworking", "DisableMicrophoneInput"
+            "DisableBridgedNetworking", "DisableMicrophoneInput",
+            "DisableProvisioningRemoteLogin", "DisableProvisioningAutomaticLogin"
         ]
         #expect(Set(schema.preferences.map(\.key)) == expectedKeys)
         let declarations: [VirtualBuddyManagedPreferences.Preference<Bool>] = [
             .disableSharedFolders, .disableGuestApp, .disableUSBPassthrough,
-            .disableBridgedNetworking, .disableMicrophoneInput
+            .disableBridgedNetworking, .disableMicrophoneInput,
+            .disableProvisioningRemoteLogin, .disableProvisioningAutomaticLogin
         ]
         for preference in declarations {
             for value: Any? in [nil, false, "true", 1] {

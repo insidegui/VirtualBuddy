@@ -14,6 +14,10 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
         Group("Audio") {
             Preference<Bool>.disableMicrophoneInput
         }
+        Group("Provisioning") {
+            Preference<Bool>.disableProvisioningRemoteLogin
+            Preference<Bool>.disableProvisioningAutomaticLogin
+        }
     }
 
     static var sharedFoldersDisabled: Bool {
@@ -29,6 +33,28 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
 }
 
 public extension ManagedPreference where Namespace == VirtualBuddyManagedPreferences, Value == Bool {
+    static let disableProvisioningRemoteLogin = Self("DisableProvisioningRemoteLogin", title: "Disable Provisioning Remote Login", default: false) {
+        Summary("Prevents VirtualBuddy from enabling remote login (SSH) during macOS guest provisioning.")
+        DefaultBehavior("The saved provisioning setting is used when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Disables the provisioning control and prevents remote login from being enabled during provisioning. The saved selection is preserved.")
+        Behavior("Does not change remote login in an existing guest or prevent it from being enabled inside the guest.")
+        Options {
+            Option(true, "Disable remote login during provisioning.")
+            Option(false, "Allow remote login during provisioning.")
+        }
+    }
+
+    static let disableProvisioningAutomaticLogin = Self("DisableProvisioningAutomaticLogin", title: "Disable Provisioning Automatic Login", default: false) {
+        Summary("Prevents VirtualBuddy from enabling automatic login during macOS guest provisioning.")
+        DefaultBehavior("The saved provisioning setting is used when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Disables the provisioning control and prevents automatic login from being enabled during provisioning. The saved selection is preserved.")
+        Behavior("Does not change automatic login in an existing guest or prevent it from being enabled inside the guest.")
+        Options {
+            Option(true, "Disable automatic login during provisioning.")
+            Option(false, "Allow automatic login during provisioning.")
+        }
+    }
+
     static let disableSharedFolders = Self("DisableSharedFolders", title: "Disable Shared Folders", default: false) {
         Summary("Disables host folder sharing for all virtual machines.")
         Discussion("Deploy this Boolean in the VirtualBuddy preference domain using an MDM configuration profile. It applies to macOS and Linux guests, including existing virtual machines.")
