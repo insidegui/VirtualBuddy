@@ -150,24 +150,30 @@ final class HostingWindow: VBRestorableWindow {
         /// The button that was retaining the controller though a closure context was one of
         /// the toolbar buttons, and for some reason not going directly through our `close()`
         /// implementation here was triggering the leak :(
-        // Only a mouse click on this window's close button can select the alternative.
-        // Capture the modifier before starting asynchronous confirmation.
-        if let button = sender as? NSButton,
-           button === standardWindowButton(.closeButton),
-           let event = NSApp.currentEvent,
-           event.type == .leftMouseUp || event.type == .leftMouseDown,
-           event.modifierFlags.contains(.option) {
-            performAlternativeClose()
-        } else {
-            close()
-        }
+        close()
     }
 
     /// Repeated requests to close while one is waiting for its confirmation (which may involve saving) are ignored.
     private var isWaitingForCloseConfirmation = false
 
     override func close() {
-        close(usingAlternativeAction: false)
+        // The title-bar close button calls close() directly, bypassing performClose(_:).
+        // Resolve the gesture synchronously, before asynchronous confirmation loses its event context.
+        close(usingAlternativeAction: isOptionClickOnCloseButton)
+    }
+
+    private var isOptionClickOnCloseButton: Bool {
+        guard alternativeCloseDelegate != nil,
+              let event = NSApp.currentEvent,
+              event.window === self,
+              event.type == .leftMouseUp || event.type == .leftMouseDown,
+              event.modifierFlags.contains(.option),
+              let button = standardWindowButton(.closeButton),
+              button.isEnabled, !button.isHiddenOrHasHiddenAncestor else { return false }
+
+        // A modifier held during another action must not change how this window closes.
+        let location = button.convert(event.locationInWindow, from: nil)
+        return button.bounds.contains(location)
     }
 
     func performAlternativeClose() {
