@@ -34,7 +34,12 @@ public final class VirtualMachineSessionUI: ObservableObject {
     @Published private(set) var activity: SessionActivity?
 
     /// The window that presents this session. Alerts are presented as sheets on it.
-    weak var hostWindow: NSWindow?
+    weak var hostWindow: NSWindow? {
+        didSet {
+            (oldValue as? HostingWindow)?.alternativeCloseDelegate = nil
+            (hostWindow as? HostingWindow)?.alternativeCloseDelegate = self
+        }
+    }
 
     /// Decides what closing the session involves. Repeated requests to close join the one that's already in progress.
     private(set) var closer: SessionCloseCoordinator!
@@ -317,6 +322,15 @@ private struct VirtualMachineGuestActions: View {
                 .keyboardShortcut("w", modifiers: [.command, .option])
                 .disabled(actionTask != nil || controller?.state.canSaveAndClose != true)
             }
+
+            Divider()
+
+            Button {
+                session?.forceStopAndClose()
+            } label: {
+                Label("Force Stop & Close…", systemImage: "stop.circle.fill")
+            }
+            .disabled(actionTask != nil || !(controller?.state.isRunning == true || controller?.state.isPaused == true))
 
             Divider()
 

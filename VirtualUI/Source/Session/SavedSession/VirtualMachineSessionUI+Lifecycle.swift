@@ -83,6 +83,10 @@ extension VirtualMachineSessionUI {
         }
     }
 
+    func forceStopAndClose() {
+        (hostWindow as? HostingWindow)?.performAlternativeClose()
+    }
+
     // MARK: Starting
 
     /// Starts the virtual machine, resuming its saved session if it has one.
@@ -174,6 +178,23 @@ extension VirtualMachineSessionUI {
             try await controller.discardSavedSession()
         } catch {
             NSApp.presentError(error)
+        }
+    }
+}
+
+extension VirtualMachineSessionUI: AlternativeWindowClosing {
+    func confirmAlternativeClose() async -> Bool {
+        // An inactive VM still follows normal closing, preserving any saved session.
+        guard needsStoppingBeforeClose else { return await requestClose() }
+        guard controller.state.isRunning || controller.state.isPaused else { return false }
+        guard await SavedSessionPrompts.confirmForceStopAndClose(name: virtualMachine.name, from: hostWindow) else { return false }
+
+        do {
+            try await controller.forceStop()
+            return true
+        } catch {
+            NSApp.presentError(error)
+            return false
         }
     }
 }

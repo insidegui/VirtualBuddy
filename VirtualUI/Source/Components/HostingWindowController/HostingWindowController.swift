@@ -126,13 +126,20 @@ protocol WindowChromeConsumer: AnyObject {
     var confirmBeforeClosingCallback: () async -> Bool { get set }
 }
 
-fileprivate final class HostingWindow: VBRestorableWindow {
+@MainActor
+protocol AlternativeWindowClosing: AnyObject {
+    func confirmAlternativeClose() async -> Bool
+}
+
+final class HostingWindow: VBRestorableWindow {
     
     override var canBecomeKey: Bool { true }
     override var canBecomeMain: Bool { true }
     override var acceptsFirstResponder: Bool { true }
 
     var confirmBeforeClosingCallback: () async -> Bool = { true }
+
+    weak var alternativeCloseDelegate: (any AlternativeWindowClosing)?
 
     var enableMemoryLeakAssertion = true
 
@@ -143,20 +150,43 @@ fileprivate final class HostingWindow: VBRestorableWindow {
         /// The button that was retaining the controller though a closure context was one of
         /// the toolbar buttons, and for some reason not going directly through our `close()`
         /// implementation here was triggering the leak :(
-        close()
+        // Only a mouse click on this window's close button can select the alternative.
+        // Capture the modifier before starting asynchronous confirmation.
+        if let button = sender as? NSButton,
+           button === standardWindowButton(.closeButton),
+           let event = NSApp.currentEvent,
+           event.type == .leftMouseUp || event.type == .leftMouseDown,
+           event.modifierFlags.contains(.option) {
+            performAlternativeClose()
+        } else {
+            close()
+        }
     }
 
     /// Repeated requests to close while one is waiting for its confirmation (which may involve saving) are ignored.
     private var isWaitingForCloseConfirmation = false
 
     override func close() {
+        close(usingAlternativeAction: false)
+    }
+
+    func performAlternativeClose() {
+        close(usingAlternativeAction: true)
+    }
+
+    private func close(usingAlternativeAction: Bool) {
         guard !isWaitingForCloseConfirmation else { return }
+        guard !usingAlternativeAction || attachedSheet == nil else { return }
         isWaitingForCloseConfirmation = true
 
         Task { @MainActor in
             defer { isWaitingForCloseConfirmation = false }
 
-            guard await confirmBeforeClosingCallback() else { return }
+            if usingAlternativeAction, let alternativeCloseDelegate {
+                guard await alternativeCloseDelegate.confirmAlternativeClose() else { return }
+            } else {
+                guard await confirmBeforeClosingCallback() else { return }
+            }
             closeWithoutConfirmation()
         }
     }
