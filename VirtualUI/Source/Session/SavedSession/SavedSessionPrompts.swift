@@ -119,6 +119,17 @@ enum SavedSessionPrompts {
         return await alert.present(from: window) == .alertFirstButtonReturn
     }
 
+    static func confirmForceStopAndClose(name: String, from window: NSWindow?) async -> Bool {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = "Force Stop & Close “\(name)”?"
+        alert.informativeText = "Stops the virtual machine immediately without saving its running state or allowing the guest to shut down. Unsaved work will be lost, and the guest’s disk may be left inconsistent. Changes already written to disk are not undone."
+        alert.addButton(withTitle: "Cancel")
+        alert.addButton(withTitle: "Force Stop & Close").hasDestructiveAction = true
+
+        return await alert.present(from: window) == .alertSecondButtonReturn
+    }
+
     // MARK: Resuming
 
     enum RestoreFailureChoice {
