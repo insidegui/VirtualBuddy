@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 import OSLog
 
 private let provisioningLogger = Logger(subsystem: VirtualUIConstants.subsystemName, category: String(describing: ProvisioningConfigurationView.self))
@@ -16,6 +17,11 @@ struct ProvisioningConfigurationView: View {
     @Binding var configuration: VBMacConfiguration
     var contextForbidden = false
     @State private var isShowingProvisioningFormSheet = false
+
+    @ManagedValue(for: .disableProvisioningRemoteLogin, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var remoteLoginDisabled: Bool
+    @ManagedValue(for: .disableProvisioningAutomaticLogin, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var automaticLoginDisabled: Bool
 
     @Environment(\.resolvedRestoreImage)
     private var resolvedRestoreImage
@@ -58,14 +64,20 @@ struct ProvisioningConfigurationView: View {
             }
 
             Group {
-                Toggle("Log in automatically", isOn: logsInAutomatically)
+                Toggle("Log in automatically", isOn: automaticLoginDisabled ? .constant(false) : logsInAutomatically)
+                    .disabled(automaticLoginDisabled)
                     .help(configuration.provisioningSetup ? "Automatically log in using this account, bypassing the macOS Lock Screen" : "")
 
-                Toggle("Enable remote login (SSH)", isOn: enablesRemoteLogin)
+                Toggle("Enable remote login (SSH)", isOn: remoteLoginDisabled ? .constant(false) : enablesRemoteLogin)
+                    .disabled(remoteLoginDisabled)
                     .help(configuration.provisioningSetup ? "Allow logging in with this account using SSH" : "")
             }
             .disabled(!configuration.provisioningSetup)
             .help(!configuration.provisioningSetup ? "Please set up account first" : "")
+
+            if automaticLoginDisabled || remoteLoginDisabled {
+                ManagedRestrictionBannerView(title: "Some provisioning options are disabled by your organization.")
+            }
 
             if unsupported, let feature, let message = feature.status.supportMessage {
                 Text(verbatim: message)

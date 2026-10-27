@@ -28,7 +28,7 @@ Policy enforcement messages appear in Console under the `codes.rambo.VirtualCore
 
 ## Verification
 
-All five managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. VM settings are preserved while a policy overrides their effective behavior.
+All seven managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. VM settings are preserved while a policy overrides their effective behavior.
 
 | Preference | Restriction |
 | --- | --- |
@@ -37,6 +37,10 @@ All five managed preferences are Booleans, with a default of `false`. Missing or
 | `DisableUSBPassthrough` | Blocks automatic and manual host accessory attachment; detaches existing passthrough devices when a policy change is observed. Emulated USB devices are unaffected. |
 | `DisableBridgedNetworking` | Leaves bridged adapters disconnected, including on startup and automatic reconnection. NAT remains available and can be explicitly selected by the user. |
 | `DisableMicrophoneInput` | Supplies silence instead of host microphone input when constructing the VM. Sound output is unaffected. |
+| `DisableProvisioningRemoteLogin` | Prevents VirtualBuddy from enabling remote login (SSH) during macOS guest provisioning. |
+| `DisableProvisioningAutomaticLogin` | Prevents VirtualBuddy from enabling automatic login during macOS guest provisioning. |
+
+The provisioning restrictions apply when VirtualBuddy creates a macOS guest account. They do not modify existing guest settings or prevent someone from changing those settings inside the guest. Saved provisioning selections are preserved and become available again if the restriction is removed before provisioning.
 
 Shut down and start VMs to apply guest-app and microphone restrictions. Virtualization does not expose a public runtime switch for microphone input, so a running VM keeps its current audio configuration until shutdown. Resuming a saved session of a VM configured with microphone input is denied while restricted. Discard the saved session, which loses its running state, and cold-start the VM instead. A saved session also needs the guest app installer disk it was saved with: if the policy now omits that disk, resuming is blocked with an explanation.
 
@@ -50,7 +54,7 @@ From the repository root, run:
 ./Scripts/generate_restricted_profile.swift /tmp/VirtualBuddy-Restricted.mobileconfig
 ```
 
-The script forces all five restrictions to `true` using a system-scoped [managed-preferences payload](https://developer.apple.com/documentation/devicemanagement/managedpreferences). It selects the first trusted, currently valid signing identity from the local keychain search list, signs with SHA-256 CMS, and verifies the signature and payload before writing. Identities need both a certificate and its private key. Private keys remain in the keychain; macOS may request permission to use the selected key. If an identity cannot sign, the script tries the next valid one, and fails if none can sign. Existing output files are not overwritten.
+The script forces all seven restrictions to `true` using a system-scoped [managed-preferences payload](https://developer.apple.com/documentation/devicemanagement/managedpreferences). It selects the first trusted, currently valid signing identity from the local keychain search list, signs with SHA-256 CMS, and verifies the signature and payload before writing. Identities need both a certificate and its private key. Private keys remain in the keychain; macOS may request permission to use the selected key. If an identity cannot sign, the script tries the next valid one, and fails if none can sign. Existing output files are not overwritten.
 
 For a build with a different bundle identifier:
 
