@@ -21,14 +21,34 @@ final class SessionAlertPrompts: SessionClosePrompting {
     private var name: String { ui?.virtualMachine.name ?? "Virtual Machine" }
     private var window: NSWindow? { ui?.hostWindow }
 
-    var closeBehavior: VMCloseBehavior { SavedSessionPrompts.closeBehavior }
+    /// The virtual machine's own close behavior when it has one, the global setting otherwise.
+    var closeBehavior: VMCloseBehavior {
+        let settings = VBSettingsContainer.current.settings
 
-    func chooseCloseAction(context: SessionCloseContext) async -> SessionCloseChoice? {
-        await SavedSessionPrompts.chooseCloseAction(machines: [name], quitting: context.isQuitting, from: window)
+        guard let ui else { return settings.closeBehavior }
+
+        return ui.controller.virtualMachineModel.configuration.closeBehavior(defaultingTo: settings)
     }
 
-    func confirmShutDownInsteadOfSaving(reason: String?, context: SessionCloseContext) async -> Bool {
-        await SavedSessionPrompts.confirmShutDownInsteadOfSaving(name: name, reason: reason, quitting: context.isQuitting, from: window)
+    func chooseCloseAction(context: SessionCloseContext) async -> SessionCloseChoice? {
+        let hasOwnBehavior = ui?.controller.virtualMachineModel.configuration.closeBehaviorOverride != nil
+
+        guard let result = await SavedSessionPrompts.chooseCloseAction(machine: name, defaultAppliesToMachineOnly: hasOwnBehavior, from: window) else {
+            return nil
+        }
+
+        if result.makeDefault {
+            ui?.rememberCloseBehavior(for: result.choice)
+        }
+
+        return result.choice
+    }
+
+    func confirmShutDownInsteadOfSaving(reason: String?, context: SessionCloseContext) async -> SessionCloseChoice? {
+        /// Keeping the virtual machine running is only a way out of closing a window. Saving and closing, as well as quitting, end with it stopped.
+        let offersKeepRunning = context == .window
+
+        return await SavedSessionPrompts.confirmShutDownInsteadOfSaving(name: name, reason: reason, offersKeepRunning: offersKeepRunning, from: window)
     }
 
     func presentSaveFailure(_ error: Error, context: SessionCloseContext) async -> SessionSaveFailureChoice {
@@ -57,9 +77,10 @@ extension VirtualMachineSessionUI {
 
     // MARK: Closing
 
-    /// Saves the virtual machine (or shuts it down if saving isn't available), so that its window can close or the app can quit.
+    /// Saves the virtual machine (or shuts it down if saving isn't available), so that its window can close or the app can quit,
+    /// or lets it keep running without a window if that's what the user prefers.
     /// See ``SessionCloseCoordinator``.
-    func requestClose(context: SessionCloseContext = .window) async -> Bool {
+    func requestClose(context: SessionCloseContext = .window) async -> SessionCloseOutcome {
         await closer.requestClose(context: context)
     }
 
@@ -68,9 +89,27 @@ extension VirtualMachineSessionUI {
 
     /// Saves the session and closes the window.
     func saveAndClose() async {
-        guard await requestClose(context: .saveAndClose) else { return }
+        guard await requestClose(context: .saveAndClose) == .stopped else { return }
 
         hostWindow?.close()
+    }
+
+    /// Makes the choice the user made when closing the window the default for the future.
+    ///
+    /// A virtual machine that has a close behavior of its own keeps having one, so the choice becomes that behavior.
+    /// Otherwise, the global setting changes.
+    func rememberCloseBehavior(for choice: SessionCloseChoice) {
+        let behavior: VMCloseBehavior = switch choice {
+        case .saveState: .saveState
+        case .shutDown: .shutDown
+        case .keepRunning: .keepRunning
+        }
+
+        if controller.virtualMachineModel.configuration.closeBehaviorOverride != nil {
+            controller.virtualMachineModel.configuration.closeBehaviorOverride = behavior
+        } else {
+            VBSettingsContainer.current.settings.closeBehavior = behavior
+        }
     }
 
     func forceStopAfterConfirmation() async {

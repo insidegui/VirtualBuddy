@@ -67,6 +67,32 @@ public struct VBMacConfiguration: Hashable, Codable {
     /// `nil` means use the copy of VirtualBuddyGuest that's embedded in the current build of VirtualBuddy.
     public var guestAppVersion: CatalogLegacyGuestAppVersion.ID? = nil
 
+    /// What happens when this virtual machine's window is closed while it's running.
+    ///
+    /// `nil` means the global setting applies.
+    public var closeBehaviorOverride: VMCloseBehavior? = nil
+
+    /// What happens to this virtual machine when the app quits while it's running.
+    ///
+    /// `nil` means the global setting applies.
+    public var quitBehaviorOverride: VMQuitBehavior? = nil
+
+    /// Starts this virtual machine without a window when the app launches.
+    @DecodableDefault.False
+    public var autoBootInBackground = false
+
+}
+
+public extension VBMacConfiguration {
+    /// The close behavior that applies to this virtual machine, falling back to the global setting.
+    func closeBehavior(defaultingTo settings: VBSettings) -> VMCloseBehavior {
+        closeBehaviorOverride ?? settings.closeBehavior
+    }
+
+    /// The quit behavior that applies to this virtual machine, falling back to the global setting.
+    func quitBehavior(defaultingTo settings: VBSettings) -> VMQuitBehavior {
+        quitBehaviorOverride ?? settings.quitBehavior
+    }
 }
 
 // MARK: - Hardware Configuration
@@ -1066,6 +1092,9 @@ public extension VBMacConfiguration {
         if let provisioning {
             copy.provisioning = try provisioning.duplicate(destinationUUID: copy.provisioningUUID)
         }
+
+        /// A copy starting on its own at launch would be a surprise, so this is never inherited.
+        copy.autoBootInBackground = false
 
         /// Currently only the boot volume configuration is duplicated.
         copy.hardware.storageDevices = hardware.storageDevices.filter { $0.isBootVolume }
