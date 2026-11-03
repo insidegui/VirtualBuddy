@@ -42,7 +42,7 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
         var imageBaseName: String {
             switch self {
-            case .embedded: "VirtualBuddyGuest"
+            case .embedded: "VirtualBuddyGuest_\(Bundle.embeddedGuestApp.vbShortVersionString)"
             case .catalog(let id): id
             }
         }
@@ -304,16 +304,13 @@ public final class GuestAdditionsDiskImage: ObservableObject {
         let guestPath = Bundle.embeddedGuestApp.bundlePath
         let size = computeImageSizeInMB(guestAppURL: Bundle.embeddedGuestApp.bundleURL)
 
-        var args: [String] = [
+        let args: [String] = [
             scriptPath,
             guestPath,
             digest,
-            "\(size)MB"
+            "\(size)MB",
+            imageName
         ]
-
-        if let suffix = VBBuildType.current.guestAdditionsImageSuffix {
-            args.append(suffix)
-        }
 
         let p = Process()
         p.executableURL = URL(fileURLWithPath: "/bin/sh")
