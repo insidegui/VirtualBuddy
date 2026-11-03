@@ -13,7 +13,7 @@ extension VMImporter {
             throw "You already have a virtual machine named \(name.quoted). If you’d like to import this virtual machine from \(appName), please rename it first."
         }
 
-        let model = VBVirtualMachine(bundleURL: vmURL)
+        let model = try VBVirtualMachine(bundleURL: vmURL, createIfNeeded: true)
 
         return model
     }

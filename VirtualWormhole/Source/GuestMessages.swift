@@ -8,7 +8,11 @@ public enum GuestCommunication {
 // Wire names and Codable layouts are shared with existing guest releases.
 // Preserve them when moving or renaming service implementations.
 struct InitializeGuest: VMMessage { let session: UUID }
-struct InitializeGuestReply: VMMessage { let notifications: Set<String> }
+struct InitializeGuestReply: VMMessage {
+    let notifications: Set<String>
+    // Optional for compatibility with hosts predating capability negotiation.
+    var capabilities: Set<String>? = nil
+}
 
 struct ClipboardItem: Codable, Sendable, Equatable {
     let type: String

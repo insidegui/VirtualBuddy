@@ -12,6 +12,10 @@ public final class HostGuestSession {
         get { engine.onDesktopPicture }
         set { engine.onDesktopPicture = newValue }
     }
+    public var onSystemInformation: ((GuestSystemInformation) -> Void)? {
+        get { engine.onSystemInformation }
+        set { engine.onSystemInformation = newValue }
+    }
     public var onNotification: ((String) -> Void)? {
         get { engine.onNotification }
         set { engine.onNotification = newValue }
@@ -49,7 +53,13 @@ public final class GuestHostSession {
 
     public func prepareForTermination() async {
         await withTaskGroup(of: Void.self) { group in
-            group.addTask { try? await self.sendDesktopPicture() }
+            group.addTask {
+                // Both snapshots must finish before the deadline branch closes transport.
+                await withTaskGroup(of: Void.self) { snapshots in
+                    snapshots.addTask { try? await self.engine.sendSystemInformation() }
+                    snapshots.addTask { try? await self.sendDesktopPicture() }
+                }
+            }
             group.addTask { try? await Task.sleep(for: .seconds(2)) }
             await group.next()
             group.cancelAll()
@@ -68,12 +78,17 @@ final class GuestSessionEngine {
     private let pictures: DesktopPictureGuestService
     private let notifications: NotificationsGuestService
     private let defaults: DefaultsGuestService
+    private let systemInformation: SystemInformationGuestService
     private var runTask: Task<Void, Never>?
 
     var isConnected: Bool { context.isConnected }
     var onDesktopPicture: ((GuestDesktopPicture) -> Void)? {
         get { pictures.onDesktopPicture }
         set { pictures.onDesktopPicture = newValue }
+    }
+    var onSystemInformation: ((GuestSystemInformation) -> Void)? {
+        get { systemInformation.onSystemInformation }
+        set { systemInformation.onSystemInformation = newValue }
     }
     var onNotification: ((String) -> Void)? {
         get { notifications.onNotification }
@@ -87,9 +102,10 @@ final class GuestSessionEngine {
         pictures = DesktopPictureGuestService(context: context, desktopPicture: providers.desktopPicture)
         notifications = NotificationsGuestService(context: context, observe: providers.notifications)
         defaults = DefaultsGuestService(context: context, exportDomain: providers.exportDefaults, importDomain: providers.importDefaults)
+        systemInformation = SystemInformationGuestService(context: context, collect: providers.systemInformation, observe: providers.systemInformationChanges)
         services = [
             ClipboardGuestService(context: context, clipboard: providers.clipboard, hostClipboard: hostClipboard),
-            notifications, pictures, defaults
+            notifications, pictures, defaults, systemInformation
         ]
     }
 
@@ -132,6 +148,7 @@ final class GuestSessionEngine {
     private func invalidateSession() {
         context.session = nil
         context.isConnected = false
+        context.hostCapabilities = []
         lifecycle.invalidate()
         for service in services { service.invalidate() }
     }
@@ -154,6 +171,7 @@ final class GuestSessionEngine {
         lifecycle.schedule { [self] in
             let reply = try await context.connection.request(InitializeGuest(session: token), reply: InitializeGuestReply.self, timeout: context.requestTimeout)
             try context.requireSession(token)
+            context.hostCapabilities = reply.capabilities ?? []
             activate(notifications: reply.notifications)
         }
     }
@@ -165,7 +183,7 @@ final class GuestSessionEngine {
         context.session = token
         lifecycle.schedule { [self] in
             let names = services.reduce(into: Set<String>()) { $0.formUnion($1.requestedNotifications) }
-            try await request.reply(.init(notifications: names))
+            try await request.reply(.init(notifications: names, capabilities: [SystemInformationGuestService.capability]))
             try context.requireSession(token)
             activate(notifications: names)
         }
@@ -181,6 +199,7 @@ final class GuestSessionEngine {
         service.receiveOffer(offer, metadata: metadata)
     }
 
+    func sendSystemInformation() async throws { try await systemInformation.sendSystemInformation() }
     func sendDesktopPicture() async throws { try await pictures.sendDesktopPicture() }
     func importDomain(_ domain: String) async throws { try await defaults.importDomain(domain) }
 }

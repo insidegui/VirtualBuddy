@@ -273,6 +273,14 @@ public final class VMInstance: NSObject, ObservableObject {
                 self.logger.error("Error saving guest desktop picture: \(error, privacy: .public)")
             }
         }
+        session.onSystemInformation = { [weak self] information in
+            guard let self, !self.isRecoveryBoot else { return }
+            do {
+                try self.virtualMachineModel.recordGuestSystemInformation(information)
+            } catch {
+                self.logger.error("Error saving guest system information: \(error, privacy: .public)")
+            }
+        }
         guestSession = session
         guestRunTask = session.start()
         observeGuestConnection(in: session)

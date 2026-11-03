@@ -11,7 +11,11 @@ public extension VBVirtualMachine {
     static let previewBundleExtension = "bundle"
 
     static func previewMachine(named name: String) -> VBVirtualMachine {
-        VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!)
+        do {
+            return try VBVirtualMachine(bundleURL: Bundle.virtualCore.url(forResource: name, withExtension: VBVirtualMachine.bundleExtension, subdirectory: previewLibraryDirName)!, createIfNeeded: false)
+        } catch {
+            preconditionFailure("Failed to load preview VM: \(error)")
+        }
     }
     static let preview = VBVirtualMachine.previewMachine(named: "PreviewMac")
     static let previewBlurHash = VBVirtualMachine.previewMachine(named: "PreviewMacBlurHash")

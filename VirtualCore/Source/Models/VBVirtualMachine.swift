@@ -74,6 +74,8 @@ public struct VBVirtualMachine: Identifiable, VBStorageDeviceContainer {
     /// the saved session package is the only source of truth.
     public internal(set) var savedSession: VBSavedSessionDescriptor?
 
+    public internal(set) var guestSystemInformation: VBGuestSystemInformation?
+
     public var configuration: VBMacConfiguration {
         /// Masking private `_configuration` since it's initialized dynamically from a file.
         get { _configuration ?? .default }
@@ -252,6 +254,7 @@ public extension VBVirtualMachine {
         self.installRestoreData = installRestore
 
         reloadSavedSession()
+        reloadGuestSystemInformation()
     }
 
     @available(macOS 13, *)
@@ -335,6 +338,7 @@ public extension VBVirtualMachine {
         self.installRestoreData = installRestore
 
         reloadSavedSession()
+        reloadGuestSystemInformation()
     }
 
     /// Forgets the saved session while keeping the virtual machine's disks as they are.

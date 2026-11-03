@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import BuddyFoundation
 
 public extension EnvironmentValues {
     /// This is injected by reading from ``VBSettings``.
@@ -87,6 +88,7 @@ struct LibraryItemView: View {
     var nameFieldFocus = BoolSubject()
 
     @State private var configurationVM: VBVirtualMachine?
+    @Environment(\.openCocoaWindow) private var openCocoaWindow
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
 
@@ -102,11 +104,8 @@ struct LibraryItemView: View {
     var body: some View {
         VStack(spacing: 12) {
             ArtworkView(virtualMachine: vm)
-                .overlay(alignment: .bottomLeading) {
-                    if let savedSession = vm.savedSession {
-                        SavedSessionLibraryBadge(descriptor: savedSession)
-                            .padding(8)
-                    }
+                .overlay(alignment: .bottom) {
+                    LibraryThumbnailBadges(systemInformation: vm.guestSystemInformation, savedSession: vm.savedSession)
                 }
                 .overlay {
                     if isDuplicating {
@@ -117,7 +116,6 @@ struct LibraryItemView: View {
                                 Text("Duplicating…").font(.caption)
                             }
                         }
-                        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
                     }
                 }
 
@@ -137,11 +135,12 @@ struct LibraryItemView: View {
             .font(.system(size: 16, weight: .medium, design: .rounded))
             .disabled(isVMBooted || isDuplicating)
         }
-        .padding([.leading, .trailing, .top], 8)
+        .padding([.leading, .trailing, .top], 6)
         .padding(.bottom, 12)
         .background(Material.regular, in: backgroundShape)
         .highlightBorder(backgroundShape, color: .accentColor, opacity: isHighlighted ? 0.9 : 0.2)
         .clipShape(backgroundShape)
+        .containerShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
         .scaleEffect(isPressed ? 0.98 : 1)
@@ -166,11 +165,20 @@ struct LibraryItemView: View {
     }
 
     private var backgroundShape: some InsettableShape {
-        RoundedRectangle(cornerRadius: 12, style: .continuous)
+        RoundedRectangle(cornerRadius: 16, style: .continuous)
     }
 
     @ViewBuilder
     private var contextMenuItems: some View {
+        Button {
+            openCocoaWindow(id: "vm-info-\(vm.uuid.uuidString)") {
+                VMInfoView(initialMachine: vm).environmentObject(library)
+            }
+        } label: {
+            Label { Text("Get Info…", bundle: #bundle) } icon: { Image(systemName: "info.circle") }
+        }
+
+
         Button {
             NSWorkspace.shared.selectFile(vm.bundleURL.path, inFileViewerRootedAtPath: vm.bundleURL.deletingLastPathComponent().path)
         } label: {
@@ -251,12 +259,8 @@ struct LibraryItemView: View {
                 .aspectRatio(contentMode: .fill)
                 .frame(minWidth: 0, maxWidth: .infinity, minHeight: 0, maxHeight: .infinity)
                 .aspectRatio(16/9, contentMode: .fit)
-                .highlightBorder(shape)
-                .clipShape(shape)
-        }
-
-        private var shape: some InsettableShape {
-            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .highlightBorder(.containerRelative)
+                .clipShape(.containerRelative)
         }
     }
 
@@ -292,30 +296,101 @@ extension View {
     }
 }
 
-/// Marks a saved virtual machine in the library.
-private struct SavedSessionLibraryBadge: View {
-    var descriptor: VBSavedSessionDescriptor
+private struct LibraryThumbnailBadges: View {
+    let systemInformation: VBGuestSystemInformation?
+    let savedSession: VBSavedSessionDescriptor?
 
     var body: some View {
-        Label {
-            switch descriptor.status {
-            case .ready:
-                if let date = descriptor.date {
-                    Text("Saved \(date, format: .dateTime.month().day().hour().minute())")
-                } else {
-                    Text("Saved")
-                }
-            case .recoveryRequired:
-                Text("Saved – Needs Attention")
+        HStack(spacing: 4) {
+            if let systemInformation {
+                GuestSystemInfoLibraryBadge(report: systemInformation)
             }
-        } icon: {
-            Image(systemName: descriptor.isReady ? "tray.and.arrow.down.fill" : "exclamationmark.triangle.fill")
+
+            Spacer()
+
+            if let savedSession {
+                SavedSessionLibraryBadge(descriptor: savedSession, isCompact: systemInformation != nil)
+            }
+        }
+        .lineLimit(1)
+        .padding(3)
+        .foregroundStyle(.secondary)
+    }
+}
+
+private struct GuestSystemInfoLibraryBadge: View {
+    let report: VBGuestSystemInformation
+
+    private var version: String {
+        guard let version = SoftwareVersion(string: report.information.osVersion) else {
+            return report.information.osVersion
+        }
+        // Keep major.minor even for a .0 release; only omit a zero patch component.
+        return version.patch == 0 ? "\(version.major).\(version.minor)" : version.description
+    }
+
+    var body: some View {
+        Group {
+            if let build = report.information.osBuild {
+                Text(verbatim: "\(version) (\(build))")
+            } else {
+                Text(version)
+            }
         }
         .font(.caption.weight(.medium))
         .padding(.horizontal, 8)
         .padding(.vertical, 4)
-        .background(.regularMaterial, in: Capsule())
-        .help(descriptor.issue?.explanation ?? "This virtual machine is saved. Opening it and pressing Resume continues where you left off.")
+        .background(.regularMaterial, in: .containerRelative)
+        .help(Text("Last reported \(report.receivedAt, format: .dateTime.year().month().day().hour().minute())", bundle: #bundle))
+    }
+}
+
+/// Marks a saved virtual machine in the library.
+private struct SavedSessionLibraryBadge: View {
+    let descriptor: VBSavedSessionDescriptor
+    let isCompact: Bool
+
+    var body: some View {
+        HStack(alignment: .firstTextBaseline, spacing: 4) {
+            Image(systemName: descriptor.isReady ? "tray.and.arrow.down.fill" : "exclamationmark.triangle.fill")
+
+            if isCompact {
+                if let date = descriptor.date {
+                    Text(date, format: .dateTime.month(.twoDigits).day(.twoDigits))
+                }
+            } else {
+                statusLabel
+            }
+        }
+        .font(.caption.weight(.medium))
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.regularMaterial, in: .containerRelative)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(helpText)
+        .help(helpText)
+    }
+
+    private var helpText: Text {
+        let explanation = descriptor.issue?.explanation ?? "This virtual machine is saved. Opening it and pressing Resume continues where you left off."
+        if let date = descriptor.date {
+            return Text("Saved \(date, format: .dateTime.year().month().day().hour().minute())\n\(explanation)", bundle: #bundle)
+        } else {
+            return Text(explanation)
+        }
+    }
+
+    private var statusLabel: Text {
+        switch descriptor.status {
+        case .ready:
+            if let date = descriptor.date {
+                Text("Saved \(date, format: .dateTime.month().day().hour().minute())", bundle: #bundle)
+            } else {
+                Text("Saved", bundle: #bundle)
+            }
+        case .recoveryRequired:
+            Text("Saved – Needs Attention", bundle: #bundle)
+        }
     }
 }
 
@@ -363,9 +438,28 @@ extension VMLibraryController {
 }
 
 #if DEBUG
-#Preview {
+#Preview("Library") {
     LibraryView()
         .environmentObject(VMLibraryController.preview)
         .environmentObject(VirtualMachineSessionUIManager.shared)
+}
+
+#Preview("Thumbnail Badge States") {
+    let date = Date(timeIntervalSince1970: 1_793_707_500)
+    let saved = VBSavedSessionDescriptor(id: UUID(), date: date, status: .ready)
+    let base = VBGuestSystemInformation(receivedAt: date, information: .init(osVersion: "27.0.0", osBuild: "26A123"))
+    let minor = VBGuestSystemInformation(receivedAt: date, information: .init(osVersion: "27.2.0", osBuild: "26C123"))
+    let patch = VBGuestSystemInformation(receivedAt: date, information: .init(osVersion: "27.0.1", osBuild: "26A456"))
+    VStack(alignment: .leading, spacing: 12) {
+        LibraryThumbnailBadges(systemInformation: base, savedSession: saved)
+        LibraryThumbnailBadges(systemInformation: minor, savedSession: saved)
+        LibraryThumbnailBadges(systemInformation: patch, savedSession: saved)
+        LibraryThumbnailBadges(systemInformation: patch, savedSession: nil)
+        LibraryThumbnailBadges(systemInformation: nil, savedSession: saved)
+        LibraryThumbnailBadges(systemInformation: minor, savedSession: .init(id: UUID(), date: date, status: .recoveryRequired(.interruptedAfterResume)))
+    }
+    .frame(width: 208, alignment: .leading)
+    .padding(8)
+    .background(.orange.gradient)
 }
 #endif
