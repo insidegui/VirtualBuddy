@@ -6,6 +6,38 @@ import os
 
 @Suite @MainActor
 struct GuestSessionTests {
+    @Test func defaultsServiceWorksWithoutClipboardOrSessionEngine() async throws {
+        let hostConnection = TestConnection()
+        let guestConnection = TestConnection()
+        await hostConnection.connect(to: guestConnection)
+        await guestConnection.connect(to: hostConnection)
+        let token = UUID()
+        let hostContext = GuestServiceContext(connection: hostConnection, endpoint: .host, requestTimeout: .seconds(1))
+        let guestContext = GuestServiceContext(connection: guestConnection, endpoint: .guest, requestTimeout: .seconds(1))
+        for context in [hostContext, guestContext] {
+            context.session = token
+            context.isConnected = true
+        }
+        let features = TestFeatures()
+        let host = DefaultsGuestService(context: hostContext, exportDomain: { _, url in
+            try Data("exported".utf8).write(to: url)
+        }, importDomain: { _, _ in Issue.record("Host must not import") })
+        let guest = DefaultsGuestService(context: guestContext, exportDomain: { _, _ in
+            Issue.record("Guest must not export")
+        }, importDomain: { domain, url in features.imported[domain] = try Data(contentsOf: url) })
+        let subscriptions = host.subscriptions() + guest.subscriptions()
+        try await withThrowingTaskGroup(of: Void.self) { group in
+            for subscription in subscriptions { group.addTask { await subscription() } }
+            defer { group.cancelAll() }
+            try await guest.importDomain("example.domain")
+            #expect(features.imported["example.domain"] == Data("exported".utf8))
+            host.invalidate()
+            guest.invalidate()
+            await host.drain()
+            await guest.drain()
+        }
+    }
+
     @Test func hostClipboardWinsAndRelaysWithoutEcho() async throws {
         let fixture = await SessionFixture.make()
         try await fixture.connect()
@@ -251,8 +283,8 @@ private func clipboard(_ text: String) -> [ClipboardItem] { [.init(type: "public
         hostClipboard = coordinator?.clipboard as? TestClipboard ?? TestClipboard(hostItems)
         guestClipboard = TestClipboard(clipboard("old guest"))
         self.coordinator = coordinator ?? HostClipboardCoordinator(clipboard: hostClipboard, relayEnabled: { relay })
-        self.host = GuestSessionEngine(connection: host, hostClipboard: self.coordinator, providers: hostFeatures.providers(clipboard: hostClipboard))
-        self.guest = GuestSessionEngine(connection: guest, providers: guestFeatures.providers(clipboard: guestClipboard), requestTimeout: timeout)
+        self.host = GuestSessionEngine(connection: host, endpoint: .host, hostClipboard: self.coordinator, providers: hostFeatures.providers(clipboard: hostClipboard))
+        self.guest = GuestSessionEngine(connection: guest, endpoint: .guest, providers: guestFeatures.providers(clipboard: guestClipboard), requestTimeout: timeout)
         self.host.onDesktopPicture = { [hostFeatures] in hostFeatures.pictures.append($0) }
         self.host.onNotification = { [hostFeatures] in hostFeatures.notifications.append($0) }
     }
@@ -309,10 +341,10 @@ private struct TestReply: Sendable {
 private actor TestConnection: GuestConnection {
     nonisolated let stateInput = TestEvents<VMConnectionState>()
     nonisolated var state: AsyncStream<VMConnectionState> { stateInput.stream() }
-    nonisolated let initializationInput = TestEvents<InitializationRequest>()
-    nonisolated var initializationRequests: AsyncStream<InitializationRequest> { initializationInput.stream() }
-    nonisolated let defaultsInput = TestEvents<DefaultsRequest>()
-    nonisolated var defaultsRequests: AsyncStream<DefaultsRequest> { defaultsInput.stream() }
+    nonisolated private let requestBus = RequestBus()
+    nonisolated func requests<M: VMMessage, R: VMMessage>(of type: M.Type, reply: R.Type) -> AsyncStream<GuestRequest<M, R>> {
+        requestBus.subscribe(type, reply: reply)
+    }
     nonisolated let offerInput = TestEvents<GuestFileOffer>()
     nonisolated var fileOffers: AsyncStream<GuestFileOffer> { offerInput.stream() }
     nonisolated private let bus = MessageBus()
@@ -345,12 +377,8 @@ private actor TestConnection: GuestConnection {
         try Task.checkCancellation()
         guard let peer else { throw TestFailure.missingPeer }
         let response = TestReply()
-        if let message = message as? InitializeGuest {
-            token = message.session
-            peer.initializationInput.yield(.init(payload: message, reply: { try response.reply($0) }))
-        } else if let message = message as? ExportDefaults {
-            peer.defaultsInput.yield(.init(payload: message, reply: { try response.reply($0) }))
-        }
+        if let message = message as? InitializeGuest { token = message.session }
+        try peer.requestBus.send(message, response: response)
         let data = try await withThrowingTaskGroup(of: Data.self) { group in
             group.addTask { try await response.value() }
             group.addTask { try await Task.sleep(for: timeout); throw VMBridgeError.requestTimedOut }
@@ -404,5 +432,30 @@ private final class TestEvents<Element: Sendable>: Sendable {
     func yield(_ value: Element) {
         let continuations = subscribers.withLock { Array($0.values) }
         for continuation in continuations { continuation.yield(value) }
+    }
+}
+
+private final class RequestBus: Sendable {
+    private struct Envelope: Sendable {
+        let data: Data
+        let response: TestReply
+    }
+    private let streams = OSAllocatedUnfairLock(initialState: [String: [UUID: AsyncStream<Envelope>.Continuation]]())
+    func subscribe<M: VMMessage, R: VMMessage>(_ type: M.Type, reply: R.Type) -> AsyncStream<GuestRequest<M, R>> {
+        let id = UUID()
+        let (stream, continuation) = AsyncStream<Envelope>.makeStream()
+        streams.withLock { $0[M.messageID, default: [:]][id] = continuation }
+        continuation.onTermination = { [weak self] _ in self?.streams.withLock { $0[M.messageID]?[id] = nil } }
+        return AsyncStream(unfolding: {
+            var iterator = stream.makeAsyncIterator()
+            guard let envelope = await iterator.next(),
+                  let payload = try? JSONDecoder().decode(M.self, from: envelope.data) else { return nil }
+            return GuestRequest(payload: payload, reply: { try envelope.response.reply($0) })
+        })
+    }
+    func send<M: VMMessage>(_ message: M, response: TestReply) throws {
+        let envelope = Envelope(data: try JSONEncoder().encode(message), response: response)
+        let subscribers = streams.withLock { Array(($0[M.messageID] ?? [:]).values) }
+        for continuation in subscribers { continuation.yield(envelope) }
     }
 }

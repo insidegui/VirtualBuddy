@@ -1,16 +1,10 @@
 import Foundation
 import VMBridge
 
-// The reply closure stays typed at the VMBridge boundary. Only the two app
-// request types have responders; there is no second wire protocol here.
-struct InitializationRequest: Sendable {
-    let payload: InitializeGuest
-    let reply: @Sendable (InitializeGuestReply) async throws -> Void
-}
-
-struct DefaultsRequest: Sendable {
-    let payload: ExportDefaults
-    let reply: @Sendable (ExportDefaultsReply) async throws -> Void
+/// Typed responder without service-specific requirements on the connection.
+struct GuestRequest<Payload: VMMessage, Reply: VMMessage>: Sendable {
+    let payload: Payload
+    let reply: @Sendable (Reply) async throws -> Void
 }
 
 struct GuestFileOffer: Sendable {
@@ -21,8 +15,7 @@ struct GuestFileOffer: Sendable {
 
 protocol GuestConnection: Sendable {
     var state: AsyncStream<VMConnectionState> { get }
-    var initializationRequests: AsyncStream<InitializationRequest> { get }
-    var defaultsRequests: AsyncStream<DefaultsRequest> { get }
+    func requests<M: VMMessage, R: VMMessage>(of type: M.Type, reply: R.Type) -> AsyncStream<GuestRequest<M, R>>
     var fileOffers: AsyncStream<GuestFileOffer> { get }
     func messages<M: VMMessage>(of type: M.Type) -> AsyncStream<M>
     func send<M: VMMessage>(_ message: M) async throws
@@ -34,14 +27,9 @@ protocol GuestConnection: Sendable {
 struct LiveGuestConnection: GuestConnection {
     let connection: VMConnection
     var state: AsyncStream<VMConnectionState> { connection.state }
-    var initializationRequests: AsyncStream<InitializationRequest> {
-        connection.requests(of: InitializeGuest.self).mapped { request in
-            InitializationRequest(payload: request.payload, reply: { try await request.reply($0) })
-        }
-    }
-    var defaultsRequests: AsyncStream<DefaultsRequest> {
-        connection.requests(of: ExportDefaults.self).mapped { request in
-            DefaultsRequest(payload: request.payload, reply: { try await request.reply($0) })
+    func requests<M: VMMessage, R: VMMessage>(of type: M.Type, reply: R.Type) -> AsyncStream<GuestRequest<M, R>> {
+        connection.requests(of: type).mapped { request in
+            GuestRequest(payload: request.payload, reply: { try await request.reply($0) })
         }
     }
     var fileOffers: AsyncStream<GuestFileOffer> {
