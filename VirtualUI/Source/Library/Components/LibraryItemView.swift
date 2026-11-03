@@ -181,7 +181,7 @@ struct LibraryItemView: View {
                 VMInfoView(initialMachine: vm).environmentObject(library)
             }
         } label: {
-            Label { Text("Get Info", bundle: #bundle) } icon: { Image(systemName: "info.circle") }
+            Label { Text("Get Info…", bundle: #bundle) } icon: { Image(systemName: "info.circle") }
         }
 
 
