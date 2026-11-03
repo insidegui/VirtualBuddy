@@ -125,31 +125,6 @@ struct SIPStatusText: View {
     }
 }
 
-struct GuestSystemInfoSummary: View {
-    let report: VBGuestSystemInformation
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 3) {
-            Text("macOS \(report.information.osVersion)", bundle: #bundle)
-            HStack(spacing: 6) {
-                if let build = report.information.osBuild { Text(build) }
-                Label {
-                    HStack(spacing: 3) {
-                        Text("SIP", bundle: #bundle)
-                        SIPStatusText(status: report.information.sipStatus)
-                    }
-                } icon: { Image(systemName: "lock.shield") }
-            }
-            .font(.caption2)
-        }
-        .font(.caption)
-        .foregroundStyle(.secondary)
-        .lineLimit(1)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .help(Text("Last reported \(report.receivedAt, format: .dateTime.year().month().day().hour().minute())", bundle: #bundle))
-    }
-}
-
 #if DEBUG
 #Preview("Get Info") {
     let information = GuestSystemInformation(
