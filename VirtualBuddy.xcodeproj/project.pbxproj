@@ -256,7 +256,6 @@
 		F4A7FB4A2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;28.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB432BB5ED4A00E4C12A /* Save-2024-03-27_16;08;28.vbst */; };
 		F4A7FB4B2BB5ED7E00E4C12A /* Save-2024-03-27_16;08;51.vbst in Copy Preview Saved States */ = {isa = PBXBuildFile; fileRef = F4A7FB442BB5ED4A00E4C12A /* Save-2024-03-27_16;08;51.vbst */; };
 		F4A7FB6E2BB7206C00E4C12A /* SelfSizingGroupedForm.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB6D2BB7206C00E4C12A /* SelfSizingGroupedForm.swift */; };
-		F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */ = {isa = PBXBuildFile; productRef = F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */; };
 		F4A7FB752BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A7FB742BB7252A00E4C12A /* PreviewSupport-VirtualUI.swift */; };
 		F4B5C5D32886FA8D005AA632 /* SharedFoldersManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D22886FA8D005AA632 /* SharedFoldersManagementView.swift */; };
 		F4B5C5D52886FFB5005AA632 /* PointingDeviceConfigurationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B5C5D42886FFB5005AA632 /* PointingDeviceConfigurationView.swift */; };
@@ -296,6 +295,7 @@
 		F4C18A5328491B9D00335EC7 /* VirtualWormhole.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F4C189E02848F59F00335EC7 /* VirtualWormhole.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F4C2374D2888A462001FF286 /* VolumeUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374C2888A462001FF286 /* VolumeUtils.swift */; };
 		F4C237502888AF67001FF286 /* LogStreamer.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C2374F2888AF67001FF286 /* LogStreamer.swift */; };
+		F4C618F9309A44D10004899D /* SwiftUIIntrospect in Frameworks */ = {isa = PBXBuildFile; productRef = F4C618F8309A44D10004899D /* SwiftUIIntrospect */; };
 		F4C947BF2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947BE2E0B0F71001ACC91 /* URL+ExtendedAttributes.swift */; };
 		F4C947D62E0B12D0001ACC91 /* String+AppleOSBuild.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D52E0B12D0001ACC91 /* String+AppleOSBuild.swift */; };
 		F4C947DA2E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4C947D92E0B1E5D001ACC91 /* SoftwareCatalog+DownloadMatching.swift */; };
@@ -877,7 +877,7 @@
 				F453C4632DF0E609007EAD5F /* BuddyKit in Frameworks */,
 				F4510A7B2AE2B3B300E24DD9 /* DeepLinkSecurity.framework in Frameworks */,
 				F498AD0C2884BF67006F1C00 /* VirtualCore.framework in Frameworks */,
-				F4A7FB732BB7238A00E4C12A /* SwiftUIIntrospect-Static in Frameworks */,
+				F4C618F9309A44D10004899D /* SwiftUIIntrospect in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2117,8 +2117,8 @@
 			);
 			name = VirtualUI;
 			packageProductDependencies = (
-				F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */,
 				F453C4622DF0E609007EAD5F /* BuddyKit */,
+				F4C618F8309A44D10004899D /* SwiftUIIntrospect */,
 			);
 			productName = VirtualUI;
 			productReference = F498ACFE2884BF13006F1C00 /* VirtualUI.framework */;
@@ -4984,7 +4984,7 @@
 			repositoryURL = "https://github.com/siteline/swiftui-introspect";
 			requirement = {
 				kind = exactVersion;
-				version = "1.4.0-beta.2";
+				version = "27.0.0-beta.1";
 			};
 		};
 		F4D0F71628674E4B004D5782 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
@@ -5041,10 +5041,10 @@
 			package = F453C3D82DF0A426007EAD5F /* XCRemoteSwiftPackageReference "BuddyKit" */;
 			productName = BuddyKit;
 		};
-		F4A7FB722BB7238A00E4C12A /* SwiftUIIntrospect-Static */ = {
+		F4C618F8309A44D10004899D /* SwiftUIIntrospect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F4A7FB712BB7238A00E4C12A /* XCRemoteSwiftPackageReference "swiftui-introspect" */;
-			productName = "SwiftUIIntrospect-Static";
+			productName = SwiftUIIntrospect;
 		};
 		F4D0F71728674E4B004D5782 /* Sparkle */ = {
 			isa = XCSwiftPackageProductDependency;
