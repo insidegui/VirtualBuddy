@@ -61,6 +61,17 @@ public final class VMInstance: NSObject, ObservableObject {
     
     private var guestSession: HostGuestSession?
 
+    @Published private(set) var guestAppearance: GuestAppearanceState?
+
+    func setGuestDarkModeEnabled(_ enabled: Bool) {
+        guestSession?.setDarkModeEnabled(enabled)
+    }
+
+    func setAutomaticallySyncGuestAppearance(_ enabled: Bool) {
+        virtualMachineModel.configuration.automaticallySyncGuestAppearance = enabled
+        guestSession?.automaticallySyncAppearance = enabled
+    }
+
     /// Whether the guest app running in the virtual machine is currently connected to the host.
     @Published private(set) var isGuestAppConnected = false
     private var guestRunTask: Task<Void, Never>?
@@ -257,6 +268,8 @@ public final class VMInstance: NSObject, ObservableObject {
             throw Failure("The guest communication socket device is unavailable.")
         }
         let session = HostGuestSession(connection: .host(socketDevice: device, port: GuestCommunication.port))
+        session.automaticallySyncAppearance = virtualMachineModel.configuration.automaticallySyncGuestAppearance
+        guestAppearance = session.appearance
         session.onNotification = { [weak self] name in
             self?.logger.debug("Guest system notification: \(name, privacy: .public)")
         }
@@ -300,6 +313,7 @@ public final class VMInstance: NSObject, ObservableObject {
     func stopGuestCommunication() async {
         let session = guestSession
         guestSession = nil
+        guestAppearance = nil
         isGuestAppConnected = false
         guestRunTask?.cancel()
         await session?.stop()

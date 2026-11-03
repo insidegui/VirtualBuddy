@@ -8,6 +8,15 @@ public final class HostGuestSession {
     private let engine: GuestSessionEngine
     private var task: Task<Void, Never>?
     public var isConnected: Bool { engine.isConnected }
+    public var appearance: GuestAppearanceState { engine.appearance.state }
+    public var automaticallySyncAppearance: Bool {
+        get { engine.appearance.automaticallySync }
+        set { engine.appearance.automaticallySync = newValue }
+    }
+    public func setDarkModeEnabled(_ enabled: Bool) {
+        guard !automaticallySyncAppearance else { return }
+        engine.appearance.setDarkModeEnabled(enabled)
+    }
     public var onDesktopPicture: ((GuestDesktopPicture) -> Void)? {
         get { engine.onDesktopPicture }
         set { engine.onDesktopPicture = newValue }
@@ -79,6 +88,7 @@ final class GuestSessionEngine {
     private let notifications: NotificationsGuestService
     private let defaults: DefaultsGuestService
     private let systemInformation: SystemInformationGuestService
+    let appearance: AppearanceGuestService
     private var runTask: Task<Void, Never>?
 
     var isConnected: Bool { context.isConnected }
@@ -103,9 +113,10 @@ final class GuestSessionEngine {
         notifications = NotificationsGuestService(context: context, observe: providers.notifications)
         defaults = DefaultsGuestService(context: context, exportDomain: providers.exportDefaults, importDomain: providers.importDefaults)
         systemInformation = SystemInformationGuestService(context: context, collect: providers.systemInformation, observe: providers.systemInformationChanges)
+        appearance = AppearanceGuestService(context: context, read: providers.appearance, apply: providers.setAppearance, observe: providers.appearanceChanges)
         services = [
             ClipboardGuestService(context: context, clipboard: providers.clipboard, hostClipboard: hostClipboard),
-            notifications, pictures, defaults, systemInformation
+            notifications, pictures, defaults, systemInformation, appearance
         ]
     }
 
@@ -183,7 +194,7 @@ final class GuestSessionEngine {
         context.session = token
         lifecycle.schedule { [self] in
             let names = services.reduce(into: Set<String>()) { $0.formUnion($1.requestedNotifications) }
-            try await request.reply(.init(notifications: names, capabilities: [SystemInformationGuestService.capability]))
+            try await request.reply(.init(notifications: names, capabilities: [SystemInformationGuestService.capability, AppearanceGuestService.capability]))
             try context.requireSession(token)
             activate(notifications: names)
         }

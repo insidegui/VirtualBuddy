@@ -10,6 +10,7 @@ import Foundation
 import Virtualization
 import Combine
 import OSLog
+import VirtualWormhole
 
 public struct VMSessionOptions: Hashable, Codable {
     @DecodableDefault.False
@@ -225,6 +226,9 @@ public final class VMController: ObservableObject {
             .sink { [weak self] isConnected in
                 self?.isGuestAppConnected = isConnected
             }
+
+        guestAppearanceObservation = newInstance.$guestAppearance
+            .sink { [weak self] in self?.guestAppearance = $0 }
         
         return newInstance
     }
@@ -232,6 +236,21 @@ public final class VMController: ObservableObject {
     // MARK: Guest App
 
     private var guestConnectionObservation: AnyCancellable?
+    private var guestAppearanceObservation: AnyCancellable?
+
+    @Published public private(set) var guestAppearance: GuestAppearanceState?
+
+    public var automaticallySyncGuestAppearance: Bool {
+        get { virtualMachineModel.configuration.automaticallySyncGuestAppearance }
+        set {
+            virtualMachineModel.configuration.automaticallySyncGuestAppearance = newValue
+            instance?.setAutomaticallySyncGuestAppearance(newValue)
+        }
+    }
+
+    public func setGuestDarkModeEnabled(_ enabled: Bool) {
+        instance?.setGuestDarkModeEnabled(enabled)
+    }
 
     /// Whether the guest app running in the virtual machine is currently connected to VirtualBuddy.
     @Published
