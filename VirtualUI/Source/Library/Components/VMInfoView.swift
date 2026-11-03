@@ -26,19 +26,18 @@ private struct VMInfoContent: View {
         Form {
             Section {
                 LabeledContent { Text(name) } label: { Text("Name", bundle: #bundle) }
-                LabeledContent { Text(bundleURL.path).lineLimit(3) } label: { Text("Location", bundle: #bundle) }
             }
             if let report {
                 GuestSystemInfoSection(information: report.information)
+
                 Section {
                     LabeledContent {
                         Text(report.receivedAt, format: .dateTime.year().month().day().hour().minute().second())
                     } label: {
                         Text("Last Reported", bundle: #bundle)
                     }
+                } footer: {
                     Text("Information reflects the guest when it last reported to VirtualBuddy. It remains available while the VM is off and may differ from its current configuration.", bundle: #bundle)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
                 }
             } else {
                 Section {
@@ -53,7 +52,7 @@ private struct VMInfoContent: View {
         }
         .formStyle(.grouped)
         .textSelection(.enabled)
-        .frame(minWidth: 440, idealWidth: 500, maxWidth: .infinity, minHeight: 400, idealHeight: 680, maxHeight: .infinity)
+        .frame(minWidth: 440, idealWidth: 500, maxWidth: .infinity, minHeight: 400, idealHeight: 700, maxHeight: .infinity)
         .windowTitle(String(localized: "\(name) Info", bundle: #bundle))
         .windowStyleMask([.titled, .closable, .resizable])
     }
@@ -62,18 +61,35 @@ private struct VMInfoContent: View {
 private struct GuestSystemInfoSection: View {
     let information: GuestSystemInformation
 
+    @State private var showingSIPDetails = false
+
     var body: some View {
         Section {
             LabeledContent { Text("macOS \(information.osVersion)", bundle: #bundle) } label: { Text("Operating System", bundle: #bundle) }
+
             InfoValueRow(title: "Build", value: information.osBuild)
+
             InfoValueRow(title: "Kernel", value: information.kernelVersion)
-            LabeledContent { SIPStatusText(status: information.sipStatus) } label: { Text("System Integrity Protection", bundle: #bundle) }
-            if let details = information.sipDescription {
-                DisclosureGroup {
-                    Text(details).font(.system(.caption, design: .monospaced))
-                } label: {
-                    Text("SIP Details", bundle: #bundle)
+
+            LabeledContent {
+                HStack {
+                    SIPStatusText(status: information.sipStatus)
+
+                    if let details = information.sipDescription {
+                        Button {
+                            showingSIPDetails.toggle()
+                        } label: {
+                            Image(systemName: "info")
+                                .symbolVariant(.circle)
+                        }
+                        .buttonStyle(.borderless)
+                        .popover(isPresented: $showingSIPDetails) {
+                            SIPDetailsView(details)
+                        }
+                    }
                 }
+            } label: {
+                Text("System Integrity Protection", bundle: #bundle)
             }
         } header: { Text("System", bundle: #bundle) }
 
@@ -112,6 +128,30 @@ private struct InfoValueRow: View {
     }
 }
 
+struct SIPDetailsView: View {
+    let details: String
+
+    init(_ details: String) {
+        self.details = details
+    }
+
+    var body: some View {
+        ScrollView(.vertical) {
+            Text(details)
+                .font(.system(.caption).monospaced())
+                .lineLimit(nil)
+                .fixedSize(horizontal: false, vertical: true)
+                .multilineTextAlignment(.leading)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .frame(maxWidth: .infinity)
+        .scrollBounceBehavior(.basedOnSize)
+        .contentMargins(16, for: .scrollContent)
+        .frame(maxWidth: 340, maxHeight: 320)
+    }
+}
+
 struct SIPStatusText: View {
     let status: GuestSystemInformation.SIPStatus
 
@@ -134,13 +174,13 @@ struct SIPStatusText: View {
         sipDescription: "System Integrity Protection status: enabled."
     )
     let report = VBGuestSystemInformation(receivedAt: .now, information: information)
-    VMInfoContent(name: "macOS Development", bundleURL: URL(fileURLWithPath: "/Users/developer/VirtualBuddy/macOS Development.vbvm"),
+    VMInfoContent(name: "macOS Development", bundleURL: URL(fileURLWithPath: "/Users/johndoe/Library/Application Support/VirtualBuddy/New VM.vbvm"),
                   systemType: .mac, report: report)
     .frame(width: 500, height: 680)
 }
 
 #Preview("No Guest Information") {
-    VMInfoContent(name: "New VM", bundleURL: URL(fileURLWithPath: "/Users/developer/VirtualBuddy/New VM.vbvm"),
+    VMInfoContent(name: "New VM", bundleURL: URL(fileURLWithPath: "/Users/johndoe/Library/Application Support/VirtualBuddy/New VM.vbvm"),
                   systemType: .mac, report: nil)
     .frame(width: 500, height: 400)
 }
