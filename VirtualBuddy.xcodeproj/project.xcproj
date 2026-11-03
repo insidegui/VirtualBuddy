@@ -1132,6 +1132,6 @@
     "SWIFT_OPTIMIZATION_LEVEL[config=Release]": "-O",
     "SWIFT_OPTIMIZATION_LEVEL[config=Release_Managed]": "-O",
   },
-  "last-upgrade": "27.0",
+  "last-upgrade": "27.2",
   "last-swift-update": "27.0",
 }
