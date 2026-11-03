@@ -137,10 +137,6 @@ struct LibraryItemView: View {
             }
             .font(.system(size: 16, weight: .medium, design: .rounded))
             .disabled(isVMBooted || isDuplicating)
-
-            if let report = vm.guestSystemInformation {
-                GuestSystemInfoSummary(report: report)
-            }
         }
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
@@ -377,7 +373,7 @@ extension VMLibraryController {
 }
 
 #if DEBUG
-#Preview {
+#Preview("Library") {
     LibraryView()
         .environmentObject(VMLibraryController.preview)
         .environmentObject(VirtualMachineSessionUIManager.shared)

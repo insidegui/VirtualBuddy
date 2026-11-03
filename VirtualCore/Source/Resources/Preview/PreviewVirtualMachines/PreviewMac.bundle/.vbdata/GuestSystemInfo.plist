@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>version</key>
+	<integer>1</integer>
+	<key>receivedAt</key>
+	<date>2026-11-03T12:00:00Z</date>
+	<key>information</key>
+	<dict>
+		<key>osVersion</key>
+		<string>26.1.0</string>
+		<key>osBuild</key>
+		<string>25B78</string>
+		<key>kernelVersion</key>
+		<string>25.1.0</string>
+		<key>computerName</key>
+		<string>Development VM</string>
+		<key>architecture</key>
+		<string>arm64</string>
+		<key>processorCount</key>
+		<integer>4</integer>
+		<key>memoryBytes</key>
+		<integer>8589934592</integer>
+		<key>bootDate</key>
+		<date>2026-11-03T11:00:00Z</date>
+		<key>guestAppVersion</key>
+		<string>2.2</string>
+		<key>guestAppBuild</key>
+		<string>200</string>
+		<key>sipDescription</key>
+		<string>System Integrity Protection status: enabled.</string>
+	</dict>
+</dict>
+</plist>
