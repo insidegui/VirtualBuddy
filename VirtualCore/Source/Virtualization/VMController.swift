@@ -227,6 +227,9 @@ public final class VMController: ObservableObject {
                 self?.isGuestAppConnected = isConnected
             }
 
+        guestAppUpdateObservation = newInstance.$guestAppUpdate
+            .sink { [weak self] in self?.guestAppUpdate = $0 }
+
         guestAppearanceObservation = newInstance.$guestAppearance
             .sink { [weak self] in self?.guestAppearance = $0 }
         
@@ -237,6 +240,38 @@ public final class VMController: ObservableObject {
 
     private var guestConnectionObservation: AnyCancellable?
     private var guestAppearanceObservation: AnyCancellable?
+    private var guestAppUpdateObservation: AnyCancellable?
+    @Published public private(set) var guestAppUpdate: GuestAppUpdateState?
+
+    public func updateGuestApp() {
+        instance?.updateGuestApp()
+    }
+
+    public func exportGuestInstaller(to destination: URL) async throws {
+        guard !VirtualBuddyManagedPreferences.guestAppDisabled else {
+            throw Failure("Guest app installation is disabled by your organization.")
+        }
+        let model = instance?.effectiveModel ?? virtualMachineModel
+        guard model.configuration.guestAdditionsEnabled, model.guestAppSupport != .unsupported else {
+            throw Failure("VirtualBuddyGuest is not enabled for this virtual machine.")
+        }
+        if model.configuration.guestAppVersion == nil {
+            guard model.guestAppSupport == .full else {
+                throw Failure("Select a compatible legacy guest app in this virtual machine’s Guest App settings before exporting an installer.")
+            }
+            if let state = guestAppUpdate, let os = state.osVersion,
+               let target = state.target, !target.supports(osVersion: os) {
+                throw Failure("The current VirtualBuddyGuest installer requires macOS \(target.minimumOS) or later.")
+            }
+            try await GuestUpdateFiles.exportImage(appURL: Bundle.embeddedGuestApp.bundleURL, to: destination)
+        } else {
+            // Explicit legacy selections retain their compatible installer.
+            let image = GuestAdditionsDiskImage(source: model.configuration.guestAppDiskImageSource)
+            try await image.installIfNeeded()
+            if case .installFailed(let error) = image.state { throw error }
+            try await GuestUpdateFiles.exportExistingImage(image.installedImageURL, to: destination)
+        }
+    }
 
     @Published public private(set) var guestAppearance: GuestAppearanceState?
 

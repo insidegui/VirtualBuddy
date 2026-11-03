@@ -1,11 +1,214 @@
 import Foundation
 import Testing
+import CryptoKit
 import VMBridge
 import os
 @testable import VirtualWormhole
 
 @Suite @MainActor
 struct GuestSessionTests {
+
+    nonisolated private static let oldGuest = GuestAppIdentity(version: "2.3", build: 430, codeHash: Data([1]), minimumOS: "14.0")
+    nonisolated private static let newGuest = GuestAppIdentity(version: "2.3", build: 431, codeHash: Data([2]), minimumOS: "14.0")
+
+    private func configureUpdate(_ fixture: SessionFixture) {
+        fixture.guest.appUpdate.report = .init(identity: Self.oldGuest, osVersion: "26.0")
+        fixture.host.appUpdate.state.target = Self.newGuest
+    }
+
+    nonisolated private static func updateImage() async throws -> (URL, GuestAppUpdatePackage) {
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false)
+        let url = directory.appendingPathComponent("Guest.dmg")
+        let bytes = Data("test update payload".utf8)
+        try bytes.write(to: url)
+        return (url, GuestAppUpdatePackage(identity: newGuest, byteCount: Int64(bytes.count), sha256: Data(SHA256.hash(data: bytes))))
+    }
+
+    @Test func guestUpdateRequiresExactIdentityAfterRelaunch() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        var launches = 0
+        var terminations = 0
+        var discarded = 0
+        fixture.guest.appUpdate.prepareInstallation = { url, package in
+            let contents = try Data(contentsOf: url)
+            #expect(contents == Data("test update payload".utf8))
+            #expect(package.identity == Self.newGuest)
+            return PreparedGuestAppUpdate(launchInstaller: { launches += 1 }, terminateApp: { terminations += 1 }, discard: { discarded += 1 })
+        }
+        try await fixture.connect()
+        #expect(fixture.host.appUpdate.state.updateAvailable)
+        #expect(fixture.host.appUpdate.state.canUpdate)
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { terminations == 1 }
+        #expect(launches == 1)
+        #expect(fixture.host.appUpdate.state.phase == .reconnecting)
+        #expect(discarded == 0)
+        await fixture.disconnect()
+        try await eventually { !fixture.guest.isConnected && !fixture.host.isConnected }
+        // A reconnection from the old app (for example after rollback) is not success.
+        await fixture.hostConnection.transition(.connected)
+        await fixture.guestConnection.transition(.connected)
+        try await eventually { fixture.host.isConnected && fixture.guest.isConnected }
+        #expect(fixture.host.appUpdate.state.phase == .reconnecting)
+        await fixture.disconnect()
+        try await eventually { !fixture.guest.isConnected && !fixture.host.isConnected }
+        fixture.guest.appUpdate.report = .init(identity: Self.newGuest, osVersion: "26.0")
+        await fixture.hostConnection.transition(.connected)
+        await fixture.guestConnection.transition(.connected)
+        try await eventually { fixture.host.appUpdate.state.phase == .succeeded }
+        #expect(!fixture.host.appUpdate.state.updateAvailable)
+        #expect(!fixture.host.appUpdate.state.isBusy)
+        #expect(discarded == 0)
+        await fixture.stop()
+    }
+
+    @Test func lostCommitReplyStillConfirmsByReconnection() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        var terminated = false
+        fixture.guest.appUpdate.prepareInstallation = { _, _ in
+            PreparedGuestAppUpdate(launchInstaller: {}, terminateApp: { terminated = true }, discard: {})
+        }
+        await fixture.hostConnection.loseNextCommitReply()
+        try await fixture.connect()
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { terminated }
+        #expect(fixture.host.appUpdate.state.phase == .reconnecting)
+        await fixture.disconnect()
+        try await eventually { !fixture.guest.isConnected && !fixture.host.isConnected }
+        fixture.guest.appUpdate.report = .init(identity: Self.newGuest, osVersion: "26.0")
+        await fixture.hostConnection.transition(.connected)
+        await fixture.guestConnection.transition(.connected)
+        try await eventually { fixture.host.appUpdate.state.phase == .succeeded }
+        await fixture.stop()
+    }
+
+    @Test func updatePreparationTimeoutCancelsWorkWithoutTransferring() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        fixture.host.appUpdate.confirmationTimeout = .milliseconds(50)
+        try await fixture.connect()
+        fixture.host.appUpdate.update {
+            try await Task.sleep(for: .seconds(30))
+            Issue.record("Timed-out preparation should have been cancelled")
+            return try await Self.updateImage()
+        }
+        try await eventually { fixture.host.appUpdate.state.phase == .failed }
+        #expect(await fixture.hostConnection.sentFiles == 0)
+        #expect(fixture.host.appUpdate.state.canUpdate)
+        await fixture.stop()
+    }
+
+    @Test func installerLaunchFailureKeepsGuestRunningAndDiscardsStaging() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        var discarded = false
+        fixture.guest.appUpdate.prepareInstallation = { _, _ in
+            PreparedGuestAppUpdate(launchInstaller: { throw GuestAppUpdateError.interrupted }, terminateApp: {
+                Issue.record("The running app must not quit if the installer cannot start")
+            }, discard: { discarded = true })
+        }
+        try await fixture.connect()
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { fixture.host.appUpdate.state.phase == .failed }
+        #expect(discarded)
+        #expect(fixture.guest.isConnected)
+        #expect(fixture.host.appUpdate.state.canUpdate)
+        await fixture.stop()
+    }
+
+    @Test func olderGuestsShowUpdateWithoutReceivingUnknownCommands() async throws {
+        let fixture = await SessionFixture.make()
+        fixture.guestFeatures.systemInformation.guestAppBuild = "430"
+        fixture.host.appUpdate.state.target = Self.newGuest
+        try await fixture.connect()
+        #expect(fixture.host.appUpdate.state.updateAvailable)
+        #expect(!fixture.host.appUpdate.state.supportsRemoteUpdate)
+        #expect(!fixture.host.appUpdate.state.canUpdate)
+        fixture.host.appUpdate.update { Issue.record("Do not prepare an update for an unsupported guest"); return try await Self.updateImage() }
+        #expect(await fixture.hostConnection.sentFiles == 0)
+        await fixture.stop()
+    }
+
+    @Test func guestUpdateValidationFailureCanBeRetried() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        var fail = true
+        var launches = 0
+        fixture.guest.appUpdate.prepareInstallation = { _, _ in
+            if fail { throw GuestAppUpdateError.invalidPackage }
+            return PreparedGuestAppUpdate(launchInstaller: { launches += 1 }, terminateApp: {}, discard: {})
+        }
+        try await fixture.connect()
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { fixture.host.appUpdate.state.phase == .failed }
+        #expect(launches == 0)
+        #expect(fixture.host.appUpdate.state.errorMessage != nil)
+        #expect(fixture.host.appUpdate.state.canUpdate)
+        fail = false
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { launches == 1 }
+        #expect(fixture.host.appUpdate.state.phase == .reconnecting)
+        await fixture.stop()
+    }
+
+    @Test func disconnectDuringUpdateTransferCancelsInstallation() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        var prepared = false
+        fixture.guest.appUpdate.prepareInstallation = { _, _ in
+            prepared = true
+            return PreparedGuestAppUpdate(launchInstaller: {}, terminateApp: {}, discard: {})
+        }
+        await fixture.hostConnection.delayTransfers(by: .seconds(1))
+        try await fixture.connect()
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { await fixture.guestConnection.receivedFiles > 0 }
+        await fixture.disconnect()
+        try await eventually { fixture.host.appUpdate.state.phase == .failed && !fixture.guest.isConnected }
+        #expect(!prepared)
+        #expect(!fixture.host.appUpdate.state.isBusy)
+        await fixture.stop()
+        #expect(await fixture.hostConnection.files.allSatisfy { !FileManager.default.fileExists(atPath: $0.path) })
+        #expect(await fixture.guestConnection.files.allSatisfy { !FileManager.default.fileExists(atPath: $0.path) })
+    }
+
+    @Test func guestUpdateRejectsCorruptionBeforePreparingAndBoundsPackageSize() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        fixture.guest.appUpdate.prepareInstallation = { _, _ in
+            Issue.record("Invalid payload must never reach the installer")
+            throw GuestAppUpdateError.invalidPackage
+        }
+        try await fixture.connect()
+        fixture.host.appUpdate.update {
+            let (url, package) = try await Self.updateImage()
+            try Data("corrupted".utf8).write(to: url)
+            return (url, package)
+        }
+        try await eventually { fixture.host.appUpdate.state.phase == .failed }
+        let token = try #require(await fixture.guestConnection.token)
+        let oversized = GuestAppUpdatePackage(identity: Self.newGuest, byteCount: GuestAppUpdatePackage.maximumBytes + 1, sha256: Data(repeating: 0, count: 32))
+        let reply = try await fixture.hostConnection.request(BeginGuestAppUpdate(session: token, operation: UUID(), package: oversized), reply: GuestAppUpdateReply.self, timeout: .seconds(1))
+        guard case .failure = reply else { Issue.record("Oversized package accepted"); await fixture.stop(); return }
+        await fixture.stop()
+    }
+
+    @Test func guestUpdateTimesOutWithoutClaimingSuccess() async throws {
+        let fixture = await SessionFixture.make()
+        configureUpdate(fixture)
+        fixture.host.appUpdate.confirmationTimeout = .milliseconds(300)
+        fixture.guest.appUpdate.prepareInstallation = { _, _ in
+            PreparedGuestAppUpdate(launchInstaller: {}, terminateApp: {}, discard: {})
+        }
+        try await fixture.connect()
+        fixture.host.appUpdate.update { try await Self.updateImage() }
+        try await eventually { fixture.host.appUpdate.state.phase == .failed }
+        #expect(fixture.host.appUpdate.state.errorMessage == GuestAppUpdateError.confirmationTimedOut.localizedDescription)
+        await fixture.stop()
+    }
     @Test func appearanceIsManualByDefaultAndNeverChangesTheHost() async throws {
         let fixture = await SessionFixture.make()
         fixture.hostFeatures.isDarkModeEnabled = true
@@ -630,6 +833,8 @@ private actor TestConnection: GuestConnection {
     private var transferDelay: Duration = .zero
     private var appearanceRequestDelay: Duration = .zero
     private(set) var sentAppearanceRequests: [Bool] = []
+    private var loseCommitReply = false
+    func loseNextCommitReply() { loseCommitReply = true }
     private var blockPictures = false
     private var pictureWaiter: CheckedContinuation<Void, Error>?
     private(set) var token: UUID?
@@ -670,6 +875,10 @@ private actor TestConnection: GuestConnection {
             defer { group.cancelAll() }
             return try await group.next()!
         }
+        if message is CommitGuestAppUpdate, loseCommitReply {
+            loseCommitReply = false
+            throw VMBridgeError.requestTimedOut
+        }
         return try JSONDecoder().decode(R.self, from: data)
     }
     private func receivedFile(_ url: URL) { receivedFiles += 1; files.append(url) }
@@ -679,7 +888,8 @@ private actor TestConnection: GuestConnection {
         files.append(url)
         let completion = TestReply()
         let delay = transferDelay
-        peer.offerInput.yield(.init(metadata: metadata, receive: { destination in
+        let byteCount = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize.map(Int64.init)
+        peer.offerInput.yield(.init(metadata: metadata, byteCount: byteCount, receive: { destination in
             await peer.receivedFile(destination)
             do {
                 if delay > .zero { try await Task.sleep(for: delay) }

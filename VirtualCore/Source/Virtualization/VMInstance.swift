@@ -62,6 +62,13 @@ public final class VMInstance: NSObject, ObservableObject {
     private var guestSession: HostGuestSession?
 
     @Published private(set) var guestAppearance: GuestAppearanceState?
+    @Published private(set) var guestAppUpdate: GuestAppUpdateState?
+
+    func updateGuestApp() {
+        guard !VirtualBuddyManagedPreferences.guestAppDisabled else { return }
+        let appURL = Bundle.embeddedGuestApp.bundleURL
+        guestSession?.updateGuestApp { try await GuestUpdateFiles.createImage(appURL: appURL) }
+    }
 
     func setGuestDarkModeEnabled(_ enabled: Bool) {
         guestSession?.setDarkModeEnabled(enabled)
@@ -270,6 +277,8 @@ public final class VMInstance: NSObject, ObservableObject {
         let session = HostGuestSession(connection: .host(socketDevice: device, port: GuestCommunication.port))
         session.automaticallySyncAppearance = virtualMachineModel.configuration.automaticallySyncGuestAppearance
         guestAppearance = session.appearance
+        session.appUpdate.target = try? GuestAppIdentity(bundle: .embeddedGuestApp)
+        guestAppUpdate = session.appUpdate
         session.onNotification = { [weak self] name in
             self?.logger.debug("Guest system notification: \(name, privacy: .public)")
         }
@@ -314,6 +323,7 @@ public final class VMInstance: NSObject, ObservableObject {
         let session = guestSession
         guestSession = nil
         guestAppearance = nil
+        guestAppUpdate = nil
         isGuestAppConnected = false
         guestRunTask?.cancel()
         await session?.stop()

@@ -4,7 +4,7 @@ import VirtualUI
 import VirtualWormhole
 import OSLog
 
-@NSApplicationMain
+@main
 @MainActor
 final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
@@ -12,7 +12,12 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private lazy var launchAtLoginManager = GuestLaunchAtLoginManager()
 
-    private let hostConnection = GuestHostSession()
+    private let hostConnection = GuestHostSession(prepareUpdate: GuestUpdateInstaller.prepare)
+
+    static func main() {
+        guard !GuestUpdateInstaller.runHelperIfRequested() else { return }
+        _ = NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
+    }
     private var connectionTask: Task<Void, Never>?
 
     deinit { connectionTask?.cancel() }
@@ -56,6 +61,9 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         launchAtLoginManager.autoEnableIfNeeded()
 
         connectionTask = hostConnection.start()
+        Task {
+            await GuestUpdateInstaller.acknowledgeLaunch { self.hostConnection.isConnected }
+        }
 
         Task {
             try? await sharedFolders.mount()

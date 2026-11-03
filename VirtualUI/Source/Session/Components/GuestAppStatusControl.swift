@@ -7,6 +7,9 @@ import ManagedPreferencesUI
 struct GuestAppStatusControl: View {
     var status: GuestAppConnectionStatus
     var appearance: GuestAppearanceState? = nil
+    var updateState: GuestAppUpdateState? = nil
+    var updateGuestApp: () -> Void = { }
+    var exportInstaller: (URL) async throws -> Void = { _ in }
     var automaticallySyncAppearance: Binding<Bool> = .constant(false)
     var setDarkModeEnabled: (Bool) -> Void = { _ in }
 
@@ -25,18 +28,30 @@ struct GuestAppStatusControl: View {
                     .frame(width: 16, height: 16)
                     .opacity(status == .connected ? 1 : 0.6)
                     .overlay(alignment: .bottomTrailing) {
-                        Circle()
-                            .fill(status.indicatorColor)
-                            .frame(width: 6, height: 6)
-                            .offset(x: 3, y: 2)
+                        if updateState?.updateAvailable == true {
+                            Image(systemName: "arrow.down.circle.fill")
+                                .symbolRenderingMode(.palette)
+                                .foregroundStyle(.white, .blue)
+                                .font(.system(size: 10, weight: .bold))
+                                .offset(x: 4, y: 3)
+                        } else {
+                            Circle()
+                                .fill(status.indicatorColor)
+                                .frame(width: 6, height: 6)
+                                .offset(x: 3, y: 2)
+                        }
                     }
             }
             .labelStyle(.iconOnly)
         }
-        .help(status.title)
+        .help(updateState?.updateAvailable == true ? "VirtualBuddyGuest Update Available" : status.title)
+        .accessibilityLabel(updateState?.updateAvailable == true ? "VirtualBuddyGuest Update Available" : status.title)
         .popover(isPresented: $isShowingDetail, arrowEdge: .bottom) {
             GuestAppStatusDetail(
                 status: status,
+                updateState: updateState,
+                updateGuestApp: updateGuestApp,
+                exportInstaller: exportInstaller,
                 isDarkModeEnabled: appearance?.isDarkModeEnabled,
                 isUpdatingAppearance: appearance?.isUpdating ?? false,
                 appearanceError: appearance?.errorMessage,
@@ -49,6 +64,9 @@ struct GuestAppStatusControl: View {
 
 private struct GuestAppStatusDetail: View {
     var status: GuestAppConnectionStatus
+    var updateState: GuestAppUpdateState? = nil
+    var updateGuestApp: () -> Void = { }
+    var exportInstaller: (URL) async throws -> Void = { _ in }
     var isDarkModeEnabled: Bool? = nil
     var isUpdatingAppearance = false
     var appearanceError: String? = nil
@@ -58,7 +76,7 @@ private struct GuestAppStatusDetail: View {
     @ManagedValue(for: .disableGuestApp, schema: VirtualBuddyManagedPreferences.schema, default: false)
     private var guestAppMountingDisabled: Bool
 
-    private var showsInstallTutorial: Bool { status == .disconnected || status == .unknown }
+    private var showsInstallTutorial: Bool { updateState?.isBusy != true && (status == .disconnected || status == .unknown) }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -84,6 +102,11 @@ private struct GuestAppStatusDetail: View {
                     automaticallySync: automaticallySyncAppearance,
                     setDarkModeEnabled: setDarkModeEnabled
                 )
+            }
+
+            if status != .disabled && !guestAppMountingDisabled {
+                Divider()
+                GuestAppUpdateControls(state: updateState, update: updateGuestApp, exportInstaller: exportInstaller)
             }
 
             if showsInstallTutorial {
@@ -238,5 +261,31 @@ private extension GuestAppConnectionStatus {
         GuestAppStatusControl(status: .disabled)
     }
     .padding()
+}
+#endif
+
+#if DEBUG
+@MainActor
+private func previewUpdateState(remote: Bool = true, phase: GuestAppUpdateState.Phase = .idle) -> GuestAppUpdateState {
+    GuestAppUpdateState(
+        target: .init(version: "2.3", build: 432, codeHash: Data([2]), minimumOS: "14.0"),
+        reportedBuild: 431, osVersion: "26.0", supportsRemoteUpdate: remote, isConnected: true, phase: phase
+    )
+}
+
+#Preview("Guest Update Available") {
+    GuestAppStatusDetail(status: .connected, updateState: previewUpdateState(), isDarkModeEnabled: false)
+}
+
+#Preview("Guest Manual Update") {
+    GuestAppStatusDetail(status: .connected, updateState: previewUpdateState(remote: false), isDarkModeEnabled: false)
+}
+
+#Preview("Guest Update Reconnecting") {
+    GuestAppStatusDetail(status: .disconnected, updateState: previewUpdateState(phase: .reconnecting))
+}
+
+#Preview("Guest Update Badge") {
+    GuestAppStatusControl(status: .connected, updateState: previewUpdateState()).padding()
 }
 #endif

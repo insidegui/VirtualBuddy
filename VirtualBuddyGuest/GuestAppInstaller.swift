@@ -1,5 +1,6 @@
 import Cocoa
 import OSLog
+import VirtualWormhole
 
 final class GuestAppInstaller {
 
@@ -70,7 +71,7 @@ final class GuestAppInstaller {
     /// `true` if there's a VirtualBuddyGuest image mounted at `/Volumes/Guest`
     /// for which the following conditions are true:
     /// 1 - The guest executable in the volume has a different CDHash from this process
-    /// 2 - The guest in the volume has a `CFBundleVersion` that's **greater than or equal to** the `CFBundleVersion` of this process
+    /// 2 - The guest in the volume has a `CFBundleVersion` that's **greater than** the `CFBundleVersion` of this process
     /// 3 - The guest in the volume supports the current macOS version
     private var mountedGuestImageNeedsInstall: Bool {
         guard FileManager.default.fileExists(atPath: "/Volumes/Guest") else { return false }
@@ -122,8 +123,8 @@ final class GuestAppInstaller {
             return false
         }
 
-        guard imageBundleVersion >= currentBundleVersion else {
-            logger.debug("Image build ID differs from current build ID, but image has a lower CFBundleVersion (\(imageBundleVersion, privacy: .public)), ignoring")
+        guard GuestAppIdentity.shouldAutomaticallyInstallMountedBuild(imageBundleVersion, over: currentBundleVersion) else {
+            logger.debug("Image build ID differs from current build ID, but image does not have a newer CFBundleVersion (\(imageBundleVersion, privacy: .public)), ignoring")
             return false
         }
 

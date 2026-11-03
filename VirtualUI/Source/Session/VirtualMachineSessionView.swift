@@ -91,6 +91,9 @@ public struct VirtualMachineSessionView: View {
                         GuestAppStatusControl(
                             status: guestAppStatus,
                             appearance: controller.guestAppearance,
+                            updateState: controller.guestAppUpdate,
+                            updateGuestApp: controller.updateGuestApp,
+                            exportInstaller: controller.exportGuestInstaller,
                             automaticallySyncAppearance: $controller.automaticallySyncGuestAppearance,
                             setDarkModeEnabled: controller.setGuestDarkModeEnabled
                         )

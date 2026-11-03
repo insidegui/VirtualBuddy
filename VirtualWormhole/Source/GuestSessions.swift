@@ -9,6 +9,10 @@ public final class HostGuestSession {
     private var task: Task<Void, Never>?
     public var isConnected: Bool { engine.isConnected }
     public var appearance: GuestAppearanceState { engine.appearance.state }
+    public var appUpdate: GuestAppUpdateState { engine.appUpdate.state }
+    public func updateGuestApp(makeImage: @escaping @Sendable () async throws -> (URL, GuestAppUpdatePackage)) {
+        engine.appUpdate.update(makeImage: makeImage)
+    }
     public var automaticallySyncAppearance: Bool {
         get { engine.appearance.automaticallySync }
         set { engine.appearance.automaticallySync = newValue }
@@ -46,8 +50,13 @@ public final class GuestHostSession {
     private let engine: GuestSessionEngine
     @ObservationIgnored private var task: Task<Void, Never>?
     public var isConnected: Bool { engine.isConnected }
-    public init() {
+    public init(prepareUpdate: ((URL, GuestAppUpdatePackage) async throws -> PreparedGuestAppUpdate)? = nil) {
         engine = GuestSessionEngine(connection: LiveGuestConnection(connection: .guest(port: GuestCommunication.port)), endpoint: .guest, providers: .live)
+        if let prepareUpdate, let identity = try? GuestAppIdentity(bundle: .main) {
+            let version = ProcessInfo.processInfo.operatingSystemVersion
+            engine.appUpdate.prepareInstallation = prepareUpdate
+            engine.appUpdate.report = .init(identity: identity, osVersion: "\(version.majorVersion).\(version.minorVersion).\(version.patchVersion)")
+        }
     }
     init(engine: GuestSessionEngine) { self.engine = engine }
     @discardableResult public func start() -> Task<Void, Never> {
@@ -89,6 +98,7 @@ final class GuestSessionEngine {
     private let defaults: DefaultsGuestService
     private let systemInformation: SystemInformationGuestService
     let appearance: AppearanceGuestService
+    let appUpdate: AppUpdateGuestService
     private var runTask: Task<Void, Never>?
 
     var isConnected: Bool { context.isConnected }
@@ -96,10 +106,7 @@ final class GuestSessionEngine {
         get { pictures.onDesktopPicture }
         set { pictures.onDesktopPicture = newValue }
     }
-    var onSystemInformation: ((GuestSystemInformation) -> Void)? {
-        get { systemInformation.onSystemInformation }
-        set { systemInformation.onSystemInformation = newValue }
-    }
+    var onSystemInformation: ((GuestSystemInformation) -> Void)?
     var onNotification: ((String) -> Void)? {
         get { notifications.onNotification }
         set { notifications.onNotification = newValue }
@@ -114,10 +121,15 @@ final class GuestSessionEngine {
         defaults = DefaultsGuestService(context: context, exportDomain: providers.exportDefaults, importDomain: providers.importDefaults)
         systemInformation = SystemInformationGuestService(context: context, collect: providers.systemInformation, observe: providers.systemInformationChanges)
         appearance = AppearanceGuestService(context: context, read: providers.appearance, apply: providers.setAppearance, observe: providers.appearanceChanges)
+        appUpdate = AppUpdateGuestService(context: context)
         services = [
             ClipboardGuestService(context: context, clipboard: providers.clipboard, hostClipboard: hostClipboard),
-            notifications, pictures, defaults, systemInformation, appearance
+            notifications, pictures, defaults, systemInformation, appearance, appUpdate
         ]
+        systemInformation.onSystemInformation = { [weak self] information in
+            self?.appUpdate.receiveSystemInformation(information)
+            self?.onSystemInformation?(information)
+        }
     }
 
     @discardableResult func start() -> Task<Void, Never> {
@@ -180,7 +192,12 @@ final class GuestSessionEngine {
         let token = UUID()
         context.session = token
         lifecycle.schedule { [self] in
-            let reply = try await context.connection.request(InitializeGuest(session: token), reply: InitializeGuestReply.self, timeout: context.requestTimeout)
+            let initialization = InitializeGuest(
+                session: token,
+                capabilities: appUpdate.report == nil ? nil : [AppUpdateGuestService.capability],
+                appUpdate: appUpdate.report
+            )
+            let reply = try await context.connection.request(initialization, reply: InitializeGuestReply.self, timeout: context.requestTimeout)
             try context.requireSession(token)
             context.hostCapabilities = reply.capabilities ?? []
             activate(notifications: reply.notifications)
@@ -192,9 +209,10 @@ final class GuestSessionEngine {
         invalidateSession()
         let token = request.payload.session
         context.session = token
+        appUpdate.connected(report: request.payload.appUpdate, supportsUpdates: request.payload.capabilities?.contains(AppUpdateGuestService.capability) == true)
         lifecycle.schedule { [self] in
             let names = services.reduce(into: Set<String>()) { $0.formUnion($1.requestedNotifications) }
-            try await request.reply(.init(notifications: names, capabilities: [SystemInformationGuestService.capability, AppearanceGuestService.capability]))
+            try await request.reply(.init(notifications: names, capabilities: [SystemInformationGuestService.capability, AppearanceGuestService.capability, AppUpdateGuestService.capability]))
             try context.requireSession(token)
             activate(notifications: names)
         }
