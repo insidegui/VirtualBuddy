@@ -38,10 +38,17 @@ struct GeneralSettingsView: View {
                             .tag(behavior)
                     }
                 }
+
+                Picker("When quitting VirtualBuddy", selection: $settings.quitBehavior) {
+                    ForEach(VMQuitBehavior.allCases) { behavior in
+                        Text(behavior.title)
+                            .tag(behavior)
+                    }
+                }
             } header: {
-                Text("Closing Virtual Machines")
+                Text("Running Virtual Machines")
             } footer: {
-                Text("Save state keeps the virtual machine as it is so that it continues where you left off. This feature is only available for macOS guests.")
+                Text("Save state keeps the virtual machine as it is so that it continues where you left off. This feature is only available for macOS guests. A virtual machine that keeps running in the background can be shown again from the library. Each virtual machine can override these settings in its configuration.")
                     .settingsFooterStyle()
             }
 

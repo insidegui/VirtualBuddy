@@ -4,6 +4,9 @@ import Combine
 import OSLog
 
 /// Controls active virtual machine sessions, managing the lifecycle of session windows, controllers, and opening VMs from files or URLs.
+///
+/// A session normally lives as long as its window. A virtual machine can also keep running after its window is closed,
+/// in which case the session stays around without a window until the virtual machine stops or the window is opened again from the library.
 @MainActor
 public final class VirtualMachineSessionUIManager: ObservableObject {
     private let logger = Logger(for: VirtualMachineSessionUIManager.self)
@@ -15,6 +18,12 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     private let openWindow = OpenCocoaWindowAction.default
 
     @Published private(set) var sessions = [VBVirtualMachine.ID: VirtualMachineSessionUI]()
+
+    /// Sessions whose virtual machine is running without a window.
+    @Published public private(set) var backgroundSessionIDs = Set<VBVirtualMachine.ID>()
+
+    /// Ends background sessions once their virtual machine stops.
+    private var backgroundSessionObservations = [VBVirtualMachine.ID: AnyCancellable]()
 
     private let terminationPresenter = TerminationPresenter()
 
@@ -31,6 +40,11 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
     private func createSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) -> VirtualMachineSessionUI {
         let ui = VirtualMachineSessionUI(with: vm, library: library, options: options)
 
+        ui.controller.macAddressConflictHandler = { [weak self] conflicts in
+            guard let self else { return .cancel }
+            return await self.presentMACAddressConflictAlert(conflicts: conflicts)
+        }
+
         sessions[vm.id] = ui
 
         return ui
@@ -40,6 +54,11 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
     func sessionIfAvailable(withID id: VBVirtualMachine.ID) -> VirtualMachineSessionUI? { sessions[id] }
 
+    /// Whether the virtual machine is running without a window.
+    public func isRunningInBackground(_ vm: VBVirtualMachine) -> Bool { backgroundSessionIDs.contains(vm.id) }
+
+    /// Opens the virtual machine's window, creating a session for it if it doesn't have one.
+    /// A virtual machine that's running in the background gets its window back.
     public func launch(_ vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
         guard !vm.needsInstall else {
             recoverInstallation(for: vm, library: library)
@@ -48,9 +67,16 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
         if let existingSession = session(for: vm) {
             existingSession.update(with: options)
-            existingSession.bringToFront()
+
+            if openWindow.hasWindow(for: vm.id) {
+                existingSession.bringToFront()
+            } else {
+                showWindow(for: existingSession, library: library)
+            }
         } else {
-            launchNewSession(for: vm, library: library, options: options)
+            let session = createSession(for: vm, library: library, options: options)
+
+            showWindow(for: session, library: library)
         }
     }
 
@@ -80,15 +106,13 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
         }
     }
 
-    private func launchNewSession(for vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {
-        let vmID = vm.id
+    // MARK: - Windows
 
-        let session = createSession(for: vm, library: library, options: options)
+    /// Opens a window for the session. A session that was running in the background is in the foreground from here on.
+    private func showWindow(for session: VirtualMachineSessionUI, library: VMLibraryController) {
+        let vmID = session.virtualMachine.id
 
-        session.controller.macAddressConflictHandler = { [weak self] conflicts in
-            guard let self else { return .cancel }
-            return await self.presentMACAddressConflictAlert(conflicts: conflicts)
-        }
+        leaveBackground(vmID)
 
         openWindow(id: vmID) {
             VirtualMachineSessionView()
@@ -97,13 +121,113 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
                 .environmentObject(library)
                 .environmentObject(self)
         } onClose: { [weak self] in
-            guard let self else { return }
-            guard let session = sessions[vmID] else { return }
+            self?.handleWindowClosed(for: vmID)
+        }
+    }
 
-            VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session)
-            VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session.controller)
+    /// Decides whether a session's window may close, stopping the virtual machine or moving it to the background first.
+    /// - Returns: `false` if the window has to stay open.
+    func shouldCloseWindow(of session: VirtualMachineSessionUI) async -> Bool {
+        switch await session.requestClose(context: .window) {
+        case .cancelled:
+            return false
+        case .stopped:
+            return true
+        case .keptRunning:
+            moveToBackground(session)
+            return true
+        }
+    }
 
-            sessions[vmID] = nil
+    private func handleWindowClosed(for vmID: VBVirtualMachine.ID) {
+        guard let session = sessions[vmID] else { return }
+
+        /// The virtual machine keeps running: its session outlives the window.
+        guard !backgroundSessionIDs.contains(vmID) else {
+            logger.debug("Window closed for \(vmID.shortID, privacy: .public), virtual machine keeps running in the background")
+            return
+        }
+
+        VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session)
+        VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session.controller)
+
+        sessions[vmID] = nil
+    }
+
+    // MARK: - Background Sessions
+
+    /// Keeps the session around without a window until its virtual machine stops.
+    private func moveToBackground(_ session: VirtualMachineSessionUI) {
+        let vmID = session.virtualMachine.id
+
+        backgroundSessionIDs.insert(vmID)
+
+        /// Only a change matters here: when this starts, the virtual machine may be running (closing its window)
+        /// or not running yet (starting in the background), and neither is a reason to end the session.
+        backgroundSessionObservations[vmID] = session.controller.$state
+            .map(\.isActive)
+            .removeDuplicates()
+            .dropFirst()
+            .filter { !$0 }
+            .sink { [weak self] _ in
+                /// The state changes in the middle of a controller operation. Ending the session, which may release the controller, waits for that to finish.
+                Task { @MainActor [weak self] in
+                    self?.endBackgroundSessionIfStopped(withID: vmID)
+                }
+            }
+    }
+
+    private func leaveBackground(_ vmID: VBVirtualMachine.ID) {
+        backgroundSessionObservations[vmID] = nil
+        backgroundSessionIDs.remove(vmID)
+    }
+
+    /// Ends a background session whose virtual machine isn't running anymore. There's no window to show what happened to it,
+    /// so there's nothing left for the session to do.
+    private func endBackgroundSessionIfStopped(withID vmID: VBVirtualMachine.ID) {
+        guard backgroundSessionIDs.contains(vmID), let session = sessions[vmID] else { return }
+        guard !session.controller.state.isActive else { return }
+        guard !openWindow.hasWindow(for: vmID) else { return }
+
+        logger.debug("Virtual machine \(vmID.shortID, privacy: .public) stopped while running in the background, ending its session")
+
+        leaveBackground(vmID)
+
+        VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session)
+        VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session.controller)
+
+        sessions[vmID] = nil
+    }
+
+    /// Starts every virtual machine that's configured to start when the app launches, without opening windows for them.
+    ///
+    /// Waits for the library to finish loading. Virtual machines are started one at a time to keep the load on the disks down.
+    public func autoBootVirtualMachinesInBackground(library: VMLibraryController) async {
+        guard let state = await library.$state.values.first(where: { $0.id != .loading }) else { return }
+
+        guard case .loaded(let machines) = state else {
+            logger.debug("Library isn't available, skipping virtual machines that start at launch")
+            return
+        }
+
+        let candidates = machines.filter { $0.configuration.autoBootInBackground && !$0.needsInstall }
+
+        guard !candidates.isEmpty else { return }
+
+        logger.info("Starting \(candidates.count) virtual machine(s) in the background: \(candidates.map(\.name).formatted(.list(type: .and)), privacy: .public)")
+
+        for vm in candidates {
+            /// Something else (such as a deep link) may have opened the virtual machine in the meantime.
+            guard session(for: vm) == nil else { continue }
+
+            let session = createSession(for: vm, library: library, options: nil)
+
+            moveToBackground(session)
+
+            await session.startOrResume()
+
+            /// A virtual machine that didn't start has no session worth keeping without a window.
+            endBackgroundSessionIfStopped(withID: vm.id)
         }
     }
 

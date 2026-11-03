@@ -80,4 +80,17 @@ public extension VBMacConfiguration {
         return support == .sharedFoldersOnly ? "Shared Folders Only" : "Enabled"
     }
 
+    var behaviorSummary: String {
+        var parts = [String]()
+
+        if autoBootInBackground {
+            parts.append("Starts at Launch")
+        }
+        if closeBehaviorOverride != nil || quitBehaviorOverride != nil {
+            parts.append("Custom")
+        }
+
+        return parts.isEmpty ? "Default" : parts.joined(separator: " / ")
+    }
+
 }

@@ -7,48 +7,49 @@ enum SavedSessionPrompts {
 
     // MARK: Closing and Quitting
 
-    /// The user's preference for closing running virtual machines.
-    static var closeBehavior: VMCloseBehavior { VBSettingsContainer.current.settings.closeBehavior }
-
-    /// Introduces saving the state of a virtual machine and asks whether to save it or shut down.
-    /// The answer is remembered as the default if the user asks for it.
-    /// - Parameter machines: The names of the virtual machines the answer applies to.
+    /// Introduces saving the state of a virtual machine and asks whether closing its window should save it, shut it down, or keep it running.
+    /// - Parameter defaultAppliesToMachineOnly: Whether making the answer the default changes this virtual machine's own setting rather than the global one.
     /// - Returns: `nil` if the user cancelled.
-    static func chooseCloseAction(machines: [String], quitting: Bool, from window: NSWindow?) async -> SessionCloseChoice? {
-        let result: CloseChoiceSheet.Result? = await presentSheet(from: window) { finish in
-            CloseChoiceSheet(machines: machines, isQuitting: quitting, onFinish: finish)
+    static func chooseCloseAction(machine: String, defaultAppliesToMachineOnly: Bool, from window: NSWindow?) async -> CloseChoiceSheet.Result? {
+        await presentSheet(from: window) { finish in
+            CloseChoiceSheet(machine: machine, defaultAppliesToMachineOnly: defaultAppliesToMachineOnly, onFinish: finish)
         }
-
-        guard let result else { return nil }
-
-        if result.makeDefault {
-            VBSettingsContainer.current.settings.closeBehavior = result.choice == .saveState ? .saveState : .shutDown
-        }
-
-        return result.choice
     }
 
     /// Saving isn't available: the only way to close is to shut down. A slow shutdown is waited for, never forced.
     /// - Parameter reason: Why saving isn't available. `nil` for virtual machines that can't be saved at all, so that saving isn't even mentioned.
-    static func confirmShutDownInsteadOfSaving(name: String, reason: String?, quitting: Bool, from window: NSWindow?) async -> Bool {
+    /// - Parameter offersKeepRunning: Whether closing the window while the virtual machine keeps running is offered as a way out.
+    /// - Returns: `.shutDown`, `.keepRunning`, or `nil` if the user cancelled.
+    static func confirmShutDownInsteadOfSaving(name: String, reason: String?, offersKeepRunning: Bool, from window: NSWindow?) async -> SessionCloseChoice? {
         let alert = NSAlert()
+
+        var explanation = "The virtual machine has to be shut down before it can be closed. VirtualBuddy waits for the guest to shut down."
+
+        if offersKeepRunning {
+            explanation += "\n\nYou can also close the window and keep the virtual machine running in the background."
+        }
 
         if let reason {
             alert.messageText = "Can’t Save “\(name)”"
-            alert.informativeText = """
-            \(reason)
-
-            The virtual machine has to be shut down before it can be \(quitting ? "left" : "closed"). VirtualBuddy waits for the guest to shut down.
-            """
+            alert.informativeText = "\(reason)\n\n\(explanation)"
         } else {
             alert.messageText = "Shut Down “\(name)”?"
-            alert.informativeText = "The virtual machine has to be shut down before it can be \(quitting ? "left" : "closed"). VirtualBuddy waits for the guest to shut down."
+            alert.informativeText = explanation
         }
 
         alert.addButton(withTitle: "Shutdown")
+
+        if offersKeepRunning {
+            alert.addButton(withTitle: "Keep Running")
+        }
+
         alert.addButton(withTitle: "Cancel")
 
-        return await alert.present(from: window) == .alertFirstButtonReturn
+        switch await alert.present(from: window) {
+        case .alertFirstButtonReturn: return .shutDown
+        case .alertSecondButtonReturn where offersKeepRunning: return .keepRunning
+        default: return nil
+        }
     }
 
     static func confirmShutDownInsteadOfSaving(names: [(name: String, reason: String?)], from window: NSWindow?) async -> Bool {

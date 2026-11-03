@@ -10,14 +10,24 @@ public extension VirtualMachineSessionUIManager {
         sessions.values.contains { $0.needsStoppingBeforeClose }
     }
 
-    /// Saves (or shuts down) every active virtual machine so that the app can quit.
+    /// Saves or shuts down every active virtual machine so that the app can quit, including the ones running without a window.
+    /// Each virtual machine follows its own quit behavior, or the global setting if it doesn't have one.
     ///
     /// The app keeps running if anything fails or the user cancels. Requests that arrive while this is in progress join it.
     /// - Returns: `true` if the app may quit.
     func prepareForTermination() async -> Bool {
+        let settings = VBSettingsContainer.current.settings
+
         let participants = sessions.values
             .sorted { $0.virtualMachine.name.localizedStandardCompare($1.virtualMachine.name) == .orderedAscending }
-            .map { SessionTerminationParticipant(name: $0.virtualMachine.name, controller: $0.controller, closer: $0.closer) }
+            .map { session in
+                SessionTerminationParticipant(
+                    name: session.virtualMachine.name,
+                    controller: session.controller,
+                    closer: session.closer,
+                    quitBehavior: session.controller.virtualMachineModel.configuration.quitBehavior(defaultingTo: settings)
+                )
+            }
 
         return await terminationCoordinator.prepareForTermination(participants: participants)
     }
@@ -34,7 +44,6 @@ public extension VirtualMachineSessionUIManager {
 @MainActor
 final class TerminationPresenter: SessionTerminationPresenting {
     private var panel: TerminationProgressPanel?
-    private var machineNames = [String]()
 
     weak var manager: VirtualMachineSessionUIManager?
 
@@ -42,7 +51,6 @@ final class TerminationPresenter: SessionTerminationPresenting {
         guard let manager else { return }
 
         let sessions = manager.sessionsInProgress(for: participants)
-        machineNames = participants.map(\.name)
 
         let panel = TerminationProgressPanel(sessions: sessions) { [weak manager] in
             manager?.cancelTermination()
@@ -55,12 +63,6 @@ final class TerminationPresenter: SessionTerminationPresenting {
     func dismissProgress() {
         panel?.close()
         panel = nil
-    }
-
-    var closeBehavior: VMCloseBehavior { SavedSessionPrompts.closeBehavior }
-
-    func chooseCloseAction() async -> SessionCloseChoice? {
-        await SavedSessionPrompts.chooseCloseAction(machines: machineNames, quitting: true, from: nil)
     }
 
     func confirmShutDown(of machines: [(name: String, reason: String?)]) async -> Bool {

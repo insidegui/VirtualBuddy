@@ -11,19 +11,39 @@ import OSLog
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
 
 /// What happens when the window of a running virtual machine is closed.
-public enum VMCloseBehavior: String, CaseIterable, Identifiable, Sendable {
-    /// Asks every time, offering to save the state or shut down.
+public enum VMCloseBehavior: String, CaseIterable, Identifiable, Codable, Sendable {
+    /// Asks every time, offering to save the state, shut down, or keep running.
     case ask
     /// Saves the state of virtual machines that support it.
     case saveState
     /// Shuts the virtual machine down.
     case shutDown
+    /// Closes the window while the virtual machine keeps running without one.
+    case keepRunning
 
     public var id: String { rawValue }
 
     public var title: String {
         switch self {
         case .ask: "Ask every time"
+        case .saveState: "Save state"
+        case .shutDown: "Shutdown"
+        case .keepRunning: "Keep running in background"
+        }
+    }
+}
+
+/// What happens to running virtual machines when the app quits.
+public enum VMQuitBehavior: String, CaseIterable, Identifiable, Codable, Sendable {
+    /// Saves the state of virtual machines that support it. The others are shut down after confirmation.
+    case saveState
+    /// Shuts the virtual machines down.
+    case shutDown
+
+    public var id: String { rawValue }
+
+    public var title: String {
+        switch self {
         case .saveState: "Save state"
         case .shutDown: "Shutdown"
         }
@@ -60,6 +80,9 @@ public struct VBSettings: Hashable, Sendable {
     /// What to do when the window of a running virtual machine is closed.
     public var closeBehavior: VMCloseBehavior
 
+    /// What to do with running virtual machines when the app quits.
+    public var quitBehavior: VMQuitBehavior
+
     /// Enables using the new ASIF format for boot disk images (requires macOS 26+ host).
     public var bootDiskImagesUseASIF: Bool
 
@@ -76,6 +99,7 @@ extension VBSettings {
     static let defaultEnableTSSCheck = true
     static let defaultShowDesktopPictureThumbnails = false
     static let defaultCloseBehavior = VMCloseBehavior.ask
+    static let defaultQuitBehavior = VMQuitBehavior.saveState
     static let defaultBootDiskImagesUseASIF: Bool = {
         if #available(macOS 26, *) {
             true
@@ -91,6 +115,7 @@ extension VBSettings {
         self.showDesktopPictureThumbnails = Self.defaultShowDesktopPictureThumbnails
         self.bootDiskImagesUseASIF = Self.defaultBootDiskImagesUseASIF
         self.closeBehavior = Self.defaultCloseBehavior
+        self.quitBehavior = Self.defaultQuitBehavior
         self.isLibraryInRemovableVolume = false
     }
 
@@ -108,6 +133,7 @@ extension VBSettings {
         static let showDesktopPictureThumbnails = "showDesktopPictureThumbnails"
         static let bootDiskImagesUseASIF = "bootDiskImagesUseASIF"
         static let closeBehavior = "closeBehavior"
+        static let quitBehavior = "quitBehavior"
         static let isLibraryInRemovableVolume = "isLibraryInRemovableVolume"
     }
 
@@ -121,6 +147,7 @@ extension VBSettings {
         self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
         self.bootDiskImagesUseASIF = defaults.bool(forKey: Keys.bootDiskImagesUseASIF)
         self.closeBehavior = defaults.string(forKey: Keys.closeBehavior).flatMap(VMCloseBehavior.init(rawValue:)) ?? Self.defaultCloseBehavior
+        self.quitBehavior = defaults.string(forKey: Keys.quitBehavior).flatMap(VMQuitBehavior.init(rawValue:)) ?? Self.defaultQuitBehavior
         self.isLibraryInRemovableVolume = defaults.bool(forKey: Keys.isLibraryInRemovableVolume)
 
         if let path = defaults.string(forKey: Keys.libraryPath) {
@@ -169,6 +196,7 @@ extension VBSettings {
         defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
         defaults.set(bootDiskImagesUseASIF, forKey: Keys.bootDiskImagesUseASIF)
         defaults.set(closeBehavior.rawValue, forKey: Keys.closeBehavior)
+        defaults.set(quitBehavior.rawValue, forKey: Keys.quitBehavior)
         defaults.set(isLibraryInRemovableVolume, forKey: Keys.isLibraryInRemovableVolume)
     }
 
