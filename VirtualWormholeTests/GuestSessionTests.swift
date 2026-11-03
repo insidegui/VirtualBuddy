@@ -6,6 +6,178 @@ import os
 
 @Suite @MainActor
 struct GuestSessionTests {
+    @Test func appearanceIsManualByDefaultAndNeverChangesTheHost() async throws {
+        let fixture = await SessionFixture.make()
+        fixture.hostFeatures.isDarkModeEnabled = true
+        try await fixture.connect()
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == false }
+        #expect(!fixture.host.appearance.automaticallySync)
+        #expect(fixture.guestFeatures.appliedAppearances.isEmpty)
+
+        fixture.host.appearance.setDarkModeEnabled(true)
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == true && !fixture.host.appearance.state.isUpdating }
+        #expect(fixture.guestFeatures.appliedAppearances == [true])
+
+        fixture.guestFeatures.isDarkModeEnabled = false
+        fixture.guestFeatures.postAppearanceChange?()
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == false }
+        #expect(fixture.hostFeatures.isDarkModeEnabled)
+        #expect(fixture.hostFeatures.appliedAppearances.isEmpty)
+        await fixture.stop()
+    }
+
+    @Test func appearanceSyncAppliesImmediatelyTracksHostAndSurvivesReconnect() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled != nil }
+        fixture.hostFeatures.isDarkModeEnabled = true
+        fixture.host.appearance.automaticallySync = true
+        try await eventually { fixture.guestFeatures.isDarkModeEnabled && !fixture.host.appearance.state.isUpdating }
+
+        fixture.hostFeatures.isDarkModeEnabled = false
+        fixture.hostFeatures.postAppearanceChange?()
+        try await eventually { !fixture.guestFeatures.isDarkModeEnabled && !fixture.host.appearance.state.isUpdating }
+
+        fixture.guestFeatures.isDarkModeEnabled = true
+        fixture.guestFeatures.postAppearanceChange?()
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == true }
+        #expect(!fixture.hostFeatures.isDarkModeEnabled)
+        #expect(fixture.hostFeatures.appliedAppearances.isEmpty)
+
+        await fixture.disconnect()
+        try await eventually { !fixture.guest.isConnected && fixture.host.appearance.state.isDarkModeEnabled == nil }
+        #expect(fixture.hostFeatures.postAppearanceChange == nil)
+        #expect(fixture.guestFeatures.postAppearanceChange == nil)
+        await fixture.hostConnection.transition(.connected)
+        await fixture.guestConnection.transition(.connected)
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == false && !fixture.host.appearance.state.isUpdating }
+        #expect(!fixture.guestFeatures.isDarkModeEnabled)
+
+        fixture.host.appearance.automaticallySync = false
+        let count = fixture.guestFeatures.appliedAppearances.count
+        fixture.hostFeatures.isDarkModeEnabled = true
+        fixture.hostFeatures.postAppearanceChange?()
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(fixture.guestFeatures.appliedAppearances.count == count)
+        await fixture.stop()
+        #expect(fixture.hostFeatures.appearanceObserverRegistrations == fixture.hostFeatures.appearanceObserverRemovals)
+        #expect(fixture.guestFeatures.appearanceObserverRegistrations == fixture.guestFeatures.appearanceObserverRemovals)
+    }
+
+    @Test func appearanceRejectsStaleReportsAndCommandsToTheHost() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        let token = try #require(await fixture.guestConnection.token)
+        try await fixture.guestConnection.send(GuestAppearanceUpdate(session: token, revision: 20, isDarkModeEnabled: true))
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == true }
+        try await fixture.guestConnection.send(GuestAppearanceUpdate(session: UUID(), revision: 30, isDarkModeEnabled: false))
+        try await fixture.guestConnection.send(GuestAppearanceUpdate(session: token, revision: 19, isDarkModeEnabled: false))
+        try await fixture.guestConnection.send(GuestAppearanceUpdate(session: token, revision: 20, isDarkModeEnabled: false))
+        try await fixture.hostConnection.send(GuestAppearanceUpdate(session: token, revision: 40, isDarkModeEnabled: true))
+        for (connection, session) in [(fixture.guestConnection, token), (fixture.hostConnection, UUID())] {
+            do {
+                _ = try await connection.request(SetGuestAppearance(session: session, isDarkModeEnabled: true), reply: SetGuestAppearanceReply.self, timeout: .milliseconds(50))
+                Issue.record("Invalid appearance command was accepted")
+            } catch VMBridgeError.requestTimedOut { }
+        }
+        #expect(fixture.host.appearance.state.isDarkModeEnabled == true)
+        #expect(fixture.guest.appearance.state.isDarkModeEnabled == nil)
+        #expect(fixture.hostFeatures.appliedAppearances.isEmpty)
+        #expect(fixture.guestFeatures.appliedAppearances.isEmpty)
+        await fixture.stop()
+    }
+
+    @Test func appearanceFailureIsReportedAndCanBeRetried() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled != nil }
+        fixture.guestFeatures.appearanceFails = true
+        fixture.host.appearance.setDarkModeEnabled(true)
+        try await eventually { fixture.host.appearance.state.errorMessage != nil && !fixture.host.appearance.state.isUpdating }
+        #expect(fixture.host.appearance.state.isDarkModeEnabled == false)
+        fixture.guestFeatures.appearanceFails = false
+        fixture.host.appearance.setDarkModeEnabled(true)
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled == true && !fixture.host.appearance.state.isUpdating }
+        #expect(fixture.host.appearance.state.errorMessage == nil)
+        await fixture.stop()
+    }
+
+    @Test func rapidHostAppearanceChangesCoalesceAndDisconnectCancelsPendingCommands() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        try await eventually { fixture.host.appearance.state.isDarkModeEnabled != nil }
+        await fixture.hostConnection.delayAppearanceRequests(by: .milliseconds(100))
+        fixture.hostFeatures.isDarkModeEnabled = true
+        fixture.host.appearance.automaticallySync = true
+        try await eventually { await fixture.hostConnection.sentAppearanceRequests == [true] }
+        for enabled in [false, true, false] {
+            fixture.hostFeatures.isDarkModeEnabled = enabled
+            fixture.hostFeatures.postAppearanceChange?()
+        }
+        try await eventually { !fixture.host.appearance.state.isUpdating }
+        #expect(await fixture.hostConnection.sentAppearanceRequests == [true, false])
+        #expect(!fixture.guestFeatures.isDarkModeEnabled)
+
+        await fixture.hostConnection.delayAppearanceRequests(by: .seconds(1))
+        fixture.hostFeatures.isDarkModeEnabled = true
+        fixture.hostFeatures.postAppearanceChange?()
+        try await eventually { await fixture.hostConnection.sentAppearanceRequests.count == 3 }
+        await fixture.disconnect()
+        try await eventually { !fixture.host.isConnected && !fixture.guest.isConnected }
+        #expect(fixture.host.appearance.state.isDarkModeEnabled == nil)
+        #expect(!fixture.host.appearance.state.isUpdating)
+        #expect(!fixture.guestFeatures.isDarkModeEnabled)
+        await fixture.stop()
+    }
+
+    @Test func appearanceSyncPreferenceIsIndependentForEachGuest() async throws {
+        let first = await SessionFixture.make()
+        let second = await SessionFixture.make()
+        for fixture in [first, second] {
+            fixture.hostFeatures.isDarkModeEnabled = true
+        }
+        first.host.appearance.automaticallySync = true
+        try await first.connect()
+        try await second.connect()
+        try await eventually {
+            first.host.appearance.state.isDarkModeEnabled == true &&
+            second.host.appearance.state.isDarkModeEnabled == false
+        }
+        #expect(first.guestFeatures.isDarkModeEnabled)
+        #expect(second.guestFeatures.appliedAppearances.isEmpty)
+        await first.stop()
+        await second.stop()
+    }
+
+    @Test func appearanceWaitsForHostCapabilityAndGuestReport() async throws {
+        let connection = TestConnection()
+        let context = GuestServiceContext(connection: connection, endpoint: .guest, requestTimeout: .seconds(1))
+        context.session = UUID()
+        context.isConnected = true
+        var observed = false
+        let guest = AppearanceGuestService(context: context, read: { false }, apply: { _ in
+            Issue.record("An older host must not control appearance")
+        }, observe: { _ in observed = true; return {} })
+        guest.activate(notifications: [])
+        #expect(!observed)
+
+        let hostContext = GuestServiceContext(connection: connection, endpoint: .host, requestTimeout: .seconds(1))
+        hostContext.session = UUID()
+        hostContext.isConnected = true
+        let host = AppearanceGuestService(context: hostContext, read: { true }, apply: { _ in
+            Issue.record("Host appearance must never be changed")
+        }, observe: { _ in return {} })
+        host.automaticallySync = true
+        host.activate(notifications: [])
+        host.setDarkModeEnabled(true)
+        #expect(host.state.isDarkModeEnabled == nil)
+        #expect(!host.state.isUpdating)
+        guest.invalidate()
+        host.invalidate()
+        await guest.drain()
+        await host.drain()
+    }
+
     @Test func systemInformationRefreshesOnEventsAndReconnect() async throws {
         let fixture = await SessionFixture.make()
         try await fixture.connect()
@@ -328,6 +500,12 @@ private func clipboard(_ text: String) -> [ClipboardItem] { [.init(type: "public
     var postSystemChange: (@MainActor () -> Void)?
     var systemObserverRegistrations = 0
     var systemObserverRemovals = 0
+    var isDarkModeEnabled = false
+    var appearanceFails = false
+    var appliedAppearances: [Bool] = []
+    var postAppearanceChange: (@MainActor () -> Void)?
+    var appearanceObserverRegistrations = 0
+    var appearanceObserverRemovals = 0
 
     func providers(clipboard: TestClipboard) -> GuestFeatureProviders {
         .init(clipboard: clipboard, notifications: { [self] _, receive in
@@ -344,6 +522,15 @@ private func clipboard(_ text: String) -> [ClipboardItem] { [.init(type: "public
             systemObserverRegistrations += 1
             postSystemChange = receive
             return { [self] in systemObserverRemovals += 1; postSystemChange = nil }
+        }, appearance: { [self] in isDarkModeEnabled }, setAppearance: { [self] enabled in
+            if appearanceFails { throw TestFailure.deadline }
+            isDarkModeEnabled = enabled
+            appliedAppearances.append(enabled)
+            postAppearanceChange?()
+        }, appearanceChanges: { [self] receive in
+            appearanceObserverRegistrations += 1
+            postAppearanceChange = receive
+            return { [self] in appearanceObserverRemovals += 1; postAppearanceChange = nil }
         })
     }
 }
@@ -441,6 +628,8 @@ private actor TestConnection: GuestConnection {
     nonisolated private let bus = MessageBus()
     private var peer: TestConnection?
     private var transferDelay: Duration = .zero
+    private var appearanceRequestDelay: Duration = .zero
+    private(set) var sentAppearanceRequests: [Bool] = []
     private var blockPictures = false
     private var pictureWaiter: CheckedContinuation<Void, Error>?
     private(set) var token: UUID?
@@ -452,6 +641,7 @@ private actor TestConnection: GuestConnection {
 
     func connect(to peer: TestConnection) { self.peer = peer }
     func delayTransfers(by delay: Duration) { transferDelay = delay }
+    func delayAppearanceRequests(by delay: Duration) { appearanceRequestDelay = delay }
     func blockPicturesUntilStop() { blockPictures = true }
     func transition(_ state: VMConnectionState) { stateInput.yield(state) }
     nonisolated func messages<M: VMMessage>(of type: M.Type) -> AsyncStream<M> { bus.subscribe(type) }
@@ -466,6 +656,10 @@ private actor TestConnection: GuestConnection {
     }
     func request<M: VMMessage, R: VMMessage>(_ message: M, reply: R.Type, timeout: Duration) async throws -> R {
         try Task.checkCancellation()
+        if let command = message as? SetGuestAppearance {
+            sentAppearanceRequests.append(command.isDarkModeEnabled)
+            if appearanceRequestDelay > .zero { try await Task.sleep(for: appearanceRequestDelay) }
+        }
         guard let peer else { throw TestFailure.missingPeer }
         let response = TestReply()
         if let message = message as? InitializeGuest { token = message.session }

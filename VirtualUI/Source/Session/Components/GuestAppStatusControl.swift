@@ -1,10 +1,14 @@
 import SwiftUI
 import VirtualCore
+import VirtualWormhole
 import ManagedPreferencesUI
 
 /// Toolbar indicator for the status of the VirtualBuddyGuest app in a running virtual machine.
 struct GuestAppStatusControl: View {
     var status: GuestAppConnectionStatus
+    var appearance: GuestAppearanceState? = nil
+    var automaticallySyncAppearance: Binding<Bool> = .constant(false)
+    var setDarkModeEnabled: (Bool) -> Void = { _ in }
 
     @State private var isShowingDetail = false
 
@@ -31,13 +35,25 @@ struct GuestAppStatusControl: View {
         }
         .help(status.title)
         .popover(isPresented: $isShowingDetail, arrowEdge: .bottom) {
-            GuestAppStatusDetail(status: status)
+            GuestAppStatusDetail(
+                status: status,
+                isDarkModeEnabled: appearance?.isDarkModeEnabled,
+                isUpdatingAppearance: appearance?.isUpdating ?? false,
+                appearanceError: appearance?.errorMessage,
+                automaticallySyncAppearance: automaticallySyncAppearance,
+                setDarkModeEnabled: setDarkModeEnabled
+            )
         }
     }
 }
 
 private struct GuestAppStatusDetail: View {
     var status: GuestAppConnectionStatus
+    var isDarkModeEnabled: Bool? = nil
+    var isUpdatingAppearance = false
+    var appearanceError: String? = nil
+    var automaticallySyncAppearance: Binding<Bool> = .constant(false)
+    var setDarkModeEnabled: (Bool) -> Void = { _ in }
 
     @ManagedValue(for: .disableGuestApp, schema: VirtualBuddyManagedPreferences.schema, default: false)
     private var guestAppMountingDisabled: Bool
@@ -57,6 +73,18 @@ private struct GuestAppStatusDetail: View {
 
             Text(status.explanation)
                 .foregroundStyle(.secondary)
+
+            if status == .connected {
+                Divider()
+
+                GuestAppearanceControls(
+                    isDarkModeEnabled: isDarkModeEnabled,
+                    isUpdating: isUpdatingAppearance,
+                    errorMessage: appearanceError,
+                    automaticallySync: automaticallySyncAppearance,
+                    setDarkModeEnabled: setDarkModeEnabled
+                )
+            }
 
             if showsInstallTutorial {
                 Divider()
@@ -104,6 +132,47 @@ private struct GuestAppStatusDetail: View {
     }
 }
 
+private struct GuestAppearanceControls: View {
+    var isDarkModeEnabled: Bool?
+    var isUpdating: Bool
+    var errorMessage: String?
+    @Binding var automaticallySync: Bool
+    var setDarkModeEnabled: (Bool) -> Void
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Guest Appearance")
+                .font(.subheadline.weight(.medium))
+
+            Toggle("Dark Mode", isOn: Binding(
+                get: { isDarkModeEnabled ?? false },
+                set: setDarkModeEnabled
+            ))
+            .disabled(isDarkModeEnabled == nil || automaticallySync || isUpdating)
+
+            Toggle("Automatically Sync with Host", isOn: $automaticallySync)
+                .disabled(isDarkModeEnabled == nil)
+
+            if isDarkModeEnabled == nil {
+                Text("Appearance controls require an up-to-date VirtualBuddyGuest app running in the virtual machine.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else if automaticallySync {
+                Text("The guest follows your Mac’s appearance.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+
+            if let errorMessage {
+                Text(errorMessage)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+            }
+        }
+        .toggleStyle(.checkbox)
+    }
+}
+
 private extension GuestAppConnectionStatus {
     var title: String {
         switch self {
@@ -138,6 +207,14 @@ private extension GuestAppConnectionStatus {
 
 #if DEBUG
 #Preview("Connected") {
+    GuestAppStatusDetail(status: .connected, isDarkModeEnabled: true)
+}
+
+#Preview("Syncing Appearance") {
+    GuestAppStatusDetail(status: .connected, isDarkModeEnabled: true, automaticallySyncAppearance: .constant(true))
+}
+
+#Preview("Older Guest") {
     GuestAppStatusDetail(status: .connected)
 }
 

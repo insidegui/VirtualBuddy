@@ -88,7 +88,12 @@ public struct VirtualMachineSessionView: View {
             if controller.isRunning {
                 if let guestAppStatus {
                     ToolbarItem(placement: .primaryAction) {
-                        GuestAppStatusControl(status: guestAppStatus)
+                        GuestAppStatusControl(
+                            status: guestAppStatus,
+                            appearance: controller.guestAppearance,
+                            automaticallySyncAppearance: $controller.automaticallySyncGuestAppearance,
+                            setDarkModeEnabled: controller.setGuestDarkModeEnabled
+                        )
                     }
 
                     if #available(macOS 26, *) {

@@ -4,6 +4,24 @@ import Virtualization
 @testable import VirtualCore
 
 struct GuestIsolationConfigurationTests {
+    @Test func olderConfigurationsDoNotSyncGuestAppearance() throws {
+        let data = try PropertyListEncoder().encode(VBMacConfiguration())
+        var properties = try #require(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        properties.removeValue(forKey: "automaticallySyncGuestAppearance")
+        let legacyData = try PropertyListSerialization.data(fromPropertyList: properties, format: .binary, options: 0)
+        let configuration = try PropertyListDecoder().decode(VBMacConfiguration.self, from: legacyData)
+        #expect(!configuration.automaticallySyncGuestAppearance)
+    }
+
+    @Test(arguments: [false, true])
+    func guestAppearanceSyncPreferencePersists(enabled: Bool) throws {
+        var configuration = VBMacConfiguration()
+        configuration.automaticallySyncGuestAppearance = enabled
+        let data = try PropertyListEncoder().encode(configuration)
+        let decoded = try PropertyListDecoder().decode(VBMacConfiguration.self, from: data)
+        #expect(decoded.automaticallySyncGuestAppearance == enabled)
+    }
+
     @Test func olderConfigurationsKeepClipboardSharingEnabled() throws {
         let data = try PropertyListEncoder().encode(VBMacConfiguration())
         var properties = try #require(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])

@@ -41,6 +41,8 @@ Each service is a separate `GuestService` subclass under `Source/Services`:
 - `DesktopPictureGuestService`: initial and termination snapshots and delivery.
 - `SystemInformationGuestService`: session-scoped, revision-ordered system reports,
   lifecycle observation, and periodic refresh.
+- `AppearanceGuestService`: guest appearance reports and host-to-guest appearance
+  commands, with optional automatic synchronization from the host.
 - `DefaultsGuestService`: export/import requests, pending imports, deadlines,
   and defaults file transfers.
 
@@ -109,6 +111,38 @@ Use a macOS VM with the rebuilt guest app for runtime verification:
 
 Also launch the guest app outside Xcode: a successful local build can resolve
 dynamic package frameworks from DerivedData and conceal missing embedded libraries.
+
+## Guest appearance
+
+Hosts advertise `appearance.v1` in the initialization reply. Compatible guests
+report their current appearance after initialization and when macOS posts
+`AppleInterfaceThemeChangedNotification`. The first report enables the host's
+appearance controls; older hosts receive no new messages, and older guests are
+not sent appearance commands. Reports and command acknowledgements share a
+session-scoped revision sequence so late replies cannot overwrite newer reports.
+
+The connection status popover provides Dark Mode and Automatically Sync with Host.
+Sync is persisted per VM as `automaticallySyncGuestAppearance`, defaults to false
+when absent, and immediately applies the host's appearance when enabled or when
+the guest reconnects. Observation belongs to the service, so closing the popover
+does not stop synchronization. Manual control is disabled while sync is enabled.
+Guest appearance changes update the displayed toggle but never change the host
+or other guests. Disabling sync leaves the guest's current appearance intact.
+
+System appearance uses the same `SLSGetAppearanceThemeLegacy` and
+`SLSSetAppearanceThemeLegacy` SPI as DarkModeBuddy, dynamically resolved from
+SkyLight. Missing SPI disables appearance control without breaking other services.
+Only the guest endpoint applies incoming commands. Requests are serialized and
+rapid host changes coalesce; failures are shown in the popover. Observers and
+pending work are removed on disconnection.
+
+For runtime verification, install the rebuilt guest app and check manual light/dark
+switching, enabling sync while the appearances differ, host appearance changes with
+the popover closed, guest-only appearance changes, disabling sync, and reconnection.
+Confirm the preference survives restarting VirtualBuddy, and repeat with two VMs
+with different sync preferences. An older guest should show disabled controls and
+the update guidance. Automated session tests use injected appearance providers and
+never change the test Mac's appearance.
 
 ## Guest system information
 
