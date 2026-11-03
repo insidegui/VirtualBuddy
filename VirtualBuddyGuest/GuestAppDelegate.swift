@@ -65,9 +65,6 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
         perform(#selector(showPanelForFirstLaunchIfNeeded), with: nil, afterDelay: 0.5)
 
-        NSWorkspace.shared.notificationCenter.addObserver(forName: NSWorkspace.willPowerOffNotification, object: nil, queue: nil) { _ in
-            self.logger.notice("Received power off notification.")
-        }
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -89,13 +86,13 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         dashboardItem.showPanel()
     }
 
-    private var startedDesktopPictureSendBeforeTermination = false
+    private var startedFinalSendBeforeTermination = false
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         logger.debug(#function)
 
-        guard !startedDesktopPictureSendBeforeTermination else { return .terminateLater }
-        startedDesktopPictureSendBeforeTermination = true
+        guard !startedFinalSendBeforeTermination else { return .terminateLater }
+        startedFinalSendBeforeTermination = true
 
         Task {
             await hostConnection.prepareForTermination()

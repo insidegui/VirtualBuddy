@@ -6,6 +6,85 @@ import os
 
 @Suite @MainActor
 struct GuestSessionTests {
+    @Test func systemInformationRefreshesOnEventsAndReconnect() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        #expect(fixture.hostFeatures.systemReports.last?.osVersion == "26.0")
+        fixture.guestFeatures.systemInformation.osBuild = "updated-build"
+        fixture.guestFeatures.postSystemChange?()
+        try await eventually { fixture.hostFeatures.systemReports.last?.osBuild == "updated-build" }
+        await fixture.disconnect()
+        try await eventually { !fixture.guest.isConnected }
+        #expect(fixture.guestFeatures.systemObserverRemovals == 1)
+        #expect(fixture.guestFeatures.postSystemChange == nil)
+        fixture.guestFeatures.systemInformation.computerName = "Renamed Guest"
+        await fixture.hostConnection.transition(.connected)
+        await fixture.guestConnection.transition(.connected)
+        try await eventually { fixture.hostFeatures.systemReports.last?.computerName == "Renamed Guest" }
+        await fixture.stop()
+        #expect(fixture.guestFeatures.systemObserverRegistrations == fixture.guestFeatures.systemObserverRemovals)
+    }
+
+    @Test func systemInformationRejectsStaleOutOfOrderAndWrongEndpointMessages() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        let token = try #require(await fixture.guestConnection.token)
+        let fresh = GuestSystemInformation(osVersion: "27.0", osBuild: "new")
+        try await fixture.guestConnection.send(SystemInformationUpdate(session: token, revision: 20, information: fresh))
+        try await eventually { fixture.hostFeatures.systemReports.last == fresh }
+        let count = fixture.hostFeatures.systemReports.count
+        let stale = GuestSystemInformation(osVersion: "old")
+        try await fixture.guestConnection.send(SystemInformationUpdate(session: UUID(), revision: 30, information: stale))
+        try await fixture.guestConnection.send(SystemInformationUpdate(session: token, revision: 19, information: stale))
+        try await fixture.guestConnection.send(SystemInformationUpdate(session: token, revision: 20, information: stale))
+        fixture.guest.onSystemInformation = { _ in Issue.record("Guests must not accept host system information") }
+        try await fixture.hostConnection.send(SystemInformationUpdate(session: token, revision: 40, information: stale))
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(fixture.hostFeatures.systemReports.count == count)
+        await fixture.stop()
+    }
+
+    @Test func systemInformationWaitsForCapabilityAndRetriesAfterCollectionFailure() async throws {
+        let connection = TestConnection()
+        let peer = TestConnection()
+        await connection.connect(to: peer)
+        let context = GuestServiceContext(connection: connection, endpoint: .guest, requestTimeout: .seconds(1))
+        context.session = UUID()
+        var collections = 0
+        var observed = false
+        var removed = false
+        let service = SystemInformationGuestService(context: context, collect: {
+            collections += 1
+            if collections == 1 { throw TestFailure.deadline }
+            return GuestSystemInformation(osVersion: "26.0")
+        }, observe: { _ in
+            observed = true
+            return { removed = true }
+        }, refreshInterval: .milliseconds(20))
+        service.activate(notifications: [])
+        #expect(!observed)
+        #expect(collections == 0)
+        context.hostCapabilities = [SystemInformationGuestService.capability]
+        service.activate(notifications: [])
+        try await eventually { collections >= 2 }
+        service.invalidate()
+        await service.drain()
+        #expect(removed)
+        let finalCount = collections
+        try await Task.sleep(for: .milliseconds(50))
+        #expect(collections == finalCount)
+    }
+
+    @Test func terminationSendsLatestSystemInformation() async throws {
+        let fixture = await SessionFixture.make()
+        try await fixture.connect()
+        fixture.guestFeatures.systemInformation.computerName = "Before Shutdown"
+        await GuestHostSession(engine: fixture.guest).prepareForTermination()
+        try await eventually { fixture.hostFeatures.systemReports.last?.computerName == "Before Shutdown" }
+        #expect(!fixture.guest.isConnected)
+        await fixture.host.stop()
+    }
+
     @Test func defaultsServiceWorksWithoutClipboardOrSessionEngine() async throws {
         let hostConnection = TestConnection()
         let guestConnection = TestConnection()
@@ -244,6 +323,11 @@ private func clipboard(_ text: String) -> [ClipboardItem] { [.init(type: "public
     var defaults: [String: Data] = [:]
     var imported: [String: Data] = [:]
     var exportDelay: Duration = .zero
+    var systemInformation = GuestSystemInformation(osVersion: "26.0", osBuild: "25A1", sipDescription: "System Integrity Protection status: enabled.")
+    var systemReports: [GuestSystemInformation] = []
+    var postSystemChange: (@MainActor () -> Void)?
+    var systemObserverRegistrations = 0
+    var systemObserverRemovals = 0
 
     func providers(clipboard: TestClipboard) -> GuestFeatureProviders {
         .init(clipboard: clipboard, notifications: { [self] _, receive in
@@ -254,7 +338,13 @@ private func clipboard(_ text: String) -> [ClipboardItem] { [.init(type: "public
             if exportDelay > .zero { try await Task.sleep(for: exportDelay) }
             guard let data = defaults[domain] else { throw GuestSessionError.unavailableDomain }
             try data.write(to: url)
-        }, importDefaults: { [self] domain, url in imported[domain] = try Data(contentsOf: url) })
+        }, importDefaults: { [self] domain, url in imported[domain] = try Data(contentsOf: url) }, systemInformation: { [self] in
+            systemInformation
+        }, systemInformationChanges: { [self] receive in
+            systemObserverRegistrations += 1
+            postSystemChange = receive
+            return { [self] in systemObserverRemovals += 1; postSystemChange = nil }
+        })
     }
 }
 
@@ -286,13 +376,14 @@ private func clipboard(_ text: String) -> [ClipboardItem] { [.init(type: "public
         self.host = GuestSessionEngine(connection: host, endpoint: .host, hostClipboard: self.coordinator, providers: hostFeatures.providers(clipboard: hostClipboard))
         self.guest = GuestSessionEngine(connection: guest, endpoint: .guest, providers: guestFeatures.providers(clipboard: guestClipboard), requestTimeout: timeout)
         self.host.onDesktopPicture = { [hostFeatures] in hostFeatures.pictures.append($0) }
+        self.host.onSystemInformation = { [hostFeatures] in hostFeatures.systemReports.append($0) }
         self.host.onNotification = { [hostFeatures] in hostFeatures.notifications.append($0) }
     }
 
     func connect() async throws {
         host.start()
         guest.start()
-        try await eventually { self.guest.isConnected && self.guestFeatures.postNotification != nil && !self.hostFeatures.pictures.isEmpty && self.guestClipboard.items == self.hostClipboard.items }
+        try await eventually { self.guest.isConnected && self.guestFeatures.postNotification != nil && !self.hostFeatures.pictures.isEmpty && !self.hostFeatures.systemReports.isEmpty && self.guestClipboard.items == self.hostClipboard.items }
     }
     func disconnect() async {
         await hostConnection.transition(.disconnected)

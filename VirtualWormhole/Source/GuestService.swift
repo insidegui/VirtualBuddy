@@ -13,6 +13,7 @@ final class GuestServiceContext {
     let requestTimeout: Duration
     var session: UUID?
     var isConnected = false
+    var hostCapabilities: Set<String> = []
 
     init(connection: any GuestConnection, endpoint: GuestEndpoint, requestTimeout: Duration) {
         self.connection = connection

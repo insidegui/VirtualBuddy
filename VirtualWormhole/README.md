@@ -7,7 +7,7 @@ inert; `start()` returns its owned lifetime task and `stop()` cancels and awaits
 teardown. Cancel the returned task if its VM owner is being released.
 
 Each connection initializes a fresh application session token. Clipboard updates,
-notifications, pictures, and defaults operations are checked against this token.
+notifications, pictures, system information, and defaults operations are checked against this token.
 The host sends its current clipboard after initialization; guest clipboard
 observation starts after that snapshot is applied. Later clipboard transfers are
 superseded by newer remote revisions or local edits. A shared host coordinator
@@ -22,8 +22,9 @@ require a pending import operation. Failed, cancelled, and superseded transfers
 are discarded. Defaults request and transfer waits each have a 30-second deadline.
 
 The guest dashboard uses the app-owned observable session. Defaults import remains
-behind `ENABLE_USERDEFAULTS_SYNC`. Guest termination gives the last desktop picture
-two seconds, then closes the connection before joining the final send task.
+behind `ENABLE_USERDEFAULTS_SYNC`. Guest termination gives the final desktop picture
+and system information snapshots a shared two-second deadline, then closes the
+connection before joining the final send tasks.
 
 ## Service architecture
 
@@ -38,6 +39,8 @@ Each service is a separate `GuestService` subclass under `Source/Services`:
   transfers, and registration with the shared host clipboard coordinator.
 - `NotificationsGuestService`: notification negotiation, observation, and delivery.
 - `DesktopPictureGuestService`: initial and termination snapshots and delivery.
+- `SystemInformationGuestService`: session-scoped, revision-ordered system reports,
+  lifecycle observation, and periodic refresh.
 - `DefaultsGuestService`: export/import requests, pending imports, deadlines,
   and defaults file transfers.
 
@@ -106,3 +109,35 @@ Use a macOS VM with the rebuilt guest app for runtime verification:
 
 Also launch the guest app outside Xcode: a successful local build can resolve
 dynamic package frameworks from DerivedData and conceal missing embedded libraries.
+
+## Guest system information
+
+Hosts advertise `systemInformation.v1` in the optional `InitializeGuestReply.capabilities`
+field. New guests do not send system reports to older hosts; older guests ignore the
+new reply field. Existing wire payload fixtures remain unchanged.
+
+The guest collects macOS version/build, kernel version, computer name, architecture,
+processor count, physical memory, boot time, and guest app version/build. SIP is read
+using the read-only `/usr/bin/csrutil status` command with a fixed locale and a one-second
+cancellable deadline; custom output is retained verbatim and unrecognized or unavailable
+status is displayed as Unknown. No private API or privilege elevation is needed.
+
+A report is sent after each connection handshake, every five minutes, when the app
+becomes active, when the workspace session becomes active, after wake, before sleep
+or power-off, and during the app's bounded termination preparation. Event refreshes
+are coalesced while one is in flight. Observers and periodic work are removed on
+disconnect. Abrupt power loss and forced VM stops can only retain the preceding report.
+
+The host atomically writes `.vbdata/GuestSystemInfo.plist` inside the reporting VM's
+bundle. The versioned record includes a host-generated receipt timestamp; it does not
+modify configuration or installation metadata. Recovery boots do not replace the
+installed system's report. Missing, corrupt, and unsupported-version records are ignored.
+The library's existing plist observation refreshes the summary and open Get Info windows.
+Right-click a VM and choose Get Info to inspect or copy the full report while offline.
+
+Verification: run VirtualWormhole tests and the VirtualCore
+`GuestSystemInformationStorageTests` through Xcode. In a VM, run the rebuilt guest,
+check the library and Get Info, rename the guest computer and activate the guest app,
+then shut down and reopen the host. Confirm the report and timestamp persist. Repeat
+with SIP enabled, disabled, and a custom configuration; compare SIP Details with
+`csrutil status` inside that guest. Old guest releases show the no-report state until updated.

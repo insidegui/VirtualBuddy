@@ -87,6 +87,7 @@ struct LibraryItemView: View {
     var nameFieldFocus = BoolSubject()
 
     @State private var configurationVM: VBVirtualMachine?
+    @Environment(\.openCocoaWindow) private var openCocoaWindow
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
 
@@ -136,6 +137,10 @@ struct LibraryItemView: View {
             }
             .font(.system(size: 16, weight: .medium, design: .rounded))
             .disabled(isVMBooted || isDuplicating)
+
+            if let report = vm.guestSystemInformation {
+                GuestSystemInfoSummary(report: report)
+            }
         }
         .padding([.leading, .trailing, .top], 8)
         .padding(.bottom, 12)
@@ -171,6 +176,15 @@ struct LibraryItemView: View {
 
     @ViewBuilder
     private var contextMenuItems: some View {
+        Button {
+            openCocoaWindow(id: "vm-info-\(vm.uuid.uuidString)") {
+                VMInfoView(initialMachine: vm).environmentObject(library)
+            }
+        } label: {
+            Label { Text("Get Info", bundle: #bundle) } icon: { Image(systemName: "info.circle") }
+        }
+
+
         Button {
             NSWorkspace.shared.selectFile(vm.bundleURL.path, inFileViewerRootedAtPath: vm.bundleURL.deletingLastPathComponent().path)
         } label: {
