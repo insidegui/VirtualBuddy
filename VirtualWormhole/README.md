@@ -25,6 +25,63 @@ The guest dashboard uses the app-owned observable session. Defaults import remai
 behind `ENABLE_USERDEFAULTS_SYNC`. Guest termination gives the last desktop picture
 two seconds, then closes the connection before joining the final send task.
 
+## Service architecture
+
+`GuestSessionEngine` owns the transport run, initialization exchange, observable
+connection state, and service lifecycle. Its endpoint is explicit; services do not
+infer host/guest identity from clipboard configuration. `GuestServiceContext`
+provides the connection, current application token, endpoint, and request timeout.
+
+Each service is a separate `GuestService` subclass under `Source/Services`:
+
+- `ClipboardGuestService`: snapshots, revisions, polling, large clipboard
+  transfers, and registration with the shared host clipboard coordinator.
+- `NotificationsGuestService`: notification negotiation, observation, and delivery.
+- `DesktopPictureGuestService`: initial and termination snapshots and delivery.
+- `DefaultsGuestService`: export/import requests, pending imports, deadlines,
+  and defaults file transfers.
+
+Feature providers are assembled at session construction, but each service receives
+only its own dependencies. Public session methods and callbacks forward to the
+appropriate service; the existing app-facing API is unchanged.
+
+### Adding a service
+
+1. Define its `VMMessage` payloads. Keep existing wire type names and Codable
+   representations stable: VMBridge's default message ID is the type name.
+2. Add a `GuestService` subclass with its own dependencies and state. Override
+   `subscriptions()` to obtain typed message or request streams synchronously and
+   return their asynchronous consumers. `GuestConnection.requests(of:reply:)`
+   supplies typed reply closures without changes to the connection adapter.
+3. Construct and include the service in the engine's `services` list. Expose any
+   app-facing operations through the appropriate public session wrapper.
+4. Use `activate(notifications:)` for work following initialization. Validate
+   endpoint and session on incoming messages. Capture the token for asynchronous
+   work and call `requireSession` after suspension before applying its result.
+5. Use `schedule` for owned background work. Override `invalidate()` (calling
+   `super`) to remove observers, reset state, and cancel/finish service-specific
+   waiters. Override `drain()` if the service owns additional tasks. Invalidation
+   is synchronous on disconnect; final draining happens after transport closes,
+   so a blocked send cannot deadlock shutdown. Do not drain during reconnection.
+6. For bulk data, add a stable `TransferIdentity.Purpose`, override
+   `transferPurpose` and `receiveOffer`, and validate operation identity before
+   accepting into a locally selected temporary file. There is one dispatcher;
+   unknown purposes and stale tokens are rejected. Clean up files on every exit.
+
+Subscriptions and service state use MainActor isolation because the existing
+features interact with AppKit and app-observed state. Keep expensive new feature
+work off that actor where appropriate. A stream ending unexpectedly ends the
+connection run, so subscription consumers must remain alive until cancellation.
+
+### Compatibility
+
+This refactor preserves port 51780, initialization request/reply fields, message
+IDs and payloads, notification names, transfer metadata, and the VMBridge package
+version. No new negotiation is required from existing VMBridge guests. Frozen
+wire fixtures in `GuestWireCompatibilityTests` protect those representations.
+Archived serial-protocol guests retain their existing shared-folder-only support;
+see `Documentation/GuestAppSupport.md`.
+
 ## Verification
 
 Run the VirtualWormhole scheme's tests through Xcode. `GuestSessionTests` exercises

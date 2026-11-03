@@ -5,6 +5,8 @@ public enum GuestCommunication {
     public static let port: UInt32 = 51_780
 }
 
+// Wire names and Codable layouts are shared with existing guest releases.
+// Preserve them when moving or renaming service implementations.
 struct InitializeGuest: VMMessage { let session: UUID }
 struct InitializeGuestReply: VMMessage { let notifications: Set<String> }
 
