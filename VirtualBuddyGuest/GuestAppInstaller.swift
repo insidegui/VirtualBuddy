@@ -71,6 +71,7 @@ final class GuestAppInstaller {
     /// for which the following conditions are true:
     /// 1 - The guest executable in the volume has a different CDHash from this process
     /// 2 - The guest in the volume has a `CFBundleVersion` that's **greater than or equal to** the `CFBundleVersion` of this process
+    /// 3 - The guest in the volume supports the current macOS version
     private var mountedGuestImageNeedsInstall: Bool {
         guard FileManager.default.fileExists(atPath: "/Volumes/Guest") else { return false }
 
@@ -85,6 +86,16 @@ final class GuestAppInstaller {
 
         guard let imageBundle = Bundle(url: imageURL) else {
             logger.error("Couldn't get bundle at \(imageURL.path, privacy: .public)")
+            return false
+        }
+
+        guard let minimumVersion = imageBundle.minimumOperatingSystemVersion else {
+            logger.error("Couldn't read a valid LSMinimumSystemVersion from image bundle, skipping update")
+            return false
+        }
+
+        guard ProcessInfo.processInfo.isOperatingSystemAtLeast(minimumVersion) else {
+            logger.notice("Image requires macOS \(minimumVersion.majorVersion).\(minimumVersion.minorVersion).\(minimumVersion.patchVersion) or later, skipping update")
             return false
         }
 
@@ -133,6 +144,23 @@ final class GuestAppInstaller {
 }
 
 extension Bundle {
+    var minimumOperatingSystemVersion: OperatingSystemVersion? {
+        guard let string = infoDictionary?["LSMinimumSystemVersion"] as? String else { return nil }
+
+        let components = string.split(separator: ".", omittingEmptySubsequences: false)
+        guard (1...3).contains(components.count),
+              components.allSatisfy({ !$0.isEmpty && $0.allSatisfy(\.isNumber) }) else { return nil }
+
+        let numbers = components.compactMap { Int($0) }
+        guard numbers.count == components.count, let major = numbers.first, major > 0 else { return nil }
+
+        return OperatingSystemVersion(
+            majorVersion: major,
+            minorVersion: numbers.count > 1 ? numbers[1] : 0,
+            patchVersion: numbers.count > 2 ? numbers[2] : 0
+        )
+    }
+
     var bundleVersion: Int? {
         guard let str = infoDictionary?[kCFBundleVersionKey as String] as? String else { return nil }
         return Int(str)

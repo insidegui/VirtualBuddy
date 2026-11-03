@@ -13,7 +13,7 @@ so that it can be automatically updated whenever something changes in the Guest 
 GUEST_APP_PATH="$1"
 GUEST_APP_DIGEST="$2"
 GUEST_SIZE_ALLOCATION="$3"
-GUEST_DMG_SUFFIX="$4"
+GUEST_DMG_NAME="$4"
 
 if [ -z "$GUEST_APP_PATH" ]; then
     echo "Shell script invocation error: missing GUEST_APP_PATH value as first argument" 1>&2
@@ -30,6 +30,11 @@ if [ -z "$GUEST_SIZE_ALLOCATION" ]; then
     exit 7
 fi
 
+if [ -z "$GUEST_DMG_NAME" ]; then
+    echo "Shell script invocation error: missing GUEST_DMG_NAME value as fourth argument" 1>&2
+    exit 7
+fi
+
 if [ ! -d "$GUEST_APP_PATH" ]; then
     echo "Shell script invocation error: guest app bundle doesn't exist at $GUEST_APP_PATH" 1>&2
     exit 7
@@ -38,10 +43,8 @@ fi
 VBROOT="$HOME/Library/Application Support/VirtualBuddy"
 GUEST_DMG_DEST_PATH="$VBROOT/_GuestImage"
 
-GUEST_DMG_NAME="VirtualBuddyGuest$GUEST_DMG_SUFFIX"
-
-GUEST_STAGING_PATH="$GUEST_DMG_DEST_PATH/staging"
-GUEST_TEMP_MOUNT_PATH="$GUEST_STAGING_PATH/VirtualBuddyGuest$GUEST_DMG_SUFFIX"
+GUEST_STAGING_PATH="$GUEST_DMG_DEST_PATH/staging_$GUEST_DMG_NAME"
+GUEST_TEMP_MOUNT_PATH="$GUEST_STAGING_PATH/$GUEST_DMG_NAME"
 GUEST_TEMP_DMG_PATH="$GUEST_STAGING_PATH/$GUEST_DMG_NAME.dmg"
 
 GUEST_TEMP_DIGEST_PATH="$GUEST_TEMP_MOUNT_PATH/$GUEST_DMG_NAME.digest"
