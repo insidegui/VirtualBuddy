@@ -307,6 +307,18 @@
   ],
   "restoreImages" : [
     {
+      "build" : "26C5035r",
+      "channel" : "devbeta",
+      "downloadSize" : 27206093542,
+      "group" : "goldengate",
+      "id" : "26C5035r",
+      "mobileDeviceMinVersion" : "1853.0.0",
+      "name" : "macOS 27.3 Developer Beta 1",
+      "requirements" : "min_host_26_virtual_installation",
+      "url" : "https:\/\/updates.cdn-apple.com\/2026FallSeed\/53df7654-4865-4259-8dae-30177b76f104\/UniversalMac_27.3_26C5035r_Restore.ipsw",
+      "version" : "27.3.0"
+    },
+    {
       "build" : "26B123",
       "channel" : "regular",
       "downloadSize" : 25595669503,
