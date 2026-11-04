@@ -51,6 +51,16 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
     }()
     #endif
 
+    override init() {
+        super.init()
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(checkForUpdates(_:)),
+            name: .checkForVirtualBuddyUpdates,
+            object: nil
+        )
+    }
+
     func activate() {
         #if ENABLE_SPARKLE
         logger.debug(#function)

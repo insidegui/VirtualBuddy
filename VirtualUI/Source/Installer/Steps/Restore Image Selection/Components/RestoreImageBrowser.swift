@@ -332,6 +332,17 @@ struct RestoreImageFeatureDetailView: View {
                     }
                 }
                 .fixedSize(horizontal: false, vertical: true)
+
+                if image.requirements.requiredAppUpdate != nil {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Button("Check for Updates…") {
+                            NotificationCenter.default.post(name: .checkForVirtualBuddyUpdates, object: nil)
+                        }
+                        .buttonStyle(.link)
+
+                        Link("View Releases on GitHub", destination: URL(string: "https://github.com/insidegui/VirtualBuddy/releases")!)
+                    }
+                }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding()
@@ -457,6 +468,16 @@ extension ResolvedRestoreImage {
 @available(macOS 14.0, *)
 #Preview {
     VMInstallationWizard.preview
+}
+
+#Preview("VirtualBuddy Update Required") {
+    let image: ResolvedRestoreImage = {
+        var image = ResolvedRestoreImage.previewMac
+        image.requirements.requirements.minVersionApp = "99.0"
+        image.update(with: .current)
+        return image
+    }()
+    RestoreImageFeatureDetailView(image: image)
 }
 
 #Preview("Feature Detail") {

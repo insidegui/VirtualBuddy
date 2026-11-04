@@ -18,3 +18,8 @@ private final class _VirtualCoreStub { }
 public extension Bundle {
     static let virtualCore = Bundle(for: _VirtualCoreStub.self)
 }
+
+public extension Notification.Name {
+    /// Requests a user-initiated update check from the host app's updater.
+    static let checkForVirtualBuddyUpdates = Notification.Name("CheckForVirtualBuddyUpdates")
+}

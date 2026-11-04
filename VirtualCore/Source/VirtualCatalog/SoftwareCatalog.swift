@@ -14,14 +14,17 @@ public struct RequirementSet: CatalogModel {
     public var minMemorySizeMB: Int
     /// The minimum host operating system version required to run the system.
     public var minVersionHost: SoftwareVersion
+    /// The minimum VirtualBuddy version required to install/run the system. Nil means no app version requirement.
+    public var minVersionApp: SoftwareVersion?
     /// Whether restore images with this requirement set should be restored using our custom VirtualInstallation backend.
     public var virtualInstallationBackend: Bool
 
-    public init(id: String, minCPUCount: Int, minMemorySizeMB: Int, minVersionHost: SoftwareVersion, virtualInstallationBackend: Bool = false) {
+    public init(id: String, minCPUCount: Int, minMemorySizeMB: Int, minVersionHost: SoftwareVersion, minVersionApp: SoftwareVersion? = nil, virtualInstallationBackend: Bool = false) {
         self.id = id
         self.minCPUCount = minCPUCount
         self.minMemorySizeMB = minMemorySizeMB
         self.minVersionHost = minVersionHost
+        self.minVersionApp = minVersionApp
         self.virtualInstallationBackend = virtualInstallationBackend
     }
 }
@@ -317,6 +320,7 @@ public extension RequirementSet {
         self.minCPUCount = try container.decode(Int.self, forKey: .minCPUCount)
         self.minMemorySizeMB = try container.decode(Int.self, forKey: .minMemorySizeMB)
         self.minVersionHost = try container.decode(SoftwareVersion.self, forKey: .minVersionHost)
+        self.minVersionApp = try container.decodeIfPresent(SoftwareVersion.self, forKey: .minVersionApp)
         self.virtualInstallationBackend = try container.decodeIfPresent(Bool.self, forKey: .virtualInstallationBackend) ?? false
     }
 }
