@@ -29,15 +29,14 @@ struct VMLiveConfigurationView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Settings are saved for future sessions. Shared folder changes apply immediately.")
-                    .font(.callout)
-                    .foregroundStyle(.secondary)
-
-                SharedFoldersManagementView(configuration: $editor.configuration)
-                    .disabled(!controller.canEditLiveSharedFolders)
+                ConfigurationSection(collapsingDisabled: true) {
+                    SharedFoldersManagementView(configuration: $editor.configuration)
+                        .disabled(!controller.canEditLiveSharedFolders)
+                } header: {
+                    SummaryHeader("Sharing", systemImage: "folder", summary: controller.liveConfiguration.sharingSummary)
+                }
 
                 if let display = controller.liveConfiguration.hardware.displayDevices.first {
-                    Divider()
                     VMLiveDisplayConfigurationView(
                         device: display,
                         canChangePPI: controller.liveConfiguration.systemType.supportsDisplayPPI,
@@ -58,6 +57,7 @@ struct VMLiveConfigurationView: View {
                         .foregroundStyle(.secondary)
                 }
             }
+            .font(.system(size: 12))
             .padding(20)
         }
         .frame(minWidth: 500, idealWidth: 560, minHeight: 380, idealHeight: 460)

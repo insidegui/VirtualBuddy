@@ -22,16 +22,7 @@ struct VMLiveDisplayConfigurationView: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Label("Display", systemImage: "display")
-                    .font(.headline)
-                Spacer()
-                DisplayConfigurationView(device: $draft, selectedPreset: $selectedPreset, canChangePPI: canChangePPI)
-                    .presetPicker
-                    .frame(width: 24)
-            }
-
+        ConfigurationSection(collapsingDisabled: true) {
             DisplayConfigurationView(device: $draft, selectedPreset: $selectedPreset, canChangePPI: canChangePPI)
 
             Text("Apply changes to update the running display. The guest operating system may not support every resolution or pixel density.")
@@ -48,6 +39,18 @@ struct VMLiveDisplayConfigurationView: View {
                 Spacer()
                 Button("Apply Display Settings") { apply(draft) }
                     .disabled(draft == device)
+            }
+        } header: {
+            SummaryHeader(
+                "Display",
+                systemImage: "display",
+                summary: canChangePPI
+                    ? "\(device.width)x\(device.height)x\(device.pixelsPerInch)"
+                    : "\(device.width)x\(device.height)"
+            ) {
+                DisplayConfigurationView(device: $draft, selectedPreset: $selectedPreset, canChangePPI: canChangePPI)
+                    .presetPicker
+                    .frame(width: 24)
             }
         }
         .disabled(resizeStatus?.isUnsupported == true)
