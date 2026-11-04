@@ -62,3 +62,21 @@ If an OS build that's already in the catalog needs to be updated, just use the s
 Adding new major OS versions (ex: macOS ~16~26) requires additional work because a corresponding release group has to be added, and that requires the availability of image assets that follow a certain specification used by the app.
 
 For that reason, adding major new OS versions is currently reserved to the maintainer of the repository (@insidegui).
+
+## Requiring a Minimum VirtualBuddy Version
+
+Set `minVersionApp` on a requirement set to require a minimum VirtualBuddy version for every restore image referencing it. For example:
+
+```json
+{
+  "id": "macOSExample",
+  "minCPUCount": 2,
+  "minMemorySizeMB": 4096,
+  "minVersionHost": "15.0.0",
+  "minVersionApp": "3.0.0"
+}
+```
+
+The field is optional; omitting it preserves the existing behavior. Versions use the same `SoftwareVersion` format as `minVersionHost` and are compared to the installed app's version. When the app is too old, the catalog displays an update requirement with actions to check for updates and open GitHub releases. Host OS and device support requirements still apply.
+
+Older VirtualBuddy clients that predate this field ignore it; it cannot retroactively enforce requirements in those clients.

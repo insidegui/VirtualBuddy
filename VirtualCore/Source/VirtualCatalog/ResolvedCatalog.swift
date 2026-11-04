@@ -102,6 +102,8 @@ public struct ResolvedRequirementSet: ResolvedCatalogModel {
     public var id: RequirementSet.ID { requirements.id }
     public var requirements: RequirementSet
     public var status: ResolvedFeatureStatus
+    /// The app version required by this image when the installed app is too old.
+    public private(set) var requiredAppUpdate: SoftwareVersion?
     public var shouldForceVirtualInstallationBackend: Bool { requirements.virtualInstallationBackend }
 
     public init(requirements: RequirementSet, status: ResolvedFeatureStatus) {
@@ -231,6 +233,8 @@ public extension ResolvedRestoreImage {
         /// Adds the guest OS version to the environment so that features/requirements that depend on it get the correct status.
         let versionedEnvironment = environment.guest(version: image.version)
 
+        status = .supported
+
         /// Mobile device requirement is isolated from min host/app requirements.
         if versionedEnvironment.mobileDeviceVersion < image.mobileDeviceMinVersion {
             if let deviceSupportVersion {
@@ -244,8 +248,14 @@ public extension ResolvedRestoreImage {
 
         requirements.update(with: versionedEnvironment)
 
-        /// Only override status if it's "more important" than the current status.
-        if requirements.status.isMoreImportant(than: status) {
+        /// Keep app update actions visible while preserving any device support instructions.
+        /// Otherwise, only override the status with a more important requirement.
+        if requirements.requiredAppUpdate != nil {
+            status = .unsupported(
+                title: requirements.status.title,
+                message: [requirements.status.message, status.message].compactMap { $0 }.joined(separator: "\n\n")
+            )
+        } else if requirements.status.isMoreImportant(than: status) {
             status = requirements.status
         }
     }
@@ -336,6 +346,17 @@ public extension ResolvedVirtualizationFeature {
 
 public extension ResolvedRequirementSet {
     mutating func update(with environment: CatalogResolutionEnvironment) {
+        requiredAppUpdate = requirements.minVersionApp.flatMap { environment.appVersion < $0 ? $0 : nil }
+
+        if let requiredAppUpdate {
+            var message = "Requires VirtualBuddy \(requiredAppUpdate.shortDescription) or later."
+            if environment.hostVersion < requirements.minVersionHost {
+                message += "\n\nRequires a Mac on macOS \(requirements.minVersionHost.shortDescription) or later."
+            }
+            status = .unsupported(title: "VirtualBuddy Update Required", message: message)
+            return
+        }
+
         guard environment.hostVersion >= self.requirements.minVersionHost else {
             self.status = .unsupportedHost(requirements)
             return
