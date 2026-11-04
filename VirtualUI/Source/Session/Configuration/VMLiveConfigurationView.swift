@@ -29,12 +29,28 @@ struct VMLiveConfigurationView: View {
 
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                Text("Changes apply immediately to this virtual machine. Shared folders are also saved for future sessions.")
+                Text("Settings are saved for future sessions. Shared folder changes apply immediately.")
                     .font(.callout)
                     .foregroundStyle(.secondary)
 
                 SharedFoldersManagementView(configuration: $editor.configuration)
                     .disabled(!controller.canEditLiveSharedFolders)
+
+                if let display = controller.liveConfiguration.hardware.displayDevices.first {
+                    Divider()
+                    VMLiveDisplayConfigurationView(
+                        device: display,
+                        canChangePPI: controller.liveConfiguration.systemType.supportsDisplayPPI,
+                        apply: editor.updateDisplay
+                    )
+                    .id(display.id)
+                    .disabled(!controller.canEditLiveDisplay)
+                    if !VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
+                        Text("Changing display settings while running requires macOS 14 or later.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
 
                 if !controller.canEditLiveConfiguration {
                     Text("Settings are unavailable while the virtual machine is changing state.")
@@ -46,10 +62,11 @@ struct VMLiveConfigurationView: View {
         }
         .frame(minWidth: 500, idealWidth: 560, minHeight: 380, idealHeight: 460)
         .environment(\.vmConfigurationContext, .live)
+        .environment(\.configurationGuestType, controller.liveConfiguration.systemType)
         .environment(\.resolvedRestoreImage, resolvedRestoreImage)
         .windowTitle("\(controller.virtualMachineModel.name) — Settings")
         .windowStyleMask([.titled, .closable, .resizable])
-        .alert("Unable to Update Shared Folders", isPresented: $editor.isShowingError) {
+        .alert("Unable to Update Settings", isPresented: $editor.isShowingError) {
             Button("OK", role: .cancel) { editor.errorMessage = nil }
         } message: {
             Text(editor.errorMessage ?? "")
@@ -75,6 +92,14 @@ private final class VMLiveConfigurationEditor {
     var isShowingError: Bool {
         get { errorMessage != nil }
         set { if !newValue { errorMessage = nil } }
+    }
+
+    func updateDisplay(_ device: VBDisplayDevice) {
+        do {
+            try controller.updateLiveDisplay(device)
+        } catch {
+            errorMessage = error.localizedDescription
+        }
     }
 
     var configuration: VBMacConfiguration {

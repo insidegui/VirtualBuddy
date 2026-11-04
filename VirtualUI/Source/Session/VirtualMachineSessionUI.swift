@@ -64,7 +64,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
         $lockProportions.dropFirst().removeDuplicates().sink { [weak self] newValue in
             guard let self = self else { return }
 
-            guard let display = self.virtualMachine.configuration.hardware.displayDevices.first else {
+            guard let display = self.controller.liveConfiguration.hardware.displayDevices.first else {
                 assertionFailure("VM doesn't have a display")
                 return
             }
@@ -74,6 +74,15 @@ public final class VirtualMachineSessionUI: ObservableObject {
             self.setWindowAspectRatio.send(ratio)
         }
         .store(in: &cancellables)
+
+        controller.$virtualMachineModel
+            .map(\.configuration.hardware.displayDevices)
+            .removeDuplicates()
+            .sink { [weak self] displays in
+                guard let self, self.lockProportions, let display = displays.first else { return }
+                self.setWindowAspectRatio.send(CGSize(width: display.width, height: display.height))
+            }
+            .store(in: &cancellables)
 
         $captureMouseEvents.sink { [weak self] captureMouse in
             if captureMouse {

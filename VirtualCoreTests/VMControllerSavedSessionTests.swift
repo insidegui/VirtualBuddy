@@ -98,6 +98,22 @@ final class VMControllerSavedSessionTests {
         }
     }
 
+    @Test func liveDisplayEditingCannotModifyAnIdleOrSavedSession() throws {
+        let model = try makeVirtualMachine()
+        let original = model.configuration.hardware.displayDevices
+        let idle = try makeController(for: model)
+        #expect(!idle.canEditLiveDisplay)
+        #expect(throws: (any Error).self) { try idle.updateLiveDisplay(VBDisplayDevice()) }
+        #expect(idle.virtualMachineModel.configuration.hardware.displayDevices == original)
+
+        try saveSession(in: model)
+        let saved = try makeController(for: model)
+        #expect(!saved.canEditLiveDisplay)
+        #expect(throws: (any Error).self) { try saved.updateLiveDisplay(VBDisplayDevice()) }
+        #expect(saved.virtualMachineModel.configuration.hardware.displayDevices == original)
+        #expect(saved.savedSession?.isReady == true)
+    }
+
     @Test func liveFolderEditingRequiresAnActiveSessionAndPreservesSavedConfiguration() throws {
         var model = try makeVirtualMachine()
         model.configuration.sharedFolders = [VBSharedFolder(url: directoryURL, isReadOnly: true)]

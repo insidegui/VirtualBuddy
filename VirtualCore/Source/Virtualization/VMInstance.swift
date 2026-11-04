@@ -26,6 +26,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
     private var _virtualMachine: VZVirtualMachine?
     private var runtimeConfiguration: VZVirtualMachineConfiguration?
+    /// Restore must reconstruct the original displays even when their runtime settings have changed.
+    private var initialDisplayDevices: [VBDisplayDevice] = []
 
     /// The model that was used to construct the virtual machine. When restoring a saved session, its configuration
     /// is the one that was captured when the session was saved rather than the current one.
@@ -240,6 +242,7 @@ public final class VMInstance: NSObject, ObservableObject {
         }
 
         runtimeModel = model
+        initialDisplayDevices = model.configuration.hardware.displayDevices
         guestAdditionsMediaURL = runtime.guestAdditionsMediaURL
 
         networkAttachmentHelper?.stop()
@@ -400,6 +403,37 @@ public final class VMInstance: NSObject, ObservableObject {
         enforceSharedFoldersPolicy()
     }
 
+    var hasReconfigurableDisplay: Bool {
+        guard #available(macOS 14.0, *), let vm = _virtualMachine else { return false }
+        return !vm.graphicsDevices.flatMap(\.displays).isEmpty
+    }
+
+    /// The framework validates the request before it becomes the session's saved preference.
+    func updateDisplay(_ requested: VBDisplayDevice) throws {
+        guard #available(macOS 14.0, *) else {
+            throw Failure("Changing display settings while running requires macOS 14 or later.")
+        }
+        let vm = try ensureVM()
+        guard vm.state == .running || vm.state == .paused else {
+            throw Failure("Display settings can't be changed in the virtual machine's current state.")
+        }
+        let devices = runtimeModel.configuration.hardware.displayDevices
+        guard let index = devices.firstIndex(where: { $0.id == requested.id }) else {
+            throw Failure("The display is no longer available in this session.")
+        }
+        let displays = vm.graphicsDevices.flatMap(\.displays)
+        guard displays.indices.contains(index) else {
+            throw Failure("The display is unavailable in this virtual machine.")
+        }
+        let updated = try requested.validatedLiveDisplay(replacing: devices[index], guestType: runtimeModel.configuration.systemType)
+        if !updated.automaticallyReconfiguresDisplay {
+            let configuration = updated.runtimeDisplayConfiguration(for: runtimeModel.configuration.systemType)
+            try displays[index].reconfigure(configuration: configuration)
+        }
+        runtimeModel.configuration.hardware.displayDevices[index] = updated
+        virtualMachineModel.configuration.hardware.displayDevices = runtimeModel.configuration.hardware.displayDevices
+    }
+
     var hasSharedFoldersDevice: Bool { sharedFoldersDevice != nil }
 
     private var sharedFoldersDevice: VZVirtioFileSystemDevice? {
@@ -532,7 +566,9 @@ public final class VMInstance: NSObject, ObservableObject {
 
     /// Describes everything that has to be captured for the virtual machine's session. Must be called while the virtual machine is paused.
     func makeSavedSessionCapturePlan(wasPausedBeforeSave: Bool) throws -> SavedSessionCapturePlan {
-        let model = runtimeModel
+        var model = runtimeModel
+        // Live resolution and density are device state, not the configuration used to construct the VM.
+        model.configuration.hardware.displayDevices = initialDisplayDevices
         let runtimeConfiguration = try runtimeConfiguration.require("The VM configuration is unavailable.")
 
         var resources = [SavedSessionCapturePlan.ResourceSource]()
@@ -565,7 +601,9 @@ public final class VMInstance: NSObject, ObservableObject {
             runtimeDescription: SavedSessionRuntimeDescription(configuration: runtimeConfiguration),
             screenshotSourceURL: screenshotURL,
             wasPausedBeforeSave: wasPausedBeforeSave,
-            memorySize: runtimeConfiguration.memorySize
+            memorySize: runtimeConfiguration.memorySize,
+            liveDisplayDevices: runtimeModel.configuration.hardware.displayDevices == initialDisplayDevices
+                ? nil : runtimeModel.configuration.hardware.displayDevices
         )
     }
 
@@ -597,6 +635,7 @@ public final class VMInstance: NSObject, ObservableObject {
         sharedFoldersPolicyObservation = nil
         _virtualMachine = nil
         runtimeConfiguration = nil
+        initialDisplayDevices = []
         removeWorkingGuestAdditionsMedia()
     }
 
@@ -640,6 +679,14 @@ public final class VMInstance: NSObject, ObservableObject {
             logger.debug("Restoring state from \(preparation.stateFileURL.path)")
 
             try await vm.restoreMachineStateFrom(url: preparation.stateFileURL)
+
+            // Virtualization restores the current display state from the memory image. Restore our
+            // preferences separately so automatic resizing and subsequent saves use the live edits.
+            if let displays = preparation.manifest.liveDisplayDevices {
+                runtimeModel.configuration.hardware.displayDevices = try runtimeModel.configuration
+                    .restoringLiveDisplays(displays)
+                virtualMachineModel.configuration.hardware.displayDevices = runtimeModel.configuration.hardware.displayDevices
+            }
 
             logger.log("Restored machine state, virtual machine is paused")
         } catch {

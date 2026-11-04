@@ -102,13 +102,14 @@ final class VMViewController: NSViewController {
 
     var automaticallyReconfiguresDisplay: Bool = true {
         didSet {
-            guard #available(macOS 14.0, *) else { return }
+            guard #available(macOS 14.0, *), automaticallyReconfiguresDisplay != oldValue else { return }
             vmView.automaticallyReconfiguresDisplay = automaticallyReconfiguresDisplay
         }
     }
 
     var virtualMachine: VZVirtualMachine? {
         didSet {
+            guard virtualMachine !== oldValue else { return }
             vmView.virtualMachine = virtualMachine
         }
     }

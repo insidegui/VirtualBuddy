@@ -14,6 +14,8 @@ struct DisplayConfigurationView: View {
     @Binding var selectedPreset: VBDisplayPreset?
     var canChangePPI: Bool
 
+    @Environment(\.vmConfigurationContext) private var context
+
     @Environment(\.resolvedRestoreImage)
     private var resolvedRestoreImage
 
@@ -37,6 +39,7 @@ struct DisplayConfigurationView: View {
             formatter: NumberFormatter.numericPropertyControlDefault,
             spacing: VMConfigurationView.labelSpacing
         )
+        .disabled(context == .live && device.automaticallyReconfiguresDisplay)
 
         NumericPropertyControl(
             value: $device.height,
@@ -45,6 +48,7 @@ struct DisplayConfigurationView: View {
             formatter: NumberFormatter.numericPropertyControlDefault,
             spacing: VMConfigurationView.labelSpacing
         )
+        .disabled(context == .live && device.automaticallyReconfiguresDisplay)
 
         if canChangePPI {
             NumericPropertyControl(
@@ -54,6 +58,7 @@ struct DisplayConfigurationView: View {
                 formatter: NumberFormatter.numericPropertyControlDefault,
                 spacing: VMConfigurationView.labelSpacing
             )
+            .disabled(context == .live && device.automaticallyReconfiguresDisplay)
         }
         
         if VBDisplayDevice.automaticallyReconfiguresDisplaySupportedByHost {
@@ -83,6 +88,7 @@ struct DisplayConfigurationView: View {
     @ViewBuilder
     var presetPicker: some View {
         DisplayPresetPicker(display: $device, selection: $selectedPreset)
+            .disabled(context == .live && device.automaticallyReconfiguresDisplay)
     }
     
 }
@@ -92,6 +98,7 @@ private struct DisplayPresetPicker: View {
     @Binding var display: VBDisplayDevice
     @Binding var selection: VBDisplayPreset?
     @State private var presets = [VBDisplayPreset]()
+    @Environment(\.vmConfigurationContext) private var context
 
     @Environment(\.configurationGuestType)
     private var guestType: VBGuestType
@@ -115,7 +122,12 @@ private struct DisplayPresetPicker: View {
         ForEach(presets) { preset in
             Button(preset.name) {
                 selection = preset
-                display = preset.device
+                var updated = preset.device
+                if context == .live {
+                    updated.id = display.id
+                    updated.name = display.name
+                }
+                display = updated
             }
         }
     }

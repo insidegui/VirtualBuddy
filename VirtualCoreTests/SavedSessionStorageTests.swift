@@ -122,6 +122,39 @@ final class SavedSessionStorageTests: XCTestCase {
         return try storage.publish(staged)
     }
 
+    func testLiveDisplayPreferencesAreStoredSeparatelyFromConstructionConfiguration() throws {
+        let storage = makeStorage()
+        var plan = makePlan()
+        let original = VBDisplayDevice()
+        plan.configuration.hardware.displayDevices = [original]
+        var edited = original
+        edited.width = 2560
+        edited.height = 1440
+        edited.pixelsPerInch = 180
+        edited.automaticallyReconfiguresDisplay = true
+        plan.liveDisplayDevices = [edited]
+
+        try capture(with: storage, plan: plan)
+        let restored = try storage.prepareRestore()
+        XCTAssertEqual(restored.configuration.hardware.displayDevices, [original])
+        XCTAssertEqual(restored.manifest.liveDisplayDevices, [edited])
+        XCTAssertEqual(restored.manifest.runtimeDescription, plan.runtimeDescription)
+        XCTAssertEqual(try restored.configuration.restoringLiveDisplays(XCTUnwrap(restored.manifest.liveDisplayDevices)), [edited])
+    }
+
+    func testOlderSavedSessionWithoutLiveDisplayPreferencesRemainsReadable() throws {
+        let storage = makeStorage()
+        try capture(with: storage)
+        let data = try Data(contentsOf: storage.layout.manifestURL)
+        var manifest = try XCTUnwrap(PropertyListSerialization.propertyList(from: data, format: nil) as? [String: Any])
+        manifest.removeValue(forKey: "liveDisplayDevices")
+        let legacyData = try PropertyListSerialization.data(fromPropertyList: manifest, format: .binary, options: 0)
+        try legacyData.write(to: storage.layout.manifestURL)
+        let restored = try storage.prepareRestore()
+        XCTAssertNil(restored.manifest.liveDisplayDevices)
+        XCTAssertEqual(restored.configuration, try storage.capturedConfiguration())
+    }
+
     private func readWorking(_ name: String) throws -> Data { try Data(contentsOf: path(name)) }
 
     private func writeWorking(_ name: String, _ string: String) throws { try Data(string.utf8).write(to: path(name)) }

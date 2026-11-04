@@ -532,6 +532,7 @@ public final class VMController: ObservableObject {
 
         state = .running(vm)
 
+        virtualMachineModel.configuration.hardware.displayDevices = newInstance.effectiveModel.configuration.hardware.displayDevices
         virtualMachineModel.metadata.lastBootDate = .now
 
         await finishRestoreIfPending()
@@ -728,6 +729,7 @@ public final class VMController: ObservableObject {
                 try await instance.resume()
                 let vm = try instance.virtualMachine
 
+                virtualMachineModel.configuration.hardware.displayDevices = instance.effectiveModel.configuration.hardware.displayDevices
                 state = .running(vm)
             } catch {
                 reconcileState(after: error)
@@ -834,6 +836,26 @@ public final class VMController: ObservableObject {
     /// Read startup-only values from the effective session, including after a saved-session restore.
     public var liveConfiguration: VBMacConfiguration {
         instance?.effectiveModel.configuration ?? virtualMachineModel.configuration
+    }
+
+    public var canEditLiveDisplay: Bool {
+        canEditLiveConfiguration && instance?.hasReconfigurableDisplay == true
+    }
+
+    public func updateLiveDisplay(_ device: VBDisplayDevice) throws {
+        guard canEditLiveDisplay else {
+            throw Failure("Wait until the virtual machine is running or paused before changing its display.")
+        }
+        let instance = try ensureInstance()
+        try instance.updateDisplay(device)
+        // Publish only after Virtualization accepts the request. If persistence fails, keep the UI
+        // and saved-session capture consistent with the settings that are already applied.
+        virtualMachineModel.configuration.hardware.displayDevices = instance.effectiveModel.configuration.hardware.displayDevices
+        do {
+            try virtualMachineModel.saveConfiguration()
+        } catch {
+            throw Failure("The display settings were applied, but could not be saved: \(error.localizedDescription)")
+        }
     }
 
     public func updateLiveSharedFolders(_ folders: [VBSharedFolder]) throws {

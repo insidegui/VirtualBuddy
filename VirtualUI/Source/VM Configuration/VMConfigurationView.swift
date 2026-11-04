@@ -10,7 +10,7 @@ import VirtualCore
 
 extension EnvironmentValues {
     /// Type of guest that's currently being configured in a `VMConfigurationView`.
-    @Entry fileprivate(set) var configurationGuestType: VBGuestType = .mac
+    @Entry var configurationGuestType: VBGuestType = .mac
 }
 
 private struct ResolvedRestoreImageKey: EnvironmentKey {
