@@ -93,7 +93,8 @@ public struct VirtualMachineSessionView: View {
                             appearance: controller.guestAppearance,
                             updateState: controller.guestAppUpdate,
                             updateGuestApp: controller.updateGuestApp,
-                            exportInstaller: controller.exportGuestInstaller,
+                            installerExport: controller.guestInstallerExport,
+                            exportInstaller: ui.exportGuestInstaller,
                             automaticallySyncAppearance: $controller.automaticallySyncGuestAppearance,
                             setDarkModeEnabled: controller.setGuestDarkModeEnabled
                         )

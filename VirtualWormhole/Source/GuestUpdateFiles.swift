@@ -1,6 +1,7 @@
 import Foundation
 import CryptoKit
 import Security
+import OSLog
 
 /// File work runs off the UI actor. Each subprocess has an independent owner.
 public enum GuestUpdateFiles {
@@ -13,6 +14,9 @@ public enum GuestUpdateFiles {
             try FileManager.default.createDirectory(at: contents, withIntermediateDirectories: false)
             let app = contents.appendingPathComponent("VirtualBuddyGuest.app")
             try FileManager.default.copyItem(at: appURL, to: app)
+            // Validate the actual embedded copy before exporting or transferring it.
+            // A valid standalone build does not guarantee embedding preserved its seal.
+            try validateApplicationSignature(at: app)
             guard let bundle = Bundle(url: app) else { throw GuestAppUpdateError.invalidPackage }
             let identity = try GuestAppIdentity(bundle: bundle)
             let image = directory.appendingPathComponent("VirtualBuddyGuest-Update.dmg")
@@ -100,8 +104,56 @@ public enum GuestUpdateFiles {
         var requirement: SecRequirement?
         try GuestAppIdentity.check(SecCodeCopyDesignatedRequirement(currentCode, [], &requirement))
         guard let requirement else { throw GuestAppUpdateError.invalidPackage }
-        try GuestAppIdentity.check(SecStaticCodeCheckValidity(candidateCode,
-            SecCSFlags(rawValue: kSecCSStrictValidate | kSecCSCheckNestedCode | kSecCSCheckAllArchitectures), requirement))
+        try validateSignature(candidateCode, at: candidate, requirement: requirement)
+    }
+
+    static func validateApplicationSignature(at url: URL) throws {
+        var code: SecStaticCode?
+        try GuestAppIdentity.check(SecStaticCodeCreateWithPath(url as CFURL, [], &code))
+        guard let code else { throw GuestAppUpdateError.invalidPackage }
+        try validateSignature(code, at: url)
+    }
+
+    private static func validateSignature(_ code: SecStaticCode, at url: URL, requirement: SecRequirement? = nil) throws {
+        var detail: Unmanaged<CFError>?
+        let status = SecStaticCodeCheckValidityWithErrors(code,
+            SecCSFlags(rawValue: kSecCSStrictValidate | kSecCSCheckNestedCode | kSecCSCheckAllArchitectures),
+            requirement, &detail)
+        let underlying = detail?.takeRetainedValue() as Error?
+        guard status != errSecSuccess else { return }
+
+        let reason = SecCopyErrorMessageString(status, nil) as String? ?? "Unknown code-signature error"
+        let information = (underlying as NSError?)?.userInfo ?? [:]
+        var description = "VirtualBuddyGuest failed code-signature verification: \(reason)."
+        if let component = resourceURLs(in: information[kSecCFErrorPath as String]).first {
+            description += " Affected component: \(relativePath(component, in: url))."
+        }
+        for (key, label) in [(kSecCFErrorResourceMissing, "Missing signed file"),
+                             (kSecCFErrorResourceAltered, "Modified signed file"),
+                             (kSecCFErrorResourceAdded, "Unexpected file")] {
+            if let resource = resourceURLs(in: information[key as String]).first {
+                description += " \(label): \(relativePath(resource, in: url))."
+                break
+            }
+        }
+        description += " (OSStatus \(status))"
+        var userInfo: [String: Any] = [NSLocalizedDescriptionKey: description, NSURLErrorKey: url]
+        if let underlying { userInfo[NSUnderlyingErrorKey] = underlying }
+        let error = NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: userInfo)
+        Logger(subsystem: "codes.rambo.VirtualWormhole", category: "GuestUpdateFiles")
+            .error("Guest signature verification failed at \(url.path, privacy: .public): \(error, privacy: .public)")
+        throw error
+    }
+
+    private static func resourceURLs(in value: Any?) -> [URL] {
+        if let url = value as? URL { return [url] }
+        if let values = value as? [Any] { return values.flatMap { resourceURLs(in: $0) } }
+        return []
+    }
+
+    private static func relativePath(_ resource: URL, in bundle: URL) -> String {
+        let prefix = bundle.path + "/"
+        return resource.path.hasPrefix(prefix) ? String(resource.path.dropFirst(prefix.count)) : resource.lastPathComponent
     }
 }
 

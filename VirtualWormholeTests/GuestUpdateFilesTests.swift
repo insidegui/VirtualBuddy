@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import Security
 @testable import VirtualWormhole
 
 struct GuestUpdateFilesTests {
@@ -20,6 +21,23 @@ struct GuestUpdateFilesTests {
         ]
         try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
             .write(to: app.appendingPathComponent("Contents/Info.plist"))
+        // Module files are sealed resources in a signed framework. The old
+        // Embed Guest App phase stripped them after signing the nested bundle.
+        let framework = app.appendingPathComponent("Contents/Frameworks/Fixture.framework")
+        let version = framework.appendingPathComponent("Versions/A")
+        try manager.createDirectory(at: version.appendingPathComponent("Resources"), withIntermediateDirectories: true)
+        try manager.createDirectory(at: version.appendingPathComponent("Modules"), withIntermediateDirectories: false)
+        try manager.copyItem(at: URL(fileURLWithPath: "/usr/bin/true"), to: version.appendingPathComponent("Fixture"))
+        try Data("fixture module".utf8).write(to: version.appendingPathComponent("Modules/Fixture.swiftmodule"))
+        let frameworkInfo: [String: Any] = ["CFBundleIdentifier": "codes.rambo.VirtualBuddyGuest.UpdateTest.Framework",
+                                            "CFBundleExecutable": "Fixture", "CFBundlePackageType": "FMWK"]
+        try PropertyListSerialization.data(fromPropertyList: frameworkInfo, format: .xml, options: 0)
+            .write(to: version.appendingPathComponent("Resources/Info.plist"))
+        try manager.createSymbolicLink(atPath: framework.appendingPathComponent("Versions/Current").path, withDestinationPath: "A")
+        for name in ["Fixture", "Resources", "Modules"] {
+            try manager.createSymbolicLink(atPath: framework.appendingPathComponent(name).path, withDestinationPath: "Versions/Current/" + name)
+        }
+        try await GuestUpdateCommand().run("/usr/bin/codesign", ["--force", "--sign", "-", framework.path])
         try await GuestUpdateCommand().run("/usr/bin/codesign", ["--force", "--sign", "-", app.path])
         let bundle = try #require(Bundle(url: app))
         let identity = try GuestAppIdentity(bundle: bundle)
@@ -48,6 +66,23 @@ struct GuestUpdateFilesTests {
             throw error
         }
         try await GuestUpdateCommand().run("/usr/bin/hdiutil", ["detach", mount.path])
+        let stripped = directory.appendingPathComponent("Stripped.app")
+        try manager.copyItem(at: app, to: stripped)
+        try manager.removeItem(at: stripped.appendingPathComponent("Contents/Frameworks/Fixture.framework/Versions/A/Modules"))
+        do {
+            try GuestUpdateFiles.validateApplication(at: stripped, replacing: app, expected: identity)
+            Issue.record("Missing signed module files must fail verification")
+        } catch {
+            let failure = error as NSError
+            #expect(failure.code == Int(errSecCSBadResource))
+            #expect(failure.localizedDescription.contains("code-signature verification"))
+            #expect(failure.localizedDescription.contains("Fixture.framework"))
+            #expect(failure.userInfo[NSUnderlyingErrorKey] != nil)
+        }
+        await #expect(throws: (any Error).self) {
+            _ = try await GuestUpdateFiles.createImage(appURL: stripped)
+        }
+
         // A modified signed bundle must fail full resource validation.
         try Data("tampered".utf8).write(to: executable)
         #expect(throws: (any Error).self) {

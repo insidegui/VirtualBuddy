@@ -62,7 +62,12 @@ public struct GuestAppIdentity: Codable, Equatable, Sendable {
     }
 
     static func check(_ status: OSStatus) throws {
-        guard status == errSecSuccess else { throw NSError(domain: NSOSStatusErrorDomain, code: Int(status)) }
+        guard status == errSecSuccess else {
+            let reason = SecCopyErrorMessageString(status, nil) as String? ?? "Unknown code-signature error"
+            throw NSError(domain: NSOSStatusErrorDomain, code: Int(status), userInfo: [
+                NSLocalizedDescriptionKey: "Could not read the VirtualBuddyGuest code signature: \(reason). (OSStatus \(status))"
+            ])
+        }
     }
 }
 

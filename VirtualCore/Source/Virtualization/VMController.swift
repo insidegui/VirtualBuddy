@@ -247,6 +247,8 @@ public final class VMController: ObservableObject {
         instance?.updateGuestApp()
     }
 
+    public let guestInstallerExport = GuestInstallerExport()
+
     public func exportGuestInstaller(to destination: URL) async throws {
         guard !VirtualBuddyManagedPreferences.guestAppDisabled else {
             throw Failure("Guest app installation is disabled by your organization.")

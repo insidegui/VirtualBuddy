@@ -1,16 +1,12 @@
 import SwiftUI
 import VirtualWormhole
-import UniformTypeIdentifiers
+import VirtualCore
 
 struct GuestAppUpdateControls: View {
     var state: GuestAppUpdateState?
     var update: () -> Void
-    var exportInstaller: (URL) async throws -> Void
-
-    @State private var isExporting = false
-    @State private var exportError: String?
-    @State private var exported = false
-    @State private var exportTask: Task<Void, Never>?
+    var installerExport: GuestInstallerExport?
+    var exportInstaller: () -> Void
 
     private var incompatible: Bool {
         state?.osVersion != nil && state?.target != nil && state?.isCompatible == false
@@ -55,12 +51,10 @@ struct GuestAppUpdateControls: View {
                 Text(error).font(.caption).foregroundStyle(.red)
             }
 
-            Button(isExporting ? "Exporting Installer…" : "Export Guest Installer…") {
-                export()
-            }
-            .disabled(isExporting || state?.isBusy == true || incompatible)
+            Button(installerExport?.phase == .exporting ? "Exporting Installer…" : "Export Guest Installer…", action: exportInstaller)
+                .disabled(installerExport?.isBusy == true || state?.isBusy == true || incompatible)
 
-            if exported {
+            if installerExport?.exportedURL != nil {
                 Text("Open the exported disk image inside the virtual machine, then double-click VirtualBuddyGuest to install it.")
                     .font(.caption)
             }
@@ -71,13 +65,9 @@ struct GuestAppUpdateControls: View {
                     .foregroundStyle(.secondary)
             }
 
-            if let exportError {
+            if let exportError = installerExport?.errorMessage {
                 Text(exportError).font(.caption).foregroundStyle(.red)
             }
-        }
-        .onDisappear {
-            exportTask?.cancel()
-            exportTask = nil
         }
     }
 
@@ -91,25 +81,4 @@ struct GuestAppUpdateControls: View {
         }
     }
 
-    private func export() {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.diskImage]
-        panel.nameFieldStringValue = "VirtualBuddyGuest-Update.dmg"
-        panel.message = "Choose a shared folder that you can open inside the virtual machine."
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        exportTask = Task {
-            isExporting = true
-            exportError = nil
-            exported = false
-            defer { isExporting = false; exportTask = nil }
-            do {
-                try await exportInstaller(url)
-                exported = true
-                NSWorkspace.shared.activateFileViewerSelecting([url])
-            } catch is CancellationError {
-            } catch {
-                exportError = error.localizedDescription
-            }
-        }
-    }
 }

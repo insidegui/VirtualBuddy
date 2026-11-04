@@ -9,7 +9,8 @@ struct GuestAppStatusControl: View {
     var appearance: GuestAppearanceState? = nil
     var updateState: GuestAppUpdateState? = nil
     var updateGuestApp: () -> Void = { }
-    var exportInstaller: (URL) async throws -> Void = { _ in }
+    var installerExport: GuestInstallerExport? = nil
+    var exportInstaller: () -> Void = { }
     var automaticallySyncAppearance: Binding<Bool> = .constant(false)
     var setDarkModeEnabled: (Bool) -> Void = { _ in }
 
@@ -51,7 +52,11 @@ struct GuestAppStatusControl: View {
                 status: status,
                 updateState: updateState,
                 updateGuestApp: updateGuestApp,
-                exportInstaller: exportInstaller,
+                installerExport: installerExport,
+                exportInstaller: {
+                    isShowingDetail = false
+                    exportInstaller()
+                },
                 isDarkModeEnabled: appearance?.isDarkModeEnabled,
                 isUpdatingAppearance: appearance?.isUpdating ?? false,
                 appearanceError: appearance?.errorMessage,
@@ -66,7 +71,8 @@ private struct GuestAppStatusDetail: View {
     var status: GuestAppConnectionStatus
     var updateState: GuestAppUpdateState? = nil
     var updateGuestApp: () -> Void = { }
-    var exportInstaller: (URL) async throws -> Void = { _ in }
+    var installerExport: GuestInstallerExport? = nil
+    var exportInstaller: () -> Void = { }
     var isDarkModeEnabled: Bool? = nil
     var isUpdatingAppearance = false
     var appearanceError: String? = nil
@@ -106,7 +112,7 @@ private struct GuestAppStatusDetail: View {
 
             if status != .disabled && !guestAppMountingDisabled {
                 Divider()
-                GuestAppUpdateControls(state: updateState, update: updateGuestApp, exportInstaller: exportInstaller)
+                GuestAppUpdateControls(state: updateState, update: updateGuestApp, installerExport: installerExport, exportInstaller: exportInstaller)
             }
 
             if showsInstallTutorial {
