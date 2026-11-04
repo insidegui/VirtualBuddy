@@ -100,6 +100,8 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
             guard let self else { return }
             guard let session = sessions[vmID] else { return }
 
+            session.closeLiveConfiguration()
+
             VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session)
             VBMemoryLeakDebugAssertions.vb_objectShouldBeReleasedSoon(session.controller)
 

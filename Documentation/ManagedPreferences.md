@@ -16,13 +16,13 @@ Deploy the following setting in a custom settings payload for the VirtualBuddy p
 `DisableSharedFolders` is a Boolean, defaulting to `false`. When enabled:
 
 - Shared folder controls are disabled with an organization policy message.
-- Attempts to add a folder are rejected and logged.
+- Attempts to add a folder or edit live folder mappings are rejected.
 - Existing mappings are ignored when constructing a VM's runtime configuration, including when a saved session is resumed. The saved VM configuration is preserved. Shared folders are live resources, so a saved session doesn't preserve or roll back their contents.
 - When VirtualBuddy observes a preference change, it disconnects the host folder share from existing VM instances. Policy is also checked before and after starting or resuming a VM.
 
 This applies globally to macOS and Linux VMs. Rosetta for Linux remains available because its separate share exposes Apple's translation runtime rather than user-selected host folders. Clipboard sharing, USB passthrough, and networking are separate features and are not controlled by this preference.
 
-After removing the restriction, shut down and start the VM again to restore its saved folder mappings. Missing, false, and incorrectly typed values use the default unrestricted behavior. Deploy a property-list Boolean, not a string or integer.
+After removing the restriction, the current session’s folder mappings are shared again automatically. Missing, false, and incorrectly typed values use the default unrestricted behavior. Deploy a property-list Boolean, not a string or integer.
 
 Policy enforcement messages appear in Console under the `codes.rambo.VirtualCore` subsystem. Configuration and folder-addition messages use the `ManagedPreferences` category; live disconnections use the VM's `VMInstance` category.
 

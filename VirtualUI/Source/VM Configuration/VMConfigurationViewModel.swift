@@ -12,14 +12,20 @@ import VirtualCore
 public enum VMConfigurationContext: Int {
     case preInstall
     case postInstall
+    /// Editing supported resources of a running or paused virtual machine.
+    case live
 
-    /// Whether the configuration should be saved continuously as it's changed by the user.
+    /// Whether the offline view model saves continuously. Live edits are applied and persisted by `VMController`.
     var shouldAutoSave: Bool {
         switch self {
         case .preInstall: true
-        case .postInstall: false
+        case .postInstall, .live: false
         }
     }
+}
+
+extension EnvironmentValues {
+    @Entry var vmConfigurationContext: VMConfigurationContext = .postInstall
 }
 
 public final class VMConfigurationViewModel: ObservableObject {

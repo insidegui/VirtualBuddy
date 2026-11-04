@@ -69,6 +69,67 @@ struct ManagedSharedFoldersTests {
         #expect(rosetta.share is VZLinuxRosettaDirectoryShare)
     }
 
+    @Test func replacingMappingsAppliesAddRemoveAndReadOnlyChanges() throws {
+        let directory = FileManager.default.temporaryDirectory
+        var configuration = VBMacConfiguration()
+        configuration.sharedFolders = [VBSharedFolder(url: directory, customMountPointName: "Original")]
+        let originalShare = try configuration.makeSharedFoldersShare(preferences: reader(false))
+
+        configuration.sharedFolders[0].isReadOnly = true
+        configuration.sharedFolders.append(VBSharedFolder(url: directory, customMountPointName: "Added"))
+        let updatedShare = try configuration.makeSharedFoldersShare(preferences: reader(false))
+        #expect(updatedShare.directories.count == 2)
+        #expect(updatedShare.directories["Original"]?.isReadOnly == true)
+        #expect(updatedShare.directories["Added"]?.isReadOnly == false)
+        #expect(originalShare.directories["Original"]?.isReadOnly == false)
+
+        configuration.sharedFolders.removeFirst()
+        let removedShare = try configuration.makeSharedFoldersShare(preferences: reader(false))
+        #expect(removedShare.directories["Original"] == nil)
+        #expect(removedShare.directories["Added"] != nil)
+
+        configuration.sharedFolders[0].isEnabled = false
+        #expect(try configuration.makeSharedFoldersShare(preferences: reader(false)).directories.isEmpty)
+        configuration.sharedFolders.removeAll()
+        #expect(try configuration.makeSharedFoldersShare(preferences: reader(false)).directories.isEmpty)
+    }
+
+    @Test func invalidOrDuplicateMountNamesFailWithoutReplacingThePreviousShare() throws {
+        var configuration = VBMacConfiguration()
+        configuration.sharedFolders = [VBSharedFolder(url: FileManager.default.temporaryDirectory, customMountPointName: "Valid")]
+        let share = try configuration.makeSharedFoldersShare(preferences: reader(false))
+
+        configuration.sharedFolders[0].customMountPointName = "invalid/name"
+        #expect(throws: (any Error).self) {
+            try configuration.makeSharedFoldersShare(preferences: reader(false))
+        }
+        configuration.sharedFolders[0].customMountPointName = "Valid"
+        configuration.sharedFolders.append(VBSharedFolder(url: FileManager.default.temporaryDirectory, customMountPointName: "Valid"))
+        #expect(throws: (any Error).self) {
+            try configuration.makeSharedFoldersShare(preferences: reader(false))
+        }
+        #expect(share.directories.count == 1)
+        #expect(share.directories["Valid"] != nil)
+    }
+
+    @Test func folderChangesAndPolicyDoNotChangeSavedSessionTopology() throws {
+        var configuration = VBMacConfiguration()
+        configuration.rosettaSharingEnabled = false
+        let initial = VZVirtualMachineConfiguration()
+        initial.directorySharingDevices = try configuration.makeSharedFoldersFileSystemDevices(preferences: reader(false))
+        let topology = SavedSessionRuntimeDescription(configuration: initial)
+
+        configuration.sharedFolders = [VBSharedFolder(url: FileManager.default.temporaryDirectory, isReadOnly: true)]
+        for disabled in [false, true, false] {
+            let updated = VZVirtualMachineConfiguration()
+            updated.directorySharingDevices = try configuration.makeSharedFoldersFileSystemDevices(preferences: reader(disabled))
+            #expect(topology.firstDifference(from: SavedSessionRuntimeDescription(configuration: updated)) == nil)
+            let share = try configuration.makeSharedFoldersShare(preferences: reader(disabled))
+            #expect(share.directories.count == (disabled ? 0 : 1))
+            #expect(configuration.sharedFolders[0].isReadOnly)
+        }
+    }
+
     @Test func administratorDocumentationExportsTheImplementedPolicy() throws {
         let schema = VirtualBuddyManagedPreferences.schema
         let markdown = schema.markdownDocumentation()

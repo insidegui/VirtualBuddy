@@ -110,6 +110,16 @@ public struct VirtualMachineSessionView: View {
                 ToolbarSpacer(.fixed)
             }
 
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    ui.openLiveConfiguration()
+                } label: {
+                    Label("Virtual Machine Settings", systemImage: "gearshape")
+                }
+                .help("Change settings for the running virtual machine")
+                .disabled(!controller.canEditLiveConfiguration)
+            }
+
             ToolbarItemGroup(placement: .primaryAction) {
                 VirtualMachineStateControls()
             }
@@ -187,7 +197,7 @@ public struct VirtualMachineSessionView: View {
             captureSystemKeysEnabled: controller.virtualMachineModel.configuration.captureSystemKeys,
             isDFUModeVM: controller.options.bootInDFUMode,
             vmECID: controller.virtualMachineModel.ECID,
-            automaticallyReconfiguresDisplay: .constant(controller.virtualMachineModel.configuration.hardware.displayDevices.count > 0 ? controller.virtualMachineModel.configuration.hardware.displayDevices[0].automaticallyReconfiguresDisplay : false),
+            automaticallyReconfiguresDisplay: .constant(controller.liveConfiguration.hardware.displayDevices.first?.automaticallyReconfiguresDisplay ?? false),
             onInputToggleHold: onInputToggleHold
         )
         .virtualMachineEventDeliveryMask(ui.eventDeliveryMask)

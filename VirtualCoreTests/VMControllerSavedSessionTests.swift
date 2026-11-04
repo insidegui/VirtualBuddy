@@ -98,6 +98,73 @@ final class VMControllerSavedSessionTests {
         }
     }
 
+    @Test func liveDisplayEditingCannotModifyAnIdleOrSavedSession() throws {
+        let model = try makeVirtualMachine()
+        let original = model.configuration.hardware.displayDevices
+        let idle = try makeController(for: model)
+        #expect(!idle.canEditLiveDisplay)
+        #expect(throws: (any Error).self) { try idle.updateLiveDisplay(VBDisplayDevice()) }
+        #expect(idle.virtualMachineModel.configuration.hardware.displayDevices == original)
+
+        try saveSession(in: model)
+        let saved = try makeController(for: model)
+        #expect(!saved.canEditLiveDisplay)
+        #expect(throws: (any Error).self) { try saved.updateLiveDisplay(VBDisplayDevice()) }
+        #expect(saved.virtualMachineModel.configuration.hardware.displayDevices == original)
+        #expect(saved.savedSession?.isReady == true)
+    }
+
+    @Test func liveFolderEditingRequiresAnActiveSessionAndPreservesSavedConfiguration() throws {
+        var model = try makeVirtualMachine()
+        model.configuration.sharedFolders = [VBSharedFolder(url: directoryURL, isReadOnly: true)]
+        try model.saveMetadata()
+
+        let idle = try makeController(for: model)
+        #expect(!idle.canEditLiveConfiguration)
+        #expect(!idle.canEditLiveSharedFolders)
+        #expect(throws: (any Error).self) { try idle.updateLiveSharedFolders([]) }
+        #expect(idle.virtualMachineModel.configuration.sharedFolders == model.configuration.sharedFolders)
+
+        try saveSession(in: model)
+        let saved = try makeController(for: model)
+        #expect(!saved.canEditLiveConfiguration)
+        #expect(!saved.canEditLiveSharedFolders)
+        #expect(throws: (any Error).self) { try saved.updateLiveSharedFolders([]) }
+        let captured = try SavedSessionStorage(bundleURL: model.bundleURL).capturedConfiguration()
+        #expect(captured.sharedFolders == model.configuration.sharedFolders)
+        #expect(saved.savedSession?.isReady == true)
+    }
+
+    @Test func lifecycleOperationPublishesAvailabilityChangesEvenWhenStateDoesNotChange() async throws {
+        let controller = try makeController(for: try makeVirtualMachine())
+        let initialState = controller.state
+        var updates = 0
+        let observation = controller.objectWillChange.sink { updates += 1 }
+        defer { observation.cancel() }
+
+        await controller.performExclusively {
+            #expect(updates == 1)
+            #expect(controller.state == initialState)
+        }
+        #expect(updates == 2)
+        #expect(controller.state == initialState)
+    }
+
+    @Test func savedSessionRetainsEditedFolderMappingsAndReadOnlyAccess() throws {
+        var model = try makeVirtualMachine()
+        let original = VBSharedFolder(url: directoryURL, customMountPointName: "Original")
+        let added = VBSharedFolder(url: directoryURL, isReadOnly: true, customMountPointName: "Added")
+        model.configuration.sharedFolders = [original, added]
+        model.configuration.sharedFolders.removeAll { $0.id == original.id }
+        try model.saveConfiguration()
+        try saveSession(in: model)
+
+        let captured = try SavedSessionStorage(bundleURL: model.bundleURL).capturedConfiguration()
+        #expect(captured.sharedFolders == [added])
+        let reloaded = try VBVirtualMachine(bundleURL: model.bundleURL, isNewInstall: false, createIfNeeded: false)
+        #expect(reloaded.configuration.sharedFolders == [added])
+    }
+
     // MARK: Starting
 
     @Test func specialBootModesCannotBypassTheDiscardConfirmation() async throws {

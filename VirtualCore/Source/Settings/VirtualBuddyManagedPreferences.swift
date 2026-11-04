@@ -59,9 +59,9 @@ public extension ManagedPreference where Namespace == VirtualBuddyManagedPrefere
         Summary("Disables host folder sharing for all virtual machines.")
         Discussion("Deploy this Boolean in the VirtualBuddy preference domain using an MDM configuration profile. It applies to macOS and Linux guests, including existing virtual machines.")
         DefaultBehavior("Shared folders are available when this preference is absent or false. Invalid values fall back to false.")
-        Behavior("Disables shared folder controls and rejects attempts to add folders, with a policy message in the log.")
+        Behavior("Disables shared folder controls and rejects attempts to edit live folder mappings.")
         Behavior("Ignores saved folder mappings when starting or restoring a VM. Mappings remain saved so they can be used after the restriction is removed.")
-        Behavior("When a policy change is observed, shared folders are disconnected from running VMs. Restart the VM after removing the restriction to share its folders again.")
+        Behavior("When a policy change is observed, shared folders are disconnected from running VMs. When the restriction is removed, the current session’s folder mappings are shared again.")
         Behavior("Rosetta for Linux is unaffected: its separate share exposes Apple's translation runtime, not user-selected host folders.")
         Options {
             Option(true, "Shared folders are unavailable.")

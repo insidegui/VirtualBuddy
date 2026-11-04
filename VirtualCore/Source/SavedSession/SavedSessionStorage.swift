@@ -21,6 +21,7 @@ struct SavedSessionCapturePlan: @unchecked Sendable {
     var screenshotSourceURL: URL?
     var wasPausedBeforeSave: Bool
     var memorySize: UInt64
+    var liveDisplayDevices: [VBDisplayDevice]? = nil
 }
 
 /// A package that's being built in a private staging directory.
@@ -218,7 +219,8 @@ struct SavedSessionStorage: Sendable {
                 screenshotFileName: staged.screenshotFileName,
                 resources: staged.resources,
                 runtimeDescription: staged.plan.runtimeDescription,
-                wasPausedBeforeSave: staged.plan.wasPausedBeforeSave
+                wasPausedBeforeSave: staged.plan.wasPausedBeforeSave,
+                liveDisplayDevices: staged.plan.liveDisplayDevices
             )
 
             try fileSystem.writeDurably(try Self.encoder.encode(manifest), to: staged.stagingURL.appending(path: SavedSessionLayout.manifestFileName))

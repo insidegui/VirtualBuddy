@@ -279,13 +279,21 @@ public extension VBVirtualMachine {
         guard !ProcessInfo.isSwiftUIPreview else { return }
         #endif
 
-        let configData = try PropertyListEncoder.virtualBuddy.encode(configuration)
-        try write(configData, forMetadataFileNamed: Self.configurationFilename)
+        try saveConfiguration()
 
         let metaData = try PropertyListEncoder.virtualBuddy.encode(metadata)
         try write(metaData, forMetadataFileNamed: Self.metadataFilename)
 
         try saveInstallData()
+    }
+
+    /// Writes only the editable configuration, without a later metadata write that could fail after it commits.
+    func saveConfiguration() throws {
+        #if DEBUG
+        guard !ProcessInfo.isSwiftUIPreview else { return }
+        #endif
+        let data = try PropertyListEncoder.virtualBuddy.encode(configuration)
+        try write(data, forMetadataFileNamed: Self.configurationFilename)
     }
 
     func saveInstallData() throws {

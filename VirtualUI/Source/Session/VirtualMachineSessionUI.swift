@@ -64,7 +64,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
         $lockProportions.dropFirst().removeDuplicates().sink { [weak self] newValue in
             guard let self = self else { return }
 
-            guard let display = self.virtualMachine.configuration.hardware.displayDevices.first else {
+            guard let display = self.controller.liveConfiguration.hardware.displayDevices.first else {
                 assertionFailure("VM doesn't have a display")
                 return
             }
@@ -74,6 +74,15 @@ public final class VirtualMachineSessionUI: ObservableObject {
             self.setWindowAspectRatio.send(ratio)
         }
         .store(in: &cancellables)
+
+        controller.$virtualMachineModel
+            .map(\.configuration.hardware.displayDevices)
+            .removeDuplicates()
+            .sink { [weak self] displays in
+                guard let self, self.lockProportions, let display = displays.first else { return }
+                self.setWindowAspectRatio.send(CGSize(width: display.width, height: display.height))
+            }
+            .store(in: &cancellables)
 
         $captureMouseEvents.sink { [weak self] captureMouse in
             if captureMouse {
@@ -154,6 +163,27 @@ public final class VirtualMachineSessionUI: ObservableObject {
     @MainActor
     func setActivity(_ activity: SessionActivity?) {
         self.activity = activity
+    }
+
+    @MainActor
+    private var liveConfigurationWindowID: String { "live-configuration-\(controller.id)" }
+
+    @MainActor
+    func openLiveConfiguration() {
+        guard controller.canEditLiveConfiguration else { return }
+        OpenCocoaWindowAction.default(id: liveConfigurationWindowID) {
+            VMLiveConfigurationView(controller: self.controller)
+                .onWindowKeyChange { [weak self] isKey in
+                    VirtualMachineSessionUIManager.shared.focusedSessionChanged.send(
+                        isKey ? self.map(WeakReference.init) : nil
+                    )
+                }
+        }
+    }
+
+    @MainActor
+    func closeLiveConfiguration() {
+        OpenCocoaWindowAction.default.close(id: liveConfigurationWindowID)
     }
 
     @MainActor
@@ -331,6 +361,15 @@ private struct VirtualMachineGuestActions: View {
                 Label("Force Stop & Close…", systemImage: "stop.circle.fill")
             }
             .disabled(actionTask != nil || !(controller?.state.isRunning == true || controller?.state.isPaused == true))
+
+            Divider()
+
+            Button {
+                session?.openLiveConfiguration()
+            } label: {
+                Label("Virtual Machine Settings…", systemImage: "gearshape")
+            }
+            .disabled(controller?.canEditLiveConfiguration != true)
 
             Divider()
 

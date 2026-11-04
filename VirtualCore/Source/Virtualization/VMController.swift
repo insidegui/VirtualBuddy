@@ -168,10 +168,10 @@ public final class VMController: ObservableObject {
     private let lease = VMOperationLease()
 
     /// Repeated requests to save join the one that's already running.
-    private var inFlightSave: Task<Void, Error>?
+    @Published private var inFlightSave: Task<Void, Error>?
 
     /// `true` between resuming a restored session and cleaning up the package it was restored from.
-    private var isRestoreCompletionPending = false
+    @Published private var isRestoreCompletionPending = false
 
     public init(with vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions? = nil) {
         self.id = vm.id
@@ -202,6 +202,12 @@ public final class VMController: ObservableObject {
                     assertionFailure("Failed to save configuration: \(error)")
                 }
             }
+            .store(in: &cancellables)
+
+        // Live settings depend on the lease as well as VM state (an operation can finish
+        // without changing the state, for example when saving a paused VM is cancelled).
+        lease.objectWillChange
+            .sink { [weak self] in self?.objectWillChange.send() }
             .store(in: &cancellables)
 
         library.addController(self)
@@ -526,6 +532,7 @@ public final class VMController: ObservableObject {
 
         state = .running(vm)
 
+        virtualMachineModel.configuration.hardware.displayDevices = newInstance.effectiveModel.configuration.hardware.displayDevices
         virtualMachineModel.metadata.lastBootDate = .now
 
         await finishRestoreIfPending()
@@ -722,6 +729,7 @@ public final class VMController: ObservableObject {
                 try await instance.resume()
                 let vm = try instance.virtualMachine
 
+                virtualMachineModel.configuration.hardware.displayDevices = instance.effectiveModel.configuration.hardware.displayDevices
                 state = .running(vm)
             } catch {
                 reconcileState(after: error)
@@ -809,6 +817,58 @@ public final class VMController: ObservableObject {
     /// Waits until every operation that's currently in progress or queued has finished.
     public func waitForPendingOperations() async {
         await lease.perform { }
+    }
+
+    // MARK: Live Configuration
+
+    /// A stopped saved session must be resumed before its live resources can be edited.
+    public var canEditLiveConfiguration: Bool {
+        guard !lease.isBusy, inFlightSave == nil, !isRestoreCompletionPending,
+              state.isRunning || state.isPaused,
+              let vm = try? instance?.virtualMachine else { return false }
+        return vm.state == .running || vm.state == .paused
+    }
+
+    public var canEditLiveSharedFolders: Bool {
+        canEditLiveConfiguration && instance?.hasSharedFoldersDevice == true
+    }
+
+    /// Read startup-only values from the effective session, including after a saved-session restore.
+    public var liveConfiguration: VBMacConfiguration {
+        instance?.effectiveModel.configuration ?? virtualMachineModel.configuration
+    }
+
+    public var canEditLiveDisplay: Bool {
+        canEditLiveConfiguration && instance?.hasReconfigurableDisplay == true
+    }
+
+    public func updateLiveDisplay(_ device: VBDisplayDevice) throws {
+        guard canEditLiveDisplay else {
+            throw Failure("Wait until the virtual machine is running or paused before changing its display.")
+        }
+        let instance = try ensureInstance()
+        try instance.updateDisplay(device)
+        // Publish only after Virtualization accepts the request. If persistence fails, keep the UI
+        // and saved-session capture consistent with the settings that are already applied.
+        virtualMachineModel.configuration.hardware.displayDevices = instance.effectiveModel.configuration.hardware.displayDevices
+        do {
+            try virtualMachineModel.saveConfiguration()
+        } catch {
+            throw Failure("The display settings were applied, but could not be saved: \(error.localizedDescription)")
+        }
+    }
+
+    public func updateLiveSharedFolders(_ folders: [VBSharedFolder]) throws {
+        guard canEditLiveSharedFolders else {
+            throw Failure("Wait until the virtual machine is running or paused before changing shared folders.")
+        }
+        let instance = try ensureInstance()
+        var updatedModel = virtualMachineModel
+        updatedModel.configuration.sharedFolders = folders
+        try instance.updateSharedFolders(folders) {
+            try updatedModel.saveConfiguration()
+        }
+        virtualMachineModel = updatedModel
     }
 
     /// Replaces the running virtual machine's network attachments and starts automatic retries for

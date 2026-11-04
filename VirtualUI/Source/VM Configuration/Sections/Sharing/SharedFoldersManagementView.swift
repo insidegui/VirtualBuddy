@@ -12,6 +12,7 @@ import ManagedPreferencesUI
 struct SharedFoldersManagementView: View {
     
     @Binding var configuration: VBMacConfiguration
+    @Environment(\.vmConfigurationContext) private var context
 
     @ManagedValue(for: .disableSharedFolders, schema: VirtualBuddyManagedPreferences.schema, default: false)
     private var sharedFoldersDisabled: Bool
@@ -123,7 +124,7 @@ struct SharedFoldersManagementView: View {
                 guestAppNote
             }
 
-            if configuration.systemType == .linux {
+            if context != .live, configuration.systemType == .linux {
                 Group {
                     let rosettaToggleBind = if VBMacConfiguration.rosettaSupported && !rosettaUnsupported {
                         $configuration.rosettaSharingEnabled
@@ -169,6 +170,7 @@ struct SharedFoldersManagementView: View {
         }
         .onChange(of: configuration) { _, newValue in
             availabilityProvider.configuration = newValue
+            availabilityProvider.refreshAvailability()
         }
         .onChange(of: configuration.sharedFolders.count) { _, newValue in
             if newValue > 0 {
@@ -252,7 +254,7 @@ struct SharedFoldersManagementView: View {
         A folder named "VirtualBuddyShared" will show up on the Desktop.
         """
 
-        let rosettaVm = VBMacConfiguration.rosettaSupported && configuration.systemType == .linux
+        let rosettaVm = context != .live && VBMacConfiguration.rosettaSupported && configuration.systemType == .linux
 
         let tooltipRosetta = if rosettaVm {
             """
@@ -309,7 +311,7 @@ struct SharedFoldersManagementView: View {
                 Label("VirtualBuddyGuest is required for mounting shared folders automatically, but it’s not enabled for this virtual machine.", systemImage: "exclamationmark.triangle.fill")
                     .foregroundColor(.yellow)
 
-                if !guestAppDisabled {
+                if context != .live, !guestAppDisabled {
                     Button("Enable VirtualBuddyGuest") {
                         configuration.guestAdditionsEnabled = true
                     }

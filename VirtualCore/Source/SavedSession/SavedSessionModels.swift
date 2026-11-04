@@ -93,6 +93,9 @@ struct SavedSessionManifest: Codable, Hashable, Sendable {
     var resources: [Resource]
     var runtimeDescription: SavedSessionRuntimeDescription
     var wasPausedBeforeSave: Bool
+    /// Display preferences after live edits. The construction configuration remains unchanged for restore compatibility.
+    /// Absent in sessions saved before live display editing was supported.
+    var liveDisplayDevices: [VBDisplayDevice]? = nil
 
     func resource(with role: Role) -> Resource? {
         resources.first { $0.role == role }
