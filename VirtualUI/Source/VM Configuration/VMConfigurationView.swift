@@ -172,6 +172,7 @@ struct VMConfigurationView: View {
             .disabled(viewModel.isLockedBySavedSession)
         }
         .font(.system(size: 12))
+        .environment(\.vmConfigurationContext, viewModel.context)
         .environment(\.configurationGuestType, viewModel.config.systemType)
         .environment(\.resolvedRestoreImage, viewModel.resolvedRestoreImage)
     }

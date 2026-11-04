@@ -157,6 +157,27 @@ public final class VirtualMachineSessionUI: ObservableObject {
     }
 
     @MainActor
+    private var liveConfigurationWindowID: String { "live-configuration-\(controller.id)" }
+
+    @MainActor
+    func openLiveConfiguration() {
+        guard controller.canEditLiveConfiguration else { return }
+        OpenCocoaWindowAction.default(id: liveConfigurationWindowID) {
+            VMLiveConfigurationView(controller: self.controller)
+                .onWindowKeyChange { [weak self] isKey in
+                    VirtualMachineSessionUIManager.shared.focusedSessionChanged.send(
+                        isKey ? self.map(WeakReference.init) : nil
+                    )
+                }
+        }
+    }
+
+    @MainActor
+    func closeLiveConfiguration() {
+        OpenCocoaWindowAction.default.close(id: liveConfigurationWindowID)
+    }
+
+    @MainActor
     public func bringToFront() {
         makeWindowKey.send()
     }
@@ -331,6 +352,15 @@ private struct VirtualMachineGuestActions: View {
                 Label("Force Stop & Close…", systemImage: "stop.circle.fill")
             }
             .disabled(actionTask != nil || !(controller?.state.isRunning == true || controller?.state.isPaused == true))
+
+            Divider()
+
+            Button {
+                session?.openLiveConfiguration()
+            } label: {
+                Label("Virtual Machine Settings…", systemImage: "gearshape")
+            }
+            .disabled(controller?.canEditLiveConfiguration != true)
 
             Divider()
 

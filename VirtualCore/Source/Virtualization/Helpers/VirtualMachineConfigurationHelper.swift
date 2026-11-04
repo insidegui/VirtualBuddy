@@ -238,7 +238,8 @@ extension VBMacConfiguration {
         }
     }
 
-    func makeSharedFoldersFileSystemDevices(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) throws -> [VZDirectorySharingDeviceConfiguration] {
+    /// Used for both startup and live changes so policy and mapping validation stay identical.
+    func makeSharedFoldersShare(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) throws -> VZMultipleDirectoryShare {
         var directories: [String: VZSharedDirectory] = [:]
 
         if preferences.value(for: .disableSharedFolders, default: false) {
@@ -247,16 +248,25 @@ extension VBMacConfiguration {
             for folder in sharedFolders {
                 guard let dir = folder.vzSharedFolder else { continue }
 
-                directories[folder.effectiveMountPointName] = dir
+                let name = folder.effectiveMountPointName
+                try VZMultipleDirectoryShare.validateName(name)
+                guard directories[name] == nil else {
+                    throw Failure("More than one shared folder uses the name \(name).")
+                }
+                directories[name] = dir
             }
         }
 
+        return VZMultipleDirectoryShare(directories: directories)
+    }
+
+    func makeSharedFoldersFileSystemDevices(preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences>) throws -> [VZDirectorySharingDeviceConfiguration] {
         var devices: [VZDirectorySharingDeviceConfiguration] = []
 
         // Keep the device topology stable for snapshots, even when policy leaves the share empty.
         try VZVirtioFileSystemDeviceConfiguration.validateTag(VBSharedFolder.virtualBuddyShareName)
         do {
-            let share = VZMultipleDirectoryShare(directories: directories)
+            let share = try makeSharedFoldersShare(preferences: preferences)
             let device = VZVirtioFileSystemDeviceConfiguration(tag: VBSharedFolder.virtualBuddyShareName)
             device.share = share
             devices.append(device)

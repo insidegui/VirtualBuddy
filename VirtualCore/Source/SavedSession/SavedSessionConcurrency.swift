@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 /// Runs file work away from the main actor. Cancelling the caller cancels the work at its next cancellation check.
 func performOffMainActor<T: Sendable>(_ work: @escaping @Sendable () throws -> T) async throws -> T {
@@ -13,8 +14,8 @@ func performOffMainActor<T: Sendable>(_ work: @escaping @Sendable () throws -> T
 
 /// Serializes operations on a virtual machine. Waiters are served in the order they arrived.
 @MainActor
-final class VMOperationLease {
-    private var isHeld = false
+final class VMOperationLease: ObservableObject {
+    @Published private var isHeld = false
     private var waiters = [CheckedContinuation<Void, Never>]()
 
     var isBusy: Bool { isHeld }

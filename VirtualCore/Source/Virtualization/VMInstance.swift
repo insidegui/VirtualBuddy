@@ -400,16 +400,49 @@ public final class VMInstance: NSObject, ObservableObject {
         enforceSharedFoldersPolicy()
     }
 
-    private func enforceSharedFoldersPolicy() {
-        guard VirtualBuddyManagedPreferences.sharedFoldersDisabled, let vm = _virtualMachine else { return }
+    var hasSharedFoldersDevice: Bool { sharedFoldersDevice != nil }
 
-        for case let device as VZVirtioFileSystemDevice in vm.directorySharingDevices {
-            guard device.tag == VBSharedFolder.virtualBuddyShareName, device.share != nil else { continue }
+    private var sharedFoldersDevice: VZVirtioFileSystemDevice? {
+        _virtualMachine?.directorySharingDevices
+            .compactMap { $0 as? VZVirtioFileSystemDevice }
+            .first { $0.tag == VBSharedFolder.virtualBuddyShareName }
+    }
+
+    /// Persists before committing the live change. There are no suspension points between validation,
+    /// persistence, and updating the runtime model used by the next saved-session capture.
+    func updateSharedFolders(_ folders: [VBSharedFolder], persist: () throws -> Void) throws {
+        guard !VirtualBuddyManagedPreferences.sharedFoldersDisabled else {
+            throw Failure("Shared folders are disabled by your organization.")
+        }
+        let vm = try ensureVM()
+        guard vm.state == .running || vm.state == .paused, let device = sharedFoldersDevice else {
+            throw Failure("Shared folders can't be changed in the virtual machine's current state.")
+        }
+
+        var configuration = runtimeModel.configuration
+        configuration.sharedFolders = folders
+        let share = try configuration.makeSharedFoldersShare(preferences: VirtualBuddyManagedPreferences.schema.reader())
+        try persist()
+        device.share = share
+        runtimeModel.configuration.sharedFolders = folders
+        virtualMachineModel.configuration.sharedFolders = folders
+    }
+
+    private func enforceSharedFoldersPolicy() {
+        guard let device = sharedFoldersDevice else { return }
+        if VirtualBuddyManagedPreferences.sharedFoldersDisabled {
             device.share = nil
             logger.notice("Host folder sharing disconnected by DisableSharedFolders")
+        } else {
+            do {
+                device.share = try runtimeModel.configuration.makeSharedFoldersShare(preferences: VirtualBuddyManagedPreferences.schema.reader())
+            } catch {
+                device.share = nil
+                logger.error("Unable to restore shared folders: \(error, privacy: .public)")
+            }
         }
     }
-    
+
     func stop() async throws {
         logger.debug(#function)
 

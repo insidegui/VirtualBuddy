@@ -110,6 +110,16 @@ public struct VirtualMachineSessionView: View {
                 ToolbarSpacer(.fixed)
             }
 
+            ToolbarItem(placement: .primaryAction) {
+                Button {
+                    ui.openLiveConfiguration()
+                } label: {
+                    Label("Virtual Machine Settings", systemImage: "gearshape")
+                }
+                .help("Change settings for the running virtual machine")
+                .disabled(!controller.canEditLiveConfiguration)
+            }
+
             ToolbarItemGroup(placement: .primaryAction) {
                 VirtualMachineStateControls()
             }
