@@ -21,7 +21,14 @@
       "mobileDeviceMinVersion" : "1810.0.0",
       "osVersion" : "26.0.0",
       "title" : "Device Support Update Required"
-    }
+    },
+        {
+            "id": "device_support_macOS27",
+            "instructions": "Installing this version requires a Mac running macOS 26 or later with compatible Device Support.\n\nThis requirement only applies to installing a new macOS 27 virtual machine from scratch. If you have an existing macOS virtual machine, you can upgrade it to macOS 27 in System Settings → General → Software Update inside the virtual machine.\n\nYou can find instructions for how to enable macOS beta updates inside a virtual machine in the VirtualBuddy repository on GitHub.",
+            "mobileDeviceMinVersion": "1853.0.0",
+            "osVersion": "27.0.0",
+            "title": "A Mac running macOS 26 or later with compatible device support is required"
+        }
   ],
   "features" : [
     {
