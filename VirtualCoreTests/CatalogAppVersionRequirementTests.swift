@@ -52,6 +52,26 @@ struct CatalogAppVersionRequirementTests {
         #expect(resolved.status.isSupported)
     }
 
+    @Test func hostRequirementTakesPrecedenceUntilHostMeetsMinimum() {
+        let support = CatalogDeviceSupportVersion(id: "support", mobileDeviceMinVersion: "1853", osVersion: "27",
+                                                  title: "Device Support Update Required", instructions: "Install the device support update.")
+        let requirements = RequirementSet(id: "mac27", minCPUCount: 2, minMemorySizeMB: 4096, minVersionHost: "26")
+        let image = RestoreImage(id: "test", group: "test", channel: "test", requirements: requirements.id, name: "macOS 27",
+                                 build: "test", version: "27", mobileDeviceMinVersion: support.mobileDeviceMinVersion,
+                                 url: URL(fileURLWithPath: "/test.ipsw"), downloadSize: nil)
+        var resolved = ResolvedRestoreImage(image: image, channel: .init(id: "test", name: "Test", note: "", icon: "desktopcomputer"),
+                                            features: [], requirements: .init(requirements: requirements, status: .supported),
+                                            status: .supported, localFileURL: nil, deviceSupportVersion: support, legacyGuestAppVersion: nil)
+
+        resolved.update(with: environment(hostVersion: "15"))
+        #expect(resolved.status.isUnsupported)
+        #expect(resolved.status.title == "Requires macOS \(requirements.minVersionHost.shortDescription) or later on this Mac")
+        #expect(resolved.status.message?.contains(support.instructions) == true)
+
+        resolved.update(with: environment(hostVersion: "26"))
+        #expect(resolved.status == .unsupported(title: support.title, message: support.instructions))
+    }
+
     @Test func appUpdateRemainsVisibleAlongsideDeviceSupportAndCanBeResolvedAgain() {
         let image = RestoreImage(id: "test", group: "test", channel: "test", requirements: "test", name: "Test OS", build: "test",
                                  version: "15", mobileDeviceMinVersion: "1000", url: URL(fileURLWithPath: "/test.ipsw"), downloadSize: nil)

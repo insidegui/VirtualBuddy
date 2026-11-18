@@ -318,7 +318,7 @@ struct RestoreImageFeatureDetailView: View {
                     if let title {
                         Text(title)
                     } else {
-                        Text("This Version May Not Work")
+                        Text(image.status.topLevelTitle)
                     }
                 }
                     .imageScale(.large)
@@ -392,7 +392,7 @@ extension ResolvedFeatureStatus {
         switch self {
         case .supported: "This Version Should Work"
         case .warning: "This Version May Not Work"
-        case .unsupported: "This Version Will Not Work"
+        case .unsupported: "This version can’t be installed on this Mac."
         }
     }
 
