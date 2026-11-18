@@ -248,15 +248,12 @@ public extension ResolvedRestoreImage {
 
         requirements.update(with: versionedEnvironment)
 
-        /// Keep app update actions visible while preserving any device support instructions.
-        /// Otherwise, only override the status with a more important requirement.
-        if requirements.requiredAppUpdate != nil {
+        // App and host requirements take precedence in the picker row.
+        if requirements.status.isUnsupported {
             status = .unsupported(
                 title: requirements.status.title,
                 message: [requirements.status.message, status.message].compactMap { $0 }.joined(separator: "\n\n")
             )
-        } else if requirements.status.isMoreImportant(than: status) {
-            status = requirements.status
         }
     }
 }
@@ -385,7 +382,8 @@ extension ResolvedFeatureStatus {
     }
 
     static func unsupportedHost(_ requirements: RequirementSet) -> Self {
-        .unsupportedHost(requirements.minVersionHost)
+        .unsupported(title: "Requires macOS \(requirements.minVersionHost.shortDescription) or later on this Mac",
+                     message: "Update macOS on this Mac to install this version.")
     }
 
     static func unsupportedHost(_ minVersionHost: SoftwareVersion, detail: String? = nil) -> Self {
