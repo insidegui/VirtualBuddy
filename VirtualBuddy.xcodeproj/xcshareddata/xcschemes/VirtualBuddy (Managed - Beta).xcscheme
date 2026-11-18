@@ -57,7 +57,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceBuiltInSoftwareCatalog YES"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBDisableMemoryLeakAssertions YES"
@@ -77,7 +77,7 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBForceVirtualInstallationBackend YES"
-            isEnabled = "YES">
+            isEnabled = "NO">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBSimulateInstallFailure YES"
@@ -85,6 +85,14 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "-VBAllowAllGuestAppVersions YES"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateHostVersion 14.0"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "-VBSimulateMobileDeviceVersion 1700.0"
             isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
