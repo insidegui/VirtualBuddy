@@ -121,7 +121,7 @@ public struct VMInstallationWizard: View {
             }
         }
         .frame(minWidth: 800, maxWidth: .infinity, minHeight: 600, maxHeight: .infinity)
-        .virtualBuddyBottomBar(hidden: hideBottomBar) { bottomBar }
+        .virtualBuddyVariableBlurBar(edge: .bottom, hidden: hideBottomBar) { bottomBar }
         .background {
             BlurHashFullBleedBackground(blurHash: viewModel.data.backgroundHash)
                 .fullBleedBackgroundDimmed(dimBackground)

@@ -48,6 +48,7 @@ struct RestoreImageBrowser: View {
                 scrollView
             }
         }
+        .modifier(CatalogScrollViewport())
         .safeAreaInset(edge: .top, spacing: 0) { Color.clear.frame(height: containerPadding) }
         .safeAreaInset(edge: .bottom, spacing: 0) { Color.clear.frame(height: containerPadding) }
         .focusable()

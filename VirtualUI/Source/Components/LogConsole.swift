@@ -52,7 +52,7 @@ struct LogConsole: View {
                 guard !oldValue, newValue else { return }
                 proxy.scrollTo("BOTTOM", anchor: .bottom)
             }
-            .virtualBuddyBottomBar { bottomBar }
+            .virtualBuddyVariableBlurBar(edge: .bottom) { bottomBar }
             .overlay(alignment: .topTrailing) {
                 Toggle(isOn: $autoscroll) {
                     Label("Scroll automatically", systemImage: "chevron.up.chevron.down")
