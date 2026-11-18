@@ -140,6 +140,7 @@ struct LibraryItemView: View {
         .background(Material.regular, in: backgroundShape)
         .highlightBorder(backgroundShape, color: .accentColor, opacity: isHighlighted ? 0.9 : 0.2)
         .clipShape(backgroundShape)
+        .contentShape(backgroundShape)
         .containerShape(backgroundShape)
         .shadow(color: Color.black.opacity(0.14), radius: 12)
         .shadow(color: Color.black.opacity(0.56), radius: 1)
