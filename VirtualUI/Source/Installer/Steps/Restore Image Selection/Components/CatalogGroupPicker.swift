@@ -44,6 +44,7 @@ struct CatalogGroupPicker: View {
             .padding([.top, .leading, .bottom], containerPadding)
             .padding(.trailing, containerPadding * 0.5)
         }
+        .modifier(CatalogScrollViewport())
         .focusable()
         .focused($focus, equals: RestoreImageSelectionFocus.groups)
         .backported_focusEffectDisabled()

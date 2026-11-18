@@ -56,7 +56,7 @@ public struct VMConfigurationSheet: View {
                 .frame(maxWidth: .infinity)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .virtualBuddyBottomBar { buttons }
+        .virtualBuddyVariableBlurBar(edge: .bottom) { buttons }
         .resizableSheet(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
 
