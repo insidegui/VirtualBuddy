@@ -135,7 +135,11 @@ struct RestoreImageBrowser: View {
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(.red.opacity(0.15), in: RoundedRectangle(cornerRadius: 12))
+                    .airMaterialBackground(
+                        visualEffect: .material(.thick),
+                        glassEffect: .regular,
+                        in: RoundedRectangle(cornerRadius: 12)
+                    )
                 }
                 ForEach(controller.channelGroups) { group in
                     section(for: group, showsUnsupportedTitle: warning == nil)
