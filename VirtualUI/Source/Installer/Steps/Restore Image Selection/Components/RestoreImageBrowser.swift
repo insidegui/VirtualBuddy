@@ -400,7 +400,7 @@ extension ResolvedFeatureStatus {
         switch self {
         case .supported: "checkmark"
         case .warning: "exclamationmark.triangle"
-        case .unsupported: "xmark"
+        case .unsupported: "exclamationmark.octagon"
         }
     }
 
