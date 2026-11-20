@@ -1,4 +1,5 @@
 import SwiftUI
+import VirtualCore
 
 struct DeveloperSettingsView: View {
     @Binding var isEnabled: Bool
@@ -11,11 +12,10 @@ struct DeveloperSettingsView: View {
                 Text("Run and debug macOS apps from Xcode in your virtual machines.")
             }
 
-            if isEnabled {
-                DebugCacheSettings()
-            }
+            DebugCacheSettings(showWhenEmpty: isEnabled)
         }
         .navigationTitle(Text("Developer"))
+        .onAppear { DebugSymbolCache.shared.reload() }
     }
 }
 
