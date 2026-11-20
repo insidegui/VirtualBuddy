@@ -12,80 +12,55 @@ import BuddyUI
 struct GeneralSettingsView: View {
     @Binding var settings: VBSettings
     @Binding var enableAutomaticUpdates: Bool
-    @Binding var alert: AlertContent
-
-    @State private var libraryPathText = ""
-
-    private var libraryPath: String { settings.libraryURL.absoluteURL.path(percentEncoded: false) }
+    @State private var alert = AlertContent()
 
     var body: some View {
-        Form {
-            Section {
-                FileSystemPathFormControl(url: settings.libraryURL, contentTypes: [.folder], defaultDirectoryKey: "library") { newURL in
-                    setLibraryPath(to: newURL.path)
-                }
-            } header: {
-                Text("Storage")
-            } footer: {
-                Text("VirtualBuddy saves your virtual machines and downloaded installer images here.")
-                    .settingsFooterStyle()
+        SettingsPane {
+            SettingsRow("Library location:") {
+                FileSystemPathFormControl(
+                    url: settings.libraryURL,
+                    contentTypes: [.folder],
+                    defaultDirectoryKey: "library",
+                    setURL: setLibraryURL
+                )
+                SettingsCaption("VirtualBuddy saves your virtual machines and downloaded installer images here.")
             }
 
-            Section {
+            SettingsDivider()
+
+            SettingsRow("When closing a VM:") {
                 Picker("When closing a running virtual machine", selection: $settings.closeBehavior) {
                     ForEach(VMCloseBehavior.allCases) { behavior in
                         Text(behavior.title)
                             .tag(behavior)
                     }
                 }
-            } header: {
-                Text("Closing Virtual Machines")
-            } footer: {
-                Text("Save state keeps the virtual machine as it is so that it continues where you left off. This feature is only available for macOS guests.")
-                    .settingsFooterStyle()
+                .labelsHidden()
+                .fixedSize()
+                SettingsCaption("Save state lets you resume where you left off. This option is available only for macOS guests.")
             }
 
-            Section {
+            SettingsDivider()
+
+            SettingsRow("App updates:") {
                 Toggle("Automatically check for updates", isOn: $enableAutomaticUpdates)
-
-                betaSection
-            } header: {
-                Text("App Updates")
+            }
+            SettingsRow("Beta updates:") {
+                if settings.updateChannel == .beta {
+                    Button("Disable Beta Updates", action: confirmDisableBeta)
+                } else {
+                    Button("Join Beta…", action: confirmJoinBeta)
+                }
             }
         }
-        .navigationTitle(Text("General"))
-        .task(id: settings.libraryURL.path) {
-            libraryPathText = settings.libraryURL.path
-        }
+        .alert($alert)
     }
 
-    private func setLibraryPath(to newValue: String) {
-        let url = URL(fileURLWithPath: newValue)
-
+    private func setLibraryURL(_ url: URL) {
         if let errorMessage = url.performWriteTest() {
-            libraryPathText = settings.libraryURL.path
-
             alert = AlertContent(errorMessage)
         } else {
             settings.libraryURL = url
-            libraryPathText = url.path
-
-            alert = .init()
-        }
-    }
-
-    @ViewBuilder
-    private var betaSection: some View {
-        LabeledContent("Beta Updates") {
-            if settings.updateChannel == .beta {
-                Button("Disable") {
-                    confirmDisableBeta()
-                }
-            } else {
-                Button("Join Beta") {
-                    confirmJoinBeta()
-                }
-            }
         }
     }
 
@@ -155,12 +130,6 @@ extension URL {
             return "VirtualBuddy is unable to write files to the directory \(lastPathComponent). Please check the permissions for that directory or choose a different one."
         }
     }
-}
-
-struct LibraryPathError: LocalizedError {
-    var errorDescription: String?
-
-    init(_ msg: String) { self.errorDescription = msg }
 }
 
 #if DEBUG

@@ -18,14 +18,13 @@ struct VirtualBuddyApp: App {
     var appDelegate: VirtualBuddyAppDelegate
 
     private var settingsContainer: VBSettingsContainer { appDelegate.settingsContainer }
-    private var updateController: SoftwareUpdateController { appDelegate.updateController }
     private var library: VMLibraryController { appDelegate.library }
     private var sessionManager: VirtualMachineSessionUIManager { appDelegate.sessionManager }
 
     @Environment(\.openWindow)
     private var openWindow
 
-    @StateObject private var updatesController = SoftwareUpdateController.shared
+    @StateObject private var updateController = SoftwareUpdateController.shared
 
     private let mainWindowTitle: String = Bundle.main.vbFullVersionDescription
 
@@ -41,7 +40,6 @@ struct VirtualBuddyApp: App {
 
                     sessionManager.open(fileURL: url, library: library)
                 }
-                .environment(\.openVirtualBuddySettings, appDelegate.openSettingsAction)
                 .background { TransparentWindowTitleBarView() }
                 .onReceive(NotificationCenter.default.publisher(for: .openVirtualBuddyLibraryWindow)) { _ in
                     openLibraryWindow()
@@ -56,13 +54,6 @@ struct VirtualBuddyApp: App {
                 }
             }
             #endif
-
-            CommandGroup(replacing: .appSettings) {
-                Button("Settings…") {
-                    appDelegate.openSettingsAction()
-                }
-                .keyboardShortcut(",", modifiers: .command)
-            }
 
             CommandMenu("Guest") {
                 VirtualMachineGuestCommands()
@@ -82,6 +73,15 @@ struct VirtualBuddyApp: App {
             }
         }
         .handlesExternalEvents(matching: ["*"])
+
+        Settings {
+            SettingsScreen(
+                enableAutomaticUpdates: $updateController.automaticUpdatesEnabled,
+                deepLinkSentinel: DeepLinkHandler.shared.sentinel
+            )
+            .environmentObject(settingsContainer)
+        }
+        .windowResizability(.contentSize)
     }
 
     private func openLibraryWindow() {

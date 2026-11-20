@@ -35,7 +35,7 @@ public struct LibraryView: View {
     @Environment(\.openCocoaWindow)
     private var openCocoaWindow
 
-    @Environment(\.openVirtualBuddySettings)
+    @Environment(\.openSettings)
     private var openSettings
 
     /// Whether the first launch experience has been presented in the current app session.
