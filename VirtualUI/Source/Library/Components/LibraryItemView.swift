@@ -88,6 +88,7 @@ struct LibraryItemView: View {
     var nameFieldFocus = BoolSubject()
 
     @State private var configurationVM: VBVirtualMachine?
+    @State private var showingXcodeDebugSetup = false
     @Environment(\.openCocoaWindow) private var openCocoaWindow
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
@@ -151,6 +152,9 @@ struct LibraryItemView: View {
                 .environmentObject(library)
                 .environment(library.templatesController)
         }
+        .sheet(isPresented: $showingXcodeDebugSetup) {
+            XcodeDebugSetupSheet(vmID: vm.uuid, vmName: vm.name)
+        }
         .task(id: vm.name) { self.name = vm.name }
         .animation(isPressed ? .linear(duration: 0) : .snappy, value: isPressed)
     }
@@ -196,7 +200,7 @@ struct LibraryItemView: View {
         .disabled(hasOpenSession || isDuplicating)
 
         if vm.configuration.systemType == .mac {
-            Button("Set Up Xcode Debugging…") { XcodeDebugSetup.show(for: vm) }
+            Button("Set Up Xcode Debugging…") { showingXcodeDebugSetup = true }
                 .disabled(vm.needsInstall || isDuplicating)
         }
 

@@ -67,7 +67,7 @@ The latest VirtualBuddyGuest app requires macOS 14 or later and supports clipboa
 
 VirtualBuddy can help you set up an Xcode project so that you can run and debug a Mac app in a virtual machine, similar to how you can build and run an app to an iPhone or iOS Simulator.
 
-In the VirtualBuddy library, right-click a virtual machine and choose **Set Up Xcode Debugging…**. Select the app’s project or workspace and its scheme. If prompted, enable Custom LLDB Commands and relaunch Xcode. Choose the generated **App — VM** scheme with **My Mac** as the destination, then press **⌘R**.
+In the VirtualBuddy library, right-click a virtual machine and choose **Set Up Xcode Debugging…**. In the setup sheet, choose the app’s project or workspace and its app scheme. Enable **Custom LLDB Commands** if needed, then click **Create Scheme**. If you enabled the setting, relaunch Xcode. Choose the generated **App — VM** scheme with **My Mac** as the destination, then press **⌘R**.
 
 The guest needs the current VirtualBuddyGuest app running in a logged-in desktop session and Apple’s Command Line Tools or Xcode installed. Build a signed arm64 macOS app with the Debug configuration and the `com.apple.security.get-task-allow` entitlement, which is added by default in debug builds with Xcode.
 
