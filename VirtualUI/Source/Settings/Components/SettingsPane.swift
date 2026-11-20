@@ -18,17 +18,15 @@ struct SettingsPane<Rows: View>: View {
 
 struct SettingsRow<Content: View>: View {
     private let label: LocalizedStringKey
-    private let alignment: VerticalAlignment
     private let content: Content
 
-    init(_ label: LocalizedStringKey, alignment: VerticalAlignment = .firstTextBaseline, @ViewBuilder content: () -> Content) {
+    init(_ label: LocalizedStringKey, @ViewBuilder content: () -> Content) {
         self.label = label
-        self.alignment = alignment
         self.content = content()
     }
 
     var body: some View {
-        GridRow(alignment: alignment) {
+        GridRow {
             Text(label, bundle: #bundle)
                 .multilineTextAlignment(.trailing)
                 .gridColumnAlignment(.trailing)
@@ -68,20 +66,60 @@ struct SettingsCaption: View {
 /// Lets a short list fit its contents while keeping long lists within the pane.
 struct SettingsItemList<Rows: View>: View {
     @ViewBuilder var rows: Rows
-    @State private var viewportHeight: CGFloat?
+    @Environment(\.displayScale) private var displayScale
+    @State private var metrics: ContentMetrics?
+
+    private struct ContentMetrics: Equatable {
+        let viewportHeight: CGFloat
+        let firstBaseline: CGFloat?
+    }
 
     var body: some View {
+        let outline = RoundedRectangle(cornerRadius: 8)
+        let firstBaseline = metrics?.firstBaseline
+
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
                 rows
             }
             .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(4)
-            .onGeometryChange(for: CGFloat.self, of: { min($0.size.height, 220) }) {
-                viewportHeight = $0
+            .padding(8)
+            // Measure in the padded content so scrolling doesn't move the form label.
+            .backgroundPreferenceValue(FirstListTitleBaseline.self) { anchor in
+                Color.clear.onGeometryChange(for: ContentMetrics.self) { geometry in
+                    ContentMetrics(
+                        viewportHeight: min(geometry.size.height, 220),
+                        firstBaseline: anchor.map { geometry[$0].y }
+                    )
+                } action: { metrics = $0 }
             }
         }
         .scrollBounceBehavior(.basedOnSize)
-        .frame(height: viewportHeight)
+        .frame(height: metrics?.viewportHeight)
+        .background(.quinary)
+        .clipShape(outline)
+        .overlay {
+            outline.strokeBorder(.separator, lineWidth: 1 / displayScale)
+                .allowsHitTesting(false)
+        }
+        .alignmentGuide(.firstTextBaseline) { firstBaseline ?? $0[.firstTextBaseline] }
+    }
+}
+
+private enum FirstListTitleBaseline: PreferenceKey {
+    static var defaultValue: Anchor<CGPoint>? { nil }
+
+    static func reduce(value: inout Anchor<CGPoint>?, nextValue: () -> Anchor<CGPoint>?) {
+        value = value ?? nextValue()
+    }
+}
+
+extension Text {
+    func settingsListItemTitle() -> some View {
+        overlay(alignment: .leadingFirstTextBaseline) {
+            Color.clear
+                .frame(width: 0, height: 0)
+                .anchorPreference(key: FirstListTitleBaseline.self, value: .topLeading) { $0 }
+        }
     }
 }

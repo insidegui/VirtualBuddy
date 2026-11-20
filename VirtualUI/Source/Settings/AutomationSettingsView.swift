@@ -19,11 +19,12 @@ struct AutomationSettingsView: View {
 
     var body: some View {
         SettingsPane {
-            SettingsRow("App access:", alignment: .top) {
-                if descriptors.isEmpty {
-                    Text("No apps have requested access.")
-                } else {
-                    SettingsItemList {
+            SettingsRow("App access:") {
+                SettingsItemList {
+                    if descriptors.isEmpty {
+                        Text("No apps have requested access.")
+                            .settingsListItemTitle()
+                    } else {
                         ForEach(descriptors) { descriptor in
                             Toggle(isOn: toggleBinding(for: descriptor)) {
                                 HStack(spacing: 6) {
@@ -34,6 +35,7 @@ struct AutomationSettingsView: View {
                                         .accessibilityHidden(true)
 
                                     Text(descriptor.displayName)
+                                        .settingsListItemTitle()
                                 }
                             }
                         }

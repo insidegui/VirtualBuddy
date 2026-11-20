@@ -47,15 +47,17 @@ struct DebugCacheSettings: View {
         if showWhenEmpty || !cache.entries.isEmpty {
             SettingsDivider()
 
-            SettingsRow("Debugging symbols:", alignment: .top) {
-                if cache.entries.isEmpty {
-                    Text("No cached guest symbols")
-                } else {
-                    SettingsItemList {
+            SettingsRow("Debugging symbols:") {
+                SettingsItemList {
+                    if cache.entries.isEmpty {
+                        Text("No cached guest symbols")
+                            .settingsListItemTitle()
+                    } else {
                         ForEach(cache.entries) { entry in
                             HStack {
                                 VStack(alignment: .leading) {
                                     Text("macOS " + entry.system)
+                                        .settingsListItemTitle()
                                     Text(entry.bytes.formatted(.byteCount(style: .file)))
                                         .font(.callout)
                                         .foregroundStyle(.secondary)
