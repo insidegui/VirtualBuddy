@@ -7,7 +7,6 @@
 
 import SwiftUI
 import VirtualCore
-import BuddyUI
 import ManagedPreferencesUI
 
 struct VirtualizationSettingsView: View {
@@ -28,61 +27,39 @@ struct VirtualizationSettingsView: View {
     }
 
     var body: some View {
-        Form {
-            Section {
-                Toggle("Enable Apple Signing Status Check", isOn: $settings.enableTSSCheck)
-            } header: {
-                Text("Signing Check")
-            } footer: {
-                SettingsFooter {
-                    Text("Whether VirtualBuddy should verify macOS build signatures before downloading.")
-                } helpText: {
-                    Text("""
-                    With this enabled, VirtualBuddy will check if the selected macOS build is being signed by Apple \
-                    before attempting to download it.
-                    
-                    Unsigned builds can not be installed in virtual machines, so this saves time and bandwidth, \
-                    allowing you to choose another version before waiting for the entire download and install attempt.
-                    """)
-                }
+        SettingsPane {
+            SettingsRow("Signing status:") {
+                Toggle("Check with Apple before downloading macOS", isOn: $settings.enableTSSCheck)
+                SettingsCaption("VirtualBuddy can only install macOS builds that Apple is still signing. This check lets you choose another build before starting a download.")
             }
 
             if showBootImageFormatSection {
-                Section {
-                    Picker("Boot Image Format", selection: $settings.bootDiskImagesUseASIF) {
-                        Text("Most Efficient")
-                            .tag(true)
-                        Text("Most Compatible")
-                            .tag(false)
+                SettingsDivider()
+
+                SettingsRow("Boot disk format:") {
+                    HStack {
+                        Picker("Boot disk format", selection: $settings.bootDiskImagesUseASIF) {
+                            Text("Most Efficient").tag(true)
+                            Text("Most Compatible").tag(false)
+                        }
+                        .labelsHidden()
+                        .fixedSize()
+
+                        BootDiskFormatHelp()
                     }
-                } header: {
-                    Text("Disk Images")
-                } footer: {
-                    SettingsFooter {
-                        Text("Select the disk image format for new virtual machines")
-                    } helpText: {
-                        Text("""
-                        - **Most Efficient:** Uses the ASIF format. Requires macOS 26 or later on the host.
-                        
-                        - **Most Compatible:** Uses a raw image format, supported by all macOS versions.
-                        
-                        You should only change this setting if you plan on using the same virtual machines in hosts \
-                        that are on macOS 15 or earlier.
-                        """)
-                    }
+                    SettingsCaption("Applies to boot disks created for new virtual machines.")
                 }
             }
-            Section {
+
+            SettingsDivider()
+
+            SettingsRow("Device management:") {
                 Button("Managed Preferences…") {
                     showingManagedPreferences = true
                 }
-            } header: {
-                Text("Device Management")
-            } footer: {
-                Text("View the controls available to administrators and export their documentation or profile manifest.")
+                SettingsCaption("View the controls available to administrators and export their documentation or profile manifest.")
             }
         }
-        .navigationTitle(Text("Virtualization"))
         .sheet(isPresented: $showingManagedPreferences) {
             VStack(spacing: 0) {
                 ManagedPreferencesDocumentationView(VirtualBuddyManagedPreferences.schema)
@@ -96,6 +73,24 @@ struct VirtualizationSettingsView: View {
             }
             .frame(width: 760, height: 520)
         }
+    }
+}
+
+private struct BootDiskFormatHelp: View {
+    @State private var isPresented = false
+
+    var body: some View {
+        HelpLink { isPresented.toggle() }
+            .accessibilityLabel("About boot disk formats")
+            .popover(isPresented: $isPresented) {
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("**Most Efficient** uses the ASIF format and requires macOS 26 or later on the host.")
+                    Text("**Most Compatible** uses a raw disk image. Choose this if you also run the virtual machine on a host with macOS 15 or earlier.")
+                }
+                .padding()
+                .frame(width: 300)
+                .fixedSize(horizontal: false, vertical: true)
+            }
     }
 }
 

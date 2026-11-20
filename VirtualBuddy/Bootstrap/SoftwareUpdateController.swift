@@ -33,14 +33,6 @@ final class SoftwareUpdateController: NSObject, ObservableObject {
         }
     }
 
-    var automaticUpdatesBinding: Binding<Bool> {
-        Binding { [self] in
-            automaticUpdatesEnabled
-        } set: { [self] newValue in
-            automaticUpdatesEnabled = newValue
-        }
-    }
-
     #if ENABLE_SPARKLE
     private lazy var updateController: SPUStandardUpdaterController = {
         SPUStandardUpdaterController(

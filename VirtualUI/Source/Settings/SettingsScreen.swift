@@ -8,7 +8,6 @@
 import SwiftUI
 import VirtualCore
 import DeepLinkSecurity
-import BuddyUI
 
 public enum SettingsTab: Int, Identifiable, CaseIterable {
     public var id: RawValue { rawValue }
@@ -40,7 +39,7 @@ public struct SettingsScreen: View {
 
     @EnvironmentObject private var container: VBSettingsContainer
     @Binding private var enableAutomaticUpdates: Bool
-    private var deepLinkSentinel: () -> DeepLinkSentinel
+    private let deepLinkSentinel: () -> DeepLinkSentinel
 
     public init(previewTab: SettingsTab? = nil, enableAutomaticUpdates: Binding<Bool>, deepLinkSentinel: @escaping @autoclosure () -> DeepLinkSentinel) {
         self._enableAutomaticUpdates = enableAutomaticUpdates
@@ -51,58 +50,38 @@ public struct SettingsScreen: View {
         #endif
     }
 
-    @State private var alert = AlertContent()
-
     @AppStorage(kSelectedTabKey)
     private var selectedTab: SettingsTab = .general
 
-    public static var width: CGFloat { 640 }
-    public static var minHeight: CGFloat { 430 }
-
     public var body: some View {
-        NavigationSplitView {
-            List(selection: $selectedTab) {
-                ForEach(SettingsTab.allCases) { tab in
-                    NavigationLink(value: tab) {
-                        tab.label
-                    }
-                }
-            }
-            .toolbarRemovingSidebarToggle()
-            .toolbar {
-                // HACK! Don't want sidebar toggle, but want the toolbar visible
-                Button("") { }
-                    .opacity(0)
-                    .accessibilityHidden(true)
-            }
-            .navigationSplitViewColumnWidth(160)
-        } detail: {
-            switch selectedTab {
-            case .general:
-                GeneralSettingsView(
-                    settings: $container.settings,
-                    enableAutomaticUpdates: $enableAutomaticUpdates,
-                    alert: $alert
-                )
-            case .virtualization:
-                VirtualizationSettingsView(
-                    settings: $container.settings
-                )
-            case .automation:
-                AutomationSettingsView()
-                    .environmentObject(deepLinkSentinel())
-            case .developer:
-                DeveloperSettingsView(isEnabled: $container.settings.developerFeaturesEnabled)
+        TabView(selection: $selectedTab) {
+            ForEach(SettingsTab.allCases) { tab in
+                pane(for: tab)
+                    .tabItem { tab.label }
+                    .tag(tab)
             }
         }
-        .formStyle(.grouped)
-        .frame(minWidth: Self.width, maxWidth: Self.width, minHeight: Self.minHeight, maxHeight: .infinity)
-        .alert($alert)
+        .navigationTitle(Text("Settings", bundle: #bundle))
         .task {
             #if DEBUG
             guard let previewTab else { return }
             self.selectedTab = previewTab
             #endif
+        }
+    }
+
+    @ViewBuilder
+    private func pane(for tab: SettingsTab) -> some View {
+        switch tab {
+        case .general:
+            GeneralSettingsView(settings: $container.settings, enableAutomaticUpdates: $enableAutomaticUpdates)
+        case .virtualization:
+            VirtualizationSettingsView(settings: $container.settings)
+        case .automation:
+            AutomationSettingsView()
+                .environmentObject(deepLinkSentinel())
+        case .developer:
+            DeveloperSettingsView(isEnabled: $container.settings.developerFeaturesEnabled)
         }
     }
 }

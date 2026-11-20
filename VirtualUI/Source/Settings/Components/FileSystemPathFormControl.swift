@@ -8,44 +8,30 @@ struct FileSystemPathFormControl: View {
     var url: URL
     var contentTypes: Set<UTType>
     var defaultDirectoryKey: String
-    var label: Text = Text("Location")
-    var buttonLabel: Text = Text("Choose…")
     var setURL: (URL) -> ()
 
     @State private var isDraggingURL = false
 
     var body: some View {
-        LabeledContent {
-            HStack(alignment: .center, spacing: 4) {
-                Text(url.path)
-                    .lineLimit(1)
-                    .truncationMode(.middle)
-                    .help(url.path)
+        HStack(spacing: 8) {
+            Text(url.path)
+                .lineLimit(1)
+                .truncationMode(.middle)
+                .textSelection(.enabled)
+                .help(url.path)
 
-                Button {
-                    NSWorkspace.shared.activateFileViewerSelecting([url])
-                } label: {
-                    Image(systemName: "arrow.right")
-                }
-                .buttonStyle(.link)
-                .foregroundStyle(Color.accentColor)
-                .font(.subheadline.weight(.medium))
+            Button {
+                NSWorkspace.shared.activateFileViewerSelecting([url])
+            } label: {
+                Image(systemName: "arrow.right.circle")
             }
-        } label: {
-            HStack {
-                label
+            .buttonStyle(.borderless)
+            .accessibilityLabel("Reveal in Finder")
+            .help("Reveal in Finder")
 
-                Spacer()
-
-                Button {
-                    showOpenPanel()
-                } label: {
-                    buttonLabel
-                }
-                .controlSize(.small)
-            }
+            Button("Choose…", action: showOpenPanel)
+                .fixedSize()
         }
-        .labeledContentStyle(.vertical)
         .dropDestination(for: URL.self) { items, _ in
             guard items.count == 1 else { return false }
             guard let type = FilePath(items[0]).contentType else { return false }
@@ -68,7 +54,7 @@ struct FileSystemPathFormControl: View {
     }
 
     private func showOpenPanel() {
-        guard let newURL = NSOpenPanel.run(accepting: [.folder], directoryURL: url, defaultDirectoryKey: "library") else {
+        guard let newURL = NSOpenPanel.run(accepting: contentTypes, directoryURL: url, defaultDirectoryKey: defaultDirectoryKey) else {
             return
         }
 

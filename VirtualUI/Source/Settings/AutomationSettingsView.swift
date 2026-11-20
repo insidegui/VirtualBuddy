@@ -18,38 +18,30 @@ struct AutomationSettingsView: View {
     @State private var descriptors = [DeepLinkClientDescriptor]()
 
     var body: some View {
-        Form {
-            Section {
-                if descriptors.isEmpty {
-                    Text("Apps that try to control VirtualBuddy will show up here.")
-                        .foregroundStyle(.tertiary)
-                } else {
-                    ForEach(descriptors) { descriptor in
-                        Toggle(isOn: toggleBinding(for: descriptor)) {
-                            Label {
-                                Text(descriptor.displayName)
-                            } icon: {
-                                Image(nsImage: descriptor.icon.image)
-                                    .resizable()
-                                    .frame(width: 32, height: 32)
-                                    .aspectRatio(contentMode: .fit)
+        SettingsPane {
+            SettingsRow("App access:") {
+                SettingsItemList {
+                    if descriptors.isEmpty {
+                        Text("No apps have requested access.")
+                            .settingsListItemTitle()
+                    } else {
+                        ForEach(descriptors) { descriptor in
+                            Toggle(isOn: toggleBinding(for: descriptor)) {
+                                HStack(spacing: 6) {
+                                    Image(nsImage: descriptor.icon.image)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(width: 24, height: 24)
+                                        .accessibilityHidden(true)
+
+                                    Text(descriptor.displayName)
+                                        .settingsListItemTitle()
+                                }
                             }
                         }
                     }
                 }
-            } header: {
-                Text("Allow Apps to Control VirtualBuddy")
-            } footer: {
-                if !descriptors.isEmpty {
-                    SettingsFooter {
-                        Text("""
-                        These apps have previously tried to open a deep link in VirtualBuddy.
-                        
-                        When an app tries to open a deep link in VirtualBuddy for the first time, you'll be asked to grant permission. \
-                        Once you've allowed it, the app can open deep links without asking again.
-                        """)
-                    }
-                }
+                SettingsCaption("When an app first tries to control VirtualBuddy through a deep link, VirtualBuddy asks for permission. Apps you allow can open deep links without asking again.")
             }
         }
         .task {
@@ -57,7 +49,6 @@ struct AutomationSettingsView: View {
                 self.descriptors = descriptors
             }
         }
-        .navigationTitle(Text("Automation"))
     }
 
     private func toggleBinding(for descriptor: DeepLinkClientDescriptor) -> Binding<Bool> {

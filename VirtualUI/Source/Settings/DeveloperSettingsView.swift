@@ -9,21 +9,20 @@ struct DeveloperSettingsView: View {
     private var developerFeaturesDisabled: Bool
 
     var body: some View {
-        Form {
-            Section {
-                Toggle("Enable Developer Features", isOn: developerFeaturesDisabled ? .constant(false) : $isEnabled)
+        SettingsPane {
+            SettingsRow("Xcode debugging:") {
+                Toggle("Enable developer features", isOn: developerFeaturesDisabled ? .constant(false) : $isEnabled)
                     .disabled(developerFeaturesDisabled)
-            } footer: {
+
                 if developerFeaturesDisabled {
                     ManagedRestrictionBannerView(title: "Developer features are disabled by your organization.")
                 } else {
-                    Text("Run and debug macOS apps from Xcode in your virtual machines.")
+                    SettingsCaption("Run and debug macOS apps from Xcode in your virtual machines.")
                 }
             }
 
             DebugCacheSettings(showWhenEmpty: isEnabled && !developerFeaturesDisabled)
         }
-        .navigationTitle(Text("Developer"))
         .onAppear { DebugSymbolCache.shared.reload() }
     }
 }

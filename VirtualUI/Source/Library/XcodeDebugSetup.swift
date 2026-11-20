@@ -45,26 +45,37 @@ struct DebugCacheSettings: View {
 
     var body: some View {
         if showWhenEmpty || !cache.entries.isEmpty {
-            Section {
-                if cache.entries.isEmpty {
-                    Text("No cached guest symbols").foregroundStyle(.secondary)
-                }
-                ForEach(cache.entries) { entry in
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("macOS " + entry.system)
-                            Text(ByteCountFormatter.string(fromByteCount: entry.bytes, countStyle: .file)).foregroundStyle(.secondary)
+            SettingsDivider()
+
+            SettingsRow("Debugging symbols:") {
+                SettingsItemList {
+                    if cache.entries.isEmpty {
+                        Text("No cached guest symbols")
+                            .settingsListItemTitle()
+                    } else {
+                        ForEach(cache.entries) { entry in
+                            HStack {
+                                VStack(alignment: .leading) {
+                                    Text("macOS " + entry.system)
+                                        .settingsListItemTitle()
+                                    Text(entry.bytes.formatted(.byteCount(style: .file)))
+                                        .font(.callout)
+                                        .foregroundStyle(.secondary)
+                                }
+                                Spacer()
+                                Button("Delete") {
+                                    do {
+                                        try cache.remove(entry)
+                                    } catch {
+                                        NSApp.presentError(error)
+                                    }
+                                }
+                                .disabled(cache.isInUse(entry))
+                            }
                         }
-                        Spacer()
-                        Button("Delete") {
-                            do { try cache.remove(entry) } catch { NSApp.presentError(error) }
-                        }.disabled(cache.isInUse(entry))
                     }
                 }
-            } header: {
-                Text("Xcode Debugging Symbols", bundle: #bundle)
-            } footer: {
-                Text("Xcode uses these symbols to show function names from the VM’s system libraries in stack traces. If you delete them, VirtualBuddy rebuilds the cache the next time you debug that macOS build.", bundle: #bundle)
+                SettingsCaption("Xcode uses these symbols to show function names from the VM’s system libraries in stack traces. If you delete them, VirtualBuddy rebuilds the cache the next time you debug that macOS build.")
             }
         }
     }
