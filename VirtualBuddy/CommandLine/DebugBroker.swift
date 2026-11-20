@@ -68,6 +68,9 @@ final class DebugBroker {
     private func serve(_ socket: DebugSocket) async {
         do {
             let build = try await socket.receive(DebugBuild.self)
+            guard VBSettings.current.developerFeaturesEnabled else {
+                throw VBDebugError("Enable Developer Features in VirtualBuddy Settings → Developer to run this Xcode scheme.")
+            }
             guard runs[build.vm] == nil else { throw VBDebugError("A debug run is active in this VM. Stop it in Xcode before launching again.") }
             let run = UUID()
             runs[build.vm] = run

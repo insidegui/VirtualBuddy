@@ -16,6 +16,7 @@ public enum SettingsTab: Int, Identifiable, CaseIterable {
     case general
     case virtualization
     case automation
+    case developer
 }
 
 extension SettingsTab {
@@ -24,6 +25,7 @@ extension SettingsTab {
         case .general: Label("General", systemImage: "gear")
         case .virtualization: Label("Virtualization", systemImage: "cpu")
         case .automation: Label("Automation", systemImage: "rectangle.grid.1x2")
+        case .developer: Label("Developer", systemImage: "hammer")
         }
     }
 }
@@ -89,6 +91,8 @@ public struct SettingsScreen: View {
             case .automation:
                 AutomationSettingsView()
                     .environmentObject(deepLinkSentinel())
+            case .developer:
+                DeveloperSettingsView(isEnabled: $container.settings.developerFeaturesEnabled)
             }
         }
         .formStyle(.grouped)

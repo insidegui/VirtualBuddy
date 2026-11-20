@@ -128,7 +128,11 @@ public struct LibraryView: View {
                         Button {
                             sessionManager.launch(vm, library: library, options: nil)
                         } label: {
-                            LibraryItemView(vm: vm, name: vm.name)
+                            LibraryItemView(
+                                vm: vm,
+                                name: vm.name,
+                                developerFeaturesEnabled: settingsContainer.settings.developerFeaturesEnabled
+                            )
                         }
                         .buttonStyle(.vbLibraryItem)
                         .environmentObject(library)

@@ -47,8 +47,6 @@ struct VirtualizationSettingsView: View {
                 }
             }
 
-            DebugCacheSettings()
-
             if showBootImageFormatSection {
                 Section {
                     Picker("Boot Image Format", selection: $settings.bootDiskImagesUseASIF) {
