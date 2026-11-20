@@ -68,9 +68,7 @@ final class DebugBroker {
     private func serve(_ socket: DebugSocket) async {
         do {
             let build = try await socket.receive(DebugBuild.self)
-            guard VBSettings.current.developerFeaturesEnabled else {
-                throw VBDebugError("Enable Developer Features in VirtualBuddy Settings → Developer to run this Xcode scheme.")
-            }
+            try VBSettings.current.requireDeveloperFeatures()
             guard runs[build.vm] == nil else { throw VBDebugError("A debug run is active in this VM. Stop it in Xcode before launching again.") }
             let run = UUID()
             runs[build.vm] = run
@@ -123,6 +121,7 @@ final class DebugBroker {
             let zip = FileManager.default.temporaryDirectory.appendingPathComponent(run.uuidString + ".zip")
             defer { try? FileManager.default.removeItem(at: zip) }
             try await DebugTools.run(URL(fileURLWithPath: "/usr/bin/ditto"), ["-c", "-k", "--sequesterRsrc", "--keepParent", build.product.path, zip.path])
+            try VBSettings.current.requireDeveloperFeatures()
             let endpoint = try await session.launchDebugApp(zip, options: build.options, run: run)
             let connection = try await ui.controller.connectDebugger(to: endpoint.port)
             let remote = try DebugSocket(owning: dup(connection.fileDescriptor))

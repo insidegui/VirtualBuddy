@@ -135,6 +135,7 @@ struct XcodeDebugSetupSheet: View {
 
     private func enableCommands() {
         do {
+            try VBSettings.current.requireDeveloperFeatures()
             if !CustomLLDBCommands.isEnabled {
                 try CustomLLDBCommands.enable()
                 needsXcodeRelaunch = true
@@ -151,6 +152,7 @@ struct XcodeDebugSetupSheet: View {
         commandsEnabled = CustomLLDBCommands.isEnabled
         guard commandsEnabled else { return }
         do {
+            try VBSettings.current.requireDeveloperFeatures()
             createdScheme = try choice.scheme.install(vm: vmID, named: vmName, app: Bundle.main.bundleURL)
             errorMessage = nil
         } catch {

@@ -7,6 +7,7 @@
 
 import SwiftUI
 import VirtualCore
+import ManagedPreferencesUI
 
 public extension String {
     static let vb_libraryWindowID = "library"
@@ -25,6 +26,8 @@ private extension UserDefaults {
 
 public struct LibraryView: View {
     @ObservedObject private var settingsContainer = VBSettingsContainer.current
+    @ManagedValue(for: .disableDeveloperFeatures, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var developerFeaturesDisabled: Bool
 
     @EnvironmentObject private var library: VMLibraryController
     @EnvironmentObject private var sessionManager: VirtualMachineSessionUIManager
@@ -131,7 +134,7 @@ public struct LibraryView: View {
                             LibraryItemView(
                                 vm: vm,
                                 name: vm.name,
-                                developerFeaturesEnabled: settingsContainer.settings.developerFeaturesEnabled
+                                developerFeaturesEnabled: settingsContainer.settings.developerFeaturesEnabled && !developerFeaturesDisabled
                             )
                         }
                         .buttonStyle(.vbLibraryItem)

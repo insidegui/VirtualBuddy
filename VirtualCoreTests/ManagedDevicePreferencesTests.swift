@@ -81,18 +81,43 @@ struct ManagedDevicePreferencesTests {
         #expect(configuration.guestAdditionsEnabled)
     }
 
+    @Test(arguments: [true, false])
+    func developerRestrictionOverridesAndPreservesUserChoice(userEnabled: Bool) throws {
+        var settings = VBSettings()
+        settings.developerFeaturesEnabled = userEnabled
+
+        #expect {
+            try settings.requireDeveloperFeatures(preferences: reader(["DisableDeveloperFeatures": true]))
+        } throws: { error in
+            error.localizedDescription == "Developer features are disabled by your organization."
+        }
+        #expect(settings.developerFeaturesEnabled == userEnabled)
+
+        for values in [[:], ["DisableDeveloperFeatures": false]] {
+            if userEnabled {
+                try settings.requireDeveloperFeatures(preferences: reader(values))
+            } else {
+                #expect(throws: Failure.self) {
+                    try settings.requireDeveloperFeatures(preferences: reader(values))
+                }
+            }
+        }
+    }
+
     @Test func allRestrictionsAreDocumentedAndDefaultToUnrestricted() throws {
         let schema = VirtualBuddyManagedPreferences.schema
         let expectedKeys: Set<String> = [
             "DisableSharedFolders", "DisableGuestApp", "DisableUSBPassthrough",
             "DisableBridgedNetworking", "DisableMicrophoneInput",
-            "DisableProvisioningRemoteLogin", "DisableProvisioningAutomaticLogin"
+            "DisableProvisioningRemoteLogin", "DisableProvisioningAutomaticLogin",
+            "DisableDeveloperFeatures"
         ]
         #expect(Set(schema.preferences.map(\.key)) == expectedKeys)
         let declarations: [VirtualBuddyManagedPreferences.Preference<Bool>] = [
             .disableSharedFolders, .disableGuestApp, .disableUSBPassthrough,
             .disableBridgedNetworking, .disableMicrophoneInput,
-            .disableProvisioningRemoteLogin, .disableProvisioningAutomaticLogin
+            .disableProvisioningRemoteLogin, .disableProvisioningAutomaticLogin,
+            .disableDeveloperFeatures
         ]
         for preference in declarations {
             for value: Any? in [nil, false, "true", 1] {

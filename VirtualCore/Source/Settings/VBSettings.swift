@@ -6,6 +6,7 @@
 //
 
 import AppKit
+import ManagedPreferencesKit
 import OSLog
 
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
@@ -52,6 +53,8 @@ public struct VBSettings: Hashable, Sendable {
         }
     }
     public var enableTSSCheck: Bool
+
+    /// The user's choice, preserved even when a profile disables developer features.
     public var developerFeaturesEnabled = false
 
     /// Show desktop picture from guest VM in thumbnails instead of the blur hash version.
@@ -68,6 +71,17 @@ public struct VBSettings: Hashable, Sendable {
     /// This helps ``VMLibraryController`` determine whether the library is in a removable volume
     /// so that it can better handle the case where the app is launched before the volume is mounted.
     public var isLibraryInRemovableVolume: Bool
+
+    public func requireDeveloperFeatures(
+        preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences> = VirtualBuddyManagedPreferences.schema.reader()
+    ) throws {
+        guard !preferences.value(for: .disableDeveloperFeatures, default: false) else {
+            throw Failure("Developer features are disabled by your organization.")
+        }
+        guard developerFeaturesEnabled else {
+            throw Failure("To use Xcode debugging, enable Developer Features in VirtualBuddy Settings → Developer.")
+        }
+    }
 
 }
 
