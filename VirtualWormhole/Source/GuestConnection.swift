@@ -8,6 +8,7 @@ struct GuestRequest<Payload: VMMessage, Reply: VMMessage>: Sendable {
 }
 
 struct GuestFileOffer: Sendable {
+    var byteCount: Int64? = nil
     let metadata: BulkTransferMetadata
     let receive: @Sendable (URL) async throws -> Void
     let reject: @Sendable () async -> Void
@@ -34,7 +35,7 @@ struct LiveGuestConnection: GuestConnection {
     }
     var fileOffers: AsyncStream<GuestFileOffer> {
         connection.bulkTransferOffers.mapped { offer in
-            GuestFileOffer(metadata: offer.metadata, receive: { url in
+            GuestFileOffer(byteCount: offer.byteCount, metadata: offer.metadata, receive: { url in
                 let transfer = try await offer.accept(to: url)
                 do {
                     try await withTaskCancellationHandler {

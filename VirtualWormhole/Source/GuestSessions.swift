@@ -5,7 +5,7 @@ import VMBridge
 
 @MainActor
 public final class HostGuestSession {
-    private let engine: GuestSessionEngine
+    let engine: GuestSessionEngine
     private var task: Task<Void, Never>?
     public var isConnected: Bool { engine.isConnected }
     public var appearance: GuestAppearanceState { engine.appearance.state }
@@ -88,6 +88,7 @@ final class GuestSessionEngine {
     private let notifications: NotificationsGuestService
     private let defaults: DefaultsGuestService
     private let systemInformation: SystemInformationGuestService
+    let debugging: DebugGuestService
     let appearance: AppearanceGuestService
     private var runTask: Task<Void, Never>?
 
@@ -114,9 +115,10 @@ final class GuestSessionEngine {
         defaults = DefaultsGuestService(context: context, exportDomain: providers.exportDefaults, importDomain: providers.importDefaults)
         systemInformation = SystemInformationGuestService(context: context, collect: providers.systemInformation, observe: providers.systemInformationChanges)
         appearance = AppearanceGuestService(context: context, read: providers.appearance, apply: providers.setAppearance, observe: providers.appearanceChanges)
+        debugging = DebugGuestService(context: context)
         services = [
             ClipboardGuestService(context: context, clipboard: providers.clipboard, hostClipboard: hostClipboard),
-            notifications, pictures, defaults, systemInformation, appearance
+            notifications, pictures, defaults, systemInformation, appearance, debugging
         ]
     }
 
@@ -180,7 +182,7 @@ final class GuestSessionEngine {
         let token = UUID()
         context.session = token
         lifecycle.schedule { [self] in
-            let reply = try await context.connection.request(InitializeGuest(session: token), reply: InitializeGuestReply.self, timeout: context.requestTimeout)
+            let reply = try await context.connection.request(InitializeGuest(session: token, capabilities: [DebugGuestService.capability]), reply: InitializeGuestReply.self, timeout: context.requestTimeout)
             try context.requireSession(token)
             context.hostCapabilities = reply.capabilities ?? []
             activate(notifications: reply.notifications)
@@ -190,6 +192,7 @@ final class GuestSessionEngine {
     private func initialize(_ request: GuestRequest<InitializeGuest, InitializeGuestReply>) {
         guard context.endpoint == .host, !Task.isCancelled else { return }
         invalidateSession()
+        debugging.available = request.payload.capabilities?.contains(DebugGuestService.capability) == true
         let token = request.payload.session
         context.session = token
         lifecycle.schedule { [self] in

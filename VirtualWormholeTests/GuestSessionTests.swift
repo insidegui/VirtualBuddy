@@ -6,6 +6,21 @@ import os
 
 @Suite @MainActor
 struct GuestSessionTests {
+    @Test func debuggingRequiresTheConnectedGuestsOwnCapability() async throws {
+        let first = await SessionFixture.make()
+        let second = await SessionFixture.make()
+        try await first.connect()
+        try await second.connect()
+        #expect(first.host.debugging.available && second.host.debugging.available)
+        _ = try await first.guestConnection.request(InitializeGuest(session: UUID()), reply: InitializeGuestReply.self, timeout: .seconds(1))
+        #expect(!first.host.debugging.available)
+        #expect(second.host.debugging.available)
+        await second.disconnect()
+        try await eventually { !second.host.debugging.available }
+        await first.stop()
+        await second.stop()
+    }
+
     @Test func appearanceIsManualByDefaultAndNeverChangesTheHost() async throws {
         let fixture = await SessionFixture.make()
         fixture.hostFeatures.isDarkModeEnabled = true

@@ -195,6 +195,11 @@ struct LibraryItemView: View {
         }
         .disabled(hasOpenSession || isDuplicating)
 
+        if vm.configuration.systemType == .mac {
+            Button("Set Up Xcode Debugging…") { XcodeDebugSetup.show(for: vm) }
+                .disabled(vm.needsInstall || isDuplicating)
+        }
+
         Button {
             duplicate()
         } label: {

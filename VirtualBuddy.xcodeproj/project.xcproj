@@ -411,6 +411,7 @@
           ],
           "output-paths": [
             "$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vctool",
+            "$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vbdebug",
           ],
           "shell": "/bin/sh",
           "script": [
@@ -419,6 +420,7 @@
             "",
             "# Symlink VirtualBuddy as vctool for VirtualCatalog command-line tool",
             "ln -fs $EXECUTABLE_NAME vctool",
+            "ln -fs $EXECUTABLE_NAME vbdebug",
             "",
           ],
         }, {

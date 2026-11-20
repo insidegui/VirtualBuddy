@@ -38,6 +38,22 @@ public final class VirtualMachineSessionUIManager: ObservableObject {
 
     public func session(for vm: VBVirtualMachine) -> VirtualMachineSessionUI? { sessions[vm.id] }
 
+    public func sessionForDebugging(_ id: UUID, library: VMLibraryController) async throws -> VirtualMachineSessionUI {
+        let matches = library.virtualMachines.filter { $0.uuid == id }
+        guard matches.count == 1, let vm = matches.first else {
+            throw Failure(matches.isEmpty ? "The selected VM is missing from the library." : "Multiple VMs have this UUID. Duplicate one with VirtualBuddy and set up its scheme again.")
+        }
+        guard !vm.needsInstall, vm.configuration.systemType == .mac, vm.configuration.guestAdditionsEnabled, vm.guestAppSupport == .full else {
+            throw Failure("Xcode debugging requires an installed macOS VM with full Guest App support enabled.")
+        }
+        if session(for: vm) == nil { launch(vm, library: library, options: .default) }
+        guard let ui = session(for: vm) else { throw Failure("Could not open the VM.") }
+        if ui.controller.canResume { try await ui.controller.resume() }
+        else if ui.controller.canStart { await ui.startOrResume() }
+        guard ui.controller.state.isRunning else { throw Failure("Start or resume the selected VM to debug.") }
+        return ui
+    }
+
     func sessionIfAvailable(withID id: VBVirtualMachine.ID) -> VirtualMachineSessionUI? { sessions[id] }
 
     public func launch(_ vm: VBVirtualMachine, library: VMLibraryController, options: VMSessionOptions?) {

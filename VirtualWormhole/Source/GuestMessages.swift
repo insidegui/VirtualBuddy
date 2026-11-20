@@ -7,7 +7,10 @@ public enum GuestCommunication {
 
 // Wire names and Codable layouts are shared with existing guest releases.
 // Preserve them when moving or renaming service implementations.
-struct InitializeGuest: VMMessage { let session: UUID }
+struct InitializeGuest: VMMessage {
+    let session: UUID
+    var capabilities: Set<String>? = nil
+}
 struct InitializeGuestReply: VMMessage {
     let notifications: Set<String>
     // Optional for compatibility with hosts predating capability negotiation.
@@ -54,14 +57,14 @@ enum ExportDefaultsReply: VMMessage {
 }
 
 struct TransferIdentity: Sendable {
-    enum Purpose: String { case clipboard, defaults }
+    enum Purpose: String { case clipboard, defaults, debugging }
     let session: UUID
     let operation: UUID
     let purpose: Purpose
     let revision: UInt64
 
     var metadata: BulkTransferMetadata {
-        .init(name: "\(purpose.rawValue).plist", contentType: "com.apple.property-list", userInfo: [
+        .init(name: purpose == .debugging ? "debug.data" : "\(purpose.rawValue).plist", contentType: purpose == .debugging ? "public.data" : "com.apple.property-list", userInfo: [
             "session": session.uuidString, "operation": operation.uuidString,
             "purpose": purpose.rawValue, "revision": String(revision)
         ])

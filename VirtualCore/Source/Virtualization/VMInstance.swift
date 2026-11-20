@@ -61,7 +61,14 @@ public final class VMInstance: NSObject, ObservableObject {
         }
     }
     
-    private var guestSession: HostGuestSession?
+    private(set) var guestSession: HostGuestSession?
+
+    func connectDebugger(to port: UInt32) async throws -> VZVirtioSocketConnection {
+        guard let device = try virtualMachine.socketDevices.first as? VZVirtioSocketDevice else {
+            throw Failure("The VM has no guest communication socket.")
+        }
+        return try await device.connect(toPort: port)
+    }
 
     @Published private(set) var guestAppearance: GuestAppearanceState?
 
