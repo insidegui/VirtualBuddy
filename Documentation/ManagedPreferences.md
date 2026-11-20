@@ -26,9 +26,20 @@ After removing the restriction, the current session’s folder mappings are shar
 
 Policy enforcement messages appear in Console under the `codes.rambo.VirtualCore` subsystem. Configuration and folder-addition messages use the `ManagedPreferences` category; live disconnections use the VM's `VMInstance` category.
 
+## Disable developer features
+
+To prevent users from enabling developer features, deploy this Boolean in the `codes.rambo.VirtualBuddy` preference domain:
+
+```xml
+<key>DisableDeveloperFeatures</key>
+<true/>
+```
+
+The profile locks **Settings → Developer → Enable Developer Features** off, including on Macs with Xcode installed. VirtualBuddy hides **Set Up Xcode Debugging…** and rejects new debug runs from existing schemes. Attached debugging sessions can finish, and users can still delete cached symbols in the Developer tab. Removing the restriction restores the user's saved choice.
+
 ## Verification
 
-All seven managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. VM settings are preserved while a policy overrides their effective behavior.
+All managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. Saved settings are preserved while a policy overrides their effective behavior.
 
 | Preference | Restriction |
 | --- | --- |
@@ -39,6 +50,7 @@ All seven managed preferences are Booleans, with a default of `false`. Missing o
 | `DisableMicrophoneInput` | Supplies silence instead of host microphone input when constructing the VM. Sound output is unaffected. |
 | `DisableProvisioningRemoteLogin` | Prevents VirtualBuddy from enabling remote login (SSH) during macOS guest provisioning. |
 | `DisableProvisioningAutomaticLogin` | Prevents VirtualBuddy from enabling automatic login during macOS guest provisioning. |
+| `DisableDeveloperFeatures` | Locks developer features off and blocks Xcode debugging setup and new debug runs. |
 
 The provisioning restrictions apply when VirtualBuddy creates a macOS guest account. They do not modify existing guest settings or prevent someone from changing those settings inside the guest. Saved provisioning selections are preserved and become available again if the restriction is removed before provisioning.
 
@@ -54,7 +66,7 @@ From the repository root, run:
 ./Scripts/generate_restricted_profile.swift /tmp/VirtualBuddy-Restricted.mobileconfig
 ```
 
-The script forces all seven restrictions to `true` using a system-scoped [managed-preferences payload](https://developer.apple.com/documentation/devicemanagement/managedpreferences). It selects the first trusted, currently valid signing identity from the local keychain search list, signs with SHA-256 CMS, and verifies the signature and payload before writing. Identities need both a certificate and its private key. Private keys remain in the keychain; macOS may request permission to use the selected key. If an identity cannot sign, the script tries the next valid one, and fails if none can sign. Existing output files are not overwritten.
+The script forces all restrictions to `true` using a system-scoped [managed-preferences payload](https://developer.apple.com/documentation/devicemanagement/managedpreferences). It selects the first trusted, currently valid signing identity from the local keychain search list, signs with SHA-256 CMS, and verifies the signature and payload before writing. Identities need both a certificate and its private key. Private keys remain in the keychain; macOS may request permission to use the selected key. If an identity cannot sign, the script tries the next valid one, and fails if none can sign. Existing output files are not overwritten.
 
 For a build with a different bundle identifier:
 

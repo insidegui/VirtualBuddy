@@ -18,6 +18,9 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
             Preference<Bool>.disableProvisioningRemoteLogin
             Preference<Bool>.disableProvisioningAutomaticLogin
         }
+        Group("Developer") {
+            Preference<Bool>.disableDeveloperFeatures
+        }
     }
 
     static var sharedFoldersDisabled: Bool {
@@ -33,6 +36,17 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
 }
 
 public extension ManagedPreference where Namespace == VirtualBuddyManagedPreferences, Value == Bool {
+    static let disableDeveloperFeatures = Self("DisableDeveloperFeatures", title: "Disable Developer Features", default: false) {
+        Summary("Prevents users from enabling developer features or starting Xcode debug runs in virtual machines.")
+        DefaultBehavior("When absent or false, VirtualBuddy uses the user's Developer Features setting. Invalid values fall back to false.")
+        Behavior("Locks the Developer Features switch off, hides Xcode debugging setup, and blocks new debug runs from existing schemes.")
+        Behavior("Users can still delete cached symbols. Removing the restriction restores the user's saved setting.")
+        Options {
+            Option(true, "Disable developer features.")
+            Option(false, "Allow users to choose whether to enable developer features.")
+        }
+    }
+
     static let disableProvisioningRemoteLogin = Self("DisableProvisioningRemoteLogin", title: "Disable Provisioning Remote Login", default: false) {
         Summary("Prevents VirtualBuddy from enabling remote login (SSH) during macOS guest provisioning.")
         DefaultBehavior("The saved provisioning setting is used when this preference is absent or false. Invalid values fall back to false.")

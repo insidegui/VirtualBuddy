@@ -35,6 +35,8 @@ struct VirtualBuddyEntryPoint {
         name = ProcessInfo.processInfo.processName
         #endif
 
+        if name == "vbdebug" { await VBDebug.main(Array(CommandLine.arguments.dropFirst())) }
+
         /// Only attempt to process commands if the executable name doesn't match the name in the app bundle.
         guard name != Bundle.main.executableName else {
             return VirtualBuddyApp.main()

@@ -24,7 +24,8 @@ func makeProfile(domain: String) throws -> Data {
         "DisableBridgedNetworking": true,
         "DisableMicrophoneInput": true,
         "DisableProvisioningRemoteLogin": true,
-        "DisableProvisioningAutomaticLogin": true
+        "DisableProvisioningAutomaticLogin": true,
+        "DisableDeveloperFeatures": true
     ]
     let identifier = "\(domain).restricted-testing"
     let payload: [String: Any] = [
@@ -41,7 +42,7 @@ func makeProfile(domain: String) throws -> Data {
         "PayloadIdentifier": identifier,
         "PayloadUUID": UUID().uuidString,
         "PayloadDisplayName": "VirtualBuddy — Restrict All Managed Features (Testing)",
-        "PayloadDescription": "Disables shared folders, guest app mounting, USB passthrough, bridged networking, microphone input, and remote and automatic login during provisioning. Shut down and start VMs after installing or removing this test profile. Existing guest settings and installed guest apps are unaffected.",
+        "PayloadDescription": "Disables developer features, shared folders, guest app mounting, USB passthrough, bridged networking, microphone input, and remote and automatic login during provisioning. Shut down and start VMs after installing or removing this test profile. Existing guest settings and installed guest apps are unaffected.",
         "PayloadScope": "System",
         "PayloadRemovalDisallowed": false,
         "PayloadContent": [payload]

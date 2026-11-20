@@ -36,7 +36,11 @@ import SwiftUI
 
     private var cancellables = Set<AnyCancellable>()
 
+    private lazy var debugBroker = DebugBroker(library: library)
+
     func applicationDidFinishLaunching(_ notification: Notification) {
+        debugBroker.start()
+        XcodeDebugSetup.observeCachePreparation()
         GuestAdditionsDiskImage.default.$state.sink { state in
             switch state {
             case .ready:
@@ -61,6 +65,8 @@ import SwiftUI
         runLaunchDebugTasks()
         #endif
     }
+
+    func applicationWillTerminate(_ notification: Notification) { debugBroker.stop() }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 

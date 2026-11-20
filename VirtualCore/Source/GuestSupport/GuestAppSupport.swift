@@ -68,7 +68,7 @@ public extension VBMacConfiguration {
 
 @MainActor
 extension VBVirtualMachine {
-    var guestAppSupport: GuestAppSupport {
+    public var guestAppSupport: GuestAppSupport {
         let catalog = SoftwareCatalog.currentMacCatalog
         let version = [metadata.remoteInstallImageURL, metadata.installImageURL]
             .compactMap { $0 }

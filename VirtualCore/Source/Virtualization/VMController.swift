@@ -219,6 +219,12 @@ public final class VMController: ObservableObject {
     }
 
     private var instance: VMInstance?
+    public var debugGuestSession: HostGuestSession? { instance?.guestSession }
+    public func connectDebugger(to port: UInt32) async throws -> VZVirtioSocketConnection {
+        guard let instance else { throw Failure("The VM stopped before the debugger connected.") }
+        return try await instance.connectDebugger(to: port)
+    }
+
     
     private func createInstance() throws -> VMInstance {
         let newInstance = VMInstance(with: virtualMachineModel, library: library, onVMStop: { [weak self] error in

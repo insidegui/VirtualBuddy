@@ -5,7 +5,8 @@
 //  Created by Guilherme Rambo on 05/06/22.
 //
 
-import Foundation
+import AppKit
+import ManagedPreferencesKit
 import OSLog
 
 private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: String(describing: VBSettings.self))
@@ -53,6 +54,9 @@ public struct VBSettings: Hashable, Sendable {
     }
     public var enableTSSCheck: Bool
 
+    /// The user's choice, preserved even when a profile disables developer features.
+    public var developerFeaturesEnabled = false
+
     /// Show desktop picture from guest VM in thumbnails instead of the blur hash version.
     /// Currently not exposed in the UI.
     public var showDesktopPictureThumbnails: Bool
@@ -67,6 +71,17 @@ public struct VBSettings: Hashable, Sendable {
     /// This helps ``VMLibraryController`` determine whether the library is in a removable volume
     /// so that it can better handle the case where the app is launched before the volume is mounted.
     public var isLibraryInRemovableVolume: Bool
+
+    public func requireDeveloperFeatures(
+        preferences: ManagedPreferenceReader<VirtualBuddyManagedPreferences> = VirtualBuddyManagedPreferences.schema.reader()
+    ) throws {
+        guard !preferences.value(for: .disableDeveloperFeatures, default: false) else {
+            throw Failure("Developer features are disabled by your organization.")
+        }
+        guard developerFeaturesEnabled else {
+            throw Failure("To use Xcode debugging, enable Developer Features in VirtualBuddy Settings → Developer.")
+        }
+    }
 
 }
 
@@ -105,19 +120,26 @@ extension VBSettings {
         }()
         static let updateChannel = "updateChannel"
         static let enableTSSCheck = "enableTSSCheck"
+        static let developerFeaturesEnabled = "developerFeaturesEnabled"
         static let showDesktopPictureThumbnails = "showDesktopPictureThumbnails"
         static let bootDiskImagesUseASIF = "bootDiskImagesUseASIF"
         static let closeBehavior = "closeBehavior"
         static let isLibraryInRemovableVolume = "isLibraryInRemovableVolume"
     }
 
-    init(with defaults: UserDefaults) throws {
+    init(with defaults: UserDefaults, isXcodeInstalled: () -> Bool = {
+        NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.dt.Xcode") != nil
+    }) throws {
         defaults.register(defaults: [
             Keys.enableTSSCheck: Self.defaultEnableTSSCheck
         ])
 
         self.version = defaults.integer(forKey: Keys.version)
         self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
+        if defaults.object(forKey: Keys.developerFeaturesEnabled) == nil {
+            defaults.set(isXcodeInstalled(), forKey: Keys.developerFeaturesEnabled)
+        }
+        self.developerFeaturesEnabled = defaults.bool(forKey: Keys.developerFeaturesEnabled)
         self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
         self.bootDiskImagesUseASIF = defaults.bool(forKey: Keys.bootDiskImagesUseASIF)
         self.closeBehavior = defaults.string(forKey: Keys.closeBehavior).flatMap(VMCloseBehavior.init(rawValue:)) ?? Self.defaultCloseBehavior
@@ -166,6 +188,7 @@ extension VBSettings {
         defaults.set(libraryURL.path, forKey: Keys.libraryPath)
         defaults.set(updateChannel.id, forKey: Keys.updateChannel)
         defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
+        defaults.set(developerFeaturesEnabled, forKey: Keys.developerFeaturesEnabled)
         defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
         defaults.set(bootDiskImagesUseASIF, forKey: Keys.bootDiskImagesUseASIF)
         defaults.set(closeBehavior.rawValue, forKey: Keys.closeBehavior)

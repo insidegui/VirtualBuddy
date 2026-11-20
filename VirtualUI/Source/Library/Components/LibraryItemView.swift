@@ -81,6 +81,7 @@ struct LibraryItemView: View {
 
     var vm: VBVirtualMachine
     @State var name: String
+    let developerFeaturesEnabled: Bool
 
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
@@ -88,6 +89,7 @@ struct LibraryItemView: View {
     var nameFieldFocus = BoolSubject()
 
     @State private var configurationVM: VBVirtualMachine?
+    @State private var showingXcodeDebugSetup = false
     @Environment(\.openCocoaWindow) private var openCocoaWindow
 
     private var isVMBooted: Bool { library.bootedMachineIdentifiers.contains(vm.id) }
@@ -151,6 +153,12 @@ struct LibraryItemView: View {
                 .environmentObject(library)
                 .environment(library.templatesController)
         }
+        .sheet(isPresented: $showingXcodeDebugSetup) {
+            XcodeDebugSetupSheet(vmID: vm.uuid, vmName: vm.name)
+        }
+        .onChange(of: developerFeaturesEnabled) { _, enabled in
+            if !enabled { showingXcodeDebugSetup = false }
+        }
         .task(id: vm.name) { self.name = vm.name }
         .animation(isPressed ? .linear(duration: 0) : .snappy, value: isPressed)
     }
@@ -194,6 +202,11 @@ struct LibraryItemView: View {
             Text("Configure…")
         }
         .disabled(hasOpenSession || isDuplicating)
+
+        if developerFeaturesEnabled && vm.configuration.systemType == .mac {
+            Button("Set Up Xcode Debugging…") { showingXcodeDebugSetup = true }
+                .disabled(vm.needsInstall || isDuplicating)
+        }
 
         Button {
             duplicate()
