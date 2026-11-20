@@ -8,7 +8,9 @@ import VirtualCore
 public enum XcodeDebugSetup {
     static func show(for vm: VBVirtualMachine) {
         let panel = NSOpenPanel()
-        panel.allowedContentTypes = ["xcodeproj", "xcworkspace"].compactMap { UTType(filenameExtension: $0) }
+        panel.allowedContentTypes = ["xcodeproj", "xcworkspace"].compactMap {
+            UTType(filenameExtension: $0, conformingTo: .package)
+        }
         panel.prompt = "Choose"
         panel.message = "Choose the Xcode project or workspace containing your macOS app."
         guard panel.runModal() == .OK, let url = panel.url else { return }
