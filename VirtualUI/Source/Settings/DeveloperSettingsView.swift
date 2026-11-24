@@ -23,7 +23,7 @@ struct DeveloperSettingsView: View {
 
             DebugCacheSettings(showWhenEmpty: isEnabled && !developerFeaturesDisabled)
         }
-        .onAppear { DebugSymbolCache.shared.reload() }
+        .task { VirtualBuddyDebugging.symbolCache.reload() }
     }
 }
 

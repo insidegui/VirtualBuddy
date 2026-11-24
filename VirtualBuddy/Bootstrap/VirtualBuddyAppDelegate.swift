@@ -6,6 +6,7 @@
 //
 
 import Cocoa
+import MacDebugHost
 @_exported import VirtualCore
 @_exported import VirtualUI
 import VirtualWormhole
@@ -36,7 +37,11 @@ import Combine
     private lazy var debugBroker = DebugBroker(library: library)
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        debugBroker.start()
+        do {
+            try debugBroker.start()
+        } catch {
+            logger.error("Could not start Xcode debugging: \(error.localizedDescription)")
+        }
         XcodeDebugSetup.observeCachePreparation()
         GuestAdditionsDiskImage.default.$state.sink { state in
             switch state {

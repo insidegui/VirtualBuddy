@@ -75,6 +75,8 @@ The guest needs the current VirtualBuddyGuest app running in a logged-in desktop
 
 The first run can take a while because it copies and extracts symbols for the guest’s macOS build. Manage disk usage in **VirtualBuddy Settings → Developer → Xcode Debugging Symbols**. Deployment and debugging use the VirtualBuddyGuest connection. The custom Xcode launch style is experimental and has been tested with Xcode 27.3 and macOS 27 guests.
 
+Xcode’s Debug navigator uses the selected **My Mac** destination for its performance gauges. Those gauges can show zero or host-side readings during a VM run. Use Activity Monitor inside the VM to inspect the guest process.
+
 #### Taking Advantage of APFS
 
 Sometimes when trying things out in the OS installed in one of the virtual machines, things might break, requiring a full install of the guest operating system again, which is a pain.

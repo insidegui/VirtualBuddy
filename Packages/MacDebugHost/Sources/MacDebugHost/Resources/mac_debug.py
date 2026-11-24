@@ -1,4 +1,5 @@
-"""Xcode custom launch command for a VirtualBuddy scheme."""
+"""Xcode custom launch command for a remote Mac run scheme."""
+import base64
 import json
 import os
 from pathlib import Path
@@ -10,8 +11,10 @@ import lldb
 
 def connect(debugger, command, result, internal_dict):
     try:
-        binding = str(uuid.UUID(command.strip())).upper()
-        handoff = Path("/private/tmp", "vbdebug-" + str(os.getuid()), binding + ".json")
+        binding, location = command.split()
+        binding = str(uuid.UUID(binding)).upper()
+        runtime = Path(os.fsdecode(base64.b64decode(location, validate=True)))
+        handoff = runtime / (binding + ".json")
         claimed = handoff.with_name(str(uuid.uuid4()) + ".claimed")
         handoff.rename(claimed)
         try:
@@ -45,8 +48,8 @@ def connect(debugger, command, result, internal_dict):
             raise RuntimeError(error.GetCString() or "The guest debugger disconnected.")
         result.AppendMessage("Debugging " + run["guestProduct"])
     except (ValueError, KeyError, OSError, RuntimeError) as exc:
-        result.SetError("VirtualBuddy: " + str(exc))
+        result.SetError("Remote debugging: " + str(exc))
 
 
 def __lldb_init_module(debugger, internal_dict):
-    debugger.HandleCommand("command script add -o -f virtualbuddy_debug.connect vb-connect")
+    debugger.HandleCommand(f"command script add -o -f {__name__}.connect mac-debug-connect")

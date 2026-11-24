@@ -12,6 +12,8 @@ xcuserdata
 profile
 *.moved-aside
 DerivedData
+Packages/*/.build/
+Packages/*/.swiftpm/
 .idea/
 Crashlytics.sh
 generatechangelog.sh

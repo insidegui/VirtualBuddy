@@ -1,5 +1,5 @@
 import Foundation
-import VirtualWormhole
+import MacDebugProtocol
 
 extension DebugScheme {
     public static func launchOptions(from xml: XMLDocument, settings: [String: String]) throws -> DebugLaunchOptions {
@@ -10,7 +10,7 @@ extension DebugScheme {
             for match in pattern.matches(in: raw, range: NSRange(location: 0, length: source.length)).reversed() {
                 let first = match.range(at: 1)
                 let name = source.substring(with: first.location == NSNotFound ? match.range(at: 2) : first)
-                guard let value = settings[name] else { throw VBDebugError("The Run action references an unavailable build setting, " + name + ".") }
+                guard let value = settings[name] else { throw MacDebugError("The Run action references an unavailable build setting, " + name + ".") }
                 result.replaceCharacters(in: match.range, with: value)
             }
             return String(result)
@@ -48,12 +48,12 @@ extension DebugScheme {
                     started = true
                 }
             }
-            guard quote == nil, !escaped else { throw VBDebugError("Unterminated quote or escape in Run argument “\(raw)”.") }
+            guard quote == nil, !escaped else { throw MacDebugError("Unterminated quote or escape in Run argument “\(raw)”.") }
             if started || raw.isEmpty { args.append(try expand(word)) }
         }
         var env: [String: String] = [:]
         for case let node as XMLElement in try xml.nodes(forXPath: "/Scheme/LaunchAction/EnvironmentVariables/EnvironmentVariable[@isEnabled='YES']") {
-            guard let name = node.attribute(forName: "key")?.stringValue, !name.isEmpty, !name.contains("=") else { throw VBDebugError("Invalid Run environment variable name.") }
+            guard let name = node.attribute(forName: "key")?.stringValue, !name.isEmpty, !name.contains("=") else { throw MacDebugError("Invalid Run environment variable name.") }
             env[name] = try expand(node.attribute(forName: "value")?.stringValue ?? "")
         }
         return DebugLaunchOptions(arguments: args, environment: env)
