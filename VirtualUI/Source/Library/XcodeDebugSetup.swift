@@ -7,36 +7,65 @@ import MacDebugHost
 @MainActor
 public enum XcodeDebugSetup {
     private static var observer: AnyCancellable?
-    private static var window: NSPanel?
+    private static var panels: [UUID: NSPanel] = [:]
+
     public static func observeCachePreparation() {
-        observer = VirtualBuddyDebugging.symbolCache.$activities.map { !$0.isEmpty }.removeDuplicates().receive(on: RunLoop.main).sink { preparing in
-            if preparing {
-                let panel = NSPanel(contentRect: .init(x: 0, y: 0, width: 420, height: 150), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-                panel.title = "Preparing Xcode Debugging Symbols"
-                panel.contentView = NSHostingView(rootView: DebugCacheProgress())
-                panel.center()
-                panel.orderFrontRegardless()
-                window = panel
-            } else {
-                window?.orderOut(nil)
-                window = nil
+        observer = VirtualBuddyDebugging.symbolCache.$activities
+            .removeDuplicates { $0.map(\.id) == $1.map(\.id) }
+            .receive(on: RunLoop.main)
+            .sink { activities in
+                let active = Set(activities.map(\.id))
+                for (id, panel) in panels where !active.contains(id) {
+                    panel.parent?.removeChildWindow(panel)
+                    panel.close()
+                    panels[id] = nil
+                }
+                for activity in activities where panels[activity.id] == nil {
+                    panels[activity.id] = present(activity)
+                }
             }
+    }
+
+    private static func present(_ activity: DebugSymbolCache.Activity) -> NSPanel {
+        let panel = NSPanel(contentRect: .init(x: 0, y: 0, width: 420, height: 150), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+        panel.title = "Preparing Xcode Debugging Symbols"
+        panel.isReleasedWhenClosed = false
+        panel.collectionBehavior = [.fullScreenAuxiliary, .moveToActiveSpace]
+        panel.contentView = NSHostingView(rootView: DebugCacheProgress(run: activity.id))
+
+        if !NSApp.isActive { NSApp.requestUserAttention(.informationalRequest) }
+        if NSApp.isHidden { NSApp.unhide(nil) }
+        NSApp.activate()
+        if let session = VirtualMachineSessionUIManager.shared.sessions.values.first(where: { $0.virtualMachine.uuid == activity.destinationID }),
+           let window = session.hostWindow {
+            if window.isMiniaturized { window.deminiaturize(nil) }
+            session.bringToFront()
+            var frame = panel.frame
+            frame.origin = CGPoint(x: window.frame.midX - frame.width / 2, y: window.frame.midY - frame.height / 2)
+            panel.setFrame(panel.constrainFrameRect(frame, to: window.screen), display: false)
+            window.addChildWindow(panel, ordered: .above)
+        } else {
+            panel.center()
         }
+        panel.makeKeyAndOrderFront(nil)
+        return panel
     }
 }
 
 private struct DebugCacheProgress: View {
+    let run: UUID
     @ObservedObject private var cache = VirtualBuddyDebugging.symbolCache
     var body: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            ForEach(cache.activities) { activity in
+        if let activity = cache.activities.first(where: { $0.id == run }) {
+            VStack(alignment: .leading, spacing: 12) {
                 Text("macOS " + activity.system).font(.headline)
                 ProgressView(value: activity.fraction) { Text(activity.detail) }
+                    .progressViewStyle(.linear)
                 Button("Cancel") { cache.cancel(activity.id) }
             }
+            .padding()
+            .frame(minWidth: 400)
         }
-        .padding()
-        .frame(minWidth: 400)
     }
 }
 
@@ -64,14 +93,16 @@ struct DebugCacheSettings: View {
                                         .foregroundStyle(.secondary)
                                 }
                                 Spacer()
-                                Button("Delete") {
-                                    do {
-                                        try cache.remove(entry)
-                                    } catch {
-                                        NSApp.presentError(error)
+                                Button(cache.isRemoving(entry) ? "Deleting…" : "Delete") {
+                                    Task {
+                                        do {
+                                            try await cache.remove(entry)
+                                        } catch {
+                                            NSApp.presentError(error)
+                                        }
                                     }
                                 }
-                                .disabled(cache.isInUse(entry))
+                                .disabled(cache.isInUse(entry) || cache.isRemoving(entry))
                             }
                         }
                     }

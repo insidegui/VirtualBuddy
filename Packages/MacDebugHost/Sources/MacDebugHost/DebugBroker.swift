@@ -127,7 +127,7 @@ public final class DebugBroker {
         let session = try await resolveDestination(build.destination)
         do {
             let images = try await session.prepareDebugRun(run)
-            let cacheTask = Task { try await cache.acquire(images, session: session, run: run, developer: build.developer) { self.cacheTasks[run]?.cancel() } }
+            let cacheTask = Task { try await cache.acquire(images, session: session, destinationID: build.destination, run: run, developer: build.developer) { self.cacheTasks[run]?.cancel() } }
             cacheTasks[run] = cacheTask
             defer { cacheTasks.removeValue(forKey: run) }
             let sysroot = try await withTaskCancellationHandler { try await cacheTask.value } onCancel: { cacheTask.cancel() }

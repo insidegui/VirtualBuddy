@@ -4,10 +4,13 @@ import os
 public enum DebugTools {
     /// Keep blocking tools and waitpid off the UI actor. Termination and launch are
     /// serialized so cancellation between registration and spawn cannot lose the child.
-    public static func run(_ url: URL, _ arguments: [String]) async throws {
+    public static func run(_ url: URL, _ arguments: [String], standardOutput: Pipe? = nil) async throws {
+        // Readers must also receive EOF when launch fails or is cancelled.
+        defer { try? standardOutput?.fileHandleForWriting.close() }
         let process = Process()
         process.executableURL = url
         process.arguments = arguments
+        if let standardOutput { process.standardOutput = standardOutput }
         let queue = DispatchQueue(label: "MacDebug.tool")
         let cancelled = OSAllocatedUnfairLock(initialState: false)
         try await withTaskCancellationHandler {

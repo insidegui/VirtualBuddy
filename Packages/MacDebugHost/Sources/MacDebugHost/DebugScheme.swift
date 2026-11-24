@@ -142,11 +142,11 @@ public struct DebugScheme {
         set(root, "MacDebugBinding", id.uuidString)
         set(root, "MacDebugTarget", targetID)
         for child in launch.children ?? [] where ["BuildableProductRunnable", "PathRunnable", "RemoteRunnable", "MacroExpansion"].contains(child.name) { child.detach() }
-        let path = Self.element("PathRunnable", ["runnableDebuggingMode": "0", "FilePath": "/usr/bin/false"])
-        launch.addChild(path)
-        let macro = Self.element("MacroExpansion")
-        macro.addChild(reference.copy() as! XMLNode)
-        launch.addChild(macro)
+        // Xcode uses the scheme's runnable to label the process in its navigator.
+        // The custom launch commands below connect LLDB to the remote executable.
+        let runnable = Self.element("BuildableProductRunnable", ["runnableDebuggingMode": "0"])
+        runnable.addChild(reference.copy() as! XMLNode)
+        launch.addChild(runnable)
         let pre = launch.elements(forName: "PreActions").first ?? Self.element("PreActions")
         if pre.parent == nil { launch.insertChild(pre, at: 0) }
         let action = Self.element("ExecutionAction", ["ActionType": "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction"])

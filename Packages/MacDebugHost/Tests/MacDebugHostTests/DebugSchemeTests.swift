@@ -20,8 +20,9 @@ struct DebugSchemeTests {
         let xml = try XMLDocument(contentsOf: file, options: [])
         let launch = try #require(try xml.nodes(forXPath: "//LaunchAction").first as? XMLElement)
         #expect(launch.attribute(forName: "customLaunchCommand")?.stringValue?.components(separatedBy: "\n").count == 2)
-        #expect(try launch.nodes(forXPath: "BuildableProductRunnable").isEmpty)
-        #expect(try launch.nodes(forXPath: "PathRunnable/@FilePath").first?.stringValue == "/usr/bin/false")
+        #expect(try launch.nodes(forXPath: "BuildableProductRunnable/BuildableReference/@BlueprintIdentifier").first?.stringValue == "APP")
+        #expect(try launch.nodes(forXPath: "PathRunnable").isEmpty)
+        #expect(launch.attribute(forName: "launchStyle")?.stringValue == "2")
         #expect(try xml.nodes(forXPath: "//BuildableReference/@ReferencedContainer").allSatisfy { $0.stringValue == "container:Apps/Example.xcodeproj" })
         let id = xml.rootElement()?.attribute(forName: "MacDebugBinding")?.stringValue
         xml.rootElement()?.removeAttribute(forName: "MacDebugDestination")
