@@ -2,6 +2,8 @@
 
 VirtualBuddy can help you set up an Xcode project so that you can run and debug a Mac app in a virtual machine, similar to how you can build and run an app to an iPhone or iOS Simulator.
 
+For details on scheme approval, debugger access, code signing, and App Store Connect key handling, read [The security of Xcode debugging in VirtualBuddy](Documentation/XcodeDebuggingSecurity.md).
+
 ## Requirements
 
 Developer features are on when Xcode is installed, until you choose otherwise under **VirtualBuddy Settings → Developer → Enable Developer Features**. After that, VirtualBuddy keeps your choice.
