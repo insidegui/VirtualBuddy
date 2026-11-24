@@ -8,6 +8,10 @@ public enum VirtualBuddyDebugging {
         runtimeDirectory: URL(fileURLWithPath: "/private/tmp/vbdebug-\(getuid())", isDirectory: true)
     )
 
+    public static let bindings = KeychainDebugBindingStore(
+        service: (Bundle.main.bundleIdentifier ?? "codes.rambo.VirtualBuddy") + ".debug-bindings"
+    )
+
     @MainActor public static let symbolCache = DebugSymbolCache(
         root: FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("codes.rambo.VirtualBuddy/DebugSymbols"),

@@ -21,4 +21,16 @@ struct DebugSymbolCacheTests {
         #expect(cache.entries.isEmpty)
         #expect(!fm.fileExists(atPath: directory.path))
     }
+
+    @Test func extractedSymbolsMustBePlainFilesAndDirectories() throws {
+        let fm = FileManager.default
+        let root = fm.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? fm.removeItem(at: root) }
+        let lib = root.appendingPathComponent("usr/lib")
+        try fm.createDirectory(at: lib, withIntermediateDirectories: true)
+        try Data(count: 8).write(to: lib.appendingPathComponent("libSystem.B.dylib"))
+        #expect(throws: Never.self) { try DebugSymbolCache.requirePlainTree(root) }
+        try fm.createSymbolicLink(at: lib.appendingPathComponent("libexample.dylib"), withDestinationURL: URL(fileURLWithPath: "/usr/lib/dyld"))
+        #expect(throws: (any Error).self) { try DebugSymbolCache.requirePlainTree(root) }
+    }
 }

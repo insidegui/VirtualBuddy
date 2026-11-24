@@ -16,7 +16,8 @@ struct DebugSchemeTests {
         let vm = UUID()
         let app = URL(fileURLWithPath: "/Applications/VirtualBuddy.app")
         let configuration = DebugHostConfiguration(applicationURL: app, helperURL: app.appendingPathComponent("Contents/MacOS/helper"), runtimeDirectory: root)
-        let file = try choice.install(destination: vm, named: "My VM", configuration: configuration)
+        let bindings = MemoryBindingStore()
+        let file = try choice.install(destination: vm, named: "My VM", configuration: configuration, bindings: bindings)
         let xml = try XMLDocument(contentsOf: file, options: [])
         let launch = try #require(try xml.nodes(forXPath: "//LaunchAction").first as? XMLElement)
         #expect(launch.attribute(forName: "customLaunchCommand")?.stringValue?.components(separatedBy: "\n").count == 2)
@@ -30,9 +31,12 @@ struct DebugSchemeTests {
         xml.rootElement()?.removeAttribute(forName: "MacDebugTarget")
         #expect(DebugScheme.binding(in: xml)?.destination == vm)
         #expect(DebugScheme.binding(in: xml)?.scheme.uuidString == id)
-        _ = try choice.install(destination: vm, named: "My VM", configuration: configuration)
+        _ = try choice.install(destination: vm, named: "My VM", configuration: configuration, bindings: bindings)
         #expect(try XMLDocument(contentsOf: file, options: []).rootElement()?.attribute(forName: "MacDebugBinding")?.stringValue == id)
-        #expect(throws: (any Error).self) { try choice.install(destination: UUID(), named: "My VM", configuration: configuration) }
+        #expect(throws: (any Error).self) { try choice.install(destination: UUID(), named: "My VM", configuration: configuration, bindings: bindings) }
+        let bindingID = try #require(id.flatMap(UUID.init(uuidString:)))
+        let approved = try #require(bindings.binding(for: bindingID))
+        #expect(approved.destination == vm && approved.target == "APP")
     }
 
     @Test func argumentsAndBuildSettingsAreData() throws {

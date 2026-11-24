@@ -14,7 +14,7 @@ In the VirtualBuddy library, right-click a macOS virtual machine and choose **Se
 
 ## Provisioning and device registration
 
-Apps with restricted entitlements, such as a provisioned app group, need a development profile that includes the VM. VirtualBuddy checks the app and its extensions at Run time. With automatic signing, it uses the account in the selected Xcode installation to refresh profiles when needed.
+Apps with restricted entitlements, such as a provisioned app group, need a development profile that includes the VM. VirtualBuddy checks the app and its extensions at Run time. With automatic signing, it refreshes profiles when needed using the Xcode selected with `xcode-select` and the account signed in to Xcode. This can be a different installation from the one that ran the scheme.
 
 Register each VM once per signing team. If registration is needed, the provisioning window shows the guest’s **Provisioning UDID**, a copy button, and a link to Apple Developer. After registering the Mac, click **Refresh Profiles** to continue the same Run. For manual signing, choose **Import Profiles…** and select the Apple-issued development profiles for the app and its extensions.
 

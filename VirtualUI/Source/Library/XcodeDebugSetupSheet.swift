@@ -154,7 +154,8 @@ struct XcodeDebugSetupSheet: View {
         guard commandsEnabled else { return }
         do {
             try VBSettings.current.requireDeveloperFeatures()
-            createdScheme = try choice.scheme.install(destination: vmID, named: vmName, configuration: VirtualBuddyDebugging.host)
+            createdScheme = try choice.scheme.install(destination: vmID, named: vmName, configuration: VirtualBuddyDebugging.host,
+                                                      bindings: VirtualBuddyDebugging.bindings)
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription

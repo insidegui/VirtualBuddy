@@ -13,7 +13,11 @@ VirtualBuddy uses local Swift packages for Xcode deployment and debugging on App
 
 Create a `DebugHostConfiguration` with the app URL, helper executable, and a short, private per-user socket directory. The generated scheme loads the LLDB module from the package's resource bundle. Forward the helper's arguments to `DebugHostCommand.run`. Create one `DebugSymbolCache` with the app's chosen cache directory and helper, and share it between the broker and cache management UI.
 
-Start a `DebugBroker` with an authorization check and a closure that resolves a stable destination UUID to a `RemoteDebugSession`. Use `DebugScheme.choices(in:)` and `install(destination:named:configuration:)` to create the user's Xcode scheme. Stop the broker when the app shuts down.
+Start a `DebugBroker` with an authorization check and a closure that resolves a stable destination UUID to a `RemoteDebugSession`. Use `DebugScheme.choices(in:)` and `install(destination:named:configuration:bindings:)` to create the user's Xcode scheme. Stop the broker when the app shuts down.
+
+Give the broker and `install` the same `DebugBindingStore`, such as a `KeychainDebugBindingStore` with an app-specific service name. Creating a scheme records its binding, and the broker starts runs only for recorded bindings, on the destination stored with them. The broker accepts connections only from a process that satisfies the app's own code-signing requirement, so ship the helper as part of the signed app.
+
+The helper extracts system libraries inside a sandbox that can read only the app bundle, the helper, Apple's extractor and the transferred images. Profiles are refreshed with the Xcode selected by `xcode-select`, not the developer directory reported by the Run action.
 
 Pass the broker a `DebugProvisioning` with an app-owned profile cache and a `DebugProvisioningInteraction` for progress, cancellation, registration, and manual profile selection. The broker asks its session for the target’s provisioning UDID only for builds with embedded profiles. The target adapter can answer with `try await MacProvisioningIdentity.current.udid()`. The same interface works for a paired remote Mac.
 

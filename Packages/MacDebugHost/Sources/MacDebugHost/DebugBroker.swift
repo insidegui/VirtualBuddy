@@ -2,13 +2,41 @@ import Foundation
 import MacDebugProtocol
 import OSLog
 
-struct DebugBuild: Codable {
+/// What the scheme's pre-action asks for. The sender is unprivileged, so every field is
+/// validated and the destination comes from the binding the developer approved.
+struct DebugBuildRequest: Codable {
+    let binding: UUID
+    let product: URL
+    let executable: URL
+    let developer: URL
+    let automaticSigning: Bool
+    let options: DebugLaunchOptions
+}
+
+struct DebugBuild {
     let destination: UUID
     let product: URL
     let executable: URL
     let developer: URL
     let automaticSigning: Bool
     let options: DebugLaunchOptions
+
+    init(_ request: DebugBuildRequest, binding: DebugBinding) throws {
+        func local(_ url: URL) throws -> URL {
+            guard url.isFileURL, url.path.hasPrefix("/") else { throw MacDebugError("The Run action sent an invalid build location.") }
+            return url.standardizedFileURL
+        }
+        guard request.binding == binding.id else { throw MacDebugError("The Run action does not match its Xcode scheme.") }
+        destination = binding.destination
+        product = try local(request.product)
+        executable = try local(request.executable)
+        developer = try local(request.developer)
+        guard product.pathExtension == "app", executable.path.hasPrefix(product.path + "/") else {
+            throw MacDebugError("The Run action must build a macOS app.")
+        }
+        automaticSigning = request.automaticSigning
+        options = request.options
+    }
 }
 
 struct DebugHandoff: Codable {
@@ -30,6 +58,7 @@ public final class DebugBroker {
     private let configuration: DebugHostConfiguration
     private let cache: DebugSymbolCache
     private let provisioning: DebugProvisioning
+    private let bindings: any DebugBindingStore
     private let authorize: @MainActor () throws -> Void
     private let resolveDestination: @MainActor (UUID) async throws -> any RemoteDebugSession
     private var runs: [UUID: UUID] = [:]
@@ -43,12 +72,14 @@ public final class DebugBroker {
         configuration: DebugHostConfiguration,
         cache: DebugSymbolCache,
         provisioning: DebugProvisioning,
+        bindings: any DebugBindingStore,
         authorize: @escaping @MainActor () throws -> Void,
         resolveDestination: @escaping @MainActor (UUID) async throws -> any RemoteDebugSession
     ) {
         self.configuration = configuration
         self.cache = cache
         self.provisioning = provisioning
+        self.bindings = bindings
         self.authorize = authorize
         self.resolveDestination = resolveDestination
     }
@@ -67,15 +98,25 @@ public final class DebugBroker {
         try DebugSocket.prepareRuntime(at: configuration.runtimeDirectory)
         let path = configuration.endpoint(pid: getpid())
         unlink(path.path)
+        // Only the helper shipped in this app may request runs. It is the same signed
+        // code as the app, so it satisfies the app's own designated requirement.
+        let helper = try DebugPeerRequirement.currentApplication()
         let listener = try DebugSocket.unix(path, listening: true)
         listenerTask = Task {
             while !Task.isCancelled {
                 do {
-                    let socket = try await listener.accept(timeout: -1)
+                    // Peers are checked per connection, so a rejected one cannot end the listener.
+                    let socket = try await listener.accept(timeout: -1) { _, _ in }
                     try Task.checkCancellation()
                     let id = UUID()
                     clients[id] = Task {
                         defer { clients.removeValue(forKey: id) }
+                        do {
+                            try socket.requirePeer(helper)
+                        } catch {
+                            logger.error("Rejected a debugger connection from an unrecognized process.")
+                            return
+                        }
                         await serve(socket)
                     }
                 } catch {
@@ -91,8 +132,12 @@ public final class DebugBroker {
 
     private func serve(_ socket: DebugSocket) async {
         do {
-            let build = try await socket.receive(DebugBuild.self)
+            let request = try await socket.receive(DebugBuildRequest.self)
             try authorize()
+            guard let binding = try bindings.binding(for: request.binding) else {
+                throw MacDebugError("This Xcode scheme has not been approved. Set up Xcode debugging for it again.")
+            }
+            let build = try DebugBuild(request, binding: binding)
             guard runs[build.destination] == nil else { throw MacDebugError("A debug run is active on this destination. Stop it in Xcode before launching again.") }
             let run = UUID()
             runs[build.destination] = run

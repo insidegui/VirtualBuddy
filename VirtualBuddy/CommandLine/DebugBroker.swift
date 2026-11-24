@@ -10,7 +10,7 @@ import Virtualization
 extension DebugBroker {
     convenience init(library: VMLibraryController) {
         self.init(configuration: VirtualBuddyDebugging.host, cache: VirtualBuddyDebugging.symbolCache,
-                  provisioning: XcodeProvisioningController.shared.provisioning) {
+                  provisioning: XcodeProvisioningController.shared.provisioning, bindings: VirtualBuddyDebugging.bindings) {
             try VBSettings.current.requireDeveloperFeatures()
         } resolveDestination: { id in
             try await VMDebugSession(destination: id, library: library)

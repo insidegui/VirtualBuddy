@@ -30,9 +30,9 @@ public enum DebugHostCommand {
             guard executable.standardizedFileURL.path.hasPrefix(product.standardizedFileURL.path + "/"), FileManager.default.isExecutableFile(atPath: executable.path) else {
                 throw MacDebugError("Xcode did not build the selected app executable.")
             }
-            let build = DebugBuild(destination: binding.destination, product: product, executable: executable,
-                                   developer: URL(fileURLWithPath: developer), automaticSigning: settings["CODE_SIGN_STYLE"] == "Automatic",
-                                   options: try DebugScheme.launchOptions(from: xml, settings: settings))
+            let build = DebugBuildRequest(binding: binding.scheme, product: product, executable: executable,
+                                          developer: URL(fileURLWithPath: developer), automaticSigning: settings["CODE_SIGN_STYLE"] == "Automatic",
+                                          options: try DebugScheme.launchOptions(from: xml, settings: settings))
             let config = NSWorkspace.OpenConfiguration()
             config.activates = false
             let host = try await NSWorkspace.shared.openApplication(at: configuration.applicationURL, configuration: config)
@@ -47,6 +47,12 @@ public enum DebugHostCommand {
                 }
             }
             guard let stream else { throw POSIXError(.ENOTCONN) }
+            // The reply tells Xcode's debugger where to connect, so it must come from this app.
+            do {
+                try stream.requirePeer(.currentApplication())
+            } catch {
+                throw MacDebugError("Could not verify the app that answered this Run action. Quit and reopen it, then run again.")
+            }
             try await stream.send(build)
             let reply = try await stream.receive(DebugBuildReply.self)
             if case .failure(let reason) = reply { throw MacDebugError(reason) }

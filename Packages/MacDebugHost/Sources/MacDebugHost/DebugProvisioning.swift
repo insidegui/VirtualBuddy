@@ -201,21 +201,32 @@ private actor ProvisioningRun {
         try Data().write(to: logURL)
         let log = try FileHandle(forWritingTo: logURL)
         defer { try? log.close() }
-        var environment = ProcessInfo.processInfo.environment
-        environment["DEVELOPER_DIR"] = build.developer.path
         do {
             try await DebugTools.run(URL(fileURLWithPath: "/usr/bin/xcodebuild"), [
                 "-exportArchive", "-archivePath", archive.path, "-exportPath", output.path,
                 "-exportOptionsPlist", options.path, "-allowProvisioningUpdates"
-            ], log: log, environment: environment)
+            ], log: log, environment: Self.systemXcodeEnvironment)
         } catch {
             try Task.checkCancellation()
             let output = (try? String(contentsOf: logURL, encoding: .utf8)) ?? ""
             let reason = output.components(separatedBy: .newlines).first { $0.localizedCaseInsensitiveContains("error:") }
-            throw MacDebugError(reason ?? "Xcode could not export development profiles. Check the signing account in Xcode Settings.")
+            throw MacDebugError(reason ?? "Xcode could not export development profiles. Check the signing account in Xcode Settings, and that xcode-select points to Xcode.")
         }
         try select(from: EmbeddedProfiles.find(in: output))
     }
+
+    /// xcodebuild runs every tool in its developer directory, and /usr/bin/xcodebuild runs
+    /// whichever directory DEVELOPER_DIR names without checking who signed it. The Run action's
+    /// directory comes from an unprivileged process, so profiles are refreshed with the Xcode
+    /// an administrator selected with xcode-select, in an environment that cannot redirect it.
+    private static let systemXcodeEnvironment: [String: String] = {
+        let inherited = ProcessInfo.processInfo.environment
+        var environment = ["PATH": "/usr/bin:/bin:/usr/sbin:/sbin"]
+        for name in ["HOME", "USER", "LOGNAME", "SHELL", "TMPDIR", "LANG", "__CF_USER_TEXT_ENCODING"] {
+            environment[name] = inherited[name]
+        }
+        return environment
+    }()
 
     private func writePlist(_ value: [String: Any], to url: URL) throws {
         try PropertyListSerialization.data(fromPropertyList: value, format: .xml, options: 0).write(to: url)

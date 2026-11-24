@@ -119,7 +119,10 @@ public struct DebugScheme {
 
     static func shellQuote(_ s: String) -> String { "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'" }
 
-    public func install(destination: UUID, named destinationName: String, configuration: DebugHostConfiguration) throws -> URL {
+    /// Call when the developer asks for the scheme. The binding is recorded as their approval
+    /// for Run actions from this scheme to start the destination and launch the app on it.
+    public func install(destination: UUID, named destinationName: String, configuration: DebugHostConfiguration,
+                        bindings: any DebugBindingStore) throws -> URL {
         let fm = FileManager.default
         let directory = container.appendingPathComponent("xcuserdata/\(NSUserName()).xcuserdatad/xcschemes")
         let filename = (name + " — " + destinationName).replacingOccurrences(of: "/", with: "-") + ".xcscheme"
@@ -181,6 +184,7 @@ public struct DebugScheme {
         let escaped = module.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
         let runtime = Data(configuration.runtimeDirectory.path.utf8).base64EncodedString()
         set(launch, "customLaunchCommand", "command script import \"\(escaped)\"\nmac-debug-connect \(id.uuidString) \(runtime)")
+        try bindings.register(DebugBinding(id: id, destination: destination, target: targetID))
         try DebugTools.directory(directory)
         // Foundation emits literal newlines in attributes. XML readers normalize
         // those to spaces, collapsing both custom LLDB commands into one.

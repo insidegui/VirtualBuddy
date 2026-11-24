@@ -138,14 +138,20 @@ public final class DebugSymbolCache: ObservableObject {
         }
         update("Extracting system libraries", nil)
         let extractor = developer.appendingPathComponent("Platforms/iPhoneOS.platform/usr/lib/dsc_extractor.bundle")
-        let profile = "(version 1)(allow default)(deny network*)(deny file-write*)(allow file-write* (subpath (param \"OUTPUT\")) (literal \"/dev/null\"))"
         // Sandbox path filters compare physical paths. Foundation can return
         // the /tmp alias even after resolving /private/tmp.
-        guard let physicalPath = realpath(symbols.path, nil) else { throw POSIXError(.init(rawValue: errno) ?? .EIO) }
-        let outputPath = String(cString: physicalPath)
-        free(physicalPath)
+        func physical(_ url: URL) throws -> String {
+            guard let path = realpath(url.path, nil) else { throw POSIXError(.init(rawValue: errno) ?? .EIO) }
+            defer { free(path) }
+            return String(cString: path)
+        }
+        let outputPath = try physical(symbols), extractorPath = try physical(extractor)
+        let parameters = ["OUTPUT": outputPath, "INPUT": try physical(raw), "EXTRACTOR": extractorPath,
+                          "HELPER": try physical(helperURL), "CODE": try physical(Bundle.main.bundleURL)]
         let pipe = Pipe()
-        let arguments = ["-D", "OUTPUT=" + outputPath, "-p", profile, helperURL.path, "extract", extractor.path, primary.path, outputPath]
+        // Run the helper by its own name: an app can ship it as a link to its main executable.
+        let arguments = parameters.flatMap { ["-D", $0.key + "=" + $0.value] } +
+            ["-p", Self.extractionSandbox, helperURL.path, "extract", extractorPath, primary.path, outputPath]
         async let extraction: Void = DebugTools.run(URL(fileURLWithPath: "/usr/bin/sandbox-exec"), arguments, standardOutput: pipe)
         for try await line in pipe.fileHandleForReading.bytes.lines {
             guard line.hasPrefix(Self.progressPrefix), let percent = Int(line.dropFirst(Self.progressPrefix.count)),
@@ -154,6 +160,41 @@ public final class DebugSymbolCache: ObservableObject {
         }
         try await extraction
         update("Finalizing symbol cache", nil)
+    }
+
+    /// The extractor parses images supplied by the target, in a process that carries this
+    /// app's code identity. It may read only the code it runs and its input, write only its
+    /// output, and reach no other process, so a parsing flaw cannot use the app's access to
+    /// the user's files, Keychain or network.
+    private nonisolated static let extractionSandbox = """
+        (version 1)
+        (deny default)
+        (import "system.sb")
+        (deny mach-lookup (xpc-service-name-prefix ""))
+        (allow process-exec (literal (param "HELPER")))
+        (allow file-read* file-map-executable
+            (literal (param "HELPER")) (literal (param "EXTRACTOR")) (subpath (param "CODE")))
+        (allow file-read* (subpath (param "INPUT")) (subpath (param "OUTPUT")))
+        (allow file-write* (subpath (param "OUTPUT")))
+        """
+
+    /// The extractor's output goes to the debugger. Accept only plain files and
+    /// directories, so nothing in the tree can stand in for a file outside it.
+    nonisolated static func requirePlainTree(_ directory: URL) throws {
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey]
+        var failure: Error?
+        let entries = FileManager.default.enumerator(at: directory, includingPropertiesForKeys: Array(keys)) { _, error in
+            failure = error
+            return false
+        }
+        while let entry = entries?.nextObject() as? URL {
+            try Task.checkCancellation()
+            let type = try entry.resourceValues(forKeys: keys)
+            guard type.isSymbolicLink != true, type.isRegularFile == true || type.isDirectory == true else {
+                throw MacDebugError("The extracted system libraries contain an unexpected item.")
+            }
+        }
+        if let failure { throw failure }
     }
 
     private nonisolated static func discard(_ work: URL) async throws {
@@ -167,6 +208,7 @@ public final class DebugSymbolCache: ObservableObject {
         let raw = work.appendingPathComponent("raw")
         let symbols = work.appendingPathComponent("DeviceSupport/\(system)/Symbols")
         let lib = symbols.appendingPathComponent("usr/lib")
+        try requirePlainTree(symbols)
         guard lib.resolvingSymlinksInPath().standardizedFileURL.path == symbols.resolvingSymlinksInPath().appendingPathComponent("usr/lib").standardizedFileURL.path else {
             throw MacDebugError("The extracted system library directory is invalid.")
         }
