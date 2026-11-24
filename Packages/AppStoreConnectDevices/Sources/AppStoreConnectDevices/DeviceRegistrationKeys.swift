@@ -107,7 +107,7 @@ public actor DeviceRegistrationKeys {
 
     private static func check(_ status: OSStatus) throws {
         guard status != errSecMissingEntitlement else {
-            throw DeviceRegistrationError("This build cannot store team API keys because it is not signed with an application identifier. Register the Mac in Apple Developer instead.")
+            throw DeviceRegistrationError("This build cannot store team API keys because it is not signed with an application identifier. Register the device in Apple Developer instead.")
         }
         guard status == errSecSuccess else {
             throw DeviceRegistrationError(SecCopyErrorMessageString(status, nil) as String? ?? "Keychain error \(status).")

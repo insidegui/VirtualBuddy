@@ -116,7 +116,7 @@ struct XcodeRunRow<Content: View>: View {
 #if DEBUG
 #Preview("Run Sheet") {
     XcodeRunSheet(title: "Provision App for Debugging",
-                  subtitle: "The development profile must include your Test Mac.") {
+                  subtitle: "The development profile must include the virtual machine’s provisioning UDID.") {
         XcodeRunRow(symbol: "person.2", title: "Signing Team EXAMPLE123") {
             Text(verbatim: "com.example.FieldNotes")
         }

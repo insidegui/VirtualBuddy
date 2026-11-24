@@ -28,12 +28,12 @@ struct DeviceRegistrationSettings: View {
                 }
             }
             Button("Add Team API Key…") { editing = true }
-            SettingsCaption("An optional App Store Connect team key lets VirtualBuddy register a VM with your signing team. The private key is stored in this Mac’s Keychain, and VirtualBuddy asks for Touch ID or your password before using it.")
+            SettingsCaption("An optional App Store Connect team key lets VirtualBuddy register a virtual machine with your signing team. The private key is stored in the host Mac’s Keychain, and VirtualBuddy asks for Touch ID or your password before using it.")
             if let error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
         }
         .task { await reload() }
         .sheet(isPresented: $editing, onDismiss: { Task { await reload() } }) { RegistrationKeyEditor(keys: keys) }
-        .confirmationDialog("Remove this team’s API key from this Mac?", isPresented: Binding(
+        .confirmationDialog("Remove this team’s API key from the host Mac’s Keychain?", isPresented: Binding(
             get: { removing != nil }, set: { if !$0 { removing = nil } }
         ), presenting: removing) { team in
             Button("Remove Key", role: .destructive) {
@@ -73,7 +73,7 @@ struct RegistrationKeyEditor: View {
 
     var body: some View {
         XcodeRunSheet(title: "Add Team API Key",
-                      subtitle: "Choose an App Store Connect team key with permission to register devices. The private key is stored in this Mac’s Keychain, and VirtualBuddy asks for Touch ID or your password before using it.") {
+                      subtitle: "Choose an App Store Connect team key with permission to register devices. The private key is stored in the host Mac’s Keychain, and VirtualBuddy asks for Touch ID or your password before using it.") {
             XcodeRunRow(symbol: "key", title: "App Store Connect Credentials") {
                 Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                     GridRow {

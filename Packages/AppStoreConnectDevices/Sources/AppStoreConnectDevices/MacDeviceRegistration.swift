@@ -52,7 +52,7 @@ public struct MacDeviceRegistration: Sendable {
     }
 
     public func lookup(udid: String, teamID: String) async throws -> Status? {
-        try await lookup(udid: udid, key: credential(teamID, "check whether this Mac is registered with team \(teamID)"))
+        try await lookup(udid: udid, key: credential(teamID, "check whether the selected device is registered with team \(teamID)"))
     }
 
     private func lookup(udid: String, key: RegistrationCredential) async throws -> Status? {

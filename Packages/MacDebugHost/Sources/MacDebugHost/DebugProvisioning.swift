@@ -84,7 +84,7 @@ private actor ProvisioningRun {
         let profiles = try EmbeddedProfiles.find(in: product)
         guard !profiles.isEmpty else { return product }
         guard try DebugCodeSignature(product).entitlements["com.apple.security.get-task-allow"] as? Bool == true else {
-            throw MacDebugError("Build a Debug app with com.apple.security.get-task-allow before provisioning it for this Mac.")
+            throw MacDebugError("Build a Debug app with com.apple.security.get-task-allow before provisioning it for debugging.")
         }
         udid = try await identify()
         guard udid.wholeMatch(of: /^[A-Fa-f0-9-]{16,64}$/) != nil else {
@@ -113,7 +113,7 @@ private actor ProvisioningRun {
             try verify(product)
             return product
         }
-        await progress("Signing the app for this Mac…")
+        await progress("Signing the app for debugging…")
         let staged = work.appendingPathComponent("Deployment").appendingPathComponent(product.lastPathComponent)
         try await copyAndSign(to: staged, useSelected: true)
         return staged
@@ -157,7 +157,7 @@ private actor ProvisioningRun {
                 let before = targets.filter { $0.selected == nil }.count
                 try select(from: files)
                 detail = targets.filter { $0.selected == nil }.count == before
-                    ? "The selected profiles must cover this Mac, the app’s identifier, signing certificate and entitlements." : nil
+                    ? "The selected profiles must include the destination’s provisioning UDID and match the app’s identifier, signing certificate and entitlements." : nil
             }
         }
     }

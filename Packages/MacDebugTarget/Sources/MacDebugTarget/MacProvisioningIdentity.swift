@@ -21,7 +21,7 @@ public actor MacProvisioningIdentity {
         struct Hardware: Decodable { let provisioning_UDID: String? }
         struct Report: Decodable { let SPHardwareDataType: [Hardware] }
         guard let value = try JSONDecoder().decode(Report.self, from: data).SPHardwareDataType.first?.provisioning_UDID,
-              !value.isEmpty else { throw MacDebugError("System Information could not read this Mac’s provisioning UDID.") }
+              !value.isEmpty else { throw MacDebugError("System Information could not read the destination’s provisioning UDID.") }
         cached = value
         return value
     }

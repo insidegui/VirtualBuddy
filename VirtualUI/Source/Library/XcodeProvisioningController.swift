@@ -17,7 +17,7 @@ public final class XcodeProvisioningController: DebugProvisioningInteraction {
 
     private func panel(for destination: UUID) -> ProvisioningPanel {
         if let existing = panels[destination] { return existing }
-        let name = VirtualMachineSessionUIManager.shared.sessions.values.first { $0.virtualMachine.uuid == destination }?.virtualMachine.name ?? "Virtual Mac"
+        let name = VirtualMachineSessionUIManager.shared.sessions.values.first { $0.virtualMachine.uuid == destination }?.virtualMachine.name ?? "Virtual Machine"
         let panel = ProvisioningPanel(name: name, keys: keys)
         panels[destination] = panel
         panel.window.present(for: destination)
@@ -58,7 +58,7 @@ private final class ProvisioningPanel: ObservableObject {
     private var operation: Task<Void, Never>?
     /// One value for this panel, so the developer confirms their presence once per Run.
     private lazy var api = MacDeviceRegistration(keys: keys)
-    /// The team key is used only after the developer asks to check this Mac's registration.
+    /// The team key is used only after the developer asks to check the virtual machine's registration.
     private var checksApproved = false
 
     init(name: String, keys: DeviceRegistrationKeys) {
@@ -205,8 +205,8 @@ private struct ProvisioningForm: View {
 
     var body: some View {
         XcodeRunSheet(title: request == nil ? "Preparing App for Debugging" : "Provision App for Debugging",
-                      subtitle: request == nil ? "Xcode will launch your app on “\(name)” when signing finishes."
-                          : "To run your app on “\(name)”, its development profile must include this Mac.") {
+                      subtitle: request == nil ? "Xcode will launch your app in “\(name)” when signing finishes."
+                          : "To run your app in “\(name)”, its development profile must include the virtual machine’s provisioning UDID.") {
             if let request {
                 XcodeRunRow(symbol: "person.2", title: "Signing Team \(request.teamID)") {
                     Text(request.bundleIDs.joined(separator: "\n")).textSelection(.enabled)
@@ -228,7 +228,7 @@ private struct ProvisioningForm: View {
                 XcodeRunRow(symbol: "person.text.rectangle", title: "Device Registration") {
                     registrationStatus
                     if !request.automaticSigning {
-                        Text("Import development profiles for the listed apps and extensions, or check for profiles already installed on this Mac.")
+                        Text("Import development profiles for the listed apps and extensions, or check for profiles already installed on the host Mac.")
                     }
                 }
                 if let issue {
@@ -267,12 +267,12 @@ private struct ProvisioningForm: View {
                 .airGlassButtonStyle()
             if let request {
                 if registration == .available {
-                    Button("Register This Mac…") { confirmingRegistration = true }
+                    Button("Register Virtual Machine…") { confirmingRegistration = true }
                         .keyboardShortcut(.defaultAction)
                         .airGlassButtonStyle(prominent: true)
                         .disabled(submitting)
-                        .confirmationDialog("Register \(name) on team \(request.teamID)?", isPresented: $confirmingRegistration) {
-                            Button("Register Mac") { perform(.register) }
+                        .confirmationDialog("Register “\(name)” with team \(request.teamID)?", isPresented: $confirmingRegistration) {
+                            Button("Register Virtual Machine") { perform(.register) }
                             Button("Cancel", role: .cancel) {}
                         } message: {
                             Text("Registration uses one of this team’s Mac device slots for the membership year.")
@@ -301,20 +301,20 @@ private struct ProvisioningForm: View {
         if registration == .checking || submitting {
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text(submitting ? "Registering this Mac…" : "Checking with App Store Connect…")
+                Text(submitting ? "Registering the virtual machine…" : "Checking with App Store Connect…")
             }
         } else {
             switch registration {
             case .manual:
-                Text("Register this Mac with your team, then refresh its profiles. You can also add a team API key in Other Options.")
+                Text("Register the virtual machine with your team, then refresh the development profiles. You can also add a team API key in Other Options.")
             case .unchecked:
-                Text("A team API key is saved for this team. Check whether this Mac is registered with App Store Connect. VirtualBuddy asks for Touch ID or your password before using the key.")
+                Text("Check whether the virtual machine is registered with your signing team. VirtualBuddy asks for Touch ID or your password before using the team’s saved API key.")
             case .available:
-                Text("This Mac can be registered with your team using its App Store Connect key.")
+                Text("Use your team’s App Store Connect key to register the virtual machine.")
             case .registered:
-                Text("This Mac is registered. It may take time for new profiles to include it.")
+                Text("The virtual machine is registered. It may take time for new profiles to include it.")
             case .disabled:
-                Text("This Mac is disabled on the signing team. Ask a team administrator to review it.")
+                Text("Registration for this virtual machine is disabled. Ask a signing team administrator to review it.")
             case .checking: EmptyView()
             }
             if registration == .registered || registration == .disabled {
@@ -357,19 +357,19 @@ private extension ProvisioningForm {
     ProvisioningForm.preview(registration: .checking)
 }
 
-#Preview("Register This Mac") {
+#Preview("Register Virtual Machine") {
     ProvisioningForm.preview(registration: .available)
 }
 
-#Preview("Registering This Mac") {
+#Preview("Registering Virtual Machine") {
     ProvisioningForm.preview(registration: .available, submitting: true)
 }
 
-#Preview("Registered Mac") {
+#Preview("Registered Virtual Machine") {
     ProvisioningForm.preview(registration: .registered)
 }
 
 #Preview("Registration Issue") {
-    ProvisioningForm.preview(registration: .disabled, issue: "The development profile for the share extension does not include this Mac.")
+    ProvisioningForm.preview(registration: .disabled, issue: "The development profile for the share extension does not include the virtual machine’s provisioning UDID.")
 }
 #endif
