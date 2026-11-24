@@ -8,20 +8,20 @@ public enum DebugHostCommand {
         case "extract" where arguments.count == 4:
             try DebugSymbolCache.extract(tool: URL(fileURLWithPath: arguments[1]), primary: URL(fileURLWithPath: arguments[2]), output: URL(fileURLWithPath: arguments[3]))
         case "prepare" where arguments.count == 2:
-            try await prepare(URL(fileURLWithPath: arguments[1]), configuration: configuration)
+            guard let binding = UUID(uuidString: arguments[1]) else { throw MacDebugError("Set up the Xcode scheme again.") }
+            try await prepare(binding, configuration: configuration)
         default: throw MacDebugError("Run the debug helper from a generated Xcode scheme.")
         }
     }
 
-    private static func prepare(_ scheme: URL, configuration: DebugHostConfiguration) async throws {
+    private static func prepare(_ id: UUID, configuration: DebugHostConfiguration) async throws {
         try DebugSocket.prepareRuntime(at: configuration.runtimeDirectory)
-        let xml = try XMLDocument(contentsOf: scheme, options: [.nodeLoadExternalEntitiesNever])
-        guard let binding = DebugScheme.binding(in: xml) else { throw MacDebugError("Set up the Xcode scheme again.") }
-        let handoff = configuration.runtimeDirectory.appendingPathComponent(binding.scheme.uuidString + ".json")
+        let handoff = configuration.runtimeDirectory.appendingPathComponent(id.uuidString + ".json")
         func record(_ reply: DebugBuildReply) throws { try JSONEncoder().encode(reply).write(to: handoff, options: .atomic) }
         try record(.failure("This Run action did not finish preparing the target."))
         do {
             let settings = ProcessInfo.processInfo.environment
+            let (xml, binding) = try DebugScheme.installed(binding: id, settings: settings)
             guard CustomLLDBCommands.isEnabled else { throw MacDebugError("Enable Custom LLDB Commands in Xcode debugging setup, then relaunch Xcode.") }
             guard settings["PLATFORM_NAME"] == "macosx", let directory = settings["TARGET_BUILD_DIR"],
                   let name = settings["FULL_PRODUCT_NAME"], name.hasSuffix(".app"), let path = settings["EXECUTABLE_PATH"],

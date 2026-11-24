@@ -4,7 +4,7 @@ VirtualBuddy can help you set up an Xcode project so that you can run and debug 
 
 ## Requirements
 
-On the first launch with this feature, VirtualBuddy turns on developer features if Xcode is installed. You can change this under **VirtualBuddy Settings → Developer → Enable Developer Features**.
+Developer features are on when Xcode is installed, until you choose otherwise under **VirtualBuddy Settings → Developer → Enable Developer Features**. After that, VirtualBuddy keeps your choice.
 
 The guest needs the current VirtualBuddyGuest app running in a logged-in desktop session and Apple’s Command Line Tools or Xcode installed. Build a signed arm64 macOS app with the Debug configuration and the `com.apple.security.get-task-allow` entitlement, which is added by default in debug builds with Xcode.
 

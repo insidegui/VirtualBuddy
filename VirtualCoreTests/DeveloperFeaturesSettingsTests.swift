@@ -5,7 +5,7 @@ import Testing
 
 struct DeveloperFeaturesSettingsTests {
     @Test(arguments: [true, false])
-    func detectsXcodeOnceAndPreservesUserChoice(xcodeInstalled: Bool) throws {
+    func followsXcodeUntilTheUserChooses(xcodeInstalled: Bool) throws {
         let suiteName = "DeveloperFeaturesSettingsTests.\(UUID().uuidString)"
         let defaults = try #require(UserDefaults(suiteName: suiteName))
         defer { defaults.removePersistentDomain(forName: suiteName) }
@@ -19,20 +19,24 @@ struct DeveloperFeaturesSettingsTests {
             }
         }
 
-        let firstLaunch = try readSettings(xcodeInstalled: xcodeInstalled)
+        var firstLaunch = try readSettings(xcodeInstalled: xcodeInstalled)
         #expect(firstLaunch.developerFeaturesEnabled == xcodeInstalled)
         #expect(firstLaunch.closeBehavior == .saveState)
-        #expect(checks == 1)
+
+        // Saving another setting must not turn the detected default into a choice.
+        firstLaunch.enableTSSCheck.toggle()
+        try firstLaunch.write(to: defaults)
+        #expect(defaults.object(forKey: "developerFeaturesEnabled") == nil)
 
         var nextLaunch = try readSettings(xcodeInstalled: !xcodeInstalled)
-        #expect(nextLaunch.developerFeaturesEnabled == xcodeInstalled)
-        #expect(checks == 1)
+        #expect(nextLaunch.developerFeaturesEnabled == !xcodeInstalled)
+        #expect(checks == 2)
 
-        nextLaunch.developerFeaturesEnabled.toggle()
+        nextLaunch.developerFeaturesEnabled = xcodeInstalled
         try nextLaunch.write(to: defaults)
-        let afterToggle = try readSettings(xcodeInstalled: xcodeInstalled)
-        #expect(afterToggle.developerFeaturesEnabled == !xcodeInstalled)
-        #expect(checks == 1)
+        let afterChoice = try readSettings(xcodeInstalled: !xcodeInstalled)
+        #expect(afterChoice.developerFeaturesEnabled == xcodeInstalled)
+        #expect(checks == 2)
     }
 
     @Test func availabilityFollowsTheSettingAndTheRestriction() throws {

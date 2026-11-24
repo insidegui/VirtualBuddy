@@ -18,7 +18,7 @@ struct DebugBrokerTests {
     private func broker() -> DebugBroker {
         let helper = root.appendingPathComponent("helper")
         return DebugBroker(
-            configuration: .init(applicationURL: root, helperURL: helper, runtimeDirectory: root),
+            configuration: .init(applicationURL: root, helperURL: helper, runtimeDirectory: root, linksDirectory: root.appendingPathComponent("Links")),
             cache: DebugSymbolCache(root: root.appendingPathComponent("Symbols"), helperURL: helper),
             provisioning: .init(cacheDirectory: root.appendingPathComponent("Profiles"), interaction: UnusedInteraction()),
             bindings: MemoryBindingStore(),

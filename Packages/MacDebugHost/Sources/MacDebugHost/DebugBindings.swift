@@ -9,11 +9,15 @@ public struct DebugBinding: Codable, Equatable, Sendable {
     public let id: UUID
     public let destination: UUID
     public let target: String
+    /// Where the scheme was created. The developer can move or rename it afterwards, so a Run
+    /// action never depends on this. It lets the app tell the developer which schemes it approved.
+    public let scheme: URL
 
-    public init(id: UUID, destination: UUID, target: String) {
+    public init(id: UUID, destination: UUID, target: String, scheme: URL) {
         self.id = id
         self.destination = destination
         self.target = target
+        self.scheme = scheme
     }
 }
 
@@ -29,8 +33,13 @@ public protocol DebugBindingStore: Sendable {
 /// app's authentication key without the user's permission, so it cannot forge a record.
 public final class KeychainDebugBindingStore: DebugBindingStore {
     private struct Record: Codable {
+        /// Names the layout of the binding and of the authenticated payload.
+        /// A record with another version is not an approval.
+        var version = Record.currentVersion
         let binding: DebugBinding
         let code: Data
+
+        static let currentVersion = 1
     }
 
     private let service: String
@@ -45,7 +54,8 @@ public final class KeychainDebugBindingStore: DebugBindingStore {
 
     public func binding(for id: UUID) throws -> DebugBinding? {
         guard let data = try read(account: id.uuidString),
-              let record = try? JSONDecoder().decode(Record.self, from: data), record.binding.id == id,
+              let record = try? JSONDecoder().decode(Record.self, from: data),
+              record.version == Record.currentVersion, record.binding.id == id,
               HMAC<SHA256>.isValidAuthenticationCode(record.code, authenticating: Self.payload(record.binding), using: try key()) else {
             return nil
         }
@@ -53,7 +63,9 @@ public final class KeychainDebugBindingStore: DebugBindingStore {
     }
 
     private static func payload(_ binding: DebugBinding) -> Data {
-        Data([binding.id.uuidString, binding.destination.uuidString, binding.target].joined(separator: "\n").utf8)
+        // The scheme location goes last because it is the only field that can contain a newline.
+        Data([String(Record.currentVersion), binding.id.uuidString, binding.destination.uuidString, binding.target,
+              binding.scheme.path].joined(separator: "\n").utf8)
     }
 
     private func key() throws -> SymmetricKey {

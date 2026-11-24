@@ -5,7 +5,10 @@ public enum VirtualBuddyDebugging {
     public static let host = DebugHostConfiguration(
         applicationURL: Bundle.main.bundleURL,
         helperURL: Bundle.main.bundleURL.appendingPathComponent("Contents/MacOS/vbdebug"),
-        runtimeDirectory: URL(fileURLWithPath: "/private/tmp/vbdebug-\(getuid())", isDirectory: true)
+        runtimeDirectory: URL(fileURLWithPath: "/private/tmp/vbdebug-\(getuid())", isDirectory: true),
+        // Xcode schemes created by earlier versions refer to this directory. Do not move it.
+        linksDirectory: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("codes.rambo.VirtualBuddy/XcodeDebugging", isDirectory: true)
     )
 
     public static let bindings = KeychainDebugBindingStore(

@@ -107,6 +107,12 @@ public final class DebugBroker {
     public func start() throws {
         guard listenerTask == nil else { return }
         try DebugSocket.prepareRuntime(at: configuration.runtimeDirectory)
+        do {
+            try configuration.refreshLinks()
+        } catch {
+            // Links from an earlier launch may still be right, so keep accepting runs.
+            logger.error("Could not update the links used by Xcode schemes: \(error.localizedDescription)")
+        }
         let path = configuration.endpoint(pid: getpid())
         unlink(path.path)
         // Only the helper shipped in this app may request runs. It is the same signed

@@ -11,7 +11,7 @@ VirtualBuddy uses local Swift packages for Xcode deployment and debugging on App
 
 ### Host integration
 
-Create a `DebugHostConfiguration` with the app URL, helper executable, and a short, private per-user socket directory. The generated scheme loads the LLDB module from the package's resource bundle. Forward the helper's arguments to `DebugHostCommand.run`. Create one `DebugSymbolCache` with the app's chosen cache directory and helper, and share it between the broker and cache management UI.
+Create a `DebugHostConfiguration` with the app URL, helper executable, a short, private per-user socket directory, and a links directory. Generated schemes run the helper and load the LLDB module through links in that directory, which `start()` and `install` point at the running app, so schemes keep working when the app is updated or moved. Choose a per-user location outside the app bundle and never change it: schemes that already exist refer to it. Forward the helper's arguments to `DebugHostCommand.run`. Create one `DebugSymbolCache` with the app's chosen cache directory and helper, and share it between the broker and cache management UI.
 
 Start a `DebugBroker` with an authorization check and a closure that resolves a stable destination UUID to a `RemoteDebugSession`. Use `DebugScheme.choices(in:)` and `install(destination:named:configuration:bindings:)` to create the user's Xcode scheme. Call `start()` while debugging is enabled and `stopListening()` when the user turns it off, so the socket exists only while it is needed; runs that are already debugging continue. Call `stop()` when the app shuts down.
 

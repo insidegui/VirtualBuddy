@@ -20,7 +20,7 @@ struct DebugBindingTests {
     }
 
     @Test func aRunUsesTheApprovedDestinationAndLocalAppPaths() throws {
-        let binding = DebugBinding(id: UUID(), destination: UUID(), target: "APP")
+        let binding = DebugBinding(id: UUID(), destination: UUID(), target: "APP", scheme: URL(fileURLWithPath: "/Projects/App.xcodeproj/xcuserdata/App.xcscheme"))
         let app = "file:///Build/Products/Debug/Example.app"
         let build = try DebugBuild(request(binding: binding.id, product: app, executable: app + "/Contents/MacOS/Example"), binding: binding)
         #expect(build.destination == binding.destination)
@@ -44,7 +44,7 @@ struct DebugBindingTests {
         let query: [String: Any] = [kSecClass as String: kSecClassGenericPassword, kSecAttrService as String: service]
         defer { while SecItemDelete(query as CFDictionary) == errSecSuccess {} }
 
-        let binding = DebugBinding(id: UUID(), destination: UUID(), target: "APP")
+        let binding = DebugBinding(id: UUID(), destination: UUID(), target: "APP", scheme: URL(fileURLWithPath: "/Projects/App.xcodeproj/xcuserdata/App.xcscheme"))
         #expect(try store.binding(for: binding.id) == nil)
         try store.register(binding)
         #expect(try store.binding(for: binding.id) == binding)
@@ -64,6 +64,16 @@ struct DebugBindingTests {
         item[kSecReturnData as String] = nil
         let update = [kSecValueData as String: try JSONSerialization.data(withJSONObject: record)]
         #expect(SecItemUpdate(item as CFDictionary, update as CFDictionary) == errSecSuccess)
+        #expect(try store.binding(for: binding.id) == nil)
+
+        // A record in a layout this version does not know is not an approval either.
+        try store.register(binding)
+        #expect(SecItemCopyMatching(query.merging([kSecAttrAccount as String: binding.id.uuidString, kSecReturnData as String: true]) { $1 } as CFDictionary, &result) == errSecSuccess)
+        let current = try #require(result as? Data)
+        var newer = try #require(try JSONSerialization.jsonObject(with: current) as? [String: Any])
+        #expect(newer["version"] as? Int == 1)
+        newer["version"] = 2
+        #expect(SecItemUpdate(item as CFDictionary, [kSecValueData as String: try JSONSerialization.data(withJSONObject: newer)] as CFDictionary) == errSecSuccess)
         #expect(try store.binding(for: binding.id) == nil)
     }
 }
