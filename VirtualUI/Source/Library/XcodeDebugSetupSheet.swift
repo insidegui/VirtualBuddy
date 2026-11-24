@@ -7,8 +7,6 @@ struct XcodeDebugSetupSheet: View {
     let vmID: UUID
     let vmName: String
 
-    @Environment(\.dismiss) private var dismiss
-
     @State private var choosingProject = false
     @State private var project: SetupProject?
     @State private var commandsEnabled = false
@@ -21,6 +19,77 @@ struct XcodeDebugSetupSheet: View {
     }
 
     var body: some View {
+        XcodeDebugSetupForm(vmName: vmName, projectURL: project?.url, projectError: project?.error,
+                            isLoading: project?.isLoading == true, choices: project?.choices.map(\.option) ?? [],
+                            selectedID: project.map { Bindable($0).selectedID } ?? .constant(nil),
+                            commandsEnabled: commandsEnabled, needsXcodeRelaunch: needsXcodeRelaunch,
+                            createdScheme: createdScheme, errorMessage: errorMessage,
+                            chooseProject: { choosingProject = true }, enableCommands: enableCommands,
+                            createScheme: createScheme)
+        .fileImporter(isPresented: $choosingProject, allowedContentTypes: Self.documentTypes) { result in
+            do {
+                project = SetupProject(url: try result.get())
+                errorMessage = nil
+            } catch let error as CocoaError where error.code == .userCancelled {
+                return
+            } catch {
+                errorMessage = error.localizedDescription
+            }
+        }
+        .task(id: project?.id) { await project?.loadChoices() }
+        .onAppear { commandsEnabled = CustomLLDBCommands.isEnabled }
+        .onChange(of: project?.selectedID) { errorMessage = nil }
+    }
+
+    private func enableCommands() {
+        do {
+            try VBSettings.current.requireDeveloperFeatures()
+            if !CustomLLDBCommands.isEnabled {
+                try CustomLLDBCommands.enable()
+                needsXcodeRelaunch = true
+            }
+            commandsEnabled = true
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+
+    private func createScheme() {
+        guard let choice = project?.selectedChoice else { return }
+        commandsEnabled = CustomLLDBCommands.isEnabled
+        guard commandsEnabled else { return }
+        do {
+            try VBSettings.current.requireDeveloperFeatures()
+            createdScheme = try choice.scheme.install(destination: vmID, named: vmName, configuration: VirtualBuddyDebugging.host,
+                                                      bindings: VirtualBuddyDebugging.bindings)
+            errorMessage = nil
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+}
+
+private struct XcodeDebugSetupForm: View {
+    let vmName: String
+    var projectURL: URL?
+    var projectError: String?
+    var isLoading = false
+    var choices: [SchemePicker.Option] = []
+    @Binding var selectedID: UUID?
+    var commandsEnabled = false
+    var needsXcodeRelaunch = false
+    var createdScheme: URL?
+    var errorMessage: String?
+    let chooseProject: () -> Void
+    let enableCommands: () -> Void
+    let createScheme: () -> Void
+
+    @Environment(\.dismiss) private var dismiss
+
+    private var selectedChoice: SchemePicker.Option? { choices.first { $0.id == selectedID } }
+
+    var body: some View {
         VStack(alignment: .leading, spacing: 0) {
             VStack(alignment: .leading, spacing: 8) {
                 Text("Set Up Xcode Debugging", bundle: #bundle)
@@ -31,37 +100,37 @@ struct XcodeDebugSetupSheet: View {
             .padding(24)
 
             VStack(alignment: .leading, spacing: 14) {
-                SetupStep(title: "Project or workspace", complete: project != nil) {
-                    if let project {
-                        Text(verbatim: project.url.lastPathComponent)
+                SetupStep(title: "Project or workspace", complete: projectURL != nil) {
+                    if let projectURL {
+                        Text(verbatim: projectURL.lastPathComponent)
                             .lineLimit(1)
                             .truncationMode(.middle)
-                            .help(project.url.path)
+                            .help(projectURL.path)
                     }
                 } control: {
                     if createdScheme == nil {
                         Button {
-                            choosingProject = true
+                            chooseProject()
                         } label: {
-                            Text(project == nil ? "Choose…" : "Change…", bundle: #bundle)
+                            Text(projectURL == nil ? "Choose…" : "Change…", bundle: #bundle)
                         }
                     }
                 }
 
                 Divider()
 
-                SetupStep(title: "App scheme", complete: project?.selectedChoice != nil) {
-                    if let error = project?.error {
+                SetupStep(title: "App scheme", complete: selectedChoice != nil) {
+                    if let error = projectError {
                         Text(verbatim: error).foregroundStyle(.red)
-                    } else if project == nil {
+                    } else if projectURL == nil {
                         Text("Choose a project to see its app schemes.", bundle: #bundle)
                     }
                 } control: {
-                    if let project, project.isLoading {
+                    if isLoading {
                         ProgressView().controlSize(.small).accessibilityLabel(Text("Finding app schemes", bundle: #bundle))
-                    } else if let project, project.choices.count > 1, createdScheme == nil {
-                        SchemePicker(project: project)
-                    } else if let choice = project?.selectedChoice {
+                    } else if choices.count > 1, createdScheme == nil {
+                        SchemePicker(choices: choices, selection: $selectedID)
+                    } else if let choice = selectedChoice {
                         Text(verbatim: choice.label).lineLimit(1).truncationMode(.middle)
                     }
                 }
@@ -111,7 +180,7 @@ struct XcodeDebugSetupSheet: View {
                             .keyboardShortcut(.cancelAction)
                         Button { createScheme() } label: { Text("Create Scheme", bundle: #bundle) }
                             .keyboardShortcut(.defaultAction)
-                            .disabled(project?.selectedChoice == nil || !commandsEnabled)
+                            .disabled(selectedChoice == nil || !commandsEnabled)
                     }
                 }
             }
@@ -119,47 +188,6 @@ struct XcodeDebugSetupSheet: View {
         }
         .frame(width: 520)
         .fixedSize(horizontal: false, vertical: true)
-        .fileImporter(isPresented: $choosingProject, allowedContentTypes: Self.documentTypes) { result in
-            do {
-                project = SetupProject(url: try result.get())
-                errorMessage = nil
-            } catch let error as CocoaError where error.code == .userCancelled {
-                return
-            } catch {
-                errorMessage = error.localizedDescription
-            }
-        }
-        .task(id: project?.id) { await project?.loadChoices() }
-        .onAppear { commandsEnabled = CustomLLDBCommands.isEnabled }
-        .onChange(of: project?.selectedID) { errorMessage = nil }
-    }
-
-    private func enableCommands() {
-        do {
-            try VBSettings.current.requireDeveloperFeatures()
-            if !CustomLLDBCommands.isEnabled {
-                try CustomLLDBCommands.enable()
-                needsXcodeRelaunch = true
-            }
-            commandsEnabled = true
-            errorMessage = nil
-        } catch {
-            errorMessage = error.localizedDescription
-        }
-    }
-
-    private func createScheme() {
-        guard let choice = project?.selectedChoice else { return }
-        commandsEnabled = CustomLLDBCommands.isEnabled
-        guard commandsEnabled else { return }
-        do {
-            try VBSettings.current.requireDeveloperFeatures()
-            createdScheme = try choice.scheme.install(destination: vmID, named: vmName, configuration: VirtualBuddyDebugging.host,
-                                                      bindings: VirtualBuddyDebugging.bindings)
-            errorMessage = nil
-        } catch {
-            errorMessage = error.localizedDescription
-        }
     }
 }
 
@@ -189,12 +217,18 @@ private struct SetupStep<Detail: View, Control: View>: View {
 }
 
 private struct SchemePicker: View {
-    @Bindable var project: SetupProject
+    struct Option: Identifiable {
+        let id: UUID
+        let label: String
+    }
+
+    let choices: [Option]
+    @Binding var selection: UUID?
 
     var body: some View {
-        Picker(selection: $project.selectedID) {
+        Picker(selection: $selection) {
             Text("Choose a scheme…", bundle: #bundle).tag(nil as UUID?)
-            ForEach(project.choices) { choice in
+            ForEach(choices) { choice in
                 Text(verbatim: choice.label).tag(Optional(choice.id))
             }
         } label: { Text("App scheme", bundle: #bundle) }
@@ -243,6 +277,7 @@ private final class SetupProject: Identifiable {
     struct Choice: Identifiable {
         let id = UUID()
         let label: String
+        var option: SchemePicker.Option { .init(id: id, label: label) }
         let scheme: DebugScheme
 
         @concurrent static func discover(in url: URL) async throws -> sending [Self] {
@@ -255,3 +290,48 @@ private final class SetupProject: Identifiable {
         }
     }
 }
+
+#if DEBUG
+private enum SetupPreview {
+    static let project = URL(filePath: "/Projects/FieldNotes.xcodeproj")
+    static let schemes = ["FieldNotes", "FieldNotes Beta"].map { SchemePicker.Option(id: UUID(), label: $0) }
+}
+
+#Preview("Choose a Project") {
+    XcodeDebugSetupForm(vmName: "Test Mac", selectedID: .constant(nil),
+                        chooseProject: {}, enableCommands: {}, createScheme: {})
+}
+
+#Preview("Choose an App Scheme") {
+    @Previewable @State var selection: UUID?
+    XcodeDebugSetupForm(vmName: "Test Mac", projectURL: SetupPreview.project, choices: SetupPreview.schemes,
+                        selectedID: $selection, commandsEnabled: true,
+                        chooseProject: {}, enableCommands: {}, createScheme: {})
+}
+
+#Preview("Scheme Created") {
+    XcodeDebugSetupForm(vmName: "Test Mac", projectURL: SetupPreview.project, choices: SetupPreview.schemes,
+                        selectedID: .constant(SetupPreview.schemes[0].id), commandsEnabled: true,
+                        needsXcodeRelaunch: true, createdScheme: URL(filePath: "/Schemes/FieldNotes — Test Mac.xcscheme"),
+                        chooseProject: {}, enableCommands: {}, createScheme: {})
+}
+
+#Preview("Setup Steps") {
+    VStack(spacing: 14) {
+        SetupStep(title: "Project or workspace", complete: true) {
+            Text(verbatim: SetupPreview.project.lastPathComponent)
+        } control: { EmptyView() }
+        SetupStep(title: "Custom LLDB Commands", complete: false) {
+            EmptyView()
+        } control: { Button("Enable") {} }
+    }
+    .padding()
+    .frame(width: 480)
+}
+
+#Preview("App Scheme Picker") {
+    @Previewable @State var selection: UUID?
+    SchemePicker(choices: SetupPreview.schemes, selection: $selection)
+        .padding()
+}
+#endif

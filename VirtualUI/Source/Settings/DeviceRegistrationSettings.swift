@@ -3,8 +3,16 @@ import SwiftUI
 import UniformTypeIdentifiers
 import VirtualCore
 
+protocol RegistrationKeyStore: Sendable {
+    func teams() async throws -> [String]
+    func remove(teamID: String) async throws
+    func save(teamID: String, issuerID: UUID, keyID: String, privateKeyFile: URL) async throws
+}
+
+extension DeviceRegistrationKeys: RegistrationKeyStore {}
+
 struct DeviceRegistrationSettings: View {
-    private let keys = XcodeProvisioningController.shared.keys
+    let keys: any RegistrationKeyStore
     @State private var teams: [String] = []
     @State private var editing = false
     @State private var removing: String?
@@ -44,7 +52,7 @@ struct DeviceRegistrationSettings: View {
 }
 
 struct RegistrationKeyEditor: View {
-    let keys: DeviceRegistrationKeys
+    let keys: any RegistrationKeyStore
     let signingTeam: String?
     @Environment(\.dismiss) private var dismiss
     @State private var team: String
@@ -57,7 +65,7 @@ struct RegistrationKeyEditor: View {
 
     private var issuerID: UUID? { UUID(uuidString: issuer.trimmingCharacters(in: .whitespacesAndNewlines)) }
 
-    init(keys: DeviceRegistrationKeys, signingTeam: String? = nil) {
+    init(keys: any RegistrationKeyStore, signingTeam: String? = nil) {
         self.keys = keys
         self.signingTeam = signingTeam
         _team = State(initialValue: signingTeam ?? "")
@@ -138,3 +146,38 @@ struct RegistrationKeyEditor: View {
         }
     }
 }
+
+#if DEBUG
+actor PreviewRegistrationKeys: RegistrationKeyStore {
+    private var teamIDs: Set<String>
+
+    init(teams: Set<String> = []) {
+        teamIDs = teams
+    }
+
+    func teams() -> [String] { teamIDs.sorted() }
+    func remove(teamID: String) { teamIDs.remove(teamID) }
+    func save(teamID: String, issuerID: UUID, keyID: String, privateKeyFile: URL) { teamIDs.insert(teamID) }
+}
+
+private extension DeviceRegistrationSettings {
+    init(previewTeams: [String]) {
+        self.init(keys: PreviewRegistrationKeys(teams: Set(previewTeams)))
+        _teams = State(initialValue: previewTeams)
+    }
+}
+
+#Preview("Device Registration") {
+    SettingsPane {
+        DeviceRegistrationSettings(previewTeams: ["EXAMPLE123", "EXAMPLE456"])
+    }
+}
+
+#Preview("Add Team API Key") {
+    RegistrationKeyEditor(keys: PreviewRegistrationKeys())
+}
+
+#Preview("Add Key for Signing Team") {
+    RegistrationKeyEditor(keys: PreviewRegistrationKeys(), signingTeam: "EXAMPLE123")
+}
+#endif

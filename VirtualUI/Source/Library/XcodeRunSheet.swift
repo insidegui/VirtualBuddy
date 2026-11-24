@@ -112,3 +112,27 @@ struct XcodeRunRow<Content: View>: View {
         .background(.quaternary.opacity(0.55), in: RoundedRectangle(cornerRadius: 12))
     }
 }
+
+#if DEBUG
+#Preview("Run Sheet") {
+    XcodeRunSheet(title: "Provision App for Debugging",
+                  subtitle: "The development profile must include your Test Mac.") {
+        XcodeRunRow(symbol: "person.2", title: "Signing Team EXAMPLE123") {
+            Text(verbatim: "com.example.FieldNotes")
+        }
+    } actions: {
+        Spacer()
+        Button("Cancel", role: .cancel) {}.airGlassButtonStyle()
+        Button("Refresh Profiles") {}.airGlassButtonStyle(prominent: true)
+    }
+}
+
+#Preview("Run Sheet Row") {
+    XcodeRunRow(symbol: "desktopcomputer", title: "Provisioning UDID") {
+        Text(verbatim: "0123456789abcdef0123456789abcdef01234567")
+            .font(.callout.monospaced())
+    }
+    .padding()
+    .frame(width: 480)
+}
+#endif

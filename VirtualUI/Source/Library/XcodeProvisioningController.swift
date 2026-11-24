@@ -163,14 +163,51 @@ private final class ProvisioningPanel: ObservableObject {
 
 private struct ProvisioningView: View {
     @ObservedObject var panel: ProvisioningPanel
+    var body: some View {
+        ProvisioningForm(name: panel.name, message: panel.message,
+                         request: panel.request.map {
+                             .init(teamID: $0.teamID, udid: $0.udid, bundleIDs: $0.bundleIDs, automaticSigning: $0.automaticSigning)
+                         },
+                         registration: panel.registration, issue: panel.issue, submitting: panel.submitting, keys: panel.keys) { action in
+            switch action {
+            case .chooseProfiles: panel.chooseProfiles()
+            case .retry: panel.finish(.success(.retry))
+            case .cancel: panel.cancel()
+            case .register: panel.register()
+            case .checkRegistration: panel.checkRegistration()
+            case .refreshRegistration: panel.refreshRegistration()
+            }
+        }
+    }
+}
+
+private struct ProvisioningForm: View {
+    struct Request {
+        let teamID: String
+        let udid: String
+        let bundleIDs: [String]
+        let automaticSigning: Bool
+    }
+
+    enum Action { case chooseProfiles, retry, cancel, register, checkRegistration, refreshRegistration }
+
+    let name: String
+    let message: String
+    let request: Request?
+    let registration: ProvisioningPanel.Registration
+    let issue: String?
+    let submitting: Bool
+    let keys: any RegistrationKeyStore
+    let perform: (Action) -> Void
+
     @State private var confirmingRegistration = false
     @State private var editingKey = false
 
     var body: some View {
-        XcodeRunSheet(title: panel.request == nil ? "Preparing App for Debugging" : "Provision App for Debugging",
-                      subtitle: panel.request == nil ? "Xcode will launch your app on “\(panel.name)” when signing finishes."
-                          : "To run your app on “\(panel.name)”, its development profile must include this Mac.") {
-            if let request = panel.request {
+        XcodeRunSheet(title: request == nil ? "Preparing App for Debugging" : "Provision App for Debugging",
+                      subtitle: request == nil ? "Xcode will launch your app on “\(name)” when signing finishes."
+                          : "To run your app on “\(name)”, its development profile must include this Mac.") {
+            if let request {
                 XcodeRunRow(symbol: "person.2", title: "Signing Team \(request.teamID)") {
                     Text(request.bundleIDs.joined(separator: "\n")).textSelection(.enabled)
                 }
@@ -194,80 +231,80 @@ private struct ProvisioningView: View {
                         Text("Import development profiles for the listed apps and extensions, or check for profiles already installed on this Mac.")
                     }
                 }
-                if let issue = panel.issue {
+                if let issue {
                     XcodeRunRow(symbol: "exclamationmark.triangle", title: "Provisioning Details") {
                         Text(issue).textSelection(.enabled)
                     }
                 }
             } else {
                 XcodeRunRow(symbol: "signature", title: "Development Profiles") {
-                    Text(panel.message)
-                    ProgressView().progressViewStyle(.linear).accessibilityLabel(panel.message)
+                    Text(message)
+                    ProgressView().progressViewStyle(.linear).accessibilityLabel(message)
                 }
             }
         } actions: {
-            if let request = panel.request {
-                let offersRegistration = panel.registration == .available || panel.registration == .unchecked
+            if let request {
+                let offersRegistration = registration == .available || registration == .unchecked
                 Menu("Other Options") {
-                    if panel.registration == .manual {
+                    if registration == .manual {
                         Button("Add Team API Key…") { editingKey = true }
                     }
-                    if panel.registration == .available {
+                    if registration == .available {
                         Link("Register in Apple Developer", destination: Self.registerDeviceURL)
                     }
                     if request.automaticSigning || offersRegistration {
-                        Button("Import Profiles…") { panel.chooseProfiles() }
+                        Button("Import Profiles…") { perform(.chooseProfiles) }
                     }
                     if !request.automaticSigning || offersRegistration {
-                        Button(request.automaticSigning ? "Refresh Profiles" : "Check Profiles") { panel.finish(.success(.retry)) }
+                        Button(request.automaticSigning ? "Refresh Profiles" : "Check Profiles") { perform(.retry) }
                     }
                 }
-                .disabled(panel.submitting)
+                .disabled(submitting)
             }
             Spacer()
-            Button("Cancel", role: .cancel) { panel.cancel() }
+            Button("Cancel", role: .cancel) { perform(.cancel) }
                 .keyboardShortcut(.cancelAction)
                 .airGlassButtonStyle()
-            if let request = panel.request {
-                if panel.registration == .available {
+            if let request {
+                if registration == .available {
                     Button("Register This Mac…") { confirmingRegistration = true }
                         .keyboardShortcut(.defaultAction)
                         .airGlassButtonStyle(prominent: true)
-                        .disabled(panel.submitting)
-                        .confirmationDialog("Register \(panel.name) on team \(request.teamID)?", isPresented: $confirmingRegistration) {
-                            Button("Register Mac") { panel.register() }
+                        .disabled(submitting)
+                        .confirmationDialog("Register \(name) on team \(request.teamID)?", isPresented: $confirmingRegistration) {
+                            Button("Register Mac") { perform(.register) }
                             Button("Cancel", role: .cancel) {}
                         } message: {
                             Text("Registration uses one of this team’s Mac device slots for the membership year.")
                         }
-                } else if panel.registration == .unchecked {
-                    Button("Check Registration") { panel.checkRegistration() }
+                } else if registration == .unchecked {
+                    Button("Check Registration") { perform(.checkRegistration) }
                         .keyboardShortcut(.defaultAction)
                         .airGlassButtonStyle(prominent: true)
                 } else {
                     Button(request.automaticSigning ? "Refresh Profiles" : "Import Profiles…") {
-                        if request.automaticSigning { panel.finish(.success(.retry)) } else { panel.chooseProfiles() }
+                        if request.automaticSigning { perform(.retry) } else { perform(.chooseProfiles) }
                     }
                     .keyboardShortcut(.defaultAction)
                     .airGlassButtonStyle(prominent: true)
                 }
             }
         }
-        .sheet(isPresented: $editingKey, onDismiss: panel.refreshRegistration) {
-            if let request = panel.request { RegistrationKeyEditor(keys: panel.keys, signingTeam: request.teamID) }
+        .sheet(isPresented: $editingKey, onDismiss: { perform(.refreshRegistration) }) {
+            if let request { RegistrationKeyEditor(keys: keys, signingTeam: request.teamID) }
         }
     }
 
     private static let registerDeviceURL = URL(string: "https://developer.apple.com/account/resources/devices/add")!
 
     @ViewBuilder private var registrationStatus: some View {
-        if panel.registration == .checking || panel.submitting {
+        if registration == .checking || submitting {
             HStack(spacing: 8) {
                 ProgressView().controlSize(.small)
-                Text(panel.submitting ? "Registering this Mac…" : "Checking with App Store Connect…")
+                Text(submitting ? "Registering this Mac…" : "Checking with App Store Connect…")
             }
         } else {
-            switch panel.registration {
+            switch registration {
             case .manual:
                 Text("Register this Mac with your team, then refresh its profiles. You can also add a team API key in Other Options.")
             case .unchecked:
@@ -280,13 +317,59 @@ private struct ProvisioningView: View {
                 Text("This Mac is disabled on the signing team. Ask a team administrator to review it.")
             case .checking: EmptyView()
             }
-            if panel.registration == .registered || panel.registration == .disabled {
+            if registration == .registered || registration == .disabled {
                 Link("View Registered Devices", destination: URL(string: "https://developer.apple.com/account/resources/devices/list")!)
                     .foregroundStyle(.tint)
-            } else if panel.registration == .manual {
+            } else if registration == .manual {
                 Link("Register in Apple Developer", destination: Self.registerDeviceURL)
                     .foregroundStyle(.tint)
             }
         }
     }
 }
+
+#if DEBUG
+private extension ProvisioningForm {
+    static func preview(registration: ProvisioningPanel.Registration? = nil, automaticSigning: Bool = true,
+                        issue: String? = nil, submitting: Bool = false) -> Self {
+        let request = registration.map { _ in
+            Request(teamID: "EXAMPLE123", udid: "0123456789abcdef0123456789abcdef01234567",
+                    bundleIDs: ["com.example.FieldNotes", "com.example.FieldNotes.Share"], automaticSigning: automaticSigning)
+        }
+        return Self(name: "Test Mac", message: "Refreshing development profiles with Xcode…", request: request,
+                    registration: registration ?? .checking, issue: issue, submitting: submitting, keys: PreviewRegistrationKeys()) { _ in }
+    }
+}
+
+#Preview("Refreshing Development Profiles") {
+    ProvisioningForm.preview()
+}
+
+#Preview("Manual Provisioning") {
+    ProvisioningForm.preview(registration: .manual, automaticSigning: false)
+}
+
+#Preview("Check Registration") {
+    ProvisioningForm.preview(registration: .unchecked)
+}
+
+#Preview("Checking Registration") {
+    ProvisioningForm.preview(registration: .checking)
+}
+
+#Preview("Register This Mac") {
+    ProvisioningForm.preview(registration: .available)
+}
+
+#Preview("Registering This Mac") {
+    ProvisioningForm.preview(registration: .available, submitting: true)
+}
+
+#Preview("Registered Mac") {
+    ProvisioningForm.preview(registration: .registered)
+}
+
+#Preview("Registration Issue") {
+    ProvisioningForm.preview(registration: .disabled, issue: "The development profile for the share extension does not include this Mac.")
+}
+#endif
