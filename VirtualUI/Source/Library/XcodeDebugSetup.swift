@@ -7,7 +7,7 @@ import MacDebugHost
 @MainActor
 public enum XcodeDebugSetup {
     private static var observer: AnyCancellable?
-    private static var panels: [UUID: NSPanel] = [:]
+    private static var panels: [UUID: XcodeRunPanel] = [:]
 
     public static func observeCachePreparation() {
         observer = VirtualBuddyDebugging.symbolCache.$activities
@@ -16,8 +16,7 @@ public enum XcodeDebugSetup {
             .sink { activities in
                 let active = Set(activities.map(\.id))
                 for (id, panel) in panels where !active.contains(id) {
-                    panel.parent?.removeChildWindow(panel)
-                    panel.close()
+                    panel.dismiss()
                     panels[id] = nil
                 }
                 for activity in activities where panels[activity.id] == nil {
@@ -26,49 +25,39 @@ public enum XcodeDebugSetup {
             }
     }
 
-    private static func present(_ activity: DebugSymbolCache.Activity) -> NSPanel {
-        let panel = NSPanel(contentRect: .init(x: 0, y: 0, width: 420, height: 150), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        panel.title = "Preparing Xcode Debugging Symbols"
-        panel.isReleasedWhenClosed = false
-        panel.collectionBehavior = [.fullScreenAuxiliary, .moveToActiveSpace]
-        panel.contentView = NSHostingView(rootView: DebugCacheProgress(run: activity.id))
-
-        present(panel, for: activity.destinationID)
+    private static func present(_ activity: DebugSymbolCache.Activity) -> XcodeRunPanel {
+        let panel = XcodeRunPanel(title: "Preparing Debugging Symbols")
+        panel.host(DebugCacheProgress(run: activity.id))
+        panel.present(for: activity.destinationID)
         return panel
-    }
-
-    static func present(_ panel: NSPanel, for destination: UUID) {
-        if !NSApp.isActive { NSApp.requestUserAttention(.informationalRequest) }
-        if NSApp.isHidden { NSApp.unhide(nil) }
-        NSApp.activate()
-        if let session = VirtualMachineSessionUIManager.shared.sessions.values.first(where: { $0.virtualMachine.uuid == destination }),
-           let window = session.hostWindow {
-            if window.isMiniaturized { window.deminiaturize(nil) }
-            session.bringToFront()
-            var frame = panel.frame
-            frame.origin = CGPoint(x: window.frame.midX - frame.width / 2, y: window.frame.midY - frame.height / 2)
-            panel.setFrame(panel.constrainFrameRect(frame, to: window.screen), display: false)
-            window.addChildWindow(panel, ordered: .above)
-        } else {
-            panel.center()
-        }
-        panel.makeKeyAndOrderFront(nil)
     }
 }
 
 private struct DebugCacheProgress: View {
     let run: UUID
     @ObservedObject private var cache = VirtualBuddyDebugging.symbolCache
+
     var body: some View {
         if let activity = cache.activities.first(where: { $0.id == run }) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("macOS " + activity.system).font(.headline)
-                ProgressView(value: activity.fraction) { Text(activity.detail) }
-                    .progressViewStyle(.linear)
-                Button("Cancel") { cache.cancel(activity.id) }
+            XcodeRunSheet(title: "Preparing Debugging Symbols",
+                          subtitle: "Xcode uses these symbols to show system functions when debugging macOS \(activity.system).") {
+                XcodeRunRow(symbol: "shippingbox", title: activity.detail) {
+                    HStack {
+                        ProgressView(value: activity.fraction)
+                            .progressViewStyle(.linear)
+                            .accessibilityLabel("Debugging symbols")
+                        if let fraction = activity.fraction {
+                            Text(fraction, format: .percent.precision(.fractionLength(0)))
+                                .font(.caption.monospacedDigit())
+                        }
+                    }
+                }
+            } actions: {
+                Spacer()
+                Button("Cancel", role: .cancel) { cache.cancel(run) }
+                    .keyboardShortcut(.cancelAction)
+                    .airGlassButtonStyle()
             }
-            .padding()
-            .frame(minWidth: 400)
         }
     }
 }

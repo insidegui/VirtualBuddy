@@ -64,33 +64,53 @@ struct RegistrationKeyEditor: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            Text("App Store Connect Team Key").font(.headline)
-            Text("Choose an App Store Connect team key with permission to register devices for the signing team shown in Xcode.")
-            Link("Manage Team Keys in App Store Connect", destination: URL(string: "https://appstoreconnect.apple.com/access/integrations/api")!)
-            Form {
-                if let signingTeam {
-                    LabeledContent("Signing team ID", value: signingTeam)
-                } else {
-                    TextField("Signing team ID", text: $team)
+        XcodeRunSheet(title: "Add Team API Key",
+                      subtitle: "Choose an App Store Connect team key with permission to register devices. The private key is stored in this Mac’s Keychain.") {
+            XcodeRunRow(symbol: "key", title: "App Store Connect Credentials") {
+                Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
+                    GridRow {
+                        Text("Signing team")
+                        if let signingTeam {
+                            Text(signingTeam).textSelection(.enabled)
+                        } else {
+                            TextField("Signing team ID", text: $team)
+                        }
+                    }
+                    GridRow {
+                        Text("Issuer ID")
+                        TextField("Issuer ID", text: $issuer)
+                    }
+                    GridRow {
+                        Text("Key ID")
+                        TextField("Key ID", text: $keyID)
+                    }
+                    GridRow {
+                        Text("Private key")
+                        Button(file?.lastPathComponent ?? "Choose .p8 File…") { choosing = true }
+                            .lineLimit(1).truncationMode(.middle)
+                    }
                 }
-                TextField("Issuer ID", text: $issuer)
-                TextField("Key ID", text: $keyID)
-                LabeledContent("Private key") {
-                    Button(file?.lastPathComponent ?? "Choose .p8 File…") { choosing = true }
+                .foregroundStyle(.primary)
+                .padding(.vertical, 4)
+                Link("Manage Team Keys in App Store Connect", destination: URL(string: "https://appstoreconnect.apple.com/access/integrations/api")!)
+                    .foregroundStyle(.tint)
+            }
+            if let error {
+                XcodeRunRow(symbol: "exclamationmark.triangle", title: "Couldn’t Save Key") {
+                    Text(error).textSelection(.enabled)
                 }
             }
-            if let error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
-            HStack {
-                Spacer()
-                Button("Cancel", role: .cancel) { dismiss() }.keyboardShortcut(.cancelAction)
-                Button("Save Key") { save() }.keyboardShortcut(.defaultAction)
-                    .disabled(team.isEmpty || keyID.isEmpty || issuerID == nil || file == nil)
-            }
+        } actions: {
+            Spacer()
+            Button("Cancel", role: .cancel) { dismiss() }
+                .keyboardShortcut(.cancelAction)
+                .airGlassButtonStyle()
+            Button("Save Key") { save() }
+                .keyboardShortcut(.defaultAction)
+                .airGlassButtonStyle(prominent: true)
+                .disabled(team.isEmpty || keyID.isEmpty || issuerID == nil || file == nil)
         }
         .disabled(saving)
-        .padding(20)
-        .frame(width: 440)
         .fileImporter(isPresented: $choosing, allowedContentTypes: [UTType(filenameExtension: "p8") ?? .data]) { result in
             do {
                 let url = try result.get()
