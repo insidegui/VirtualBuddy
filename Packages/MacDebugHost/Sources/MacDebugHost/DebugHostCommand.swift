@@ -42,7 +42,11 @@ public enum DebugHostCommand {
             while stream == nil {
                 stream = try? DebugSocket.unix(url, listening: false)
                 if stream == nil {
-                    guard !host.isTerminated, ContinuousClock.now < deadline else { throw MacDebugError("Open the app that created this scheme and try again.") }
+                    guard !host.isTerminated else { throw MacDebugError("Open the app that created this scheme and try again.") }
+                    // The app closes its socket while Xcode debugging is turned off.
+                    guard ContinuousClock.now < deadline else {
+                        throw MacDebugError("The app that created this scheme is not accepting debug runs. Make sure Xcode debugging is enabled in its settings, then run again.")
+                    }
                     try await Task.sleep(for: .milliseconds(100))
                 }
             }

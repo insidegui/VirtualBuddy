@@ -4,7 +4,7 @@ import OSLog
 
 /// What the scheme's pre-action asks for. The sender is unprivileged, so every field is
 /// validated and the destination comes from the binding the developer approved.
-struct DebugBuildRequest: Codable {
+struct DebugBuildRequest: Codable, Sendable {
     let binding: UUID
     let product: URL
     let executable: URL
@@ -67,6 +67,10 @@ public final class DebugBroker {
     private var clients: [UUID: Task<Void, Never>] = [:]
     private var listenerTask: Task<Void, Never>?
     private let logger = Logger(subsystem: "MacDebugHost", category: "DebugBroker")
+    /// A client stays connected while its run is prepared, so this also bounds concurrent preparations.
+    var clientLimit = 16
+    /// The helper sends its request as soon as it connects.
+    var requestTimeout = Duration.seconds(10)
 
     public init(
         configuration: DebugHostConfiguration,
@@ -84,13 +88,20 @@ public final class DebugBroker {
         self.resolveDestination = resolveDestination
     }
 
+    /// Closes the listener and ends every run. Use this when the app shuts down.
     public func stop() {
+        stopListening()
+        for client in clients.values { client.cancel() }
+        for relay in relays.values { relay.cancel() }
+    }
+
+    /// Closes the listener so no new run can be requested. Runs that are already
+    /// debugging continue, and runs still being prepared end at their next authorization check.
+    public func stopListening() {
         guard let listenerTask else { return }
         listenerTask.cancel()
         self.listenerTask = nil
         unlink(configuration.endpoint(pid: getpid()).path)
-        for client in clients.values { client.cancel() }
-        for relay in relays.values { relay.cancel() }
     }
 
     public func start() throws {
@@ -103,36 +114,47 @@ public final class DebugBroker {
         let helper = try DebugPeerRequirement.currentApplication()
         let listener = try DebugSocket.unix(path, listening: true)
         listenerTask = Task {
+            var failures = 0
             while !Task.isCancelled {
                 do {
                     // Peers are checked per connection, so a rejected one cannot end the listener.
                     let socket = try await listener.accept(timeout: -1) { _, _ in }
                     try Task.checkCancellation()
-                    let id = UUID()
-                    clients[id] = Task {
-                        defer { clients.removeValue(forKey: id) }
-                        do {
-                            try socket.requirePeer(helper)
-                        } catch {
-                            logger.error("Rejected a debugger connection from an unrecognized process.")
-                            return
-                        }
-                        await serve(socket)
-                    }
+                    failures = 0
+                    accept(socket, from: helper)
                 } catch {
-                    if !Task.isCancelled {
-                        logger.error("Debugger listener: \(error.localizedDescription)")
-                        stop()
-                    }
-                    return
+                    guard !Task.isCancelled else { return }
+                    // Failures such as running out of file descriptors pass, so the listener
+                    // waits and tries again instead of staying down until the app restarts.
+                    failures += 1
+                    logger.error("Debugger listener: \(error.localizedDescription)")
+                    try? await Task.sleep(for: .milliseconds(min(250 << min(failures, 5), 5000)))
                 }
             }
         }
     }
 
+    private func accept(_ socket: DebugSocket, from helper: DebugPeerRequirement) {
+        guard clients.count < clientLimit else {
+            logger.error("Refused a debugger connection because too many are open.")
+            return
+        }
+        let id = UUID()
+        clients[id] = Task {
+            defer { clients.removeValue(forKey: id) }
+            do {
+                try socket.requirePeer(helper)
+            } catch {
+                logger.error("Rejected a debugger connection from an unrecognized process.")
+                return
+            }
+            await serve(socket)
+        }
+    }
+
     private func serve(_ socket: DebugSocket) async {
         do {
-            let request = try await socket.receive(DebugBuildRequest.self)
+            let request = try await socket.receive(DebugBuildRequest.self, within: requestTimeout)
             try authorize()
             guard let binding = try bindings.binding(for: request.binding) else {
                 throw MacDebugError("This Xcode scheme has not been approved. Set up Xcode debugging for it again.")

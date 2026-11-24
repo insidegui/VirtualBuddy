@@ -150,6 +150,20 @@ public final class DebugSocket: @unchecked Sendable {
         return try JSONDecoder().decode(type, from: await exactly(length))
     }
 
+    /// Receives one value. When it does not arrive in time, this throws and the stream is
+    /// shut down, because cancelling the pending read is what interrupts it.
+    public func receive<T: Decodable & Sendable>(_ type: T.Type, within limit: Duration) async throws -> T {
+        try await withThrowingTaskGroup(of: T.self) { group in
+            group.addTask { try await self.receive(type) }
+            group.addTask {
+                try await Task.sleep(for: limit)
+                throw POSIXError(.ETIMEDOUT)
+            }
+            defer { group.cancelAll() }
+            return try await group.next()!
+        }
+    }
+
     public static func relay(_ a: DebugSocket, _ b: DebugSocket) async {
         await withTaskGroup(of: Void.self) { group in
             for (source, destination) in [(a, b), (b, a)] {

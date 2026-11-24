@@ -7,6 +7,7 @@
 
 import Foundation
 import Combine
+import ManagedPreferencesKit
 import OSLog
 
 public final class VBSettingsContainer: ObservableObject {
@@ -28,6 +29,54 @@ public final class VBSettingsContainer: ObservableObject {
 
     private lazy var cancellables = Set<AnyCancellable>()
 
+    private lazy var developerFeaturesPolicy = DefaultsKeyObserver(
+        defaults: defaults,
+        key: ManagedPreference<VirtualBuddyManagedPreferences, Bool>.disableDeveloperFeatures.key
+    )
+
+    /// Whether developer features can be used: the user's setting, unless a configuration profile disables them.
+    /// Publishes the current value on subscription, then each change. Changes to the profile are published
+    /// on the thread that observed them.
+    public var developerFeaturesAvailability: AnyPublisher<Bool, Never> {
+        let preferences = VirtualBuddyManagedPreferences.schema.reader(store: UserDefaultsManagedPreferenceStore(defaults))
+
+        return $settings
+            .combineLatest(developerFeaturesPolicy.changes.prepend(()))
+            .map { settings, _ in (try? settings.requireDeveloperFeatures(preferences: preferences)) != nil }
+            .removeDuplicates()
+            .eraseToAnyPublisher()
+    }
+
+}
+
+/// Reports changes to one defaults key, including those made by a configuration profile or another process.
+private final class DefaultsKeyObserver: NSObject {
+    let changes = PassthroughSubject<Void, Never>()
+
+    private let defaults: UserDefaults
+    private let key: String
+
+    init(defaults: UserDefaults, key: String) {
+        self.defaults = defaults
+        self.key = key
+
+        super.init()
+
+        defaults.addObserver(self, forKeyPath: key, context: nil)
+    }
+
+    deinit {
+        defaults.removeObserver(self, forKeyPath: key)
+    }
+
+    override func observeValue(
+        forKeyPath keyPath: String?,
+        of object: Any?,
+        change: [NSKeyValueChangeKey: Any]?,
+        context: UnsafeMutableRawPointer?
+    ) {
+        changes.send()
+    }
 }
 
 // MARK: - Internal Extensions

@@ -56,12 +56,7 @@ private final class VMDebugSession: RemoteDebugSession {
         let endpoint = try await session.launchDebugApp(archive, options: options, run: run)
         let connection = try await controller.connectDebugger(to: endpoint.port)
         let remote = try DebugSocket(owning: dup(connection.fileDescriptor))
-        let token = try await withThrowingTaskGroup(of: UUID.self) { group in
-            group.addTask { try await remote.receive(UUID.self) }
-            group.addTask { try await Task.sleep(for: .seconds(10)); throw POSIXError(.ETIMEDOUT) }
-            defer { group.cancelAll() }
-            return try await group.next()!
-        }
+        let token = try await remote.receive(UUID.self, within: .seconds(10))
         guard token == run else { throw MacDebugError("Unexpected debugger session from the VM.") }
         self.connection = connection
         return (endpoint.bundlePath, remote)
