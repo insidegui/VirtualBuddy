@@ -1,12 +1,39 @@
 import MacDebugHost
+import ManagedPreferencesUI
 import SwiftUI
 import UniformTypeIdentifiers
 import VirtualCore
+
+@propertyWrapper
+private struct DeveloperFeaturesEnabled: DynamicProperty {
+    @ObservedObject private var settings = VBSettingsContainer.current
+    @ManagedValue(for: .disableDeveloperFeatures, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var disabledByPolicy: Bool
+
+    var wrappedValue: Bool { settings.settings.developerFeaturesEnabled && !disabledByPolicy }
+}
+
+struct XcodeDebugSetupButton: View {
+    let vm: VBVirtualMachine
+    let action: () -> Void
+
+    @DeveloperFeaturesEnabled private var developerFeaturesEnabled
+    @EnvironmentObject private var library: VMLibraryController
+
+    var body: some View {
+        if developerFeaturesEnabled && vm.configuration.systemType == .mac {
+            Button("Set Up Xcode Debugging…", action: action)
+                .disabled(vm.needsInstall || library.duplicatingMachineIdentifiers.contains(vm.id))
+        }
+    }
+}
 
 struct XcodeDebugSetupSheet: View {
     let vmID: UUID
     let vmName: String
 
+    @DeveloperFeaturesEnabled private var developerFeaturesEnabled
+    @Environment(\.dismiss) private var dismiss
     @State private var choosingProject = false
     @State private var project: SetupProject?
     @State private var commandsEnabled = false
@@ -39,6 +66,9 @@ struct XcodeDebugSetupSheet: View {
         .task(id: project?.id) { await project?.loadChoices() }
         .onAppear { commandsEnabled = CustomLLDBCommands.isEnabled }
         .onChange(of: project?.selectedID) { errorMessage = nil }
+        .onChange(of: developerFeaturesEnabled, initial: true) {
+            if !developerFeaturesEnabled { dismiss() }
+        }
     }
 
     private func enableCommands() {

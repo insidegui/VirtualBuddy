@@ -10,7 +10,7 @@ The guest needs the current VirtualBuddyGuest app running in a logged-in desktop
 
 ## Set up the Xcode scheme
 
-In the VirtualBuddy library, right-click a macOS virtual machine and choose **Set Up Xcode Debugging…**. In the setup sheet, choose the app’s project or workspace and its app scheme. Enable **Custom LLDB Commands** if needed, then click **Create Scheme**. If you enabled the setting, relaunch Xcode. Choose the generated **App — VM** scheme with **My Mac** as the destination, then press **⌘R**.
+With a macOS virtual machine’s window focused, choose **Guest → Set Up Xcode Debugging…**. You can also right-click the virtual machine in the VirtualBuddy library and choose **Set Up Xcode Debugging…**. In the setup sheet, choose the app’s project or workspace and its app scheme. Enable **Custom LLDB Commands** if needed, then click **Create Scheme**. If you enabled the setting, relaunch Xcode. Choose the generated **App — VM** scheme with **My Mac** as the destination, then press **⌘R**.
 
 ## Provisioning and device registration
 
