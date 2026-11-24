@@ -21,6 +21,10 @@ struct DeveloperSettingsView: View {
                 }
             }
 
+            if isEnabled && !developerFeaturesDisabled {
+                SettingsDivider()
+                DeviceRegistrationSettings()
+            }
             DebugCacheSettings(showWhenEmpty: isEnabled && !developerFeaturesDisabled)
         }
         .task { VirtualBuddyDebugging.symbolCache.reload() }

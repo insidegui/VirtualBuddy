@@ -33,10 +33,15 @@ public enum XcodeDebugSetup {
         panel.collectionBehavior = [.fullScreenAuxiliary, .moveToActiveSpace]
         panel.contentView = NSHostingView(rootView: DebugCacheProgress(run: activity.id))
 
+        present(panel, for: activity.destinationID)
+        return panel
+    }
+
+    static func present(_ panel: NSPanel, for destination: UUID) {
         if !NSApp.isActive { NSApp.requestUserAttention(.informationalRequest) }
         if NSApp.isHidden { NSApp.unhide(nil) }
         NSApp.activate()
-        if let session = VirtualMachineSessionUIManager.shared.sessions.values.first(where: { $0.virtualMachine.uuid == activity.destinationID }),
+        if let session = VirtualMachineSessionUIManager.shared.sessions.values.first(where: { $0.virtualMachine.uuid == destination }),
            let window = session.hostWindow {
             if window.isMiniaturized { window.deminiaturize(nil) }
             session.bringToFront()
@@ -48,7 +53,6 @@ public enum XcodeDebugSetup {
             panel.center()
         }
         panel.makeKeyAndOrderFront(nil)
-        return panel
     }
 }
 

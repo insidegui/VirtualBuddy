@@ -7,6 +7,7 @@ struct DebugBuild: Codable {
     let product: URL
     let executable: URL
     let developer: URL
+    let automaticSigning: Bool
     let options: DebugLaunchOptions
 }
 
@@ -28,9 +29,11 @@ enum DebugBuildReply: Codable {
 public final class DebugBroker {
     private let configuration: DebugHostConfiguration
     private let cache: DebugSymbolCache
+    private let provisioning: DebugProvisioning
     private let authorize: @MainActor () throws -> Void
     private let resolveDestination: @MainActor (UUID) async throws -> any RemoteDebugSession
     private var runs: [UUID: UUID] = [:]
+    private var preparations: [UUID: Task<DebugHandoff, Error>] = [:]
     private var relays: [UUID: Task<Void, Never>] = [:]
     private var clients: [UUID: Task<Void, Never>] = [:]
     private var listenerTask: Task<Void, Never>?
@@ -39,11 +42,13 @@ public final class DebugBroker {
     public init(
         configuration: DebugHostConfiguration,
         cache: DebugSymbolCache,
+        provisioning: DebugProvisioning,
         authorize: @escaping @MainActor () throws -> Void,
         resolveDestination: @escaping @MainActor (UUID) async throws -> any RemoteDebugSession
     ) {
         self.configuration = configuration
         self.cache = cache
+        self.provisioning = provisioning
         self.authorize = authorize
         self.resolveDestination = resolveDestination
     }
@@ -92,6 +97,8 @@ public final class DebugBroker {
             let run = UUID()
             runs[build.destination] = run
             let prepare = Task { try await self.prepare(build, run: run) }
+            preparations[run] = prepare
+            defer { preparations.removeValue(forKey: run) }
             let disconnect = Task {
                 _ = try? await socket.read(upTo: 1)
                 if !Task.isCancelled { prepare.cancel() }
@@ -127,15 +134,17 @@ public final class DebugBroker {
         let session = try await resolveDestination(build.destination)
         do {
             let images = try await session.prepareDebugRun(run)
-            let cacheTask = Task { try await cache.acquire(images, session: session, destinationID: build.destination, run: run, developer: build.developer) { self.cacheTasks[run]?.cancel() } }
-            cacheTasks[run] = cacheTask
-            defer { cacheTasks.removeValue(forKey: run) }
-            let sysroot = try await withTaskCancellationHandler { try await cacheTask.value } onCancel: { cacheTask.cancel() }
-            let zip = FileManager.default.temporaryDirectory.appendingPathComponent(run.uuidString + ".zip")
-            defer { try? FileManager.default.removeItem(at: zip) }
-            try await DebugTools.run(URL(fileURLWithPath: "/usr/bin/ditto"), ["-c", "-k", "--sequesterRsrc", "--keepParent", build.product.path, zip.path])
-            try authorize()
-            let (bundlePath, remote) = try await session.launch(zip, options: build.options, run: run)
+            let cancel: @MainActor @Sendable () -> Void = { self.preparations[run]?.cancel() }
+            let (sysroot, bundlePath, remote) = try await DebugTools.withTemporaryDirectory { @MainActor work in
+                let product = try await self.provisioning.prepare(build, session: session, run: run, work: work, cancel: cancel)
+                let sysroot = try await self.cache.acquire(images, session: session, destinationID: build.destination, run: run,
+                                                          developer: build.developer, cancel: cancel)
+                let zip = work.appendingPathComponent("Application.zip")
+                try await DebugTools.run(URL(fileURLWithPath: "/usr/bin/ditto"), ["-c", "-k", "--sequesterRsrc", "--keepParent", product.path, zip.path])
+                try self.authorize()
+                let (path, remote) = try await session.launch(zip, options: build.options, run: run)
+                return (sysroot, path, remote)
+            }
             let url = configuration.runtimeDirectory.appendingPathComponent(run.uuidString + ".sock")
             try Task.checkCancellation()
             let listener = try DebugSocket.unix(url, listening: true)
@@ -158,5 +167,4 @@ public final class DebugBroker {
             throw error
         }
     }
-    private var cacheTasks: [UUID: Task<URL, Error>] = [:]
 }

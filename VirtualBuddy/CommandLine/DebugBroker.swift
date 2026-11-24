@@ -9,7 +9,8 @@ import Virtualization
 @MainActor
 extension DebugBroker {
     convenience init(library: VMLibraryController) {
-        self.init(configuration: VirtualBuddyDebugging.host, cache: VirtualBuddyDebugging.symbolCache) {
+        self.init(configuration: VirtualBuddyDebugging.host, cache: VirtualBuddyDebugging.symbolCache,
+                  provisioning: XcodeProvisioningController.shared.provisioning) {
             try VBSettings.current.requireDeveloperFeatures()
         } resolveDestination: { id in
             try await VMDebugSession(destination: id, library: library)
@@ -41,6 +42,10 @@ private final class VMDebugSession: RemoteDebugSession {
 
     func prepareDebugRun(_ run: UUID) async throws -> DebugSystemImages {
         try await session.prepareDebugRun(run)
+    }
+
+    func provisioningUDID(for run: UUID) async throws -> String {
+        try await session.provisioningUDID(for: run)
     }
 
     func transferDebugImage(_ file: DebugSystemImages.File, run: UUID, to destination: URL) async throws {
