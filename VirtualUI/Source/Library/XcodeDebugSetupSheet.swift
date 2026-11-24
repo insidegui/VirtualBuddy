@@ -1,3 +1,4 @@
+import MacDebugHost
 import SwiftUI
 import UniformTypeIdentifiers
 import VirtualCore
@@ -153,7 +154,7 @@ struct XcodeDebugSetupSheet: View {
         guard commandsEnabled else { return }
         do {
             try VBSettings.current.requireDeveloperFeatures()
-            createdScheme = try choice.scheme.install(vm: vmID, named: vmName, app: Bundle.main.bundleURL)
+            createdScheme = try choice.scheme.install(destination: vmID, named: vmName, configuration: VirtualBuddyDebugging.host)
             errorMessage = nil
         } catch {
             errorMessage = error.localizedDescription
@@ -251,18 +252,5 @@ private final class SetupProject: Identifiable {
                 return Self(label: label, scheme: scheme)
             }
         }
-    }
-}
-
-private enum CustomLLDBCommands {
-    static let key = "IDEDebuggerFeatureSetting" as CFString
-    static let domain = "com.apple.dt.Xcode" as CFString
-    static let mask = 12
-    static var flags: Int { (CFPreferencesCopyAppValue(key, domain) as? NSNumber)?.intValue ?? 0 }
-    static var isEnabled: Bool { flags & mask == mask }
-
-    static func enable() throws {
-        CFPreferencesSetAppValue(key, NSNumber(value: flags | mask), domain)
-        guard CFPreferencesAppSynchronize(domain), isEnabled else { throw Failure("Could not enable Custom LLDB Commands in Xcode.") }
     }
 }

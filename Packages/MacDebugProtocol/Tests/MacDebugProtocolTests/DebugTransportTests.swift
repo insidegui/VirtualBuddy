@@ -1,6 +1,6 @@
 import Foundation
 import Testing
-@testable import VirtualWormhole
+@testable import MacDebugProtocol
 
 struct DebugTransportTests {
     @Test func framingAndDuplexRelayPreserveArbitraryBytes() async throws {

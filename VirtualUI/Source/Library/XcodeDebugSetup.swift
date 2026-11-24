@@ -2,13 +2,14 @@ import AppKit
 import SwiftUI
 import Combine
 import VirtualCore
+import MacDebugHost
 
 @MainActor
 public enum XcodeDebugSetup {
     private static var observer: AnyCancellable?
     private static var window: NSPanel?
     public static func observeCachePreparation() {
-        observer = DebugSymbolCache.shared.$activities.map { !$0.isEmpty }.removeDuplicates().receive(on: RunLoop.main).sink { preparing in
+        observer = VirtualBuddyDebugging.symbolCache.$activities.map { !$0.isEmpty }.removeDuplicates().receive(on: RunLoop.main).sink { preparing in
             if preparing {
                 let panel = NSPanel(contentRect: .init(x: 0, y: 0, width: 420, height: 150), styleMask: [.titled, .closable], backing: .buffered, defer: false)
                 panel.title = "Preparing Xcode Debugging Symbols"
@@ -25,7 +26,7 @@ public enum XcodeDebugSetup {
 }
 
 private struct DebugCacheProgress: View {
-    @ObservedObject private var cache = DebugSymbolCache.shared
+    @ObservedObject private var cache = VirtualBuddyDebugging.symbolCache
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
             ForEach(cache.activities) { activity in
@@ -41,7 +42,7 @@ private struct DebugCacheProgress: View {
 
 struct DebugCacheSettings: View {
     let showWhenEmpty: Bool
-    @ObservedObject private var cache = DebugSymbolCache.shared
+    @ObservedObject private var cache = VirtualBuddyDebugging.symbolCache
 
     var body: some View {
         if showWhenEmpty || !cache.entries.isEmpty {

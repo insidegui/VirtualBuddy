@@ -1,7 +1,7 @@
 import Foundation
 import Testing
-import VirtualWormhole
-@testable import VirtualCore
+import MacDebugProtocol
+@testable import MacDebugHost
 
 struct DebugSchemeTests {
     @Test func generatedWorkspaceSchemeBuildsTheAppAndPreservesLaunchCommands() throws {
@@ -15,22 +15,23 @@ struct DebugSchemeTests {
         let choice = try #require(try DebugScheme.choices(in: ws).first)
         let vm = UUID()
         let app = URL(fileURLWithPath: "/Applications/VirtualBuddy.app")
-        let file = try choice.install(vm: vm, named: "My VM", app: app)
+        let configuration = DebugHostConfiguration(applicationURL: app, helperURL: app.appendingPathComponent("Contents/MacOS/helper"), runtimeDirectory: root)
+        let file = try choice.install(destination: vm, named: "My VM", configuration: configuration)
         let xml = try XMLDocument(contentsOf: file, options: [])
         let launch = try #require(try xml.nodes(forXPath: "//LaunchAction").first as? XMLElement)
         #expect(launch.attribute(forName: "customLaunchCommand")?.stringValue?.components(separatedBy: "\n").count == 2)
         #expect(try launch.nodes(forXPath: "BuildableProductRunnable").isEmpty)
         #expect(try launch.nodes(forXPath: "PathRunnable/@FilePath").first?.stringValue == "/usr/bin/false")
         #expect(try xml.nodes(forXPath: "//BuildableReference/@ReferencedContainer").allSatisfy { $0.stringValue == "container:Apps/Example.xcodeproj" })
-        let id = xml.rootElement()?.attribute(forName: "VirtualBuddyBinding")?.stringValue
-        xml.rootElement()?.removeAttribute(forName: "VirtualBuddyVM")
-        xml.rootElement()?.removeAttribute(forName: "VirtualBuddyBinding")
-        xml.rootElement()?.removeAttribute(forName: "VirtualBuddyTarget")
-        #expect(DebugScheme.binding(in: xml)?.vm == vm)
+        let id = xml.rootElement()?.attribute(forName: "MacDebugBinding")?.stringValue
+        xml.rootElement()?.removeAttribute(forName: "MacDebugDestination")
+        xml.rootElement()?.removeAttribute(forName: "MacDebugBinding")
+        xml.rootElement()?.removeAttribute(forName: "MacDebugTarget")
+        #expect(DebugScheme.binding(in: xml)?.destination == vm)
         #expect(DebugScheme.binding(in: xml)?.scheme.uuidString == id)
-        _ = try choice.install(vm: vm, named: "My VM", app: app)
-        #expect(try XMLDocument(contentsOf: file, options: []).rootElement()?.attribute(forName: "VirtualBuddyBinding")?.stringValue == id)
-        #expect(throws: (any Error).self) { try choice.install(vm: UUID(), named: "My VM", app: app) }
+        _ = try choice.install(destination: vm, named: "My VM", configuration: configuration)
+        #expect(try XMLDocument(contentsOf: file, options: []).rootElement()?.attribute(forName: "MacDebugBinding")?.stringValue == id)
+        #expect(throws: (any Error).self) { try choice.install(destination: UUID(), named: "My VM", configuration: configuration) }
     }
 
     @Test func argumentsAndBuildSettingsAreData() throws {

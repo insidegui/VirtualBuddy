@@ -5,8 +5,8 @@ import Foundation
 /// during large replies. shutdown interrupts outstanding calls without reusing the fd.
 public final class DebugSocket: @unchecked Sendable {
     public let descriptor: Int32
-    private let reader = DispatchQueue(label: "VirtualBuddy.debug.read")
-    private let writer = DispatchQueue(label: "VirtualBuddy.debug.write")
+    private let reader = DispatchQueue(label: "MacDebug.read")
+    private let writer = DispatchQueue(label: "MacDebug.write")
     private static var error: Error { POSIXError(.init(rawValue: errno) ?? .EIO) }
 
     public init(owning descriptor: Int32) throws {
@@ -23,15 +23,11 @@ public final class DebugSocket: @unchecked Sendable {
     deinit { Darwin.close(descriptor) }
     public func stop() { shutdown(descriptor, SHUT_RDWR) }
 
-    public static var runtime: URL {
-        URL(fileURLWithPath: "/private/tmp/vbdebug-\(getuid())", isDirectory: true)
-    }
-
-    public static func prepareRuntime() throws {
+    public static func prepareRuntime(at runtime: URL) throws {
         if mkdir(runtime.path, 0o700) != 0 && errno != EEXIST { throw error }
         var s = stat()
         guard lstat(runtime.path, &s) == 0, s.st_uid == getuid(), s.st_mode & S_IFMT == S_IFDIR,
-              s.st_mode & 0o077 == 0 else { throw VBDebugError("The debugger socket directory must be private to your account.") }
+              s.st_mode & 0o077 == 0 else { throw MacDebugError("The debugger socket directory must be private to your account.") }
     }
 
     public static func unix(_ url: URL, listening: Bool) throws -> DebugSocket {
@@ -59,24 +55,7 @@ public final class DebugSocket: @unchecked Sendable {
         return stream
     }
 
-    static func guestListener() throws -> (DebugSocket, UInt32) {
-        let stream = try DebugSocket(owning: socket(AF_VSOCK, SOCK_STREAM, 0))
-        var address = sockaddr_vm()
-        address.svm_family = sa_family_t(AF_VSOCK)
-        address.svm_len = UInt8(MemoryLayout<sockaddr_vm>.size)
-        address.svm_port = UInt32(VMADDR_PORT_ANY)
-        address.svm_cid = UInt32(VMADDR_CID_ANY)
-        var size = socklen_t(address.svm_len)
-        let ok = withUnsafeMutablePointer(to: &address) { ptr in
-            ptr.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-                bind(stream.descriptor, $0, size) == 0 && listen(stream.descriptor, 1) == 0 && getsockname(stream.descriptor, $0, &size) == 0
-            }
-        }
-        guard ok else { throw error }
-        return (stream, address.svm_port)
-    }
-
-    private func io<T>(on queue: DispatchQueue, _ body: @escaping (Int32) throws -> T) async throws -> T {
+    private func io<T: Sendable>(on queue: DispatchQueue, _ body: @escaping @Sendable (Int32) throws -> T) async throws -> T {
         try await withTaskCancellationHandler {
             try Task.checkCancellation()
             return try await withCheckedThrowingContinuation { result in
@@ -85,7 +64,17 @@ public final class DebugSocket: @unchecked Sendable {
         } onCancel: { self.stop() }
     }
 
-    public func accept(timeout: Int32, guest: Bool = false) async throws -> DebugSocket {
+    public func accept(timeout: Int32) async throws -> DebugSocket {
+        try await accept(timeout: timeout) { fd, _ in
+            var uid: uid_t = 0, gid: gid_t = 0
+            guard getpeereid(fd, &uid, &gid) == 0, uid == getuid() else { throw POSIXError(.EACCES) }
+        }
+    }
+
+    public func accept(
+        timeout: Int32,
+        validatePeer: @escaping @Sendable (Int32, sockaddr_storage) throws -> Void
+    ) async throws -> DebugSocket {
         // shutdown on a listening Darwin socket need not wake poll. A second
         // descriptor makes cancelling an unopened debugger rendezvous immediate.
         var wakeup: [Int32] = [-1, -1]
@@ -107,15 +96,7 @@ public final class DebugSocket: @unchecked Sendable {
                 let socket = try withUnsafeMutablePointer(to: &address) { pointer in
                     try pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) { try DebugSocket(owning: Darwin.accept(fd, $0, &size)) }
                 }
-                if guest {
-                    let host = withUnsafePointer(to: address) { $0.withMemoryRebound(to: sockaddr_vm.self, capacity: 1) {
-                        $0.pointee.svm_family == AF_VSOCK && $0.pointee.svm_cid == VMADDR_CID_HOST
-                    } }
-                    guard host else { throw POSIXError(.EACCES) }
-                } else {
-                    var uid: uid_t = 0, gid: gid_t = 0
-                    guard getpeereid(socket.descriptor, &uid, &gid) == 0, uid == getuid() else { throw POSIXError(.EACCES) }
-                }
+                try validatePeer(socket.descriptor, address)
                 return socket
             }
         } onCancel: {

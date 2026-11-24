@@ -1,6 +1,7 @@
+import MacDebugProtocol
 import Foundation
 import Testing
-@testable import VirtualWormhole
+@testable import MacDebugTarget
 
 struct DebugDeploymentTests {
     @Test func signedBundlesReplaceTheSameInstallationAndInvalidUpdatesLeaveItIntact() async throws {
@@ -30,7 +31,7 @@ struct DebugDeploymentTests {
             try DebugTools.directory(staging)
             let zip = staging.appendingPathComponent("App.zip")
             try await DebugTools.run(URL(fileURLWithPath: "/usr/bin/ditto"), ["-c", "-k", "--keepParent", product.path, zip.path])
-            return try await DebugTools.install(zip, into: staging).0
+            return try await TargetDebugTools.install(zip, into: staging).0
         }
         let first = try await deploy("one", debuggable: true)
         let second = try await deploy("two", debuggable: true)
@@ -38,7 +39,7 @@ struct DebugDeploymentTests {
         let installed = first.appendingPathComponent("Contents/Resources/link")
         #expect(try fm.destinationOfSymbolicLink(atPath: installed.path) == "revision")
         #expect(try Data(contentsOf: installed) == Data("two".utf8))
-        await #expect(throws: VBDebugError.self) { try await deploy("three", debuggable: false) }
+        await #expect(throws: MacDebugError.self) { try await deploy("three", debuggable: false) }
         #expect(try Data(contentsOf: installed) == Data("two".utf8))
     }
 }

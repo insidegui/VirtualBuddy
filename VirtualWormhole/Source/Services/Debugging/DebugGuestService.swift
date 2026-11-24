@@ -1,5 +1,7 @@
 import Foundation
 import VMBridge
+import MacDebugProtocol
+import MacDebugTarget
 
 struct DebugRequest: VMMessage {
     enum Action: Codable, Sendable {
@@ -37,11 +39,8 @@ final class DebugGuestService: GuestService {
         var task: Task<Void, Error>?
     }
     private var incoming: [UUID: Incoming] = [:]
-    private var run: UUID?
-    private var staging: URL?
-    private var images: [String: URL] = [:]
+    private var run: TargetDebugRun?
     private var server: Task<Void, Never>?
-    private var child: Process?
     private var preparing: Task<Void, Never>?
     private var exports: [UUID: Task<Void, Never>] = [:]
 
@@ -54,8 +53,7 @@ final class DebugGuestService: GuestService {
     func cancelRun() {
         server?.cancel()
         server = nil
-        if let child, child.isRunning { child.terminate() }
-        child = nil
+        run?.cancel()
         preparing?.cancel()
         preparing = nil
         for task in exports.values { task.cancel() }
@@ -63,14 +61,12 @@ final class DebugGuestService: GuestService {
         let transfers = incoming.values.compactMap(\.task)
         for transfer in transfers { transfer.cancel() }
         incoming.removeAll()
-        if let staging {
+        if let run {
             Task {
                 for transfer in transfers { _ = await transfer.result }
-                try? FileManager.default.removeItem(at: staging)
+                withExtendedLifetime(run) {}
             }
         }
-        self.staging = nil
-        images.removeAll()
         run = nil
     }
 
@@ -111,66 +107,47 @@ final class DebugGuestService: GuestService {
     private func perform(_ request: DebugRequest) async throws -> DebugReply {
         try requireSession(request.session)
         if case .prepare = request.action {
-            guard run == nil else { throw VBDebugError("A debugger session is already active in this VM.") }
-            _ = try DebugTools.debugger()
-            let (manifest, urls) = try DebugSystemImages.collect()
-            let directory = FileManager.default.homeDirectoryForCurrentUser
-                .appendingPathComponent("Library/Application Support/VirtualBuddy/Debugging").appendingPathComponent(request.run.uuidString)
-            try DebugTools.directory(directory)
-            staging = directory
-            images = urls
-            run = request.run
-            incoming[request.run] = Incoming(destination: directory.appendingPathComponent("Application.zip"))
-            return .images(manifest)
+            guard run == nil else { throw MacDebugError("A debugger session is already active in this VM.") }
+            let root = FileManager.default.homeDirectoryForCurrentUser
+                .appendingPathComponent("Library/Application Support/VirtualBuddy/Debugging")
+            let run = try TargetDebugRun(id: request.run, storageRoot: root)
+            self.run = run
+            incoming[run.id] = Incoming(destination: run.archiveURL)
+            return .images(run.images)
         }
-        guard run == request.run, let staging else { throw VBDebugError("This debug session expired.") }
+        guard let run, run.id == request.run else { throw MacDebugError("This debug session expired.") }
         switch request.action {
         case .prepare: throw GuestSessionError.invalidReply
         case .cancel:
             cancelRun()
             return .done
         case .image(let name, let transfer):
-            guard let image = images[name] else { throw GuestSessionError.invalidReply }
+            let image = try run.imageURL(named: name)
             try await connection.sendFile(at: image, metadata: TransferIdentity(session: request.session, operation: transfer, purpose: .debugging).metadata)
             return .done
         case .launch(let options):
             guard let upload = incoming[request.run], let task = upload.task, server == nil else { throw GuestSessionError.invalidReply }
             try await task.value
-            let (app, executable) = try await DebugTools.install(upload.destination, into: staging)
             try requireSession(request.session)
-            guard run == request.run else { throw CancellationError() }
-            let tool = try DebugTools.debugger()
+            let app = try await run.install()
+            try requireSession(request.session)
+            guard self.run === run else { throw CancellationError() }
             let (listener, port) = try DebugSocket.guestListener()
             server = schedule { [self] in
-                defer { if run == request.run { cancelRun() } }
-                let host = try await listener.accept(timeout: 90000, guest: true)
-                try await host.send(request.run)
-                var pair: [Int32] = [-1, -1]
-                guard socketpair(AF_UNIX, SOCK_STREAM, 0, &pair) == 0 else { throw POSIXError(.EIO) }
-                let relay = try DebugSocket(owning: pair[0])
-                let input = FileHandle(fileDescriptor: pair[1], closeOnDealloc: true)
-                let process = Process()
-                process.executableURL = tool
-                process.currentDirectoryURL = app.deletingLastPathComponent()
-                let environment = options.environment.sorted { $0.key < $1.key }.flatMap { ["-e", "\($0.key)=\($0.value)"] }
-                // debugserver parses options even after the executable. Terminate
-                // its options before passing any developer-supplied app arguments.
-                process.arguments = ["--fd=0", "--kill-on-error"] + environment + ["--", executable.path] + options.arguments
-                process.standardInput = input
-                try process.run()
-                child = process
-                try input.close()
-                await DebugSocket.relay(host, relay)
+                defer { if self.run === run { cancelRun() } }
+                let host = try await listener.acceptDebuggerFromHost()
+                try await host.send(run.id)
+                try await run.serve(over: host, options: options)
             }
             return .listening(.init(port: port, bundlePath: app.path))
         }
     }
 
     func request(_ action: DebugRequest.Action, run: UUID) async throws -> DebugReply {
-        guard available, let token = session else { throw VBDebugError("Update VirtualBuddyGuest in the VM and log in to its desktop.") }
+        guard available, let token = session else { throw MacDebugError("Update VirtualBuddyGuest in the VM and log in to its desktop.") }
         let reply = try await connection.request(DebugRequest(session: token, run: run, action: action), reply: DebugReply.self, timeout: .seconds(1200))
         try requireSession(token)
-        if case .failure(let reason) = reply { throw VBDebugError(reason) }
+        if case .failure(let reason) = reply { throw MacDebugError(reason) }
         return reply
     }
 
