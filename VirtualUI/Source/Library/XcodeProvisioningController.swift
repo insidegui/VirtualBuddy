@@ -43,7 +43,7 @@ public final class XcodeProvisioningController: DebugProvisioningInteraction {
 
 @MainActor
 private final class ProvisioningPanel: ObservableObject {
-    enum Registration { case checking, manual, available, registered, disabled }
+    enum Registration { case checking, manual, unchecked, available, registered, disabled }
 
     let window = XcodeRunPanel(title: "Xcode App Provisioning")
     let name: String
@@ -56,6 +56,10 @@ private final class ProvisioningPanel: ObservableObject {
     var cancelRun: (@MainActor () -> Void)?
     private var continuation: CheckedContinuation<DebugProvisioningAction, Error>?
     private var operation: Task<Void, Never>?
+    /// One value for this panel, so the developer confirms their presence once per Run.
+    private lazy var api = MacDeviceRegistration(keys: keys)
+    /// The team key is used only after the developer asks to check this Mac's registration.
+    private var checksApproved = false
 
     init(name: String, keys: DeviceRegistrationKeys) {
         self.name = name
@@ -69,12 +73,18 @@ private final class ProvisioningPanel: ObservableObject {
             return try await withCheckedThrowingContinuation { continuation in
                 self.continuation = continuation
                 self.request = request
-                checkRegistration()
+                refreshRegistration()
             }
         } onCancel: { Task { @MainActor in self.finish(.failure(CancellationError())) } }
     }
 
     func checkRegistration() {
+        guard request != nil, registration == .unchecked else { return }
+        checksApproved = true
+        refreshRegistration()
+    }
+
+    func refreshRegistration() {
         guard let request else { return }
         operation?.cancel()
         registration = .checking
@@ -84,13 +94,20 @@ private final class ProvisioningPanel: ObservableObject {
                 let configured = try await keys.teams().contains(request.teamID)
                 try Task.checkCancellation()
                 guard configured else { registration = .manual; return }
-                let status = try await MacDeviceRegistration(keys: keys).lookup(udid: request.udid, teamID: request.teamID)
+                guard checksApproved else { registration = .unchecked; return }
+                try VBSettings.current.requireDeveloperFeatures()
+                let status = try await api.lookup(udid: request.udid, teamID: request.teamID)
                 try Task.checkCancellation()
                 switch status {
                 case .enabled: registration = .registered
                 case .disabled: registration = .disabled
                 case nil: registration = .available
                 }
+            } catch is CancellationError {
+                // The developer declined to confirm their presence. Ask again before the next use.
+                guard !Task.isCancelled else { return }
+                checksApproved = false
+                registration = .unchecked
             } catch where !Task.isCancelled {
                 registration = .manual
                 issue = error.localizedDescription
@@ -105,10 +122,10 @@ private final class ProvisioningPanel: ObservableObject {
             defer { submitting = false }
             do {
                 try VBSettings.current.requireDeveloperFeatures()
-                let status = try await MacDeviceRegistration(keys: keys).register(name: name, udid: request.udid, teamID: request.teamID)
+                let status = try await api.register(name: name, udid: request.udid, teamID: request.teamID)
                 try Task.checkCancellation()
                 if status == .enabled { finish(.success(.retry)) } else { registration = .disabled }
-            } catch where !Task.isCancelled { issue = error.localizedDescription } catch {}
+            } catch is CancellationError {} catch where !Task.isCancelled { issue = error.localizedDescription } catch {}
         }
     }
 
@@ -190,6 +207,7 @@ private struct ProvisioningView: View {
             }
         } actions: {
             if let request = panel.request {
+                let offersRegistration = panel.registration == .available || panel.registration == .unchecked
                 Menu("Other Options") {
                     if panel.registration == .manual {
                         Button("Add Team API Key…") { editingKey = true }
@@ -197,10 +215,10 @@ private struct ProvisioningView: View {
                     if panel.registration == .available {
                         Link("Register in Apple Developer", destination: Self.registerDeviceURL)
                     }
-                    if request.automaticSigning || panel.registration == .available {
+                    if request.automaticSigning || offersRegistration {
                         Button("Import Profiles…") { panel.chooseProfiles() }
                     }
-                    if !request.automaticSigning || panel.registration == .available {
+                    if !request.automaticSigning || offersRegistration {
                         Button(request.automaticSigning ? "Refresh Profiles" : "Check Profiles") { panel.finish(.success(.retry)) }
                     }
                 }
@@ -222,6 +240,10 @@ private struct ProvisioningView: View {
                         } message: {
                             Text("Registration uses one of this team’s Mac device slots for the membership year.")
                         }
+                } else if panel.registration == .unchecked {
+                    Button("Check Registration") { panel.checkRegistration() }
+                        .keyboardShortcut(.defaultAction)
+                        .airGlassButtonStyle(prominent: true)
                 } else {
                     Button(request.automaticSigning ? "Refresh Profiles" : "Import Profiles…") {
                         if request.automaticSigning { panel.finish(.success(.retry)) } else { panel.chooseProfiles() }
@@ -231,7 +253,7 @@ private struct ProvisioningView: View {
                 }
             }
         }
-        .sheet(isPresented: $editingKey, onDismiss: panel.checkRegistration) {
+        .sheet(isPresented: $editingKey, onDismiss: panel.refreshRegistration) {
             if let request = panel.request { RegistrationKeyEditor(keys: panel.keys, signingTeam: request.teamID) }
         }
     }
@@ -248,6 +270,8 @@ private struct ProvisioningView: View {
             switch panel.registration {
             case .manual:
                 Text("Register this Mac with your team, then refresh its profiles. You can also add a team API key in Other Options.")
+            case .unchecked:
+                Text("A team API key is saved for this team. Check whether this Mac is registered with App Store Connect. VirtualBuddy asks for Touch ID or your password before using the key.")
             case .available:
                 Text("This Mac can be registered with your team using its App Store Connect key.")
             case .registered:

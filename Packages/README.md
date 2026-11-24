@@ -21,7 +21,7 @@ The helper extracts system libraries inside a sandbox that can read only the app
 
 Pass the broker a `DebugProvisioning` with an app-owned profile cache and a `DebugProvisioningInteraction` for progress, cancellation, registration, and manual profile selection. The broker asks its session for the target’s provisioning UDID only for builds with embedded profiles. The target adapter can answer with `try await MacProvisioningIdentity.current.udid()`. The same interface works for a paired remote Mac.
 
-For App Store Connect registration, initialize `DeviceRegistrationKeys` with an app-specific Keychain service name. Save one team key per signing team, then use `MacDeviceRegistration(keys:)` to look up that Mac’s exact UDID. Obtain the developer’s approval before calling `register(name:udid:teamID:)` for a missing Mac. A disabled device requires action by the team administrator.
+For App Store Connect registration, initialize `DeviceRegistrationKeys` with an app-specific Keychain service name. Keys are stored in the data protection Keychain behind user presence, so the app must be signed with an application identifier. Keep one `MacDeviceRegistration` value for one user-initiated task: its calls share a single Touch ID or password confirmation. Save one team key per signing team, then use `MacDeviceRegistration(keys:)` to look up that Mac’s exact UDID. Obtain the developer’s approval before calling `register(name:udid:teamID:)` for a missing Mac. A disabled device requires action by the team administrator.
 
 ### Target integration
 

@@ -1,9 +1,12 @@
 import Foundation
 
 /// The only network operations are an exact device lookup and registration of one Mac.
+/// Each call reads the team key once, which asks for the user's presence. Later calls on
+/// the same value reuse that approval, so keep one value for one user-initiated task.
 public struct MacDeviceRegistration: Sendable {
     public enum Status: Equatable, Sendable { case enabled, disabled }
-    private let credential: @Sendable (String) async throws -> RegistrationCredential
+    /// Takes the team and the reason shown to the user, completing “The app is trying to…”.
+    private let credential: @Sendable (String, String) async throws -> RegistrationCredential
     private let session: URLSession
     private static let endpoint = URL(string: "https://api.appstoreconnect.apple.com/v1/devices")!
 
@@ -11,10 +14,13 @@ public struct MacDeviceRegistration: Sendable {
         let configuration = URLSessionConfiguration.ephemeral
         configuration.httpShouldSetCookies = false
         configuration.urlCredentialStorage = nil
-        self.init(session: URLSession(configuration: configuration), credential: { try await keys.credential(for: $0) })
+        let authentication = RegistrationAuthentication()
+        self.init(session: URLSession(configuration: configuration)) {
+            try await keys.credential(for: $0, reason: $1, authentication: authentication)
+        }
     }
 
-    init(session: URLSession, credential: @escaping @Sendable (String) async throws -> RegistrationCredential) {
+    init(session: URLSession, credential: @escaping @Sendable (String, String) async throws -> RegistrationCredential) {
         self.session = session
         self.credential = credential
     }
@@ -46,16 +52,21 @@ public struct MacDeviceRegistration: Sendable {
     }
 
     public func lookup(udid: String, teamID: String) async throws -> Status? {
+        try await lookup(udid: udid, key: credential(teamID, "check whether this Mac is registered with team \(teamID)"))
+    }
+
+    private func lookup(udid: String, key: RegistrationCredential) async throws -> Status? {
         var components = URLComponents(url: Self.endpoint, resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "filter[udid]", value: udid), URLQueryItem(name: "filter[platform]", value: "MAC_OS")]
-        let data = try await request(URLRequest(url: components.url!), team: teamID)
+        let data = try await request(URLRequest(url: components.url!), key: key)
         let matches = try JSONDecoder().decode(Response<[Device]>.self, from: data).data
         return try matches.first?.status(for: udid)
     }
 
     /// Call after the user approves consuming a device slot on this team.
     public func register(name: String, udid: String, teamID: String) async throws -> Status {
-        if let existing = try await lookup(udid: udid, teamID: teamID) { return existing }
+        let key = try await credential(teamID, "register “\(name)” with team \(teamID)")
+        if let existing = try await lookup(udid: udid, key: key) { return existing }
         var create = URLRequest(url: Self.endpoint)
         create.httpMethod = "POST"
         create.setValue("application/json", forHTTPHeaderField: "Content-Type")
@@ -63,18 +74,17 @@ public struct MacDeviceRegistration: Sendable {
             "name": name, "platform": "MAC_OS", "udid": udid
         ]]])
         do {
-            let data = try await request(create, team: teamID)
+            let data = try await request(create, key: key)
             return try JSONDecoder().decode(Response<Device>.self, from: data).data.status(for: udid)
         } catch let failure as HTTPFailure where failure.code == 409 {
             // Two hosts can register the same Mac between the lookup and creation.
-            if let existing = try await lookup(udid: udid, teamID: teamID) { return existing }
+            if let existing = try await lookup(udid: udid, key: key) { return existing }
             throw failure
         }
     }
 
-    private func request(_ request: URLRequest, team: String) async throws -> Data {
+    private func request(_ request: URLRequest, key: RegistrationCredential) async throws -> Data {
         var request = request
-        let key = try await credential(team)
         request.setValue("Bearer " + (try key.token(at: Date())), forHTTPHeaderField: "Authorization")
         try Task.checkCancellation()
         let (data, response) = try await session.data(for: request, delegate: NoRedirect())

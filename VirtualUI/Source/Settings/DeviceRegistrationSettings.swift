@@ -20,7 +20,7 @@ struct DeviceRegistrationSettings: View {
                 }
             }
             Button("Add Team API Key…") { editing = true }
-            SettingsCaption("An optional App Store Connect team key lets VirtualBuddy register a VM with your signing team. The private key is stored in this Mac’s Keychain.")
+            SettingsCaption("An optional App Store Connect team key lets VirtualBuddy register a VM with your signing team. The private key is stored in this Mac’s Keychain, and VirtualBuddy asks for Touch ID or your password before using it.")
             if let error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
         }
         .task { await reload() }
@@ -65,7 +65,7 @@ struct RegistrationKeyEditor: View {
 
     var body: some View {
         XcodeRunSheet(title: "Add Team API Key",
-                      subtitle: "Choose an App Store Connect team key with permission to register devices. The private key is stored in this Mac’s Keychain.") {
+                      subtitle: "Choose an App Store Connect team key with permission to register devices. The private key is stored in this Mac’s Keychain, and VirtualBuddy asks for Touch ID or your password before using it.") {
             XcodeRunRow(symbol: "key", title: "App Store Connect Credentials") {
                 Grid(alignment: .leading, horizontalSpacing: 12, verticalSpacing: 8) {
                     GridRow {

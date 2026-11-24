@@ -1,5 +1,6 @@
 import CryptoKit
 import Foundation
+import os
 import Testing
 @testable import AppStoreConnectDevices
 
@@ -32,9 +33,15 @@ struct DeviceRegistrationTests {
         let session = URLSession(configuration: config)
         defer { session.invalidateAndCancel() }
         let key = RegistrationCredential(issuer: UUID(), keyID: "ABC1234567", secret: P256.Signing.PrivateKey().rawRepresentation)
-        let api = MacDeviceRegistration(session: session) { _ in key }
+        let reads = OSAllocatedUnfairLock(initialState: [String]())
+        let api = MacDeviceRegistration(session: session) { team, reason in
+            reads.withLock { $0.append(team + ": " + reason) }
+            return key
+        }
         #expect(try await api.lookup(udid: "new-mac", teamID: "TEAM") == nil)
         #expect(try await api.register(name: "Test VM", udid: "new-mac", teamID: "TEAM") == .enabled)
+        // A lookup followed by creation reads the protected key once, with a reason the user can judge.
+        #expect(reads.withLock { $0 } == ["TEAM: check whether this Mac is registered with team TEAM", "TEAM: register “Test VM” with team TEAM"])
         #expect(try await api.register(name: "Test VM", udid: "disabled-mac", teamID: "TEAM") == .disabled)
         await #expect(throws: DeviceRegistrationError.self) { try await api.lookup(udid: "wrong-case", teamID: "TEAM") }
     }
