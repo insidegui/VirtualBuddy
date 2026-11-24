@@ -55,7 +55,16 @@ public struct VBSettings: Hashable, Sendable {
     public var enableTSSCheck: Bool
 
     /// The user's choice, preserved even when a profile disables developer features.
-    public var developerFeaturesEnabled = false
+    /// Until the user makes one, developer features follow whether Xcode is installed.
+    public var developerFeaturesEnabled: Bool {
+        get { developerFeaturesChoice ?? developerFeaturesDefault }
+        set { developerFeaturesChoice = newValue }
+    }
+
+    /// Only an explicit choice is saved, so the default stays free to follow the Mac's setup
+    /// and to change in a later version without overriding what the user picked.
+    private var developerFeaturesChoice: Bool?
+    private var developerFeaturesDefault = false
 
     /// Show desktop picture from guest VM in thumbnails instead of the blur hash version.
     /// Currently not exposed in the UI.
@@ -136,10 +145,8 @@ extension VBSettings {
 
         self.version = defaults.integer(forKey: Keys.version)
         self.enableTSSCheck = defaults.bool(forKey: Keys.enableTSSCheck)
-        if defaults.object(forKey: Keys.developerFeaturesEnabled) == nil {
-            defaults.set(isXcodeInstalled(), forKey: Keys.developerFeaturesEnabled)
-        }
-        self.developerFeaturesEnabled = defaults.bool(forKey: Keys.developerFeaturesEnabled)
+        self.developerFeaturesChoice = defaults.object(forKey: Keys.developerFeaturesEnabled) as? Bool
+        self.developerFeaturesDefault = developerFeaturesChoice == nil && isXcodeInstalled()
         self.showDesktopPictureThumbnails = defaults.bool(forKey: Keys.showDesktopPictureThumbnails)
         self.bootDiskImagesUseASIF = defaults.bool(forKey: Keys.bootDiskImagesUseASIF)
         self.closeBehavior = defaults.string(forKey: Keys.closeBehavior).flatMap(VMCloseBehavior.init(rawValue:)) ?? Self.defaultCloseBehavior
@@ -188,7 +195,7 @@ extension VBSettings {
         defaults.set(libraryURL.path, forKey: Keys.libraryPath)
         defaults.set(updateChannel.id, forKey: Keys.updateChannel)
         defaults.set(enableTSSCheck, forKey: Keys.enableTSSCheck)
-        defaults.set(developerFeaturesEnabled, forKey: Keys.developerFeaturesEnabled)
+        if let developerFeaturesChoice { defaults.set(developerFeaturesChoice, forKey: Keys.developerFeaturesEnabled) }
         defaults.set(showDesktopPictureThumbnails, forKey: Keys.showDesktopPictureThumbnails)
         defaults.set(bootDiskImagesUseASIF, forKey: Keys.bootDiskImagesUseASIF)
         defaults.set(closeBehavior.rawValue, forKey: Keys.closeBehavior)

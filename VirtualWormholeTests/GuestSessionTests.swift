@@ -12,11 +12,16 @@ struct GuestSessionTests {
         try await first.connect()
         try await second.connect()
         #expect(first.host.debugging.available && second.host.debugging.available)
+        #expect(first.host.debugging.supportsProvisioning && second.host.debugging.supportsProvisioning)
+        let previousGuest = InitializeGuest(session: UUID(), capabilities: [DebugGuestService.capability])
+        _ = try await first.guestConnection.request(previousGuest, reply: InitializeGuestReply.self, timeout: .seconds(1))
+        #expect(first.host.debugging.available && !first.host.debugging.supportsProvisioning)
+        #expect(second.host.debugging.supportsProvisioning)
         _ = try await first.guestConnection.request(InitializeGuest(session: UUID()), reply: InitializeGuestReply.self, timeout: .seconds(1))
         #expect(!first.host.debugging.available)
         #expect(second.host.debugging.available)
         await second.disconnect()
-        try await eventually { !second.host.debugging.available }
+        try await eventually { !second.host.debugging.available && !second.host.debugging.supportsProvisioning }
         await first.stop()
         await second.stop()
     }

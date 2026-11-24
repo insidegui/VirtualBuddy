@@ -18,6 +18,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
 
     @Published var captureMouseEvents = true
     @Published var captureKeyboardEvents = true
+    @Published var showingXcodeDebugSetup = false
 
     /// Presents the HUD that tells the user when an input device is connected or disconnected,
     /// and about the shortcut that can be held down to do so.
@@ -370,6 +371,13 @@ private struct VirtualMachineGuestActions: View {
                 Label("Virtual Machine Settings…", systemImage: "gearshape")
             }
             .disabled(controller?.canEditLiveConfiguration != true)
+
+            if let vm = controller?.virtualMachineModel {
+                XcodeDebugSetupButton(vm: vm) {
+                    session?.bringToFront()
+                    session?.showingXcodeDebugSetup = true
+                }
+            }
 
             Divider()
 

@@ -182,7 +182,7 @@ final class GuestSessionEngine {
         let token = UUID()
         context.session = token
         lifecycle.schedule { [self] in
-            let reply = try await context.connection.request(InitializeGuest(session: token, capabilities: [DebugGuestService.capability]), reply: InitializeGuestReply.self, timeout: context.requestTimeout)
+            let reply = try await context.connection.request(InitializeGuest(session: token, capabilities: [DebugGuestService.capability, DebugGuestService.provisioningCapability]), reply: InitializeGuestReply.self, timeout: context.requestTimeout)
             try context.requireSession(token)
             context.hostCapabilities = reply.capabilities ?? []
             activate(notifications: reply.notifications)
@@ -193,6 +193,7 @@ final class GuestSessionEngine {
         guard context.endpoint == .host, !Task.isCancelled else { return }
         invalidateSession()
         debugging.available = request.payload.capabilities?.contains(DebugGuestService.capability) == true
+        debugging.supportsProvisioning = request.payload.capabilities?.contains(DebugGuestService.provisioningCapability) == true
         let token = request.payload.session
         context.session = token
         lifecycle.schedule { [self] in

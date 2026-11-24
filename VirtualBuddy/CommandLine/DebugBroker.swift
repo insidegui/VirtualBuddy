@@ -9,7 +9,8 @@ import Virtualization
 @MainActor
 extension DebugBroker {
     convenience init(library: VMLibraryController) {
-        self.init(configuration: VirtualBuddyDebugging.host, cache: VirtualBuddyDebugging.symbolCache) {
+        self.init(configuration: VirtualBuddyDebugging.host, cache: VirtualBuddyDebugging.symbolCache,
+                  provisioning: XcodeProvisioningController.shared.provisioning, bindings: VirtualBuddyDebugging.bindings) {
             try VBSettings.current.requireDeveloperFeatures()
         } resolveDestination: { id in
             try await VMDebugSession(destination: id, library: library)
@@ -43,6 +44,10 @@ private final class VMDebugSession: RemoteDebugSession {
         try await session.prepareDebugRun(run)
     }
 
+    func provisioningUDID(for run: UUID) async throws -> String {
+        try await session.provisioningUDID(for: run)
+    }
+
     func transferDebugImage(_ file: DebugSystemImages.File, run: UUID, to destination: URL) async throws {
         try await session.transferDebugImage(file, run: run, to: destination)
     }
@@ -51,12 +56,7 @@ private final class VMDebugSession: RemoteDebugSession {
         let endpoint = try await session.launchDebugApp(archive, options: options, run: run)
         let connection = try await controller.connectDebugger(to: endpoint.port)
         let remote = try DebugSocket(owning: dup(connection.fileDescriptor))
-        let token = try await withThrowingTaskGroup(of: UUID.self) { group in
-            group.addTask { try await remote.receive(UUID.self) }
-            group.addTask { try await Task.sleep(for: .seconds(10)); throw POSIXError(.ETIMEDOUT) }
-            defer { group.cancelAll() }
-            return try await group.next()!
-        }
+        let token = try await remote.receive(UUID.self, within: .seconds(10))
         guard token == run else { throw MacDebugError("Unexpected debugger session from the VM.") }
         self.connection = connection
         return (endpoint.bundlePath, remote)

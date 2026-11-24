@@ -117,9 +117,37 @@ public struct DebugScheme {
         return Binding(destination: destination, scheme: scheme, target: target)
     }
 
+    /// Finds the scheme of a running pre-action from the build settings Xcode gives it.
+    /// Xcode keeps the binding when the developer renames or duplicates a scheme, so prefer the
+    /// file named after the scheme that is running: its Run arguments are the ones to use.
+    static func installed(binding id: UUID, settings: [String: String]) throws -> (document: XMLDocument, binding: Binding) {
+        var containers = [URL]()
+        if let workspace = settings["WORKSPACE_PATH"].map({ URL(fileURLWithPath: $0) }) {
+            // A project opened on its own reports the workspace embedded in it.
+            containers.append(workspace.lastPathComponent == "project.xcworkspace" ? workspace.deletingLastPathComponent() : workspace)
+        }
+        if let project = settings["PROJECT_FILE_PATH"] { containers.append(URL(fileURLWithPath: project)) }
+        var found: (document: XMLDocument, binding: Binding)?
+        for container in containers {
+            for dir in ["xcuserdata/\(NSUserName()).xcuserdatad/xcschemes", "xcshareddata/xcschemes"] {
+                for file in (try? FileManager.default.contentsOfDirectory(at: container.appendingPathComponent(dir), includingPropertiesForKeys: nil)) ?? [] where file.pathExtension == "xcscheme" {
+                    guard let xml = try? XMLDocument(contentsOf: file, options: [.nodeLoadExternalEntitiesNever]),
+                          let binding = binding(in: xml), binding.scheme == id else { continue }
+                    if file.deletingPathExtension().lastPathComponent == settings["SCHEME_NAME"] { return (xml, binding) }
+                    if found == nil { found = (xml, binding) }
+                }
+            }
+        }
+        guard let found else { throw MacDebugError("Could not find the scheme for this Run action. Set up Xcode debugging for it again.") }
+        return found
+    }
+
     static func shellQuote(_ s: String) -> String { "'" + s.replacingOccurrences(of: "'", with: "'\\''") + "'" }
 
-    public func install(destination: UUID, named destinationName: String, configuration: DebugHostConfiguration) throws -> URL {
+    /// Call when the developer asks for the scheme. The binding is recorded as their approval
+    /// for Run actions from this scheme to start the destination and launch the app on it.
+    public func install(destination: UUID, named destinationName: String, configuration: DebugHostConfiguration,
+                        bindings: any DebugBindingStore) throws -> URL {
         let fm = FileManager.default
         let directory = container.appendingPathComponent("xcuserdata/\(NSUserName()).xcuserdatad/xcschemes")
         let filename = (name + " — " + destinationName).replacingOccurrences(of: "/", with: "-") + ".xcscheme"
@@ -150,9 +178,20 @@ public struct DebugScheme {
         let pre = launch.elements(forName: "PreActions").first ?? Self.element("PreActions")
         if pre.parent == nil { launch.insertChild(pre, at: 0) }
         let action = Self.element("ExecutionAction", ["ActionType": "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction"])
-        let cli = configuration.helperURL
         guard targetID.range(of: "^[a-zA-Z0-9_.-]+$", options: .regularExpression) != nil else { throw MacDebugError("The selected app has an invalid Xcode target identifier.") }
-        let script = "# MacDebug \(destination.uuidString) \(id.uuidString) \(targetID)\nexec " + Self.shellQuote(cli.path) + " prepare " + Self.shellQuote(output.path) + "\n"
+        // The script names neither the app bundle nor this file, so the scheme keeps working after
+        // the app is updated or moved, and after the developer renames the scheme or moves the project.
+        // Run the helper by its real path: it finds the app from its own location.
+        try configuration.refreshLinks()
+        let script = """
+            # MacDebug \(destination.uuidString) \(id.uuidString) \(targetID)
+            helper=$(/usr/bin/readlink \(Self.shellQuote(configuration.helperLink.path))) || {
+                echo "The app that created this scheme is not set up for Xcode debugging. Open it, then run again." >&2
+                exit 1
+            }
+            exec "$helper" prepare \(id.uuidString)
+
+            """
         let content = Self.element("ActionContent", ["title": "Prepare app on " + destinationName, "scriptText": script])
         let environment = Self.element("EnvironmentBuildable")
         environment.addChild(reference.copy() as! XMLNode)
@@ -174,13 +213,12 @@ public struct DebugScheme {
         set(launch, "selectedDebuggerIdentifier", "Xcode.DebuggerFoundation.Debugger.LLDB")
         set(launch, "selectedLauncherIdentifier", "Xcode.DebuggerFoundation.Launcher.LLDB")
         set(launch, "customLaunchCommandPauseAfterCommands", "NO")
-        guard let module = Bundle.module.url(forResource: "mac_debug", withExtension: "py")?.path else {
-            throw MacDebugError("Could not find the packaged LLDB module.")
-        }
+        let module = configuration.moduleLink.path
         guard !module.contains("`"), !module.contains("\n") else { throw MacDebugError("The LLDB module path contains an unsupported character.") }
         let escaped = module.replacingOccurrences(of: "\\", with: "\\\\").replacingOccurrences(of: "\"", with: "\\\"")
         let runtime = Data(configuration.runtimeDirectory.path.utf8).base64EncodedString()
         set(launch, "customLaunchCommand", "command script import \"\(escaped)\"\nmac-debug-connect \(id.uuidString) \(runtime)")
+        try bindings.register(DebugBinding(id: id, destination: destination, target: targetID, scheme: output))
         try DebugTools.directory(directory)
         // Foundation emits literal newlines in attributes. XML readers normalize
         // those to spaces, collapsing both custom LLDB commands into one.

@@ -7,7 +7,7 @@ import MacDebugHost
 @MainActor
 public enum XcodeDebugSetup {
     private static var observer: AnyCancellable?
-    private static var panels: [UUID: NSPanel] = [:]
+    private static var panels: [UUID: XcodeRunPanel] = [:]
 
     public static func observeCachePreparation() {
         observer = VirtualBuddyDebugging.symbolCache.$activities
@@ -16,8 +16,7 @@ public enum XcodeDebugSetup {
             .sink { activities in
                 let active = Set(activities.map(\.id))
                 for (id, panel) in panels where !active.contains(id) {
-                    panel.parent?.removeChildWindow(panel)
-                    panel.close()
+                    panel.dismiss()
                     panels[id] = nil
                 }
                 for activity in activities where panels[activity.id] == nil {
@@ -26,28 +25,10 @@ public enum XcodeDebugSetup {
             }
     }
 
-    private static func present(_ activity: DebugSymbolCache.Activity) -> NSPanel {
-        let panel = NSPanel(contentRect: .init(x: 0, y: 0, width: 420, height: 150), styleMask: [.titled, .closable], backing: .buffered, defer: false)
-        panel.title = "Preparing Xcode Debugging Symbols"
-        panel.isReleasedWhenClosed = false
-        panel.collectionBehavior = [.fullScreenAuxiliary, .moveToActiveSpace]
-        panel.contentView = NSHostingView(rootView: DebugCacheProgress(run: activity.id))
-
-        if !NSApp.isActive { NSApp.requestUserAttention(.informationalRequest) }
-        if NSApp.isHidden { NSApp.unhide(nil) }
-        NSApp.activate()
-        if let session = VirtualMachineSessionUIManager.shared.sessions.values.first(where: { $0.virtualMachine.uuid == activity.destinationID }),
-           let window = session.hostWindow {
-            if window.isMiniaturized { window.deminiaturize(nil) }
-            session.bringToFront()
-            var frame = panel.frame
-            frame.origin = CGPoint(x: window.frame.midX - frame.width / 2, y: window.frame.midY - frame.height / 2)
-            panel.setFrame(panel.constrainFrameRect(frame, to: window.screen), display: false)
-            window.addChildWindow(panel, ordered: .above)
-        } else {
-            panel.center()
-        }
-        panel.makeKeyAndOrderFront(nil)
+    private static func present(_ activity: DebugSymbolCache.Activity) -> XcodeRunPanel {
+        let panel = XcodeRunPanel(title: "Preparing Debugging Symbols")
+        panel.host(DebugCacheProgress(run: activity.id))
+        panel.present(for: activity.destinationID)
         return panel
     }
 }
@@ -55,60 +36,130 @@ public enum XcodeDebugSetup {
 private struct DebugCacheProgress: View {
     let run: UUID
     @ObservedObject private var cache = VirtualBuddyDebugging.symbolCache
+
     var body: some View {
         if let activity = cache.activities.first(where: { $0.id == run }) {
-            VStack(alignment: .leading, spacing: 12) {
-                Text("macOS " + activity.system).font(.headline)
-                ProgressView(value: activity.fraction) { Text(activity.detail) }
-                    .progressViewStyle(.linear)
-                Button("Cancel") { cache.cancel(activity.id) }
+            DebugCacheProgressSheet(system: activity.system, detail: activity.detail, fraction: activity.fraction) {
+                cache.cancel(run)
             }
-            .padding()
-            .frame(minWidth: 400)
+        }
+    }
+}
+
+private struct DebugCacheProgressSheet: View {
+    let system: String
+    let detail: String
+    let fraction: Double?
+    let cancel: () -> Void
+
+    var body: some View {
+        XcodeRunSheet(title: "Preparing Debugging Symbols",
+                      subtitle: "Xcode uses these symbols to show system functions when debugging macOS \(system).") {
+            XcodeRunRow(symbol: "shippingbox", title: detail) {
+                HStack {
+                    ProgressView(value: fraction)
+                        .progressViewStyle(.linear)
+                        .accessibilityLabel("Debugging symbols")
+                    if let fraction {
+                        Text(fraction, format: .percent.precision(.fractionLength(0)))
+                            .font(.caption.monospacedDigit())
+                    }
+                }
+            }
+        } actions: {
+            Spacer()
+            Button("Cancel", role: .cancel) { cancel() }
+                .keyboardShortcut(.cancelAction)
+                .airGlassButtonStyle()
         }
     }
 }
 
 struct DebugCacheSettings: View {
     let showWhenEmpty: Bool
-    @ObservedObject private var cache = VirtualBuddyDebugging.symbolCache
+    @ObservedObject var cache: DebugSymbolCache
 
     var body: some View {
         if showWhenEmpty || !cache.entries.isEmpty {
-            SettingsDivider()
-
-            SettingsRow("Debugging symbols:") {
-                SettingsItemList {
-                    if cache.entries.isEmpty {
-                        Text("No cached guest symbols")
-                            .settingsListItemTitle()
-                    } else {
-                        ForEach(cache.entries) { entry in
-                            HStack {
-                                VStack(alignment: .leading) {
-                                    Text("macOS " + entry.system)
-                                        .settingsListItemTitle()
-                                    Text(entry.bytes.formatted(.byteCount(style: .file)))
-                                        .font(.callout)
-                                        .foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                Button(cache.isRemoving(entry) ? "Deleting…" : "Delete") {
-                                    Task {
-                                        do {
-                                            try await cache.remove(entry)
-                                        } catch {
-                                            NSApp.presentError(error)
-                                        }
-                                    }
-                                }
-                                .disabled(cache.isInUse(entry) || cache.isRemoving(entry))
-                            }
-                        }
+            DebugCacheList(entries: cache.entries.map { entry in
+                DebugCacheList.Entry(id: entry.id, system: entry.system, bytes: entry.bytes,
+                                     inUse: cache.isInUse(entry), removing: cache.isRemoving(entry)) {
+                    Task {
+                        do { try await cache.remove(entry) }
+                        catch { NSApp.presentError(error) }
                     }
                 }
-                SettingsCaption("Xcode uses these symbols to show function names from the VM’s system libraries in stack traces. If you delete them, VirtualBuddy rebuilds the cache the next time you debug that macOS build.")
-            }
+            })
         }
     }
 }
+
+private struct DebugCacheList: View {
+    struct Entry: Identifiable {
+        let id: String
+        let system: String
+        let bytes: Int64
+        var inUse = false
+        var removing = false
+        let remove: () -> Void
+    }
+
+    let entries: [Entry]
+
+    var body: some View {
+        SettingsDivider()
+
+        SettingsRow("Debugging symbols:") {
+            SettingsItemList {
+                if entries.isEmpty {
+                    Text("No cached guest symbols")
+                        .settingsListItemTitle()
+                } else {
+                    ForEach(entries) { entry in
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("macOS " + entry.system)
+                                    .settingsListItemTitle()
+                                Text(entry.bytes.formatted(.byteCount(style: .file)))
+                                    .font(.callout)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Button(entry.removing ? "Deleting…" : "Delete", action: entry.remove)
+                                .disabled(entry.inUse || entry.removing)
+                        }
+                    }
+                }
+            }
+            SettingsCaption("Xcode uses these symbols to show function names from the VM’s system libraries in stack traces. If you delete them, VirtualBuddy rebuilds the cache the next time you debug that macOS build.")
+        }
+    }
+}
+
+#if DEBUG
+#Preview("Copying Symbols") {
+    DebugCacheProgressSheet(system: "27.0 (26A100)", detail: "Copying dyld_shared_cache_arm64e.01", fraction: 0.32) {}
+}
+
+#Preview("Extracting Symbols") {
+    DebugCacheProgressSheet(system: "27.0 (26A100)", detail: "Extracting system libraries (40%)", fraction: 0.82) {}
+}
+
+#Preview("Finalizing Symbol Cache") {
+    DebugCacheProgressSheet(system: "27.0 (26A100)", detail: "Finalizing symbol cache", fraction: nil) {}
+}
+
+#Preview("Cached Symbols") {
+    SettingsPane {
+        DebugCacheList(entries: [
+            .init(id: "26A100", system: "27.0 (26A100)", bytes: 4_300_000_000, inUse: true, remove: {}),
+            .init(id: "25B100", system: "26.1 (25B100)", bytes: 3_900_000_000, removing: true, remove: {}),
+            .init(id: "25A100", system: "26.0 (25A100)", bytes: 3_800_000_000, remove: {})
+        ])
+    }
+}
+
+#Preview("Empty Symbol Cache") {
+    SettingsPane { DebugCacheList(entries: []) }
+}
+#endif

@@ -77,11 +77,21 @@ enum TargetDebugTools {
         var code: SecStaticCode?
         var info: CFDictionary?
         guard SecStaticCodeCreateWithPath(source as CFURL, [], &code) == errSecSuccess, let code,
-              SecStaticCodeCheckValidity(code, SecCSFlags(rawValue: kSecCSStrictValidate | kSecCSCheckNestedCode), nil) == errSecSuccess,
-              SecCodeCopySigningInformation(code, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess,
+              SecStaticCodeCheckValidity(code, SecCSFlags(rawValue: kSecCSStrictValidate | kSecCSCheckNestedCode), nil) == errSecSuccess else {
+            throw MacDebugError("The deployed app has an invalid code signature. Rebuild it in Xcode.")
+        }
+        guard SecCodeCopySigningInformation(code, SecCSFlags(rawValue: kSecCSSigningInformation), &info) == errSecSuccess,
               let entitlements = (info as NSDictionary?)?[kSecCodeInfoEntitlementsDict] as? [String: Any],
               entitlements["com.apple.security.get-task-allow"] as? Bool == true else {
             throw MacDebugError("Build a signed Debug app with the com.apple.security.get-task-allow entitlement.")
+        }
+        for profile in try EmbeddedProfiles.find(in: source) {
+            do {
+                try await DebugTools.run(URL(fileURLWithPath: "/usr/bin/profiles"), ["validate", "-type", "provisioning", "-path", profile.path])
+            } catch where !Task.isCancelled {
+                let item = profile.deletingLastPathComponent().deletingLastPathComponent()
+                throw MacDebugError("macOS rejected the provisioning profile in \(item.lastPathComponent). Check the device registration and the profile’s validity.")
+            }
         }
         let folder = staging.deletingLastPathComponent().appendingPathComponent("Apps").appendingPathComponent(id)
         try DebugTools.directory(folder)

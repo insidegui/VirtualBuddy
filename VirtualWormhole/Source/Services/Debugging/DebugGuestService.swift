@@ -6,6 +6,7 @@ import MacDebugTarget
 struct DebugRequest: VMMessage {
     enum Action: Codable, Sendable {
         case prepare
+        case provisioningUDID
         case image(String, UUID)
         case launch(DebugLaunchOptions)
         case cancel
@@ -17,6 +18,7 @@ struct DebugRequest: VMMessage {
 
 enum DebugReply: VMMessage {
     case images(DebugSystemImages)
+    case provisioningUDID(String)
     case listening(DebugEndpoint)
     case done
     case failure(String)
@@ -30,7 +32,9 @@ public struct DebugEndpoint: Codable, Sendable {
 @MainActor
 final class DebugGuestService: GuestService {
     static let capability = "debug-launch-v1"
+    static let provisioningCapability = "debug-provisioning-udid"
     var available = false
+    var supportsProvisioning = false
     override var transferPurpose: TransferIdentity.Purpose? { .debugging }
 
     private struct Incoming {
@@ -74,6 +78,7 @@ final class DebugGuestService: GuestService {
         super.invalidate()
         cancelRun()
         available = false
+        supportsProvisioning = false
     }
 
     override func receiveOffer(_ offer: GuestFileOffer, metadata: TransferIdentity) {
@@ -117,6 +122,11 @@ final class DebugGuestService: GuestService {
         }
         guard let run, run.id == request.run else { throw MacDebugError("This debug session expired.") }
         switch request.action {
+        case .provisioningUDID:
+            let udid = try await MacProvisioningIdentity.current.udid()
+            try requireSession(request.session)
+            guard self.run === run else { throw CancellationError() }
+            return .provisioningUDID(udid)
         case .prepare: throw GuestSessionError.invalidReply
         case .cancel:
             cancelRun()
@@ -162,6 +172,15 @@ final class DebugGuestService: GuestService {
 
 extension HostGuestSession {
     public var supportsDebugging: Bool { engine.debugging.available }
+    public func provisioningUDID(for run: UUID) async throws -> String {
+        guard engine.debugging.supportsProvisioning else {
+            throw MacDebugError("Update VirtualBuddyGuest from the guest additions disk to run apps that use provisioning profiles.")
+        }
+        guard case .provisioningUDID(let value) = try await engine.debugging.request(.provisioningUDID, run: run) else {
+            throw GuestSessionError.invalidReply
+        }
+        return value
+    }
     public func prepareDebugRun(_ id: UUID) async throws -> DebugSystemImages {
         guard case .images(let images) = try await engine.debugging.request(.prepare, run: id) else { throw GuestSessionError.invalidReply }
         try images.validate()

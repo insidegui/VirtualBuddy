@@ -77,6 +77,10 @@ public struct VirtualMachineSessionView: View {
         .onReceive(ui.makeWindowKey) {
             window?.makeKeyAndOrderFront(nil)
         }
+        .sheet(isPresented: $ui.showingXcodeDebugSetup) {
+            let vm = controller.virtualMachineModel
+            XcodeDebugSetupSheet(vmID: vm.uuid, vmName: vm.name)
+        }
         /// This takes care of booting when initially opening a session with a deep link that wants auto-boot.
         /// Booting after the session is already open is handled by ``VirtualMachineSessionUI``.
         .task {

@@ -35,6 +35,22 @@ struct DebugTransportTests {
         #expect(start.duration(to: .now) < .seconds(2))
     }
 
+    @Test func aLocalPeerIsIdentifiedByItsCodeSignature() async throws {
+        let file = URL(fileURLWithPath: "/private/tmp/" + UUID().uuidString + ".sock")
+        let listener = try DebugSocket.unix(file, listening: true)
+        defer { unlink(file.path) }
+        async let accepted = listener.accept(timeout: 5000) { _, _ in }
+        let client = try DebugSocket.unix(file, listening: false)
+        let server = try await accepted
+        // Both ends are this test process, which satisfies only its own requirement.
+        let own = try DebugPeerRequirement.currentApplication()
+        #expect(throws: Never.self) { try server.requirePeer(own) }
+        #expect(throws: Never.self) { try client.requirePeer(own) }
+        let other = try DebugPeerRequirement(#"identifier "com.example.another-app" and anchor apple generic"#)
+        #expect(throws: (any Error).self) { try server.requirePeer(other) }
+        #expect(throws: (any Error).self) { try DebugPeerRequirement("not a requirement") }
+    }
+
     @Test func guestControlledCacheNamesAreConfined() {
         let files = [DebugSystemImages.File(name: "dyld_shared_cache_arm64e", bytes: 200), .init(name: "dyld", bytes: 100)]
         func check(_ build: String, _ extra: [DebugSystemImages.File]) throws {

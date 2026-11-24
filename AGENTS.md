@@ -1,4 +1,4 @@
-- Always use Xcode MCP tools for building the project, DO NOT use xcodebuild unless explicitly instructed to do so
+- Always prefer using Xcode MCP tools for building the project, use xcodebuild only if MCP is not available or what you need to do can't be done with MCP
 - Activate the VirtualUI scheme in Xcode for obtaining SwiftUI previews, previewing with the app target is not supported
 - Always write production-quality code, hacks and shortcuts are not allowed unless explicitly requested 
 - Private API usage is allowed in this project when necessary since it is a Mac app that's not distributed in the App Store, but avoid it if at all possible

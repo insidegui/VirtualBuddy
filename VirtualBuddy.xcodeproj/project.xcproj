@@ -16,6 +16,7 @@
     ],
   },
   "packages": [
+    { "kind": "local", "path": "Packages/AppStoreConnectDevices" },
     { "kind": "local", "path": "Packages/MacDebugProtocol" },
     { "kind": "local", "path": "Packages/MacDebugTarget" },
     { "kind": "local", "path": "Packages/MacDebugHost" },
@@ -801,6 +802,7 @@
         "resources",
       ],
       "package-product-members": [
+        { "product-name": "AppStoreConnectDevices", "build-phase": { "build-phase": "frameworks" } },
         { "product-name": "MacDebugHost", "build-phase": { "build-phase": "frameworks" } },
         {
           "package": "BuddyKit",

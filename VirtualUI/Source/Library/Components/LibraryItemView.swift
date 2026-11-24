@@ -81,7 +81,6 @@ struct LibraryItemView: View {
 
     var vm: VBVirtualMachine
     @State var name: String
-    let developerFeaturesEnabled: Bool
 
     @Environment(\.vbLibraryButtonPressed)
     private var isPressed
@@ -156,9 +155,6 @@ struct LibraryItemView: View {
         .sheet(isPresented: $showingXcodeDebugSetup) {
             XcodeDebugSetupSheet(vmID: vm.uuid, vmName: vm.name)
         }
-        .onChange(of: developerFeaturesEnabled) { _, enabled in
-            if !enabled { showingXcodeDebugSetup = false }
-        }
         .task(id: vm.name) { self.name = vm.name }
         .animation(isPressed ? .linear(duration: 0) : .snappy, value: isPressed)
     }
@@ -203,10 +199,7 @@ struct LibraryItemView: View {
         }
         .disabled(hasOpenSession || isDuplicating)
 
-        if developerFeaturesEnabled && vm.configuration.systemType == .mac {
-            Button("Set Up Xcode Debugging…") { showingXcodeDebugSetup = true }
-                .disabled(vm.needsInstall || isDuplicating)
-        }
+        XcodeDebugSetupButton(vm: vm) { showingXcodeDebugSetup = true }
 
         Button {
             duplicate()

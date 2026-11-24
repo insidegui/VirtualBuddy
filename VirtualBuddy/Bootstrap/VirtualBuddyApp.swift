@@ -58,6 +58,7 @@ struct VirtualBuddyApp: App {
             CommandMenu("Guest") {
                 VirtualMachineGuestCommands()
                     .environmentObject(sessionManager)
+                    .environmentObject(library)
             }
 
             CommandGroup(before: .windowSize) {
