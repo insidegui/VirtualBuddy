@@ -14,13 +14,15 @@ public final class XcodeProvisioningController: DebugProvisioningInteraction {
         return DebugProvisioning(cacheDirectory: support.appendingPathComponent("codes.rambo.VirtualBuddy/DevelopmentProfiles"), interaction: self)
     }
     private var panels: [UUID: ProvisioningPanel] = [:]
+    /// Preparing an app that is already provisioned for the virtual machine usually takes less
+    /// than this. Waiting keeps a panel the developer cannot act on from flashing on screen.
+    var progressDelay = Duration.seconds(1.5)
 
     private func panel(for destination: UUID) -> ProvisioningPanel {
         if let existing = panels[destination] { return existing }
         let name = VirtualMachineSessionUIManager.shared.sessions.values.first { $0.virtualMachine.uuid == destination }?.virtualMachine.name ?? "Virtual Machine"
-        let panel = ProvisioningPanel(name: name, keys: keys)
+        let panel = ProvisioningPanel(name: name, keys: keys, destination: destination)
         panels[destination] = panel
-        panel.window.present(for: destination)
         return panel
     }
 
@@ -28,12 +30,16 @@ public final class XcodeProvisioningController: DebugProvisioningInteraction {
         let panel = panel(for: destination)
         panel.message = detail
         panel.cancelRun = cancel
+        panel.present(after: progressDelay)
     }
 
     public func resolve(_ request: DebugProvisioningRequest) async throws -> DebugProvisioningAction {
         try VBSettings.current.requireDeveloperFeatures()
         try Task.checkCancellation()
-        return try await panel(for: request.destination).resolve(request)
+        let panel = panel(for: request.destination)
+        // The Run waits for the developer here, so ask for their attention right away.
+        panel.present()
+        return try await panel.resolve(request)
     }
 
     public func dismiss(destination: UUID) {
@@ -48,6 +54,9 @@ private final class ProvisioningPanel: ObservableObject {
     let window = XcodeRunPanel(title: "Xcode App Provisioning")
     let name: String
     let keys: DeviceRegistrationKeys
+    private let destination: UUID
+    private var presentation: Task<Void, Never>?
+    private var isPresented = false
     @Published var message = "Preparing development profiles…"
     @Published var request: DebugProvisioningRequest?
     @Published var registration = Registration.checking
@@ -61,10 +70,28 @@ private final class ProvisioningPanel: ObservableObject {
     /// The team key is used only after the developer asks to check the virtual machine's registration.
     private var checksApproved = false
 
-    init(name: String, keys: DeviceRegistrationKeys) {
+    init(name: String, keys: DeviceRegistrationKeys, destination: UUID) {
         self.name = name
         self.keys = keys
+        self.destination = destination
         window.host(ProvisioningView(panel: self))
+    }
+
+    /// Shows the panel now. A delay already under way is not extended by later progress.
+    func present() {
+        presentation?.cancel()
+        presentation = nil
+        guard !isPresented else { return }
+        isPresented = true
+        window.present(for: destination)
+    }
+
+    func present(after delay: Duration) {
+        guard !isPresented, presentation == nil else { return }
+        presentation = Task {
+            guard (try? await Task.sleep(for: delay)) != nil else { return }
+            present()
+        }
     }
 
     func resolve(_ request: DebugProvisioningRequest) async throws -> DebugProvisioningAction {
@@ -155,6 +182,8 @@ private final class ProvisioningPanel: ObservableObject {
     }
 
     func dismiss() {
+        presentation?.cancel()
+        presentation = nil
         finish(.failure(CancellationError()))
         cancelRun = nil
         window.dismiss()
