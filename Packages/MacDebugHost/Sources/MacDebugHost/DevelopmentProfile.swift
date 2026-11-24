@@ -35,23 +35,31 @@ struct DevelopmentProfile {
         self.decoder = decoder
     }
 
-    func authorizes(_ signing: DebugCodeSignature, original: DevelopmentProfile, udid: String) -> Bool {
+    func isCurrent(for udid: String) -> Bool {
+        expiration > Date() && ((properties["ProvisionedDevices"] as? [String])?.contains(udid) == true ||
+                                properties["ProvisionsAllDevices"] as? Bool == true)
+    }
+
+    func matchesSigningIdentity(_ signing: DebugCodeSignature) -> Bool {
         guard let cert = signing.certificate, let team = signing.team,
-              expiration > Date(), (properties["TeamIdentifier"] as? [String])?.contains(team) == true,
+              (properties["TeamIdentifier"] as? [String])?.contains(team) == true,
               (properties["DeveloperCertificates"] as? [Data])?.contains(cert) == true,
               (properties["Platform"] as? [String])?.contains("OSX") == true,
-              (properties["ProvisionedDevices"] as? [String])?.contains(udid) == true ||
-                properties["ProvisionsAllDevices"] as? Bool == true else { return false }
+              let appID = grants["com.apple.application-identifier"] as? String,
+              let prefixes = properties["ApplicationIdentifierPrefix"] as? [String],
+              prefixes.contains(where: { Self.covers(appID, $0 + "." + signing.identifier) }) else { return false }
+        return hasAppleProfileSignature()
+    }
+
+    func authorizes(_ signing: DebugCodeSignature, original: DevelopmentProfile, udid: String) -> Bool {
+        guard isCurrent(for: udid), matchesSigningIdentity(signing) else { return false }
         // Use the app's signed claims. Some macOS entitlements (including get-task-allow)
         // need no grant, whereas each restricted claim must be covered by the new profile.
         for (key, claim) in signing.entitlements where original.grants[key] != nil || grants[key] != nil ||
             key.hasPrefix("com.apple.developer.") || key == "keychain-access-groups" || key == "com.apple.application-identifier" {
             guard let grant = grants[key], Self.covers(grant, claim) else { return false }
         }
-        guard let appID = grants["com.apple.application-identifier"] as? String,
-              let prefixes = properties["ApplicationIdentifierPrefix"] as? [String],
-              prefixes.contains(where: { Self.covers(appID, $0 + "." + signing.identifier) }) else { return false }
-        return hasAppleProfileSignature()
+        return true
     }
 
     private static let appleRoots: [SecCertificate] = {
@@ -82,6 +90,9 @@ struct DevelopmentProfile {
 
     static func covers(_ grant: Any, _ claim: Any) -> Bool {
         if let claim = claim as? [Any] {
+            // Apple can grant string-list entitlements such as Associated Domains
+            // and iCloud services with a single "*" in the profile.
+            if grant as? String == "*" { return claim.allSatisfy { $0 is String } }
             guard let allowed = grant as? [Any] else { return false }
             return claim.allSatisfy { value in allowed.contains { covers($0, value) } }
         }

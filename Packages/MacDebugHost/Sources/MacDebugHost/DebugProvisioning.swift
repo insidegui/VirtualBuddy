@@ -97,11 +97,14 @@ private actor ProvisioningRun {
                 throw MacDebugError("Build \(signature.identifier) with an Apple Development signing identity.")
             }
             let original = try DevelopmentProfile(profile)
+            let needsReseal = try signature.needsProfileReseal(at: profile)
+            // Xcode selected the embedded profile. Only compare entitlement grants
+            // when choosing a different profile for this build.
+            let useEmbedded = original.isCurrent(for: udid) && (!needsReseal || original.matchesSigningIdentity(signature))
             let bucket = SHA256.hash(data: Data([team, signature.identifier, signature.identity].joined(separator: "\n").utf8))
             let cache = configuration.cache.appendingPathComponent(bucket.map { String(format: "%02x", $0) }.joined())
             targets.append(Target(bundle: bundle, profile: profile, signature: signature, original: original,
-                                  needsReseal: try signature.needsProfileReseal(at: profile), cache: cache,
-                                  selected: original.authorizes(signature, original: original, udid: udid) ? original : nil))
+                                  needsReseal: needsReseal, cache: cache, selected: useEmbedded ? original : nil))
         }
         if targets.contains(where: { $0.selected == nil }) {
             try await resolveMissingProfiles()

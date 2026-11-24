@@ -4,6 +4,15 @@ import Testing
 @testable import MacDebugHost
 
 struct DevelopmentProfileTests {
+    @Test func scalarWildcardGrantsStringListEntitlements() {
+        #expect(DevelopmentProfile.covers("*", ["applinks:example.com", "webcredentials:example.com"]))
+        #expect(DevelopmentProfile.covers("*", ["CloudKit"]))
+        #expect(!DevelopmentProfile.covers("*", ["CloudKit", true] as [Any]))
+        #expect(!DevelopmentProfile.covers("*", ["mode": "CloudKit"]))
+        #expect(!DevelopmentProfile.covers("CloudKit", ["CloudKit", "CloudDocuments"]))
+        #expect(!DevelopmentProfile.covers(["CloudKit"], ["CloudKit", "CloudDocuments"]))
+    }
+
     @Test func grantsCoverAllRequestedValues() {
         #expect(DevelopmentProfile.covers(["TEAM.*", "group.example"], ["TEAM.app", "group.example"]))
         #expect(!DevelopmentProfile.covers(["TEAM.*"], ["TEAM.app", "group.example"]))
