@@ -276,6 +276,20 @@ struct TunnelEndpointTests {
         #expect(throws: TunnelError.self) { try requireTrustedSocketPath("/usr/bin") { _ in false } }
     }
 
+    @Test func unixDestinationIsReachedThroughLinksOwnedByThisAccount() async throws {
+        let directory = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
+        try #require(mkdir(directory.path, 0o700) == 0)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let service = TunnelEndpoint.unix(directory.appendingPathComponent("service.sock").path)
+        let listener = try TunnelListener(service)
+        defer { listener.stop() }
+
+        let link = directory.appendingPathComponent("link.sock")
+        try FileManager.default.createSymbolicLink(atPath: link.path, withDestinationPath: directory.appendingPathComponent("service.sock").path)
+        _ = try await service.connectSocket()
+        _ = try await TunnelEndpoint.unix(link.path).connectSocket()
+    }
+
     @Test func unixListenerPreservesExistingDirectoryPermissions() throws {
         let directory = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
         try #require(mkdir(directory.path, 0o700) == 0)

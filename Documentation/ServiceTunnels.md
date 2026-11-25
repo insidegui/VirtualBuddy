@@ -15,6 +15,8 @@ when the tunnel stops. If the app or the machine went down before that could hap
 the next listener for that path replaces the file, as long as it's still the socket
 VirtualBuddy created there and nothing is listening on it. Any other existing file
 is left alone and the tunnel reports the address as in use. The service creates its own destination socket.
+A destination socket is held to the same rule about who owns its path, and the
+service listening on it has to run as that account or as a system account.
 A TCP listener doesn't start while something else on that side already accepts
 connections at its address, including a service listening on every address. The
 tunnel reports the address as in use until it's free.

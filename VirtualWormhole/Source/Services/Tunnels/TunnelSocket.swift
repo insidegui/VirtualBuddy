@@ -211,13 +211,20 @@ extension TunnelEndpoint {
             try prepareUnixListenerDirectory(url.deletingLastPathComponent())
             return try DebugSocket.unix(url, listening: true)
         case .unix(let path):
+            // The path is all that was approved. Someone else who owns part of it, or the socket at the end
+            // of it, decides what a connection there reaches, which may not be the service that was meant.
+            try requireTrustedSocketPath(path)
             var address = sockaddr_un()
             address.sun_family = sa_family_t(AF_UNIX)
             address.sun_len = UInt8(MemoryLayout<sockaddr_un>.size)
             withUnsafeMutableBytes(of: &address.sun_path) {
                 $0.copyBytes(from: path.utf8)
             }
-            return try openSocket(&address, family: AF_UNIX, listening: false, connectTimeout: connectTimeout)
+            let stream = try openSocket(&address, family: AF_UNIX, listening: false, connectTimeout: connectTimeout)
+            var uid: uid_t = 0, gid: gid_t = 0
+            guard getpeereid(stream.descriptor, &uid, &gid) == 0 else { throw socketError() }
+            guard ownsTrustedSocketPaths(uid) else { throw TunnelError("The service at \(path) belongs to another account.") }
+            return stream
         case .tcp(let port):
             guard !listening || !occupied else { throw POSIXError(.EADDRINUSE) }
             var address = sockaddr_in()
