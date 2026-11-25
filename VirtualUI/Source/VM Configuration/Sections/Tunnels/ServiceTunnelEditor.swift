@@ -102,7 +102,7 @@ struct ServiceTunnelEditor: View {
                     Text("Access from \(listenerSideName)")
                 } footer: {
                     if listener.kind == .unix {
-                        Text("Use an unused path in a directory you own. Only your account should have write access to that directory.")
+                        Text("Choose an unused socket path. Missing directories are created automatically. If the containing directory exists, you must own it and only your account may have write access.")
                             .foregroundStyle(.secondary)
                             .frame(maxWidth: .infinity, alignment: .leading)
                     }

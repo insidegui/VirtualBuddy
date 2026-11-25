@@ -5,10 +5,12 @@ runs and where it should be reachable from. For example, a service running on th
 `127.0.0.1:3000` can be accessed from the Host at `127.0.0.1:8080`.
 A browser on the host can then reach the guest service while the VM's network adapter
 is disconnected. Both endpoints support IPv4 loopback, IPv6 loopback, and Unix
-stream sockets. A Unix listener requires an unused path in a directory owned by
-the current account with group and other write access disabled. The relay forwards
-bytes and supports half-close. Unix ancillary data such as file descriptors stays
-local to each operating system.
+stream sockets. For a Unix listener, choose an unused socket path. When the tunnel
+starts, VirtualBuddy creates any missing directories with access limited to the
+current account. An existing socket directory must be owned by that account with
+group and other write access disabled. The service creates its own destination socket.
+The relay forwards bytes and supports half-close. Unix ancillary data such as file
+descriptors stays local to each operating system.
 
 VirtualBuddyGuest → Service Tunnels → Request Service Tunnel sends a proposal to the host's
 Service Tunnels settings. Allow signs the reviewed tunnel list and saves it in

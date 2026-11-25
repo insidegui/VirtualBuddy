@@ -9,15 +9,6 @@ final class TunnelListener {
     private var file: (String, stat)?
 
     init(_ endpoint: TunnelEndpoint) throws {
-        if case .unix(let path) = endpoint {
-            // Restrict namespace changes to our user, including during chmod and cleanup.
-            let directory = URL(fileURLWithPath: path).deletingLastPathComponent()
-            var parent = stat()
-            guard stat(directory.path, &parent) == 0, parent.st_uid == getuid(),
-                  parent.st_mode & S_IFMT == S_IFDIR, parent.st_mode & 0o022 == 0 else {
-                throw TunnelError("Choose a socket in a directory owned by your account and writable only by you.")
-            }
-        }
         socket = try endpoint.open(listening: true)
         if case .unix(let path) = endpoint {
             var info = stat()
@@ -93,7 +84,9 @@ extension TunnelEndpoint {
         guard isValid else { throw TunnelError("Invalid tunnel endpoint.") }
         switch self {
         case .unix(let path) where listening:
-            return try DebugSocket.unix(URL(fileURLWithPath: path), listening: true)
+            let url = URL(fileURLWithPath: path)
+            try prepareUnixListenerDirectory(url.deletingLastPathComponent())
+            return try DebugSocket.unix(url, listening: true)
         case .unix(let path):
             var address = sockaddr_un()
             address.sun_family = sa_family_t(AF_UNIX)
@@ -156,6 +149,34 @@ extension TunnelEndpoint {
                 continuation.resume(with: Result { try open(listening: false) })
             }
         }
+    }
+}
+
+private func prepareUnixListenerDirectory(_ directory: URL) throws {
+    let unsafeDirectory = TunnelError("Choose a socket in a directory owned by your account and writable only by you.")
+    var missing = [URL]()
+    var ancestor = directory
+    var info = stat()
+    while stat(ancestor.path, &info) != 0 {
+        guard errno == ENOENT else { throw socketError() }
+        missing.append(ancestor)
+        ancestor.deleteLastPathComponent()
+    }
+    guard info.st_mode & S_IFMT == S_IFDIR else { throw POSIXError(.ENOTDIR) }
+
+    if missing.isEmpty {
+        guard info.st_uid == getuid(), info.st_mode & 0o022 == 0 else { throw unsafeDirectory }
+        return
+    }
+    // A sticky directory such as /tmp also protects a newly created entry from other users.
+    guard info.st_uid == getuid() || info.st_uid == 0,
+          info.st_mode & 0o022 == 0 || info.st_mode & S_ISVTX != 0 else { throw unsafeDirectory }
+    for component in missing.reversed() {
+        if mkdir(component.path, 0o700) != 0 && errno != EEXIST { throw socketError() }
+        // Another listener may have just created this directory. Check it before descending.
+        guard lstat(component.path, &info) == 0 else { throw socketError() }
+        guard info.st_mode & S_IFMT == S_IFDIR, info.st_uid == getuid(),
+              info.st_mode & 0o022 == 0 else { throw unsafeDirectory }
     }
 }
 
