@@ -39,8 +39,8 @@ public struct ServiceTunnel: Identifiable, Hashable, Codable, Sendable {
     }
 
     public var description: String {
-        let source = listensOnHost ? "Host Mac" : "Guest VM"
-        let target = listensOnHost ? "Guest VM" : "Host Mac"
+        let source = listensOnHost ? "Host" : "Guest"
+        let target = listensOnHost ? "Guest" : "Host"
         return "\(source)  \(listener.address) → \(target)  \(destination.address)"
     }
 

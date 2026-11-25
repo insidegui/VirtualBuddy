@@ -33,13 +33,22 @@ struct VMLiveConfigurationView: View {
                 ConfigurationSection(collapsingDisabled: true) {
                     SharedFoldersManagementView(configuration: $editor.configuration)
                         .disabled(!controller.canEditLiveSharedFolders)
-                    if controller.liveConfiguration.systemType == .mac {
-                        HostTunnelsView(settings: editor.tunnelSettings, state: controller.tunnelState,
-                                        decline: controller.declineTunnel, change: editor.updateTunnels)
-                            .disabled(!controller.canEditLiveConfiguration)
-                    }
                 } header: {
                     SummaryHeader("Sharing", systemImage: "folder", summary: controller.liveConfiguration.sharingSummary)
+                }
+
+                if controller.liveConfiguration.systemType == .mac {
+                    ConfigurationSection(collapsingDisabled: true) {
+                        ServiceTunnelsConfigurationView(
+                            settings: editor.tunnelSettings,
+                            liveState: controller.tunnelState.map(ServiceTunnelsLiveState.init),
+                            decline: controller.declineTunnel,
+                            change: editor.updateTunnels
+                        )
+                        .disabled(!controller.canEditLiveConfiguration)
+                    } header: {
+                        SummaryHeader("Service Tunnels", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", summary: editor.tunnelSettings.summary())
+                    }
                 }
 
                 if let display = controller.liveConfiguration.hardware.displayDevices.first {

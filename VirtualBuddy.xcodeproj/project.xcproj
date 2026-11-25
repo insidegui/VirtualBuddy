@@ -16,11 +16,19 @@
     ],
   },
   "packages": [
-    { "kind": "local", "path": "Packages/AppStoreConnectDevices" },
-    { "kind": "local", "path": "Packages/MacDebugProtocol" },
-    { "kind": "local", "path": "Packages/MacDebugTarget" },
-    { "kind": "local", "path": "Packages/MacDebugHost" },
     {
+      "kind": "local",
+      "path": "Packages/AppStoreConnectDevices",
+    }, {
+      "kind": "local",
+      "path": "Packages/MacDebugProtocol",
+    }, {
+      "kind": "local",
+      "path": "Packages/MacDebugTarget",
+    }, {
+      "kind": "local",
+      "path": "Packages/MacDebugHost",
+    }, {
       "kind": "remote",
       "repository": "https://github.com/insidegui/ManagedPreferencesKit.git",
       "version": {
@@ -306,7 +314,7 @@
             "VirtualWormholeTests/frameworks",
           ],
         },
-        { "path": "<PRODUCTS>/VirtualBuddyGuest.app", "id": "F4C18A4228491B8500335EC7", "type": "wrapper.application", "index": false, "target-membership": [ { "build-phase": "VirtualBuddy/copy/Embed Guest App" } ] },
+        { "path": "<PRODUCTS>/VirtualBuddyGuest.app", "id": "F4C18A4228491B8500335EC7", "type": "wrapper.application", "index": false, "target-membership": [ "VirtualBuddy/copy/Embed Guest App" ] },
         {
           "path": "<PRODUCTS>/VirtualUI.framework",
           "id": "F498ACFE2884BF13006F1C00",
@@ -438,9 +446,13 @@
         },
       ],
       "package-product-members": [
-        { "product-name": "MacDebugHost", "build-phase": { "build-phase": "frameworks" } },
-        { "product-name": "MacDebugProtocol", "build-phase": { "build-phase": "frameworks" } },
         {
+          "product-name": "MacDebugHost",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "product-name": "MacDebugProtocol",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "product-name": "VMBridge",
           "build-phase": { "build-phase": "frameworks" },
         }, {
@@ -541,9 +553,13 @@
         },
       ],
       "package-product-members": [
-        { "product-name": "MacDebugHost", "build-phase": { "build-phase": "frameworks" } },
-        { "product-name": "MacDebugProtocol", "build-phase": { "build-phase": "frameworks" } },
         {
+          "product-name": "MacDebugHost",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "product-name": "MacDebugProtocol",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "product-name": "VMBridge",
           "build-phase": { "build-phase": "frameworks" },
         }, {
@@ -716,8 +732,10 @@
         },
       ],
       "package-product-members": [
-        { "product-name": "MacDebugHost", "build-phase": { "build-phase": "frameworks" } },
         {
+          "product-name": "MacDebugHost",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "product-name": "VMBridgeVirtualization",
           "build-phase": { "build-phase": "frameworks" },
         }, {
@@ -760,8 +778,15 @@
       "id": "5C3E092317E748578526350B",
       "product": "Products/VirtualBuddyTests.xctest",
       "product-type": "bundle.unit-test",
-      "dependencies": [ "VirtualBuddy", "VirtualCore" ],
-      "build-phases": [ "compile-sources", "frameworks", "resources" ],
+      "dependencies": [
+        "VirtualBuddy",
+        "VirtualCore",
+      ],
+      "build-phases": [
+        "compile-sources",
+        "frameworks",
+        "resources",
+      ],
       "build-settings": {
         "BUNDLE_LOADER": "$(TEST_HOST)",
         "CODE_SIGN_STYLE": "Automatic",
@@ -822,9 +847,13 @@
         "resources",
       ],
       "package-product-members": [
-        { "product-name": "AppStoreConnectDevices", "build-phase": { "build-phase": "frameworks" } },
-        { "product-name": "MacDebugHost", "build-phase": { "build-phase": "frameworks" } },
         {
+          "product-name": "AppStoreConnectDevices",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "product-name": "MacDebugHost",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "package": "BuddyKit",
           "product-name": "BuddyKit",
           "build-phase": { "build-phase": "frameworks" },
@@ -880,9 +909,13 @@
         "resources",
       ],
       "package-product-members": [
-        { "product-name": "MacDebugTarget", "build-phase": { "build-phase": "frameworks" } },
-        { "product-name": "MacDebugProtocol", "build-phase": { "build-phase": "frameworks" } },
         {
+          "product-name": "MacDebugProtocol",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
+          "product-name": "MacDebugTarget",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "product-name": "VMBridge",
           "build-phase": { "build-phase": "frameworks" },
         },
@@ -925,8 +958,10 @@
         "resources",
       ],
       "package-product-members": [
-        { "product-name": "MacDebugProtocol", "build-phase": { "build-phase": "frameworks" } },
         {
+          "product-name": "MacDebugProtocol",
+          "build-phase": { "build-phase": "frameworks" },
+        }, {
           "product-name": "VMBridge",
           "build-phase": { "build-phase": "frameworks" },
         }, {
