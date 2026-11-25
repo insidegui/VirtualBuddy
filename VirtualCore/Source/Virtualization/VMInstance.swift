@@ -278,6 +278,14 @@ public final class VMInstance: NSObject, ObservableObject {
             throw Failure("The guest communication socket device is unavailable.")
         }
         let session = HostGuestSession(connection: .host(socketDevice: device, port: GuestCommunication.port))
+        session.configureTunnels(device: device) { [weak self] in
+            guard let self else { return [] }
+            do { return try VBVirtualMachine.tunnelSetting().approvedValue(in: virtualMachineModel) ?? [] }
+            catch {
+                logger.error("Unable to verify tunnel settings: \(error.localizedDescription, privacy: .public)")
+                return []
+            }
+        }
         session.automaticallySyncAppearance = virtualMachineModel.configuration.automaticallySyncGuestAppearance
         guestAppearance = session.appearance
         session.onNotification = { [weak self] name in

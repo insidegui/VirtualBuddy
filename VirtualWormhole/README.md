@@ -175,3 +175,7 @@ check the library and Get Info, rename the guest computer and activate the guest
 then shut down and reopen the host. Confirm the report and timestamp persist. Repeat
 with SIP enabled, disabled, and a custom configuration; compare SIP Details with
 `csrutil status` inside that guest. Old guest releases show the no-report state until updated.
+
+## Service tunnels
+
+[Service Tunnels](../Documentation/ServiceTunnels.md) covers setup, approvals, and the guest communication protocol.

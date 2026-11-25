@@ -1,5 +1,6 @@
 import SwiftUI
 import VirtualCore
+import VirtualWormhole
 
 /// Only edits resources that the current VM can change without rebuilding its device topology.
 struct VMLiveConfigurationView: View {
@@ -32,6 +33,11 @@ struct VMLiveConfigurationView: View {
                 ConfigurationSection(collapsingDisabled: true) {
                     SharedFoldersManagementView(configuration: $editor.configuration)
                         .disabled(!controller.canEditLiveSharedFolders)
+                    if controller.liveConfiguration.systemType == .mac {
+                        HostTunnelsView(settings: editor.tunnelSettings, state: controller.tunnelState,
+                                        decline: controller.declineTunnel, change: editor.updateTunnels)
+                            .disabled(!controller.canEditLiveConfiguration)
+                    }
                 } header: {
                     SummaryHeader("Sharing", systemImage: "folder", summary: controller.liveConfiguration.sharingSummary)
                 }
@@ -83,10 +89,17 @@ struct VMLiveConfigurationView: View {
 @MainActor
 private final class VMLiveConfigurationEditor {
     let controller: VMController
+    var tunnelSettings: SignedSettingState<[ServiceTunnel]>
     var errorMessage: String?
 
     init(controller: VMController) {
         self.controller = controller
+        self.tunnelSettings = controller.virtualMachineModel.serviceTunnelSettings
+    }
+
+    func updateTunnels(_ rules: [ServiceTunnel]) throws {
+        try controller.updateLiveTunnels(rules)
+        tunnelSettings = controller.virtualMachineModel.serviceTunnelSettings
     }
 
     var isShowingError: Bool {

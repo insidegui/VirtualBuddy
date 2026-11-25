@@ -386,6 +386,9 @@ struct VMConfigurationView: View {
     private var sharing: some View {
         ConfigurationSection($sharingCollapsed) {
             SharingConfigurationView(configuration: $viewModel.config)
+            if viewModel.config.systemType == .mac && viewModel.context == .postInstall {
+                HostTunnelsView(settings: viewModel.savedTunnelSettings, draft: viewModel.tunnelDraft, state: nil) { viewModel.tunnelDraft = $0 }
+            }
         } header: {
             SummaryHeader(
                 "Sharing",

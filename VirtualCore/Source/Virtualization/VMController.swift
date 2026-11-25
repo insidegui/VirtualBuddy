@@ -864,6 +864,17 @@ public final class VMController: ObservableObject {
         }
     }
 
+    public var tunnelState: TunnelState? { instance?.guestSession?.tunnels }
+
+    public func updateLiveTunnels(_ rules: [ServiceTunnel]) throws {
+        guard canEditLiveConfiguration else { throw Failure("Wait for the VM to finish changing state.") }
+        try virtualMachineModel.approveServiceTunnels(rules)
+        instance?.guestSession?.reloadTunnels()
+        objectWillChange.send()
+    }
+
+    public func declineTunnel(_ id: UUID) { instance?.guestSession?.declineTunnel(id) }
+
     public func updateLiveSharedFolders(_ folders: [VBSharedFolder]) throws {
         guard canEditLiveSharedFolders else {
             throw Failure("Wait until the virtual machine is running or paused before changing shared folders.")

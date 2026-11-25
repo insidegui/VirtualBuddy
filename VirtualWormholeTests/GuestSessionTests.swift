@@ -6,6 +6,129 @@ import os
 
 @Suite @MainActor
 struct GuestSessionTests {
+    @Test(arguments: [true, false])
+    func serviceTunnelsRequireApprovalAndRelayAfterHalfClose(listensOnHost: Bool) async throws {
+        let fixture = await SessionFixture.make()
+        let directory = URL(fileURLWithPath: "/private/tmp").appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+
+        // Replace only the physical Virtio hop. Both session engines, the
+        // control protocol and all client/service sockets are real.
+        let linkAddress = TunnelEndpoint.unix(directory.appendingPathComponent("link").path)
+        fixture.guest.tunnels.makeGuestListener = {
+            let listener = try TunnelListener(linkAddress)
+            return .init(port: 23456) {
+                defer { listener.removeSocketFile() }
+                return try await listener.socket.accept(timeout: 5000)
+            }
+        }
+        fixture.host.tunnels.connect = { _ in .init(stream: try await linkAddress.connectSocket(), owner: nil) }
+
+        // Reserve a kernel-selected loopback service port and keep it bound.
+        let serviceFD = socket(AF_INET, SOCK_STREAM, 0)
+        defer { close(serviceFD) }
+        var address = sockaddr_in()
+        address.sin_family = sa_family_t(AF_INET)
+        address.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+        address.sin_addr.s_addr = INADDR_LOOPBACK.bigEndian
+        var size = socklen_t(address.sin_len)
+        let bound = withUnsafeMutablePointer(to: &address) {
+            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                bind(serviceFD, $0, size) == 0 && listen(serviceFD, 1) == 0 && getsockname(serviceFD, $0, &size) == 0
+            }
+        }
+        try #require(bound)
+        let path = directory.appendingPathComponent("client").path
+        let rule = ServiceTunnel(listensOnHost: listensOnHost, listener: .unix(path), destination: .tcp(UInt16(bigEndian: address.sin_port)))
+        try await fixture.connect()
+        try await eventually { fixture.host.tunnels.state.available }
+        try await fixture.guest.tunnels.propose(rule)
+        try await eventually { fixture.guest.tunnels.state.requests == [rule] }
+        #expect(fixture.host.tunnels.state.rules.isEmpty)
+        let token = try #require(await fixture.guestConnection.token)
+        for action: TunnelControl.Action in [.reverse(rule.id, UUID(), 23456), .open(rule.id, UUID()), .snapshot(42, [rule], [], [:])] {
+            let reply = try await fixture.guestConnection.request(TunnelControl(session: token, action: action), reply: TunnelReply.self, timeout: .seconds(1))
+            if case .failure = reply {} else { Issue.record("Host accepted an unauthorized tunnel operation") }
+        }
+        #expect(!FileManager.default.fileExists(atPath: path))
+        fixture.host.tunnels.decline(rule.id)
+        try await eventually { fixture.guest.tunnels.state.requests.isEmpty }
+
+        try await fixture.guest.tunnels.propose(rule)
+        fixture.host.tunnels.approvedRules = { [rule] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.status[rule.id] == "Listening" }
+        let client = try await rule.listener.connectSocket()
+        try await client.send("request")
+        shutdown(client.descriptor, SHUT_WR)
+        let response = Task.detached {
+            var pending = pollfd(fd: serviceFD, events: Int16(POLLIN), revents: 0)
+            guard poll(&pending, 1, 5000) == 1 else { throw TestFailure.deadline }
+            let fd = accept(serviceFD, nil, nil)
+            defer { close(fd) }
+            var timeout = timeval(tv_sec: 5, tv_usec: 0)
+            setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, socklen_t(MemoryLayout.size(ofValue: timeout)))
+            var bytes = [UInt8](repeating: 0, count: 128)
+            var data = Data()
+            while true {
+                let n = read(fd, &bytes, bytes.count)
+                guard n >= 0 else { throw TestFailure.deadline }
+                if n == 0 { break }
+                data.append(contentsOf: bytes.prefix(n))
+            }
+            return data.withUnsafeBytes { write(fd, $0.baseAddress, $0.count) }
+        }
+        #expect(try await client.receive(String.self, within: .seconds(8)) == "request")
+        #expect(try await response.value > 0)
+
+        // Turning off an approved rule also closes an already connected, idle client.
+        let idle = try await rule.listener.connectSocket()
+        let idleServiceFD = try await Task.detached {
+            var event = pollfd(fd: serviceFD, events: Int16(POLLIN), revents: 0)
+            guard poll(&event, 1, 5000) == 1 else { throw TestFailure.deadline }
+            return accept(serviceFD, nil, nil)
+        }.value
+        defer { close(idleServiceFD) }
+        var disabled = rule
+        disabled.isEnabled = false
+        fixture.host.tunnels.approvedRules = { [disabled] in [disabled] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.rules == [disabled] }
+        do {
+            _ = try await idle.receive(String.self, within: .seconds(2))
+            Issue.record("An idle client stayed connected after revocation")
+        } catch let error as POSIXError {
+            #expect(error.code == .ECONNRESET)
+        }
+        fixture.host.tunnels.approvedRules = { [] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { !FileManager.default.fileExists(atPath: path) && fixture.guest.tunnels.state.rules.isEmpty }
+        await fixture.stop()
+    }
+
+    @Test func reconnectReloadsHostApprovalBeforePublishingMappings() async throws {
+        let fixture = await SessionFixture.make()
+        var disabled = ServiceTunnel(listensOnHost: true, listener: .tcp(8000), destination: .tcp(80))
+        disabled.isEnabled = false
+        var verified = [disabled]
+        var loads = 0
+        fixture.host.tunnels.approvedRules = {
+            loads += 1
+            return verified
+        }
+        try await fixture.connect()
+        try await eventually { fixture.guest.tunnels.state.rules == verified }
+        await fixture.disconnect()
+        try await eventually { !fixture.host.tunnels.state.available && !fixture.guest.tunnels.state.available }
+        verified = []
+        await fixture.hostConnection.transition(.connected)
+        await fixture.guestConnection.transition(.connected)
+        try await eventually { fixture.host.tunnels.state.available && loads == 2 }
+        #expect(fixture.host.tunnels.state.rules.isEmpty)
+        await fixture.stop()
+    }
+
     @Test func debuggingRequiresTheConnectedGuestsOwnCapability() async throws {
         let first = await SessionFixture.make()
         let second = await SessionFixture.make()

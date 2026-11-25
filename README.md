@@ -49,6 +49,7 @@ If you use [homebrew](https://brew.sh), install with `brew install --cask virtua
 	- [x] Install Linux from URL
 - [x] Boot into recovery mode (in order to disable SIP, for example)
 - [x] Networking and file sharing support
+- [x] [Service Tunnels](./Documentation/ServiceTunnels.md) for forwarding loopback TCP ports and Unix sockets between host and guest
 - [x] Clipboard sharing
 - [x] Customize virtual machine hardware configuration
 - [x] Save and restore macOS virtual machine state
