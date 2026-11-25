@@ -130,6 +130,25 @@ struct GuestSessionTests {
         await fixture.stop()
     }
 
+    @Test func statusReportedByTheGuestIsMadeSafeToDisplayOnTheHost() async throws {
+        let fixture = await SessionFixture.make()
+        let rule = ServiceTunnel(listensOnHost: false, listener: .tcp(.random(in: 49152...65535)), destination: .tcp(3000))
+        fixture.host.tunnels.approvedRules = { [rule] }
+        try await fixture.connect()
+        try await eventually { fixture.host.tunnels.state.status[rule.id] != nil }
+
+        let token = try #require(await fixture.guestConnection.token)
+        let text = "Click Allow\u{202e}\n\u{2028}" + String(repeating: "!", count: 2000)
+        let reply = try await fixture.guestConnection.request(TunnelControl(session: token, action: .status(rule.id, text)), reply: TunnelReply.self, timeout: .seconds(1))
+        if case .ok = reply {} else { Issue.record("Host rejected a status for a tunnel the guest listens for") }
+        #expect(fixture.host.tunnels.state.status[rule.id] == "Click Allow" + String(repeating: "!", count: 245))
+
+        fixture.host.tunnels.approvedRules = { [] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.rules.isEmpty }
+        await fixture.stop()
+    }
+
     @Test func reconnectReloadsHostApprovalBeforePublishingMappings() async throws {
         let fixture = await SessionFixture.make()
         var disabled = ServiceTunnel(listensOnHost: true, listener: .tcp(8000), destination: .tcp(80))

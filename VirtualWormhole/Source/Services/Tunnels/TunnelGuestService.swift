@@ -119,7 +119,7 @@ final class TunnelGuestService: GuestService {
             revision = version
             state.requests = pending
             reconcile(rules)
-            for rule in rules where rule.listensOnHost { state.status[rule.id] = hostStatus[rule.id] }
+            for rule in rules where rule.listensOnHost { state.status[rule.id] = hostStatus[rule.id]?.displayableTunnelText }
         case .propose(let rule) where isHost && state.available:
             guard rule.isEnabled, rule.canAdd(to: state.rules), rule.canAdd(to: state.requests) else {
                 throw TunnelError("That listener is already mapped or the mapping is invalid.")
@@ -136,7 +136,7 @@ final class TunnelGuestService: GuestService {
             }
         case let .status(id, message) where state.available:
             guard state.rules.contains(where: { $0.id == id && $0.listensOnHost != isHost }) else { throw GuestSessionError.invalidReply }
-            state.status[id] = String(message.prefix(256))
+            state.status[id] = message.displayableTunnelText
         default: throw GuestSessionError.invalidReply
         }
         return .ok
@@ -177,6 +177,8 @@ final class TunnelGuestService: GuestService {
     }
 
     private func report(_ message: String, for rule: ServiceTunnel) {
+        // Failures often quote what the other side replied, which ends up displayed like any other status.
+        let message = message.displayableTunnelText
         guard state.rules.contains(rule), state.status[rule.id] != message else { return }
         state.status[rule.id] = message
         if rule.listensOnHost == isHost {

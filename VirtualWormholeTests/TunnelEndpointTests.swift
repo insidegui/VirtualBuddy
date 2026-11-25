@@ -31,6 +31,14 @@ struct TunnelEndpointTests {
         #expect(!TunnelEndpoint.tcp(80).hasCharactersOutsideASCII)
     }
 
+    @Test func textFromTheOtherSideIsMadeSafeToDisplay() {
+        #expect("Listening".displayableTunnelText == "Listening")
+        #expect("Connection to 127.0.0.1:80 failed: Connection refused".displayableTunnelText == "Connection to 127.0.0.1:80 failed: Connection refused")
+        #expect("Listening\u{202e}\u{200b}\n\u{2028}now\u{a0}".displayableTunnelText == "Listeningnow")
+        #expect(String(repeating: "a", count: 5000).displayableTunnelText.count == 256)
+        #expect(String(repeating: "\u{200b}", count: 5000).displayableTunnelText.isEmpty)
+    }
+
     @Test(arguments: [false, true])
     @MainActor func tcpListenerAcceptsOnTheSelectedLoopbackFamily(ipv6: Bool) async throws {
         var endpoint: TunnelEndpoint?

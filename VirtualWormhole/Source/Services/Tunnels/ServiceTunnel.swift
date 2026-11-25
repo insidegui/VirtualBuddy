@@ -33,6 +33,19 @@ public enum TunnelEndpoint: Codable, Hashable, Sendable {
     }
 }
 
+extension String {
+    /// Text received from the other side of a tunnel, made safe to show next to a tunnel in the app.
+    /// The other side chooses every character of it, so anything that could hide, reorder or
+    /// break up what's displayed is removed, and its length is limited.
+    var displayableTunnelText: String {
+        var text = String.UnicodeScalarView()
+        for scalar in unicodeScalars.prefix(1024) where scalar.isAllowedInSocketPath {
+            text.append(scalar)
+        }
+        return String(String(text).prefix(256))
+    }
+}
+
 private extension Unicode.Scalar {
     /// Excludes everything that is invisible, reorders text or breaks a line where the path is displayed.
     var isAllowedInSocketPath: Bool {
