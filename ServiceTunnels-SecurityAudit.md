@@ -124,6 +124,8 @@ The same row is used for the one-click **Approve Tunnels** on an imported bundle
 
 ### F3 — Host listeners can shadow an existing service or squat a well-known path · Medium
 
+> **Status: fixed in the working tree.** `SO_REUSEADDR` is kept, because without it a listener can't rebind while connections from its previous run are still closing (verified by test). Instead a TCP listener first checks whether anything accepts a connection at its address and refuses to start if so. The approval sheet warns when the requested host address is already taken and states that host apps connecting there will reach the virtual machine. A service that starts on every address after the tunnel is already listening is not detected.
+
 **Where:** [TunnelSocket.swift:121-124](VirtualWormhole/Source/Services/Tunnels/TunnelSocket.swift), [TunnelSocket.swift:86-89](VirtualWormhole/Source/Services/Tunnels/TunnelSocket.swift)
 
 A rule that listens on the host looks like the harmless direction ("let my Mac reach a guest service"), but it lets the guest *impersonate* a host service to host clients.

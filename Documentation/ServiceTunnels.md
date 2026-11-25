@@ -8,7 +8,14 @@ is disconnected. Both endpoints support IPv4 loopback, IPv6 loopback, and Unix
 stream sockets. For a Unix listener, choose an unused socket path. When the tunnel
 starts, VirtualBuddy creates any missing directories with access limited to the
 current account. An existing socket directory must be owned by that account with
-group and other write access disabled. The service creates its own destination socket.
+group and other write access disabled. A listener removes its socket file
+when the tunnel stops. If the app or the machine went down before that could happen,
+the next listener for that path replaces the file, as long as it's still the socket
+VirtualBuddy created there and nothing is listening on it. Any other existing file
+is left alone and the tunnel reports the address as in use. The service creates its own destination socket.
+A TCP listener doesn't start while something else on that side already accepts
+connections at its address, including a service listening on every address. The
+tunnel reports the address as in use until it's free.
 The relay forwards bytes and supports half-close. Unix ancillary data such as file
 descriptors stays local to each operating system.
 

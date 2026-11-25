@@ -65,6 +65,10 @@ struct ServiceTunnelApprovalSheet: View {
     let request: ServiceTunnel
     let allow: (ServiceTunnel) -> Void
 
+    /// Something on this Mac already has the address the tunnel would listen on. A request for such an address
+    /// stands out, since apps on this Mac expecting that service are the ones that would reach the virtual machine instead.
+    @State private var listenerIsOccupied = false
+
     @Environment(\.dismiss)
     private var dismiss
 
@@ -82,10 +86,20 @@ struct ServiceTunnelApprovalSheet: View {
                     Text(request.consequence)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    if listenerIsOccupied {
+                        Label("Something on this Mac is already using \(request.listener.address). The tunnel won't start until that address is free.", systemImage: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.yellow)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
                 }
             }
             .formStyle(.grouped)
             .navigationTitle("Allow Service Tunnel?")
+            .task {
+                guard request.listensOnHost else { return }
+                listenerIsOccupied = await request.listener.isOccupied()
+            }
             .toolbar {
                 /// Declining is the default action, so that pressing Return can't approve a tunnel.
                 ToolbarItem(placement: .cancellationAction) {

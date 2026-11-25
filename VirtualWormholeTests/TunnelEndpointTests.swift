@@ -56,6 +56,149 @@ struct TunnelEndpointTests {
         #expect(try await client.receive(String.self, within: .seconds(2)) == "ready")
     }
 
+    /// Listens on every address of the family, the way a development server commonly does.
+    private func wildcardListener(ipv6: Bool) throws -> (descriptor: Int32, port: UInt16) {
+        let fd = socket(ipv6 ? AF_INET6 : AF_INET, SOCK_STREAM, 0)
+        try #require(fd >= 0)
+        var storage = sockaddr_storage()
+        var length: socklen_t
+        if ipv6 {
+            var address = sockaddr_in6()
+            address.sin6_len = UInt8(MemoryLayout<sockaddr_in6>.size)
+            address.sin6_family = sa_family_t(AF_INET6)
+            address.sin6_addr = in6addr_any
+            length = socklen_t(address.sin6_len)
+            withUnsafeMutableBytes(of: &storage) { $0.copyBytes(from: withUnsafeBytes(of: &address) { Array($0) }) }
+        } else {
+            var address = sockaddr_in()
+            address.sin_len = UInt8(MemoryLayout<sockaddr_in>.size)
+            address.sin_family = sa_family_t(AF_INET)
+            address.sin_addr.s_addr = INADDR_ANY
+            length = socklen_t(address.sin_len)
+            withUnsafeMutableBytes(of: &storage) { $0.copyBytes(from: withUnsafeBytes(of: &address) { Array($0) }) }
+        }
+        let port: UInt16 = try withUnsafeMutablePointer(to: &storage) { pointer in
+            try pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                try #require(bind(fd, $0, length) == 0 && listen(fd, 8) == 0 && getsockname(fd, $0, &length) == 0)
+                return $0.withMemoryRebound(to: sockaddr_in.self, capacity: 1) { UInt16(bigEndian: $0.pointee.sin_port) }
+            }
+        }
+        return (fd, port)
+    }
+
+    @Test(arguments: [false, true])
+    func tcpListenerDoesNotStartInFrontOfAServiceListeningOnEveryAddress(ipv6: Bool) async throws {
+        let service = try wildcardListener(ipv6: ipv6)
+        defer { close(service.descriptor) }
+        let endpoint: TunnelEndpoint = ipv6 ? .tcp6(service.port) : .tcp(service.port)
+
+        #expect(await endpoint.isOccupied())
+        #expect(throws: POSIXError(.EADDRINUSE)) { try TunnelListener(endpoint) }
+    }
+
+    @Test @MainActor func tcpListenerStartsAgainRightAfterItsConnectionsWereClosed() async throws {
+        /// The listener's port stays open for as long as the listener exists, so it has to be gone before the port is free.
+        func serveOneConnection() async throws -> TunnelEndpoint {
+            var bound: (TunnelListener, TunnelEndpoint)?
+            for _ in 0..<16 {
+                let candidate = TunnelEndpoint.tcp(.random(in: 49152...65535))
+                do {
+                    bound = (try TunnelListener(candidate), candidate)
+                    break
+                } catch let error as POSIXError where error.code == .EADDRINUSE { continue }
+            }
+            let (listener, endpoint) = try #require(bound)
+            #expect(await endpoint.isOccupied())
+
+            /// The listening side closes first, which leaves its end of the connection lingering on the port.
+            try listener.start { client in
+                client.stop()
+            } failed: { Issue.record($0) }
+            let client = try await endpoint.connectSocket()
+            #expect(try await client.read(upTo: 1).isEmpty)
+            listener.stop()
+            return endpoint
+        }
+
+        let endpoint = try await serveOneConnection()
+        try await Task.sleep(for: .milliseconds(100))
+
+        #expect(await !endpoint.isOccupied())
+        let restarted = try TunnelListener(endpoint)
+        restarted.stop()
+    }
+
+    @Test func unixListenerPathIsOccupiedByAnyExistingFile() async throws {
+        let path = "/tmp/\(UUID().uuidString)"
+        #expect(await !TunnelEndpoint.unix(path).isOccupied())
+        try Data().write(to: URL(fileURLWithPath: path))
+        defer { try? FileManager.default.removeItem(atPath: path) }
+        #expect(await TunnelEndpoint.unix(path).isOccupied())
+    }
+
+    /// Leaves a socket file with nothing listening on it, as when the app that created it was killed.
+    private func abandonSocket(at path: String) throws -> stat {
+        let fd = socket(AF_UNIX, SOCK_STREAM, 0)
+        try #require(fd >= 0)
+        defer { close(fd) }
+        var address = sockaddr_un()
+        address.sun_family = sa_family_t(AF_UNIX)
+        address.sun_len = UInt8(MemoryLayout<sockaddr_un>.size)
+        withUnsafeMutableBytes(of: &address.sun_path) { $0.copyBytes(from: path.utf8) }
+        try withUnsafePointer(to: &address) { pointer in
+            try pointer.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+                try #require(bind(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size)) == 0)
+            }
+        }
+        var info = stat()
+        try #require(lstat(path, &info) == 0)
+        return info
+    }
+
+    @Test func unixListenerReplacesOnlyAnAbandonedSocketItCreated() async throws {
+        let suite = "TunnelEndpointTests.\(UUID().uuidString)"
+        let defaults = try #require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let files = TunnelSocketFiles(defaults: defaults)
+        let directory = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
+        try #require(mkdir(directory.path, 0o700) == 0)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let path = directory.appendingPathComponent("service.sock").path
+        let endpoint = TunnelEndpoint.unix(path)
+
+        /// A socket that something else left behind stays where it is.
+        let foreign = try abandonSocket(at: path)
+        #expect(throws: POSIXError(.EADDRINUSE)) { try TunnelListener(endpoint, socketFiles: files) }
+        var info = stat()
+        try #require(lstat(path, &info) == 0)
+        #expect(info.st_ino == foreign.st_ino)
+
+        /// So does one at a path a listener used before, if it isn't the file that listener created.
+        files.record(path, foreign)
+        try FileManager.default.removeItem(atPath: path)
+        let replacement = try abandonSocket(at: path)
+        if replacement.st_ino != foreign.st_ino {
+            #expect(throws: POSIXError(.EADDRINUSE)) { try TunnelListener(endpoint, socketFiles: files) }
+        }
+
+        /// The socket a listener created and never got to remove is replaced.
+        files.record(path, replacement)
+        let listener = try TunnelListener(endpoint, socketFiles: files)
+        try #require(lstat(path, &info) == 0)
+        /// Only a socket created by a listener is private to the account.
+        #expect(replacement.st_mode & 0o777 != 0o600)
+        #expect(info.st_mode & 0o777 == 0o600)
+        _ = try await endpoint.connectSocket()
+
+        /// A recorded socket that's still being served is left alone.
+        #expect(throws: POSIXError(.EADDRINUSE)) { try TunnelListener(endpoint, socketFiles: files) }
+        _ = try await endpoint.connectSocket()
+
+        listener.stop()
+        #expect(!FileManager.default.fileExists(atPath: path))
+        #expect((defaults.dictionary(forKey: "ServiceTunnelSocketFiles") ?? [:]).isEmpty)
+    }
+
     @Test func unixListenerCreatesPrivateDirectoriesAndRemovesOnlyItsSocket() async throws {
         let root = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: root) }
