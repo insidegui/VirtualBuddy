@@ -91,9 +91,12 @@ struct ServiceTunnelsConfigurationView: View {
         VStack(alignment: .leading, spacing: 16) {
             switch (settings, draft) {
             case (.needsApproval, nil):
+                Text("These service tunnels have not been approved on this Mac.")
+                    .foregroundColor(.yellow)
+                
                 reviewList
 
-                reviewNotice
+                reviewButtons
             case (.unavailable(let reason), nil):
                 unavailableNotice(reason: reason)
             default:
@@ -183,10 +186,12 @@ struct ServiceTunnelsConfigurationView: View {
                             Button("Decline") {
                                 decline(request.id)
                             }
+                            .tint(.red)
 
                             Button("Allow…") {
                                 requestBeingReviewed = request
                             }
+                            .tint(.green)
                         }
                         .controlSize(.small)
                     }
@@ -268,21 +273,19 @@ struct ServiceTunnelsConfigurationView: View {
     }
 
     @ViewBuilder
-    private var reviewNotice: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Label("These service tunnels have not been approved on this Mac. Review them before allowing the virtual machine to use them.", systemImage: "exclamationmark.triangle.fill")
-                .foregroundColor(.yellow)
-
-            HStack {
-                Button("Approve Tunnels") {
-                    apply(tunnels)
-                }
-
-                Button("Discard…") {
-                    isShowingResetConfirmation = true
-                }
+    private var reviewButtons: some View {
+        HStack {
+            Button("Discard") {
+                isShowingResetConfirmation = true
             }
-            .controlSize(.small)
+            .tint(.red)
+
+            Spacer()
+
+            Button("Approve Tunnels") {
+                apply(tunnels)
+            }
+            .tint(.green)
         }
     }
 

@@ -10,17 +10,19 @@ struct ServiceTunnelListItem<Accessory: View>: View {
     @ViewBuilder var accessory: () -> Accessory
 
     var body: some View {
-        HStack(spacing: 8) {
-            if let isEnabled {
-                Toggle("Enable tunnel", isOn: isEnabled)
-                    .labelsHidden()
-                    .help("Enable/disable this tunnel")
-                    .controlSize(.small)
-            }
+        HStack(alignment: .firstTextBaseline, spacing: 6) {
+            Toggle("Enable tunnel", isOn: isEnabled ?? .constant(false))
+                .labelsHidden()
+                .help("Enable/disable this tunnel")
+                .controlSize(.small)
+                .opacity(isEnabled == nil ? 0 : 1)
+                .accessibilityHidden(isEnabled == nil)
 
-            HStack(spacing: 6) {
+            VStack(alignment: .leading, spacing: 4) {
                 HStack(spacing: 2) {
                     Text(verbatim: tunnel.listener.address)
+                        /// Dunno why, but it just looks better aligned with this.
+                        .padding(.leading, -1)
 
                     Image(systemName: "arrow.right")
                         .imageScale(.small)
@@ -43,7 +45,7 @@ struct ServiceTunnelListItem<Accessory: View>: View {
 
             accessory()
         }
-        .padding(.vertical, 6)
+        .padding(.vertical, 4)
         /// Easier to hit trailing edge buttons without hovering floating scroll bar.
         .padding(.trailing, 4)
         .contentShape(.rect)

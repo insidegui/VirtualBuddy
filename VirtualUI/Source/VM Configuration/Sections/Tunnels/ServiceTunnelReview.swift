@@ -21,9 +21,9 @@ struct ServiceTunnelDetail: View {
             }
 
             if tunnel.listener.hasCharactersOutsideASCII || tunnel.destination.hasCharactersOutsideASCII {
-                Label("A socket path in this tunnel has characters that can look identical to other characters. Make sure it's the location you expect.", systemImage: "exclamationmark.triangle.fill")
+                Text("A socket path in this tunnel has characters that can look identical to other characters. Make sure it's the location you expect.")
                     .font(.footnote)
-                    .foregroundStyle(.yellow)
+                    .foregroundStyle(.red)
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
@@ -38,7 +38,7 @@ struct ServiceTunnelDetail: View {
                 .foregroundStyle(.secondary)
 
             Text(verbatim: endpoint.address)
-                .monospaced()
+                .monospacedDigit()
                 .textSelection(.enabled)
                 .fixedSize(horizontal: false, vertical: true)
         }
