@@ -157,6 +157,8 @@ Rollback is not mentioned in the documentation and I believe it is unintended.
 
 ### F5 — Guest-controlled strings reach the host UI unsanitised and unbounded · Low
 
+> **Status: fixed in the working tree.** Status text from the other side is stripped of invisible, reordering and line-breaking characters and limited to 256 characters before it is stored or displayed. Free text is still used on the wire rather than typed states.
+
 **Where:** [TunnelGuestService.swift:133-135](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift), [TunnelGuestService.swift:92](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift), [TunnelGuestService.swift:241-242](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift)
 
 `.status` messages are capped at 256 characters but not filtered. `TunnelReply.failure` text, from both the control channel and the per-connection link (frames up to 1 MiB), is not capped at all; it becomes a `TunnelError`, is stored in `state.status`, shown next to the rule in host settings, and echoed back to the guest in every snapshot. The guest can therefore put arbitrary text, including bidi overrides, beside a rule in trusted UI ("Listening", or instructions to the user).
@@ -164,6 +166,8 @@ Rollback is not mentioned in the documentation and I believe it is unintended.
 **Fix:** pass every guest-originated string through one function that truncates and strips control, format and separator characters. Better, replace free text on the wire with an enum of states plus an errno, and render the wording on the host.
 
 ### F6 — Unix listener directory check is shallow and follows symlinks · Low
+
+> **Status: fixed in the working tree.** Every component of the path, as written and as resolved through links, must be owned by the current account or a system account (uid below 500). The mode of enclosing folders is deliberately not checked; only the immediate parent keeps its existing check. The socket's permissions are set without following links.
 
 **Where:** [TunnelSocket.swift:155-181](VirtualWormhole/Source/Services/Tunnels/TunnelSocket.swift), [DebugSocket.swift:42-54](Packages/MacDebugProtocol/Sources/MacDebugProtocol/DebugSocket.swift)
 
@@ -173,6 +177,8 @@ For an existing parent directory only that one directory is checked for ownershi
 
 ### F7 — Host Unix destinations follow symlinks and do not check the service owner · Low
 
+> **Status: fixed in the working tree.** Destinations get the same ownership check on their path, including the socket file itself, and the service that accepts the connection must run as the current account or a system account.
+
 **Where:** [TunnelSocket.swift:90-97](VirtualWormhole/Source/Services/Tunnels/TunnelSocket.swift)
 
 An approved host destination is connected to by path at each use, with no check on the directory or on who is listening. If the approved path is in a shared directory such as `/tmp`, another local user can plant their own socket there (receiving the guest's traffic) or a symlink to a socket that only the host user can open, which VirtualBuddy will then connect to on the guest's behalf.
@@ -180,6 +186,8 @@ An approved host destination is connected to by path at each use, with no check 
 **Fix:** apply the same ancestor check as F6 before connecting, and verify with `getpeereid` that the destination's owner is the user or root. Warn at approval time when a destination sits in a directory others can write to.
 
 ### F8 — Shared connection budget is exhaustible from the host side · Low
+
+> **Status: fixed in the working tree.** A virtual machine can have 64 connections and a single tunnel 32 of them. A listener that runs out of descriptors or memory pauses for a second instead of stopping for good. There is no idle timeout: one byte defeats it, and services that speak first after a long wait would break.
 
 **Where:** [TunnelGuestService.swift:189-190](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift), [TunnelSocket.swift:34-42](VirtualWormhole/Source/Services/Tunnels/TunnelSocket.swift)
 
@@ -196,6 +204,8 @@ Any guest that advertises the capability can keep up to 32 requests pending, cha
 **Fix:** a per-VM setting to accept proposals (consider off by default for imported bundles), a per-run deny list so a declined listener stays declined, and a cap on proposals per minute.
 
 ### F10 — Guest receives all rules and host error text · Info
+
+> **Status: fixed in the working tree.** The guest is told only that a tunnel is "Not available on the host", and a failed connection to a host service is reported without the reason. The rule list, including host-side endpoints, is still sent in full because the guest UI displays it.
 
 **Where:** [TunnelGuestService.swift:96-102](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift), [TunnelGuestService.swift:249](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift)
 
