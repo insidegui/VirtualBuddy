@@ -46,7 +46,8 @@ public final class DebugSocket: @unchecked Sendable {
         }
         guard status == 0 else { throw error }
         if listening {
-            guard chmod(url.path, 0o600) == 0, listen(stream.descriptor, 8) == 0 else {
+            // Never follows a link: if the path was pointed elsewhere after binding, the file it leads to stays as it is.
+            guard fchmodat(AT_FDCWD, url.path, 0o600, AT_SYMLINK_NOFOLLOW) == 0, listen(stream.descriptor, 8) == 0 else {
                 let failure = error
                 unlink(url.path)
                 throw failure

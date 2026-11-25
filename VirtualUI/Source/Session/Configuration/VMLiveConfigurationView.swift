@@ -1,5 +1,6 @@
 import SwiftUI
 import VirtualCore
+import VirtualWormhole
 
 /// Only edits resources that the current VM can change without rebuilding its device topology.
 struct VMLiveConfigurationView: View {
@@ -34,6 +35,20 @@ struct VMLiveConfigurationView: View {
                         .disabled(!controller.canEditLiveSharedFolders)
                 } header: {
                     SummaryHeader("Sharing", systemImage: "folder", summary: controller.liveConfiguration.sharingSummary)
+                }
+
+                if controller.liveConfiguration.systemType == .mac {
+                    ConfigurationSection(collapsingDisabled: true) {
+                        ServiceTunnelsConfigurationView(
+                            settings: editor.tunnelSettings,
+                            liveState: controller.tunnelState.map(ServiceTunnelsLiveState.init),
+                            decline: controller.declineTunnel,
+                            change: editor.updateTunnels
+                        )
+                        .disabled(!controller.canEditLiveConfiguration)
+                    } header: {
+                        SummaryHeader("Service Tunnels", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", summary: editor.tunnelSettings.summary())
+                    }
                 }
 
                 if let display = controller.liveConfiguration.hardware.displayDevices.first {
@@ -83,10 +98,17 @@ struct VMLiveConfigurationView: View {
 @MainActor
 private final class VMLiveConfigurationEditor {
     let controller: VMController
+    var tunnelSettings: ApprovedSettingState<[ServiceTunnel]>
     var errorMessage: String?
 
     init(controller: VMController) {
         self.controller = controller
+        self.tunnelSettings = controller.virtualMachineModel.serviceTunnelSettings
+    }
+
+    func updateTunnels(_ rules: [ServiceTunnel]) throws {
+        try controller.updateLiveTunnels(rules)
+        tunnelSettings = controller.virtualMachineModel.serviceTunnelSettings
     }
 
     var isShowingError: Bool {

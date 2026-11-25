@@ -110,14 +110,23 @@ struct ManagedDevicePreferencesTests {
             "DisableSharedFolders", "DisableGuestApp", "DisableUSBPassthrough",
             "DisableBridgedNetworking", "DisableMicrophoneInput",
             "DisableProvisioningRemoteLogin", "DisableProvisioningAutomaticLogin",
-            "DisableDeveloperFeatures"
+            "DisableDeveloperFeatures",
+            "DisableServiceTunnels", "DisableServiceTunnelsToHostServices", "DisableServiceTunnelsToGuestServices",
+            "DisableServiceTunnelUnixSockets", "DisableServiceTunnelTCPPorts", "DisableServiceTunnelRequests"
         ]
-        #expect(Set(schema.preferences.map(\.key)) == expectedKeys)
+        /// Lists restrict by their contents and have no default, so they're not switches like the rest.
+        let listKeys: Set<String> = [
+            "ServiceTunnelAllowedHostPorts", "ServiceTunnelDeniedHostPorts",
+            "ServiceTunnelAllowedHostSocketPaths", "ServiceTunnelDeniedHostSocketPaths"
+        ]
+        #expect(Set(schema.preferences.map(\.key)) == expectedKeys.union(listKeys))
         let declarations: [VirtualBuddyManagedPreferences.Preference<Bool>] = [
             .disableSharedFolders, .disableGuestApp, .disableUSBPassthrough,
             .disableBridgedNetworking, .disableMicrophoneInput,
             .disableProvisioningRemoteLogin, .disableProvisioningAutomaticLogin,
-            .disableDeveloperFeatures
+            .disableDeveloperFeatures,
+            .disableServiceTunnels, .disableServiceTunnelsToHostServices, .disableServiceTunnelsToGuestServices,
+            .disableServiceTunnelUnixSockets, .disableServiceTunnelTCPPorts, .disableServiceTunnelRequests
         ]
         for preference in declarations {
             for value: Any? in [nil, false, "true", 1] {

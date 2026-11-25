@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import VirtualWormhole
 import Combine
 import VirtualCore
 
@@ -54,6 +55,9 @@ public final class VMConfigurationViewModel: ObservableObject {
     
     @Published private(set) var vm: VBVirtualMachine
 
+    let savedTunnelSettings: ApprovedSettingState<[ServiceTunnel]>
+    @Published var tunnelDraft: [ServiceTunnel]?
+
     public let context: VMConfigurationContext
 
     /// A saved session belongs to the hardware the virtual machine had when it was saved,
@@ -66,6 +70,7 @@ public final class VMConfigurationViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall, resolvedRestoreImage: ResolvedRestoreImage? = nil) {
+        self.savedTunnelSettings = context == .postInstall ? vm.serviceTunnelSettings : .missing
         self.config = vm.configuration
         self.vm = vm
         self.context = context

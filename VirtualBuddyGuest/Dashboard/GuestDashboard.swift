@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import VirtualUI
 import VirtualWormhole
 
 struct GuestDashboard: View {
@@ -13,6 +14,7 @@ struct GuestDashboard: View {
     @Environment(GuestHostSession.self) private var hostConnection
     @EnvironmentObject private var sharedFolders: GuestSharedFoldersManager
 
+    @State private var showingTunnels = false
     @State var activated = false
 
     #if ENABLE_USERDEFAULTS_SYNC
@@ -28,6 +30,11 @@ struct GuestDashboard: View {
             Spacer()
 
             Form {
+                Button("Service Tunnels…") { showingTunnels = true }
+                    .popover(isPresented: $showingTunnels) {
+                        GuestTunnelsView(session: hostConnection)
+                    }
+
                 Toggle("Launch At Login", isOn: launchAtLoginBinding)
 
                 #if ENABLE_USERDEFAULTS_SYNC

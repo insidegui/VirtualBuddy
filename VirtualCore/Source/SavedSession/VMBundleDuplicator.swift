@@ -1,4 +1,5 @@
 import Foundation
+import OSLog
 
 /// Duplicates a virtual machine bundle so that the copy is either complete or doesn't exist.
 ///
@@ -7,11 +8,21 @@ import Foundation
 /// Temporary data from operations that were in progress on the original is never copied, with one exception:
 /// a saved session that was interrupted after it was resumed keeps that fact in the copy. The copy's disks may be newer than
 /// the session, so resuming the copy has to ask first, exactly like the original.
+///
+/// Settings that the user approved for the original are approved again for the copy, because duplicating is something
+/// the user does in VirtualBuddy. A bundle copied by any other means has to have those settings reviewed.
 struct VMBundleDuplicator: Sendable {
-    let fileSystem: SavedSessionFileSystem
+    typealias ApprovalCarrier = @Sendable (_ original: VBVirtualMachine, _ copy: VBVirtualMachine) throws -> Void
 
-    init(fileSystem: SavedSessionFileSystem = DefaultSavedSessionFileSystem()) {
+    let fileSystem: SavedSessionFileSystem
+    let carryApprovals: ApprovalCarrier
+
+    private let logger = Logger(subsystem: VirtualCoreConstants.subsystemName, category: "VMBundleDuplicator")
+
+    init(fileSystem: SavedSessionFileSystem = DefaultSavedSessionFileSystem(),
+         carryApprovals: @escaping ApprovalCarrier = { try VBVirtualMachine.carryApprovedSettings(from: $0, to: $1) }) {
         self.fileSystem = fileSystem
+        self.carryApprovals = carryApprovals
     }
 
     /// - Returns: The copy, with a new library identity but the same guest identity as the original.
@@ -41,11 +52,22 @@ struct VMBundleDuplicator: Sendable {
             copy.bundleURL.creationDate = .now
 
             try fileSystem.move(from: workURL, to: destinationURL, replacingExisting: false)
-
-            return try VBVirtualMachine(bundleURL: destinationURL, isNewInstall: false, createIfNeeded: false)
         } catch {
             try? fileSystem.remove(workURL)
             throw error
         }
+
+        let duplicate = try VBVirtualMachine(bundleURL: destinationURL, isNewInstall: false, createIfNeeded: false)
+
+        /// The copy is complete and usable at this point. Without its approvals it only asks for them to be reviewed,
+        /// which is not worth failing the duplication for.
+        do {
+            let original = try VBVirtualMachine(bundleURL: sourceURL, isNewInstall: false, createIfNeeded: false)
+            try carryApprovals(original, duplicate)
+        } catch {
+            logger.error("Unable to carry approved settings over to \(destinationURL.lastPathComponent, privacy: .public): \(error.localizedDescription, privacy: .public)")
+        }
+
+        return duplicate
     }
 }
