@@ -50,7 +50,7 @@ struct ServiceTunnelListItem<Accessory: View>: View {
     }
 
     private var caption: String {
-        let direction = "\(tunnel.listenerSideName) to \(tunnel.destinationSideName)"
+        let direction = "Service on \(tunnel.destinationSideName)"
 
         if !tunnel.isEnabled, isEnabled == nil {
             return "\(direction) · Off"

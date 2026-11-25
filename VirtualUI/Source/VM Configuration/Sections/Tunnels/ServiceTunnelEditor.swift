@@ -74,7 +74,7 @@ struct ServiceTunnelEditor: View {
         return if existingTunnels.count >= ServiceTunnel.maximumCount {
             "Each virtual machine supports up to \(ServiceTunnel.maximumCount) service tunnels."
         } else {
-            "Another tunnel is already listening on this address on the \(tunnel.listenerSideName)."
+            "Another tunnel is already using this address on the \(tunnel.listenerSideName)."
         }
     }
 
@@ -84,16 +84,22 @@ struct ServiceTunnelEditor: View {
     var body: some View {
         NavigationStack {
             Form {
-                Section {
-                    Picker("Listen On", selection: $listensOnHost) {
-                        Text("Host").tag(true)
-                        Text("Guest").tag(false)
+                Section("Service") {
+                    /// The tunnel listens on the opposite side from where the service runs,
+                    /// so that apps on that side can reach the service through it.
+                    Picker("Service Runs On", selection: $listensOnHost) {
+                        Text("Host").tag(false)
+                        Text("Guest").tag(true)
                     }
                     .pickerStyle(.segmented)
 
+                    TunnelEndpointFields(input: $destination)
+                }
+
+                Section {
                     TunnelEndpointFields(input: $listener)
                 } header: {
-                    Text("Listener")
+                    Text("Access from \(listenerSideName)")
                 } footer: {
                     if listener.kind == .unix {
                         Text("Use an unused path in a directory you own. Only your account should have write access to that directory.")
@@ -102,8 +108,8 @@ struct ServiceTunnelEditor: View {
                     }
                 }
 
-                Section("Connect to \(destinationSideName)") {
-                    TunnelEndpointFields(input: $destination)
+                Section {
+                    summary
                 }
 
                 if let errorMessage {
@@ -132,6 +138,24 @@ struct ServiceTunnelEditor: View {
             .disabled(isSaving)
         }
         .frame(width: 480)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    /// Describes the tunnel being configured in plain language, so that it's clear which side runs the service before saving.
+    @ViewBuilder
+    private var summary: some View {
+        let listenerSide = Text(listenerSideName).bold()
+        let destinationSide = Text(destinationSideName).bold()
+
+        Group {
+            if let listener = listener.endpoint, let destination = destination.endpoint {
+                Text("Apps on the \(listenerSide) connect to \(Text(verbatim: listener.address).bold()) to reach the service running on the \(destinationSide) at \(Text(verbatim: destination.address).bold()).")
+            } else {
+                Text("Apps on the \(listenerSide) will connect to the tunnel to reach the service running on the \(destinationSide).")
+            }
+        }
+        .foregroundStyle(.secondary)
+        .monospacedDigit()
         .fixedSize(horizontal: false, vertical: true)
     }
 

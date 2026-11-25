@@ -1,7 +1,8 @@
 # Service Tunnels
 
-In the host's VM Settings → Service Tunnels, add a listener and a destination. For example,
-listen on Host Mac at `127.0.0.1:8080` and connect to Guest VM at `127.0.0.1:3000`.
+In the host's VM Settings → Service Tunnels, add a tunnel by choosing where the service
+runs and where it should be reachable from. For example, a service running on the Guest at
+`127.0.0.1:3000` can be accessed from the Host at `127.0.0.1:8080`.
 A browser on the host can then reach the guest service while the VM's network adapter
 is disconnected. Both endpoints support IPv4 loopback, IPv6 loopback, and Unix
 stream sockets. A Unix listener requires an unused path in a directory owned by
