@@ -259,6 +259,23 @@ struct TunnelEndpointTests {
         #expect(FileManager.default.fileExists(atPath: directory.path))
     }
 
+    @Test func socketPathIsTrustedOnlyWhenEveryComponentHasATrustedOwner() throws {
+        let directory = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
+        try #require(mkdir(directory.path, 0o700) == 0)
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let link = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: directory)
+        defer { try? FileManager.default.removeItem(at: link) }
+
+        for path in [directory.path, directory.appendingPathComponent("not/created/yet").path, link.appendingPathComponent("nested").path] {
+            try requireTrustedSocketPath(path)
+            #expect(throws: TunnelError.self) { try requireTrustedSocketPath(path) { $0 == 0 } }
+            #expect(throws: TunnelError.self) { try requireTrustedSocketPath(path) { $0 == getuid() } }
+        }
+        try requireTrustedSocketPath("/usr/bin") { $0 == 0 }
+        #expect(throws: TunnelError.self) { try requireTrustedSocketPath("/usr/bin") { _ in false } }
+    }
+
     @Test func unixListenerPreservesExistingDirectoryPermissions() throws {
         let directory = URL(fileURLWithPath: "/tmp").appendingPathComponent(UUID().uuidString)
         try #require(mkdir(directory.path, 0o700) == 0)

@@ -278,8 +278,43 @@ extension TunnelEndpoint {
     }
 }
 
+/// This account and the system's own accounts, which macOS numbers below 500. What belongs to another
+/// person's account is theirs to replace whenever they like.
+func ownsTrustedSocketPaths(_ owner: uid_t) -> Bool { owner == getuid() || owner < 500 }
+
+/// Checks who owns everything on the way to a socket: each component of the path as it's written, and each
+/// component of the location it really leads to. Whoever owns one of them decides where the rest of the path
+/// goes, and could point an approved path somewhere else after it was approved.
+func requireTrustedSocketPath(_ path: String, trusting isTrusted: (uid_t) -> Bool = ownsTrustedSocketPaths) throws {
+    let untrusted = TunnelError("Choose a socket path where every enclosing folder belongs to your account or to the system.")
+
+    /// - Returns: The part of the path that exists.
+    func check(_ path: String) throws -> String {
+        var existing = "/"
+        var info = stat()
+        guard lstat(existing, &info) == 0 else { throw socketError() }
+        guard isTrusted(info.st_uid) else { throw untrusted }
+        for component in path.split(separator: "/") {
+            let next = existing == "/" ? "/\(component)" : "\(existing)/\(component)"
+            guard lstat(next, &info) == 0 else {
+                guard errno == ENOENT else { throw socketError() }
+                break
+            }
+            guard isTrusted(info.st_uid) else { throw untrusted }
+            existing = next
+        }
+        return existing
+    }
+
+    let existing = try check(path)
+    guard let resolved = realpath(existing, nil) else { throw socketError() }
+    defer { free(resolved) }
+    _ = try check(String(cString: resolved))
+}
+
 private func prepareUnixListenerDirectory(_ directory: URL) throws {
     let unsafeDirectory = TunnelError("Choose a socket in a directory owned by your account and writable only by you.")
+    try requireTrustedSocketPath(directory.path)
     var missing = [URL]()
     var ancestor = directory
     var info = stat()
