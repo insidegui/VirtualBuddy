@@ -214,6 +214,50 @@ struct GuestSessionTests {
         await fixture.stop()
     }
 
+    @Test func organizationPolicyDecidesWhichApprovedTunnelsRunAndWhatCanBeRequested() async throws {
+        let fixture = await SessionFixture.make()
+        let betweenPorts = ServiceTunnel(listensOnHost: true, listener: .tcp(.random(in: 49152...65535)), destination: .tcp(3000))
+        let toGuestSocket = ServiceTunnel(listensOnHost: true, listener: .tcp(.random(in: 49152...65535)), destination: .unix("/tmp/guest.sock"))
+        var policy = ServiceTunnelPolicy()
+        policy.unixSocketsDisabled = true
+        fixture.host.tunnels.approvedRules = { [betweenPorts, toGuestSocket] }
+        fixture.host.tunnels.policy = { policy }
+        try await fixture.connect()
+        try await eventually { fixture.host.tunnels.state.status[betweenPorts.id] == "Listening" }
+        #expect(fixture.host.tunnels.state.rules == [betweenPorts])
+        #expect(await !toGuestSocket.listener.isOccupied())
+
+        /// The guest can't get by asking what the policy doesn't allow, and isn't told what the policy is.
+        let refused = ServiceTunnel(listensOnHost: false, listener: .tcp(9000), destination: .unix("/var/run/docker.sock"))
+        await #expect(throws: TunnelError.self) { try await fixture.guest.tunnels.propose(refused) }
+        #expect(fixture.host.tunnels.state.requests.isEmpty)
+        let allowed = ServiceTunnel(listensOnHost: false, listener: .tcp(9000), destination: .tcp(5432))
+        try await fixture.guest.tunnels.propose(allowed)
+        try await eventually { fixture.host.tunnels.state.requests == [allowed] }
+
+        /// A stricter policy takes effect on tunnels that are running and on requests that are waiting.
+        policy.tunnelsDisabled = true
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.rules.isEmpty && fixture.guest.tunnels.state.requests.isEmpty }
+        try await eventually { await !betweenPorts.listener.isOccupied() }
+
+        /// Without the policy, everything the user approved runs again.
+        policy = .unrestricted
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually {
+            fixture.host.tunnels.state.status[betweenPorts.id] == "Listening" && fixture.host.tunnels.state.status[toGuestSocket.id] == "Listening"
+        }
+
+        policy.requestsDisabled = true
+        await #expect(throws: TunnelError.self) { try await fixture.guest.tunnels.propose(allowed) }
+        #expect(fixture.host.tunnels.state.rules.count == 2)
+
+        fixture.host.tunnels.approvedRules = { [] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.rules.isEmpty }
+        await fixture.stop()
+    }
+
     @Test func reconnectReloadsHostApprovalBeforePublishingMappings() async throws {
         let fixture = await SessionFixture.make()
         var disabled = ServiceTunnel(listensOnHost: true, listener: .tcp(8000), destination: .tcp(80))

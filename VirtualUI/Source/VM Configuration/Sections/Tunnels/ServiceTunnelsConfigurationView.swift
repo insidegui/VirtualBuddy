@@ -45,6 +45,8 @@ struct ServiceTunnelsConfigurationView: View {
     /// State for the running virtual machine, `nil` when editing the configuration of a virtual machine that's not running.
     var liveState: ServiceTunnelsLiveState? = nil
     var decline: (ServiceTunnel.ID) -> Void = { _ in }
+    /// Stands in for the organization's policy in previews. The policy in effect is used when this is `nil`.
+    var policyOverride: ServiceTunnelPolicy? = nil
     let change: ([ServiceTunnel]) throws -> Void
 
     private enum EditorItem: Identifiable {
@@ -64,6 +66,7 @@ struct ServiceTunnelsConfigurationView: View {
         }
     }
 
+    @State private var policyMonitor = ServiceTunnelPolicyMonitor()
     @State private var selection = Set<ServiceTunnel.ID>()
     @State private var editor: EditorItem?
     /// A copy of the guest's request taken when the user chose to review it, which is what gets approved.
@@ -73,6 +76,14 @@ struct ServiceTunnelsConfigurationView: View {
     @State private var errorMessage = ""
 
     private var tunnels: [ServiceTunnel] { draft ?? settings.reviewValue ?? [] }
+
+    private var policy: ServiceTunnelPolicy { policyOverride ?? policyMonitor.policy }
+
+    /// Tunnels the policy doesn't allow stay in the list, since they're still saved and work again once it does.
+    /// The banner below the list says who is blocking them, which leaves the row enough room for its addresses.
+    private func status(for tunnel: ServiceTunnel) -> String? {
+        policy.permits(tunnel) ? liveState?.status[tunnel.id] : "Blocked"
+    }
 
     private var requests: [ServiceTunnel] { liveState?.requests ?? [] }
 
@@ -87,6 +98,13 @@ struct ServiceTunnelsConfigurationView: View {
                 unavailableNotice(reason: reason)
             default:
                 editableList
+                    .disabled(policy.tunnelsDisabled)
+
+                if policy != .unrestricted {
+                    ManagedRestrictionBannerView(title: policy.tunnelsDisabled
+                        ? "Service tunnels are disabled by your organization."
+                        : "Service tunnels are restricted by your organization.")
+                }
 
                 Text(footnote)
                     .font(.caption)
@@ -113,7 +131,8 @@ struct ServiceTunnelsConfigurationView: View {
         .sheet(item: $editor) { item in
             ServiceTunnelEditor(
                 mode: item.original.map { .edit($0) } ?? .add,
-                existingTunnels: tunnels.filter { $0.id != item.original?.id }
+                existingTunnels: tunnels.filter { $0.id != item.original?.id },
+                policy: policy
             ) { updatedTunnel in
                 if let original = item.original {
                     try change(tunnels.map { $0.id == original.id ? updatedTunnel : $0 })
@@ -143,7 +162,7 @@ struct ServiceTunnelsConfigurationView: View {
                 ForEach(tunnels) { tunnel in
                     ServiceTunnelListItem(
                         tunnel: tunnel,
-                        status: liveState?.status[tunnel.id],
+                        status: status(for: tunnel),
                         isEnabled: isEnabledBinding(for: tunnel)
                     ) {
                         Button {
@@ -351,6 +370,21 @@ private struct ServiceTunnelsConfigurationPreview: View {
             requests: [.previewDatabase]
         )
     )
+}
+
+#Preview("Tunnels — Restricted by Policy") {
+    var policy = ServiceTunnelPolicy()
+    policy.unixSocketsDisabled = true
+    policy.setHostPorts(allowed: ["8000-8999"], denied: [])
+
+    return ConfigurationSection(collapsingDisabled: true) {
+        ServiceTunnelsConfigurationView(settings: .approved(ServiceTunnel.previewTunnels), policyOverride: policy) { _ in }
+    } header: {
+        SummaryHeader("Service Tunnels", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", summary: "4 Tunnels")
+    }
+    .font(.system(size: 12))
+    .frame(width: VMConfigurationSheet.minWidth)
+    .padding(30)
 }
 
 #Preview("Tunnels — Needs Review") {

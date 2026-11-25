@@ -40,6 +40,11 @@ tunnel isn't available on the host, not the reason, which would describe the hos
 and services. Status text received from the other side is stripped of characters that
 could disguise it before it's displayed.
 
+An organization can turn service tunnels off, or restrict their direction, the kinds of
+endpoints they use and the host ports and socket paths they can reach, with a
+configuration profile. See [Managed preferences](ManagedPreferences.md#restrict-service-tunnels).
+The policy is applied on the host on top of what the user approved.
+
 The session negotiates `service-tunnels.v1`. VirtualWormhole carries the rule list,
 proposals, and rendezvous messages. Each accepted client gets a dedicated Virtio
 stream identified by a per-connection nonce. Both directions use the selected VM's

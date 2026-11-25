@@ -41,6 +41,8 @@ public final class VMInstance: NSObject, ObservableObject {
 
     private var sharedFoldersPolicyObservation: ManagedPreferenceObservation?
 
+    private var serviceTunnelPolicyMonitor: ServiceTunnelPolicyMonitor?
+
     private var networkAttachmentHelper: VMNetworkAttachmentHelper?
 
     private var usbDeviceControllerStorage: AnyObject?
@@ -278,6 +280,10 @@ public final class VMInstance: NSObject, ObservableObject {
             throw Failure("The guest communication socket device is unavailable.")
         }
         let session = HostGuestSession(connection: .host(socketDevice: device, port: GuestCommunication.port))
+        let tunnelPolicy = ServiceTunnelPolicyMonitor()
+        /// Tunnels the policy no longer allows are stopped, and ones it allows again are started, without restarting the virtual machine.
+        tunnelPolicy.onChange = { [weak session] _ in session?.reloadTunnels() }
+        serviceTunnelPolicyMonitor = tunnelPolicy
         session.configureTunnels(device: device) { [weak self] in
             guard let self else { return [] }
             do { return try VBVirtualMachine.tunnelSetting().approvedValue(in: virtualMachineModel) ?? [] }
@@ -285,6 +291,9 @@ public final class VMInstance: NSObject, ObservableObject {
                 logger.error("Unable to verify tunnel settings: \(error.localizedDescription, privacy: .public)")
                 return []
             }
+        } policy: {
+            /// Read when it's applied, so that enforcement never depends on having noticed a change.
+            VirtualBuddyManagedPreferences.serviceTunnelPolicy()
         }
         session.automaticallySyncAppearance = virtualMachineModel.configuration.automaticallySyncGuestAppearance
         guestAppearance = session.appearance
@@ -331,6 +340,7 @@ public final class VMInstance: NSObject, ObservableObject {
     func stopGuestCommunication() async {
         let session = guestSession
         guestSession = nil
+        serviceTunnelPolicyMonitor = nil
         guestAppearance = nil
         isGuestAppConnected = false
         guestRunTask?.cancel()

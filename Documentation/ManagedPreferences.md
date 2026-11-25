@@ -37,9 +37,63 @@ To prevent users from enabling developer features, deploy this Boolean in the `c
 
 The profile locks **Settings → Developer → Enable Developer Features** off, including on Macs with Xcode installed. VirtualBuddy hides **Set Up Xcode Debugging…** and rejects new debug runs from existing schemes. Attached debugging sessions can finish, and users can still delete cached symbols in the Developer tab. Removing the restriction restores the user's saved choice.
 
+## Restrict service tunnels
+
+[Service tunnels](ServiceTunnels.md) forward loopback TCP ports and Unix sockets between the host and a macOS guest. A profile can turn the feature off, turn off parts of it, or limit the host ports and socket paths it can use. All of these preferences go in the `codes.rambo.VirtualBuddy` preference domain and can be combined.
+
+To turn the feature off entirely:
+
+```xml
+<key>DisableServiceTunnels</key>
+<true/>
+```
+
+To restrict part of it, use any of these Booleans instead. Each defaults to `false`.
+
+| Preference | Restriction |
+| --- | --- |
+| `DisableServiceTunnelsToHostServices` | Virtual machines can't reach services on the host. This is the direction that gives a virtual machine access to something on the Mac. |
+| `DisableServiceTunnelsToGuestServices` | The host can't reach services in virtual machines. |
+| `DisableServiceTunnelUnixSockets` | Tunnels can't have a Unix socket on either side. |
+| `DisableServiceTunnelTCPPorts` | Tunnels can't have a TCP port on either side. |
+| `DisableServiceTunnelRequests` | Virtual machines can't ask for tunnels. Tunnels can still be added in the virtual machine's settings on the host. |
+
+Four lists control which ports and socket paths **on the host** tunnels can use. They apply in both directions: to the address a tunnel listens on, and to the host service a virtual machine reaches. Ports and paths inside virtual machines aren't restricted.
+
+| Preference | Entries |
+| --- | --- |
+| `ServiceTunnelAllowedHostPorts` | When present, only these host ports can be used. An empty list allows none. |
+| `ServiceTunnelDeniedHostPorts` | These host ports can't be used. |
+| `ServiceTunnelAllowedHostSocketPaths` | When present, only these host socket paths can be used. An empty list allows none. |
+| `ServiceTunnelDeniedHostSocketPaths` | These host socket paths can't be used. |
+
+A port entry is a port (`8080`) or a range (`8000-8099`). A path entry is the full path of a socket, or the path of a folder followed by a slash for everything inside it. A leading `~` stands for the home folder of the user running VirtualBuddy, so one profile works for every account. Paths are compared after following links, so `/tmp/agent.sock` and `/private/tmp/agent.sock` are the same path to the policy. An entry in a denied list takes precedence over the allowed list.
+
+For example, to let virtual machines reach only a database and a range of development ports on the host, while keeping every tunnel away from the user's SSH folder:
+
+```xml
+<key>ServiceTunnelAllowedHostPorts</key>
+<array>
+    <string>5432</string>
+    <string>8000-8099</string>
+</array>
+<key>ServiceTunnelDeniedHostSocketPaths</key>
+<array>
+    <string>~/.ssh/</string>
+</array>
+```
+
+When a restriction applies:
+
+- Tunnels it doesn't allow don't start. They stay saved and approved, are marked as blocked in the virtual machine's settings, and start again when the restriction is removed.
+- New tunnels it doesn't allow can't be added in settings, and requests for them from a virtual machine are rejected without being shown. The virtual machine is told only that the organization doesn't allow the tunnel.
+- When VirtualBuddy observes a preference change, it stops running tunnels that are no longer allowed and closes their connections, and starts the ones that are allowed again. Virtual machines don't need to be restarted.
+
+The lists fail closed. A value that isn't an array, or an entry that isn't a port, a range or an absolute path, allows nothing in an allowed list and denies everything in a denied list. Integers are accepted for ports. The Booleans behave like the other restrictions: missing and incorrectly typed values mean unrestricted.
+
 ## Verification
 
-All managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. Saved settings are preserved while a policy overrides their effective behavior.
+Apart from the service tunnel lists described above, all managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. Saved settings are preserved while a policy overrides their effective behavior.
 
 | Preference | Restriction |
 | --- | --- |
@@ -51,6 +105,7 @@ All managed preferences are Booleans, with a default of `false`. Missing or inco
 | `DisableProvisioningRemoteLogin` | Prevents VirtualBuddy from enabling remote login (SSH) during macOS guest provisioning. |
 | `DisableProvisioningAutomaticLogin` | Prevents VirtualBuddy from enabling automatic login during macOS guest provisioning. |
 | `DisableDeveloperFeatures` | Locks developer features off and blocks Xcode debugging setup and new debug runs. |
+| `DisableServiceTunnels` and the other service tunnel preferences | Stops service tunnels, or the part of the feature each one names, as described under [Restrict service tunnels](#restrict-service-tunnels). |
 
 The provisioning restrictions apply when VirtualBuddy creates a macOS guest account. They do not modify existing guest settings or prevent someone from changing those settings inside the guest. Saved provisioning selections are preserved and become available again if the restriction is removed before provisioning.
 

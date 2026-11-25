@@ -11,6 +11,18 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
         Group("Networking") {
             Preference<Bool>.disableBridgedNetworking
         }
+        Group("Service Tunnels") {
+            Preference<Bool>.disableServiceTunnels
+            Preference<Bool>.disableServiceTunnelsToHostServices
+            Preference<Bool>.disableServiceTunnelsToGuestServices
+            Preference<Bool>.disableServiceTunnelUnixSockets
+            Preference<Bool>.disableServiceTunnelTCPPorts
+            Preference<Bool>.disableServiceTunnelRequests
+            Preference<[String]>.serviceTunnelAllowedHostPorts
+            Preference<[String]>.serviceTunnelDeniedHostPorts
+            Preference<[String]>.serviceTunnelAllowedHostSocketPaths
+            Preference<[String]>.serviceTunnelDeniedHostSocketPaths
+        }
         Group("Audio") {
             Preference<Bool>.disableMicrophoneInput
         }
@@ -133,5 +145,111 @@ public extension ManagedPreference where Namespace == VirtualBuddyManagedPrefere
             Option(false, "Allow the feature.")
         }
         Example(true, "Restrict this feature on managed Macs.")
+    }
+
+    static let disableServiceTunnels = Self("DisableServiceTunnels", title: "Disable Service Tunnels", default: false) {
+        Summary("Disables service tunnels between this Mac and all virtual machines.")
+        Discussion("Service tunnels forward loopback TCP ports and Unix sockets between the host and a macOS guest. Use the other service tunnel preferences instead of this one to restrict only part of the feature.")
+        DefaultBehavior("Service tunnels are available when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Saved tunnels don't start, and requests from virtual machines are rejected. Tunnels remain saved so they can be used after the restriction is removed.")
+        Behavior("When a policy change is observed, running tunnels are stopped and their connections closed. When the restriction is removed, saved tunnels start again.")
+        Options {
+            Option(true, "Service tunnels are unavailable.")
+            Option(false, "Service tunnels are available.")
+        }
+        Example(true, "Disable service tunnels on managed Macs.")
+    }
+
+    static let disableServiceTunnelsToHostServices = Self("DisableServiceTunnelsToHostServices", title: "Disable Service Tunnels to Host Services", default: false) {
+        Summary("Prevents virtual machines from reaching services on this Mac through service tunnels.")
+        Discussion("This is the direction in which a virtual machine gains access to something on the host, such as a local database, a development server or an agent socket.")
+        DefaultBehavior("Tunnels to host services are available when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Tunnels whose service runs on the host don't start and can't be requested by virtual machines. Tunnels to services in virtual machines are unaffected.")
+        Options {
+            Option(true, "Virtual machines can't reach host services through tunnels.")
+            Option(false, "Allow tunnels to host services.")
+        }
+        Example(true, "Only let this Mac reach services in virtual machines.")
+    }
+
+    static let disableServiceTunnelsToGuestServices = Self("DisableServiceTunnelsToGuestServices", title: "Disable Service Tunnels to Guest Services", default: false) {
+        Summary("Prevents this Mac from reaching services in virtual machines through service tunnels.")
+        Discussion("In this direction the tunnel listens on a loopback port or socket path on the host, and apps on the host that connect to it reach a service in the virtual machine.")
+        DefaultBehavior("Tunnels to guest services are available when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Tunnels whose service runs in the virtual machine don't start and can't be requested by virtual machines. Tunnels to host services are unaffected.")
+        Options {
+            Option(true, "This Mac can't reach guest services through tunnels.")
+            Option(false, "Allow tunnels to guest services.")
+        }
+    }
+
+    static let disableServiceTunnelUnixSockets = Self("DisableServiceTunnelUnixSockets", title: "Disable Unix Sockets in Service Tunnels", default: false) {
+        Summary("Prevents service tunnels from using Unix sockets.")
+        DefaultBehavior("Unix sockets are available when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Tunnels with a Unix socket on either side don't start and can't be requested by virtual machines. Tunnels between TCP ports are unaffected.")
+        Options {
+            Option(true, "Tunnels can't use Unix sockets.")
+            Option(false, "Allow Unix sockets.")
+        }
+    }
+
+    static let disableServiceTunnelTCPPorts = Self("DisableServiceTunnelTCPPorts", title: "Disable TCP Ports in Service Tunnels", default: false) {
+        Summary("Prevents service tunnels from using TCP ports.")
+        DefaultBehavior("TCP ports are available when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Tunnels with a TCP port on either side don't start and can't be requested by virtual machines. Tunnels between Unix sockets are unaffected.")
+        Options {
+            Option(true, "Tunnels can't use TCP ports.")
+            Option(false, "Allow TCP ports.")
+        }
+    }
+
+    static let disableServiceTunnelRequests = Self("DisableServiceTunnelRequests", title: "Disable Service Tunnel Requests", default: false) {
+        Summary("Prevents virtual machines from asking for service tunnels.")
+        DefaultBehavior("Virtual machines can request tunnels, which a user on this Mac has to allow, when this preference is absent or false. Invalid values fall back to false.")
+        Behavior("Requests from VirtualBuddyGuest are rejected and never shown. Tunnels can still be added in the virtual machine's settings on this Mac.")
+        Options {
+            Option(true, "Virtual machines can't request tunnels.")
+            Option(false, "Allow virtual machines to request tunnels.")
+        }
+    }
+}
+
+public extension ManagedPreference where Namespace == VirtualBuddyManagedPreferences, Value == [String] {
+    static let serviceTunnelAllowedHostPorts = Self("ServiceTunnelAllowedHostPorts", as: [String].self, title: "Allowed Host Ports for Service Tunnels") {
+        Summary("Limits the TCP ports on this Mac that service tunnels can use to the listed ones.")
+        Discussion("Each entry is a port such as \"8080\" or a range such as \"8000-8099\". The list applies to ports on this Mac in both directions: the port a tunnel listens on, and the port of a host service a virtual machine reaches. Ports inside virtual machines aren't restricted.")
+        DefaultBehavior("Every host port can be used when this preference is absent.")
+        Behavior("Tunnels using a host port that isn't listed don't start and can't be requested by virtual machines. An empty list allows no host port.")
+        Behavior("A port that's also in ServiceTunnelDeniedHostPorts is not allowed.")
+        Note("A value that isn't a list, and entries that aren't ports or ranges, allow nothing. Integers are accepted in place of strings.")
+        Example(["5432", "8000-8099"], "Only allow tunnels to use host port 5432 and ports 8000 to 8099.")
+    }
+
+    static let serviceTunnelDeniedHostPorts = Self("ServiceTunnelDeniedHostPorts", as: [String].self, title: "Denied Host Ports for Service Tunnels") {
+        Summary("Prevents service tunnels from using the listed TCP ports on this Mac.")
+        Discussion("Entries have the same form and apply to the same ports as in ServiceTunnelAllowedHostPorts.")
+        DefaultBehavior("No host port is denied when this preference is absent.")
+        Behavior("Tunnels using a listed host port don't start and can't be requested by virtual machines.")
+        Note("A value that isn't a list, and entries that aren't ports or ranges, deny every host port. Integers are accepted in place of strings.")
+        Example(["22", "5900-5999"], "Keep tunnels away from SSH and screen sharing on this Mac.")
+    }
+
+    static let serviceTunnelAllowedHostSocketPaths = Self("ServiceTunnelAllowedHostSocketPaths", as: [String].self, title: "Allowed Host Socket Paths for Service Tunnels") {
+        Summary("Limits the Unix socket paths on this Mac that service tunnels can use to the listed ones.")
+        Discussion("Each entry is the full path of a socket, or the path of a folder followed by a slash for everything inside that folder. A leading ~ stands for the home folder of the user running VirtualBuddy. The list applies to socket paths on this Mac in both directions: the path a tunnel listens on, and the socket of a host service a virtual machine reaches. Socket paths inside virtual machines aren't restricted.")
+        DefaultBehavior("Every host socket path can be used when this preference is absent.")
+        Behavior("Tunnels using a host socket path that isn't listed don't start and can't be requested by virtual machines. An empty list allows no host socket path.")
+        Behavior("Paths are compared after following links, so a path can't be reached by another name for the same location. A path that also matches ServiceTunnelDeniedHostSocketPaths is not allowed.")
+        Note("A value that isn't a list, and entries that aren't absolute paths, allow nothing.")
+        Example(["~/Library/Application Support/Tunnels/"], "Only allow tunnels to use sockets in one folder of the user's Library.")
+    }
+
+    static let serviceTunnelDeniedHostSocketPaths = Self("ServiceTunnelDeniedHostSocketPaths", as: [String].self, title: "Denied Host Socket Paths for Service Tunnels") {
+        Summary("Prevents service tunnels from using the listed Unix socket paths on this Mac.")
+        Discussion("Entries have the same form and apply to the same paths as in ServiceTunnelAllowedHostSocketPaths.")
+        DefaultBehavior("No host socket path is denied when this preference is absent.")
+        Behavior("Tunnels using a listed host socket path, or a path inside a listed folder, don't start and can't be requested by virtual machines.")
+        Note("A value that isn't a list, and entries that aren't absolute paths, deny every host socket path.")
+        Example(["/var/run/docker.sock", "~/.ssh/"], "Keep tunnels away from the Docker socket and from anything in the user's .ssh folder.")
     }
 }

@@ -36,6 +36,8 @@ struct ServiceTunnelEditor: View {
     let mode: Mode
     /// Other tunnels that already exist, used for validating that the listener is not already in use.
     let existingTunnels: [ServiceTunnel]
+    /// What the organization managing the host allows. The guest doesn't know the policy, so its requests are checked by the host instead.
+    let policy: ServiceTunnelPolicy
     let save: (ServiceTunnel) async throws -> Void
 
     @State private var listensOnHost = true
@@ -47,9 +49,10 @@ struct ServiceTunnelEditor: View {
     @Environment(\.dismiss)
     private var dismiss
 
-    init(mode: Mode, existingTunnels: [ServiceTunnel], save: @escaping (ServiceTunnel) async throws -> Void) {
+    init(mode: Mode, existingTunnels: [ServiceTunnel], policy: ServiceTunnelPolicy = .unrestricted, save: @escaping (ServiceTunnel) async throws -> Void) {
         self.mode = mode
         self.existingTunnels = existingTunnels
+        self.policy = policy
         self.save = save
 
         if let original = mode.original {
@@ -66,7 +69,9 @@ struct ServiceTunnelEditor: View {
         return tunnel
     }
 
-    private var canSave: Bool { tunnel?.canAdd(to: existingTunnels) == true }
+    private var restriction: ServiceTunnelPolicy.Restriction? { tunnel.flatMap(policy.restriction) }
+
+    private var canSave: Bool { tunnel?.canAdd(to: existingTunnels) == true && restriction == nil }
 
     private var conflictMessage: String? {
         guard let tunnel, !tunnel.canAdd(to: existingTunnels) else { return nil }
@@ -115,6 +120,9 @@ struct ServiceTunnelEditor: View {
                 if let errorMessage {
                     Text(errorMessage)
                         .foregroundStyle(.red)
+                } else if let restriction {
+                    Label(restriction.explanation, systemImage: "lock.shield")
+                        .foregroundStyle(.secondary)
                 } else if let conflictMessage {
                     Text(conflictMessage)
                         .foregroundStyle(.yellow)
@@ -258,6 +266,13 @@ private struct TunnelEndpointFields: View {
 
 #Preview("Edit — Conflict") {
     ServiceTunnelEditor(mode: .edit(.previewWebServer), existingTunnels: [.previewWebServer]) { _ in }
+}
+
+#Preview("Edit — Blocked by Policy") {
+    var policy = ServiceTunnelPolicy()
+    policy.unixSocketsDisabled = true
+
+    return ServiceTunnelEditor(mode: .edit(.previewUnixSocket), existingTunnels: [], policy: policy) { _ in }
 }
 
 #Preview("Guest Request") {
