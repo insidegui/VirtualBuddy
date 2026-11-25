@@ -21,7 +21,15 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
         )
     }
 
-    public init(id: String? = nil, rootView: Content, windowFactory: (() -> NSWindow)? = nil, onWindowClose: WindowCloseBlock? = nil) {
+    /// When `true`, the app runs with the regular activation policy for as long as the window is open,
+    /// which allows accessory apps to have a Dock icon and a main menu while showing regular windows.
+    public let requiresRegularActivationPolicy: Bool
+
+    private var activationPolicyAssertion: AppActivationPolicyAssertion?
+
+    public init(id: String? = nil, rootView: Content, requiresRegularActivationPolicy: Bool = false, windowFactory: (() -> NSWindow)? = nil, onWindowClose: WindowCloseBlock? = nil) {
+        self.requiresRegularActivationPolicy = requiresRegularActivationPolicy
+
         let window = windowFactory?() ?? Self.makeDefaultWindow()
 
         if let id {
@@ -50,12 +58,19 @@ public final class HostingWindowController<Content>: NSWindowController, NSWindo
     }
     
     public override func showWindow(_ sender: Any?) {
+        if requiresRegularActivationPolicy, activationPolicyAssertion == nil {
+            activationPolicyAssertion = NSApp.requestRegularActivationPolicy()
+        }
+
         super.showWindow(sender)
         
         window?.center()
     }
 
     public func windowWillClose(_ notification: Notification) {
+        activationPolicyAssertion?.invalidate()
+        activationPolicyAssertion = nil
+
         contentViewController = nil
         
         onWindowClose?(self)

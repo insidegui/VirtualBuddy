@@ -67,7 +67,7 @@ private struct GuestTunnelsList: View {
                 .fixedSize(horizontal: false, vertical: true)
         }
         .padding()
-        .frame(width: 420, height: 320)
+        .frame(minWidth: 420, idealWidth: 460, maxWidth: .infinity, minHeight: 320, idealHeight: 360, maxHeight: .infinity)
         .sheet(isPresented: $isShowingEditor) {
             ServiceTunnelEditor(mode: .request, existingTunnels: tunnels + requests, save: requestTunnel)
         }

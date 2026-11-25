@@ -19,16 +19,45 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
 
     private lazy var sharedFolders = GuestSharedFoldersManager()
 
-    private lazy var dashboardItem: StatusItemManager = {
-        StatusItemManager(
-            configuration: .default.id("dashboard"),
-            statusItem: .button(label: { Image("StatusItem") }),
-            content: GuestDashboard()
-                .environmentObject(self.launchAtLoginManager)
-                .environment(self.hostConnection)
-                .environmentObject(self.sharedFolders)
-        )
+    private lazy var windowManager = GuestWindowManager(hostSession: hostConnection)
+
+    private lazy var statusItem: NSStatusItem = {
+        let item = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+
+        item.behavior = .removalAllowed
+        item.button?.image = NSImage(named: "StatusItem")
+        item.button?.setAccessibilityLabel("VirtualBuddy Guest")
+
+        return item
     }()
+
+    private lazy var statusItemController = StatusItemController(statusItem: statusItem, delegate: self)
+
+    /// The controller for the menu bar panel, only available while the panel is being presented.
+    private var panelController: StatusBarMenuWindowController?
+
+    private func makePanelController() -> StatusBarMenuWindowController {
+        let actions = GuestDashboardActions(
+            showWindow: { [weak self] in self?.showWindow($0) },
+            dismiss: { [weak self] in self?.hidePanel() }
+        )
+
+        let controller = StatusBarMenuWindowController(
+            statusItem: statusItem,
+            rootView: GuestDashboard()
+                .environment(launchAtLoginManager)
+                .environment(hostConnection)
+                .environment(sharedFolders)
+                .environment(\.guestDashboardActions, actions)
+        )
+
+        controller.windowWillClose = { [weak self] closingController in
+            guard let self, closingController === panelController else { return }
+            panelController = nil
+        }
+
+        return controller
+    }
 
     private var shouldShowPanelAfterLaunching: Bool {
         get { !UserDefaults.standard.bool(forKey: "shownPanelOnFirstLauch") || UserDefaults.standard.bool(forKey: "ShowPanelOnLaunch") }
@@ -61,13 +90,19 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
             try? await sharedFolders.mount()
         }
         
-        dashboardItem.install()
+        statusItemController.configure()
 
         perform(#selector(showPanelForFirstLaunchIfNeeded), with: nil, afterDelay: 0.5)
 
     }
 
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        /// Let AppKit bring back the app's windows when it's reopened while it has a Dock icon.
+        guard !windowManager.hasOpenWindows else { return true }
+
+        /// Reopening the app is the only way to get the status item back after the user has removed it from the menu bar.
+        statusItem.isVisible = true
+
         showPanel()
 
         return true
@@ -82,8 +117,18 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         showPanel()
     }
 
-    @objc private func showPanel() {
-        dashboardItem.showPanel()
+    private func showPanel() {
+        statusItemController.showPanel()
+    }
+
+    private func hidePanel() {
+        statusItemController.hidePanel()
+    }
+
+    private func showWindow(_ window: GuestWindow) {
+        hidePanel()
+
+        windowManager.show(window)
     }
 
     private var startedFinalSendBeforeTermination = false
@@ -94,6 +139,9 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         guard !startedFinalSendBeforeTermination else { return .terminateLater }
         startedFinalSendBeforeTermination = true
 
+        /// The wait for the host connection below gives the system enough time to process the unlock.
+        panelController?.unlockMenuBar()
+
         Task {
             await hostConnection.prepareForTermination()
 
@@ -103,4 +151,27 @@ final class GuestAppDelegate: NSObject, NSApplicationDelegate {
         return .terminateLater
     }
 
+}
+
+// MARK: - StatusItemControllerDelegate
+
+extension GuestAppDelegate: StatusItemControllerDelegate {
+    func statusItemControllerPanelWindow(_ controller: StatusItemController) -> NSWindow? {
+        panelController?.window
+    }
+
+    func statusItemControllerWillShowPanel(_ controller: StatusItemController) {
+        launchAtLoginManager.refresh()
+    }
+
+    func statusItemControllerDidRequestShowPanel(_ controller: StatusItemController) {
+        let panelController = panelController ?? makePanelController()
+        self.panelController = panelController
+
+        panelController.showWindow(self)
+    }
+
+    func statusItemControllerDidRequestHidePanel(_ controller: StatusItemController, animated: Bool) {
+        panelController?.close(animated: animated)
+    }
 }

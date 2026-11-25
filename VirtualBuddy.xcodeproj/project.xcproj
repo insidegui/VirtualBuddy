@@ -190,8 +190,6 @@
         {
           "target": "VirtualUI",
           "public-headers": [
-            "Source/Components/SwiftUI Status Item/Components/ObjC/NSApplication+MenuBar.h",
-            "Source/Components/SwiftUI Status Item/Components/ObjC/NSStatusItem+.h",
             "VirtualUI.h",
           ],
         },

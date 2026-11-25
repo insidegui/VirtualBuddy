@@ -1,14 +1,18 @@
-import Foundation
+import AppKit
+import Observation
 import VirtualCore
 import OSLog
 
-final class GuestSharedFoldersManager: ObservableObject {
+@MainActor
+@Observable
+final class GuestSharedFoldersManager {
 
+    @ObservationIgnored
     private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: Self.self))
 
     private let queue = DispatchQueue(label: "mount", qos: .userInitiated)
 
-    @Published private(set) var error: Error?
+    private(set) var error: Error?
 
     func mount() async throws {
         logger.notice("Mount shared folders")
@@ -36,9 +40,7 @@ final class GuestSharedFoldersManager: ObservableObject {
         } catch {
             logger.error("Mount shared folders failed with error: \(error, privacy: .public)")
 
-            await MainActor.run {
-                self.error = error
-            }
+            self.error = error
 
             throw error
         }
@@ -67,7 +69,7 @@ final class GuestSharedFoldersManager: ObservableObject {
 
     @discardableResult
     private func runMount(with arguments: [String] = []) async throws -> String {
-        try await withCheckedThrowingContinuation { continuation in
+        try await withCheckedThrowingContinuation { [queue] continuation in
             queue.async {
                 let proc = Process()
                 proc.executableURL = URL(fileURLWithPath: "/sbin/mount")
