@@ -14,9 +14,11 @@ descriptors stays local to each operating system.
 
 VirtualBuddyGuest → Service Tunnels → Request Service Tunnel sends a proposal to the host's
 Service Tunnels settings. Allow signs the reviewed tunnel list and saves it in
-`.vbdata/ServiceTunnels.signed.plist`. A library duplicate carries its approval on the
-same Mac and user account. On another Mac, review the list in Service Tunnels and choose
-**Approve Tunnels**. Pending proposals expire when the guest session ends. Turning off or removing an approved mapping closes its
+`.vbdata/ServiceTunnels.signed.plist`. An approval belongs to that virtual machine on this
+Mac and user account. Duplicating the virtual machine in the VirtualBuddy library approves
+the same tunnels for the copy. A bundle copied in Finder, moved to another volume, restored
+from a backup or brought over from another Mac needs its tunnels reviewed again: open
+Service Tunnels and choose **Approve Tunnels**. Pending proposals expire when the guest session ends. Turning off or removing an approved mapping closes its
 active connections. Enabled mappings start again when a compatible guest reconnects.
 
 The session negotiates `service-tunnels.v1`. VirtualWormhole carries the rule list,
@@ -31,11 +33,20 @@ Use `reviewValue` to display a candidate for explicit host approval. Saving othe
 VM settings must preserve the record without signing it.
 
 The P-256 signature covers the feature identifier, schema version, format domain,
-and exact encoded payload. Verification uses the local signing identity. Its private
-key is a non-synchronizing, device-only data protection Keychain item available
-after first unlock. Approvals apply to the signed values across VM bundles in that
-account, including restored copies of previously approved configurations.
+the virtual machine's identifier and the exact encoded payload. Verification uses the
+local signing identity. Its private key is a non-synchronizing, device-only data
+protection Keychain item available after first unlock.
 
-The VirtualBuddy scheme runs the Keychain integration test inside the signed host
-app. The VirtualCore suite covers duplication, tampering, and re-approval with
-independent host identities.
+A valid signature is not enough on its own. Each approval also stores a digest of the
+signed record in the Keychain, under the volume and file identifier of the bundle
+directory. Only the record matching that digest is approved, so a record that was
+replaced can't be put back, and a record or a whole bundle copied elsewhere isn't
+approved in its new place. Renaming a bundle or moving it within its volume keeps the
+approval. The library's Duplicate command reads the original's approved value and
+signs it again for the copy. Any new signed setting has to be added to
+`VBVirtualMachine.carryApprovedSettings(from:to:)` to get the same treatment.
+Signed settings are unavailable for a bundle on a volume without a persistent identifier.
+
+The VirtualBuddy scheme runs the Keychain integration tests inside the signed host
+app. The VirtualCore suite covers duplication, copies made outside the library,
+replaced records, tampering, and re-approval with independent host identities.

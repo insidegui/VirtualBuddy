@@ -4,9 +4,18 @@ import Testing
 import VirtualWormhole
 @testable import VirtualCore
 
+/// Stands in for the host's Keychain, which a test bundle can't use.
+private final class HostApprovals: @unchecked Sendable {
+    private var digests: [String: Data] = [:]
+    var store: SignedSettingApprovals {
+        SignedSettingApprovals(digest: { self.digests[$0] }, record: { self.digests[$1] = $0 })
+    }
+}
+
 struct ServiceTunnelSettingsTests {
     private let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
     private let key = P256.Signing.PrivateKey()
+    private let host = HostApprovals()
     private let rules = [ServiceTunnel(listensOnHost: false, listener: .tcp(8000), destination: .unix("/private/tmp/example.sock"))]
 
     private func withVM(_ body: (VBVirtualMachine) throws -> Void) throws {
@@ -16,17 +25,28 @@ struct ServiceTunnelSettingsTests {
         try body(vm)
     }
 
-    @Test func libraryDuplicateKeepsApprovalAndAnotherHostCanReapproveItsCopy() throws {
-        let source = VBVirtualMachine.tunnelSetting { _ in key }
+    private var setting: SignedVMSetting<[ServiceTunnel]> {
+        VBVirtualMachine.tunnelSetting(key: { [key] _ in key }, approvals: host.store)
+    }
+
+    private func duplicate(_ original: VBVirtualMachine, named name: String = "Copy") throws -> VBVirtualMachine {
+        let key = key, host = host
+        return try VMBundleDuplicator { original, copy in
+            try VBVirtualMachine.tunnelSetting(key: { _ in key }, approvals: host.store).carryApproval(from: original, to: copy)
+        }.duplicate(bundleAt: original.bundleURL, to: root.appendingPathComponent("\(name).vbvm"))
+    }
+
+    @Test func libraryDuplicateIsApprovedAgainAndAnotherHostCanReapproveItsCopy() throws {
+        let source = setting
         let otherKey = P256.Signing.PrivateKey()
-        let destination = VBVirtualMachine.tunnelSetting { _ in otherKey }
+        let destination = VBVirtualMachine.tunnelSetting(key: { _ in otherKey }, approvals: HostApprovals().store)
         try withVM { original in
             #expect(source.read(from: original) == .missing)
             try source.approve(rules, in: original)
-            let copy = try VMBundleDuplicator().duplicate(bundleAt: original.bundleURL, to: root.appendingPathComponent("Copy.vbvm"))
+            let copy = try duplicate(original)
             #expect(copy.uuid != original.uuid)
             #expect(try source.approvedValue(in: copy) == rules)
-            #expect(try Data(contentsOf: copy.metadataFileURL(source.filename)) == Data(contentsOf: original.metadataFileURL(source.filename)))
+            #expect(try Data(contentsOf: copy.metadataFileURL(source.filename)) != Data(contentsOf: original.metadataFileURL(source.filename)))
 
             let imported = destination.read(from: copy)
             #expect(imported == .needsApproval(rules))
@@ -38,8 +58,86 @@ struct ServiceTunnelSettingsTests {
         }
     }
 
+    @Test func libraryDuplicateOnlyCarriesWhatIsApprovedForTheOriginalRightNow() throws {
+        let store = setting
+        try withVM { original in
+            try store.approve(rules, in: original)
+            let url = original.metadataFileURL(store.filename)
+            let approved = try Data(contentsOf: url)
+
+            /// Signed with a key this host doesn't know, as in a bundle that came from somewhere else.
+            let foreignKey = P256.Signing.PrivateKey()
+            try VBVirtualMachine.tunnelSetting(key: { _ in foreignKey }, approvals: HostApprovals().store).approve(rules, in: original)
+            #expect(store.read(from: try duplicate(original, named: "Foreign")) == .needsApproval(rules))
+
+            /// A record that was approved here, but has since been replaced.
+            try store.approve([], in: original)
+            try approved.write(to: url, options: .atomic)
+            #expect(store.read(from: try duplicate(original, named: "Replaced")) == .needsApproval(rules))
+        }
+    }
+
+    @Test func bundleCopiedOutsideOfTheLibraryNeedsApproval() throws {
+        let store = setting
+        try withVM { original in
+            try store.approve(rules, in: original)
+            let copyURL = root.appendingPathComponent("Finder Copy.vbvm")
+            try FileManager.default.copyItem(at: original.bundleURL, to: copyURL)
+            let copy = try VBVirtualMachine(bundleURL: copyURL, isNewInstall: false, createIfNeeded: false)
+            #expect(copy.uuid == original.uuid)
+            #expect(store.read(from: copy) == .needsApproval(rules))
+            #expect(try store.approvedValue(in: copy) == nil)
+            #expect(store.read(from: original) == .approved(rules))
+
+            try store.approve(rules, in: copy)
+            #expect(store.read(from: copy) == .approved(rules))
+            #expect(store.read(from: original) == .approved(rules))
+        }
+    }
+
+    @Test func renamedBundleKeepsApproval() throws {
+        let store = setting
+        try withVM { original in
+            try store.approve(rules, in: original)
+            let renamedURL = root.appendingPathComponent("Renamed.vbvm")
+            try FileManager.default.moveItem(at: original.bundleURL, to: renamedURL)
+            let renamed = try VBVirtualMachine(bundleURL: renamedURL, isNewInstall: false, createIfNeeded: false)
+            #expect(store.read(from: renamed) == .approved(rules))
+        }
+    }
+
+    @Test func replacedRecordCannotBeBroughtBack() throws {
+        let store = setting
+        try withVM { vm in
+            try store.approve(rules, in: vm)
+            let url = vm.metadataFileURL(store.filename)
+            let earlier = try Data(contentsOf: url)
+            try store.approve([], in: vm)
+            #expect(store.read(from: vm) == .approved([]))
+
+            try earlier.write(to: url, options: .atomic)
+            #expect(store.read(from: vm) == .needsApproval(rules))
+            #expect(try store.approvedValue(in: vm) == nil)
+        }
+    }
+
+    @Test func recordApprovedForOneVirtualMachineIsNotApprovedInAnother() throws {
+        let store = setting
+        try withVM { trusted in
+            try store.approve(rules, in: trusted)
+            let other = try VBVirtualMachine(bundleURL: root.appendingPathComponent("Other.vbvm"), isNewInstall: true)
+            try other.saveMetadata()
+            try store.approve([], in: other)
+
+            let record = try Data(contentsOf: trusted.metadataFileURL(store.filename))
+            try record.write(to: other.metadataFileURL(store.filename), options: .atomic)
+            #expect(store.read(from: other) == .needsApproval(rules))
+            #expect(try store.approvedValue(in: other) == nil)
+        }
+    }
+
     @Test func editsMissingTagsAndMalformedRecordsCannotAuthorizeTunnels() throws {
-        let store = VBVirtualMachine.tunnelSetting { _ in key }
+        let store = setting
         try withVM { vm in
             try store.approve(rules, in: vm)
             let url = vm.metadataFileURL(store.filename)
@@ -68,7 +166,7 @@ struct ServiceTunnelSettingsTests {
     }
 
     @Test func symbolicLinksCannotRedirectRecordReadsOrWrites() throws {
-        let store = VBVirtualMachine.tunnelSetting { _ in key }
+        let store = setting
         try withVM { vm in
             try store.approve(rules, in: vm)
             let record = vm.metadataFileURL(store.filename)
@@ -89,14 +187,14 @@ struct ServiceTunnelSettingsTests {
     }
 
     @Test func approvalIsScopedToFeatureAndSchemaAndVerificationNeverCreatesAKey() throws {
-        let first = SignedVMSetting<String>("Example", schema: 1, key: { _ in key }, validate: { _ in })
-        let second = SignedVMSetting<String>("Other", schema: 1, key: { _ in key }, validate: { _ in })
-        let newer = SignedVMSetting<String>("Example", schema: 2, key: { _ in key }, validate: { _ in })
+        let first = SignedVMSetting<String>("Example", schema: 1, key: { _ in key }, approvals: host.store, validate: { _ in })
+        let second = SignedVMSetting<String>("Other", schema: 1, key: { _ in key }, approvals: host.store, validate: { _ in })
+        let newer = SignedVMSetting<String>("Example", schema: 2, key: { _ in key }, approvals: host.store, validate: { _ in })
         let noKey = SignedVMSetting<String>("Example", schema: 1, key: { access in
             #expect(access == .verify)
             return nil
-        }, validate: { _ in })
-        let locked = SignedVMSetting<String>("Example", schema: 1, key: { _ in throw Failure("Keychain unavailable") }, validate: { _ in })
+        }, approvals: host.store, validate: { _ in })
+        let locked = SignedVMSetting<String>("Example", schema: 1, key: { _ in throw Failure("Keychain unavailable") }, approvals: host.store, validate: { _ in })
         try withVM { vm in
             try first.approve("value", in: vm)
             try FileManager.default.copyItem(at: vm.metadataFileURL(first.filename), to: vm.metadataFileURL(second.filename))
