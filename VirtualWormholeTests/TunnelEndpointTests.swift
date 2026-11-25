@@ -8,8 +8,27 @@ struct TunnelEndpointTests {
         for path in ["relative.sock", "/tmp/", "/tmp/bad\u{0}path", "/tmp/\u{202e}socket", "/" + String(repeating: "é", count: 100)] {
             #expect(!TunnelEndpoint.unix(path).isValid)
         }
+        for path in ["/tmp/service.sock", "/Users/me/Library/Application Support/App/agent.sock", "/tmp/café/service.sock", "/tmp/.hidden/..sock"] {
+            #expect(TunnelEndpoint.unix(path).isValid)
+        }
         #expect(!TunnelEndpoint.tcp(0).isValid)
         #expect(!TunnelEndpoint.tcp6(0).isValid)
+    }
+
+    @Test(arguments: [
+        "/", "/tmp//service.sock", "/tmp/./service.sock", "/tmp/../service.sock", "/Users/me/Public/../Library/agent.sock", "/tmp/..",
+        "/tmp/a\u{2028}b.sock", "/tmp/a\u{2029}b.sock", "/tmp/a\u{a0}b.sock", "/tmp/a\u{3000}b.sock", "/tmp/a\u{200b}b.sock",
+        "/tmp/a\u{feff}b.sock", "/tmp/a\u{e000}b.sock", "/tmp/a\u{115f}b.sock", "/tmp/a\tb.sock"
+    ])
+    func rejectsSocketPathsThatDoNotReadAsTheLocationTheyName(path: String) {
+        #expect(!TunnelEndpoint.unix(path).isValid)
+    }
+
+    @Test func reportsSocketPathsWithCharactersOutsideASCII() {
+        #expect(TunnelEndpoint.unix("/tmp/\u{0430}gent.sock").isValid)
+        #expect(TunnelEndpoint.unix("/tmp/\u{0430}gent.sock").hasCharactersOutsideASCII)
+        #expect(!TunnelEndpoint.unix("/tmp/agent.sock").hasCharactersOutsideASCII)
+        #expect(!TunnelEndpoint.tcp(80).hasCharactersOutsideASCII)
     }
 
     @Test(arguments: [false, true])

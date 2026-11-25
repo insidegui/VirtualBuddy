@@ -2,12 +2,12 @@ import Foundation
 import LocalAuthentication
 import Security
 
-/// Remembers which signed record the host last approved, in the host app's Keychain rather than in any bundle.
+/// Remembers which setting records the host user approved, in the host app's Keychain rather than in any bundle.
 ///
-/// A signature alone stays valid forever, so a bundle could bring back a record the user has since replaced.
-/// Only the record whose digest is stored here counts as approved.
+/// Items are per-user, device-local and in the host app's default Keychain access group, so nothing
+/// that can only write to a bundle can approve what it wrote.
 struct HostSettingsApprovalStore {
-    var service = "codes.rambo.VirtualBuddy.signed-settings.approvals"
+    var service = "codes.rambo.VirtualBuddy.settings-approvals"
 
     private func item(_ account: String) -> [String: Any] {
         [

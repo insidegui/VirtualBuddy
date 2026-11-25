@@ -17,7 +17,7 @@ extension ServiceTunnelsLiveState {
     }
 }
 
-extension SignedSettingState where Value == [ServiceTunnel] {
+extension ApprovedSettingState where Value == [ServiceTunnel] {
     /// Summary displayed in the header of the service tunnels configuration section.
     func summary(draft: [ServiceTunnel]? = nil) -> String {
         if draft == nil {
@@ -39,7 +39,7 @@ extension SignedSettingState where Value == [ServiceTunnel] {
 }
 
 struct ServiceTunnelsConfigurationView: View {
-    let settings: SignedSettingState<[ServiceTunnel]>
+    let settings: ApprovedSettingState<[ServiceTunnel]>
     /// Tunnels that have been edited but not saved yet, takes precedence over `settings`.
     var draft: [ServiceTunnel]? = nil
     /// State for the running virtual machine, `nil` when editing the configuration of a virtual machine that's not running.
@@ -66,6 +66,8 @@ struct ServiceTunnelsConfigurationView: View {
 
     @State private var selection = Set<ServiceTunnel.ID>()
     @State private var editor: EditorItem?
+    /// A copy of the guest's request taken when the user chose to review it, which is what gets approved.
+    @State private var requestBeingReviewed: ServiceTunnel?
     @State private var isShowingResetConfirmation = false
     @State private var isShowingError = false
     @State private var errorMessage = ""
@@ -102,6 +104,11 @@ struct ServiceTunnelsConfigurationView: View {
             }
         } message: {
             Text("The saved service tunnels for this virtual machine will be replaced with an empty list.")
+        }
+        .sheet(item: $requestBeingReviewed) { request in
+            ServiceTunnelApprovalSheet(request: request) { reviewed in
+                apply(tunnels + [reviewed])
+            }
         }
         .sheet(item: $editor) { item in
             ServiceTunnelEditor(
@@ -158,8 +165,8 @@ struct ServiceTunnelsConfigurationView: View {
                                 decline(request.id)
                             }
 
-                            Button("Allow") {
-                                apply(tunnels + [request])
+                            Button("Allow…") {
+                                requestBeingReviewed = request
                             }
                         }
                         .controlSize(.small)
@@ -232,10 +239,13 @@ struct ServiceTunnelsConfigurationView: View {
         GroupedList {
             List {
                 ForEach(tunnels) { tunnel in
-                    ServiceTunnelListItem(tunnel: tunnel)
+                    ServiceTunnelDetail(tunnel: tunnel)
+                        .padding(.vertical, 6)
                 }
             }
         }
+        /// Rows show their endpoints in full, so more room is needed to see a few of them at once.
+        .frame(minHeight: 280)
     }
 
     @ViewBuilder
@@ -304,7 +314,7 @@ struct ServiceTunnelsConfigurationView: View {
 
 #if DEBUG
 private struct ServiceTunnelsConfigurationPreview: View {
-    @State var settings: SignedSettingState<[ServiceTunnel]>
+    @State var settings: ApprovedSettingState<[ServiceTunnel]>
     @State var liveState: ServiceTunnelsLiveState?
 
     var body: some View {

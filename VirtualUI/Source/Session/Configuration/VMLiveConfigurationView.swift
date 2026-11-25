@@ -98,7 +98,7 @@ struct VMLiveConfigurationView: View {
 @MainActor
 private final class VMLiveConfigurationEditor {
     let controller: VMController
-    var tunnelSettings: SignedSettingState<[ServiceTunnel]>
+    var tunnelSettings: ApprovedSettingState<[ServiceTunnel]>
     var errorMessage: String?
 
     init(controller: VMController) {

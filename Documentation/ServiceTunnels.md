@@ -13,40 +13,40 @@ The relay forwards bytes and supports half-close. Unix ancillary data such as fi
 descriptors stays local to each operating system.
 
 VirtualBuddyGuest → Service Tunnels → Request Service Tunnel sends a proposal to the host's
-Service Tunnels settings. Allow signs the reviewed tunnel list and saves it in
-`.vbdata/ServiceTunnels.signed.plist`. An approval belongs to that virtual machine on this
-Mac and user account. Duplicating the virtual machine in the VirtualBuddy library approves
-the same tunnels for the copy. A bundle copied in Finder, moved to another volume, restored
-from a backup or brought over from another Mac needs its tunnels reviewed again: open
-Service Tunnels and choose **Approve Tunnels**. Pending proposals expire when the guest session ends. Turning off or removing an approved mapping closes its
-active connections. Enabled mappings start again when a compatible guest reconnects.
+Service Tunnels settings. Allow saves the reviewed tunnel list in
+`.vbdata/ServiceTunnels.plist` and records its approval on this Mac. An approval belongs to
+that virtual machine on this Mac and user account. Duplicating the virtual machine in the
+VirtualBuddy library approves the same tunnels for the copy. A bundle copied in Finder,
+moved to another volume, restored from a backup or brought over from another Mac needs its
+tunnels reviewed again: open Service Tunnels and choose **Approve Tunnels**. Pending
+proposals expire when the guest session ends. Turning off or removing an approved mapping
+closes its active connections. Enabled mappings start again when a compatible guest reconnects.
 
 The session negotiates `service-tunnels.v1`. VirtualWormhole carries the rule list,
 proposals, and rendezvous messages. Each accepted client gets a dedicated Virtio
 stream identified by a per-connection nonce. Both directions use the selected VM's
 socket device and a guest listener that accepts the host context ID.
 
-VirtualCore's `SignedVMSetting<Value>` supports other sensitive bundle settings.
+VirtualCore's `ApprovedVMSetting<Value>` supports other sensitive bundle settings.
 Give each feature a stable identifier, a schema version, and a validator for values
-that are safe to display and apply. Use `approvedValue(in:)` on runtime paths to verify the signature before decoding the setting.
-Use `reviewValue` to display a candidate for explicit host approval. Saving other
-VM settings must preserve the record without signing it.
+that are safe to display and apply. Use `approvedValue(in:)` on runtime paths to check
+the approval before decoding the setting. Use `reviewValue` to display a candidate for
+explicit host approval. Saving other VM settings must preserve the record without approving it.
 
-The P-256 signature covers the feature identifier, schema version, format domain,
-the virtual machine's identifier and the exact encoded payload. Verification uses the
-local signing identity. Its private key is a non-synchronizing, device-only data
-protection Keychain item available after first unlock.
+The record in the bundle is only a candidate: anything that can write to the bundle can
+change it. The approval is a SHA-256 digest kept in the host's Keychain as a
+non-synchronizing, device-only data protection item available after first unlock. The
+digest covers the feature identifier, schema version, format domain, the virtual
+machine's identifier and the exact encoded payload, and it is stored under the volume
+and file identifier of the bundle directory. Only the record matching that digest is
+approved, so a record that was replaced can't be put back, and a record or a whole
+bundle copied elsewhere isn't approved in its new place. Renaming a bundle or moving it
+within its volume keeps the approval. The library's Duplicate command reads the
+original's approved value and approves it for the copy. Any new setting of this kind
+has to be added to `VBVirtualMachine.carryApprovedSettings(from:to:)` to get the same
+treatment. These settings are unavailable for a bundle on a volume without a persistent
+identifier.
 
-A valid signature is not enough on its own. Each approval also stores a digest of the
-signed record in the Keychain, under the volume and file identifier of the bundle
-directory. Only the record matching that digest is approved, so a record that was
-replaced can't be put back, and a record or a whole bundle copied elsewhere isn't
-approved in its new place. Renaming a bundle or moving it within its volume keeps the
-approval. The library's Duplicate command reads the original's approved value and
-signs it again for the copy. Any new signed setting has to be added to
-`VBVirtualMachine.carryApprovedSettings(from:to:)` to get the same treatment.
-Signed settings are unavailable for a bundle on a volume without a persistent identifier.
-
-The VirtualBuddy scheme runs the Keychain integration tests inside the signed host
+The VirtualBuddy scheme runs the Keychain integration test inside the signed host
 app. The VirtualCore suite covers duplication, copies made outside the library,
-replaced records, tampering, and re-approval with independent host identities.
+replaced records, tampering, and approval by independent hosts.

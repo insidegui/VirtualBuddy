@@ -1,4 +1,3 @@
-import CryptoKit
 import Foundation
 import Testing
 import VirtualWormhole
@@ -7,14 +6,13 @@ import VirtualWormhole
 /// Stands in for the host's Keychain, which a test bundle can't use.
 private final class HostApprovals: @unchecked Sendable {
     private var digests: [String: Data] = [:]
-    var store: SignedSettingApprovals {
-        SignedSettingApprovals(digest: { self.digests[$0] }, record: { self.digests[$1] = $0 })
+    var store: SettingApprovals {
+        SettingApprovals(digest: { self.digests[$0] }, record: { self.digests[$1] = $0 })
     }
 }
 
 struct ServiceTunnelSettingsTests {
     private let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
-    private let key = P256.Signing.PrivateKey()
     private let host = HostApprovals()
     private let rules = [ServiceTunnel(listensOnHost: false, listener: .tcp(8000), destination: .unix("/private/tmp/example.sock"))]
 
@@ -25,35 +23,30 @@ struct ServiceTunnelSettingsTests {
         try body(vm)
     }
 
-    private var setting: SignedVMSetting<[ServiceTunnel]> {
-        VBVirtualMachine.tunnelSetting(key: { [key] _ in key }, approvals: host.store)
-    }
+    private var setting: ApprovedVMSetting<[ServiceTunnel]> { VBVirtualMachine.tunnelSetting(approvals: host.store) }
 
     private func duplicate(_ original: VBVirtualMachine, named name: String = "Copy") throws -> VBVirtualMachine {
-        let key = key, host = host
+        let host = host
         return try VMBundleDuplicator { original, copy in
-            try VBVirtualMachine.tunnelSetting(key: { _ in key }, approvals: host.store).carryApproval(from: original, to: copy)
+            try VBVirtualMachine.tunnelSetting(approvals: host.store).carryApproval(from: original, to: copy)
         }.duplicate(bundleAt: original.bundleURL, to: root.appendingPathComponent("\(name).vbvm"))
     }
 
-    @Test func libraryDuplicateIsApprovedAgainAndAnotherHostCanReapproveItsCopy() throws {
+    @Test func libraryDuplicateIsApprovedAndAnotherHostCanApproveItsCopy() throws {
         let source = setting
-        let otherKey = P256.Signing.PrivateKey()
-        let destination = VBVirtualMachine.tunnelSetting(key: { _ in otherKey }, approvals: HostApprovals().store)
+        let destination = VBVirtualMachine.tunnelSetting(approvals: HostApprovals().store)
         try withVM { original in
             #expect(source.read(from: original) == .missing)
             try source.approve(rules, in: original)
             let copy = try duplicate(original)
             #expect(copy.uuid != original.uuid)
             #expect(try source.approvedValue(in: copy) == rules)
-            #expect(try Data(contentsOf: copy.metadataFileURL(source.filename)) != Data(contentsOf: original.metadataFileURL(source.filename)))
 
             let imported = destination.read(from: copy)
             #expect(imported == .needsApproval(rules))
             #expect(try destination.approvedValue(in: copy) == nil)
             try destination.approve(try #require(imported.reviewValue), in: copy)
             #expect(destination.read(from: copy) == .approved(rules))
-            #expect(source.read(from: copy) == .needsApproval(rules))
             #expect(source.read(from: original) == .approved(rules))
         }
     }
@@ -65,10 +58,10 @@ struct ServiceTunnelSettingsTests {
             let url = original.metadataFileURL(store.filename)
             let approved = try Data(contentsOf: url)
 
-            /// Signed with a key this host doesn't know, as in a bundle that came from somewhere else.
-            let foreignKey = P256.Signing.PrivateKey()
-            try VBVirtualMachine.tunnelSetting(key: { _ in foreignKey }, approvals: HostApprovals().store).approve(rules, in: original)
-            #expect(store.read(from: try duplicate(original, named: "Foreign")) == .needsApproval(rules))
+            /// Approved on some other host, as in a bundle that came from somewhere else.
+            let edited = [ServiceTunnel(listensOnHost: false, listener: .tcp(8000), destination: .unix("/private/tmp/other.sock"))]
+            try VBVirtualMachine.tunnelSetting(approvals: HostApprovals().store).approve(edited, in: original)
+            #expect(store.read(from: try duplicate(original, named: "Foreign")) == .needsApproval(edited))
 
             /// A record that was approved here, but has since been replaced.
             try store.approve([], in: original)
@@ -136,7 +129,7 @@ struct ServiceTunnelSettingsTests {
         }
     }
 
-    @Test func editsMissingTagsAndMalformedRecordsCannotAuthorizeTunnels() throws {
+    @Test func editedAndMalformedRecordsCannotAuthorizeTunnels() throws {
         let store = setting
         try withVM { vm in
             try store.approve(rules, in: vm)
@@ -151,9 +144,7 @@ struct ServiceTunnelSettingsTests {
             }
             try writeRecord()
             #expect(store.read(from: vm) == .needsApproval(edited))
-            record.removeValue(forKey: "signature")
-            try writeRecord()
-            #expect(store.read(from: vm) == .needsApproval(edited))
+            #expect(try store.approvedValue(in: vm) == nil)
             record["version"] = 2
             try writeRecord()
             if case .unavailable = store.read(from: vm) {} else { Issue.record("Accepted unknown format") }
@@ -186,24 +177,25 @@ struct ServiceTunnelSettingsTests {
         }
     }
 
-    @Test func approvalIsScopedToFeatureAndSchemaAndVerificationNeverCreatesAKey() throws {
-        let first = SignedVMSetting<String>("Example", schema: 1, key: { _ in key }, approvals: host.store, validate: { _ in })
-        let second = SignedVMSetting<String>("Other", schema: 1, key: { _ in key }, approvals: host.store, validate: { _ in })
-        let newer = SignedVMSetting<String>("Example", schema: 2, key: { _ in key }, approvals: host.store, validate: { _ in })
-        let noKey = SignedVMSetting<String>("Example", schema: 1, key: { access in
-            #expect(access == .verify)
-            return nil
-        }, approvals: host.store, validate: { _ in })
-        let locked = SignedVMSetting<String>("Example", schema: 1, key: { _ in throw Failure("Keychain unavailable") }, approvals: host.store, validate: { _ in })
+    @Test func approvalIsScopedToFeatureAndSchemaAndFailsClosedWithoutTheHostStore() throws {
+        let first = ApprovedVMSetting<String>("Example", schema: 1, approvals: host.store, validate: { _ in })
+        let second = ApprovedVMSetting<String>("Other", schema: 1, approvals: host.store, validate: { _ in })
+        let newer = ApprovedVMSetting<String>("Example", schema: 2, approvals: host.store, validate: { _ in })
+        let locked = ApprovedVMSetting<String>("Example", schema: 1, approvals: SettingApprovals(
+            digest: { _ in throw Failure("Keychain unavailable") },
+            record: { _, _ in throw Failure("Keychain unavailable") }
+        ), validate: { _ in })
         try withVM { vm in
             try first.approve("value", in: vm)
             try FileManager.default.copyItem(at: vm.metadataFileURL(first.filename), to: vm.metadataFileURL(second.filename))
             #expect(second.read(from: vm) == .needsApproval("value"))
             if case .unavailable = newer.read(from: vm) {} else { Issue.record("Accepted incompatible schema") }
-            #expect(noKey.read(from: vm) == .needsApproval("value"))
             #expect(locked.read(from: vm) == .unavailable("Keychain unavailable"))
+            #expect(throws: (any Error).self) { try locked.approvedValue(in: vm) }
             #expect(throws: (any Error).self) { try locked.approve("changed", in: vm) }
-            #expect(first.read(from: vm) == .approved("value"))
+
+            /// The failed approval replaced the record without approving it, so nothing is approved until the user tries again.
+            #expect(first.read(from: vm) == .needsApproval("changed"))
         }
     }
 }

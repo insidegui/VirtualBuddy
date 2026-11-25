@@ -13,13 +13,33 @@ public enum TunnelEndpoint: Codable, Hashable, Sendable {
         }
     }
 
+    /// A socket path is only valid in the one spelling that reads as the location it names,
+    /// because the host user approves a tunnel by reading its path.
     public var isValid: Bool {
         switch self {
         case .tcp(let port), .tcp6(let port): return port > 0
         case .unix(let path):
-            return path.hasPrefix("/") && !path.hasSuffix("/") &&
-                path.utf8.count < MemoryLayout.size(ofValue: sockaddr_un().sun_path) &&
-                !path.unicodeScalars.contains(where: { CharacterSet.controlCharacters.contains($0) || $0.properties.isBidiControl })
+            guard path.hasPrefix("/"), path.utf8.count < MemoryLayout.size(ofValue: sockaddr_un().sun_path) else { return false }
+            // Rejects a trailing or repeated slash along with the components that name another directory.
+            let components = path.dropFirst().split(separator: "/", omittingEmptySubsequences: false)
+            return components.allSatisfy { !$0.isEmpty && $0 != "." && $0 != ".." } && path.unicodeScalars.allSatisfy(\.isAllowedInSocketPath)
+        }
+    }
+
+    /// Characters outside ASCII can be indistinguishable from the ones a well-known path is spelled with.
+    public var hasCharactersOutsideASCII: Bool {
+        guard case .unix(let path) = self else { return false }
+        return !path.unicodeScalars.allSatisfy(\.isASCII)
+    }
+}
+
+private extension Unicode.Scalar {
+    /// Excludes everything that is invisible, reorders text or breaks a line where the path is displayed.
+    var isAllowedInSocketPath: Bool {
+        switch properties.generalCategory {
+        case .control, .format, .surrogate, .privateUse, .unassigned, .lineSeparator, .paragraphSeparator: false
+        case .spaceSeparator: self == " "
+        default: !properties.isBidiControl && !properties.isDefaultIgnorableCodePoint
         }
     }
 }

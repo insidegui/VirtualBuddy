@@ -84,6 +84,13 @@ extension ServiceTunnel {
         return tunnel
     }()
 
+    static let previewLongUnixSocket = ServiceTunnel(
+        listensOnHost: false,
+        listener: .unix("/Users/steve/Library/Application Support/Development Tools/Runtime Sockets/container-engine.sock"),
+        destination: .unix("/Users/steve/Library/Group Containers/ABCDE12345.com.example.passwords/t/ssh-agent.sock")
+    )
+    static let previewLookalikeSocket = ServiceTunnel(listensOnHost: true, listener: .unix("/Users/steve/.docker/run/d\u{043e}cker.sock"), destination: .tcp(2375))
+
     static let previewTunnels: [ServiceTunnel] = [.previewWebServer, .previewDatabase, .previewUnixSocket, .previewDisabled]
 }
 #endif

@@ -91,6 +91,8 @@ These are consequences of the feature, not defects, but users deciding whether t
 
 ### F1 — Guest can swap a pending request's contents under the Allow button · Medium
 
+> **Status: fixed in the working tree.** Allow opens a confirmation sheet holding a copy of the request taken at that moment, shown in full, and approves that copy. Cancel is the default action. The host does not yet refuse a re-proposed UUID; with the frozen copy a swap no longer changes what gets approved.
+
 **Where:** [ServiceTunnelsConfigurationView.swift:154-168](VirtualUI/Source/VM%20Configuration/Sections/Tunnels/ServiceTunnelsConfigurationView.swift), [TunnelGuestService.swift:119-124](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift), [TunnelGuestService.swift:267-275](VirtualWormhole/Source/Services/Tunnels/TunnelGuestService.swift)
 
 Allow calls `apply(tunnels + [request])` immediately, using whatever `request` the row holds at click time. The pending list is live guest state: re-initialising the session clears `state.requests`, after which the guest can propose again, reusing the same UUID with different endpoints. The row keeps its identity and position and simply shows new content.
@@ -102,6 +104,8 @@ Allow calls `apply(tunnels + [request])` immediately, using whatever `request` t
 - On the host, refuse a proposal whose UUID was already seen in this VM run (keep the seen set across session re-initialisation), and keep declined or cleared requests from reappearing in the same row position without a visible change.
 
 ### F2 — Approval rows truncate endpoints and accept non-canonical, look-alike paths · Medium
+
+> **Status: fixed in the working tree.** Socket paths with `.`, `..` or empty components, Unicode separators, non-ASCII spaces and invisible characters are rejected. The confirmation sheet and the imported-bundle review list show endpoints in full and warn about non-ASCII paths. Approve Tunnels still approves the whole imported list with one click.
 
 **Where:** [ServiceTunnelListItem.swift:21-40](VirtualUI/Source/VM%20Configuration/Sections/Tunnels/ServiceTunnelListItem.swift), [ServiceTunnel.swift:16-24](VirtualWormhole/Source/Services/Tunnels/ServiceTunnel.swift)
 
@@ -136,7 +140,7 @@ Both need an approved rule, which is why this is Medium, but nothing tells the a
 
 ### F4 — Signed approvals are replayable across VMs and can be rolled back · Medium
 
-> **Status: fixed in the working tree.** The signature now covers the VM identifier, and the host keeps a digest of the current approval in the Keychain under the bundle directory's volume and file identifier. The library's Duplicate command re-signs the original's approved value for the copy. The description below is of the code as audited.
+> **Status: fixed in the working tree.** Signing was removed. The host keeps a digest of the approved record, covering the VM identifier, in the Keychain under the bundle directory's volume and file identifier. The library's Duplicate command approves the original's approved value for the copy. The description below is of the code as audited.
 
 **Where:** [SignedVMSetting.swift:60-65](VirtualCore/Source/Models/Configuration/SignedVMSetting.swift), [SignedVMSetting.swift:74-78](VirtualCore/Source/Models/Configuration/SignedVMSetting.swift)
 
@@ -198,6 +202,8 @@ Snapshots send every rule, including host listener paths (which usually contain 
 **Fix:** send the guest only what it needs to act: for host-listening rules, the rule ID and guest destination; and a coarse status instead of host error descriptions.
 
 ### F11 — Signing key is an exportable raw key · Hardening
+
+> **Status: no longer applies.** The signing key was removed along with signing.
 
 **Where:** [HostSettingsSigningKey.swift:12-54](VirtualCore/Source/Utilities/HostSettingsSigningKey.swift)
 

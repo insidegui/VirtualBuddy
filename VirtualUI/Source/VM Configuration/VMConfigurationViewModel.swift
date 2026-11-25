@@ -55,7 +55,7 @@ public final class VMConfigurationViewModel: ObservableObject {
     
     @Published private(set) var vm: VBVirtualMachine
 
-    let savedTunnelSettings: SignedSettingState<[ServiceTunnel]>
+    let savedTunnelSettings: ApprovedSettingState<[ServiceTunnel]>
     @Published var tunnelDraft: [ServiceTunnel]?
 
     public let context: VMConfigurationContext
