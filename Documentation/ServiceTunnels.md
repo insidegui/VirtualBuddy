@@ -35,6 +35,11 @@ tunnels reviewed again: open Service Tunnels and choose **Approve Tunnels**. Pen
 proposals expire when the guest session ends. Turning off or removing an approved mapping
 closes its active connections. Enabled mappings start again when a compatible guest reconnects.
 
+The host shows why a tunnel isn't working on either side. The guest is only told that a
+tunnel isn't available on the host, not the reason, which would describe the host's files
+and services. Status text received from the other side is stripped of characters that
+could disguise it before it's displayed.
+
 The session negotiates `service-tunnels.v1`. VirtualWormhole carries the rule list,
 proposals, and rendezvous messages. Each accepted client gets a dedicated Virtio
 stream identified by a per-connection nonce. Both directions use the selected VM's

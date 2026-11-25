@@ -108,7 +108,7 @@ final class TunnelGuestService: GuestService {
         revision += 1
         let snapshot = TunnelControl.Action.snapshot(revision, state.rules, state.requests, state.status.filter { id, _ in
             state.rules.contains { $0.id == id && $0.listensOnHost }
-        })
+        }.mapValues(statusForPeer))
         schedule { _ = try await self.send(snapshot) }
     }
 
@@ -183,12 +183,19 @@ final class TunnelGuestService: GuestService {
         }
     }
 
+    /// What the other side is told about a tunnel that listens here. Why a listener or a connection failed on the
+    /// host describes the host's files and services, so the guest only learns that the tunnel isn't working.
+    private func statusForPeer(_ message: String) -> String {
+        !isHost || message == "Listening" ? message : "Not available on the host"
+    }
+
     private func report(_ message: String, for rule: ServiceTunnel) {
         // Failures often quote what the other side replied, which ends up displayed like any other status.
         let message = message.displayableTunnelText
         guard state.rules.contains(rule), state.status[rule.id] != message else { return }
         state.status[rule.id] = message
         if rule.listensOnHost == isHost {
+            let message = statusForPeer(message)
             schedule { _ = try await self.send(.status(rule.id, message)) }
         }
     }
@@ -270,7 +277,9 @@ final class TunnelGuestService: GuestService {
         } else {
             do { local = try await rule.destination.connectSocket() }
             catch {
-                try await link.send(TunnelReply.failure("Connection to \(rule.destination.address) failed: \(error.localizedDescription)"))
+                // The guest asked for this connection. It doesn't need to know what stopped it on the host.
+                let reason = isHost ? "The service on the host is not available." : "Connection to \(rule.destination.address) failed: \(error.localizedDescription)"
+                try await link.send(TunnelReply.failure(reason))
                 throw error
             }
             try await link.send(TunnelReply.ok)

@@ -195,6 +195,25 @@ struct GuestSessionTests {
         await fixture.stop()
     }
 
+    @Test func guestIsNotToldWhyATunnelFailedOnTheHost() async throws {
+        let fixture = await SessionFixture.make()
+        /// Can't be created, for a reason that describes a folder on the host.
+        let rule = ServiceTunnel(listensOnHost: true, listener: .unix("/usr/bin/\(UUID().uuidString).sock"), destination: .tcp(3000))
+        fixture.host.tunnels.approvedRules = { [rule] }
+        try await fixture.connect()
+        try await eventually { fixture.guest.tunnels.state.status[rule.id] != nil }
+
+        let reason = try #require(fixture.host.tunnels.state.status[rule.id])
+        #expect(reason != "Listening" && reason != "Not available on the host")
+        #expect(fixture.guest.tunnels.state.status[rule.id] == "Not available on the host")
+
+        /// The guest keeps being told the same after asking for everything again.
+        fixture.host.tunnels.reloadConfiguration()
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(fixture.guest.tunnels.state.status[rule.id] == "Not available on the host")
+        await fixture.stop()
+    }
+
     @Test func reconnectReloadsHostApprovalBeforePublishingMappings() async throws {
         let fixture = await SessionFixture.make()
         var disabled = ServiceTunnel(listensOnHost: true, listener: .tcp(8000), destination: .tcp(80))
