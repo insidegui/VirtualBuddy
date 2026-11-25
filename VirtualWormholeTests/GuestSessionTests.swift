@@ -20,7 +20,8 @@ struct GuestSessionTests {
             let listener = try TunnelListener(linkAddress)
             return .init(port: 23456) {
                 defer { listener.removeSocketFile() }
-                return try await listener.socket.accept(timeout: 5000)
+                let socket = try #require(listener.socket)
+                return try await socket.accept(timeout: 5000)
             }
         }
         fixture.host.tunnels.connect = { _ in .init(stream: try await linkAddress.connectSocket(), owner: nil) }
@@ -104,6 +105,28 @@ struct GuestSessionTests {
         fixture.host.tunnels.approvedRules = { [] }
         fixture.host.tunnels.reloadConfiguration()
         try await eventually { !FileManager.default.fileExists(atPath: path) && fixture.guest.tunnels.state.rules.isEmpty }
+        await fixture.stop()
+    }
+
+    @Test func tunnelReplacingAnotherAtTheSameAddressStartsListening() async throws {
+        let fixture = await SessionFixture.make()
+        let listener = TunnelEndpoint.tcp(.random(in: 49152...65535))
+        let original = ServiceTunnel(listensOnHost: true, listener: listener, destination: .tcp(3000))
+        let replacement = ServiceTunnel(listensOnHost: true, listener: listener, destination: .tcp(3001))
+        fixture.host.tunnels.approvedRules = { [original] }
+        try await fixture.connect()
+        try await eventually { fixture.host.tunnels.state.status[original.id] != nil }
+        try #require(fixture.host.tunnels.state.status[original.id] == "Listening")
+
+        fixture.host.tunnels.approvedRules = { [replacement] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.host.tunnels.state.status[replacement.id] != nil }
+        #expect(fixture.host.tunnels.state.status[replacement.id] == "Listening")
+        #expect(await listener.isOccupied())
+
+        fixture.host.tunnels.approvedRules = { [] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.host.tunnels.state.rules.isEmpty }
         await fixture.stop()
     }
 

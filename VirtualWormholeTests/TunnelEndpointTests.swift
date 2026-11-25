@@ -128,6 +128,31 @@ struct TunnelEndpointTests {
         restarted.stop()
     }
 
+    @Test @MainActor func stoppedListenerReportsWhenItsAddressIsFree() async throws {
+        var bound: (TunnelListener, TunnelEndpoint)?
+        for _ in 0..<16 {
+            let candidate = TunnelEndpoint.tcp(.random(in: 49152...65535))
+            do {
+                bound = (try TunnelListener(candidate), candidate)
+                break
+            } catch let error as POSIXError where error.code == .EADDRINUSE { continue }
+        }
+        let (listener, endpoint) = try #require(bound)
+        try listener.start { _ in } failed: { Issue.record($0) }
+
+        await withCheckedContinuation { continuation in
+            listener.stop { continuation.resume() }
+        }
+        #expect(listener.socket == nil)
+        let restarted = try TunnelListener(endpoint)
+
+        /// A listener that never started has nothing to wait for, and still reports.
+        await withCheckedContinuation { continuation in
+            restarted.stop { continuation.resume() }
+        }
+        #expect(await !endpoint.isOccupied())
+    }
+
     @Test func unixListenerPathIsOccupiedByAnyExistingFile() async throws {
         let path = "/tmp/\(UUID().uuidString)"
         #expect(await !TunnelEndpoint.unix(path).isOccupied())

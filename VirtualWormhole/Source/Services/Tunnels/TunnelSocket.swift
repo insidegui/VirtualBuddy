@@ -58,22 +58,38 @@ final class TunnelSocketFiles: @unchecked Sendable {
 
 /// Owns the listening socket and its filesystem entry for exactly one rule.
 final class TunnelListener {
-    let socket: DebugSocket
+    /// The listening descriptor, shared with the dispatch source watching it. A descriptor can't be closed while
+    /// dispatch still has it registered, which lasts a little longer than the listener's own interest in it.
+    /// Only touched on the main queue once the listener has started.
+    private final class Registration: @unchecked Sendable {
+        var socket: DebugSocket?
+        var isRegistered = false
+        var closed: [@MainActor () -> Void] = []
+
+        init(socket: DebugSocket) {
+            self.socket = socket
+        }
+    }
+
+    private let registration: Registration
     private var source: DispatchSourceRead?
     private var file: (String, stat)?
     private let socketFiles: TunnelSocketFiles
+
+    /// The listening socket, until the listener has stopped and its address is free again.
+    var socket: DebugSocket? { registration.socket }
 
     init(_ endpoint: TunnelEndpoint, socketFiles: TunnelSocketFiles = .shared) throws {
         self.socketFiles = socketFiles
         if case .unix(let path) = endpoint {
             socketFiles.removeAbandonedSocket(at: path)
-            socket = try endpoint.open(listening: true)
+            registration = Registration(socket: try endpoint.open(listening: true))
             var info = stat()
             guard lstat(path, &info) == 0 else { throw POSIXError(.ENOENT) }
             file = (path, info)
             socketFiles.record(path, info)
         } else {
-            socket = try endpoint.open(listening: true)
+            registration = Registration(socket: try endpoint.open(listening: true))
             file = nil
         }
     }
@@ -82,8 +98,8 @@ final class TunnelListener {
     @MainActor
     func start(accept: @escaping @MainActor (DebugSocket) -> Void,
                failed: @escaping @MainActor (Error) -> Void) throws {
+        guard let fd = registration.socket?.descriptor else { throw POSIXError(.EBADF) }
         let unix = file != nil
-        let fd = socket.descriptor
         let flags = fcntl(fd, F_GETFL)
         guard flags >= 0, fcntl(fd, F_SETFL, flags | O_NONBLOCK) == 0 else { throw socketError() }
         let source = DispatchSource.makeReadSource(fileDescriptor: fd, queue: .main)
@@ -109,16 +125,35 @@ final class TunnelListener {
                 accept(client)
             } catch { failed(error) }
         }
-        // Keep the descriptor alive until dispatch has unregistered the source.
-        source.setCancelHandler { [socket] in withExtendedLifetime(socket) {} }
+        // Dispatch has unregistered the source by the time this runs, so the descriptor can be closed.
+        source.setCancelHandler { [registration] in
+            registration.socket = nil
+            let closed = registration.closed
+            registration.closed = []
+            for notify in closed { notify() }
+        }
+        registration.isRegistered = true
         self.source = source
         source.activate()
     }
 
-    func stop() {
+    /// Stops accepting connections. The address isn't free the moment this returns, because the descriptor
+    /// stays open until dispatch has let go of it. A listener for the same address can only be created
+    /// after `closed` has run, which happens on the main queue.
+    func stop(closed: (@MainActor () -> Void)? = nil) {
         source?.cancel()
         source = nil
         removeSocketFile()
+        DispatchQueue.main.async { [registration] in
+            MainActor.assumeIsolated {
+                if registration.isRegistered, registration.socket != nil {
+                    if let closed { registration.closed.append(closed) }
+                } else {
+                    registration.socket = nil
+                    closed?()
+                }
+            }
+        }
     }
 
     deinit { stop() }

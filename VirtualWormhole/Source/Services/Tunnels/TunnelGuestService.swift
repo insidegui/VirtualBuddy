@@ -40,6 +40,10 @@ final class TunnelGuestService: GuestService {
     var connect: ((UInt32) async throws -> HostLink)?
     var approvedRules: () -> [ServiceTunnel] = { [] }
     private var listeners: [UUID: TunnelListener] = [:]
+    /// Listeners that were stopped but whose addresses aren't free yet.
+    private var closingListeners = 0
+    /// Rules waiting for those addresses, since a rule often replaces one that had the same listener.
+    private var rulesAwaitingListeners: [ServiceTunnel] = []
     private var clients: [UUID: (rule: UUID, task: Task<Void, Never>)] = [:]
     private var revision: UInt64 = 0
 
@@ -150,7 +154,15 @@ final class TunnelGuestService: GuestService {
         let added = rules.filter { !state.rules.contains($0) && $0.isEnabled && $0.listensOnHost == isHost }
         state.rules = rules
         state.requests.removeAll { request in rules.contains { $0.listener == request.listener && $0.listensOnHost == request.listensOnHost } }
-        for rule in added {
+        rulesAwaitingListeners += added
+        startAwaitedListeners()
+    }
+
+    private func startAwaitedListeners() {
+        guard closingListeners == 0 else { return }
+        let rules = rulesAwaitingListeners.filter(state.rules.contains)
+        rulesAwaitingListeners = []
+        for rule in rules {
             do {
                 let listener = try TunnelListener(rule.listener)
                 try listener.start { [weak self] client in
@@ -256,7 +268,14 @@ final class TunnelGuestService: GuestService {
     }
 
     private func stop(_ id: UUID) {
-        listeners.removeValue(forKey: id)?.stop()
+        if let listener = listeners.removeValue(forKey: id) {
+            closingListeners += 1
+            listener.stop { [weak self] in
+                guard let self else { return }
+                closingListeners -= 1
+                startAwaitedListeners()
+            }
+        }
         for (clientID, client) in clients where client.rule == id {
             clients.removeValue(forKey: clientID)
             client.task.cancel()
@@ -268,6 +287,7 @@ final class TunnelGuestService: GuestService {
         super.invalidate()
         for rule in state.rules { stop(rule.id) }
         state.rules = []
+        rulesAwaitingListeners = []
         state.requests = []
         state.available = false
         guestSupportsTunnels = false
