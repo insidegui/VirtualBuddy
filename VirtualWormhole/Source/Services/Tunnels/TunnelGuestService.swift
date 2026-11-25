@@ -45,6 +45,13 @@ final class TunnelGuestService: GuestService {
     /// Rules waiting for those addresses, since a rule often replaces one that had the same listener.
     private var rulesAwaitingListeners: [ServiceTunnel] = []
     private var clients: [UUID: (rule: UUID, task: Task<Void, Never>)] = [:]
+    /// How many connections all of a virtual machine's tunnels can have open at once. Every connection keeps two
+    /// threads waiting on its sockets for as long as it's open, and a process only has a few hundred threads to
+    /// share between all of its virtual machines and everything else it does.
+    var connectionLimit = 64
+    /// How many of those a single tunnel can have. Anything that can reach a tunnel's listener can open connections
+    /// to it and keep them open, which must not be enough to take the other tunnels' share.
+    var ruleConnectionLimit = 32
     private var revision: UInt64 = 0
 
     override func subscriptions() -> [Subscription] {
@@ -201,7 +208,10 @@ final class TunnelGuestService: GuestService {
     }
 
     private func startClient(_ rule: ServiceTunnel, action: @escaping @MainActor () async throws -> Void) throws {
-        guard clients.count < 32 else { throw TunnelError("The VM has reached its connection limit.") }
+        guard clients.count < connectionLimit else { throw TunnelError("The VM has reached its connection limit.") }
+        guard clients.values.count(where: { $0.rule == rule.id }) < ruleConnectionLimit else {
+            throw TunnelError("This tunnel has reached its connection limit.")
+        }
         let id = UUID()
         clients[id] = (rule.id, schedule {
             defer { self.clients[id] = nil }

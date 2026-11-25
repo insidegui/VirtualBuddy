@@ -20,6 +20,8 @@ service listening on it has to run as that account or as a system account.
 A TCP listener doesn't start while something else on that side already accepts
 connections at its address, including a service listening on every address. The
 tunnel reports the address as in use until it's free.
+A virtual machine's tunnels can have 64 connections open at once, and a single
+tunnel 32 of them. Connections beyond that are closed as they arrive.
 The relay forwards bytes and supports half-close. Unix ancillary data such as file
 descriptors stays local to each operating system.
 

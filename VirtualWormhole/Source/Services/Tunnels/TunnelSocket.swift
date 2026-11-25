@@ -73,6 +73,8 @@ final class TunnelListener {
 
     private let registration: Registration
     private var source: DispatchSourceRead?
+    /// Whether the source is suspended while the listener waits to be able to accept connections again.
+    private var isPaused = false
     private var file: (String, stat)?
     private let socketFiles: TunnelSocketFiles
 
@@ -109,6 +111,11 @@ final class TunnelListener {
             if clientFD < 0 {
                 switch errno {
                 case EAGAIN, EINTR, ECONNABORTED: return
+                case EMFILE, ENFILE, ENOBUFS, ENOMEM:
+                    // The process or the system is out of something that connections in progress give back when
+                    // they finish. The connection stays queued, so stop being told about it for a moment.
+                    self?.pause()
+                    return
                 default:
                     let error = socketError()
                     self?.stop()
@@ -141,6 +148,8 @@ final class TunnelListener {
     /// stays open until dispatch has let go of it. A listener for the same address can only be created
     /// after `closed` has run, which happens on the main queue.
     func stop(closed: (@MainActor () -> Void)? = nil) {
+        // A suspended source never gets to run its cancellation handler.
+        resume()
         source?.cancel()
         source = nil
         removeSocketFile()
@@ -157,6 +166,23 @@ final class TunnelListener {
     }
 
     deinit { stop() }
+
+    @MainActor
+    private func pause() {
+        guard let source, !isPaused else { return }
+        isPaused = true
+        source.suspend()
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) { [weak self] in
+            guard self?.source === source else { return }
+            self?.resume()
+        }
+    }
+
+    private func resume() {
+        guard isPaused else { return }
+        isPaused = false
+        source?.resume()
+    }
 
     func removeSocketFile() {
         guard let (path, original) = file else { return }

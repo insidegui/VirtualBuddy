@@ -149,6 +149,52 @@ struct GuestSessionTests {
         await fixture.stop()
     }
 
+    @Test func oneTunnelCannotUseEveryConnectionOfTheVirtualMachine() async throws {
+        let fixture = await SessionFixture.make()
+        let directory = URL(fileURLWithPath: "/private/tmp").appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let linkAddress = TunnelEndpoint.unix(directory.appendingPathComponent("link").path)
+        fixture.guest.tunnels.makeGuestListener = {
+            let listener = try TunnelListener(linkAddress)
+            return .init(port: 23456) {
+                defer { listener.removeSocketFile() }
+                let socket = try #require(listener.socket)
+                return try await socket.accept(timeout: 5000)
+            }
+        }
+        fixture.host.tunnels.connect = { _ in .init(stream: try await linkAddress.connectSocket(), owner: nil) }
+        fixture.host.tunnels.ruleConnectionLimit = 1
+
+        /// Connections to the service stay open without it doing anything.
+        let service = try TunnelListener(.unix(directory.appendingPathComponent("service").path))
+        defer { service.stop() }
+        let limited = ServiceTunnel(listensOnHost: true, listener: .unix(directory.appendingPathComponent("limited").path), destination: .unix(directory.appendingPathComponent("service").path))
+        let other = ServiceTunnel(listensOnHost: true, listener: .unix(directory.appendingPathComponent("other").path), destination: .unix(directory.appendingPathComponent("service").path))
+        fixture.host.tunnels.approvedRules = { [limited, other] }
+        try await fixture.connect()
+        try await eventually {
+            fixture.host.tunnels.state.status[limited.id] == "Listening" && fixture.host.tunnels.state.status[other.id] == "Listening"
+        }
+
+        let first = try await limited.listener.connectSocket()
+        try await Task.sleep(for: .milliseconds(200))
+        let refused = try await limited.listener.connectSocket()
+        #expect(try await refused.read(upTo: 1).isEmpty)
+        try await eventually { fixture.host.tunnels.state.status[limited.id] == "This tunnel has reached its connection limit." }
+
+        /// The other tunnel still has its share.
+        let unaffected = try await other.listener.connectSocket()
+        try await Task.sleep(for: .milliseconds(200))
+        #expect(fixture.host.tunnels.state.status[other.id] == "Listening")
+
+        withExtendedLifetime((first, unaffected)) {}
+        fixture.host.tunnels.approvedRules = { [] }
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.rules.isEmpty }
+        await fixture.stop()
+    }
+
     @Test func reconnectReloadsHostApprovalBeforePublishingMappings() async throws {
         let fixture = await SessionFixture.make()
         var disabled = ServiceTunnel(listensOnHost: true, listener: .tcp(8000), destination: .tcp(80))
