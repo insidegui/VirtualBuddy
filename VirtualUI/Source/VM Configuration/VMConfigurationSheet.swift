@@ -22,6 +22,7 @@ public struct VMConfigurationSheet: View {
     /// Setting this saves the configuration.
     @Binding private var savedConfiguration: VBMacConfiguration
 
+    @State private var tunnelSaveError: String?
     @State private var showValidationErrors = false
     
     private var showsCancelButton: Bool { viewModel.context == .postInstall }
@@ -57,6 +58,9 @@ public struct VMConfigurationSheet: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .virtualBuddyVariableBlurBar(edge: .bottom) { buttons }
+        .alert("Unable to Save Service Tunnels", isPresented: Binding(get: { tunnelSaveError != nil }, set: { if !$0 { tunnelSaveError = nil } })) {
+            Button("OK") { tunnelSaveError = nil }
+        } message: { Text(tunnelSaveError ?? "") }
         .resizableSheet(minWidth: Self.minWidth, maxWidth: .infinity, minHeight: 500, maxHeight: .infinity)
     }
 
@@ -111,6 +115,14 @@ public struct VMConfigurationSheet: View {
             
             guard state.allowsSaving else { return }
             
+            if viewModel.context == .postInstall, let reviewed = viewModel.tunnelDraft {
+                do { try viewModel.vm.approveServiceTunnels(reviewed) }
+                catch {
+                    showValidationErrors = false
+                    tunnelSaveError = error.localizedDescription
+                    return
+                }
+            }
             savedConfiguration = viewModel.config
             
             if let customConfirmationButtonAction {

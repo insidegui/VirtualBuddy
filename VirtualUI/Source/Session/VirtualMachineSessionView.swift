@@ -118,7 +118,11 @@ public struct VirtualMachineSessionView: View {
                 Button {
                     ui.openLiveConfiguration()
                 } label: {
-                    Label("Virtual Machine Settings", systemImage: "gearshape")
+                    if let count = controller.tunnelState?.requests.count, count > 0 {
+                        Label("Review Tunnel Requests (\(count))", systemImage: "gearshape.badge")
+                    } else {
+                        Label("Virtual Machine Settings", systemImage: "gearshape")
+                    }
                 }
                 .help("Change settings for the running virtual machine")
                 .disabled(!controller.canEditLiveConfiguration)

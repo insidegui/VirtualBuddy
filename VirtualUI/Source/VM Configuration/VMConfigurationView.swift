@@ -106,6 +106,9 @@ struct VMConfigurationView: View {
     @AppStorage("config.guestApp.collapsed")
     private var guestAppCollapsed = true
 
+    @AppStorage("config.serviceTunnels.collapsed")
+    private var serviceTunnelsCollapsed = true
+
     private var systemType: VBGuestType { viewModel.config.systemType }
 
     private var showBootDiskSection: Bool { viewModel.context == .preInstall }
@@ -119,6 +122,8 @@ struct VMConfigurationView: View {
     private var showGuestAppSection: Bool { systemType.supportsGuestApp }
 
     private var showProvisioningSection: Bool { systemType.supportsProvisioning }
+
+    private var showServiceTunnelsSection: Bool { systemType == .mac && viewModel.context == .postInstall }
 
     private var showTemplatePicker: Bool { templatesController.hasTemplates(for: viewModel.config.systemType) }
 
@@ -166,6 +171,10 @@ struct VMConfigurationView: View {
                 }
 
                 sharing
+
+                if showServiceTunnelsSection {
+                    serviceTunnels
+                }
             }
             /// This is required so that contents that have long text content won't cause the width to expand automatically.
             .frame(minWidth: 0, idealWidth: VMConfigurationSheet.minWidth)
@@ -391,6 +400,21 @@ struct VMConfigurationView: View {
                 "Sharing",
                 systemImage: "folder",
                 summary: viewModel.config.sharingSummary
+            )
+        }
+    }
+
+    @ViewBuilder
+    private var serviceTunnels: some View {
+        ConfigurationSection($serviceTunnelsCollapsed) {
+            ServiceTunnelsConfigurationView(settings: viewModel.savedTunnelSettings, draft: viewModel.tunnelDraft) {
+                viewModel.tunnelDraft = $0
+            }
+        } header: {
+            SummaryHeader(
+                "Service Tunnels",
+                systemImage: "point.bottomleft.forward.to.point.topright.scurvepath",
+                summary: viewModel.savedTunnelSettings.summary(draft: viewModel.tunnelDraft)
             )
         }
     }
