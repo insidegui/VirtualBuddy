@@ -1,99 +1,72 @@
-<img src="./assets/VirtualBuddyIcon.png" width="128" />
+<img src="./assets/VirtualBuddyIcon.png" width="128" alt="VirtualBuddy icon" />
 
 # VirtualBuddy
 
-VirtualBuddy can virtualize macOS 12 and later on Apple Silicon, with the goal of offering features that are useful to developers who need to test their apps on multiple versions of macOS, especially betas.
+VirtualBuddy runs macOS and Linux virtual machines on Macs with Apple silicon. Use it to test your apps on multiple versions of macOS, including betas.
 
-![](./assets/Showcase.jpg)
+![VirtualBuddy running virtual machines on a Mac](./assets/Showcase.jpg)
 
 ## System Requirements
 
-- **Apple Silicon Mac**
-- macOS 13 or later
-
-### Installing macOS
-
-To install a macOS virtual machine, you can select from a list of macOS versions provided by VirtualBuddy, which will automatically download and install the selected version. You may also provide your own IPSW link or select from an IPSW you have already downloaded.
-
-### ⚠️ Important Note About macOS Golden Gate
-
-To install macOS Golden Gate beta on a macOS 26 host, make sure you are running [VirtualBuddy 2.2 beta 2](https://github.com/insidegui/VirtualBuddy/releases/tag/2.2-b2) or later and that you have downloaded and installed the [latest device support files](https://developer.apple.com/services-account/download?path=/Developer_Tools/RaveMobileDeviceSeed2050A3n/DeviceSupport_macOS_27_beta.dmg) from Apple. If you already have the Xcode 27 beta installed, then you don't need to install the device support files separately.
-
-### Installing macOS Betas
-
-If you’d like to run a virtual machine with a macOS beta that’s more recent than the one you’re currently running, such as a macOS 15 virtual machine running in a macOS 14 host, then you’ll need the latest device support package from Apple. 
-
-Device support packages are sometimes made available by Apple directly, but they’re always included and installed automatically with the latest Xcode beta. These can be obtained from the [Apple Developer portal](https://developer.apple.com/download).
-
-![Screenshot of the Apple Developer device support download](./assets/DeviceSupport.png)
+- **VirtualBuddy requires a Mac with Apple silicon running macOS 14 Sonoma or later.**
+- Guest systems include macOS 12 Monterey or later and ARM64 Linux distributions such as Ubuntu Desktop and Ubuntu Server. The installation wizard shows which catalog images and features your Mac supports.
 
 ## Download
 
+Download the [latest stable release](https://github.com/insidegui/VirtualBuddy/releases/latest) or browse [all releases, including betas](https://github.com/insidegui/VirtualBuddy/releases).
+
+If you use Homebrew, run `brew install --cask virtualbuddy`.
+
 VirtualBuddy is free and open-source. If you’d like to support its development, [you may purchase it on Gumroad](https://insidegui.gumroad.com/l/virtualbuddy) or [sponsor my work on GitHub](https://github.com/sponsors/insidegui).
 
-If you’d just like to download the latest version, [go to GitHub releases](https://github.com/insidegui/VirtualBuddy/releases/latest).
+## Installing macOS or Linux
 
-If you use [homebrew](https://brew.sh), install with `brew install --cask virtualbuddy`.
+Click **+** in the VirtualBuddy library and choose macOS or Linux. Select a version from the catalog to download its installer, enter a custom download URL, or open a file you already have. Use an IPSW restore image for macOS or an ARM64 ISO for Linux.
 
-### Feature Checklist
+Some macOS restore images require newer device support on the host. Select the version in the catalog to see its requirements and installation instructions. Apple provides device support with compatible versions of Xcode and sometimes as a separate [Apple Developer download](https://developer.apple.com/download/).
 
-- [x] Ability to boot any version of macOS 12 or macOS 13, including betas
-- [x] Ability to boot some ARM-based Linux distros (tested with Ubuntu Server and Ubuntu Desktop)
-- [x] Built-in installation wizard
-	- [x] Select from a collection of restore images available on Apple’s servers
-	- [x] Install the latest stable version of macOS
-	- [x] Local restore image IPSW file
-	- [x] Custom restore image URL
-	- [x] Install a Linux distro from a local .iso file
-	- [x] Select from a collection of Linux distros
-	- [x] Install Linux from URL
-- [x] Boot into recovery mode (in order to disable SIP, for example)
-- [x] Networking and file sharing support
-- [x] [Service Tunnels](./Documentation/ServiceTunnels.md) for forwarding loopback TCP ports and Unix sockets between host and guest
-- [x] Clipboard sharing
-- [x] Customize virtual machine hardware configuration
-- [x] Save and restore macOS virtual machine state
+**Installing macOS 27 Golden Gate from an IPSW** requires a host running macOS 26 or later with compatible device support. To upgrade an existing macOS VM, open **System Settings → General → Software Update** inside the guest. For beta releases, see [how to enable beta updates in a VM](https://github.com/insidegui/VirtualBuddy/discussions/194).
 
-### Tips and Tricks
+## Features
 
-#### VirtualBuddyGuest app
+- Configure CPU cores, memory, storage, displays, and networking for each VM.
+- Boot macOS into Recovery to change startup security settings.
+- Forward loopback TCP ports and Unix sockets between your Mac and a macOS guest with [Service Tunnels](./Documentation/ServiceTunnels.md).
+- Share folders with macOS 13 or later guests and share the clipboard with macOS 14 or later guests running the current VirtualBuddyGuest app.
+- Save and resume supported macOS 14 or later VMs, or duplicate a VM to keep a copy for testing.
+- When both the host and the guest run macOS 27 or later, you can pass USB devices through to the VM and create the first user account automatically to skip Setup Assistant.
 
-VirtualBuddy automatically mounts a disk image with the VirtualBuddyGuest app when you boot a supported macOS virtual machine with the guest app enabled. To install the VirtualBuddyGuest app, just select the “Guest” disk on Finder’s sidebar, then double-click the “VirtualBuddyGuest” app icon.
+## Tips and Tricks
 
-The latest VirtualBuddyGuest app requires macOS 14 or later and supports clipboard sharing and automatic mounting of shared folders. On macOS 13, the legacy guest app only mounts shared folders automatically; clipboard sharing is unavailable. VirtualBuddyGuest is not supported on macOS 12 or earlier.
+### VirtualBuddyGuest app
 
-![](./assets/GuestApp.jpg)
+VirtualBuddy automatically mounts a disk image when you boot a supported macOS VM with the guest app enabled. In the VM, open the **Guest** disk in Finder’s sidebar and double-click **VirtualBuddyGuest** to install it.
 
-#### Run a macOS app from Xcode
+The current guest app requires macOS 14 or later and supports clipboard sharing and automatic mounting of shared folders. On macOS 13, the legacy guest app only mounts shared folders automatically. macOS 12 guests run without VirtualBuddyGuest.
 
-[Set up Xcode to run and debug your Mac app in a VirtualBuddy VM](./README-Developers.md).
+![VirtualBuddyGuest on the Guest disk](./assets/GuestApp.jpg)
 
-#### Taking Advantage of APFS
+### Run a macOS app from Xcode
 
-Sometimes when trying things out in the OS installed in one of the virtual machines, things might break, requiring a full install of the guest operating system again, which is a pain.
+Development builds from `main` include experimental support for running and debugging your Mac app in a VM directly from Xcode. [Set up Xcode debugging](./README-Developers.md)
 
-Thanks to APFS cloning, though, you can just duplicate a virtual machine within your library folder (using Command + D in Finder), and the copy will take almost no additional disk space. This way you can have a “clean” copy of your VM, do whatever you want with a duplicate of it, and then throw the copy away and re-duplicate the clean version if things break.
+### Duplicate a virtual machine
 
-#### Sharing Folders Between Host and Virtual Machine
+Shut down the VM or save and close it, then right-click it in the VirtualBuddy library and choose **Duplicate**. If the VM has a saved session, the copy can resume from the same point. On APFS the two copies initially share disk space, so you can keep a clean VM and use the duplicate for testing.
 
-You can share folders from your Mac to the Virtual Machine and vice versa using regular macOS file sharing that can be configured in System Preferences/Settings.
+### Share folders with a macOS guest
 
-When both the Virtual Machine and the host are running macOS 13 or later, it’s possible to share folders directly by configuring them in the VM settings within VirtualBuddy before booting up the VM.
-
-To mount shared folders in the VM, run the following command in the VM’s Terminal:
+For a guest running macOS 13 or later, add folders under **Sharing** in the VM’s settings. VirtualBuddyGuest can mount them automatically. To mount them manually, run this command in the guest’s Terminal.
 
 ```bash
 mkdir -p ~/Desktop/VirtualBuddyShared && mount -t virtiofs VirtualBuddyShared ~/Desktop/VirtualBuddyShared
 ```
 
-## Building
+For older guests, use macOS File Sharing over the VM’s network connection.
 
-**Xcode 16** is required for building on `main`.
+## Building from source
 
-- Open the `VirtualBuddy/Config/Signing.xcconfig` file
-- Set the `VB_BUNDLE_ID_PREFIX` variable to something unique like `com.yourname.`
-- Select the VirtualBuddy project in the Xcode sidebar
-- Under "Targets", select "VirtualBuddy"
-- Go to the Signing & Capabilities tab and select your development team under Signing > Team
-- Repeat the same process for the "VirtualBuddyGuest" target
-- Build the `VirtualBuddy` scheme (the one that **doesn't** have `(Managed)` in its name)
+1. Open `VirtualBuddy.xcodeproj` in Xcode 27 with the macOS 27 SDK.
+2. In [Signing.xcconfig](./VirtualBuddy/Config/Signing.xcconfig), set `VB_BUNDLE_ID_PREFIX` to a unique prefix such as `com.yourname.` (including the trailing period).
+3. In **Signing & Capabilities**, select your development team for the app and its embedded targets, including `VirtualBuddyGuest`, `VirtualBuddyGuestHelper`, and `VirtualInstallationService`. Set `VB_DEVELOPMENT_TEAM` in [Security.xcconfig](./VirtualBuddy/Config/Security.xcconfig) to the same team ID for the installation service’s signing checks.
+4. Choose the **VirtualBuddy** scheme and build and run it on **My Mac**.
