@@ -232,6 +232,8 @@ public final class VMController: ObservableObject {
         })
         
         newInstance.options = options
+        newInstance.canAcceptServiceTunnelRequests = { [weak self] in self?.canEditLiveConfiguration == true }
+        newInstance.onServiceTunnelsChanged = { [weak self] in self?.liveTunnelsRevision += 1 }
 
         guestConnectionObservation = newInstance.$isGuestAppConnected
             .removeDuplicates()
@@ -854,6 +856,10 @@ public final class VMController: ObservableObject {
     }
 
     public var tunnelState: TunnelState? { instance?.guestSession?.tunnels }
+
+    /// Goes up whenever the saved service tunnels of the running virtual machine changed, or may be reviewed differently,
+    /// without going through ``updateLiveTunnels(_:)``. Whatever shows the saved tunnels has to read them again.
+    @Published public private(set) var liveTunnelsRevision = 0
 
     public func updateLiveTunnels(_ rules: [ServiceTunnel]) throws {
         guard canEditLiveConfiguration else { throw Failure("Wait for the VM to finish changing state.") }

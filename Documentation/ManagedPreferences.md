@@ -91,9 +91,26 @@ When a restriction applies:
 
 The lists fail closed. A value that isn't an array, or an entry that isn't a port, a range or an absolute path, allows nothing in an allowed list and denies everything in a denied list. Integers are accepted for ports. The Booleans behave like the other restrictions: missing and incorrectly typed values mean unrestricted.
 
+### Require service tunnels to be reviewed
+
+Users can choose how much of a virtual machine's service tunnels they review before the tunnels run, in **Settings → Security → Tunnel review**. `ServiceTunnelMinimumReviewLevel` is a string that sets the least review they can choose:
+
+| Value | Review |
+| --- | --- |
+| `EveryChange` | Every tunnel a virtual machine requests, and every saved tunnel that wasn't approved for that virtual machine on the host. This is what VirtualBuddy does until a user chooses otherwise. |
+| `NewTunnels` | A tunnel is reviewed the first time its host port or socket is used. After that it's allowed for any virtual machine without review. |
+| `Never` | No review. Same as leaving the preference out. |
+
+```xml
+<key>ServiceTunnelMinimumReviewLevel</key>
+<string>EveryChange</string>
+```
+
+Levels with less review can't be selected, and a lower level a user saved earlier stops applying without being changed. Tunnels that were running without the required review stop until a user reviews them, including in running virtual machines. The preference only ever adds review: any value that isn't one of the three strings requires every change to be reviewed.
+
 ## Verification
 
-Apart from the service tunnel lists described above, all managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. Saved settings are preserved while a policy overrides their effective behavior.
+Apart from the service tunnel lists and review level described above, all managed preferences are Booleans, with a default of `false`. Missing or incorrectly typed values fall back to that default. Saved settings are preserved while a policy overrides their effective behavior.
 
 | Preference | Restriction |
 | --- | --- |
@@ -106,6 +123,7 @@ Apart from the service tunnel lists described above, all managed preferences are
 | `DisableProvisioningAutomaticLogin` | Prevents VirtualBuddy from enabling automatic login during macOS guest provisioning. |
 | `DisableDeveloperFeatures` | Locks developer features off and blocks Xcode debugging setup and new debug runs. |
 | `DisableServiceTunnels` and the other service tunnel preferences | Stops service tunnels, or the part of the feature each one names, as described under [Restrict service tunnels](#restrict-service-tunnels). |
+| `ServiceTunnelMinimumReviewLevel` | Sets the least review of service tunnels users can choose, as described under [Require service tunnels to be reviewed](#require-service-tunnels-to-be-reviewed). |
 
 The provisioning restrictions apply when VirtualBuddy creates a macOS guest account. They do not modify existing guest settings or prevent someone from changing those settings inside the guest. Saved provisioning selections are preserved and become available again if the restriction is removed before provisioning.
 

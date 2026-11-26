@@ -116,6 +116,12 @@ struct ApprovedVMSetting<Value: Codable> {
         return try validatedValue(envelope)
     }
 
+    /// The validated record regardless of approval, for a host user who chose to run settings without review.
+    func unverifiedValue(in vm: VBVirtualMachine) throws -> Value? {
+        guard let envelope = try readEnvelope(from: vm) else { return nil }
+        return try validatedValue(envelope)
+    }
+
     /// A setting used for review must be a passive data type, safe to decode from an untrusted bundle.
     func read(from vm: VBVirtualMachine) -> ApprovedSettingState<Value> {
         do {
@@ -132,13 +138,24 @@ struct ApprovedVMSetting<Value: Codable> {
     func approve(_ value: Value, in vm: VBVirtualMachine) throws {
         try validate(value)
         let account = try approvalAccount(for: vm)
+        let payload = try write(value, in: vm)
+        // Until this succeeds neither the previous record nor the new one is approved.
+        try approvals.record(digest(of: payload, for: vm), account)
+    }
+
+    /// Saves a value without approving it, which leaves it waiting for review wherever approval is checked.
+    func store(_ value: Value, in vm: VBVirtualMachine) throws {
+        try validate(value)
+        _ = try write(value, in: vm)
+    }
+
+    private func write(_ value: Value, in vm: VBVirtualMachine) throws -> Data {
         let encoder = PropertyListEncoder()
         encoder.outputFormat = .binary
         let payload = try encoder.encode(Payload(value: value))
         let data = try encoder.encode(Envelope(version: 1, schema: schema, payload: payload))
         try ApprovedSettingFile.write(data, named: filename, in: vm.metadataDirectoryURL)
-        // Until this succeeds neither the previous record nor the new one is approved.
-        try approvals.record(digest(of: payload, for: vm), account)
+        return payload
     }
 
     /// Gives a copy the approval its original has right now.

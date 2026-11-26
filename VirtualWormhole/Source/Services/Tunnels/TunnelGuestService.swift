@@ -41,6 +41,9 @@ final class TunnelGuestService: GuestService {
     var approvedRules: () -> [ServiceTunnel] = { [] }
     /// What the organization managing the host allows. It's applied on top of what the user approved, and only on the host.
     var policy: () -> ServiceTunnelPolicy = { .unrestricted }
+    /// Lets the host add a tunnel its guest requested without a review, when the user chose to review less.
+    /// A tunnel it accepts has to be among the approved rules from then on. The policy has had its say before this is asked.
+    var acceptProposal: (ServiceTunnel) -> Bool = { _ in false }
     private var listeners: [UUID: TunnelListener] = [:]
     /// Listeners that were stopped but whose addresses aren't free yet.
     private var closingListeners = 0
@@ -85,6 +88,8 @@ final class TunnelGuestService: GuestService {
             let policy = policy()
             state.requests.removeAll { policy.requestsDisabled || !policy.permits($0) }
             reconcile(permittedRules())
+            // What's still waiting may not need a review anymore, now that the host's settings changed.
+            if !state.requests.filter(accept).isEmpty { reconcile(permittedRules()) }
             publish()
         }
     }
@@ -94,6 +99,11 @@ final class TunnelGuestService: GuestService {
     private func permittedRules() -> [ServiceTunnel] {
         let policy = policy()
         return approvedRules().filter(policy.permits)
+    }
+
+    /// Whether a request that passed the policy became an approved rule on its own.
+    private func accept(_ request: ServiceTunnel) -> Bool {
+        request.canAdd(to: state.rules) && acceptProposal(request)
     }
 
     func decline(_ id: UUID) {
@@ -146,7 +156,11 @@ final class TunnelGuestService: GuestService {
             guard rule.isEnabled, rule.canAdd(to: state.rules), rule.canAdd(to: state.requests) else {
                 throw TunnelError("That listener is already mapped or the mapping is invalid.")
             }
-            state.requests.append(rule)
+            if acceptProposal(rule) {
+                reconcile(permittedRules())
+            } else {
+                state.requests.append(rule)
+            }
             publish()
         case let .open(id, nonce) where !isHost && state.available:
             let rule = try authorized(id, listensOnHost: true)
@@ -336,7 +350,8 @@ extension HostGuestSession {
     public func configureTunnels(
         device: VZVirtioSocketDevice,
         approvedRules: @escaping @MainActor () -> [ServiceTunnel],
-        policy: @escaping @MainActor () -> ServiceTunnelPolicy
+        policy: @escaping @MainActor () -> ServiceTunnelPolicy,
+        acceptProposal: @escaping @MainActor (ServiceTunnel) -> Bool = { _ in false }
     ) {
         engine.tunnels.connect = { port in
             // A paused guest may never answer a connect attempt. Let revocation
@@ -360,6 +375,7 @@ extension HostGuestSession {
         }
         engine.tunnels.approvedRules = approvedRules
         engine.tunnels.policy = policy
+        engine.tunnels.acceptProposal = acceptProposal
         engine.tunnels.reloadConfiguration()
     }
     public func reloadTunnels() { engine.tunnels.reloadConfiguration() }

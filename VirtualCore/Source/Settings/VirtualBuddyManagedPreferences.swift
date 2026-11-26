@@ -22,6 +22,7 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
             Preference<[String]>.serviceTunnelDeniedHostPorts
             Preference<[String]>.serviceTunnelAllowedHostSocketPaths
             Preference<[String]>.serviceTunnelDeniedHostSocketPaths
+            Preference<String>.serviceTunnelMinimumReviewLevel
         }
         Group("Audio") {
             Preference<Bool>.disableMicrophoneInput
@@ -251,5 +252,22 @@ public extension ManagedPreference where Namespace == VirtualBuddyManagedPrefere
         Behavior("Tunnels using a listed host socket path, or a path inside a listed folder, don't start and can't be requested by virtual machines.")
         Note("A value that isn't a list, and entries that aren't absolute paths, deny every host socket path.")
         Example(["/var/run/docker.sock", "~/.ssh/"], "Keep tunnels away from the Docker socket and from anything in the user's .ssh folder.")
+    }
+}
+
+public extension ManagedPreference where Namespace == VirtualBuddyManagedPreferences, Value == String {
+    static let serviceTunnelMinimumReviewLevel = Self("ServiceTunnelMinimumReviewLevel", as: String.self, title: "Minimum Review for Service Tunnels") {
+        Summary("Sets the least review of service tunnels that users can choose in VirtualBuddy's Security settings.")
+        Discussion("Users choose how much of a virtual machine's service tunnels they review on this Mac before the tunnels run. This preference keeps them from choosing less review than the organization accepts. It never lowers what a user chose.")
+        DefaultBehavior("Users can choose any level when this preference is absent. VirtualBuddy reviews every change until a user chooses otherwise.")
+        Behavior("Levels with less review than the one set here can't be selected, and a lower level that was already saved stops applying. Tunnels that ran without the review now required stop until they're reviewed, including in running virtual machines.")
+        Behavior("The other service tunnel preferences apply at every level.")
+        Note("A value that isn't one of the options requires every change to be reviewed.")
+        Options {
+            Option("EveryChange", "Every tunnel a virtual machine requests, and every tunnel that wasn't approved on this Mac for that virtual machine, is reviewed.")
+            Option("NewTunnels", "A tunnel is reviewed the first time its host port or socket is used. After that it's allowed for any virtual machine without review.")
+            Option("Never", "Tunnels run without review. This is the same as not setting the preference.")
+        }
+        Example("EveryChange", "Require every service tunnel to be reviewed on managed Macs.")
     }
 }

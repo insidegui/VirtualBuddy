@@ -54,11 +54,21 @@ final class DeepLinkHandler {
     private let namespace = "VirtualBuddy"
     private let keyID = "c3bfea24ee1ca95700a4e56d73097aac"
 
-    private(set) lazy var sentinel = DeepLinkSentinel(
-        authUI: DeepLinkAuthUIPresenter(),
-        authStore: KeychainDeepLinkAuthStore(namespace: namespace, keyID: keyID),
-        managementStore: UserDefaultsDeepLinkManagementStore()
-    )
+    private(set) lazy var sentinel: DeepLinkSentinel = {
+        let store = KeychainDeepLinkStore(
+            service: "codes.rambo.VirtualBuddy.deep-links",
+            legacy: LegacyDeepLinkStores(
+                authStore: KeychainDeepLinkAuthStore(namespace: namespace, keyID: keyID),
+                managementStore: UserDefaultsDeepLinkManagementStore()
+            )
+        )
+        return DeepLinkSentinel(
+            authUI: DeepLinkAuthUIPresenter(),
+            authStore: store,
+            managementStore: store,
+            canManageClients: { SecuritySettingsSession.shared.isUnlocked }
+        )
+    }()
 
     func actions() -> AsyncCompactMapSequence<AsyncStream<URL>, DeepLinkAction> {
         sentinel.openURL.compactMap { url in

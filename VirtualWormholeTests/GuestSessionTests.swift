@@ -258,6 +258,53 @@ struct GuestSessionTests {
         await fixture.stop()
     }
 
+    @Test func hostCanAddRequestedTunnelsWithoutReviewWithinThePolicy() async throws {
+        let fixture = await SessionFixture.make()
+        var approved: [ServiceTunnel] = []
+        var acceptsRequests = false
+        var asked: [ServiceTunnel] = []
+        var policy = ServiceTunnelPolicy()
+        fixture.host.tunnels.approvedRules = { approved }
+        fixture.host.tunnels.policy = { policy }
+        fixture.host.tunnels.acceptProposal = { rule in
+            asked.append(rule)
+            guard acceptsRequests else { return false }
+            approved.append(rule)
+            return true
+        }
+        try await fixture.connect()
+        try await eventually { fixture.host.tunnels.state.available }
+
+        /// A request the host leaves for review waits like any other.
+        let waiting = ServiceTunnel(listensOnHost: false, listener: .tcp(9000), destination: .tcp(5432))
+        try await fixture.guest.tunnels.propose(waiting)
+        try await eventually { fixture.guest.tunnels.state.requests == [waiting] }
+        #expect(fixture.host.tunnels.state.rules.isEmpty)
+
+        /// One it accepts becomes a rule right away, and is never shown as a request.
+        acceptsRequests = true
+        let accepted = ServiceTunnel(listensOnHost: false, listener: .tcp(9001), destination: .tcp(5433))
+        try await fixture.guest.tunnels.propose(accepted)
+        try await eventually { fixture.guest.tunnels.state.rules == [accepted] }
+        #expect(fixture.host.tunnels.state.requests == [waiting])
+
+        /// Reviewing less also applies to what was already waiting.
+        fixture.host.tunnels.reloadConfiguration()
+        try await eventually { fixture.guest.tunnels.state.rules == [accepted, waiting] && fixture.guest.tunnels.state.requests.isEmpty }
+
+        /// The policy is asked first, so the host never gets to accept what the organization doesn't allow.
+        asked = []
+        policy.unixSocketsDisabled = true
+        let refused = ServiceTunnel(listensOnHost: false, listener: .tcp(9002), destination: .unix("/var/run/docker.sock"))
+        await #expect(throws: TunnelError.self) { try await fixture.guest.tunnels.propose(refused) }
+        policy.requestsDisabled = true
+        let unrequestable = ServiceTunnel(listensOnHost: false, listener: .tcp(9003), destination: .tcp(5434))
+        await #expect(throws: TunnelError.self) { try await fixture.guest.tunnels.propose(unrequestable) }
+        #expect(asked.isEmpty)
+        #expect(approved == [accepted, waiting])
+        await fixture.stop()
+    }
+
     @Test func reconnectReloadsHostApprovalBeforePublishingMappings() async throws {
         let fixture = await SessionFixture.make()
         var disabled = ServiceTunnel(listensOnHost: true, listener: .tcp(8000), destination: .tcp(80))

@@ -76,6 +76,13 @@ public final actor UserDefaultsDeepLinkManagementStore: DeepLinkManagementStore 
         cacheDescriptors(readDescriptors())
     }
 
+    /// Removes every descriptor along with the stored value itself.
+    public func removeAll() async {
+        defaults.removeObject(forKey: storageKey)
+        cacheDescriptors([:])
+        await storeChangeHandler([:])
+    }
+
     private var cachedDescriptors = DescriptorStorage()
 
     private var storeChangeHandler: (DescriptorStorage) async -> Void = { _ in }

@@ -1,3 +1,4 @@
+import Combine
 import SwiftUI
 import VirtualCore
 import VirtualWormhole
@@ -14,13 +15,25 @@ final class VMLiveServiceTunnelsModel {
 
     private(set) var settings: ApprovedSettingState<[ServiceTunnel]>
 
+    @ObservationIgnored private var revisionObservation: AnyCancellable?
+
     init(controller: VMController) {
         self.controller = controller
         self.settings = controller.virtualMachineModel.serviceTunnelSettings
+        // An edit made from what was shown before would otherwise undo a tunnel the guest was allowed to add in the meantime.
+        revisionObservation = controller.$liveTunnelsRevision.dropFirst().sink { [weak self] _ in
+            // Published before the property changes, and what's read here doesn't depend on its value.
+            self?.reload()
+        }
     }
 
     func update(_ tunnels: [ServiceTunnel]) throws {
         try controller.updateLiveTunnels(tunnels)
+        reload()
+    }
+
+    /// Picks up tunnels that were saved, or are reviewed differently, without an edit made here.
+    private func reload() {
         settings = controller.virtualMachineModel.serviceTunnelSettings
     }
 }
