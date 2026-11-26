@@ -105,6 +105,98 @@ extension VBVirtualMachine {
     }
 }
 
+/// What became of a service tunnel that was asked for without the user reviewing it.
+public enum ServiceTunnelProposalOutcome: Sendable {
+    /// The host's review level let the tunnel be added as it is.
+    case added
+    /// The tunnel is waiting with the ones the guest requested, for the user to review it in the app.
+    case awaitingReview
+    /// The tunnel has to be reviewed, and there's nowhere for it to wait until then. Nothing was changed.
+    case reviewRequired
+}
+
+public extension VBVirtualMachine {
+    /// Adds a service tunnel to a virtual machine that isn't running, if the host's review level and the organization's policy allow
+    /// that without a review. Returns whether it was added. Nothing is saved otherwise, since saving tunnels that still
+    /// need a review would keep the approved ones from running until then.
+    func addServiceTunnelWithoutReview(_ tunnel: ServiceTunnel) throws -> Bool {
+        try addServiceTunnelWithoutReview(tunnel, setting: Self.tunnelSetting(), security: .current, policy: VirtualBuddyManagedPreferences.serviceTunnelPolicy())
+    }
+
+    /// Turns on an approved service tunnel that's off, if the host's review level and the organization's policy allow
+    /// that without a review. Returns whether it did.
+    func enableServiceTunnelWithoutReview(_ id: UUID) throws -> Bool {
+        try enableServiceTunnelWithoutReview(id, setting: Self.tunnelSetting(), security: .current, policy: VirtualBuddyManagedPreferences.serviceTunnelPolicy())
+    }
+
+    /// Replaces the approved service tunnels with a version of them that has tunnels turned off or removed.
+    func reduceApprovedServiceTunnels(_ change: (inout [ServiceTunnel]) throws -> Void) throws {
+        try reduceApprovedServiceTunnels(change, setting: Self.tunnelSetting(), security: .current)
+    }
+
+    internal func addServiceTunnelWithoutReview(
+        _ tunnel: ServiceTunnel,
+        setting: ApprovedVMSetting<[ServiceTunnel]>,
+        security: ServiceTunnelSecurity,
+        policy: ServiceTunnelPolicy
+    ) throws -> Bool {
+        if let restriction = policy.restriction(on: tunnel) { throw Failure(restriction.explanation) }
+        let saved: [ServiceTunnel]
+        switch serviceTunnelSettings(setting: setting, security: security) {
+        case .missing: saved = []
+        case .approved(let tunnels): saved = tunnels
+        case .needsApproval: return false
+        case .unavailable(let reason): throw Failure(reason)
+        }
+        guard tunnel.canAdd(to: saved) else { throw Failure("That listener is already mapped or the mapping is invalid.") }
+        return acceptProposedServiceTunnel(tunnel, setting: setting, security: security)
+    }
+
+    internal func enableServiceTunnelWithoutReview(
+        _ id: UUID,
+        setting: ApprovedVMSetting<[ServiceTunnel]>,
+        security: ServiceTunnelSecurity,
+        policy: ServiceTunnelPolicy
+    ) throws -> Bool {
+        guard case .approved(var tunnels) = serviceTunnelSettings(setting: setting, security: security) else { return false }
+        guard let index = tunnels.firstIndex(where: { $0.id == id }) else { throw Failure("The service tunnel is no longer saved with this virtual machine.") }
+        if tunnels[index].isEnabled { return true }
+        if let restriction = policy.restriction(on: tunnels[index]) { throw Failure(restriction.explanation) }
+        switch security.level() {
+        case .reviewAll: return false
+        case .reviewNew: guard security.isRemembered(ServiceTunnelIdentity(tunnels[index])) else { return false }
+        case .reviewNone: break
+        }
+        tunnels[index].isEnabled = true
+        try approveServiceTunnels(tunnels, setting: setting, security: security)
+        return true
+    }
+
+    internal func reduceApprovedServiceTunnels(
+        _ change: (inout [ServiceTunnel]) throws -> Void,
+        setting: ApprovedVMSetting<[ServiceTunnel]>,
+        security: ServiceTunnelSecurity
+    ) throws {
+        let approved: [ServiceTunnel]
+        switch serviceTunnelSettings(setting: setting, security: security) {
+        case .missing: approved = []
+        case .approved(let tunnels): approved = tunnels
+        case .needsApproval: throw Failure("This virtual machine's service tunnels have to be reviewed in VirtualBuddy before they can be changed.")
+        case .unavailable(let reason): throw Failure(reason)
+        }
+        var reduced = approved
+        try change(&reduced)
+        // Only what was approved, with nothing turned on that wasn't, can be approved again without a review.
+        let isReduction = reduced.allSatisfy { tunnel in
+            approved.contains { $0.id == tunnel.id && $0.listensOnHost == tunnel.listensOnHost && $0.listener == tunnel.listener
+                && $0.destination == tunnel.destination && ($0.isEnabled || !tunnel.isEnabled) }
+        }
+        guard isReduction else { throw Failure("Service tunnels can only be turned off or removed without a review.") }
+        guard reduced != approved else { return }
+        try approveServiceTunnels(reduced, setting: setting, security: security)
+    }
+}
+
 extension ServiceTunnelSecurity {
     func remembersAll(_ tunnels: [ServiceTunnel]) -> Bool {
         tunnels.allSatisfy { isRemembered(ServiceTunnelIdentity($0)) }

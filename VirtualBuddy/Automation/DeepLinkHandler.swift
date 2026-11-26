@@ -41,12 +41,7 @@ final class DeepLinkHandler {
         self.updateController = SoftwareUpdateController.shared
         self.library = library
         self.sessionManager = VirtualMachineSessionUIManager.shared
-        self.runner = ActionRunner(
-            settingsContainer: settingsContainer,
-            updateController: updateController,
-            library: library,
-            sessionManager: sessionManager
-        )
+        self.runner = ActionRunner(library: library, sessionManager: sessionManager)
     }
 
     private lazy var logger = Logger(subsystem: kShellAppSubsystem, category: String(describing: Self.self))
@@ -97,21 +92,10 @@ final class DeepLinkHandler {
 
     @MainActor
     final class ActionRunner {
-        private let settingsContainer: VBSettingsContainer
-        private let updateController: SoftwareUpdateController
-        private let library: VMLibraryController
-        private let sessionManager: VirtualMachineSessionUIManager
-        private let openWindow = OpenCocoaWindowAction.default
+        let automation: VMAutomationService
 
-        init(settingsContainer: VBSettingsContainer,
-             updateController: SoftwareUpdateController,
-             library: VMLibraryController,
-             sessionManager: VirtualMachineSessionUIManager)
-        {
-            self.settingsContainer = settingsContainer
-            self.updateController = updateController
-            self.library = library
-            self.sessionManager = sessionManager
+        init(library: VMLibraryController, sessionManager: VirtualMachineSessionUIManager) {
+            self.automation = VMAutomationService(library: library, sessionManager: sessionManager)
         }
 
         func run(_ action: DeepLinkAction) async {
@@ -120,50 +104,18 @@ final class DeepLinkHandler {
                 case .library:
                     NotificationCenter.default.post(name: .openVirtualBuddyLibraryWindow, object: action)
                 case .open(let params):
-                    try openVM(named: params.name, options: nil)
+                    try automation.open(automation.virtualMachine(named: params.name), options: nil)
                 case .boot(let params):
                     var effectiveOptions = params.options ?? VMSessionOptions.default
                     effectiveOptions.autoBoot = true
-                    try openVM(named: params.name, options: effectiveOptions)
+                    try automation.open(automation.virtualMachine(named: params.name), options: effectiveOptions)
                 case .stop(let params):
-                    try await stopVM(named: params.name)
+                    try await automation.stop(named: params.name)
                 }
             } catch {
                 let alert = NSAlert(error: error)
                 alert.runModal()
             }
-        }
-
-        func openVM(named name: String, options: VMSessionOptions?) throws {
-            let vm = try getVM(named: name)
-
-            sessionManager.launch(vm, library: library, options: options)
-        }
-
-        func stopVM(named name: String) async throws {
-            let controller = try getController(forVMNamed: name)
-
-            switch controller.state {
-            case .idle, .stopped, .saved, .recoveryRequired:
-                throw Failure("Can't stop virtual machine \(name.wrappedInSmartQuotes) because it's not running.")
-            default:
-                try await controller.stop()
-            }
-        }
-
-        func getVM(named name: String) throws -> VBVirtualMachine {
-            guard let vm = library.virtualMachine(named: name) else {
-                throw Failure("Couldn't find a virtual machine with the name \(name.wrappedInSmartQuotes).")
-            }
-            return vm
-        }
-
-        func getController(forVMNamed name: String) throws -> VMController {
-            let vm = try getVM(named: name)
-            guard let controller = library.activeController(for: vm.id) else {
-                throw Failure("Couldn't find active instance of virtual machine with the name \(name.wrappedInSmartQuotes).")
-            }
-            return controller
         }
     }
 }

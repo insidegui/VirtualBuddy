@@ -110,7 +110,7 @@ struct ManagedDevicePreferencesTests {
             "DisableSharedFolders", "DisableGuestApp", "DisableUSBPassthrough",
             "DisableBridgedNetworking", "DisableMicrophoneInput",
             "DisableProvisioningRemoteLogin", "DisableProvisioningAutomaticLogin",
-            "DisableDeveloperFeatures",
+            "DisableDeveloperFeatures", "DisableCommandLineAccess",
             "DisableServiceTunnels", "DisableServiceTunnelsToHostServices", "DisableServiceTunnelsToGuestServices",
             "DisableServiceTunnelUnixSockets", "DisableServiceTunnelTCPPorts", "DisableServiceTunnelRequests"
         ]
@@ -126,7 +126,7 @@ struct ManagedDevicePreferencesTests {
             .disableSharedFolders, .disableGuestApp, .disableUSBPassthrough,
             .disableBridgedNetworking, .disableMicrophoneInput,
             .disableProvisioningRemoteLogin, .disableProvisioningAutomaticLogin,
-            .disableDeveloperFeatures,
+            .disableDeveloperFeatures, .disableCommandLineAccess,
             .disableServiceTunnels, .disableServiceTunnelsToHostServices, .disableServiceTunnelsToGuestServices,
             .disableServiceTunnelUnixSockets, .disableServiceTunnelTCPPorts, .disableServiceTunnelRequests
         ]

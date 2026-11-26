@@ -37,6 +37,17 @@ To prevent users from enabling developer features, deploy this Boolean in the `c
 
 The profile locks **Settings → Developer → Enable Developer Features** off, including on Macs with Xcode installed. VirtualBuddy hides **Set Up Xcode Debugging…** and rejects new debug runs from existing schemes. Attached debugging sessions can finish, and users can still delete cached symbols in the Developer tab. Removing the restriction restores the user's saved choice.
 
+## Disable command-line access
+
+To prevent the [`vbctl` command-line tool](CommandLine.md) from controlling VirtualBuddy, deploy this Boolean in the `codes.rambo.VirtualBuddy` preference domain:
+
+```xml
+<key>DisableCommandLineAccess</key>
+<true/>
+```
+
+The profile locks **Settings → Security → Allow vbctl to control VirtualBuddy** off and closes the socket the tool connects to, including while the app is running. Commands that are waiting for something end, and new ones are refused. Deep links are unaffected. Removing the restriction restores the user's saved choice, which is off until the user turns it on.
+
 ## Restrict service tunnels
 
 [Service tunnels](ServiceTunnels.md) forward loopback TCP ports and Unix sockets between the host and a macOS guest. A profile can turn the feature off, turn off parts of it, or limit the host ports and socket paths it can use. All of these preferences go in the `codes.rambo.VirtualBuddy` preference domain and can be combined.
@@ -122,6 +133,7 @@ Apart from the service tunnel lists and review level described above, all manage
 | `DisableProvisioningRemoteLogin` | Prevents VirtualBuddy from enabling remote login (SSH) during macOS guest provisioning. |
 | `DisableProvisioningAutomaticLogin` | Prevents VirtualBuddy from enabling automatic login during macOS guest provisioning. |
 | `DisableDeveloperFeatures` | Locks developer features off and blocks Xcode debugging setup and new debug runs. |
+| `DisableCommandLineAccess` | Locks command-line access off, so that `vbctl` can't control the app. |
 | `DisableServiceTunnels` and the other service tunnel preferences | Stops service tunnels, or the part of the feature each one names, as described under [Restrict service tunnels](#restrict-service-tunnels). |
 | `ServiceTunnelMinimumReviewLevel` | Sets the least review of service tunnels users can choose, as described under [Require service tunnels to be reviewed](#require-service-tunnels-to-be-reviewed). |
 

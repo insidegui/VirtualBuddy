@@ -112,6 +112,32 @@ final class TunnelGuestService: GuestService {
         publish()
     }
 
+    /// Asks for a tunnel from the host's side on behalf of something that isn't allowed to approve it, such as the command-line tool.
+    /// It gets the same treatment as a tunnel the guest asked for: it starts right away when the host's review level allows that,
+    /// and waits with the other requests for the user to review it in the app otherwise.
+    ///
+    /// - Returns: Whether the tunnel became an approved rule without waiting for review.
+    func proposeFromHost(_ rule: ServiceTunnel) throws -> Bool {
+        guard isHost, state.available else { throw GuestSessionError.disconnected }
+        let policy = policy()
+        if let restriction = policy.restriction(on: rule) { throw TunnelError(restriction.explanation) }
+        guard rule.isEnabled, rule.canAdd(to: state.rules), rule.canAdd(to: state.requests) else {
+            throw TunnelError("That listener is already mapped or the mapping is invalid.")
+        }
+        if acceptProposal(rule) {
+            reconcile(permittedRules())
+            publish()
+            return true
+        }
+        // Requests the organization turned off are removed whenever the tunnels are reloaded, so one can't be left waiting.
+        guard !policy.requestsDisabled else {
+            throw TunnelError("This tunnel has to be reviewed, and your organization doesn't allow tunnel requests. Add it in the virtual machine's settings.")
+        }
+        state.requests.append(rule)
+        publish()
+        return false
+    }
+
     func propose(_ rule: ServiceTunnel) async throws {
         guard !isHost, state.available else { throw GuestSessionError.disconnected }
         _ = try await send(.propose(rule))
@@ -380,4 +406,7 @@ extension HostGuestSession {
     }
     public func reloadTunnels() { engine.tunnels.reloadConfiguration() }
     public func declineTunnel(_ id: UUID) { engine.tunnels.decline(id) }
+    /// Asks for a tunnel that the user gets to review in the app unless the host's review level lets it start right away.
+    /// Returns whether it started. Throws when the guest app isn't connected or the tunnel can't be used.
+    public func proposeTunnel(_ tunnel: ServiceTunnel) throws -> Bool { try engine.tunnels.proposeFromHost(tunnel) }
 }

@@ -99,6 +99,8 @@ struct SecuritySettingsStorage {
     var rememberTunnel: (_ key: String) throws -> Void
     var rememberedTunnelCount: () throws -> Int
     var forgetTunnels: () throws -> Void
+    var savedCommandLineAccess: () throws -> Data?
+    var saveCommandLineAccess: (Data) throws -> Void
 
     static var keychain: Self {
         let settings = SecurityKeychainRecords(
@@ -110,13 +112,16 @@ struct SecuritySettingsStorage {
             label: "VirtualBuddy reviewed service tunnel"
         )
         let levelAccount = "ServiceTunnelReview"
+        let commandLineAccount = "CommandLineAccess"
         return Self(
             savedLevel: { try settings.data(for: levelAccount) },
             saveLevel: { try settings.set($0, for: levelAccount) },
             hasRememberedTunnel: { try tunnels.data(for: $0) != nil },
             rememberTunnel: { try tunnels.set(Data(), for: $0) },
             rememberedTunnelCount: tunnels.count,
-            forgetTunnels: tunnels.removeAll
+            forgetTunnels: tunnels.removeAll,
+            savedCommandLineAccess: { try settings.data(for: commandLineAccount) },
+            saveCommandLineAccess: { try settings.set($0, for: commandLineAccount) }
         )
     }
 
@@ -127,6 +132,7 @@ struct SecuritySettingsStorage {
             let lock = NSLock()
             var level: Data?
             var tunnels = Set<String>()
+            var commandLineAccess: Data?
         }
         let values = Values()
         return Self(
@@ -135,7 +141,9 @@ struct SecuritySettingsStorage {
             hasRememberedTunnel: { key in values.lock.withLock { values.tunnels.contains(key) } },
             rememberTunnel: { key in values.lock.withLock { _ = values.tunnels.insert(key) } },
             rememberedTunnelCount: { values.lock.withLock { values.tunnels.count } },
-            forgetTunnels: { values.lock.withLock { values.tunnels.removeAll() } }
+            forgetTunnels: { values.lock.withLock { values.tunnels.removeAll() } },
+            savedCommandLineAccess: { values.lock.withLock { values.commandLineAccess } },
+            saveCommandLineAccess: { access in values.lock.withLock { values.commandLineAccess = access } }
         )
     }
     #endif
@@ -158,6 +166,23 @@ struct SecuritySettingsStorage {
     func setTunnelLevel(_ level: ServiceTunnelSecurityLevel) throws {
         try saveLevel(Data(level.rawValue.utf8))
     }
+
+    /// Whether the user turned on command-line access. Anything short of that choice read back intact is off.
+    func isCommandLineAccessEnabled() -> Bool {
+        do {
+            guard let data = try savedCommandLineAccess() else { return false }
+            return data == Self.commandLineAccessEnabledValue
+        } catch {
+            SecuritySettingsLog.logger.error("Unable to read the command-line access setting, so it's off: \(error.localizedDescription, privacy: .public)")
+            return false
+        }
+    }
+
+    func setCommandLineAccessEnabled(_ enabled: Bool) throws {
+        try saveCommandLineAccess(enabled ? Self.commandLineAccessEnabledValue : Data())
+    }
+
+    private static let commandLineAccessEnabledValue = Data("Enabled".utf8)
 
     private func key(for identity: ServiceTunnelIdentity) -> String {
         let side = identity.listensOnHost ? "listen" : "connect"

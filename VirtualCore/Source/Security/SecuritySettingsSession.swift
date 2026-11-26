@@ -15,6 +15,8 @@ public final class SecuritySettingsSession {
     public private(set) var tunnelLevel: ServiceTunnelSecurityLevel
     /// How many reviewed tunnels are remembered, or `nil` when the Keychain can't be read.
     public private(set) var rememberedTunnelCount: Int?
+    /// Whether the user lets `vbctl` control the app. An organization can still keep it off, see ``CommandLineAccess``.
+    public private(set) var isCommandLineAccessEnabled: Bool
 
     @ObservationIgnored private let storage: SecuritySettingsStorage
     @ObservationIgnored private let authenticate: @MainActor (_ reason: String) async throws -> Void
@@ -29,12 +31,15 @@ public final class SecuritySettingsSession {
         self.authenticate = authenticate
         tunnelLevel = storage.tunnelLevel()
         rememberedTunnelCount = try? storage.rememberedTunnelCount()
+        isCommandLineAccessEnabled = storage.isCommandLineAccessEnabled()
     }
 
     #if DEBUG
     /// Keeps its settings in memory and unlocks without asking, for previews.
-    public static func preview() -> SecuritySettingsSession {
-        SecuritySettingsSession(storage: .inMemory(), authenticate: { _ in })
+    public static func preview(commandLineAccess: Bool = false) -> SecuritySettingsSession {
+        let storage = SecuritySettingsStorage.inMemory()
+        try? storage.setCommandLineAccessEnabled(commandLineAccess)
+        return SecuritySettingsSession(storage: storage, authenticate: { _ in })
     }
     #endif
 
@@ -61,6 +66,14 @@ public final class SecuritySettingsSession {
     public func reload() {
         tunnelLevel = storage.tunnelLevel()
         rememberedTunnelCount = try? storage.rememberedTunnelCount()
+        isCommandLineAccessEnabled = storage.isCommandLineAccessEnabled()
+    }
+
+    public func setCommandLineAccessEnabled(_ enabled: Bool) throws {
+        try requireUnlocked()
+        try storage.setCommandLineAccessEnabled(enabled)
+        reload()
+        notify()
     }
 
     public func setTunnelLevel(_ level: ServiceTunnelSecurityLevel) throws {

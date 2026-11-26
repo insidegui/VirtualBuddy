@@ -105,8 +105,8 @@ private extension VBSettingsContainer {
 
 extension SettingsScreen {
     @ViewBuilder
-    static func preview(_ tab: SettingsTab? = nil) -> some View {
-        SettingsScreen(previewTab: tab, enableAutomaticUpdates: .constant(true), deepLinkSentinel: .preview, securitySession: .preview())
+    static func preview(_ tab: SettingsTab? = nil, securitySession: SecuritySettingsSession? = nil) -> some View {
+        SettingsScreen(previewTab: tab, enableAutomaticUpdates: .constant(true), deepLinkSentinel: .preview, securitySession: securitySession ?? .preview())
             .environmentObject(VBSettingsContainer.preview)
     }
 }

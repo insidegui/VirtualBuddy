@@ -426,6 +426,7 @@
           "output-paths": [
             "$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vctool",
             "$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vbdebug",
+            "$(BUILT_PRODUCTS_DIR)/$(CONTENTS_FOLDER_PATH)/MacOS/vbctl",
           ],
           "shell": "/bin/sh",
           "script": [
@@ -435,6 +436,8 @@
             "# Symlink VirtualBuddy as vctool for VirtualCatalog command-line tool",
             "ln -fs $EXECUTABLE_NAME vctool",
             "ln -fs $EXECUTABLE_NAME vbdebug",
+            "# Symlink VirtualBuddy as vbctl for the command-line tool that controls the app",
+            "ln -fs $EXECUTABLE_NAME vbctl",
             "",
           ],
         }, {
@@ -1089,6 +1092,18 @@
     }, {
       "name": "vctool",
       "id": "F453C44F2DF0BCE3007EAD5F",
+      "kind": "aggregate",
+      "dependencies": [
+        "VirtualBuddy",
+      ],
+      "build-settings": {
+        "CODE_SIGN_STYLE": "Automatic",
+        "DEVELOPMENT_TEAM": "8C7439RJLG",
+        "PRODUCT_NAME": "$(TARGET_NAME)",
+      },
+    }, {
+      "name": "vbctl",
+      "id": "F4C71B0E2ED7A3C4009D2E61",
       "kind": "aggregate",
       "dependencies": [
         "VirtualBuddy",

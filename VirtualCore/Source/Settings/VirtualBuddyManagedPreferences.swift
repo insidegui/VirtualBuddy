@@ -34,6 +34,9 @@ public enum VirtualBuddyManagedPreferences: ManagedPreferencesNamespace {
         Group("Developer") {
             Preference<Bool>.disableDeveloperFeatures
         }
+        Group("Automation") {
+            Preference<Bool>.disableCommandLineAccess
+        }
     }
 
     static var sharedFoldersDisabled: Bool {
@@ -58,6 +61,19 @@ public extension ManagedPreference where Namespace == VirtualBuddyManagedPrefere
             Option(true, "Disable developer features.")
             Option(false, "Allow users to choose whether to enable developer features.")
         }
+    }
+
+    static let disableCommandLineAccess = Self("DisableCommandLineAccess", title: "Disable Command-Line Access", default: false) {
+        Summary("Prevents the vbctl command-line tool from controlling VirtualBuddy.")
+        Discussion("Command-line access lets vbctl, which is part of the VirtualBuddy app, start and stop virtual machines, change the settings of running virtual machines and use guest features. Users turn it on in VirtualBuddy's Security settings.")
+        DefaultBehavior("When absent or false, VirtualBuddy uses the user's Command Line setting, which is off until the user turns it on. Invalid values fall back to false.")
+        Behavior("Locks the Command Line switch off and closes the socket vbctl connects to. Commands that are already running are refused when they next ask for something.")
+        Behavior("Deep links are unaffected. Removing the restriction restores the user's saved setting.")
+        Options {
+            Option(true, "Disable command-line access.")
+            Option(false, "Allow users to choose whether to enable command-line access.")
+        }
+        Example(true, "Keep vbctl from controlling VirtualBuddy on managed Macs.")
     }
 
     static let disableProvisioningRemoteLogin = Self("DisableProvisioningRemoteLogin", title: "Disable Provisioning Remote Login", default: false) {
