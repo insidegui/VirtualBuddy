@@ -288,7 +288,8 @@ struct ServiceTunnelsConfigurationView: View {
             Menu(source.name) {
                 let available = additions(from: source.tunnels)
 
-                Button("All Tunnels (\(source.tunnels.count))") {
+                /// The count is for what choosing the item adds, which leaves out the tunnels that are disabled below it.
+                Button(available.isEmpty ? "All Tunnels" : "All Tunnels (\(available.count))") {
                     apply(tunnels + available)
                 }
                 .disabled(available.isEmpty)
