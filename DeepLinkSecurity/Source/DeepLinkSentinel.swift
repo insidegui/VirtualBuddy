@@ -7,11 +7,20 @@ public final class DeepLinkSentinel: ObservableObject {
     public let authUI: DeepLinkAuthUI
     public let authStore: DeepLinkAuthStore
     public let managementStore: DeepLinkManagementStore
+    private let canManageClients: @MainActor () -> Bool
 
-    public init(authUI: DeepLinkAuthUI, authStore: DeepLinkAuthStore, managementStore: DeepLinkManagementStore) {
+    /// - Parameter canManageClients: Whether the user may currently change decisions outside of the prompt
+    /// shown to them when a client first opens a deep link. Asked for every such change.
+    public init(
+        authUI: DeepLinkAuthUI,
+        authStore: DeepLinkAuthStore,
+        managementStore: DeepLinkManagementStore,
+        canManageClients: @escaping @MainActor () -> Bool
+    ) {
         self.authUI = authUI
         self.authStore = authStore
         self.managementStore = managementStore
+        self.canManageClients = canManageClients
     }
 
     /// Sets the sentinel as the handler for URL scheme Apple Events.
@@ -83,8 +92,21 @@ public final class DeepLinkSentinel: ObservableObject {
         }
     }
 
+    /// Changes the decision about a client the user picked from the list of known clients.
     public func setAuthorization(_ result: DeepLinkClientAuthorization, for descriptor: DeepLinkClientDescriptor) async throws {
-        let client = try DeepLinkClient(url: descriptor.url)
+        guard await canManageClients() else {
+            throw DeepLinkError("Unlock the security settings before changing which apps can open deep links.")
+        }
+
+        /// The descriptor says where its client was last seen, which isn't proof that the same client is still there.
+        guard let client = try? DeepLinkClient(url: descriptor.url), client.id == descriptor.id else {
+            guard result != .authorized else {
+                throw DeepLinkError("\(descriptor.displayName) can't be allowed because the app is no longer where it was, or was replaced by a different one. It will ask for permission the next time it opens a deep link.")
+            }
+            /// There's no client left to record a decision for, so it's forgotten and has to ask again.
+            try await managementStore.delete(descriptor)
+            return
+        }
 
         try await authStore.setAuthorization(result, for: client)
 

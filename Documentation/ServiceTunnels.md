@@ -22,3 +22,22 @@ You can turn a tunnel off or remove it in **VM Settings → Service Tunnels**. E
 You can also request a tunnel from inside the guest. In **VirtualBuddyGuest → Service Tunnels**, choose **Request Service Tunnel**. On your Mac, open the VM’s **Service Tunnels** settings and click **Allow…** to review which service will be reachable and from where. Click **Allow** to approve the request.
 
 If you copy a VM in Finder or bring it over from another Mac, review its saved tunnels and choose **Approve Tunnels** to use them. On a managed Mac, your organization can [restrict service tunnels](ManagedPreferences.md#restrict-service-tunnels).
+
+## Choose how much is reviewed
+
+By default, VirtualBuddy asks you about every tunnel a guest requests, and about saved tunnels that weren't approved for that virtual machine on this Mac. If that's more review than you need, you can change it in **Settings → Security → Tunnel review**. Click **Unlock…** first and confirm with Touch ID or your account password.
+
+| Setting | What VirtualBuddy asks about |
+| --- | --- |
+| **Every Change** | Every tunnel a guest requests, and every saved tunnel that wasn't approved for that virtual machine on this Mac. |
+| **New Tunnels Only** | A tunnel the first time it uses a given port or socket on your Mac. Once you've approved a tunnel, any virtual machine can get a tunnel in the same direction to the same host port or socket without asking, whatever it connects on the guest's side. This includes requests from guests and virtual machines copied in Finder. |
+| **Never** | Nothing. Guests add tunnels to any port or socket on your Mac on their own, and tunnels saved with a virtual machine run as they are. |
+
+Reviewing less gives software in your virtual machines more reach into your Mac. With **New Tunnels Only**, approving a tunnel for one virtual machine approves the same host port or socket for all of them. With **Never**, anything running in a guest can open a tunnel to any service on your Mac. Only choose it if you trust everything that runs in every one of your virtual machines.
+
+You can go back at any time, and changes apply to running virtual machines right away:
+
+- Tunnels that were added or changed while the setting was **Never** have to be reviewed once you choose more review.
+- **Forget Reviewed Tunnels…** clears the list that **New Tunnels Only** relies on. Tunnels that were running because of it stop until you review them. Tunnels you approved in a virtual machine's own settings keep running.
+
+Organization restrictions apply whatever you choose here, and an organization can also set the least review that can be chosen.

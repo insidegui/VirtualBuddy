@@ -14,7 +14,7 @@ public enum SettingsTab: Int, Identifiable, CaseIterable {
 
     case general
     case virtualization
-    case automation
+    case security
     case developer
 }
 
@@ -23,7 +23,7 @@ extension SettingsTab {
         switch self {
         case .general: Label("General", systemImage: "gear")
         case .virtualization: Label("Virtualization", systemImage: "cpu")
-        case .automation: Label("Automation", systemImage: "rectangle.grid.1x2")
+        case .security: Label("Security", systemImage: "lock")
         case .developer: Label("Developer", systemImage: "hammer")
         }
     }
@@ -40,10 +40,17 @@ public struct SettingsScreen: View {
     @EnvironmentObject private var container: VBSettingsContainer
     @Binding private var enableAutomaticUpdates: Bool
     private let deepLinkSentinel: () -> DeepLinkSentinel
+    private let securitySession: SecuritySettingsSession
 
-    public init(previewTab: SettingsTab? = nil, enableAutomaticUpdates: Binding<Bool>, deepLinkSentinel: @escaping @autoclosure () -> DeepLinkSentinel) {
+    public init(
+        previewTab: SettingsTab? = nil,
+        enableAutomaticUpdates: Binding<Bool>,
+        deepLinkSentinel: @escaping @autoclosure () -> DeepLinkSentinel,
+        securitySession: SecuritySettingsSession = .shared
+    ) {
         self._enableAutomaticUpdates = enableAutomaticUpdates
         self.deepLinkSentinel = deepLinkSentinel
+        self.securitySession = securitySession
 
         #if DEBUG
         self.previewTab = previewTab
@@ -62,6 +69,7 @@ public struct SettingsScreen: View {
             }
         }
         .navigationTitle(Text("Settings", bundle: #bundle))
+        .locksSecuritySettingsWhenUnattended(securitySession)
         .task {
             #if DEBUG
             guard let previewTab else { return }
@@ -77,8 +85,8 @@ public struct SettingsScreen: View {
             GeneralSettingsView(settings: $container.settings, enableAutomaticUpdates: $enableAutomaticUpdates)
         case .virtualization:
             VirtualizationSettingsView(settings: $container.settings)
-        case .automation:
-            AutomationSettingsView()
+        case .security:
+            SecuritySettingsView(session: securitySession)
                 .environmentObject(deepLinkSentinel())
         case .developer:
             DeveloperSettingsView(isEnabled: $container.settings.developerFeaturesEnabled)
@@ -98,7 +106,7 @@ private extension VBSettingsContainer {
 extension SettingsScreen {
     @ViewBuilder
     static func preview(_ tab: SettingsTab? = nil) -> some View {
-        SettingsScreen(previewTab: tab, enableAutomaticUpdates: .constant(true), deepLinkSentinel: .preview)
+        SettingsScreen(previewTab: tab, enableAutomaticUpdates: .constant(true), deepLinkSentinel: .preview, securitySession: .preview())
             .environmentObject(VBSettingsContainer.preview)
     }
 }

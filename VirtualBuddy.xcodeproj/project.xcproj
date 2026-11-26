@@ -337,6 +337,7 @@
             { "build-phase": "VirtualBuddy/copy/Embed Frameworks", "code-sign-on-copy": true, "header-preservation": "remove-on-copy" },
             "VirtualBuddyGuest/frameworks",
             { "build-phase": "VirtualBuddyGuest/copy/Embed Frameworks", "code-sign-on-copy": true, "header-preservation": "remove-on-copy" },
+            "VirtualBuddyTests/frameworks",
             "VirtualUI/frameworks",
           ],
         }, {
@@ -779,6 +780,7 @@
       "dependencies": [
         "VirtualBuddy",
         "VirtualCore",
+        "DeepLinkSecurity",
       ],
       "build-phases": [
         "compile-sources",

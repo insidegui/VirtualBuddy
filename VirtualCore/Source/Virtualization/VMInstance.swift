@@ -42,6 +42,11 @@ public final class VMInstance: NSObject, ObservableObject {
     private var sharedFoldersPolicyObservation: ManagedPreferenceObservation?
 
     private var serviceTunnelPolicyMonitor: ServiceTunnelPolicyMonitor?
+    private var serviceTunnelSecurityMonitor: ServiceTunnelSecurityMonitor?
+    /// Whether a tunnel the guest requests may be added without review right now. The host's review level is checked on top of this.
+    var canAcceptServiceTunnelRequests: () -> Bool = { false }
+    /// Called after the saved service tunnels changed, or may be reviewed differently, without the user editing them.
+    var onServiceTunnelsChanged: () -> Void = {}
 
     private var networkAttachmentHelper: VMNetworkAttachmentHelper?
 
@@ -284,9 +289,17 @@ public final class VMInstance: NSObject, ObservableObject {
         /// Tunnels the policy no longer allows are stopped, and ones it allows again are started, without restarting the virtual machine.
         tunnelPolicy.onChange = { [weak session] _ in session?.reloadTunnels() }
         serviceTunnelPolicyMonitor = tunnelPolicy
+        let tunnelSecurity = ServiceTunnelSecurityMonitor()
+        /// Tunnels that now need a review are stopped, and ones that no longer do are started, the same way.
+        tunnelSecurity.onChange = { [weak self, weak session] in
+            session?.reloadTunnels()
+            self?.onServiceTunnelsChanged()
+        }
+        serviceTunnelSecurityMonitor = tunnelSecurity
         session.configureTunnels(device: device) { [weak self] in
             guard let self else { return [] }
-            do { return try VBVirtualMachine.tunnelSetting().approvedValue(in: virtualMachineModel) ?? [] }
+            /// The review level is read here as well, for the same reason as the policy.
+            do { return try virtualMachineModel.runnableServiceTunnels() }
             catch {
                 logger.error("Unable to verify tunnel settings: \(error.localizedDescription, privacy: .public)")
                 return []
@@ -294,6 +307,11 @@ public final class VMInstance: NSObject, ObservableObject {
         } policy: {
             /// Read when it's applied, so that enforcement never depends on having noticed a change.
             VirtualBuddyManagedPreferences.serviceTunnelPolicy()
+        } acceptProposal: { [weak self] tunnel in
+            guard let self, canAcceptServiceTunnelRequests(), virtualMachineModel.acceptProposedServiceTunnel(tunnel) else { return false }
+            logger.notice("Added a service tunnel requested by the guest without review")
+            onServiceTunnelsChanged()
+            return true
         }
         session.automaticallySyncAppearance = virtualMachineModel.configuration.automaticallySyncGuestAppearance
         guestAppearance = session.appearance
@@ -341,6 +359,7 @@ public final class VMInstance: NSObject, ObservableObject {
         let session = guestSession
         guestSession = nil
         serviceTunnelPolicyMonitor = nil
+        serviceTunnelSecurityMonitor = nil
         guestAppearance = nil
         isGuestAppConnected = false
         guestRunTask?.cancel()
