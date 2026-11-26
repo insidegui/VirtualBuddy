@@ -1,23 +1,36 @@
 import Foundation
+import Observation
 import ServiceManagement
 import OSLog
 
-final class GuestLaunchAtLoginManager: ObservableObject {
+@MainActor
+@Observable
+final class GuestLaunchAtLoginManager {
 
+    @ObservationIgnored
     private lazy var logger = Logger(subsystem: Bundle.main.bundleIdentifier!, category: String(describing: Self.self))
 
-    var isLaunchAtLoginEnabled: Bool { SMAppService.mainApp.status == .enabled }
+    private(set) var isLaunchAtLoginEnabled = SMAppService.mainApp.status == .enabled
+
+    /// Updates ``isLaunchAtLoginEnabled`` to reflect the current state of the login item, which the user can change in System Settings.
+    func refresh() {
+        let isEnabled = SMAppService.mainApp.status == .enabled
+
+        guard isEnabled != isLaunchAtLoginEnabled else { return }
+
+        isLaunchAtLoginEnabled = isEnabled
+    }
 
     func setLaunchAtLoginEnabled(_ enabled: Bool) async throws {
         logger.debug("Set launch at login enabled: \(enabled, privacy: .public)")
+
+        defer { refresh() }
 
         if enabled {
             try SMAppService.mainApp.register()
         } else {
             try await SMAppService.mainApp.unregister()
         }
-
-        await MainActor.run { objectWillChange.send() }
     }
 
     private var hasAutoEnabledMainAppService: Bool {

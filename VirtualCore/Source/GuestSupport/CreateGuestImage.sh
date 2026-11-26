@@ -78,11 +78,6 @@ echo "$GUEST_APP_DIGEST" > "$GUEST_TEMP_DIGEST_PATH"
 cp -R "$GUEST_APP_PATH" "$GUEST_TEMP_MOUNT_PATH/" || \
     { echo "Failed to copy VirtualBuddyGuest.app into disk image: exit code $?" 1>&2; exit 1; }
 
-# Copy the digest to its final destination
-
-yes | cp -rf "$GUEST_TEMP_DIGEST_PATH" "$GUEST_DMG_DEST_PATH" || \
-    { echo "Failed to copy guest digest: exit code $?" 1>&2; } # Failure to copy digest is non-fatal
-
 # Eject the disk image
 
 hdiutil detach -force "$GUEST_TEMP_MOUNT_PATH" || \
@@ -92,14 +87,23 @@ hdiutil detach -force "$GUEST_TEMP_MOUNT_PATH" || \
 
 xattr -cr "$GUEST_TEMP_DMG_PATH" 2>/dev/null || echo ""
 
-# Copy the finalized disk image to its final destination
+# Move the finalized disk image to its final destination
+# This must replace the existing image instead of writing over it, because the existing image might be attached to a running virtual machine,
+# which would end up reading a mix of old and new contents if the file were to be modified in place
 
-yes | cp -rf "$GUEST_TEMP_DMG_PATH" "$GUEST_DMG_DEST_PATH" || \
-    { echo "Failed to copy finalized disk image: exit code $?" 1>&2; exit 1; }
+mv -f "$GUEST_TEMP_DMG_PATH" "$GUEST_DMG_DEST_PATH/$GUEST_DMG_NAME.dmg" || \
+    { echo "Failed to move finalized disk image: exit code $?" 1>&2; exit 1; }
+
+# Write the digest to its final destination
+# This is done after the image is in place so that the digest never describes an image that's not there
+
+GUEST_STAGING_DIGEST_PATH="$GUEST_STAGING_PATH/$GUEST_DMG_NAME.digest"
+
+{ echo "$GUEST_APP_DIGEST" > "$GUEST_STAGING_DIGEST_PATH" && mv -f "$GUEST_STAGING_DIGEST_PATH" "$GUEST_DMG_DEST_PATH/$GUEST_DMG_NAME.digest"; } || \
+    { echo "Failed to write guest digest: exit code $?" 1>&2; } # Failure to write digest is non-fatal
 
 # Cleanup
 
-rm "$GUEST_TEMP_DMG_PATH" 2>/dev/null || echo ""
 rm -Rf "$GUEST_TEMP_MOUNT_PATH" 2>/dev/null || echo ""
 rm -Rf "$GUEST_STAGING_PATH" 2>/dev/null || echo ""
 

@@ -1,119 +1,216 @@
-//
-//  ContentView.swift
-//  VirtualBuddyGuest
-//
-//  Created by Guilherme Rambo on 02/06/22.
-//
-
 import SwiftUI
 import VirtualUI
 import VirtualWormhole
 
+/// The contents of the panel shown from the VirtualBuddyGuest menu bar item.
 struct GuestDashboard: View {
-    @EnvironmentObject private var launchAtLoginManager: GuestLaunchAtLoginManager
-    @Environment(GuestHostSession.self) private var hostConnection
-    @EnvironmentObject private var sharedFolders: GuestSharedFoldersManager
+    @Environment(GuestLaunchAtLoginManager.self) private var launchAtLoginManager
+    @Environment(GuestHostSession.self) private var hostSession
+    @Environment(GuestSharedFoldersManager.self) private var sharedFolders
+    @Environment(\.guestDashboardActions) private var actions
 
-    @State private var showingTunnels = false
-    @State var activated = false
-
-    #if ENABLE_USERDEFAULTS_SYNC
-    @State private var showingDefaultsPopover = false
-    #endif
+    @State private var launchAtLoginError: String?
 
     var body: some View {
-        VStack {
-            connectionState
+        VStack(spacing: 0) {
+            header
 
-            sharedFoldersState
+            separator
 
-            Spacer()
+            VStack(spacing: 0) {
+                sharedFoldersRow
 
-            Form {
-                Button("Service Tunnels…") { showingTunnels = true }
-                    .popover(isPresented: $showingTunnels) {
-                        GuestTunnelsView(session: hostConnection)
-                    }
-
-                Toggle("Launch At Login", isOn: launchAtLoginBinding)
+                serviceTunnelsRow
 
                 #if ENABLE_USERDEFAULTS_SYNC
-                Button("Defaults Import…") {
-                    showingDefaultsPopover.toggle()
-                }
-                .popover(isPresented: $showingDefaultsPopover) {
-                    GuestDefaultsImportView(connection: hostConnection)
-                }
+                defaultsImportRow
                 #endif
             }
+            .padding(GuestDashboardMetrics.rowInset)
 
-            Spacer()
+            separator
+
+            launchAtLoginToggle
+
+            separator
+
+            quitRow
         }
-            .padding()
-            .frame(minWidth: 300, maxWidth: .infinity, minHeight: 200, maxHeight: .infinity)
+        .buttonStyle(.guestDashboardRow)
+        .frame(width: GuestDashboardMetrics.width)
     }
 
-    @ViewBuilder
-    private var connectionState: some View {
-        HStack(spacing: 4) {
-            Circle()
-                .foregroundColor(hostConnection.isConnected ? Color.green : Color.red)
-                .frame(width: 6)
-
-            if hostConnection.isConnected {
-                Text("Connected to VirtualBuddy")
-            } else {
-                Text("Not Connected")
-            }
-        }
-        .foregroundStyle(.secondary)
-        .font(.caption)
+    private var separator: some View {
+        Divider()
+            .padding(.horizontal, GuestDashboardMetrics.contentInset)
     }
 
+    // MARK: - Header
+
     @ViewBuilder
-    private var sharedFoldersState: some View {
-        if let error = sharedFolders.error {
-            VStack {
-                Text("Failed to mount shared folders:")
-                    .foregroundColor(.secondary)
-                Text(error.localizedDescription)
-                    .foregroundColor(.red)
-            }
-        } else {
-            HStack {
-                Text("Shared Folders:")
-                Button("Reveal in Finder") {
-                    sharedFolders.revealInFinder()
+    private var header: some View {
+        HStack(spacing: 10) {
+            Image(nsImage: NSApp.applicationIconImage)
+                .resizable()
+                .frame(width: 36, height: 36)
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text("VirtualBuddy Guest")
+                    .font(.headline)
+
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(hostSession.isConnected ? Color.green : Color.red)
+                        .frame(width: 7, height: 7)
+
+                    Text(hostSession.isConnected ? "Connected to VirtualBuddy" : "Not Connected")
                 }
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .accessibilityElement(children: .combine)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(.horizontal, GuestDashboardMetrics.contentInset)
+        .padding(.vertical, 14)
+    }
+
+    // MARK: - Features
+
+    @ViewBuilder
+    private var sharedFoldersRow: some View {
+        Button {
+            sharedFolders.revealInFinder()
+            actions.dismiss()
+        } label: {
+            GuestDashboardRowLabel("Shared Folders", subtitle: sharedFoldersSubtitle, systemImage: "folder")
+        }
+    }
+
+    private var sharedFoldersSubtitle: Text {
+        if let error = sharedFolders.error {
+            Text("Failed to mount: \(error.localizedDescription)")
+                .foregroundStyle(.red)
+        } else {
+            Text("Show in Finder")
+        }
+    }
+
+    @ViewBuilder
+    private var serviceTunnelsRow: some View {
+        Button {
+            actions.showWindow(.serviceTunnels)
+        } label: {
+            GuestDashboardRowLabel(title: "Service Tunnels", subtitle: Text(serviceTunnelsSubtitle), systemImage: "arrow.left.arrow.right") {
+                Image(systemName: "chevron.forward")
+            }
+        }
+    }
+
+    private var serviceTunnelsSubtitle: String {
+        let tunnels = hostSession.tunnels
+
+        guard tunnels.available else { return "Not available" }
+
+        let activeCount = tunnels.rules.count
+        let requestCount = tunnels.requests.count
+
+        guard activeCount > 0 || requestCount > 0 else { return "None configured" }
+
+        var components = [String]()
+
+        if activeCount > 0 {
+            components.append(activeCount == 1 ? "1 tunnel" : "\(activeCount) tunnels")
+        }
+
+        if requestCount > 0 {
+            components.append("\(requestCount) awaiting approval")
+        }
+
+        return components.joined(separator: " · ")
+    }
+
+    #if ENABLE_USERDEFAULTS_SYNC
+    @ViewBuilder
+    private var defaultsImportRow: some View {
+        Button {
+            actions.showWindow(.defaultsImport)
+        } label: {
+            GuestDashboardRowLabel(title: "Defaults Import", subtitle: Text("Import app preferences from the host"), systemImage: "square.and.arrow.down") {
+                Image(systemName: "chevron.forward")
+            }
+        }
+    }
+    #endif
+
+    // MARK: - Settings
+
+    @ViewBuilder
+    private var launchAtLoginToggle: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Toggle(isOn: launchAtLoginBinding) {
+                Text("Launch at Login")
+                    .frame(maxWidth: .infinity, alignment: .leading)
+            }
+            .toggleStyle(.switch)
+            .controlSize(.small)
+
+            if let launchAtLoginError {
+                Text(launchAtLoginError)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding(.horizontal, GuestDashboardMetrics.contentInset)
+        .padding(.vertical, 10)
     }
 
     private var launchAtLoginBinding: Binding<Bool> {
-        .init {
+        Binding {
             launchAtLoginManager.isLaunchAtLoginEnabled
-        } set: { newValue in
+        } set: { isEnabled in
             Task {
                 do {
-                    try await launchAtLoginManager.setLaunchAtLoginEnabled(newValue)
+                    try await launchAtLoginManager.setLaunchAtLoginEnabled(isEnabled)
+
+                    launchAtLoginError = nil
                 } catch {
-                    await MainActor.run {
-                        _ = NSAlert(error: error).runModal()
-                    }
+                    launchAtLoginError = error.localizedDescription
                 }
             }
         }
+    }
+
+    // MARK: - Quit
+
+    @ViewBuilder
+    private var quitRow: some View {
+        Button {
+            NSApp.terminate(nil)
+        } label: {
+            HStack {
+                Text("Quit VirtualBuddy Guest")
+
+                Spacer()
+
+                Text("⌘Q")
+                    .foregroundStyle(.tertiary)
+            }
+        }
+        .keyboardShortcut("q")
+        .padding(GuestDashboardMetrics.rowInset)
     }
 }
 
 #if DEBUG
-struct GuestDashboard_Previews: PreviewProvider {
-    static var previews: some View {
-        GuestDashboard()
-            .environmentObject(GuestLaunchAtLoginManager())
-            .environment(GuestHostSession())
-            .environmentObject(GuestSharedFoldersManager())
-    }
+#Preview {
+    GuestDashboard()
+        .environment(GuestLaunchAtLoginManager())
+        .environment(GuestHostSession())
+        .environment(GuestSharedFoldersManager())
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: StatusBarMenuChromeMetrics.cornerRadius, style: .continuous))
+        .padding(32)
 }
-
 #endif
