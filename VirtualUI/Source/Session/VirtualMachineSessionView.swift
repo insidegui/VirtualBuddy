@@ -114,15 +114,31 @@ public struct VirtualMachineSessionView: View {
                 ToolbarSpacer(.fixed)
             }
 
+            /// Only present while the guest has tunnels waiting for approval.
+            if pendingTunnelRequestCount > 0 {
+                ToolbarItem(placement: .primaryAction) {
+                    Button {
+                        ui.openLiveServiceTunnels()
+                    } label: {
+                        Label("Review Tunnel Requests (\(pendingTunnelRequestCount))", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath")
+                    }
+                    .badge(pendingTunnelRequestCount)
+                    .help(pendingTunnelRequestCount == 1
+                          ? "VirtualBuddyGuest requested a service tunnel"
+                          : "VirtualBuddyGuest requested \(pendingTunnelRequestCount) service tunnels")
+                    .disabled(!controller.canEditLiveConfiguration)
+                }
+
+                if #available(macOS 26, *) {
+                    ToolbarSpacer(.fixed)
+                }
+            }
+
             ToolbarItem(placement: .primaryAction) {
                 Button {
                     ui.openLiveConfiguration()
                 } label: {
-                    if let count = controller.tunnelState?.requests.count, count > 0 {
-                        Label("Review Tunnel Requests (\(count))", systemImage: "gearshape.badge")
-                    } else {
-                        Label("Virtual Machine Settings", systemImage: "gearshape")
-                    }
+                    Label("Virtual Machine Settings", systemImage: "gearshape")
                 }
                 .help("Change settings for the running virtual machine")
                 .disabled(!controller.canEditLiveConfiguration)
@@ -134,6 +150,11 @@ public struct VirtualMachineSessionView: View {
         }
     }
     
+    /// How many service tunnels requested by VirtualBuddyGuest are waiting for approval on the host.
+    private var pendingTunnelRequestCount: Int {
+        controller.tunnelState?.requests.count ?? 0
+    }
+
     /// The guest app can't run when the virtual machine starts up in recovery, DFU, or from its install media.
     private var guestAppStatus: GuestAppConnectionStatus? {
         guard !controller.options.requestsSpecialBoot else { return nil }

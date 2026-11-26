@@ -170,10 +170,49 @@ public final class VirtualMachineSessionUI: ObservableObject {
     private var liveConfigurationWindowID: String { "live-configuration-\(controller.id)" }
 
     @MainActor
+    private var liveServiceTunnelsWindowID: String { "live-service-tunnels-\(controller.id)" }
+
+    /// Owned by the windows that edit the service tunnels, so that the saved tunnels are read again
+    /// the next time one of them is opened after they've all been closed.
+    private weak var liveServiceTunnelsModel: VMLiveServiceTunnelsModel?
+
+    @MainActor
+    private func sharedLiveServiceTunnelsModel() -> VMLiveServiceTunnelsModel {
+        if let liveServiceTunnelsModel { return liveServiceTunnelsModel }
+
+        let model = VMLiveServiceTunnelsModel(controller: controller)
+        liveServiceTunnelsModel = model
+        return model
+    }
+
+    @MainActor
     func openLiveConfiguration() {
         guard controller.canEditLiveConfiguration else { return }
-        OpenCocoaWindowAction.default(id: liveConfigurationWindowID) {
-            VMLiveConfigurationView(controller: self.controller)
+
+        let tunnels = sharedLiveServiceTunnelsModel()
+
+        openLiveWindow(id: liveConfigurationWindowID) { [controller] in
+            VMLiveConfigurationView(controller: controller, tunnels: tunnels)
+        }
+    }
+
+    /// Opens a window that only has the service tunnels from the live configuration,
+    /// which is where the tunnels requested by the guest are reviewed.
+    @MainActor
+    func openLiveServiceTunnels() {
+        guard controller.canEditLiveConfiguration else { return }
+
+        let tunnels = sharedLiveServiceTunnelsModel()
+
+        openLiveWindow(id: liveServiceTunnelsWindowID) { [controller] in
+            VMLiveServiceTunnelsView(controller: controller, model: tunnels)
+        }
+    }
+
+    @MainActor
+    private func openLiveWindow<Content: View>(id: String, @ViewBuilder content: @escaping () -> Content) {
+        OpenCocoaWindowAction.default(id: id) { [weak self] in
+            content()
                 .onWindowKeyChange { [weak self] isKey in
                     VirtualMachineSessionUIManager.shared.focusedSessionChanged.send(
                         isKey ? self.map(WeakReference.init) : nil
@@ -183,8 +222,9 @@ public final class VirtualMachineSessionUI: ObservableObject {
     }
 
     @MainActor
-    func closeLiveConfiguration() {
+    func closeLiveConfigurationWindows() {
         OpenCocoaWindowAction.default.close(id: liveConfigurationWindowID)
+        OpenCocoaWindowAction.default.close(id: liveServiceTunnelsWindowID)
     }
 
     @MainActor
