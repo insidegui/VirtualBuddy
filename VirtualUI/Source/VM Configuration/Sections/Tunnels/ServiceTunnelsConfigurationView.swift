@@ -276,8 +276,9 @@ struct ServiceTunnelsConfigurationView: View {
             } label: {
                 label.groupedListButtonLabel()
             }
+            /// `groupedListButtonLabel()` sizing doesn't work as expected without this.
+            .menuStyle(.borderedButton)
             .menuIndicator(.hidden)
-            .fixedSize()
             .help("Add service tunnel")
         }
     }
