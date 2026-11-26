@@ -20,6 +20,17 @@ public final class GuestAdditionsDiskImage: ObservableObject {
 
     public static let `default` = GuestAdditionsDiskImage(source: .embedded)
 
+    /// The disk image that provides the guest app from the specified source.
+    ///
+    /// There's a single image for the embedded guest app, so every client that needs it gets ``default``,
+    /// which makes them all observe and wait for the same installation.
+    public static func image(for source: Source) -> GuestAdditionsDiskImage {
+        switch source {
+        case .embedded: .default
+        case .catalog: GuestAdditionsDiskImage(source: source)
+        }
+    }
+
     public enum State: CustomStringConvertible {
         case ready
         case downloading
@@ -60,6 +71,17 @@ public final class GuestAdditionsDiskImage: ObservableObject {
             case .catalog: .downloading
             }
         }
+
+        /// Whether a successful installation remains valid for as long as the app is running.
+        ///
+        /// That's the case for the embedded guest app, which can't change without the app itself being replaced,
+        /// whereas an image from the catalog has to be checked against the catalog every time.
+        var installsOncePerLaunch: Bool {
+            switch self {
+            case .embedded: true
+            case .catalog: false
+            }
+        }
     }
 
     private let source: Source
@@ -73,7 +95,44 @@ public final class GuestAdditionsDiskImage: ObservableObject {
         self.state = source.initialState
     }
 
+    private let installationLock = NSLock()
+
+    /// The installation that's currently in progress, or the one that has succeeded for sources that only install once per launch.
+    private var installation: Task<Void, Error>?
+
+    /// Makes sure that the image is installed and up to date, returning once it's safe to attach to a virtual machine.
+    ///
+    /// Concurrent calls join the installation that's already in progress instead of starting another one.
+    /// This matters because generating the image rewrites it, so a virtual machine must never be started while that's happening.
     public func installIfNeeded() async throws {
+        let installation = installationLock.withLock {
+            if let installation { return installation }
+
+            let installation = Task { try await self.runInstallation() }
+            self.installation = installation
+
+            return installation
+        }
+
+        try await installation.value
+    }
+
+    private func runInstallation() async throws {
+        do {
+            try await performInstallIfNeeded()
+        } catch {
+            /// Allows the next call to try again.
+            installationLock.withLock { installation = nil }
+
+            throw error
+        }
+
+        guard !source.installsOncePerLaunch else { return }
+
+        installationLock.withLock { installation = nil }
+    }
+
+    private func performInstallIfNeeded() async throws {
         #if DEBUG
         if await simulateInstall() { return }
         #endif

@@ -178,7 +178,7 @@ public final class VMController: ObservableObject {
         self.name = vm.name
         self.virtualMachineModel = vm
         self.library = library
-        self.guestAppDiskImage = GuestAdditionsDiskImage(source: vm.configuration.guestAppDiskImageSource)
+        self.guestAppDiskImage = GuestAdditionsDiskImage.image(for: vm.configuration.guestAppDiskImageSource)
 
         virtualMachineModel.reloadMetadata()
         if virtualMachineModel.metadata.installImageURL != nil && !virtualMachineModel.metadata.installFinished {
@@ -627,41 +627,30 @@ public final class VMController: ObservableObject {
            virtualMachineModel.guestAppSupport != .unsupported
         else { return }
 
-        /// Kick off legacy guest app download if needed.
-        if virtualMachineModel.configuration.guestAppVersion != nil {
-            Task { try? await guestAppDiskImage.installIfNeeded() }
-        }
+        /// Lets the user know why startup is taking longer in case it ends up having to wait for the image.
+        let progressObservation = guestAppDiskImage.$state
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] imageState in
+                switch imageState {
+                case .downloading, .installing:
+                    self?.state = .starting("Preparing guest app disk image")
+                case .ready, .installFailed:
+                    break
+                }
+            }
+
+        defer { progressObservation.cancel() }
+
+        /// The image's state alone can't be trusted here, because it only changes once an installation has figured out that there's work to do.
+        /// Asking for the installation joins the one that's in progress, if any, and only returns when the image is no longer being written to.
+        try? await guestAppDiskImage.installIfNeeded()
 
         let guestDiskState = guestAppDiskImage.state
 
         logger.info("Guest disk image state is \(guestDiskState, privacy: .public)")
 
-        switch guestDiskState {
-        case .ready:
-            break
-        case .downloading, .installing:
-            await waitForGuestDiskImageReady()
-        case .installFailed(let error):
+        if case .installFailed(let error) = guestDiskState {
             runGuestDiskImageErrorAlert(error: error)
-        }
-    }
-
-    private func waitForGuestDiskImageReady() async {
-        state = .starting("Preparing guest app disk image")
-
-        for await state in guestAppDiskImage.$state.values {
-            switch state {
-            case .ready:
-                logger.debug("Guest disk image is ready 🚀")
-                return
-            case .installFailed(let error):
-                logger.error("Guest disk image install failed - \(error, privacy: .public)")
-                return runGuestDiskImageErrorAlert(error: error)
-            case .downloading:
-                logger.debug("Guest disk image is downloading...")
-            case .installing:
-                logger.debug("Guest disk image is installing...")
-            }
         }
     }
 
