@@ -43,6 +43,7 @@ struct VMLiveConfigurationView: View {
                             settings: editor.tunnelSettings,
                             liveState: controller.tunnelState.map(ServiceTunnelsLiveState.init),
                             decline: controller.declineTunnel,
+                            loadSources: controller.serviceTunnelSources,
                             change: editor.updateTunnels
                         )
                         .disabled(!controller.canEditLiveConfiguration)

@@ -45,6 +45,8 @@ struct ServiceTunnelsConfigurationView: View {
     /// State for the running virtual machine, `nil` when editing the configuration of a virtual machine that's not running.
     var liveState: ServiceTunnelsLiveState? = nil
     var decline: (ServiceTunnel.ID) -> Void = { _ in }
+    /// Provides the tunnels from other virtual machines that can be added to this one.
+    var loadSources: @MainActor () -> [ServiceTunnelSource] = { [] }
     /// Stands in for the organization's policy in previews. The policy in effect is used when this is `nil`.
     var policyOverride: ServiceTunnelPolicy? = nil
     let change: ([ServiceTunnel]) throws -> Void
@@ -74,6 +76,10 @@ struct ServiceTunnelsConfigurationView: View {
     @State private var isShowingResetConfirmation = false
     @State private var isShowingError = false
     @State private var errorMessage = ""
+    @State private var sources: [ServiceTunnelSource] = []
+
+    @Environment(\.controlActiveState)
+    private var controlActiveState
 
     private var tunnels: [ServiceTunnel] { draft ?? settings.reviewValue ?? [] }
 
@@ -113,6 +119,12 @@ struct ServiceTunnelsConfigurationView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
+        }
+        .onAppear(perform: reloadSources)
+        .onChange(of: controlActiveState) { _, state in
+            /// Tunnels for other virtual machines can only change while another window has focus.
+            guard state == .key else { return }
+            reloadSources()
         }
         .alert("Unable to Update Service Tunnels", isPresented: $isShowingError) {
             Button("OK", role: .cancel) { }
@@ -201,12 +213,7 @@ struct ServiceTunnelsConfigurationView: View {
         } emptyOverlay: {
             emptyOverlay
         } addButton: { label in
-            Button {
-                editor = .add
-            } label: {
-                label.groupedListButtonLabel()
-            }
-            .help("Add service tunnel")
+            addButton(label: label)
         } removeButton: { label in
             Button {
                 removeSelection()
@@ -227,7 +234,101 @@ struct ServiceTunnelsConfigurationView: View {
                 editor = .add
             }
             .buttonStyle(.link)
+
+            if !sources.isEmpty {
+                Menu {
+                    sourcesMenu
+                } label: {
+                    Text("Add from Virtual Machine")
+                        .foregroundStyle(.link)
+                }
+                /// Menus don't take the link button style that the other action in the overlay has.
+                .menuStyle(.borderlessButton)
+                .menuIndicator(.hidden)
+                .fixedSize()
+            }
         }
+    }
+
+    // MARK: - Adding from Other Virtual Machines
+
+    /// Adding a tunnel is a single click for as long as there's nothing else to offer.
+    @ViewBuilder
+    private func addButton(label: Label<Text, Image>) -> some View {
+        if sources.isEmpty {
+            Button {
+                editor = .add
+            } label: {
+                label.groupedListButtonLabel()
+            }
+            .help("Add service tunnel")
+        } else {
+            Menu {
+                Button("New Tunnel…") {
+                    editor = .add
+                }
+
+                Divider()
+
+                Menu("Add from Virtual Machine") {
+                    sourcesMenu
+                }
+            } label: {
+                label.groupedListButtonLabel()
+            }
+            .menuIndicator(.hidden)
+            .fixedSize()
+            .help("Add service tunnel")
+        }
+    }
+
+    @ViewBuilder
+    private var sourcesMenu: some View {
+        ForEach(sources) { source in
+            Menu(source.name) {
+                let available = additions(from: source.tunnels)
+
+                Button("All Tunnels (\(source.tunnels.count))") {
+                    apply(tunnels + available)
+                }
+                .disabled(available.isEmpty)
+
+                Divider()
+
+                ForEach(source.tunnels) { tunnel in
+                    let addition = additions(from: [tunnel])
+
+                    Button {
+                        apply(tunnels + addition)
+                    } label: {
+                        Text(verbatim: tunnel.menuTitle)
+                    }
+                    .disabled(addition.isEmpty)
+                    .help(tunnel.description)
+                }
+            }
+        }
+    }
+
+    /// Copies of the tunnels from another virtual machine that this one can take, leaving out those
+    /// with a listener it already uses. They're independent from the originals, so changing one doesn't affect the other.
+    private func additions(from sourceTunnels: [ServiceTunnel]) -> [ServiceTunnel] {
+        var result = tunnels
+
+        for sourceTunnel in sourceTunnels {
+            var tunnel = ServiceTunnel(listensOnHost: sourceTunnel.listensOnHost, listener: sourceTunnel.listener, destination: sourceTunnel.destination)
+            tunnel.isEnabled = sourceTunnel.isEnabled
+
+            if tunnel.canAdd(to: result) {
+                result.append(tunnel)
+            }
+        }
+
+        return Array(result.dropFirst(tunnels.count))
+    }
+
+    private func reloadSources() {
+        sources = loadSources()
     }
 
     @ViewBuilder
@@ -334,16 +435,68 @@ struct ServiceTunnelsConfigurationView: View {
     }
 }
 
+private extension ServiceTunnel {
+    /// Describes the tunnel in a menu, where the system doesn't truncate titles,
+    /// so a long socket path would otherwise make the menu as wide as the screen.
+    var menuTitle: String {
+        "\(listenerSideName)  \(listener.menuAddress) → \(destinationSideName)  \(destination.menuAddress)"
+    }
+}
+
+private extension TunnelEndpoint {
+    var menuAddress: String {
+        address.truncatedInMiddle(toFit: 240, font: .menuFont(ofSize: 0))
+    }
+}
+
+private extension String {
+    /// Replaces as few characters as possible in the middle of the string with an ellipsis, so that it fits `width` when drawn with `font`.
+    func truncatedInMiddle(toFit width: CGFloat, font: NSFont) -> String {
+        func measure(_ string: String) -> CGFloat {
+            (string as NSString).size(withAttributes: [.font: font]).width
+        }
+
+        guard measure(self) > width else { return self }
+
+        func truncated(keeping characterCount: Int) -> String {
+            "\(prefix((characterCount + 1) / 2))…\(suffix(characterCount / 2))"
+        }
+
+        /// The most characters that can be kept is somewhere in this range, found by halving it until a single candidate is left.
+        var candidates = 0...(count - 1)
+
+        while candidates.lowerBound < candidates.upperBound {
+            let middle = (candidates.lowerBound + candidates.upperBound + 1) / 2
+
+            if measure(truncated(keeping: middle)) <= width {
+                candidates = middle...candidates.upperBound
+            } else {
+                candidates = candidates.lowerBound...(middle - 1)
+            }
+        }
+
+        return truncated(keeping: candidates.lowerBound)
+    }
+}
+
 #if DEBUG
+private extension ServiceTunnelSource {
+    static let previewSources = [
+        ServiceTunnelSource(id: "preview-1", name: "macOS Development", tunnels: ServiceTunnel.previewTunnels),
+        ServiceTunnelSource(id: "preview-2", name: "Continuous Integration", tunnels: [.previewDatabase, .previewLongUnixSocket]),
+    ]
+}
+
 private struct ServiceTunnelsConfigurationPreview: View {
     @State var settings: ApprovedSettingState<[ServiceTunnel]>
     @State var liveState: ServiceTunnelsLiveState?
+    var sources: [ServiceTunnelSource] = []
 
     var body: some View {
         ConfigurationSection(collapsingDisabled: true) {
-            ServiceTunnelsConfigurationView(settings: settings, liveState: liveState) { requestID in
+            ServiceTunnelsConfigurationView(settings: settings, liveState: liveState, decline: { requestID in
                 liveState?.requests.removeAll(where: { $0.id == requestID })
-            } change: { tunnels in
+            }, loadSources: { sources }) { tunnels in
                 settings = .approved(tunnels)
                 liveState?.requests.removeAll(where: { request in tunnels.contains(where: { $0.id == request.id }) })
             }
@@ -362,6 +515,14 @@ private struct ServiceTunnelsConfigurationPreview: View {
 
 #Preview("Tunnels — Empty") {
     ServiceTunnelsConfigurationPreview(settings: .missing)
+}
+
+#Preview("Tunnels — Other Virtual Machines") {
+    ServiceTunnelsConfigurationPreview(settings: .approved([.previewWebServer]), sources: ServiceTunnelSource.previewSources)
+}
+
+#Preview("Tunnels — Empty, Other Virtual Machines") {
+    ServiceTunnelsConfigurationPreview(settings: .missing, sources: ServiceTunnelSource.previewSources)
 }
 
 #Preview("Tunnels — Live") {

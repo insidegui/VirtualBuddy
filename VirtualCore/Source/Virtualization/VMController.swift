@@ -864,6 +864,11 @@ public final class VMController: ObservableObject {
 
     public func declineTunnel(_ id: UUID) { instance?.guestSession?.declineTunnel(id) }
 
+    /// Service tunnels from the other virtual machines in the library, which can be added to this one.
+    public func serviceTunnelSources() -> [ServiceTunnelSource] {
+        library.serviceTunnelSources(excluding: virtualMachineModel)
+    }
+
     public func updateLiveSharedFolders(_ folders: [VBSharedFolder]) throws {
         guard canEditLiveSharedFolders else {
             throw Failure("Wait until the virtual machine is running or paused before changing shared folders.")
