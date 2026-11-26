@@ -124,6 +124,19 @@ public enum VMState: Equatable {
     case stopped(Error?)
 }
 
+/// Thrown when a virtual machine that's started unattended shares a MAC address with one that's already running.
+public struct MACAddressConflictError: LocalizedError {
+    public let conflicts: [MACAddressConflict]
+
+    public var errorDescription: String? {
+        let list = conflicts
+            .sorted { $0.macAddress < $1.macAddress }
+            .map { "\($0.macAddress) used by \"\($0.vmName)\"" }
+            .joined(separator: ", ")
+        return "A network device on this virtual machine shares a MAC address with a virtual machine that's already running: \(list). Start it from VirtualBuddy to choose what to do."
+    }
+}
+
 public enum MACAddressConflictResolution {
     case cancel
     case continueAnyway
@@ -368,7 +381,10 @@ public final class VMController: ObservableObject {
     ///
     /// Starting in a way that can't continue a saved session (recovery, DFU, or the install device) throws
     /// ``SavedSessionError/discardConfirmationRequired`` unless the saved session is being discarded.
-    public func start(discardingSavedSession: Bool = false) async throws {
+    ///
+    /// - Parameter unattended: `true` when nobody is in front of the app to answer questions, such as when starting
+    /// from the command line. Nothing is presented: what would've needed a decision is thrown instead, and what would only have been reported is logged.
+    public func start(discardingSavedSession: Bool = false, unattended: Bool = false) async throws {
         await lease.acquire()
         defer { lease.release() }
 
@@ -397,7 +413,7 @@ public final class VMController: ObservableObject {
                 try await discardSavedSessionLocked()
             }
 
-            try await bootVirtualMachine()
+            try await bootVirtualMachine(unattended: unattended)
         }
     }
 
@@ -410,13 +426,18 @@ public final class VMController: ObservableObject {
         return savedSession
     }
 
-    private func bootVirtualMachine() async throws {
+    private func bootVirtualMachine(unattended: Bool) async throws {
         // Check for MAC address collisions with running VMs before changing state.
-        guard await resolveMACAddressConflictsIfNeeded() else { return }
+        if unattended {
+            let conflicts = library.macAddressConflicts(for: virtualMachineModel)
+            guard conflicts.isEmpty else { throw MACAddressConflictError(conflicts: conflicts) }
+        } else {
+            guard await resolveMACAddressConflictsIfNeeded() else { return }
+        }
 
         state = .starting(nil)
 
-        await waitForGuestDiskImageReadyIfNeeded()
+        await waitForGuestDiskImageReadyIfNeeded(presentingErrors: !unattended)
 
         if virtualMachineModel.hasPendingDiskImageResizes {
             state = .resizingDisk("Checking disk images...")
@@ -427,11 +448,15 @@ public final class VMController: ObservableObject {
                 }
                 virtualMachineModel = updatedModel
                 if didResize {
-                    presentDiskResizeCompletedAlert()
+                    if unattended {
+                        logger.notice("Disk images were expanded. The guest operating system still needs to claim the new space.")
+                    } else {
+                        presentDiskResizeCompletedAlert()
+                    }
                 }
             } catch {
                 logger.warning("Failed to resize disk images: \(error, privacy: .public)")
-                presentDiskResizeError(error)
+                if !unattended { presentDiskResizeError(error) }
                 state = .stopped(error)
                 throw error
             }
@@ -623,7 +648,7 @@ public final class VMController: ObservableObject {
     /// if the user launches VirtualBuddy then quickly attempts to start up a machine right after installing an app update.
     ///
     /// It will also alert the user in case guest disk image generation has failed so that they know there's something wrong/
-    private func waitForGuestDiskImageReadyIfNeeded() async {
+    private func waitForGuestDiskImageReadyIfNeeded(presentingErrors: Bool) async {
         guard !VirtualBuddyManagedPreferences.guestAppDisabled,
            virtualMachineModel.configuration.guestAdditionsEnabled,
            virtualMachineModel.guestAppSupport != .unsupported
@@ -651,7 +676,7 @@ public final class VMController: ObservableObject {
 
         logger.info("Guest disk image state is \(guestDiskState, privacy: .public)")
 
-        if case .installFailed(let error) = guestDiskState {
+        if case .installFailed(let error) = guestDiskState, presentingErrors {
             runGuestDiskImageErrorAlert(error: error)
         }
     }
@@ -869,6 +894,47 @@ public final class VMController: ObservableObject {
     }
 
     public func declineTunnel(_ id: UUID) { instance?.guestSession?.declineTunnel(id) }
+
+    // The command-line tool changes service tunnels through the methods below. None of them approves anything
+    // the user hasn't reviewed, and all of them work whether or not the virtual machine is running.
+
+    /// Asks for a service tunnel without approving it.
+    ///
+    /// The tunnel is added right away when the host's review level allows that. Otherwise it joins the tunnels the guest
+    /// requested, where the user reviews it in the app, which is only possible while the guest app is connected.
+    public func proposeTunnel(_ tunnel: ServiceTunnel) throws -> ServiceTunnelProposalOutcome {
+        try requireEditableTunnels()
+        if let session = instance?.guestSession, session.tunnels.available {
+            return try session.proposeTunnel(tunnel) ? .added : .awaitingReview
+        }
+        guard try virtualMachineModel.addServiceTunnelWithoutReview(tunnel) else { return .reviewRequired }
+        serviceTunnelsChanged()
+        return .added
+    }
+
+    /// Turns on an approved service tunnel that's off, if the host's review level allows that without a review. Returns whether it did.
+    public func enableTunnelWithoutReview(_ id: UUID) throws -> Bool {
+        try requireEditableTunnels()
+        guard try virtualMachineModel.enableServiceTunnelWithoutReview(id) else { return false }
+        serviceTunnelsChanged()
+        return true
+    }
+
+    /// Turns off or removes approved service tunnels. Nothing that wasn't approved before is approved by this.
+    public func reduceTunnels(_ change: (inout [ServiceTunnel]) throws -> Void) throws {
+        try requireEditableTunnels()
+        try virtualMachineModel.reduceApprovedServiceTunnels(change)
+        serviceTunnelsChanged()
+    }
+
+    private func requireEditableTunnels() throws {
+        guard !state.isActive || canEditLiveConfiguration else { throw Failure("Wait for the VM to finish changing state.") }
+    }
+
+    private func serviceTunnelsChanged() {
+        instance?.guestSession?.reloadTunnels()
+        liveTunnelsRevision += 1
+    }
 
     /// Service tunnels from the other virtual machines in the library, which can be added to this one.
     public func serviceTunnelSources() -> [ServiceTunnelSource] {

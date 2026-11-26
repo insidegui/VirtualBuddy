@@ -10,6 +10,7 @@ import ArgumentParser
 struct VirtualBuddyCLI {
     static let supportedEntryPoints: [ParsableCommand.Type] = [
         VCTool.self,
+        VBCtl.self,
     ]
 
     static func runCommand(named name: String) async {

@@ -36,6 +36,17 @@ import Combine
 
     private lazy var debugBroker = DebugBroker(library: library)
 
+    private lazy var controlServer: ControlServer = {
+        let handler = ControlRequestHandler(automation: VMAutomationService(library: library, sessionManager: sessionManager))
+        return ControlServer {
+            try CommandLineAccess.requireEnabled()
+        } handler: { request, report in
+            try await handler.handle(request, report: report)
+        }
+    }()
+
+    private let commandLineAccess = CommandLineAccessMonitor()
+
     func applicationDidFinishLaunching(_ notification: Notification) {
         settingsContainer.developerFeaturesAvailability
             .receive(on: DispatchQueue.main)
@@ -44,6 +55,9 @@ import Combine
             }
             .store(in: &cancellables)
         XcodeDebugSetup.observeCachePreparation()
+        commandLineAccess.onChange = { [weak self] enabled in self?.setAcceptsCommandLineConnections(enabled) }
+        setAcceptsCommandLineConnections(commandLineAccess.isEnabled)
+        CommandLineToolInstaller.current.repairIfNeeded()
         GuestAdditionsDiskImage.default.$state.sink { state in
             switch state {
             case .ready:
@@ -80,7 +94,21 @@ import Combine
         }
     }
 
-    func applicationWillTerminate(_ notification: Notification) { debugBroker.stop() }
+    /// The control socket exists only while command-line access is enabled and allowed.
+    private func setAcceptsCommandLineConnections(_ accepts: Bool) {
+        guard accepts else { return controlServer.stop() }
+
+        do {
+            try controlServer.start()
+        } catch {
+            logger.error("Could not start accepting command-line connections: \(error.localizedDescription, privacy: .public)")
+        }
+    }
+
+    func applicationWillTerminate(_ notification: Notification) {
+        debugBroker.stop()
+        controlServer.stop()
+    }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
 

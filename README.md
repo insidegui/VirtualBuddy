@@ -32,6 +32,7 @@ Some macOS restore images require newer device support on the host. Select the v
 - Configure CPU cores, memory, storage, displays, and networking for each VM.
 - Boot macOS into Recovery to change startup security settings.
 - Forward loopback TCP ports and Unix sockets between your Mac and a macOS guest with [Service Tunnels](./Documentation/ServiceTunnels.md).
+- Control the app and your virtual machines from Terminal and scripts with the [`vbctl` command-line tool](./Documentation/CommandLine.md).
 - Share folders with macOS 13 or later guests and share the clipboard with macOS 14 or later guests running the current VirtualBuddyGuest app.
 - Save and resume supported macOS 14 or later VMs, or duplicate a VM to keep a copy for testing.
 - When both the host and the guest run macOS 27 or later, you can pass USB devices through to the VM and create the first user account automatically to skip Setup Assistant.

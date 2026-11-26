@@ -199,7 +199,7 @@ public final class VirtualMachineSessionUI: ObservableObject {
     /// Opens a window that only has the service tunnels from the live configuration,
     /// which is where the tunnels requested by the guest are reviewed.
     @MainActor
-    func openLiveServiceTunnels() {
+    public func openLiveServiceTunnels() {
         guard controller.canEditLiveConfiguration else { return }
 
         let tunnels = sharedLiveServiceTunnelsModel()

@@ -19,6 +19,11 @@ struct SecuritySettingsView: View {
     @ManagedValue(for: .serviceTunnelMinimumReviewLevel, schema: VirtualBuddyManagedPreferences.schema, default: "")
     private var managedMinimumLevel: String
 
+    @ManagedValue(for: .disableCommandLineAccess, schema: VirtualBuddyManagedPreferences.schema, default: false)
+    private var commandLineAccessDisabled: Bool
+
+    var commandLineTool = CommandLineToolInstaller.current
+
     private var minimumLevel: ServiceTunnelSecurityLevel? {
         VirtualBuddyManagedPreferences.serviceTunnelMinimumReviewLevel($managedMinimumLevel)
     }
@@ -34,9 +39,9 @@ struct SecuritySettingsView: View {
                 Button {
                     session.isUnlocked ? session.lock() : unlock()
                 } label: {
-                    Label(session.isUnlocked ? "Lock" : "Unlock…", systemImage: session.isUnlocked ? "lock.open" : "lock")
+                    Label(session.isUnlocked ? "Lock" : "Unlock Settings", systemImage: session.isUnlocked ? "lock.open" : "lock")
                 }
-                SettingsCaption("Changing security settings requires Touch ID or your account password. The settings lock again when this window closes.")
+                SettingsCaption("Unlock with Touch ID or your password before making changes.")
             }
 
             SettingsDivider()
@@ -64,7 +69,7 @@ struct SecuritySettingsView: View {
                     }
                 }
                 .disabled(!session.isUnlocked)
-                SettingsCaption("When an app first tries to control VirtualBuddy through a deep link, VirtualBuddy asks for permission. Apps you allow can open deep links without asking again.")
+                SettingsCaption("VirtualBuddy asks the first time an app opens a deep link. Allowed apps aren't asked again.")
             }
 
             SettingsDivider()
@@ -92,7 +97,25 @@ struct SecuritySettingsView: View {
                 } else if let count = session.rememberedTunnelCount, count > 0 || effectiveLevel == .reviewNew {
                     Button("Forget Reviewed Tunnels…") { isConfirmingForget = true }
                         .disabled(!session.isUnlocked || count == 0)
-                    SettingsCaption("^[\(count) tunnel](inflect: true) reviewed on this Mac can be used by any virtual machine without asking while only new tunnels are reviewed.")
+                        .settingsButtonBelowCaption()
+                    SettingsCaption("^[\(count) tunnel](inflect: true) reviewed on this Mac.")
+                }
+            }
+
+            SettingsDivider()
+
+            SettingsRow("Command line:") {
+                Toggle("Allow vbctl to control VirtualBuddy", isOn: commandLineAccessDisabled ? .constant(false) : commandLineAccessBinding)
+                    .disabled(!session.isUnlocked || commandLineAccessDisabled)
+
+                if commandLineAccessDisabled {
+                    ManagedRestrictionBannerView(title: "Command-line access is disabled by your organization.")
+                } else {
+                    SettingsCaption("Anything running as you can use vbctl to control virtual machines. Tunnels it adds are still reviewed.")
+                }
+
+                if session.isCommandLineAccessEnabled && !commandLineAccessDisabled {
+                    CommandLineToolSettings(installer: commandLineTool)
                 }
             }
         }
@@ -135,6 +158,14 @@ struct SecuritySettingsView: View {
         }
     }
 
+    private var commandLineAccessBinding: Binding<Bool> {
+        Binding {
+            session.isCommandLineAccessEnabled
+        } set: { enabled in
+            perform { try session.setCommandLineAccessEnabled(enabled) }
+        }
+    }
+
     private func setLevel(_ level: ServiceTunnelSecurityLevel) {
         perform { try session.setTunnelLevel(level) }
     }
@@ -172,6 +203,63 @@ struct SecuritySettingsView: View {
     }
 }
 
+/// Links the command-line tool into the user's `PATH`, which isn't a security setting and so doesn't need them unlocked.
+private struct CommandLineToolSettings: View {
+    let installer: CommandLineToolInstaller
+
+    @State private var status = CommandLineToolInstaller.Status.notInstalled
+    @State private var isInstalling = false
+    @State private var manualCommand: String?
+
+    var body: some View {
+        Group {
+            switch status {
+            case .installed(let link):
+                Button("Uninstall Command-Line Tool") {
+                    installer.uninstall()
+                    status = installer.status()
+                }
+                .settingsButtonBelowCaption()
+                SettingsCaption("Installed at \((link.path as NSString).abbreviatingWithTildeInPath).")
+            case .notInstalled:
+                Button("Install Command-Line Tool…") { install() }
+                    .disabled(isInstalling)
+                    .settingsButtonBelowCaption()
+                SettingsCaption("Links vbctl into a folder in your PATH.")
+            }
+        }
+        .onAppear { status = installer.status() }
+        .alert(
+            "Install vbctl in Terminal",
+            isPresented: Binding { manualCommand != nil } set: { if !$0 { manualCommand = nil } },
+            presenting: manualCommand
+        ) { command in
+            Button("Copy Command") {
+                NSPasteboard.general.clearContents()
+                NSPasteboard.general.setString(command, forType: .string)
+            }
+            Button("Cancel", role: .cancel) { }
+        } message: { command in
+            Text("None of the folders in your PATH can be changed without an administrator password. Run this command in Terminal to install vbctl:\n\n\(command)")
+        }
+    }
+
+    private func install() {
+        isInstalling = true
+        Task {
+            defer { isInstalling = false }
+            do {
+                try await installer.install()
+            } catch let error as CommandLineToolInstaller.ManualInstallationRequired {
+                manualCommand = error.command
+            } catch {
+                NSAlert(error: error).runModal()
+            }
+            status = installer.status()
+        }
+    }
+}
+
 private extension ServiceTunnelSecurityLevel {
     var title: LocalizedStringKey {
         switch self {
@@ -184,11 +272,11 @@ private extension ServiceTunnelSecurityLevel {
     var explanation: LocalizedStringKey {
         switch self {
         case .reviewAll:
-            "VirtualBuddy asks before a virtual machine gets a new service tunnel, and before using tunnels that weren't approved for that virtual machine on this Mac."
+            "VirtualBuddy asks before a virtual machine adds a tunnel or uses one that wasn't approved for it on this Mac."
         case .reviewNew:
-            "VirtualBuddy asks the first time a tunnel uses a port or socket on this Mac. After that, any virtual machine can get a tunnel to the same port or socket without asking."
+            "VirtualBuddy asks the first time a tunnel uses a port or socket on this Mac. After that, any virtual machine can use it."
         case .reviewNone:
-            "Virtual machines can add service tunnels to any port or socket on this Mac without asking, and tunnels saved with a virtual machine run as they are. Only use this with virtual machines you trust completely."
+            "Virtual machines can add tunnels to any port or socket on this Mac without asking. Only use this with virtual machines you trust."
         }
     }
 }
@@ -291,5 +379,9 @@ extension DeepLinkSentinel {
 
 #Preview("Security Settings") {
     SettingsScreen.preview(.security)
+}
+
+#Preview("Security Settings (Command Line On)") {
+    SettingsScreen.preview(.security, securitySession: .preview(commandLineAccess: true))
 }
 #endif

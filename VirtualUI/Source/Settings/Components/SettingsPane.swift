@@ -63,6 +63,13 @@ struct SettingsCaption: View {
     }
 }
 
+extension View {
+    /// Sets a control apart from the caption above it, which describes a different control.
+    func settingsButtonBelowCaption() -> some View {
+        padding(.top, 6)
+    }
+}
+
 /// Lets a short list fit its contents while keeping long lists within the pane.
 struct SettingsItemList<Rows: View>: View {
     @ViewBuilder var rows: Rows
