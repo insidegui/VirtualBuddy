@@ -106,7 +106,7 @@ struct ServiceTunnelApprovalSheet: View {
                     Button("Cancel") {
                         dismiss()
                     }
-                    .keyboardShortcut(.defaultAction)
+                    .keyboardShortcut(.cancelAction)
                 }
 
                 ToolbarItem(placement: .confirmationAction) {

@@ -5,11 +5,12 @@ import VirtualWormhole
 /// Only edits resources that the current VM can change without rebuilding its device topology.
 struct VMLiveConfigurationView: View {
     @ObservedObject var controller: VMController
-    @Environment(\.closeWindow) private var closeWindow
+    private let tunnels: VMLiveServiceTunnelsModel
     @State private var editor: VMLiveConfigurationEditor
 
-    init(controller: VMController) {
+    init(controller: VMController, tunnels: VMLiveServiceTunnelsModel) {
         self.controller = controller
+        self.tunnels = tunnels
         _editor = State(initialValue: VMLiveConfigurationEditor(controller: controller))
     }
 
@@ -38,17 +39,7 @@ struct VMLiveConfigurationView: View {
                 }
 
                 if controller.liveConfiguration.systemType == .mac {
-                    ConfigurationSection(collapsingDisabled: true) {
-                        ServiceTunnelsConfigurationView(
-                            settings: editor.tunnelSettings,
-                            liveState: controller.tunnelState.map(ServiceTunnelsLiveState.init),
-                            decline: controller.declineTunnel,
-                            change: editor.updateTunnels
-                        )
-                        .disabled(!controller.canEditLiveConfiguration)
-                    } header: {
-                        SummaryHeader("Service Tunnels", systemImage: "point.bottomleft.forward.to.point.topright.scurvepath", summary: editor.tunnelSettings.summary())
-                    }
+                    VMLiveServiceTunnelsSection(controller: controller, model: tunnels)
                 }
 
                 if let display = controller.liveConfiguration.hardware.displayDevices.first {
@@ -86,11 +77,7 @@ struct VMLiveConfigurationView: View {
         } message: {
             Text(editor.errorMessage ?? "")
         }
-        .onChange(of: controller.state) { _, state in
-            if state.isStopped || state.isIdle || state.isSavedSessionPresentation {
-                closeWindow()
-            }
-        }
+        .closesWindowWhenSessionEnds(controller)
     }
 }
 
@@ -98,17 +85,10 @@ struct VMLiveConfigurationView: View {
 @MainActor
 private final class VMLiveConfigurationEditor {
     let controller: VMController
-    var tunnelSettings: ApprovedSettingState<[ServiceTunnel]>
     var errorMessage: String?
 
     init(controller: VMController) {
         self.controller = controller
-        self.tunnelSettings = controller.virtualMachineModel.serviceTunnelSettings
-    }
-
-    func updateTunnels(_ rules: [ServiceTunnel]) throws {
-        try controller.updateLiveTunnels(rules)
-        tunnelSettings = controller.virtualMachineModel.serviceTunnelSettings
     }
 
     var isShowingError: Bool {
@@ -138,6 +118,8 @@ private final class VMLiveConfigurationEditor {
 
 #if DEBUG
 #Preview {
-    VMLiveConfigurationView(controller: VMController(with: .preview, library: .preview))
+    let controller = VMController(with: .preview, library: .preview)
+
+    VMLiveConfigurationView(controller: controller, tunnels: VMLiveServiceTunnelsModel(controller: controller))
 }
 #endif

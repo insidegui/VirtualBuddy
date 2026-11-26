@@ -148,7 +148,7 @@ struct LibraryItemView: View {
         .scaleEffect(isPressed ? 0.98 : 1)
         .contextMenu { contextMenuItems }
         .sheet(item: $configurationVM) { configurationVM in
-            LibraryVMConfigurationSheet(vm: configurationVM)
+            LibraryVMConfigurationSheet(vm: configurationVM, library: library)
                 .environmentObject(library)
                 .environment(library.templatesController)
         }
@@ -408,9 +408,13 @@ private struct LibraryVMConfigurationSheet: View {
     @State private var vm: VBVirtualMachine
     @StateObject private var viewModel: VMConfigurationViewModel
 
-    init(vm: VBVirtualMachine) {
+    init(vm: VBVirtualMachine, library: VMLibraryController) {
         self._vm = State(initialValue: vm)
-        self._viewModel = StateObject(wrappedValue: VMConfigurationViewModel(vm, context: .postInstall))
+        self._viewModel = StateObject(wrappedValue: {
+            let viewModel = VMConfigurationViewModel(vm, context: .postInstall)
+            viewModel.serviceTunnelSources = { [weak library] in library?.serviceTunnelSources(excluding: vm) ?? [] }
+            return viewModel
+        }())
     }
 
     var body: some View {

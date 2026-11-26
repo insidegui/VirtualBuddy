@@ -407,7 +407,11 @@ struct VMConfigurationView: View {
     @ViewBuilder
     private var serviceTunnels: some View {
         ConfigurationSection($serviceTunnelsCollapsed) {
-            ServiceTunnelsConfigurationView(settings: viewModel.savedTunnelSettings, draft: viewModel.tunnelDraft) {
+            ServiceTunnelsConfigurationView(
+                settings: viewModel.savedTunnelSettings,
+                draft: viewModel.tunnelDraft,
+                loadSources: viewModel.serviceTunnelSources
+            ) {
                 viewModel.tunnelDraft = $0
             }
         } header: {

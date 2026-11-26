@@ -84,6 +84,7 @@ struct VMSessionConfigurationView: View {
     private func makeConfigurationViewModel() -> VMConfigurationViewModel {
         let viewModel = VMConfigurationViewModel(vm, resolvedRestoreImage: resolvedRestoreImage)
         viewModel.discardSavedSessionHandler = { [weak controller] in try await controller?.discardSavedSession() }
+        viewModel.serviceTunnelSources = { [weak controller] in controller?.serviceTunnelSources() ?? [] }
         return viewModel
     }
 

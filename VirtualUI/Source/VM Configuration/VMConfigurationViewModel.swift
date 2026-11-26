@@ -67,6 +67,10 @@ public final class VMConfigurationViewModel: ObservableObject {
     /// Discards the saved session. Set when something else (such as a controller) owns the virtual machine's lifecycle.
     public var discardSavedSessionHandler: (() async throws -> Void)?
 
+    /// Provides the service tunnels from other virtual machines that can be added to this one.
+    /// Set when the virtual machine is being configured from a library, there's nothing to offer otherwise.
+    public var serviceTunnelSources: @MainActor () -> [ServiceTunnelSource] = { [] }
+
     private var cancellables = Set<AnyCancellable>()
 
     public init(_ vm: VBVirtualMachine, context: VMConfigurationContext = .postInstall, resolvedRestoreImage: ResolvedRestoreImage? = nil) {

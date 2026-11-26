@@ -31,6 +31,15 @@ struct ServiceTunnelEditor: View {
             guard case .edit(let tunnel) = self else { return nil }
             return tunnel
         }
+
+        /// A new tunnel is usually set up from the side that runs the service,
+        /// in order to make it reachable from the other side, which is where the tunnel listens.
+        var listensOnHostByDefault: Bool {
+            switch self {
+            case .add, .edit: false
+            case .request: true
+            }
+        }
     }
 
     let mode: Mode
@@ -40,7 +49,7 @@ struct ServiceTunnelEditor: View {
     let policy: ServiceTunnelPolicy
     let save: (ServiceTunnel) async throws -> Void
 
-    @State private var listensOnHost = true
+    @State private var listensOnHost: Bool
     @State private var listener = TunnelEndpointInput()
     @State private var destination = TunnelEndpointInput()
     @State private var isSaving = false
@@ -55,8 +64,9 @@ struct ServiceTunnelEditor: View {
         self.policy = policy
         self.save = save
 
+        self._listensOnHost = State(initialValue: mode.original?.listensOnHost ?? mode.listensOnHostByDefault)
+
         if let original = mode.original {
-            self._listensOnHost = State(initialValue: original.listensOnHost)
             self._listener = State(initialValue: TunnelEndpointInput(original.listener))
             self._destination = State(initialValue: TunnelEndpointInput(original.destination))
         }
